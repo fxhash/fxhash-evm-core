@@ -1,0 +1,16 @@
+@startuml sequence
+actor       Buyer       as buyer
+entity Frontend as front
+entity BlockchainNode as bnode
+participant MarketplaceContract as marketplaceContract
+participant GenTK as gentk
+
+
+group Browse NFTs/Get Stats
+buyer -> front : buy_sell_bid()
+front -> bnode : send_tx()
+bnode -> marketplaceContract : buy_sell_bid()
+marketplaceContract -> gentk: transfer()
+end
+
+@enduml

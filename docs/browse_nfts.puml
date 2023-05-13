@@ -1,0 +1,16 @@
+@startuml sequence
+actor       Buyer       as buyer
+entity Frontend as front
+entity Hasura as hasura
+database    IndexerDB    as indexerDB
+database    BackendDB    as backendDB
+
+
+group Browse NFTs/Get Stats
+buyer -> front : get_nft_data()
+front -> hasura : query()
+hasura -> indexerDB : query()
+hasura -> backendDB : query()
+end
+
+@enduml

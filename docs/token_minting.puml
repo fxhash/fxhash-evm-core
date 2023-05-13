@@ -1,0 +1,18 @@
+@startuml sequence
+actor       Buyer       as buyer
+entity Frontend as front
+entity BlockchainNode as bnode
+participant GenTKProject as gentkp
+participant GenTK as gentk
+
+
+group Token minting
+buyer -> front: mint_project()
+front -> bnode: send_tx()
+bnode -> gentkp: mint_project()
+gentkp -> gentkp: check_minting_window()
+gentkp -> gentkp: check_amount()
+gentkp -> gentkp: check_minted_out()
+gentkp -> gentk: mint()
+end
+@enduml
