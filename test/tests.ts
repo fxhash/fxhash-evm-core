@@ -1,347 +1,243 @@
-import { expect } from "chai";
 import { ethers } from "hardhat";
-import { Contract } from "ethers";
+import { Contract, ContractFactory, Signer } from "ethers";
+import { expect } from "chai";
 
-let genTk: Contract;
-let genTkProject: Contract;
+describe("FxHashCycles", function () {
+  let fxHashCycles: Contract;
+  let admin: Signer;
+  let nonAdmin: Signer;
+  let fxHashAdmin: Signer;
 
-describe("GenTk and GenTkProject", function () {
-  let addr1: any, addr2: any, addr3: any, addr4: any;
-  beforeEach(async () => {
-    // Get the ContractFactory and Signers here.
-    const GenTk = await ethers.getContractFactory("GenTk");
-    genTk = await GenTk.deploy();
-    await genTk.deployed();
+  const FXHASH_ADMIN = ethers.utils.id("FXHASH_ADMIN");
 
-    const GenTkProject = await ethers.getContractFactory("GenTkProject");
-    genTkProject = await GenTkProject.deploy();
-    await genTkProject.deployed();
+  beforeEach(async function () {
+    const FxHashCycles: ContractFactory = await ethers.getContractFactory(
+      "FxHashCycles"
+    );
+    [admin, fxHashAdmin, nonAdmin] = await ethers.getSigners();
 
-    [addr1, addr2, addr3, addr4] = await ethers.getSigners();
-
-    // Set GenTk and GenTkProject to each other
-    await genTkProject.setGenTk(genTk.address);
-    await genTk.setGenTkProject(genTkProject.address);
+    fxHashCycles = await FxHashCycles.deploy();
+    await fxHashCycles.deployed();
   });
 
-  describe("Mint tests", function () {
-    it("Should deploy GenTk and GenTkProject", async function () {
-      expect(genTk.address).to.properAddress;
-      expect(genTkProject.address).to.properAddress;
-    });
+  describe("Admin functions", function () {
+    it("should grant the ADMIN_ROLE to an address", async function () {
+      const addressToGrant = await fxHashAdmin.getAddress();
 
-    it("Should set genTk correctly", async function () {
-      const currentGenTk = await genTkProject.getGenTk();
-      expect(currentGenTk).to.equal(genTk.address);
-    });
-
-    it("Should set genTkProject correctly", async function () {
-      const currentGenTkProject = await genTk.genTkProject();
-      expect(currentGenTkProject).to.equal(genTkProject.address);
-    });
-
-    it("Should be able to grant and revoke the ADMIN_ROLE from an address", async function () {
-      await genTk.grantAdminRole(addr2.address);
-      expect(await genTk.hasRole(ethers.constants.HashZero, addr2.address)).to
-        .be.true;
-      await genTk.revokeAdminRole(addr2.address);
-      expect(await genTk.hasRole(ethers.constants.HashZero, addr2.address)).to
-        .be.false;
-    });
-
-    it("should create a project and mint new GenTk tokens correctly", async function () {
-      const editions = 10;
-      const price = ethers.utils.parseEther("1");
-      const openingTime = Math.floor(Date.now() / 1000) + 60 * 60 * 24;
-      const royaltiesBPs = 1000; // 10%
-      const projectURI = "https://example.com/metadata";
-      const royalties = [
-        { account: addr3.address, value: 5000 },
-        { account: addr4.address, value: 5000 },
-      ];
-
-      await genTkProject
-        .connect(addr1)
-        .createProject(
-          editions,
-          price,
-          openingTime,
-          royaltiesBPs,
-          projectURI,
-          royalties
-        );
-
-      await ethers.provider.send("evm_increaseTime", [60 * 60 * 24 + 1]);
-      const projectId = 0;
-
-      const initialProjectOwnerBalance = await ethers.provider.getBalance(
-        addr1.address
-      );
-      const initialAddr2Balance = await ethers.provider.getBalance(
-        addr2.address
-      );
-      const initialAddr3Balance = await ethers.provider.getBalance(
-        addr3.address
-      );
-      const initialAddr4Balance = await ethers.provider.getBalance(
-        addr4.address
+      await fxHashCycles.connect(admin).grantAdminRole(addressToGrant);
+      const hasAdminRole = await fxHashCycles.hasRole(
+        await fxHashCycles.DEFAULT_ADMIN_ROLE(),
+        addressToGrant
       );
 
-      const tx = await genTkProject
-        .connect(addr2)
-        .mint(projectId, { value: ethers.utils.parseEther("1") });
+      expect(hasAdminRole).to.be.true;
+    });
 
-      const txReceipt = await tx.wait();
-      const gasUsed = txReceipt.gasUsed;
-      const txCost = gasUsed.mul(tx.gasPrice);
+    it("should revoke the ADMIN_ROLE from an address", async function () {
+      const addressToRevoke = await fxHashAdmin.getAddress();
 
-      const finalProjectOwnerBalance = await ethers.provider.getBalance(
-        addr1.address
-      );
-      const finalAddr2Balance = await ethers.provider.getBalance(addr2.address);
-      const finalAddr3Balance = await ethers.provider.getBalance(addr3.address);
-      const finalAddr4Balance = await ethers.provider.getBalance(addr4.address);
-
-      // Check that the project owner received the minting amount minus royalties
-      expect(finalProjectOwnerBalance).to.equal(
-        initialProjectOwnerBalance.add(ethers.utils.parseEther("0.9"))
-      ); // assuming 10% royalties
-
-      // Check that addr2's balance decreased by the minting amount plus gas cost
-      expect(finalAddr2Balance).to.equal(
-        initialAddr2Balance.sub(ethers.utils.parseEther("1")).sub(txCost)
+      await fxHashCycles.connect(admin).revokeAdminRole(addressToRevoke);
+      const hasAdminRole = await fxHashCycles.hasRole(
+        await fxHashCycles.DEFAULT_ADMIN_ROLE(),
+        addressToRevoke
       );
 
-      // Check that addr3's balance increased by the royalties amount
-      expect(finalAddr3Balance).to.equal(
-        initialAddr3Balance.add(ethers.utils.parseEther("0.05"))
-      ); // assuming 50% of 10% royalties
-
-      // Check that addr4's balance increased by the royalties amount
-      expect(finalAddr4Balance).to.equal(
-        initialAddr4Balance.add(ethers.utils.parseEther("0.05"))
-      ); // assuming 50% of 10% royalties
-
-      // Check that the token was minted correctly
-      const owner = await genTk.ownerOf(0);
-      expect(owner).to.equal(addr2.address);
-
-      // Check that the project data in storage was updated correctly
-      const projectData = await genTkProject.projects(projectId);
-      expect(projectData.availableSupply).to.equal(editions - 1);
+      expect(hasAdminRole).to.be.false;
     });
 
-    it("should fail when trying to mint a token without enough Ether", async function () {
-      const editions = 10;
-      const price = ethers.utils.parseEther("1");
-      const openingTime = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 2;
-      const royaltiesBPs = 1000; // 10%
-      const projectURI = "https://example.com/metadata";
-      const royalties = [{ account: addr3.address, value: 10000 }];
+    it("should grant the FXHASH_ADMIN role to an address", async function () {
+      const addressToGrant = await fxHashAdmin.getAddress();
 
-      await genTkProject
-        .connect(addr1)
-        .createProject(
-          editions,
-          price,
-          openingTime,
-          royaltiesBPs,
-          projectURI,
-          royalties
-        );
+      await fxHashCycles.connect(admin).grantFxHashAdminRole(addressToGrant);
+      const hasFxHashAdminRole = await fxHashCycles.hasRole(
+        FXHASH_ADMIN,
+        addressToGrant
+      );
 
-      await ethers.provider.send("evm_increaseTime", [60 * 60 * 24 + 1]);
-      const projectId = 0;
-
-      // Attempt to mint with less Ether than required
-      await expect(
-        genTkProject
-          .connect(addr2)
-          .mint(projectId, { value: ethers.utils.parseEther("0.5") }) // this should fail
-      ).to.be.revertedWith("Ether value sent is not correct");
+      expect(hasFxHashAdminRole).to.be.true;
     });
 
-    it("should fail when trying to mint a token before the sale has started", async function () {
-      const editions = 10;
-      const price = ethers.utils.parseEther("1");
-      const openingTime = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 3;
-      const royaltiesBPs = 1000; // 10%
-      const projectURI = "https://example.com/metadata";
-      const royalties = [{ account: addr3.address, value: 10000 }];
+    it("should revoke the FXHASH_ADMIN role from an address", async function () {
+      const addressToRevoke = await fxHashAdmin.getAddress();
 
-      await genTkProject
-        .connect(addr1)
-        .createProject(
-          editions,
-          price,
-          openingTime,
-          royaltiesBPs,
-          projectURI,
-          royalties
-        );
+      await fxHashCycles.connect(admin).revokeFxHashAdminRole(addressToRevoke);
+      const hasFxHashAdminRole = await fxHashCycles.hasRole(
+        FXHASH_ADMIN,
+        addressToRevoke
+      );
 
-      const projectId = 0;
-
-      // Attempt to mint before the sale has started
-      await expect(
-        genTkProject
-          .connect(addr2)
-          .mint(projectId, { value: ethers.utils.parseEther("1") }) // this should fail
-      ).to.be.revertedWith("Sale has not started");
-    });
-
-    it("should fail when trying to mint a token from a sold out project", async function () {
-      const editions = 1; // Only one token available
-      const price = ethers.utils.parseEther("1");
-      const openingTime = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 4;
-      const royaltiesBPs = 1000; // 10%
-      const projectURI = "https://example.com/metadata";
-      const royalties = [{ account: addr3.address, value: 10000 }];
-
-      await genTkProject
-        .connect(addr1)
-        .createProject(
-          editions,
-          price,
-          openingTime,
-          royaltiesBPs,
-          projectURI,
-          royalties
-        );
-
-      await ethers.provider.send("evm_increaseTime", [60 * 60 * 24 * 2]);
-      const projectId = 0;
-
-      // Mint the only available token
-      await genTkProject
-        .connect(addr2)
-        .mint(projectId, { value: ethers.utils.parseEther("1") });
-
-      // Attempt to mint another token, which should fail as the project is sold out
-      await expect(
-        genTkProject
-          .connect(addr2)
-          .mint(projectId, { value: ethers.utils.parseEther("1") })
-      ).to.be.revertedWith("No more tokens available for this project");
+      expect(hasFxHashAdminRole).to.be.false;
     });
   });
 
-  describe("Create project tests", function () {
-    const editions = 10;
-    const price = ethers.utils.parseEther("1");
-    const openingTime = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 5;
-    const royaltiesBPs = 1000; // 10%
-    const accountRoyalties = 10000; // 10%
+  describe("Cycle functions", function () {
+    beforeEach(async function () {
+      const FxHashCycles: ContractFactory = await ethers.getContractFactory(
+        "FxHashCycles"
+      );
+      [admin, fxHashAdmin] = await ethers.getSigners();
 
-    const projectURI = "https://example.com/metadata";
+      fxHashCycles = await FxHashCycles.deploy();
+      await fxHashCycles.deployed();
 
-    it("should create a new project correctly", async function () {
-      const royalties = [{ account: addr3.address, value: accountRoyalties }];
-
-      const tx = await genTkProject
-        .connect(addr1)
-        .createProject(
-          editions,
-          price,
-          openingTime,
-          royaltiesBPs,
-          projectURI,
-          royalties
-        );
-
-      const projectId = 0;
-      const projectData = await genTkProject.projects(projectId);
-      expect(projectData.editions).to.equal(editions);
-      expect(projectData.price).to.equal(price);
-      expect(projectData.openingTime).to.equal(openingTime);
-      expect(projectData.royaltiesBPs).to.equal(royaltiesBPs);
-      expect(projectData.availableSupply).to.equal(editions);
+      // Grant the FxHash admin role to the fxHashAdmin address
+      await fxHashCycles
+        .connect(admin)
+        .grantFxHashAdminRole(await fxHashAdmin.getAddress());
     });
 
-    it("should fail when trying to create a project with royalties more than 100%", async function () {
-      const royalties = [{ account: addr3.address, value: accountRoyalties }];
+    it("should add a new cycle", async function () {
+      const cycleParams = {
+        start: 100,
+        openingDuration: 50,
+        closingDuration: 100,
+      };
 
-      await expect(
-        genTkProject
-          .connect(addr1)
-          .createProject(
-            editions,
-            price,
-            openingTime,
-            11000,
-            projectURI,
-            royalties
-          )
-      ).to.be.revertedWith("Royalties can't exceed 100%");
+      await fxHashCycles.connect(fxHashAdmin).addCycle(cycleParams);
+      const cycle = await fxHashCycles.cycles(0);
+
+      expect(cycle.start).to.equal(cycleParams.start);
+      expect(cycle.openingDuration).to.equal(cycleParams.openingDuration);
+      expect(cycle.closingDuration).to.equal(cycleParams.closingDuration);
     });
 
-    it("should revert if editions number is zero", async function () {
-      const royalties = [{ account: addr3.address, value: accountRoyalties }];
+    it("should remove an existing cycle", async function () {
+      const cycleParams = {
+        start: 100,
+        openingDuration: 50,
+        closingDuration: 100,
+      };
 
-      await expect(
-        genTkProject
-          .connect(addr1)
-          .createProject(
-            0,
-            price,
-            openingTime,
-            royaltiesBPs,
-            projectURI,
-            royalties
-          )
-      ).to.be.revertedWith("Invalid edition number");
+      await fxHashCycles.connect(fxHashAdmin).addCycle(cycleParams);
+      await fxHashCycles.connect(fxHashAdmin).removeCycle(0);
+      const cycle = await fxHashCycles.cycles(0);
+
+      expect(cycle.start).to.equal(0);
+      expect(cycle.openingDuration).to.equal(0);
+      expect(cycle.closingDuration).to.equal(0);
     });
 
-    it("should revert if price is zero", async function () {
-      const royalties = [{ account: addr3.address, value: accountRoyalties }];
+    it("should not allow a non-admin to remove a cycle", async function () {
+      const cycleParams = {
+        start: 100,
+        openingDuration: 50,
+        closingDuration: 100,
+      };
+      const cycleId = 0;
 
+      // Add the cycle
+      await fxHashCycles.connect(fxHashAdmin).addCycle(cycleParams);
+
+      // Attempt to remove the cycle by a non-admin
       await expect(
-        genTkProject
-          .connect(addr1)
-          .createProject(
-            editions,
-            0,
-            openingTime,
-            royaltiesBPs,
-            projectURI,
-            royalties
-          )
-      ).to.be.revertedWith("Invalid edition price");
+        fxHashCycles.connect(nonAdmin).removeCycle(cycleId)
+      ).to.be.revertedWith("Caller is not a FxHash admin");
+
+      // Verify the cycle still exists
+      const cycle = await fxHashCycles.cycles(cycleId);
+      expect(cycle.start).to.equal(cycleParams.start);
+      expect(cycle.openingDuration).to.equal(cycleParams.openingDuration);
+      expect(cycle.closingDuration).to.equal(cycleParams.closingDuration);
     });
 
-    it("should revert if opening time is in the past", async function () {
-      const royalties = [{ account: addr3.address, value: accountRoyalties }];
+    it("should not allow a non-admin to add a cycle", async function () {
+      const cycleParams = {
+        start: 100,
+        openingDuration: 50,
+        closingDuration: 100,
+      };
 
-      const pastTime = Math.floor(Date.now() / 1000) - 60 * 60;
+      // Attempt to remove the cycle by a non-admin
       await expect(
-        genTkProject
-          .connect(addr1)
-          .createProject(
-            editions,
-            price,
-            pastTime,
-            royaltiesBPs,
-            projectURI,
-            royalties
-          )
-      ).to.be.revertedWith("Invalid opening time");
+        fxHashCycles.connect(nonAdmin).addCycle(cycleParams)
+      ).to.be.revertedWith("Caller is not a FxHash admin");
     });
 
-    it("should revert if project URI is empty", async function () {
-      const royalties = [{ account: addr3.address, value: accountRoyalties }];
+    it("should add and remove multiple cycles", async function () {
+      const cycleParams1 = {
+        start: 100,
+        openingDuration: 50,
+        closingDuration: 100,
+      };
+      const cycleParams2 = {
+        start: 200,
+        openingDuration: 60,
+        closingDuration: 120,
+      };
+      const cycleId1 = 0;
+      const cycleId2 = 1;
 
-      await expect(
-        genTkProject
-          .connect(addr1)
-          .createProject(
-            editions,
-            price,
-            openingTime,
-            royaltiesBPs,
-            "",
-            royalties
-          )
-      ).to.be.revertedWith("Invalid project URI");
+      // Add the first cycle
+      await fxHashCycles.connect(fxHashAdmin).addCycle(cycleParams1);
+      const cycle1 = await fxHashCycles.cycles(cycleId1);
+      expect(cycle1.start).to.equal(cycleParams1.start);
+
+      // Add the second cycle
+      await fxHashCycles.connect(fxHashAdmin).addCycle(cycleParams2);
+      const cycle2 = await fxHashCycles.cycles(cycleId2);
+      expect(cycle2.start).to.equal(cycleParams2.start);
+
+      // Remove the first cycle
+      await fxHashCycles.connect(fxHashAdmin).removeCycle(cycleId1);
+      const deletedCycle1 = await fxHashCycles.cycles(cycleId1);
+      expect(deletedCycle1.start).to.equal(0);
+
+      // Remove the second cycle
+      await fxHashCycles.connect(fxHashAdmin).removeCycle(cycleId2);
+      const deletedCycle2 = await fxHashCycles.cycles(cycleId2);
+      expect(deletedCycle2.start).to.equal(0);
+    });
+
+    it("should check if any cycles are open", async function () {
+      const cycleParams1 = {
+        start: 500,
+        openingDuration: 100,
+        closingDuration: 110,
+      };
+      const cycleParams2 = {
+        start: 800,
+        openingDuration: 50,
+        closingDuration: 100,
+      };
+
+      await fxHashCycles.connect(fxHashAdmin).addCycle(cycleParams1);
+      await fxHashCycles.connect(fxHashAdmin).addCycle(cycleParams2);
+
+      const areCyclesOpen = await fxHashCycles.areCyclesOpen([[0, 1]], 500);
+
+      expect(areCyclesOpen).to.be.true;
+    });
+
+    it("should return false if no cycles are open", async function () {
+      const cycleParams1 = {
+        start: 100,
+        openingDuration: 10,
+        closingDuration: 110,
+      };
+      const cycleParams2 = {
+        start: 200,
+        openingDuration: 10,
+        closingDuration: 120,
+      };
+
+      await fxHashCycles.connect(fxHashAdmin).addCycle(cycleParams1);
+      await fxHashCycles.connect(fxHashAdmin).addCycle(cycleParams2);
+
+      const areCyclesOpen = await fxHashCycles.areCyclesOpen([[0, 1]], 400);
+
+      expect(areCyclesOpen).to.be.false;
+    });
+
+    it("should return false if no cycle IDs are provided", async function () {
+      const cycleParams1 = {
+        start: 100,
+        openingDuration: 50,
+        closingDuration: 100,
+      };
+      await fxHashCycles.connect(fxHashAdmin).addCycle(cycleParams1);
+      const areCyclesOpen = await fxHashCycles.areCyclesOpen([], 120);
+
+      expect(areCyclesOpen).to.be.false;
     });
   });
 });
