@@ -3,21 +3,36 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { solidityKeccak256 } from "ethers/lib/utils";
 
+// Define the Hardhat network provider settings
+const provider = new ethers.providers.JsonRpcProvider({
+  url: "http://localhost:8545", // The RPC endpoint of your Hardhat network
+});
+
+// Create and connect the wallets
+const admin = new ethers.Wallet(
+  "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+).connect(provider);
+const fxHashAdmin = new ethers.Wallet(
+  "0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d"
+).connect(provider);
+const user1 = new ethers.Wallet(
+  "0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a"
+).connect(provider);
+const user2 = new ethers.Wallet(
+  "0x7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6"
+).connect(provider);
+
 describe("MintPassGroup", function () {
   let MintPassGroup: any;
   let mintPassGroup: any;
-  let admin: SignerWithAddress;
-  let fxHashAdmin: SignerWithAddress;
-  let user1: SignerWithAddress;
-  let user2: SignerWithAddress;
 
   before(async function () {
     // Deploy the MintPassGroup contract
     MintPassGroup = await ethers.getContractFactory("MintPassGroup");
-    [admin, fxHashAdmin, user1, user2] = await ethers.getSigners();
   });
 
   beforeEach(async function () {
+    await ethers.provider.send("hardhat_reset", []);
     mintPassGroup = await MintPassGroup.deploy(
       10, // maxPerToken
       5, // maxPerTokenPerProject
@@ -30,36 +45,34 @@ describe("MintPassGroup", function () {
     it("should consume a valid pass", async function () {
       const token = "TOKEN1";
       const project = 1;
-      const addr = fxHashAdmin.address;
+      const addr = user1.address;
       // Create a valid pass
       // The payload structure should be defined based on how it's used in the contract.
       const payload = ethers.utils.defaultAbiCoder.encode(
         ["tuple(string,uint256,address)"],
-        [["token", 1, user1.address]]
+        [[token, project, addr]]
       );
-
-      const payloadHash = ethers.utils.hashMessage(payload);
       const signature = await fxHashAdmin.signMessage(
-        ethers.utils.arrayify(payloadHash)
+        ethers.utils.arrayify(payload)
       );
 
       // Create the Pass object
       const pass = { payload: payload, signature: signature };
-      console.log("payloadhash = " + payloadHash);
-      console.log("address = ", fxHashAdmin.address);
+      console.log("client side payload = " + payload);
+      console.log("client side signer = ", fxHashAdmin.address);
+      console.log("client side signature = ", signature);
 
       // Consume the pass
       await mintPassGroup.connect(user1).consumePass(pass);
+      const t = await mintPassGroup.tokens(token);
 
       // Assert the state changes
-      expect(await mintPassGroup.tokens("token")).to.deep.equal({
-        minted: 1,
-        projects: {
-          "1": 1,
-        },
-        levelConsumed: await ethers.provider.getBlockNumber(),
-        consumer: user1.address,
-      });
+      expect(t).to.deep.equal([
+        ethers.BigNumber.from("1"), // minted
+        ethers.BigNumber.from(await ethers.provider.getBlockNumber()), // levelConsumed
+        addr, // consumer
+        { "1": ethers.BigNumber.from("1") }, // projects
+      ]);
     });
 
     it("should revert when consuming an invalid pass", async function () {

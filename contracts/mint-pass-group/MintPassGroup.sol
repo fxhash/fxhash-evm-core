@@ -3,7 +3,6 @@ pragma solidity ^0.8.18;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-import "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "contracts/libs/lib-admin/LibAdmin.sol";
 import "hardhat/console.sol";
@@ -32,7 +31,7 @@ contract MintPassGroup is AccessControl {
     uint256 private maxPerTokenPerProject;
     address private signer;
     EnumerableSet.AddressSet private bypass;
-    mapping(string => TokenRecord) private tokens;
+    mapping(string => TokenRecord) public tokens;
 
     constructor(
         uint256 _maxPerToken,
@@ -93,11 +92,11 @@ contract MintPassGroup is AccessControl {
             tokenRecord.projects[payload.project] += 1;
             tokenRecord.levelConsumed = block.number;
         } else {
-            TokenRecord storage newTokenRecord = tokens[payload.token];
-            newTokenRecord.minted = 1;
-            newTokenRecord.levelConsumed = block.number;
-            newTokenRecord.consumer = payload.addr;
-            newTokenRecord.projects[payload.project] = 1;
+            tokens[payload.token].minted = 1;
+            tokens[payload.token].levelConsumed = block.number;
+            tokens[payload.token].consumer = payload.addr;
+            tokens[payload.token].projects[payload.project] = 1;
+            console.log(tokens[payload.token].minted);
         }
     }
 
@@ -148,16 +147,7 @@ contract MintPassGroup is AccessControl {
         bytes memory _payload
     ) private view returns (bool) {
         bytes32 payloadHash = keccak256(_payload);
-        console.logBytes32(ECDSA.toEthSignedMessageHash(payloadHash));
-        console.logBytes(_payload);
-        console.logBytes(_signature);
-
         address recovered = ECDSA.recover(ECDSA.toEthSignedMessageHash(payloadHash), _signature);
-        console.log("recovered = ");
-        console.log(recovered);
-        console.log("signer = ");
-        console.log(signer);
-        console.log(signer == recovered);
         return signer == recovered;
     }
 }
