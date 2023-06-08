@@ -1,4 +1,4 @@
-# FXHASH Case study
+# FXHASH EVM contracts
 
 This is a set of two Solidity smart contracts, `GenTk` and `GenTkProject`, which allows the minting of generative tokens. These contracts allow for the creation and management of unique tokens (GenTks) associated with specific projects.
 
