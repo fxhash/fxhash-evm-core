@@ -4,7 +4,6 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/math/SignedMath.sol";
 import "contracts/libs/lib-admin/LibAdmin.sol";
-import "hardhat/console.sol";
 
 contract FxHashCycles is AccessControl {
     struct CycleParams {
@@ -67,10 +66,6 @@ contract FxHashCycles is AccessControl {
         CycleParams memory _cycle = cycles[_id];
         uint256 diff = SignedMath.abs(int256(int256(_timestamp) - int256(_cycle.start)));
         uint256 cycle_relative = SafeMath.mod(diff, _cycle.openingDuration + _cycle.closingDuration);
-        console.log(_cycle.openingDuration + _cycle.closingDuration);
-        console.log(_timestamp);
-        console.log(diff);
-        console.log(cycle_relative);
         return cycle_relative < _cycle.openingDuration;
     }
 
