@@ -3,6 +3,15 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { solidityKeccak256 } from "ethers/lib/utils";
 
+/**
+ * TODO: need to debug tests
+ * Current issues:
+ * - signature is not working in hardhhat memory provider (using ethers provider)
+ * - storage is not working with hardhat provider node
+ */
+
+
+
 // Define the Hardhat network provider settings
 // const provider = new ethers.providers.JsonRpcProvider({
 //   url: "http://localhost:8545", // The RPC endpoint of your Hardhat network
