@@ -2,6 +2,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "contracts/libs/lib-admin/LibAdmin.sol";
+import "hardhat/console.sol";
 
 contract Randomizer is AccessControl{
     struct TokenKey {
@@ -20,9 +21,9 @@ contract Randomizer is AccessControl{
         bytes32 salt;
     }
 
-    Commitment commitment;
-    uint256 count_requested;
-    uint256 count_revealed;
+    Commitment public commitment;
+    uint256 public count_requested;
+    uint256 public count_revealed;
     mapping(bytes32 => Seed) public seeds;
 
     modifier onlyAdmin() {
@@ -47,7 +48,7 @@ contract Randomizer is AccessControl{
     modifier onlyFxHashAuthority() {
         require(
             AccessControl.hasRole(LibAdmin.FXHASH_AUTHORITY, _msgSender()),
-            "Caller is not a FxHash admin"
+            "Caller is not a FxHash Authority"
         );
         _;
     }
@@ -55,16 +56,18 @@ contract Randomizer is AccessControl{
     modifier onlyFxHashIssuer() {
         require(
             AccessControl.hasRole(LibAdmin.FXHASH_ISSUER, _msgSender()),
-            "Caller is not a FxHash admin"
+            "Caller is not a FxHash Issuer"
         );
         _;
     }
 
-    constructor() {
-        commitment.seed = 0x00;
-        commitment.salt = 0x00;
+    constructor(bytes32 _seed, bytes32 _salt) {
+        commitment.seed = _seed;
+        commitment.salt = _salt;
         count_requested = 0;
         count_revealed = 0;
+        _setupRole(DEFAULT_ADMIN_ROLE, address(bytes20(_msgSender())));
+        _setupRole(LibAdmin.FXHASH_ADMIN, address(bytes20(_msgSender())));
     }
 
     function setTokenSeedAndReturnSerial(TokenKey memory tokenKey, bytes32 oracleSeed) private returns (uint256) {
@@ -87,8 +90,8 @@ contract Randomizer is AccessControl{
 
     function generate(uint256 token_id) external onlyFxHashIssuer{
         bytes32 hashedKey = getTokenKey(_msgSender(), token_id);
-
-        require(seeds[hashedKey].revealed.length == 0, "ALREADY_SEEDED");
+        console.logBytes32(seeds[hashedKey].revealed);
+        require(seeds[hashedKey].revealed == 0x00, "ALREADY_SEEDED");
         bytes memory base = abi.encodePacked(block.timestamp, hashedKey);
         bytes32 seed = keccak256(base);
         count_requested += 1;
