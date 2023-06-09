@@ -73,7 +73,7 @@ contract Randomizer is AccessControl{
     function setTokenSeedAndReturnSerial(TokenKey memory tokenKey, bytes32 oracleSeed) private returns (uint256) {
         bytes32 hashedKey = getTokenKey(tokenKey.issuer, tokenKey.id);
         Seed storage seed = seeds[hashedKey];
-        require(seed.chain_seed.length != 0, "NO_REQ");
+        require(seed.chain_seed != 0x00, "NO_REQ");
         require(isRequestedVariant(tokenKey), "AL_REV");
         bytes32 tokenSeed = keccak256(abi.encodePacked(oracleSeed, seed.chain_seed));
         seed.revealed = tokenSeed;
@@ -104,7 +104,7 @@ contract Randomizer is AccessControl{
         uint256 lastSerial = setTokenSeedAndReturnSerial(tokenList[0], seed);
         uint256 expectedSerialId = lastSerial;
         bytes32 oracleSeed = iterateOracleSeed(seed);
-        for (uint256 i = 1; i < tokenList.length; i++) {
+        for (uint256 i = 0; i < tokenList.length; i++) {
             expectedSerialId -= 1;
             uint256 serialId = setTokenSeedAndReturnSerial(tokenList[i], oracleSeed);
             require(expectedSerialId == serialId, "OOR");
@@ -158,7 +158,7 @@ contract Randomizer is AccessControl{
     // Helper functions
 
     function isRequestedVariant(TokenKey memory tokenKey) private view returns (bool) {
-        return (seeds[getTokenKey(tokenKey.issuer, tokenKey.id)].chain_seed.length != 0);
+        return (seeds[getTokenKey(tokenKey.issuer, tokenKey.id)].chain_seed != 0x00);
     }
 
     function getTokenKey(address issuer, uint256 id) public pure returns (bytes32) {
