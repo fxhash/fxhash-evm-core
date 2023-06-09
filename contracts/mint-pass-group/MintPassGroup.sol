@@ -68,6 +68,24 @@ contract MintPassGroup is AccessControl {
         _;
     }
 
+    // Function to grant the ADMIN_ROLE to an address
+    function grantAdminRole(address _admin) public onlyAdmin {
+        AccessControl.grantRole(AccessControl.DEFAULT_ADMIN_ROLE, _admin);
+    }
+
+    // Function to revoke the ADMIN_ROLE from an address
+    function revokeAdminRole(address _admin) public onlyAdmin {
+        AccessControl.revokeRole(AccessControl.DEFAULT_ADMIN_ROLE, _admin);
+    }
+
+    function grantFxHashAdminRole(address _admin) public onlyAdmin {
+        AccessControl.grantRole(LibAdmin.FXHASH_ADMIN, _admin);
+    }
+
+    function revokeFxHashAdminRole(address _admin) public onlyAdmin {
+        AccessControl.revokeRole(LibAdmin.FXHASH_ADMIN, _admin);
+    }
+
     function consumePass(Pass calldata _params) external {
         Payload memory payload = decodePayload(_params.payload);
         bytes32 projectHash = getProjectHash(payload.token, payload.project);
@@ -131,7 +149,8 @@ contract MintPassGroup is AccessControl {
         require(token.minted > 0, "PASS_NOT_CONSUMED");
         require(token.levelConsumed == block.number, "PASS_CONSUMED_PAST");
         require(
-            EnumerableSet.contains(bypass, msg.sender) || msg.sender == payload.addr,
+            EnumerableSet.contains(bypass, msg.sender) ||
+                msg.sender == payload.addr,
             "PASS_INVALID_ADDRESS"
         );
         require(payload.addr == token.consumer, "WRONG_PASS_CONSUMER");
