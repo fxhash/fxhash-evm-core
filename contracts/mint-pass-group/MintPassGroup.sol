@@ -38,8 +38,8 @@ contract MintPassGroup is FxHashAdmin {
         address _signer,
         address[] memory _bypass
     ) {
-        _setupRole(DEFAULT_ADMIN_ROLE, address(bytes20(_signer)));
-        _setupRole(FXHASH_ADMIN, address(bytes20(_signer)));
+        _setupRole(DEFAULT_ADMIN_ROLE, _signer);
+        _setupRole(FXHASH_ADMIN, _signer);
         maxPerToken = _maxPerToken;
         maxPerTokenPerProject = _maxPerTokenPerProject;
         signer = _signer;
