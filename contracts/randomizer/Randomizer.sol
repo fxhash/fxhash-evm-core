@@ -1,10 +1,9 @@
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "contracts/libs/lib-admin/LibAdmin.sol";
-import "hardhat/console.sol";
+import "contracts/libs/LibAdmin.sol";
 
-contract Randomizer is AccessControl{
+contract Randomizer is AccessControl {
     struct TokenKey {
         address issuer;
         uint256 id;
@@ -70,27 +69,35 @@ contract Randomizer is AccessControl{
         _setupRole(LibAdmin.FXHASH_ADMIN, address(bytes20(_msgSender())));
     }
 
-    function setTokenSeedAndReturnSerial(TokenKey memory tokenKey, bytes32 oracleSeed) private returns (uint256) {
+    function setTokenSeedAndReturnSerial(
+        TokenKey memory tokenKey,
+        bytes32 oracleSeed
+    ) private returns (uint256) {
         bytes32 hashedKey = getTokenKey(tokenKey.issuer, tokenKey.id);
         Seed storage seed = seeds[hashedKey];
         require(seed.chain_seed != 0x00, "NO_REQ");
         require(isRequestedVariant(tokenKey), "AL_REV");
-        bytes32 tokenSeed = keccak256(abi.encodePacked(oracleSeed, seed.chain_seed));
+        bytes32 tokenSeed = keccak256(
+            abi.encodePacked(oracleSeed, seed.chain_seed)
+        );
         seed.revealed = tokenSeed;
         return seed.serial_id;
     }
 
-    function iterateOracleSeed(bytes32 oracleSeed) private view returns (bytes32) {
+    function iterateOracleSeed(
+        bytes32 oracleSeed
+    ) private view returns (bytes32) {
         return keccak256(abi.encodePacked(commitment.salt, oracleSeed));
     }
 
     function updateCommitment(bytes32 oracleSeed) private {
-        commitment.seed = bytes32(uint256(keccak256(abi.encodePacked(oracleSeed))));
+        commitment.seed = bytes32(
+            uint256(keccak256(abi.encodePacked(oracleSeed)))
+        );
     }
 
-    function generate(uint256 token_id) external onlyFxHashIssuer{
+    function generate(uint256 token_id) external onlyFxHashIssuer {
         bytes32 hashedKey = getTokenKey(_msgSender(), token_id);
-        console.logBytes32(seeds[hashedKey].revealed);
         require(seeds[hashedKey].revealed == 0x00, "ALREADY_SEEDED");
         bytes memory base = abi.encodePacked(block.timestamp, hashedKey);
         bytes32 seed = keccak256(base);
@@ -99,14 +106,20 @@ contract Randomizer is AccessControl{
         seeds[hashedKey].serial_id = count_requested;
     }
 
-    function reveal(TokenKey[] memory tokens, bytes32 seed) external onlyFxHashAuthority{
+    function reveal(
+        TokenKey[] memory tokens,
+        bytes32 seed
+    ) external onlyFxHashAuthority {
         TokenKey[] memory tokenList = tokens;
         uint256 lastSerial = setTokenSeedAndReturnSerial(tokenList[0], seed);
         uint256 expectedSerialId = lastSerial;
         bytes32 oracleSeed = iterateOracleSeed(seed);
         for (uint256 i = 0; i < tokenList.length; i++) {
             expectedSerialId -= 1;
-            uint256 serialId = setTokenSeedAndReturnSerial(tokenList[i], oracleSeed);
+            uint256 serialId = setTokenSeedAndReturnSerial(
+                tokenList[i],
+                oracleSeed
+            );
             require(expectedSerialId == serialId, "OOR");
             oracleSeed = iterateOracleSeed(oracleSeed);
         }
@@ -116,7 +129,7 @@ contract Randomizer is AccessControl{
         updateCommitment(seed);
     }
 
-    function commit(bytes32 seed, bytes32 salt) external onlyFxHashAuthority{
+    function commit(bytes32 seed, bytes32 salt) external onlyFxHashAuthority {
         commitment.seed = seed;
         commitment.salt = salt;
     }
@@ -157,12 +170,17 @@ contract Randomizer is AccessControl{
 
     // Helper functions
 
-    function isRequestedVariant(TokenKey memory tokenKey) private view returns (bool) {
-        return (seeds[getTokenKey(tokenKey.issuer, tokenKey.id)].chain_seed != 0x00);
+    function isRequestedVariant(
+        TokenKey memory tokenKey
+    ) private view returns (bool) {
+        return (seeds[getTokenKey(tokenKey.issuer, tokenKey.id)].chain_seed !=
+            0x00);
     }
 
-    function getTokenKey(address issuer, uint256 id) public pure returns (bytes32) {
+    function getTokenKey(
+        address issuer,
+        uint256 id
+    ) public pure returns (bytes32) {
         return keccak256(abi.encodePacked(issuer, id));
     }
-
 }

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
-import "contracts/libs/lib-admin/LibAdmin.sol";
+import "contracts/libs/LibAdmin.sol";
 
 contract PricingDutchAuction is AccessControl {
     struct PriceDetails {

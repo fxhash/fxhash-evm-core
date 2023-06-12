@@ -4,7 +4,7 @@ pragma solidity ^0.8.18;
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "contracts/libs/lib-admin/LibAdmin.sol";
+import "contracts/libs/LibAdmin.sol";
 import "hardhat/console.sol";
 
 contract MintPassGroup is AccessControl {
@@ -86,12 +86,13 @@ contract MintPassGroup is AccessControl {
         AccessControl.revokeRole(LibAdmin.FXHASH_ADMIN, _admin);
     }
 
-    function consumePass(Pass calldata _params) external {
-        Payload memory payload = decodePayload(_params.payload);
+    function consumePass(bytes calldata _params) external {
+        Pass memory pass = decodePass(_params);
+        Payload memory payload = decodePayload(pass.payload);
         bytes32 projectHash = getProjectHash(payload.token, payload.project);
         require(
-            EnumerableSet.contains(bypass, msg.sender) ||
-                msg.sender == payload.addr,
+            EnumerableSet.contains(bypass, tx.origin) ||
+                tx.origin == payload.addr,
             "PASS_INVALID_ADDRESS"
         );
         //require(
@@ -120,9 +121,10 @@ contract MintPassGroup is AccessControl {
             projects[projectHash] += 1;
             tokenRecord.levelConsumed = block.number;
         } else {
-            tokens[payload.token].minted = 1;
-            tokens[payload.token].levelConsumed = block.number;
-            tokens[payload.token].consumer = payload.addr;
+            TokenRecord storage tokenRecord = tokens[payload.token];
+            tokenRecord.minted = 1;
+            tokenRecord.levelConsumed = block.number;
+            tokenRecord.consumer = payload.addr;
             projects[projectHash] = 1;
         }
     }
@@ -141,16 +143,15 @@ contract MintPassGroup is AccessControl {
         }
     }
 
-    function isPassValid(Pass memory _params) external view {
-        Payload memory payload = decodePayload(_params.payload);
-        TokenRecord memory token = tokens[payload.token];
-        console.log(msg.sender);
-        console.log(payload.addr);
+    function isPassValid(bytes calldata _payload) external view {
+        Pass memory pass = decodePass(_payload);
+        Payload memory payload = decodePayload(pass.payload);
+        TokenRecord storage token = tokens[payload.token];
         require(token.minted > 0, "PASS_NOT_CONSUMED");
         require(token.levelConsumed == block.number, "PASS_CONSUMED_PAST");
         require(
-            EnumerableSet.contains(bypass, msg.sender) ||
-                msg.sender == payload.addr,
+            EnumerableSet.contains(bypass, tx.origin) ||
+                tx.origin == payload.addr,
             "PASS_INVALID_ADDRESS"
         );
         require(payload.addr == token.consumer, "WRONG_PASS_CONSUMER");
@@ -163,6 +164,19 @@ contract MintPassGroup is AccessControl {
         Payload memory decodedData = abi.decode(_payload, (Payload));
         if (decodedData.addr == address(0)) {
             revert("PASS_INVALID_PAYLOAD");
+        }
+        return decodedData;
+    }
+
+    function decodePass(
+        bytes memory _payload
+    ) private pure returns (Pass memory) {
+        Pass memory decodedData = abi.decode(_payload, (Pass));
+        if (decodedData.payload.length == 0) {
+            revert("PASS_INVALID_PAYLOAD");
+        }
+        if (decodedData.signature.length == 0) {
+            revert("PASS_INVALID_SIGNATURE");
         }
         return decodedData;
     }

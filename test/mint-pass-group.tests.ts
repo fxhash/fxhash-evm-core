@@ -10,8 +10,6 @@ import { solidityKeccak256 } from "ethers/lib/utils";
  * - storage is not working with hardhat provider node
  */
 
-
-
 // Define the Hardhat network provider settings
 // const provider = new ethers.providers.JsonRpcProvider({
 //   url: "http://localhost:8545", // The RPC endpoint of your Hardhat network
@@ -68,9 +66,12 @@ describe("MintPassGroup", function () {
 
       // Create the Pass object
       const pass = { payload: payload, signature: signature };
-
+      const encoded_pass = ethers.utils.defaultAbiCoder.encode(
+        ["tuple(bytes,bytes)"],
+        [[pass.payload, pass.signature]]
+      );
       // Consume the pass
-      await mintPassGroup.connect(user1).consumePass(pass);
+      await mintPassGroup.connect(user1).consumePass(encoded_pass);
       const tokenRecord = await mintPassGroup.tokens(token);
       const projectHash = await mintPassGroup.getProjectHash(token, project);
 
@@ -93,10 +94,13 @@ describe("MintPassGroup", function () {
       );
       const signature = await user1.signMessage(ethers.utils.arrayify(payload));
       const pass = { payload, signature: signature };
-
+      const encoded_pass = ethers.utils.defaultAbiCoder.encode(
+        ["tuple(bytes,bytes)"],
+        [[pass.payload, pass.signature]]
+      );
       // Try to consume the pass and expect a revert
       await expect(
-        mintPassGroup.connect(user1).consumePass(pass)
+        mintPassGroup.connect(user1).consumePass(encoded_pass)
       ).to.be.revertedWith("PASS_INVALID_SIGNATURE");
     });
   });
@@ -153,12 +157,14 @@ describe("MintPassGroup", function () {
 
       // Create the Pass object
       const pass = { payload: payload, signature: signature };
-      await mintPassGroup.connect(user1).consumePass(pass);
+      const encoded_pass = ethers.utils.defaultAbiCoder.encode(
+        ["tuple(bytes,bytes)"],
+        [[pass.payload, pass.signature]]
+      );
+      await mintPassGroup.connect(user1).consumePass(encoded_pass);
 
       // Check if the pass is valid (no need to assign the result)
-      await mintPassGroup.isPassValid(pass);
-
-      // No assertion needed as the function does not return a value
+      await mintPassGroup.connect(user1).isPassValid(pass.payload);
     });
 
     it("should revert for an invalid pass", async function () {
@@ -167,15 +173,17 @@ describe("MintPassGroup", function () {
         ["tuple(string,uint256,address)"],
         [["token2", 2, addr]]
       );
-      console.log("user1 = " + user1.address);
       const signature = await fxHashAdmin.signMessage(
         ethers.utils.arrayify(payload)
       );
 
       // Create the Pass object
       const pass = { payload: payload, signature: signature };
-
-      await expect(mintPassGroup.isPassValid(pass)).to.be.revertedWith(
+      const encoded_pass = ethers.utils.defaultAbiCoder.encode(
+        ["tuple(bytes,bytes)"],
+        [[pass.payload, pass.signature]]
+      );
+      await expect(mintPassGroup.isPassValid(encoded_pass)).to.be.revertedWith(
         "PASS_NOT_CONSUMED"
       );
     });
