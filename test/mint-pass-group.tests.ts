@@ -66,9 +66,12 @@ describe("MintPassGroup", function () {
 
       // Create the Pass object
       const pass = { payload: payload, signature: signature };
-
+      const encoded_pass = ethers.utils.defaultAbiCoder.encode(
+        ["tuple(bytes,bytes)"],
+        [[pass.payload, pass.signature]]
+      );
       // Consume the pass
-      await mintPassGroup.connect(user1).consumePass(pass);
+      await mintPassGroup.connect(user1).consumePass(encoded_pass);
       const tokenRecord = await mintPassGroup.tokens(token);
       const projectHash = await mintPassGroup.getProjectHash(token, project);
 
@@ -91,10 +94,13 @@ describe("MintPassGroup", function () {
       );
       const signature = await user1.signMessage(ethers.utils.arrayify(payload));
       const pass = { payload, signature: signature };
-
+      const encoded_pass = ethers.utils.defaultAbiCoder.encode(
+        ["tuple(bytes,bytes)"],
+        [[pass.payload, pass.signature]]
+      );
       // Try to consume the pass and expect a revert
       await expect(
-        mintPassGroup.connect(user1).consumePass(pass)
+        mintPassGroup.connect(user1).consumePass(encoded_pass)
       ).to.be.revertedWith("PASS_INVALID_SIGNATURE");
     });
   });
@@ -151,7 +157,11 @@ describe("MintPassGroup", function () {
 
       // Create the Pass object
       const pass = { payload: payload, signature: signature };
-      await mintPassGroup.connect(user1).consumePass(pass);
+      const encoded_pass = ethers.utils.defaultAbiCoder.encode(
+        ["tuple(bytes,bytes)"],
+        [[pass.payload, pass.signature]]
+      );
+      await mintPassGroup.connect(user1).consumePass(encoded_pass);
 
       // Check if the pass is valid (no need to assign the result)
       await mintPassGroup.connect(user1).isPassValid(pass.payload);
@@ -169,8 +179,11 @@ describe("MintPassGroup", function () {
 
       // Create the Pass object
       const pass = { payload: payload, signature: signature };
-
-      await expect(mintPassGroup.isPassValid(pass.payload)).to.be.revertedWith(
+      const encoded_pass = ethers.utils.defaultAbiCoder.encode(
+        ["tuple(bytes,bytes)"],
+        [[pass.payload, pass.signature]]
+      );
+      await expect(mintPassGroup.isPassValid(encoded_pass)).to.be.revertedWith(
         "PASS_NOT_CONSUMED"
       );
     });
