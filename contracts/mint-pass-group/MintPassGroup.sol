@@ -5,7 +5,6 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "contracts/libs/LibAdmin.sol";
-import "hardhat/console.sol";
 
 contract MintPassGroup is AccessControl {
     using EnumerableSet for EnumerableSet.AddressSet;
@@ -144,8 +143,6 @@ contract MintPassGroup is AccessControl {
     function isPassValid(bytes calldata _payload) external view {
         Payload memory payload = decodePayload(_payload);
         TokenRecord memory token = tokens[payload.token];
-        console.log(msg.sender);
-        console.log(payload.addr);
         require(token.minted > 0, "PASS_NOT_CONSUMED");
         require(token.levelConsumed == block.number, "PASS_CONSUMED_PAST");
         require(

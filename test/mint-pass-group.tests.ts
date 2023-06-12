@@ -163,7 +163,6 @@ describe("MintPassGroup", function () {
         ["tuple(string,uint256,address)"],
         [["token2", 2, addr]]
       );
-      console.log("user1 = " + user1.address);
       const signature = await fxHashAdmin.signMessage(
         ethers.utils.arrayify(payload)
       );

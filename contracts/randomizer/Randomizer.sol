@@ -2,7 +2,6 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "contracts/libs/LibAdmin.sol";
-import "hardhat/console.sol";
 
 contract Randomizer is AccessControl{
     struct TokenKey {
@@ -90,7 +89,6 @@ contract Randomizer is AccessControl{
 
     function generate(uint256 token_id) external onlyFxHashIssuer{
         bytes32 hashedKey = getTokenKey(_msgSender(), token_id);
-        console.logBytes32(seeds[hashedKey].revealed);
         require(seeds[hashedKey].revealed == 0x00, "ALREADY_SEEDED");
         bytes memory base = abi.encodePacked(block.timestamp, hashedKey);
         bytes32 seed = keccak256(base);
