@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "contracts/libs/LibAdmin.sol";
 import "contracts/libs/LibReserve.sol";
 import "contracts/interfaces/IReserve.sol";
+
 
 contract ReserveWhitelist is IReserve {
     struct WhitelistEntry {
@@ -39,7 +40,11 @@ contract ReserveWhitelist is IReserve {
         bool applied = false;
         for (uint256 i = 0; i < whitelist.length; i++) {
             WhitelistEntry memory entry = whitelist[i];
-            if (!applied && entry.whitelisted == params.sender && entry.amount > 0) {
+            if (
+                !applied &&
+                entry.whitelisted == params.sender &&
+                entry.amount > 0
+            ) {
                 applied = true;
                 entry.amount = entry.amount - 1;
             }

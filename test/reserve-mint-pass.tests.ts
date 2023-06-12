@@ -1,167 +1,125 @@
-import { expect } from "chai";
-import { Contract } from "ethers";
 import { ethers } from "hardhat";
+import { Contract, Signer } from "ethers";
+import { expect } from "chai";
 
-describe("ReserveWhitelist", () => {
-  let reserveWhitelist: Contract;
-  let addr1: any;
-  let addr2: any;
-  let addr3: any;
+describe("ReserveMintPass", () => {
+  let reserve: Contract;
+  let group: Contract;
+  let owner: Signer;
+  let addr1: Signer;
 
   beforeEach(async () => {
-    // Deploy the ReserveWhitelist contract before each test
-    const ReserveWhitelistFactory = await ethers.getContractFactory(
-      "ReserveWhitelist"
-    );
-    [addr1, addr2, addr3] = await ethers.getSigners();
+    [owner, addr1] = await ethers.getSigners();
 
-    reserveWhitelist = await ReserveWhitelistFactory.deploy();
-    await reserveWhitelist.deployed();
+    const ReserveMintPass = await ethers.getContractFactory("ReserveMintPass");
+    reserve = await ReserveMintPass.deploy();
+    await reserve.deployed();
+
+    const MintPassGroup = await ethers.getContractFactory("MintPassGroup");
+    group = await MintPassGroup.deploy(
+      10, // maxPerToken
+      5, // maxPerTokenPerProject
+      owner.getAddress(), // publicKey
+      []
+    );
+    await group.deployed();
   });
 
   describe("isInputValid", () => {
-    it("should return true when the sum of amounts is greater than or equal to the required amount", async () => {
-      // Prepare test data
-      const whitelist = [
-        {
-          whitelisted: addr1.address,
-          amount: 10,
-        },
-        {
-          whitelisted: addr2.address,
-          amount: 5,
-        },
-        {
-          whitelisted: addr3.address,
-          amount: 3,
-        },
-      ];
+    it("should return true for a valid input", async () => {
       const params = {
-        data: ethers.utils.defaultAbiCoder.encode(
-          ["tuple(address,uint256)[]"],
-          [whitelist.map((entry) => [entry.whitelisted, entry.amount])]
-        ),
-        amount: 15,
-        sender: addr1.address,
+        data: ethers.utils.defaultAbiCoder.encode(["address"], [group.address]),
+        amount: 8,
+        sender: owner.getAddress(),
       };
 
-      // Call the contract function
-      const result = await reserveWhitelist.isInputValid(params);
+      const isValid = await reserve.isInputValid(params);
 
-      // Assert the result
-      expect(result).to.be.true;
+      expect(isValid).to.be.true;
     });
 
-    it("should return false when the sum of amounts is less than the required amount", async () => {
-      // Prepare test data
-      const whitelist = [
-        {
-          whitelisted: addr1.address,
-          amount: 5,
-        },
-        {
-          whitelisted: addr2.address,
-          amount: 3,
-        },
-      ];
+    it("should revert for an invalid input", async () => {
       const params = {
-        data: ethers.utils.defaultAbiCoder.encode(
-          ["tuple(address,uint256)[]"],
-          [whitelist.map((entry) => [entry.whitelisted, entry.amount])]
-        ),
-        amount: 10,
-        sender: addr1.address,
+        data: "0x",
+        amount: 8,
+        sender: owner.getAddress(),
       };
-
-      // Call the contract function
-      const result = await reserveWhitelist.isInputValid(params);
-
-      // Assert the result
-      expect(result).to.be.false;
+      await expect(reserve.isInputValid(params)).to.be.revertedWith(
+        "INVALID_DATA"
+      );
     });
   });
 
   describe("applyMethod", () => {
-    it("should decrease the amount of the whitelisted address by 1", async () => {
-      // Prepare test data
-      const whitelist = [
-        {
-          whitelisted: addr1.address,
-          amount: 5,
-        },
-        {
-          whitelisted: addr2.address,
-          amount: 3,
-        },
-      ];
-      const params = {
-        current_data: ethers.utils.defaultAbiCoder.encode(
-          ["tuple(address,uint256)[]"],
-          [whitelist.map((entry) => [entry.whitelisted, entry.amount])]
-        ),
-        sender: addr1.address,
-        current_amount: 8,
-        user_input: "0x00",
-      };
+    it("should apply the method if user input and current amount are provided", async () => {
+      const token = "TOKEN1";
+      const project = 1;
+      const addr = await addr1.getAddress();
+      const target = group.address;
+      const payload = ethers.utils.defaultAbiCoder.encode(
+        ["tuple(string,uint256,address)"],
+        [[token, project, await addr1.getAddress()]]
+      );
+      const signature = await owner.signMessage(ethers.utils.arrayify(payload));
 
-      // Call the contract function
-      const [applied, packedNewData] = await reserveWhitelist.applyMethod(
-        params
+      // Create the Pass object
+      const pass = { payload: payload, signature: signature };
+      const encoded_pass = ethers.utils.defaultAbiCoder.encode(
+        ["tuple(bytes,bytes)"],
+        [[pass.payload, pass.signature]]
+      );
+      const current_data = ethers.utils.defaultAbiCoder.encode(
+        ["address"],
+        [target]
       );
 
-      // Decode the updated whitelist
-      const updatedWhitelist = ethers.utils.defaultAbiCoder.decode(
-        ["tuple(address,uint256)[]"],
-        packedNewData
-      )[0];
-
-      // Assert the result
+      const params = {
+        user_input: encoded_pass,
+        current_amount: 10,
+        current_data: current_data,
+        sender: addr,
+      };
+      const tx = await reserve.connect(addr1).applyMethod(params);
+      const receipt = await tx.wait();
+      const event = receipt.events?.find(
+        (e: { event: string }) => e.event === "MethodApplied"
+      );
+      const [applied, new_data] = event.args;
+      expect(new_data).to.equal(current_data);
       expect(applied).to.be.true;
-      expect(updatedWhitelist).to.deep.equal([
-        [addr1.address, ethers.BigNumber.from("4")],
-        [addr2.address, ethers.BigNumber.from("3")],
-      ]);
     });
 
-    it("should not modify the whitelist when the sender is not whitelisted or the amount is zero", async () => {
-      // Prepare test data
-      const whitelist = [
-        {
-          whitelisted: addr1.address,
-          amount: 5,
-        },
-        {
-          whitelisted: addr2.address,
-          amount: 3,
-        },
-      ];
-      const params = {
-        current_data: ethers.utils.defaultAbiCoder.encode(
-          ["tuple(address,uint256)[]"],
-          [whitelist.map((entry) => [entry.whitelisted, entry.amount])]
-        ),
-        sender: addr3.address,
-        current_amount: 0,
-        user_input: "0x00",
-      };
+    it("should not apply the method if user input or current amount is missing", async () => {
+      const token = "TOKEN1";
+      const project = 1;
+      const addr = await addr1.getAddress();
+      const target = group.address;
+      const payload = ethers.utils.defaultAbiCoder.encode(
+        ["tuple(string,uint256,address)"],
+        [[token, project, await addr1.getAddress()]]
+      );
+      const signature = await owner.signMessage(ethers.utils.arrayify(payload));
 
-      // Call the contract function
-      const [applied, packedNewData] = await reserveWhitelist.applyMethod(
-        params
+      // Create the Pass object
+      const pass = { payload: payload, signature: signature };
+      const encoded_pass = ethers.utils.defaultAbiCoder.encode(
+        ["tuple(bytes,bytes)"],
+        [[pass.payload, pass.signature]]
+      );
+      const current_data = ethers.utils.defaultAbiCoder.encode(
+        ["address"],
+        [target]
       );
 
-      // Decode the updated whitelist
-      const updatedWhitelist = ethers.utils.defaultAbiCoder.decode(
-        ["tuple(address,uint256)[]"],
-        packedNewData
-      )[0];
-
-      // Assert the result
-      expect(applied).to.be.false;
-      expect(updatedWhitelist).to.deep.equal([
-        [addr1.address, ethers.BigNumber.from("5")],
-        [addr2.address, ethers.BigNumber.from("3")],
-      ]);
+      const params = {
+        user_input: encoded_pass,
+        current_amount: 0,
+        current_data: current_data,
+        sender: addr,
+      };
+      await expect(
+        reserve.connect(addr1).applyMethod(params)
+      ).to.be.revertedWith("INVALID_CURRENT_AMOUNT");
     });
   });
 });

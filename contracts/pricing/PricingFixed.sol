@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "contracts/libs/LibAdmin.sol";
@@ -30,6 +30,7 @@ contract PricingFixed is AccessControl {
         );
         _;
     }
+
     constructor() {
         _setupRole(DEFAULT_ADMIN_ROLE, address(bytes20(_msgSender())));
         _setupRole(LibAdmin.FXHASH_ADMIN, address(bytes20(_msgSender())));
