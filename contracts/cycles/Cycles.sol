@@ -4,7 +4,7 @@ pragma solidity ^0.8.18;
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/math/SignedMath.sol";
-import "contracts/libs/lib-admin/LibAdmin.sol";
+import "contracts/libs/LibAdmin.sol";
 
 contract FxHashCycles is AccessControl {
     struct CycleParams {

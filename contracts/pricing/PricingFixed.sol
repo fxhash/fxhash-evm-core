@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "contracts/libs/lib-admin/LibAdmin.sol";
+import "contracts/libs/LibAdmin.sol";
 
 contract PricingFixed is AccessControl {
     struct PriceDetails {
