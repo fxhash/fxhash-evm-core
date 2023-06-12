@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "contracts/libs/LibAdmin.sol";
 import "hardhat/console.sol";
+import "contracts/abstract/admin/FxHashAdmin.sol";
 
-contract MintPassGroup is AccessControl {
+contract MintPassGroup is FxHashAdmin {
     using EnumerableSet for EnumerableSet.AddressSet;
     struct TokenRecord {
         uint256 minted;
@@ -40,50 +39,13 @@ contract MintPassGroup is AccessControl {
         address[] memory _bypass
     ) {
         _setupRole(DEFAULT_ADMIN_ROLE, address(bytes20(_signer)));
-        _setupRole(LibAdmin.FXHASH_ADMIN, address(bytes20(_signer)));
+        _setupRole(FXHASH_ADMIN, address(bytes20(_signer)));
         maxPerToken = _maxPerToken;
         maxPerTokenPerProject = _maxPerTokenPerProject;
         signer = _signer;
         for (uint256 i = 0; i < _bypass.length; i++) {
             EnumerableSet.add(bypass, _bypass[i]);
         }
-    }
-
-    modifier onlyAdmin() {
-        require(
-            AccessControl.hasRole(
-                AccessControl.DEFAULT_ADMIN_ROLE,
-                _msgSender()
-            ),
-            "Caller is not an admin"
-        );
-        _;
-    }
-
-    modifier onlyFxHashAdmin() {
-        require(
-            AccessControl.hasRole(LibAdmin.FXHASH_ADMIN, _msgSender()),
-            "Caller is not a FxHash admin"
-        );
-        _;
-    }
-
-    // Function to grant the ADMIN_ROLE to an address
-    function grantAdminRole(address _admin) public onlyAdmin {
-        AccessControl.grantRole(AccessControl.DEFAULT_ADMIN_ROLE, _admin);
-    }
-
-    // Function to revoke the ADMIN_ROLE from an address
-    function revokeAdminRole(address _admin) public onlyAdmin {
-        AccessControl.revokeRole(AccessControl.DEFAULT_ADMIN_ROLE, _admin);
-    }
-
-    function grantFxHashAdminRole(address _admin) public onlyAdmin {
-        AccessControl.grantRole(LibAdmin.FXHASH_ADMIN, _admin);
-    }
-
-    function revokeFxHashAdminRole(address _admin) public onlyAdmin {
-        AccessControl.revokeRole(LibAdmin.FXHASH_ADMIN, _admin);
     }
 
     function consumePass(bytes calldata _params) external {

@@ -1,9 +1,10 @@
 pragma solidity ^0.8.18;
 
-import "@openzeppelin/contracts/access/AccessControl.sol";
-import "contracts/libs/LibAdmin.sol";
+import "contracts/abstract/admin/FxHashAdmin.sol";
 
-contract Randomizer is AccessControl {
+contract Randomizer is FxHashAdmin {
+    bytes32 public constant FXHASH_AUTHORITY = keccak256("FXHASH_AUTHORITY");
+    bytes32 public constant FXHASH_ISSUER = keccak256("FXHASH_ISSUER");
     struct TokenKey {
         address issuer;
         uint256 id;
@@ -25,28 +26,9 @@ contract Randomizer is AccessControl {
     uint256 public count_revealed;
     mapping(bytes32 => Seed) public seeds;
 
-    modifier onlyAdmin() {
-        require(
-            AccessControl.hasRole(
-                AccessControl.DEFAULT_ADMIN_ROLE,
-                _msgSender()
-            ),
-            "Caller is not an admin"
-        );
-        _;
-    }
-
-    modifier onlyFxHashAdmin() {
-        require(
-            AccessControl.hasRole(LibAdmin.FXHASH_ADMIN, _msgSender()),
-            "Caller is not a FxHash admin"
-        );
-        _;
-    }
-
     modifier onlyFxHashAuthority() {
         require(
-            AccessControl.hasRole(LibAdmin.FXHASH_AUTHORITY, _msgSender()),
+            AccessControl.hasRole(FXHASH_AUTHORITY, _msgSender()),
             "Caller is not a FxHash Authority"
         );
         _;
@@ -54,7 +36,7 @@ contract Randomizer is AccessControl {
 
     modifier onlyFxHashIssuer() {
         require(
-            AccessControl.hasRole(LibAdmin.FXHASH_ISSUER, _msgSender()),
+            AccessControl.hasRole(FXHASH_ISSUER, _msgSender()),
             "Caller is not a FxHash Issuer"
         );
         _;
@@ -66,7 +48,7 @@ contract Randomizer is AccessControl {
         count_requested = 0;
         count_revealed = 0;
         _setupRole(DEFAULT_ADMIN_ROLE, address(bytes20(_msgSender())));
-        _setupRole(LibAdmin.FXHASH_ADMIN, address(bytes20(_msgSender())));
+        _setupRole(FXHASH_ADMIN, address(bytes20(_msgSender())));
     }
 
     function setTokenSeedAndReturnSerial(
@@ -134,38 +116,20 @@ contract Randomizer is AccessControl {
         commitment.salt = salt;
     }
 
-    // Function to grant the ADMIN_ROLE to an address
-    function grantAdminRole(address _admin) public onlyAdmin {
-        AccessControl.grantRole(AccessControl.DEFAULT_ADMIN_ROLE, _admin);
-    }
-
-    // Function to revoke the ADMIN_ROLE from an address
-    function revokeAdminRole(address _admin) public onlyAdmin {
-        AccessControl.revokeRole(AccessControl.DEFAULT_ADMIN_ROLE, _admin);
-    }
-
-    function grantFxHashAdminRole(address _admin) public onlyAdmin {
-        AccessControl.grantRole(LibAdmin.FXHASH_ADMIN, _admin);
-    }
-
-    function revokeFxHashAdminRole(address _admin) public onlyAdmin {
-        AccessControl.revokeRole(LibAdmin.FXHASH_ADMIN, _admin);
-    }
-
     function grantFxHashAuthorityRole(address _admin) public onlyAdmin {
-        AccessControl.grantRole(LibAdmin.FXHASH_AUTHORITY, _admin);
+        AccessControl.grantRole(FXHASH_AUTHORITY, _admin);
     }
 
     function revokeFxHashAuthorityRole(address _admin) public onlyAdmin {
-        AccessControl.revokeRole(LibAdmin.FXHASH_AUTHORITY, _admin);
+        AccessControl.revokeRole(FXHASH_AUTHORITY, _admin);
     }
 
     function grantFxHashIssuerRole(address _admin) public onlyAdmin {
-        AccessControl.grantRole(LibAdmin.FXHASH_ISSUER, _admin);
+        AccessControl.grantRole(FXHASH_ISSUER, _admin);
     }
 
     function revokeFxHashIssuerRole(address _admin) public onlyAdmin {
-        AccessControl.revokeRole(LibAdmin.FXHASH_ISSUER, _admin);
+        AccessControl.revokeRole(FXHASH_ISSUER, _admin);
     }
 
     // Helper functions
