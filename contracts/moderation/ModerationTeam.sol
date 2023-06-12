@@ -96,7 +96,7 @@ contract ModerationTeam is FxHashAdmin {
         }
     }
 
-    function withdraw() public onlyModerator {
+    function withdraw() external onlyModerator {
         uint256 amount = address(this).balance;
 
         for (uint256 i = 0; i < EnumerableSet.length(moderatorAddresses); i++) {
@@ -112,14 +112,14 @@ contract ModerationTeam is FxHashAdmin {
     */
     function getAuthorizations(
         address userAddress
-    ) public view returns (uint256[] memory) {
+    ) external view returns (uint256[] memory) {
         return moderators[userAddress].authorizations;
     }
 
     function isAuthorized(
         address userAddress,
         uint256 authorization
-    ) public view returns (bool) {
+    ) external view returns (bool) {
         bool isModAuthorized = false;
         uint256[] memory modAuth = moderators[userAddress].authorizations;
         for (uint256 i = 0; i < modAuth.length; i++) {

@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "@openzeppelin/contracts/access/AccessControl.sol";
-import "contracts/libs/LibAdmin.sol";
 import "contracts/abstract/admin/FxHashAdmin.sol";
 
 abstract contract AddressConfig is FxHashAdmin {

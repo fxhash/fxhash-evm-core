@@ -2,48 +2,53 @@
 pragma solidity ^0.8.18;
 
 import "contracts/libs/LibModeration.sol";
+import "contracts/abstract/admin/FxHashAdmin.sol";
+import "contracts/abstract/AddressConfig.sol";
+import "contracts/moderation/ModerationTeam.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
-contract ModerationUser {
+contract ModerationUser is FxHashAdmin, AddressConfig {
     mapping(address => LibModeration.ModerationState) public users;
     mapping(uint256 => string) public reasons;
     uint256 private reasonsCount;
 
     // Constructor
-    constructor(address admin) {
+    constructor(address _admin) {
         // Initialize storage variables
         reasonsCount = 0;
+        _setupRole(DEFAULT_ADMIN_ROLE, _admin);
+        _setupRole(FXHASH_ADMIN, _admin);
+    }
+
+    modifier onlyModerator() {
+        require(isModerator(_msgSender()), "NOT_MOD");
+        _;
     }
 
     // Helpers
 
     // Get the address of the moderation team contract
     function getModerationTeamAddress() private view returns (address) {
-        // The implementation of this function depends on how the moderation team contract is deployed
-        // Return the address of the moderation team contract
+        return addresses["mod"];
     }
 
     // Check if an address is a user moderator on the moderation team contract
-    function isModerator(address user) private view returns (bool) {
-        // The implementation of this function depends on how the moderation team contract is designed
-        // Return true if the address is a moderator, false otherwise
+    function isModerator(address user) public view returns (bool) {
+        return
+            ModerationTeam(getModerationTeamAddress()).isAuthorized(user, 20);
     }
 
     // Moderate a user with a given state/reason
-    function moderateUser(address user, uint256 state, uint256 reason) private {
-        require(isModerator(msg.sender), "NOT_MOD");
-
+    function moderateUser(
+        address user,
+        uint256 state,
+        uint256 reason
+    ) private onlyModerator {
         if (reason != 0) {
-            require(reasons[reason] != "", "REASON_DOESNT_EXISTS");
+            require(Strings.equal(reasons[reason], ""), "REASON_DOESNT_EXISTS");
         }
 
-        users[user] = ModerationState(state, reason);
-    }
-
-    // Verifications
-
-    // Verify if the sender is a user moderator
-    function verifySenderModerator() private view {
-        require(isModerator(msg.sender), "NOT_MOD");
+        users[user] = LibModeration.ModerationState(state, reason);
     }
 
     // Entry Points
@@ -60,26 +65,21 @@ contract ModerationUser {
     }
 
     // Quicker way to verify a user (set its state as 10 = VERIFIED)
-    function verify(address user) public {
-        verifySenderModerator();
-        users[user] = ModerationState(10, 0);
+    function verify(address user) public onlyModerator {
+        users[user] = LibModeration.ModerationState(10, 0);
     }
 
     // Moderators can add new reasons
-    function reasonAdd(string memory reason) public {
-        verifySenderModerator();
+    function reasonAdd(string memory reason) public onlyModerator {
         reasons[reasonsCount] = reason;
         reasonsCount += 1;
     }
 
     // Update a reason
     function reasonUpdate(uint256 reasonId, string memory reason) public {
-        verifySenderModerator();
-        require(reasons[reasonId] != "", "REASON_DOESNT_EXIST");
+        require(Strings.equal(reasons[reasonId], ""), "REASON_DOESNT_EXISTS");
         reasons[reasonId] = reason;
     }
-
-    // Views
 
     // Checks if a given user exists in the contract, if so returns its state. Otherwise, returns 0 (NONE)
     function userState(address user) public view returns (uint256) {
