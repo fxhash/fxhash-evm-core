@@ -90,8 +90,8 @@ contract MintPassGroup is AccessControl {
         Payload memory payload = decodePayload(_params.payload);
         bytes32 projectHash = getProjectHash(payload.token, payload.project);
         require(
-            EnumerableSet.contains(bypass, msg.sender) ||
-                msg.sender == payload.addr,
+            EnumerableSet.contains(bypass, _msgSender()) ||
+                _msgSender() == payload.addr,
             "PASS_INVALID_ADDRESS"
         );
         //require(

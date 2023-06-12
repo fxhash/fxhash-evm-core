@@ -10,8 +10,6 @@ import { solidityKeccak256 } from "ethers/lib/utils";
  * - storage is not working with hardhat provider node
  */
 
-
-
 // Define the Hardhat network provider settings
 // const provider = new ethers.providers.JsonRpcProvider({
 //   url: "http://localhost:8545", // The RPC endpoint of your Hardhat network
@@ -156,9 +154,7 @@ describe("MintPassGroup", function () {
       await mintPassGroup.connect(user1).consumePass(pass);
 
       // Check if the pass is valid (no need to assign the result)
-      await mintPassGroup.isPassValid(pass);
-
-      // No assertion needed as the function does not return a value
+      await mintPassGroup.connect(user1).isPassValid(pass.payload);
     });
 
     it("should revert for an invalid pass", async function () {
@@ -175,7 +171,7 @@ describe("MintPassGroup", function () {
       // Create the Pass object
       const pass = { payload: payload, signature: signature };
 
-      await expect(mintPassGroup.isPassValid(pass)).to.be.revertedWith(
+      await expect(mintPassGroup.isPassValid(pass.payload)).to.be.revertedWith(
         "PASS_NOT_CONSUMED"
       );
     });
