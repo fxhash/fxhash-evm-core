@@ -4,7 +4,7 @@ pragma solidity ^0.8.18;
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "contracts/libs/lib-admin/LibAdmin.sol";
+import "contracts/libs/LibAdmin.sol";
 import "hardhat/console.sol";
 
 contract MintPassGroup is AccessControl {
@@ -141,8 +141,8 @@ contract MintPassGroup is AccessControl {
         }
     }
 
-    function isPassValid(Pass memory _params) external view {
-        Payload memory payload = decodePayload(_params.payload);
+    function isPassValid(bytes calldata _payload) external view {
+        Payload memory payload = decodePayload(_payload);
         TokenRecord memory token = tokens[payload.token];
         console.log(msg.sender);
         console.log(payload.addr);
