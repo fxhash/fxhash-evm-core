@@ -2,9 +2,11 @@
 pragma solidity ^0.8.18;
 import "contracts/abstract/admin/FxHashAdmin.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract ModerationTeam is FxHashAdmin {
     using EnumerableSet for EnumerableSet.AddressSet;
+    event Received(address sender, uint256 amount);
 
     /*
     TYPES DEFINITION
@@ -37,6 +39,14 @@ contract ModerationTeam is FxHashAdmin {
 
     modifier onlyModerator() {
         require(isModerator(msg.sender), "NOT_MODERATOR");
+        _;
+    }
+
+    modifier onlyModeratorOrAdmin() {
+        require(isModerator(msg.sender) || AccessControl.hasRole(
+                FXHASH_ADMIN,
+                _msgSender()
+            ), "NOT_MODERATOR_OR_ADMIN");
         _;
     }
 
@@ -87,24 +97,27 @@ contract ModerationTeam is FxHashAdmin {
             ModeratorData memory modData = moderators[shareAddress];
 
             if (sharePercentage == 0) {
-                sharesTotal = sharesTotal - modData.share;
+                if (sharesTotal > modData.share) {
+                    sharesTotal = sharesTotal - modData.share;
+                }
                 delete moderators[shareAddress];
             } else {
                 moderators[shareAddress].share = sharePercentage;
-                sharesTotal = sharesTotal + modData.share;
+                sharesTotal = sharesTotal + sharePercentage;
             }
         }
     }
 
-    function withdraw() external onlyModerator {
+    function withdraw() external onlyModeratorOrAdmin {
         uint256 amount = address(this).balance;
-
-        for (uint256 i = 0; i < EnumerableSet.length(moderatorAddresses); i++) {
-            address recipient = EnumerableSet.at(moderatorAddresses, i);
-            uint256 share = moderators[recipient].share;
-
-            payable(recipient).transfer((amount * share) / sharesTotal);
+        if(sharesTotal > 0) {
+            for (uint256 i = 0; i < EnumerableSet.length(moderatorAddresses); i++) {
+                address recipient = EnumerableSet.at(moderatorAddresses, i);
+                uint256 share = moderators[recipient].share;
+                payable(recipient).transfer(SafeMath.div(SafeMath.mul(amount, share), sharesTotal));
+            }
         }
+        
     }
 
     /*
@@ -128,5 +141,9 @@ contract ModerationTeam is FxHashAdmin {
             }
         }
         return isModAuthorized;
+    }
+
+    receive() external payable {
+        emit Received(msg.sender, msg.value);
     }
 }
