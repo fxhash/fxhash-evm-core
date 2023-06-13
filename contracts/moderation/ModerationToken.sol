@@ -5,9 +5,10 @@ import "contracts/libs/LibModeration.sol";
 import "contracts/abstract/admin/FxHashAdmin.sol";
 import "contracts/abstract/BaseModeration.sol";
 import "contracts/libs/LibModeration.sol";
+import "contracts/interfaces/IModerationToken.sol";
 import "hardhat/console.sol";
 
-contract ModerationToken is BaseModeration {
+contract ModerationToken is BaseModeration, IModerationToken {
     mapping(uint256 => LibModeration.ModerationState) public tokens;
     mapping(bytes32 => uint256) public reports;
 
@@ -47,9 +48,7 @@ contract ModerationToken is BaseModeration {
         return keccak256(abi.encodePacked(tokenId, reporter));
     }
 
-    function isModerator(
-        address user
-    ) public view override returns (bool) {
+    function isModerator(address user) public view override returns (bool) {
         return
             ModerationTeam(getModerationTeamAddress()).isAuthorized(user, 10);
     }
