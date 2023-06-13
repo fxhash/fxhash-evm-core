@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
-import "contracts/libs/LibAdmin.sol";
+import "contracts/abstract/admin/FxHashAdmin.sol";
 
-contract PricingDutchAuction is AccessControl {
+contract PricingDutchAuction is FxHashAdmin {
     struct PriceDetails {
         uint256 opensAt;
         uint256 decrementDuration;
@@ -23,47 +22,10 @@ contract PricingDutchAuction is AccessControl {
     address public admin;
     uint256 public minDecrementDuration;
 
-    modifier onlyAdmin() {
-        require(
-            AccessControl.hasRole(
-                AccessControl.DEFAULT_ADMIN_ROLE,
-                _msgSender()
-            ),
-            "Caller is not an admin"
-        );
-        _;
-    }
-
-    modifier onlyFxHashAdmin() {
-        require(
-            AccessControl.hasRole(LibAdmin.FXHASH_ADMIN, _msgSender()),
-            "Caller is not a FxHash admin"
-        );
-        _;
-    }
-
     constructor() {
         _setupRole(DEFAULT_ADMIN_ROLE, address(bytes20(_msgSender())));
-        _setupRole(LibAdmin.FXHASH_ADMIN, address(bytes20(_msgSender())));
+        _setupRole(FXHASH_ADMIN, address(bytes20(_msgSender())));
         minDecrementDuration = 60; // Default value, can be updated
-    }
-
-    // Function to grant the ADMIN_ROLE to an address
-    function grantAdminRole(address _admin) public onlyAdmin {
-        AccessControl.grantRole(AccessControl.DEFAULT_ADMIN_ROLE, _admin);
-    }
-
-    // Function to revoke the ADMIN_ROLE from an address
-    function revokeAdminRole(address _admin) public onlyAdmin {
-        AccessControl.revokeRole(AccessControl.DEFAULT_ADMIN_ROLE, _admin);
-    }
-
-    function grantFxHashAdminRole(address _admin) public onlyAdmin {
-        AccessControl.grantRole(LibAdmin.FXHASH_ADMIN, _admin);
-    }
-
-    function revokeFxHashAdminRole(address _admin) public onlyAdmin {
-        AccessControl.revokeRole(LibAdmin.FXHASH_ADMIN, _admin);
     }
 
     function updateMinDecrementDuration(

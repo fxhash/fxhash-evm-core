@@ -1,0 +1,54 @@
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.18;
+
+import "contracts/libs/LibModeration.sol";
+import "contracts/abstract/admin/FxHashAdmin.sol";
+import "contracts/abstract/AddressConfig.sol";
+import "contracts/moderation/ModerationTeam.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
+import "contracts/abstract/BaseModeration.sol";
+
+contract ModerationUser is BaseModeration {
+    mapping(address => LibModeration.ModerationState) public users;
+
+    // Constructor
+    constructor(address _admin) {
+        // Initialize storage variables
+        reasonsCount = 0;
+        _setupRole(DEFAULT_ADMIN_ROLE, _admin);
+        _setupRole(FXHASH_ADMIN, _admin);
+    }
+
+    // Helpers
+
+    // Check if an address is a user moderator on the moderation team contract
+    function isModerator(address user) public view override returns (bool) {
+        return
+            ModerationTeam(getModerationTeamAddress()).isAuthorized(user, 20);
+    }
+
+    // Moderate a user with a given state/reason
+    function moderateUser(
+        address user,
+        uint256 state,
+        uint256 reason
+    ) public onlyModerator {
+        require(!Strings.equal(reasons[reason], ""), "REASON_DOESNT_EXISTS");
+        users[user] = LibModeration.ModerationState(state, reason);
+    }
+
+    // Quicker way to set the state of users as "MALICIOUS", which is 3
+    function ban(address user, uint256 reason) external onlyModerator {
+        moderateUser(user, 3, reason);
+    }
+
+    // Quicker way to verify a user (set its state as 10 = VERIFIED)
+    function verify(address user) external onlyModerator {
+        users[user] = LibModeration.ModerationState(10, 0);
+    }
+
+    // Checks if a given user exists in the contract, if so returns its state. Otherwise, returns 0 (NONE)
+    function userState(address user) external view returns (uint256) {
+        return users[user].state;
+    }
+}
