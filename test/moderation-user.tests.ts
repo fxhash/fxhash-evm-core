@@ -12,7 +12,7 @@ describe("ModerationUser", () => {
   let user2: Signer;
   const authorizations = [20];
 
-  before(async () => {
+  beforeEach(async () => {
     const ModerationTeam = await ethers.getContractFactory("ModerationTeam");
     const ModerationUser = await ethers.getContractFactory("ModerationUser");
     [admin, moderator, user1, user2] = await ethers.getSigners();
@@ -35,11 +35,11 @@ describe("ModerationUser", () => {
     it("should moderate a user", async () => {
       const userAddress = await user1.getAddress();
       const state = 1;
-      const reason = 1;
-
+      const reason = 0;
+      await moderationUser.connect(moderator).reasonAdd("reason");
       await moderationUser
         .connect(moderator)
-        .moderate(userAddress, state, reason);
+        .moderateUser(userAddress, state, reason);
 
       const userState = await moderationUser.userState(userAddress);
       expect(userState).to.equal(state);
@@ -51,7 +51,7 @@ describe("ModerationUser", () => {
       const reason = 1;
 
       await expect(
-        moderationUser.connect(user1).moderate(userAddress, state, reason)
+        moderationUser.connect(user1).moderateUser(userAddress, state, reason)
       ).to.be.revertedWith("NOT_MOD");
     });
   });
@@ -59,7 +59,8 @@ describe("ModerationUser", () => {
   describe("ban", () => {
     it("should ban a user", async () => {
       const userAddress = await user1.getAddress();
-      const reason = 2;
+      const reason = 0;
+      await moderationUser.connect(moderator).reasonAdd("reason");
 
       await moderationUser.connect(moderator).ban(userAddress, reason);
 
