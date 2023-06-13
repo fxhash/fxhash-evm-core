@@ -1,0 +1,98 @@
+import { ethers } from "hardhat";
+import { Contract, Signer } from "ethers";
+import { expect } from "chai";
+
+describe("AllowIssuerMint", function () {
+  let admin: Signer;
+  let nonAdmin: Signer;
+  let moderationUser: Contract;
+  let moderationTeam: Contract;
+  let allowIssuerMint: Contract;
+  const authorizations = [20];
+
+  beforeEach(async function () {
+    [admin, nonAdmin] = await ethers.getSigners();
+
+    const ModerationUser = await ethers.getContractFactory("ModerationUser");
+    moderationUser = await ModerationUser.deploy(await admin.getAddress());
+    await moderationUser.deployed();
+
+    const ModerationTeam = await ethers.getContractFactory("ModerationTeam");
+
+    moderationTeam = await ModerationTeam.deploy(admin.getAddress());
+    await moderationTeam.deployed();
+    await moderationUser.setAddress("mod", moderationTeam.address);
+
+    await moderationTeam.connect(admin).updateModerators([
+      {
+        moderator: await admin.getAddress(),
+        authorizations,
+      },
+    ]);
+    const AllowMintFactory = await ethers.getContractFactory("AllowMintIssuer");
+    allowIssuerMint = await AllowMintFactory.deploy(
+      await admin.getAddress(),
+      moderationUser.address,
+      await admin.getAddress()
+    );
+
+    await allowIssuerMint.deployed();
+  });
+
+  it("should update the user moderation contract", async function () {
+    const ModerationUser = await ethers.getContractFactory("ModerationUser");
+
+    let moderationUser = await ModerationUser.deploy(admin.getAddress());
+    await moderationUser.deployed();
+    await allowIssuerMint.updateUserModerationContract(moderationUser.address);
+    expect(await allowIssuerMint.userModerationContract()).to.equal(
+      moderationUser.address
+    );
+  });
+
+  it("should update the issuer contract", async function () {
+    await allowIssuerMint.updateIssuerContract(await admin.getAddress());
+    expect(await allowIssuerMint.issuerContract()).to.equal(
+      await admin.getAddress()
+    );
+  });
+
+  it("should update the mint delay", async function () {
+    const newMintDelay = 1800;
+    await allowIssuerMint.updateMintDelay(newMintDelay);
+    expect(await allowIssuerMint.mintDelay()).to.equal(newMintDelay);
+  });
+
+  it("should return true when address is allowed", async function () {
+    // Mock the isUserAllowed function to return true
+    const isAllowed = await allowIssuerMint.isAllowed(
+      await admin.getAddress(),
+      0
+    );
+    expect(isAllowed).to.be.true;
+  });
+
+  it("should throw an error when address is banned", async function () {
+    // Mock the isUserAllowed function to return false
+    const userAddress = await nonAdmin.getAddress();
+    const state = 3;
+    const reason = 0;
+    await moderationUser.connect(admin).reasonAdd("reason");
+    await moderationUser
+      .connect(admin)
+      .moderateUser(userAddress, state, reason);
+    await expect(
+      allowIssuerMint.isAllowed(await nonAdmin.getAddress(), 0)
+    ).to.be.rejectedWith("ACCOUNT_BANNED");
+  });
+
+  it("should throw an error when delay between mint is too short", async function () {
+    // Mock the hasDelayPassed function to return false
+    const timestamp = Math.floor(Date.now() / 1000);
+    await ethers.provider.send("evm_setNextBlockTimestamp", [timestamp * 2]);
+    await ethers.provider.send("evm_mine", []);
+    await expect(
+      allowIssuerMint.isAllowed(await nonAdmin.getAddress(), timestamp * 2)
+    ).to.be.rejectedWith("DELAY_BETWEEN_MINT_TOO_SHORT");
+  });
+});

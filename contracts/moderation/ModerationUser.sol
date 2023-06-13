@@ -7,8 +7,9 @@ import "contracts/abstract/AddressConfig.sol";
 import "contracts/moderation/ModerationTeam.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "contracts/abstract/BaseModeration.sol";
+import "contracts/interfaces/IModerationUser.sol";
 
-contract ModerationUser is BaseModeration {
+contract ModerationUser is BaseModeration, IModerationUser {
     mapping(address => LibModeration.ModerationState) public users;
 
     // Constructor
