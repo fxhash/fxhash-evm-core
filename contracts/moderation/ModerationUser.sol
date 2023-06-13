@@ -28,8 +28,8 @@ contract ModerationUser is FxHashAdmin, AddressConfig {
     // Helpers
 
     // Get the address of the moderation team contract
-    function getModerationTeamAddress() private view returns (address) {
-        return addresses["mod"];
+    function getModerationTeamAddress() private view returns (address payable) {
+        return payable(addresses["mod"]);
     }
 
     // Check if an address is a user moderator on the moderation team contract
