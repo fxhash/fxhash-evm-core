@@ -2,7 +2,6 @@
 pragma solidity ^0.8.18;
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "contracts/abstract/admin/FxHashAdminVerify.sol";
 import "contracts/interfaces/IFxHashIssuer.sol";
 import "contracts/interfaces/IRandomizer.sol";
@@ -12,8 +11,6 @@ contract MintTicket is
     IERC2981Upgradeable,
     FxHashAdminVerify
 {
-    using SafeMathUpgradeable for uint256;
-
     function _msgData()
         internal
         view
@@ -88,7 +85,7 @@ contract MintTicket is
     // Helpers
 
     function dailyTaxAmount(uint256 price) internal pure returns (uint256) {
-        return price.mul(14).div(10000);
+        return (price * 14) / 10000;
     }
 
     function taxationStartDate(
@@ -96,14 +93,14 @@ contract MintTicket is
     ) internal view returns (uint256) {
         TokenData storage token = tokenData[tokenId];
         ProjectData storage project = projectData[token.projectId];
-        return token.createdAt.add(project.gracingPeriod.mul(1 days));
+        return token.createdAt + project.gracingPeriod * 1 days;
     }
 
     function isGracingByTime(
         uint256 tokenId,
         uint256 time
     ) internal view returns (bool) {
-        return taxationStartDate(tokenId).sub(time) > 0;
+        return taxationStartDate(tokenId) - time > 0;
     }
 
     function isGracing(uint256 tokenId) internal view returns (bool) {
@@ -116,11 +113,9 @@ contract MintTicket is
     ) internal view returns (uint256) {
         TokenData storage token = tokenData[tokenId];
         uint256 dailyTax = dailyTaxAmount(token.price);
-        uint256 daysCovered = token.taxationLocked.div(dailyTax);
-        uint256 foreclosureTime = token.taxationStart.add(
-            daysCovered.mul(1 days)
-        );
-        return time.sub(foreclosureTime);
+        uint256 daysCovered = token.taxationLocked / dailyTax;
+        uint256 foreclosureTime = token.taxationStart + daysCovered * 1 days;
+        return time - foreclosureTime;
     }
 
     function distanceForeclosure(
@@ -135,9 +130,9 @@ contract MintTicket is
     ) internal view returns (bool) {
         TokenData storage token = tokenData[tokenId];
         uint256 dailyTax = dailyTaxAmount(token.price);
-        uint256 daysCovered = token.taxationLocked.div(dailyTax);
-        uint256 secondsSincePayment = time.sub(token.taxationStart);
-        uint256 daysSincePayment = secondsSincePayment.div(86400);
+        uint256 daysCovered = token.taxationLocked / dailyTax;
+        uint256 secondsSincePayment = time - token.taxationStart;
+        uint256 daysSincePayment = secondsSincePayment / 1 days;
         return
             (!isGracingByTime(tokenId, time)) &&
             (daysSincePayment >= daysCovered);
@@ -173,24 +168,24 @@ contract MintTicket is
     function foreclosurePrice(
         uint256 price,
         uint256 secondsElapsed
-    ) internal pure returns (uint256) {
-        uint256 T = secondsElapsed.mul(10000).div(86400);
-        uint256 prange = price.sub(100000); // price - 0.1 XTZ
-        return price.sub(prange.mul(T).div(10000));
+    ) internal view returns (uint256) {
+        uint256 T = (secondsElapsed * 10000) / 1 days;
+        uint256 prange = price - minPrice; // TODO Check this value
+        return price - (prange * T) / 10000;
     }
 
     function taxRelease(
         uint256 tokenId
     ) internal view returns (uint256, uint256) {
         TokenData storage token = tokenData[tokenId];
-        uint256 timeDiff = block.timestamp.sub(token.taxationStart);
-        uint256 daysSinceLastTaxation = timeDiff.div(86400);
+        uint256 timeDiff = block.timestamp - token.taxationStart;
+        uint256 daysSinceLastTaxation = timeDiff / 1 days;
         uint256 dailyTax = dailyTaxAmount(token.price);
-        uint256 taxToPay = dailyTax.mul(daysSinceLastTaxation);
+        uint256 taxToPay = dailyTax * daysSinceLastTaxation;
         if (taxToPay > token.taxationLocked) {
             taxToPay = token.taxationLocked;
         }
-        uint256 taxToRelease = token.taxationLocked.sub(taxToPay);
+        uint256 taxToRelease = token.taxationLocked - taxToPay;
         return (taxToPay, taxToRelease);
     }
 
@@ -224,13 +219,13 @@ contract MintTicket is
     }
 
     receive() external payable {
-        availableBalance = availableBalance.add(msg.value);
+        availableBalance = availableBalance + msg.value;
     }
 
     function withdraw(uint256 amount, address to) external onlyAdmin {
         uint256 withdrawAmount = amount > 0 ? amount : availableBalance;
         require(withdrawAmount <= availableBalance, "OVER_AVAILABLE_BALANCE");
-        availableBalance = availableBalance.sub(withdrawAmount);
+        availableBalance = availableBalance - withdrawAmount;
         payable(to).transfer(withdrawAmount);
     }
 
@@ -258,9 +253,7 @@ contract MintTicket is
             minter,
             block.timestamp,
             0,
-            block.timestamp.add(
-                projectData[projectId].gracingPeriod.mul(1 days)
-            ),
+            block.timestamp + projectData[projectId].gracingPeriod * 1 days,
             price < minPrice ? minPrice : price
         );
         lastTokenId++;
@@ -277,60 +270,50 @@ contract MintTicket is
         require(price >= minPrice, "PRICE_BELOW_MIN_PRICE");
         require(coverage > 0, "MIN_1_COVERAGE");
 
-        uint256 daysSinceCreated = block.timestamp.sub(
-            token.createdAt.div(86400)
-        );
-        uint256 startDay = token.createdAt.add(daysSinceCreated.mul(86400));
+        uint256 daysSinceCreated = block.timestamp - token.createdAt / 1 days;
+        uint256 startDay = token.createdAt + daysSinceCreated * 1 days;
 
         if (block.timestamp < token.taxationStart) {
-            {
-                uint256 gracingRemainingDays = projectData[token.projectId]
-                    .gracingPeriod
-                    .sub(daysSinceCreated);
-                require(coverage > gracingRemainingDays, "COVERAGE_GRACED");
+            uint256 gracingRemainingDays = projectData[token.projectId]
+                .gracingPeriod - daysSinceCreated;
+            require(coverage > gracingRemainingDays, "COVERAGE_GRACED");
+            uint256 newDailyTax = dailyTaxAmount(price);
+            uint256 taxRequiredForCoverage = newDailyTax *
+                coverage -
+                gracingRemainingDays;
+            uint256 totalAvailable = msg.value + token.taxationLocked;
+            require(
+                totalAvailable >= taxRequiredForCoverage,
+                "NOT_ENOUGH_FOR_COVERAGE"
+            );
 
-                uint256 newDailyTax = dailyTaxAmount(price);
-                uint256 taxRequiredForCoverage = newDailyTax.mul(
-                    coverage.sub(gracingRemainingDays)
-                );
-                uint256 totalAvailable = msg.value.add(token.taxationLocked);
-                require(
-                    totalAvailable >= taxRequiredForCoverage,
-                    "NOT_ENOUGH_FOR_COVERAGE"
-                );
+            uint256 sendBackAmount = totalAvailable - taxRequiredForCoverage;
+            send(_msgSender(), sendBackAmount);
 
-                uint256 sendBackAmount = totalAvailable.sub(
-                    taxRequiredForCoverage
-                );
-                send(_msgSender(), sendBackAmount);
-
-                token.taxationLocked = taxRequiredForCoverage;
-                token.price = price;
-            }
+            token.taxationLocked = taxRequiredForCoverage;
+            token.price = price;
         } else {
             {
-                uint256 daysSinceLastTaxation = block
-                    .timestamp
-                    .sub(token.taxationStart)
-                    .div(86400);
+                uint256 daysSinceLastTaxation = block.timestamp -
+                    token.taxationStart /
+                    1 days;
                 uint256 dailyTax = dailyTaxAmount(token.price);
-                uint256 taxToPay = dailyTax.mul(daysSinceLastTaxation);
+                uint256 taxToPay = dailyTax * daysSinceLastTaxation;
 
                 payProjectAuthorsWithSplit(token.projectId, taxToPay);
 
-                uint256 taxLeft = token.taxationLocked.sub(taxToPay);
+                uint256 taxLeft = token.taxationLocked - taxToPay;
                 uint256 newDailyTax = dailyTaxAmount(price);
-                uint256 taxRequiredForCoverage = newDailyTax.mul(coverage);
-                uint256 totalAvailable = msg.value.add(taxLeft);
+                uint256 taxRequiredForCoverage = newDailyTax * coverage;
+                uint256 totalAvailable = msg.value + taxLeft;
 
                 require(
                     totalAvailable >= taxRequiredForCoverage,
                     "NOT_ENOUGH_FOR_COVERAGE"
                 );
 
-                uint256 sendBackAmount = totalAvailable.sub(
-                    taxRequiredForCoverage
-                );
+                uint256 sendBackAmount = totalAvailable -
+                    taxRequiredForCoverage;
                 send(_msgSender(), sendBackAmount);
 
                 token.taxationLocked = taxRequiredForCoverage;
@@ -344,46 +327,52 @@ contract MintTicket is
         TokenData storage token = tokenData[tokenId];
         require(token.minter != address(0), "TOKEN_DOES_NOT_EXIST");
         uint256 dailyTax = dailyTaxAmount(token.price);
-        uint256 daysCoverage = msg.value.div(dailyTax);
-        uint256 cleanCoverage = dailyTax.mul(daysCoverage);
-        send(_msgSender(), msg.value.sub(cleanCoverage));
-        token.taxationLocked = token.taxationLocked.add(cleanCoverage);
+        uint256 daysCoverage = msg.value / dailyTax;
+        uint256 cleanCoverage = dailyTax * daysCoverage;
+        send(_msgSender(), msg.value - cleanCoverage);
+        token.taxationLocked = token.taxationLocked + cleanCoverage;
     }
 
     function claim(
-    uint256 tokenId,
-    uint256 price,
-    uint256 coverage,
-    address transferTo
-) external payable {
-    TokenData storage token = tokenData[tokenId];
-    require(token.minter != address(0), "TOKEN_DOES_NOT_EXIST");
-    require(!isGracing(tokenId), "GRACING_PERIOD");
-    require(price >= minPrice, "PRICE_BELOW_MIN_PRICE");
-    require(coverage > 0, "MIN_1_COVERAGE");
-    address owner = ownerOf(tokenId);
-    uint256 distanceFc = distanceForeclosure(tokenId);
+        uint256 tokenId,
+        uint256 price,
+        uint256 coverage,
+        address transferTo
+    ) external payable {
+        TokenData storage token = tokenData[tokenId];
+        require(token.minter != address(0), "TOKEN_DOES_NOT_EXIST");
+        require(!isGracing(tokenId), "GRACING_PERIOD");
+        require(price >= minPrice, "PRICE_BELOW_MIN_PRICE");
+        require(coverage > 0, "MIN_1_COVERAGE");
+        address owner = ownerOf(tokenId);
+        uint256 distanceFc = distanceForeclosure(tokenId);
+        if (distanceFc >= 0) {
+            if (distanceFc > 1 days) {
+                distanceFc = 1 days;
+            }
+            price = foreclosurePrice(price, distanceFc);
+        }
 
-    uint256 finalPrice = distanceFc >= 0 ? foreclosurePrice(price, distanceFc > 86400 ? 86400 : uint256(distanceFc)) : price;
-    uint256 taxAmount = dailyTaxAmount(price).mul(coverage);
-    uint256 amountRequired = taxAmount.mul(price);
-    require(msg.value >= amountRequired, "AMOUNT_UNDER_PRICE");
+        uint256 taxAmount = dailyTaxAmount(price) * coverage;
+        uint256 amountRequired = taxAmount * price;
+        require(msg.value >= amountRequired, "AMOUNT_UNDER_PRICE");
 
-    send(_msgSender(), msg.value.sub(amountRequired));
-    send(owner, price);
+        send(_msgSender(), msg.value - amountRequired);
+        send(owner, price);
 
-    (uint256 taxToPay, uint256 taxToRelease) = taxRelease(tokenId);
-    payProjectAuthorsWithSplit(token.projectId, taxToPay);
-    send(owner, taxToRelease);
-    uint256 startDay = token.createdAt.add(block.timestamp.sub(token.createdAt).div(86400) * 1 days);
-    token.taxationLocked = taxAmount;
-    token.taxationStart = startDay;
-    token.price = price;
-    if (transferTo != address(0)) {
-        safeTransferFrom(owner, transferTo, tokenId);
+        (uint256 taxToPay, uint256 taxToRelease) = taxRelease(tokenId);
+        payProjectAuthorsWithSplit(token.projectId, taxToPay);
+        send(owner, taxToRelease);
+        uint256 startDay = token.createdAt +
+            (block.timestamp - token.createdAt / 1 days) *
+            1 days;
+        token.taxationLocked = taxAmount;
+        token.taxationStart = startDay;
+        token.price = price;
+        if (transferTo != address(0)) {
+            safeTransferFrom(owner, transferTo, tokenId);
+        }
     }
-}
-
 
     function consume(
         address owner,
@@ -468,22 +457,6 @@ contract MintTicket is
     ) public virtual override(ERC721Upgradeable, IERC721Upgradeable) {
         require(isOwner(from, tokenId));
         ERC721Upgradeable.safeTransferFrom(from, to, tokenId, data);
-    }
-
-    function ownerOf(
-        uint256 tokenId
-    )
-        public
-        view
-        virtual
-        override(ERC721Upgradeable, IERC721Upgradeable)
-        returns (address)
-    {
-        address owner = _ownerOf(tokenId);
-        if (!isOwner(owner, tokenId)) {
-            owner = address(0);
-        }
-        return owner;
     }
 
     function royaltyInfo(
