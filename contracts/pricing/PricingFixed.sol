@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "contracts/abstract/admin/FxHashAdmin.sol";
+import "contracts/abstract/admin/FxHashAdminVerify.sol";
 
-contract PricingFixed is FxHashAdmin {
+contract PricingFixed is FxHashAdminVerify {
     struct PriceDetails {
         uint256 price;
         uint256 opensAt;
@@ -12,8 +12,8 @@ contract PricingFixed is FxHashAdmin {
     mapping(uint256 => PriceDetails) pricings;
 
     constructor() {
-        _setupRole(DEFAULT_ADMIN_ROLE, address(bytes20(_msgSender())));
-        _setupRole(FXHASH_ADMIN, address(bytes20(_msgSender())));
+        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
+        _setupRole(FXHASH_ADMIN, _msgSender());
     }
 
     function setPrice(

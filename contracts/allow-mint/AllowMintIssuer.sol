@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "contracts/abstract/admin/FxHashAdmin.sol";
+import "contracts/abstract/admin/FxHashAdminVerify.sol";
 import "contracts/moderation/ModerationUser.sol";
 import "@openzeppelin/contracts/utils/math/SignedMath.sol";
 import "contracts/interfaces/IModerationUser.sol";
 
-contract AllowMintIssuer is FxHashAdmin {
+contract AllowMintIssuer is FxHashAdminVerify {
     uint256 public mintDelay;
     IModerationUser public userModerationContract;
     address public issuerContract;

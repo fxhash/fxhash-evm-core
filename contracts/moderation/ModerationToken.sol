@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "contracts/libs/LibModeration.sol";
-import "contracts/abstract/admin/FxHashAdmin.sol";
+import "contracts/abstract/admin/FxHashAdminVerify.sol";
 import "contracts/abstract/BaseModeration.sol";
 import "contracts/libs/LibModeration.sol";
 import "contracts/interfaces/IModerationToken.sol";
