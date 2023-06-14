@@ -2,6 +2,8 @@
 pragma solidity ^0.8.18;
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/math/SignedMathUpgradeable.sol";
+
 import "contracts/abstract/admin/FxHashAdminVerify.sol";
 import "contracts/interfaces/IFxHashIssuer.sol";
 import "contracts/interfaces/IRandomizer.sol";
@@ -178,7 +180,10 @@ contract MintTicket is
         uint256 tokenId
     ) internal view returns (uint256, uint256) {
         TokenData storage token = tokenData[tokenId];
-        uint256 timeDiff = block.timestamp - token.taxationStart;
+        uint256 timeDiff = 0;
+        if (block.timestamp > token.taxationStart) {
+            timeDiff = block.timestamp - token.taxationStart;
+        }
         uint256 daysSinceLastTaxation = timeDiff / 1 days;
         uint256 dailyTax = dailyTaxAmount(token.price);
         uint256 taxToPay = dailyTax * daysSinceLastTaxation;
@@ -225,7 +230,7 @@ contract MintTicket is
     function withdraw(uint256 amount, address to) external onlyAdmin {
         uint256 withdrawAmount = amount > 0 ? amount : availableBalance;
         require(withdrawAmount <= availableBalance, "OVER_AVAILABLE_BALANCE");
-        availableBalance = availableBalance - withdrawAmount;
+        availableBalance -= withdrawAmount;
         payable(to).transfer(withdrawAmount);
     }
 
@@ -270,7 +275,7 @@ contract MintTicket is
         require(price >= minPrice, "PRICE_BELOW_MIN_PRICE");
         require(coverage > 0, "MIN_1_COVERAGE");
 
-        uint256 daysSinceCreated = block.timestamp - token.createdAt / 1 days;
+        uint256 daysSinceCreated = (block.timestamp - token.createdAt) / 1 days;
         uint256 startDay = token.createdAt + daysSinceCreated * 1 days;
 
         if (block.timestamp < token.taxationStart) {
@@ -279,8 +284,7 @@ contract MintTicket is
             require(coverage > gracingRemainingDays, "COVERAGE_GRACED");
             uint256 newDailyTax = dailyTaxAmount(price);
             uint256 taxRequiredForCoverage = newDailyTax *
-                coverage -
-                gracingRemainingDays;
+                (coverage - gracingRemainingDays);
             uint256 totalAvailable = msg.value + token.taxationLocked;
             require(
                 totalAvailable >= taxRequiredForCoverage,
@@ -294,9 +298,8 @@ contract MintTicket is
             token.price = price;
         } else {
             {
-                uint256 daysSinceLastTaxation = block.timestamp -
-                    token.taxationStart /
-                    1 days;
+                uint256 daysSinceLastTaxation = (block.timestamp -
+                    token.taxationStart) / 1 days;
                 uint256 dailyTax = dailyTaxAmount(token.price);
                 uint256 taxToPay = dailyTax * daysSinceLastTaxation;
 
@@ -364,7 +367,7 @@ contract MintTicket is
         payProjectAuthorsWithSplit(token.projectId, taxToPay);
         send(owner, taxToRelease);
         uint256 startDay = token.createdAt +
-            (block.timestamp - token.createdAt / 1 days) *
+            ((block.timestamp - token.createdAt) / 1 days) *
             1 days;
         token.taxationLocked = taxAmount;
         token.taxationStart = startDay;
