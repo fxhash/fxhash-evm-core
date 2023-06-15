@@ -5,11 +5,14 @@ import "@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol";
 import "contracts/abstract/admin/FxHashAdminVerify.sol";
 import "contracts/interfaces/IFxHashIssuer.sol";
 import "contracts/interfaces/IRandomizer.sol";
+import "contracts/interfaces/IMintTicket.sol";
+import "hardhat/console.sol";
 
 contract MintTicket is
     ERC721URIStorageUpgradeable,
     IERC2981Upgradeable,
-    FxHashAdminVerify
+    FxHashAdminVerify,
+    IMintTicket
 {
     function _msgData()
         internal
@@ -35,7 +38,12 @@ contract MintTicket is
         public
         view
         virtual
-        override(AccessControl, ERC721URIStorageUpgradeable, IERC165Upgradeable)
+        override(
+            AccessControl,
+            ERC721URIStorageUpgradeable,
+            IERC165Upgradeable,
+            IMintTicket
+        )
         returns (bool)
     {
         return
@@ -57,19 +65,6 @@ contract MintTicket is
     uint256 public minPrice;
     IFxHashIssuer public issuer;
     IRandomizer public randomizer;
-
-    struct TokenData {
-        uint256 projectId;
-        address minter;
-        uint256 createdAt;
-        uint256 taxationLocked;
-        uint256 taxationStart;
-        uint256 price;
-    }
-    struct ProjectData {
-        uint256 gracingPeriod; //in days
-        string metadata;
-    }
 
     constructor(address _admin, address _issuer, address _randomizer) {
         _setupRole(DEFAULT_ADMIN_ROLE, _admin);
@@ -131,7 +126,9 @@ contract MintTicket is
         TokenData storage token = tokenData[tokenId];
         uint256 dailyTax = dailyTaxAmount(token.price);
         uint256 daysCovered = token.taxationLocked / dailyTax;
-        uint256 secondsSincePayment = time - token.taxationStart;
+        uint256 secondsSincePayment = time > token.taxationStart
+            ? time - token.taxationStart
+            : 0;
         uint256 daysSincePayment = secondsSincePayment / 1 days;
         return
             (!isGracingByTime(tokenId, time)) &&
@@ -234,11 +231,15 @@ contract MintTicket is
 
     function createProject(
         uint256 projectId,
-        ProjectData memory data
+        uint256 gracingPeriod,
+        string calldata metadata
     ) external onlyFxHashIssuer {
         require(projectData[projectId].gracingPeriod == 0, "PROJECT_EXISTS");
-        require(data.gracingPeriod > 0, "GRACING_UNDER_1");
-        projectData[projectId] = data;
+        require(gracingPeriod > 0, "GRACING_UNDER_1");
+        projectData[projectId] = ProjectData({
+            gracingPeriod: gracingPeriod,
+            metadata: metadata
+        });
     }
 
     function mint(
@@ -411,7 +412,7 @@ contract MintTicket is
     )
         public
         view
-        override(ERC721Upgradeable, IERC721Upgradeable)
+        override(ERC721Upgradeable, IERC721Upgradeable, IMintTicket)
         returns (uint256)
     {
         uint256 balance = 0;
@@ -430,7 +431,11 @@ contract MintTicket is
         address from,
         address to,
         uint256 tokenId
-    ) public virtual override(ERC721Upgradeable, IERC721Upgradeable) {
+    )
+        public
+        virtual
+        override(ERC721Upgradeable, IERC721Upgradeable, IMintTicket)
+    {
         require(isOwner(from, tokenId), "MUST_BE_OWNER");
         ERC721Upgradeable.transferFrom(from, to, tokenId);
     }
@@ -442,7 +447,11 @@ contract MintTicket is
         address from,
         address to,
         uint256 tokenId
-    ) public virtual override(ERC721Upgradeable, IERC721Upgradeable) {
+    )
+        public
+        virtual
+        override(ERC721Upgradeable, IERC721Upgradeable, IMintTicket)
+    {
         require(isOwner(from, tokenId));
         safeTransferFrom(from, to, tokenId, "");
     }
@@ -455,7 +464,11 @@ contract MintTicket is
         address to,
         uint256 tokenId,
         bytes memory data
-    ) public virtual override(ERC721Upgradeable, IERC721Upgradeable) {
+    )
+        public
+        virtual
+        override(ERC721Upgradeable, IERC721Upgradeable, IMintTicket)
+    {
         require(isOwner(from, tokenId));
         ERC721Upgradeable.safeTransferFrom(from, to, tokenId, data);
     }
