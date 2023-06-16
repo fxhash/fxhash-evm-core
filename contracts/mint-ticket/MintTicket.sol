@@ -95,7 +95,11 @@ contract MintTicket is
         uint256 tokenId,
         uint256 time
     ) internal view returns (bool) {
-        return taxationStartDate(tokenId) - time > 0;
+        if (taxationStartDate(tokenId) < time) {
+            return false;
+        } else {
+            return taxationStartDate(tokenId) - time > 0;
+        }
     }
 
     function isGracing(uint256 tokenId) internal view returns (bool) {

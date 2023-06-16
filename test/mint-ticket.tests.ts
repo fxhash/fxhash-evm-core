@@ -305,9 +305,6 @@ describe("MintTicket", () => {
       const dailyTax = dailyTaxAmount(price);
       const taxAmount = dailyTax.mul(coverage);
       const amountRequired = taxAmount;
-      console.log("client price = ", price);
-      console.log("client coverage = ", coverage);
-      console.log("client taxAmount = ", taxAmount);
 
       const transferAmount = amountRequired.add(ethers.utils.parseEther("1")); // Adjust the transfer amount as needed
 
@@ -346,7 +343,8 @@ describe("MintTicket", () => {
         tokenDataBefore,
         blockTimestamp
       );
-      expect(await mintTicket.taxationLocked(tokenId)).to.equal(taxToPayBefore);
+      expect(tokenData.taxationLocked).to.equal(expectedTaxationLocked);
+      expect(tokenData.taxationStart).to.equal(startDay);
     });
 
     it("should revert if the token does not exist", async () => {
