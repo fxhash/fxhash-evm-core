@@ -1,8 +1,8 @@
 pragma solidity ^0.8.18;
 
-import "contracts/abstract/admin/FxHashAdmin.sol";
+import "contracts/abstract/admin/FxHashAdminVerify.sol";
 
-contract Randomizer is FxHashAdmin {
+contract Randomizer is FxHashAdminVerify {
     bytes32 public constant FXHASH_AUTHORITY = keccak256("FXHASH_AUTHORITY");
     bytes32 public constant FXHASH_ISSUER = keccak256("FXHASH_ISSUER");
     struct TokenKey {

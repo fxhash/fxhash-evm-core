@@ -3,7 +3,7 @@ pragma solidity ^0.8.18;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
-abstract contract Admin is AccessControl {
+abstract contract AdminVerify is AccessControl {
     modifier onlyAdmin() {
         require(
             AccessControl.hasRole(

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "contracts/abstract/admin/FxHashAdmin.sol";
+import "contracts/abstract/admin/FxHashAdminVerify.sol";
 
-abstract contract AddressConfig is FxHashAdmin {
+abstract contract AddressConfig is FxHashAdminVerify {
     mapping(string => address) addresses;
 
     function setAddress(

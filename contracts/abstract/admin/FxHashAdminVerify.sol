@@ -2,9 +2,9 @@
 pragma solidity ^0.8.18;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "contracts/abstract/admin/Admin.sol";
+import "contracts/abstract/admin/AdminVerify.sol";
 
-abstract contract FxHashAdmin is Admin {
+abstract contract FxHashAdminVerify is AdminVerify {
     bytes32 public constant FXHASH_ADMIN = keccak256("FXHASH_ADMIN");
 
     modifier onlyFxHashAdmin() {

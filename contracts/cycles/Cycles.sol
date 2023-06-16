@@ -3,9 +3,9 @@ pragma solidity ^0.8.18;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/math/SignedMath.sol";
-import "contracts/abstract/admin/FxHashAdmin.sol";
+import "contracts/abstract/admin/FxHashAdminVerify.sol";
 
-contract FxHashCycles is FxHashAdmin {
+contract FxHashCycles is FxHashAdminVerify {
     struct CycleParams {
         uint256 start;
         uint256 openingDuration;

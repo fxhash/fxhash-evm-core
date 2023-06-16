@@ -2,9 +2,9 @@
 pragma solidity ^0.8.18;
 
 import "contracts/interfaces/IModerationToken.sol";
-import "contracts/abstract/admin/FxHashAdmin.sol";
+import "contracts/abstract/admin/FxHashAdminVerify.sol";
 
-contract AllowMint is FxHashAdmin {
+contract AllowMint is FxHashAdminVerify {
     IModerationToken public tokenModContract;
     address public issuerContract;
 
@@ -43,8 +43,10 @@ contract AllowMint is FxHashAdmin {
         //     self.data.issuerContract
         // ).getUserActions(addr);
         // require(timestamp - userActions.lastMintedTime > 0, "NO_BATCH_MINTING");
-        require(SignedMath.abs(
-            int256(timestamp) - int256(block.timestamp)) > 0, "NO_BATCH_MINTING");
+        require(
+            SignedMath.abs(int256(timestamp) - int256(block.timestamp)) > 0,
+            "NO_BATCH_MINTING"
+        );
         return true;
     }
 }

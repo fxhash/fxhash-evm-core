@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
-import "contracts/abstract/admin/FxHashAdmin.sol";
+import "contracts/abstract/admin/FxHashAdminVerify.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
-contract ModerationTeam is FxHashAdmin {
+contract ModerationTeam is FxHashAdminVerify {
     using EnumerableSet for EnumerableSet.AddressSet;
     event Received(address sender, uint256 amount);
 
@@ -43,10 +43,11 @@ contract ModerationTeam is FxHashAdmin {
     }
 
     modifier onlyModeratorOrAdmin() {
-        require(isModerator(msg.sender) || AccessControl.hasRole(
-                FXHASH_ADMIN,
-                _msgSender()
-            ), "NOT_MODERATOR_OR_ADMIN");
+        require(
+            isModerator(msg.sender) ||
+                AccessControl.hasRole(FXHASH_ADMIN, _msgSender()),
+            "NOT_MODERATOR_OR_ADMIN"
+        );
         _;
     }
 
@@ -110,14 +111,19 @@ contract ModerationTeam is FxHashAdmin {
 
     function withdraw() external onlyModeratorOrAdmin {
         uint256 amount = address(this).balance;
-        if(sharesTotal > 0) {
-            for (uint256 i = 0; i < EnumerableSet.length(moderatorAddresses); i++) {
+        if (sharesTotal > 0) {
+            for (
+                uint256 i = 0;
+                i < EnumerableSet.length(moderatorAddresses);
+                i++
+            ) {
                 address recipient = EnumerableSet.at(moderatorAddresses, i);
                 uint256 share = moderators[recipient].share;
-                payable(recipient).transfer(SafeMath.div(SafeMath.mul(amount, share), sharesTotal));
+                payable(recipient).transfer(
+                    SafeMath.div(SafeMath.mul(amount, share), sharesTotal)
+                );
             }
         }
-        
     }
 
     /*

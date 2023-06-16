@@ -4,9 +4,9 @@ pragma solidity ^0.8.18;
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "hardhat/console.sol";
-import "contracts/abstract/admin/FxHashAdmin.sol";
+import "contracts/abstract/admin/FxHashAdminVerify.sol";
 
-contract MintPassGroup is FxHashAdmin {
+contract MintPassGroup is FxHashAdminVerify {
     using EnumerableSet for EnumerableSet.AddressSet;
     struct TokenRecord {
         uint256 minted;
