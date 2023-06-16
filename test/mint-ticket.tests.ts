@@ -1,5 +1,5 @@
 import { ethers } from "hardhat";
-import { Contract, ContractFactory, Signer } from "ethers";
+import { BigNumber, Contract, ContractFactory, Signer } from "ethers";
 import { expect } from "chai";
 import { describe, before, it } from "mocha";
 
@@ -12,6 +12,41 @@ describe("MintTicket", () => {
   let nonAdmin: Signer;
 
   const fxHashAdminRole = ethers.utils.id("FXHASH_ADMIN");
+
+  // Helper functions
+  const dailyTaxAmount = (price: BigNumber): BigNumber => {
+    return price.mul(14).div(10000);
+  };
+
+  const distanceForeclosure = async (
+    price: number,
+    token: any,
+    startDay: number
+  ): Promise<BigNumber> => {
+    const dailyTax = dailyTaxAmount(ethers.BigNumber.from(price));
+    const daysCovered = token.taxationLocked.div(dailyTax);
+    const foreclosureTime = token.taxationStart.add(daysCovered.mul(86400));
+    const distance = ethers.BigNumber.from(startDay).sub(foreclosureTime);
+    return distance.gt(0) ? distance : ethers.constants.Zero;
+  };
+
+  const foreclosurePrice = async (
+    price: BigNumber,
+    secondsElapsed: number
+  ): Promise<BigNumber> => {
+    const T = ethers.BigNumber.from(secondsElapsed).mul(10000).div(86400);
+    const prange = price.sub(await mintTicket.minPrice()); // TODO: Check this value
+    return price.sub(prange.mul(T).div(10000));
+  };
+
+  const taxRelease = (token: any, date: number): [BigNumber, BigNumber] => {
+    const timeDiff = ethers.BigNumber.from(date).sub(token.taxationStart);
+    const daysSinceLastTaxation = timeDiff.div(24 * 60 * 60);
+    const dailyTax = dailyTaxAmount(token.price);
+    const taxToPay = dailyTax.mul(daysSinceLastTaxation);
+    const taxToRelease = token.taxationLocked.sub(taxToPay);
+    return [taxToPay, taxToRelease];
+  };
 
   beforeEach(async function () {
     [admin, fxHashAdmin, nonAdmin] = await ethers.getSigners();
@@ -202,6 +237,257 @@ describe("MintTicket", () => {
       await expect(
         mintTicket.connect(nonAdmin).updatePrice(tokenId, newPrice, coverage)
       ).to.be.revertedWith("MIN_1_COVERAGE");
+    });
+  });
+
+  describe("payTax", () => {
+    it("should pay the tax and update the taxationLocked", async () => {
+      const projectId = 1;
+      const tokenId = 0;
+      const minter = await nonAdmin.getAddress();
+      const price = ethers.utils.parseEther("1");
+
+      await issuer.createProject(projectId, 30, "Project metadata");
+      await issuer.mint(projectId, minter, price);
+
+      const tokenDataBefore = await mintTicket.tokenData(tokenId);
+      const taxAmount = ethers.utils.parseEther("0.01");
+
+      const tokenData = await mintTicket.tokenData(tokenId);
+      const dailyTax = tokenData.price.mul(14).div(10000);
+      const daysCoverage = taxAmount.div(dailyTax);
+      const cleanCoverage = dailyTax.mul(daysCoverage);
+
+      await mintTicket.payTax(tokenId, { value: taxAmount });
+
+      const tokenDataAfter = await mintTicket.tokenData(tokenId);
+      const taxationLockedDiff = tokenDataAfter.taxationLocked.sub(
+        tokenDataBefore.taxationLocked
+      );
+
+      expect(taxationLockedDiff).to.equal(cleanCoverage);
+    });
+
+    it("should revert if the token does not exist", async () => {
+      const tokenId = 0;
+      const taxAmount = ethers.utils.parseEther("0.01");
+
+      await expect(
+        mintTicket.payTax(tokenId, { value: taxAmount })
+      ).to.be.revertedWith("TOKEN_DOES_NOT_EXIST");
+    });
+  });
+
+  describe("claim", () => {
+    it("should claim the token and update the necessary values", async () => {
+      const projectId = 1;
+      const tokenId = 0;
+      const minter = await nonAdmin.getAddress();
+      const price = ethers.utils.parseUnits("1", 18);
+      const coverage = 30;
+      const transferTo = await admin.getAddress();
+
+      await issuer.createProject(projectId, 30, "Project metadata");
+      await issuer.mint(projectId, minter, price);
+      // Set taxationStart to a time outside the gracing period
+      const tokenDataBefore = await mintTicket.tokenData(tokenId);
+      const gracingPeriod = await mintTicket.projectData(
+        tokenDataBefore.projectId
+      );
+      const startDay = ethers.BigNumber.from(tokenDataBefore.createdAt).add(
+        ethers.BigNumber.from(gracingPeriod.gracingPeriod + 1).mul(86400)
+      );
+
+      await ethers.provider.send("evm_setNextBlockTimestamp", [
+        startDay.toNumber(),
+      ]);
+
+      const dailyTax = dailyTaxAmount(price);
+      const taxAmount = dailyTax.mul(coverage);
+      const amountRequired = taxAmount;
+      console.log("client price = ", price);
+      console.log("client coverage = ", coverage);
+      console.log("client taxAmount = ", taxAmount);
+
+      const transferAmount = amountRequired.add(ethers.utils.parseEther("1")); // Adjust the transfer amount as needed
+
+      const tx = await mintTicket
+        .connect(nonAdmin)
+        .claim(tokenId, price, coverage, transferTo, {
+          value: transferAmount,
+        });
+
+      await tx.wait();
+      const currentBlock = await ethers.provider.getBlockNumber();
+      const blockTimestamp = (await ethers.provider.getBlock(currentBlock))
+        .timestamp;
+      const tokenData = await mintTicket.tokenData(tokenId);
+      const ownerAfter = await mintTicket.ownerOf(tokenId);
+      let distanceFc = await distanceForeclosure(
+        price,
+        tokenDataBefore,
+        blockTimestamp
+      );
+      if (distanceFc.toNumber() > 86400) {
+        distanceFc = 86400;
+      }
+      const newPrice = await foreclosurePrice(price, distanceFc);
+      expect(ownerAfter).to.equal(transferTo);
+      expect(tokenData.price).to.equal(newPrice);
+
+      const expectedTaxationLocked = dailyTaxAmount(newPrice) * coverage;
+      expect(tokenData.taxationLocked).to.equal(
+        expectedTaxationLocked.toString()
+      );
+
+      expect(tokenData.taxationStart).to.equal(startDay);
+
+      const [taxToPayBefore, taxToReleaseBefore] = taxRelease(
+        tokenDataBefore,
+        blockTimestamp
+      );
+      expect(await mintTicket.taxationLocked(tokenId)).to.equal(taxToPayBefore);
+    });
+
+    it("should revert if the token does not exist", async () => {
+      const tokenId = 0;
+      const price = ethers.utils.parseEther("1");
+      const coverage = 30;
+      const transferTo = await admin.getAddress();
+
+      await expect(
+        mintTicket.claim(tokenId, price, coverage, transferTo, {
+          value: price.mul(coverage),
+        })
+      ).to.be.revertedWith("TOKEN_DOES_NOT_EXIST");
+    });
+
+    it("should revert during the gracing period", async () => {
+      const projectId = 1;
+      const tokenId = 0;
+      const minter = await nonAdmin.getAddress();
+      const price = ethers.utils.parseEther("1");
+      const coverage = 30;
+      const transferTo = await admin.getAddress();
+
+      await issuer.createProject(projectId, 30, "Project metadata");
+      await issuer.mint(projectId, minter, price);
+
+      await expect(
+        mintTicket.claim(tokenId, price, coverage, transferTo, {
+          value: price.mul(coverage),
+        })
+      ).to.be.revertedWith("GRACING_PERIOD");
+    });
+
+    it("should revert if the price is below the minimum price", async () => {
+      const projectId = 1;
+      const tokenId = 0;
+      const minter = await nonAdmin.getAddress();
+      const price = ethers.utils.parseEther("0.5");
+      const coverage = 30;
+      const transferTo = await admin.getAddress();
+
+      await issuer.createProject(projectId, 30, "Project metadata");
+      await issuer.mint(projectId, minter, price);
+
+      await expect(
+        mintTicket.claim(tokenId, price, coverage, transferTo, {
+          value: price.mul(coverage),
+        })
+      ).to.be.revertedWith("PRICE_BELOW_MIN_PRICE");
+    });
+
+    it("should revert if the coverage is zero", async () => {
+      const projectId = 1;
+      const tokenId = 0;
+      const minter = await nonAdmin.getAddress();
+      const price = ethers.utils.parseEther("1");
+      const coverage = 0;
+      const transferTo = await admin.getAddress();
+
+      await issuer.createProject(projectId, 30, "Project metadata");
+      await issuer.mint(projectId, minter, price);
+
+      await expect(
+        mintTicket.claim(tokenId, price, coverage, transferTo, {
+          value: price.mul(coverage),
+        })
+      ).to.be.revertedWith("MIN_1_COVERAGE");
+    });
+
+    it("should revert if the sent amount is less than required", async () => {
+      const projectId = 1;
+      const tokenId = 0;
+      const minter = await nonAdmin.getAddress();
+      const price = ethers.utils.parseEther("1");
+      const coverage = 30;
+      const transferTo = await admin.getAddress();
+      const insufficientAmount = ethers.utils.parseEther("0.5");
+
+      await issuer.createProject(projectId, 30, "Project metadata");
+      await issuer.mint(projectId, minter, price);
+
+      await expect(
+        mintTicket.claim(tokenId, price, coverage, transferTo, {
+          value: insufficientAmount,
+        })
+      ).to.be.revertedWith("AMOUNT_UNDER_PRICE");
+    });
+
+    it("should transfer the token if transferTo address is specified", async () => {
+      const projectId = 1;
+      const tokenId = 0;
+      const minter = await nonAdmin.getAddress();
+      const price = ethers.utils.parseEther("1");
+      const coverage = 30;
+      const transferTo = await nonAdmin.getAddress();
+
+      await issuer.createProject(projectId, 30, "Project metadata");
+      await issuer.mint(projectId, minter, price);
+
+      const ownerBefore = await mintTicket.ownerOf(tokenId);
+
+      await mintTicket.claim(tokenId, price, coverage, transferTo, {
+        value: price.mul(coverage),
+      });
+
+      const ownerAfter = await mintTicket.ownerOf(tokenId);
+
+      expect(ownerAfter).to.equal(transferTo);
+      expect(await mintTicket.balanceOf(ownerBefore)).to.equal(0);
+      expect(await mintTicket.balanceOf(transferTo)).to.equal(1);
+    });
+
+    it("should not transfer the token if transferTo address is not specified", async () => {
+      const projectId = 1;
+      const tokenId = 0;
+      const minter = await nonAdmin.getAddress();
+      const price = ethers.utils.parseEther("1");
+      const coverage = 30;
+
+      await issuer.createProject(projectId, 30, "Project metadata");
+      await issuer.mint(projectId, minter, price);
+
+      const ownerBefore = await mintTicket.ownerOf(tokenId);
+
+      await mintTicket.claim(
+        tokenId,
+        price,
+        coverage,
+        ethers.constants.AddressZero,
+        {
+          value: price.mul(coverage),
+        }
+      );
+
+      const ownerAfter = await mintTicket.ownerOf(tokenId);
+
+      expect(ownerAfter).to.equal(ownerBefore);
+      expect(await mintTicket.balanceOf(ownerBefore)).to.equal(1);
+      expect(await mintTicket.balanceOf(ethers.constants.AddressZero)).to.equal(
+        0
+      );
     });
   });
 });
