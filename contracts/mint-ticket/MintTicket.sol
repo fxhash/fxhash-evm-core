@@ -6,7 +6,6 @@ import "contracts/abstract/admin/FxHashAdminVerify.sol";
 import "contracts/interfaces/IFxHashIssuer.sol";
 import "contracts/interfaces/IRandomizer.sol";
 import "contracts/interfaces/IMintTicket.sol";
-import "hardhat/console.sol";
 
 contract MintTicket is
     ERC721URIStorageUpgradeable,
