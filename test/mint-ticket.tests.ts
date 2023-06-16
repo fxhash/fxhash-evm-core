@@ -19,9 +19,9 @@ describe("MintTicket", () => {
   };
 
   const distanceForeclosure = async (
-    price: number,
+    price: BigNumber,
     token: any,
-    startDay: number
+    startDay: BigNumber
   ): Promise<BigNumber> => {
     const dailyTax = dailyTaxAmount(ethers.BigNumber.from(price));
     const daysCovered = token.taxationLocked.div(dailyTax);
@@ -32,7 +32,7 @@ describe("MintTicket", () => {
 
   const foreclosurePrice = async (
     price: BigNumber,
-    secondsElapsed: number
+    secondsElapsed: BigNumber
   ): Promise<BigNumber> => {
     const T = ethers.BigNumber.from(secondsElapsed).mul(10000).div(86400);
     const prange = price.sub(await mintTicket.minPrice()); // TODO: Check this value
@@ -323,16 +323,16 @@ describe("MintTicket", () => {
       let distanceFc = await distanceForeclosure(
         price,
         tokenDataBefore,
-        blockTimestamp
+        ethers.BigNumber.from(blockTimestamp)
       );
       if (distanceFc.toNumber() > 86400) {
-        distanceFc = 86400;
+        distanceFc = ethers.BigNumber.from(86400);
       }
       const newPrice = await foreclosurePrice(price, distanceFc);
       expect(ownerAfter).to.equal(transferTo);
       expect(tokenData.price).to.equal(newPrice);
 
-      const expectedTaxationLocked = dailyTaxAmount(newPrice) * coverage;
+      const expectedTaxationLocked = dailyTaxAmount(newPrice).mul(coverage);
       expect(tokenData.taxationLocked).to.equal(
         expectedTaxationLocked.toString()
       );
