@@ -11,7 +11,7 @@ abstract contract FxHashIssuerVerify is FxHashAdminVerify {
     modifier onlyFxHashIssuer() {
         require(
             AccessControl.hasRole(FXHASH_ISSUER, _msgSender()),
-            "Caller is not a FxHash admin"
+            "Caller is not a FxHash issuer"
         );
         _;
     }
