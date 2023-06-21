@@ -124,7 +124,13 @@ contract FxHashIssuer is
         address recipient;
     }
 
-    IMintTicket public ticket;
+    struct MintWithTicketInput {
+        uint256 issuerId;
+        uint256 ticketId;
+        bytes inputBytes;
+        address recipient;
+    }
+
     uint256 public fees;
     uint256 public referrerFees;
     uint256 public lockTime;
@@ -142,7 +148,6 @@ contract FxHashIssuer is
 
     function initialize(uint256 _fees, address _ticket) external initializer {
         fees = _fees;
-        ticket = IMintTicket(_ticket);
 
         __ERC721_init("FxHashIssuer", "GTK");
         __ERC721URIStorage_init();
@@ -387,7 +392,7 @@ contract FxHashIssuer is
 
         bool hasTickets = params.mintTicketSettings.gracingPeriod > 0;
         if (hasTickets) {
-            ticket.createProject(
+            IMintTicket(addresses["mint_tickets"]).createProject(
                 allTokens,
                 params.mintTicketSettings.gracingPeriod,
                 params.mintTicketSettings.metadata
@@ -478,10 +483,9 @@ contract FxHashIssuer is
     }
 
     function mint(MintInput memory params) external payable {
-        require(
-            tokens[params.issuerId].author != address(0),
-            "Token undefined"
-        );
+        TokenData storage token = tokens[params.issuerId];
+
+        require(token.author != address(0), "Token undefined");
 
         require(
             IAllowMint(addresses["al_m"]).isAllowed(
@@ -492,7 +496,6 @@ contract FxHashIssuer is
             "403"
         );
 
-        TokenData storage token = tokens[params.issuerId];
         uint256 tokenId = allGenTkTokens;
 
         address recipient = _msgSender();
@@ -626,7 +629,10 @@ contract FxHashIssuer is
                     tokenId: tokenId,
                     iteration: token.iterationsCount,
                     inputBytes: params.inputBytes,
-                    receiver: recipient,
+                    receiver: token.royaltiesSplit.receiver ==
+                        addresses["gentk"]
+                        ? recipient
+                        : token.royaltiesSplit.receiver,
                     metadata: voidMetadata,
                     issuerId: params.issuerId
                 })
@@ -634,13 +640,57 @@ contract FxHashIssuer is
             allGenTkTokens++;
         }
 
-        // createUserActionsIfNotExists();
         UserAction storage userAction = userActions[_msgSender()];
         if (userAction.lastMintedTime == block.timestamp) {
             userAction.lastMinted.push(tokenId);
         } else {
             userAction.lastMintedTime = block.timestamp;
             userAction.lastMinted = [tokenId];
+        }
+    }
+
+    function mintWithTicket(MintWithTicketInput memory params) public {
+        TokenData storage token = tokens[params.issuerId];
+        require(token.author != address(0), "Token undefined");
+        require(
+            params.inputBytes.length == token.inputBytesSize,
+            "WRONG_INPUT_BYTES"
+        );
+
+        address recipient = msg.sender;
+        if (params.recipient != address(0)) {
+            recipient = params.recipient;
+        }
+
+        IMintTicket(addresses["mint_tickets"]).consume(
+            _msgSender(),
+            params.ticketId,
+            params.issuerId
+        );
+
+        token.iterationsCount += 1;
+
+        IGenTk(addresses["gentk"]).mint(
+            IGenTk.TokenParams({
+                tokenId: allGenTkTokens,
+                iteration: token.iterationsCount,
+                inputBytes: params.inputBytes,
+                receiver: token.royaltiesSplit.receiver == addresses["gentk"]
+                    ? recipient
+                    : token.royaltiesSplit.receiver,
+                metadata: voidMetadata,
+                issuerId: params.issuerId
+            })
+        );
+
+        allGenTkTokens++;
+
+        UserAction storage userAction = userActions[msg.sender];
+        if (userAction.lastMintedTime == block.timestamp) {
+            userAction.lastMinted.push(params.issuerId);
+        } else {
+            userAction.lastMintedTime = block.timestamp;
+            userAction.lastMinted = [params.issuerId];
         }
     }
 
@@ -668,13 +718,14 @@ contract FxHashIssuer is
         uint256 tokenId,
         uint256 salePrice
     )
-        external
+        public
         view
         override(IERC2981Upgradeable, IFxHashIssuer)
         returns (address receiver, uint256 royaltyAmount)
     {
-        RoyaltyData memory data = tokens[tokenId].royaltiesSplit;
-        return (data.receiver, data.percent);
+        RoyaltyData memory royalty = tokens[tokenId].royaltiesSplit;
+        uint256 amount = (salePrice * royalty.percent) / 10000;
+        return (royalty.receiver, amount);
     }
 
     function supportsInterface(
@@ -695,12 +746,16 @@ contract FxHashIssuer is
         uint256 tokenId,
         uint256 projectId
     ) external payable {
-        ticket.consume(owner, tokenId, projectId);
+        IMintTicket(addresses["mint_tickets"]).consume(
+            owner,
+            tokenId,
+            projectId
+        );
     }
 
     //TODO: remove this placeholder (used for tests)
     function mint(uint256 projectId, address minter, uint256 price) external {
-        ticket.mint(projectId, minter, price);
+        IMintTicket(addresses["mint_tickets"]).mint(projectId, minter, price);
     }
 
     //TODO: remove this placeholder (used for tests)
@@ -709,6 +764,10 @@ contract FxHashIssuer is
         uint256 gracingPeriod,
         string calldata metadata
     ) external {
-        ticket.createProject(projectId, gracingPeriod, metadata);
+        IMintTicket(addresses["mint_tickets"]).createProject(
+            projectId,
+            gracingPeriod,
+            metadata
+        );
     }
 }
