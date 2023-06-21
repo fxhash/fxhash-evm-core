@@ -15,17 +15,17 @@ contract ReserveMintPass is IReserve {
         return true;
     }
 
-    function applyMethod(
+    function applyReserve(
         LibReserve.ApplyParams calldata params
     ) external returns (bool, bytes memory) {
         bool applied = false;
-        require(params.user_input.length > 0, "INVALID_USER_INPUT");
-        require(params.current_amount > 0, "INVALID_CURRENT_AMOUNT");
-        address target = abi.decode(params.current_data, (address));
-        MintPassGroup(target).consumePass(params.user_input);
-        MintPassGroup(target).isPassValid(params.user_input);
+        require(params.userInput.length > 0, "INVALID_userInput");
+        require(params.currentAmount > 0, "INVALID_CURRENT_AMOUNT");
+        address target = abi.decode(params.currentData, (address));
+        MintPassGroup(target).consumePass(params.userInput);
+        MintPassGroup(target).isPassValid(params.userInput);
         applied = true;
-        emit MethodApplied(applied, params.current_data);
-        return (applied, params.current_data);
+        emit MethodApplied(applied, params.currentData);
+        return (applied, params.currentData);
     }
 }

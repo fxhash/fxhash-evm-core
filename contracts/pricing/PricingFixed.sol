@@ -2,8 +2,9 @@
 pragma solidity ^0.8.18;
 
 import "contracts/abstract/admin/FxHashAdminVerify.sol";
+import "contracts/interfaces/IPricing.sol";
 
-contract PricingFixed is FxHashAdminVerify {
+contract PricingFixed is FxHashAdminVerify, IPricing {
     struct PriceDetails {
         uint256 price;
         uint256 opensAt;

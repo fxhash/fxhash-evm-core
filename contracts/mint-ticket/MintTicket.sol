@@ -197,9 +197,10 @@ contract MintTicket is
         uint256 amount
     ) internal {
         if (amount > 0) {
-            (address receiver, uint256 royaltyAmount) = issuer
-                .getTokenPrimarySplit(projectId, amount);
-            payable(receiver).transfer(royaltyAmount);
+            //TODO
+            // (address receiver, uint256 royaltyAmount) = issuer
+            //     .getTokenPrimarySplit(projectId, amount);
+            // payable(receiver).transfer(royaltyAmount);
         }
     }
 

@@ -10,7 +10,7 @@ interface IReserve {
         LibReserve.InputParams calldata params
     ) external pure returns (bool);
 
-    function applyMethod(
+    function applyReserve(
         LibReserve.ApplyParams calldata params
     ) external returns (bool, bytes memory);
 }

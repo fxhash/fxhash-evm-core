@@ -9,9 +9,9 @@ library LibReserve {
     }
 
     struct ApplyParams {
-        bytes current_data;
-        uint256 current_amount;
+        bytes currentData;
+        uint256 currentAmount;
         address sender;
-        bytes user_input;
+        bytes userInput;
     }
 }

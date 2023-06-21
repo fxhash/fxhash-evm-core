@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 interface IFxHashIssuer {
-    struct UserActions {
+    struct UserAction {
         uint256 lastIssuerMinted;
         uint256 lastIssuerMintedTime;
         uint256[] lastMinted;
@@ -11,10 +11,14 @@ interface IFxHashIssuer {
 
     function getUserActions(
         address addr
-    ) external view returns (UserActions memory);
+    ) external view returns (UserAction memory);
 
     function getTokenPrimarySplit(
-        uint256 projectId,
-        uint256 amount
-    ) external returns (address receiver, uint256 royaltyAmount);
+        uint256 issuerId
+    ) external view returns (address receiver, uint256 royaltyAmount);
+
+    function royaltyInfo(
+        uint256 tokenId,
+        uint256 salePrice
+    ) external view returns (address receiver, uint256 royaltyAmount);
 }

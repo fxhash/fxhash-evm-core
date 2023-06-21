@@ -50,7 +50,7 @@ describe("ReserveMintPass", () => {
     });
   });
 
-  describe("applyMethod", () => {
+  describe("applyReserve", () => {
     it("should apply the method if user input and current amount are provided", async () => {
       const token = "TOKEN1";
       const project = 1;
@@ -79,7 +79,7 @@ describe("ReserveMintPass", () => {
         current_data: current_data,
         sender: addr,
       };
-      const tx = await reserve.connect(addr1).applyMethod(params);
+      const tx = await reserve.connect(addr1).applyReserve(params);
       const receipt = await tx.wait();
       const event = receipt.events?.find(
         (e: { event: string }) => e.event === "MethodApplied"
@@ -118,7 +118,7 @@ describe("ReserveMintPass", () => {
         sender: addr,
       };
       await expect(
-        reserve.connect(addr1).applyMethod(params)
+        reserve.connect(addr1).applyReserve(params)
       ).to.be.revertedWith("INVALID_CURRENT_AMOUNT");
     });
   });

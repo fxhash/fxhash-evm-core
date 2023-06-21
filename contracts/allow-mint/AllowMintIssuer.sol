@@ -38,7 +38,7 @@ contract AllowMintIssuer is FxHashAdminVerify {
     function isAllowed(
         address _address,
         uint256 timestamp
-    ) public view returns (bool) {
+    ) external view returns (bool) {
         require(isUserAllowed(_address), "ACCOUNT_BANNED");
         require(
             hasDelayPassed(_address, timestamp),

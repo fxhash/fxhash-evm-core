@@ -81,7 +81,7 @@ describe("ReserveWhitelist", () => {
     });
   });
 
-  describe("applyMethod", () => {
+  describe("applyReserve", () => {
     it("should decrease the amount of the whitelisted address by 1", async () => {
       // Prepare test data
       const whitelist = [
@@ -105,7 +105,7 @@ describe("ReserveWhitelist", () => {
       };
 
       // Call the contract function
-      const [applied, packedNewData] = await reserveWhitelist.applyMethod(
+      const [applied, packedNewData] = await reserveWhitelist.applyReserve(
         params
       );
 
@@ -146,7 +146,7 @@ describe("ReserveWhitelist", () => {
       };
 
       // Call the contract function
-      const [applied, packedNewData] = await reserveWhitelist.applyMethod(
+      const [applied, packedNewData] = await reserveWhitelist.applyReserve(
         params
       );
 

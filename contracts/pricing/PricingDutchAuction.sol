@@ -3,8 +3,9 @@ pragma solidity ^0.8.18;
 
 import "@openzeppelin/contracts/utils/math/Math.sol";
 import "contracts/abstract/admin/FxHashAdminVerify.sol";
+import "contracts/interfaces/IPricing.sol";
 
-contract PricingDutchAuction is FxHashAdminVerify {
+contract PricingDutchAuction is FxHashAdminVerify, IPricing {
     struct PriceDetails {
         uint256 opensAt;
         uint256 decrementDuration;
