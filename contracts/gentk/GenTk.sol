@@ -39,7 +39,7 @@ contract GenTk is
     ) {
         _setupRole(DEFAULT_ADMIN_ROLE, _admin);
         _setupRole(FXHASH_ADMIN, _admin);
-        _setupRole(FXHASH_ISSUER, _issuer);
+        issuer = IFxHashIssuer(_issuer);
         signer = _signer;
         treasury = _treasury;
     }

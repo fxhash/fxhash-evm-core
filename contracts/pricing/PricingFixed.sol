@@ -43,4 +43,6 @@ contract PricingFixed is FxHashAdminVerify, IPricing {
 
         return pricing.price;
     }
+
+    function lockPrice(uint256 issuerId) external override {}
 }
