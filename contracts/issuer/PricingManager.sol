@@ -19,7 +19,7 @@ contract PricingManager {
         });
     }
 
-    function verifyPricingMethod(uint256 pricingId) private view {
+    function verifyPricingMethod(uint256 pricingId) external view {
         require(
             address(pricingContracts[pricingId].pricingContract) != address(0),
             "PRC_MTD_NOT"

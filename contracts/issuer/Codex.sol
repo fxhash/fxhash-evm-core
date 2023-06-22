@@ -24,12 +24,13 @@ contract Codex is ICodex {
     address private issuer;
     address private moderation;
 
-    mapping(uint256 => CodexData) private codexEntries;
-    mapping(uint256 => uint256) private issuerCodexUpdates;
+    mapping(uint256 => CodexData) public codexEntries;
+    mapping(uint256 => uint256) public issuerCodexUpdates;
 
     constructor(address _issuer, address _moderation) {
         issuer = _issuer;
         moderation = _moderation;
+        codexEntriesCount = 0;
     }
 
     function codexEntryIdFromInput(
@@ -54,14 +55,11 @@ contract Codex is ICodex {
         return codexIdValue;
     }
 
-    function codexAddEntry(
-        uint256 entryType,
-        bytes[] memory value
-    ) external override {
+    function codexAddEntry(uint256 entryType, bytes[] memory value) external {
         codexInsert(entryType, msg.sender, true, value);
     }
 
-    function codexLockEntry(uint256 entryId) external override {
+    function codexLockEntry(uint256 entryId) external {
         CodexData storage entry = codexEntries[entryId];
         require(entry.author == msg.sender, "403");
         require(!entry.locked, "CDX_LOCK");
@@ -73,7 +71,7 @@ contract Codex is ICodex {
         uint256 entryId,
         bool pushEnd,
         bytes memory value
-    ) external override {
+    ) external {
         CodexData storage entry = codexEntries[entryId];
         require(entry.author == msg.sender, "403");
         require(!entry.locked, "CDX_LOCK");
@@ -89,9 +87,11 @@ contract Codex is ICodex {
     function updateIssuerCodexRequest(
         uint256 _issuerId,
         LibCodex.CodexInput calldata input
-    ) external override {
+    ) external {
         require(_issuerId > 0, "NO_ISSUER");
-        LibIssuer.IssuerData memory _issuer = IIssuer(issuer).getIssuer(_issuerId);
+        LibIssuer.IssuerData memory _issuer = IIssuer(issuer).getIssuer(
+            _issuerId
+        );
         require(_issuer.info.author == msg.sender, "403");
         uint256 codexId = codexEntryIdFromInput(msg.sender, input);
         require(issuerCodexUpdates[_issuerId] != codexId, "SAME_CDX_ID");
@@ -101,7 +101,7 @@ contract Codex is ICodex {
     function updateIssuerCodexApprove(
         uint256 _issuerId,
         uint256 _codexId
-    ) external override {
+    ) external {
         uint256 issuerId = issuerCodexUpdates[_issuerId];
         require(issuerId > 0, "NO_REQ");
         require(issuerId == _codexId, "WRG_CDX_ID");

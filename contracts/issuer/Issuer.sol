@@ -18,7 +18,6 @@ import "contracts/abstract/admin/FxHashAdminVerify.sol";
 import "contracts/abstract/AddressConfig.sol";
 import "contracts/abstract/Treasury.sol";
 
-import "contracts/libs/LibCodex.sol";
 import "contracts/libs/LibIssuer.sol";
 import "contracts/libs/LibReserve.sol";
 import "contracts/libs/LibPricing.sol";
