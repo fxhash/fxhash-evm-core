@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.20;
 
 import "contracts/libs/LibPricing.sol";
 
@@ -8,7 +8,11 @@ interface IPricingManager {
         uint256 id,
         address contractAddress,
         bool enabled
-    ) external ;
+    ) external;
+
     function verifyPricingMethod(uint256 pricingId) external view;
-    function getPricingContract(uint256 pricingId) external view returns (LibPricing.PricingContract memory);
+
+    function getPricingContract(
+        uint256 pricingId
+    ) external view returns (LibPricing.PricingContract memory);
 }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.20;
 
 import "contracts/libs/LibReserve.sol";
 import "contracts/libs/LibRoyalty.sol";
@@ -11,28 +11,32 @@ library LibIssuer {
     }
 
     struct IssuerTokenData {
-        address author;
         uint256 balance;
         uint256 iterationsCount;
-        uint256 codexId;
         bytes metadata;
-        uint256 inputBytesSize;
         uint256 supply;
         OpenEditions openEditions;
-        bool hasTickets;
         LibReserve.ReserveData[] reserves;
-        uint256 pricingId;
-        bool lockPriceForReserves;
         LibRoyalty.RoyaltyData primarySplit;
         LibRoyalty.RoyaltyData royaltiesSplit;
-        bool enabled;
-        uint256 timestampMinted;
-        uint256 lockedSeconds;
+        IssuerTokenInfo info;
+    }
+
+    struct IssuerTokenInfo {
         uint256[] tags;
+        bool enabled;
+        uint256 lockedSeconds;
+        uint256 timestampMinted;
+        bool lockPriceForReserves;
+        bool hasTickets;
+        address author;
+        uint256 pricingId;
+        uint256 codexId;
+        uint256 inputBytesSize;
     }
 
     function verifyIssuerUpdateable(
-        IssuerTokenData storage issuerToken
+        IssuerTokenData memory issuerToken
     ) external view {
         if (issuerToken.openEditions.closingTime > 0) {
             require(

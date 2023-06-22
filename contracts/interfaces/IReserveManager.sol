@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.20;
 
 import "contracts/libs/LibReserve.sol";
 
@@ -11,7 +11,7 @@ interface IReserveManager {
     function applyReserve(
         LibReserve.ReserveData memory reserve,
         bytes memory userInput
-    ) external  returns (bool, bytes memory);
+    ) external returns (bool, bytes memory);
 
     //TODO: require admin
     function setReserveMethod(
@@ -19,5 +19,7 @@ interface IReserveManager {
         LibReserve.ReserveMethod memory reserveMethod
     ) external;
 
-    function getReserveMethod(uint256 methodId) external view returns (LibReserve.ReserveMethod memory);
+    function getReserveMethod(
+        uint256 methodId
+    ) external view returns (LibReserve.ReserveMethod memory);
 }

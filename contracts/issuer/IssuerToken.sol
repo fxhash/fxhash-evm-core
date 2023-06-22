@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.20;
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol";
 
@@ -115,7 +115,7 @@ contract IssuerToken is
     }
 
     function setCodex(uint256 issuerId, uint256 codexId) external {
-        issuerTokens[issuerId].codexId = codexId;
+        issuerTokens[issuerId].info.codexId = codexId;
     }
 
     function setFees(uint256 _fees) external onlyFxHashAdmin {
@@ -139,14 +139,14 @@ contract IssuerToken is
     function isTokenLocked(uint256 issuerId) public view returns (bool) {
         LibIssuer.IssuerTokenData storage issuerToken = issuerTokens[issuerId];
         int256 diff = int256(block.timestamp) -
-            int256(issuerToken.timestampMinted);
-        return SignedMath.abs(diff) < issuerToken.lockedSeconds;
+            int256(issuerToken.info.timestampMinted);
+        return SignedMath.abs(diff) < issuerToken.info.lockedSeconds;
     }
 
     function getTokenData(
         uint256 issuerId
     ) public view returns (LibIssuer.IssuerTokenData memory) {
-        require(issuerTokens[issuerId].author != address(0), "NO_TOKEN");
+        require(issuerTokens[issuerId].info.author != address(0), "NO_TOKEN");
         return issuerTokens[issuerId];
     }
 
@@ -154,7 +154,7 @@ contract IssuerToken is
         uint256 issuerId
     ) public view returns (address receiver, uint256 royaltyAmount) {
         LibIssuer.IssuerTokenData storage issuerToken = issuerTokens[issuerId];
-        require(issuerToken.author != address(0), "NO_TOKEN");
+        require(issuerToken.info.author != address(0), "NO_TOKEN");
         return (
             issuerToken.primarySplit.receiver,
             issuerToken.primarySplit.percent
@@ -170,7 +170,7 @@ contract IssuerToken is
     function getIssuerPricingKt(
         uint256 issuerId
     ) private view returns (IPricing) {
-        uint256 pricingId = issuerTokens[issuerId].pricingId;
+        uint256 pricingId = issuerTokens[issuerId].info.pricingId;
         return
             IPricingManager(pricingManager)
                 .getPricingContract(pricingId)
@@ -210,7 +210,7 @@ contract IssuerToken is
             "WRG_PRIM_SPLIT"
         );
 
-        require(issuerTokens[allIssuerTokens].author == address(0), "409");
+        require(issuerTokens[allIssuerTokens].info.author == address(0), "409");
 
         IPricingManager(pricingManager).verifyPricingMethod(
             params.pricing.pricingId
@@ -292,24 +292,26 @@ contract IssuerToken is
         }
 
         issuerTokens[allIssuerTokens] = LibIssuer.IssuerTokenData({
-            author: _msgSender(),
-            codexId: codexId,
             metadata: params.metadata,
-            inputBytesSize: params.inputBytesSize,
             balance: params.amount,
             iterationsCount: 0,
             supply: params.amount,
             openEditions: params.openEditions,
-            hasTickets: hasTickets,
             reserves: params.reserves,
-            pricingId: params.pricing.pricingId,
-            lockPriceForReserves: params.pricing.lockForReserves,
             primarySplit: params.primarySplit,
             royaltiesSplit: params.royaltiesSplit,
-            enabled: params.enabled,
-            timestampMinted: block.timestamp,
-            lockedSeconds: _lockTime,
-            tags: params.tags
+            info: LibIssuer.IssuerTokenInfo({
+                tags: params.tags,
+                enabled: params.enabled,
+                lockedSeconds: _lockTime,
+                timestampMinted: block.timestamp,
+                lockPriceForReserves: params.pricing.lockForReserves,
+                hasTickets: hasTickets,
+                author: _msgSender(),
+                pricingId: params.pricing.pricingId,
+                codexId: codexId,
+                inputBytesSize: params.inputBytesSize
+            })
         });
 
         userActions[_msgSender()].lastIssuerMinted = allIssuerTokens;
@@ -323,7 +325,7 @@ contract IssuerToken is
             params.issuerId
         ];
 
-        require(issuerToken.author != address(0), "Token undefined");
+        require(issuerToken.info.author != address(0), "Token undefined");
 
         require(
             IAllowMint(addresses["al_m"]).isAllowed(
@@ -341,19 +343,19 @@ contract IssuerToken is
             recipient = params.recipient;
         }
 
-        bool createTicket = params.createTicket.length != 0;
-        if (createTicket) {
-            require(issuerToken.hasTickets, "ISSUER_NO_TICKETS");
+        if (params.createTicket.length != 0) {
+            require(issuerToken.info.hasTickets, "ISSUER_NO_TICKETS");
         } else {
             require(
-                params.inputBytes.length == issuerToken.inputBytesSize,
+                params.inputBytes.length == issuerToken.info.inputBytesSize,
                 "WRONG_INPUT_BYTES"
             );
         }
 
         require(isTokenLocked(params.issuerId) == false, "TOKEN_LOCKED");
         require(
-            issuerToken.enabled == true || _msgSender() == issuerToken.author,
+            issuerToken.info.enabled == true ||
+                _msgSender() == issuerToken.info.author,
             "TOKEN_DISABLED"
         );
 
@@ -375,112 +377,62 @@ contract IssuerToken is
             );
         }
 
+        IPricing pricingContract = IPricing(
+            IPricingManager(pricingManager)
+                .getPricingContract(issuerToken.info.pricingId)
+                .pricingContract
+        );
+
         bool reserveApplied = false;
         uint256 reserveTotal = 0;
-        for (uint256 i = 0; i < issuerToken.reserves.length; i++) {
-            reserveTotal += issuerToken.reserves[i].amount;
-            if (
-                reserveInput.methodId == issuerToken.reserves[i].methodId &&
-                !reserveApplied
-            ) {
-                (bool applied, bytes memory applyData) = IReserveManager(
-                    reserveManager
-                ).applyReserve(issuerToken.reserves[i], reserveInput.input);
-                if (applied) {
-                    reserveApplied = true;
-                    issuerToken.reserves[i].amount -= 1;
-                    issuerToken.reserves[i].data = applyData;
+        {
+            for (uint256 i = 0; i < issuerToken.reserves.length; i++) {
+                reserveTotal += issuerToken.reserves[i].amount;
+                if (
+                    reserveInput.methodId == issuerToken.reserves[i].methodId &&
+                    !reserveApplied
+                ) {
+                    (bool applied, bytes memory applyData) = IReserveManager(
+                        reserveManager
+                    ).applyReserve(issuerToken.reserves[i], reserveInput.input);
+                    if (applied) {
+                        reserveApplied = true;
+                        issuerToken.reserves[i].amount -= 1;
+                        issuerToken.reserves[i].data = applyData;
+                    }
+                }
+            }
+
+            if (isOe) {
+                if (reserveTotal > 0) {
+                    require(reserveApplied, "ONLY_RSRV");
+                }
+            } else {
+                uint256 balanceWithoutReserve = issuerToken.balance -
+                    reserveTotal;
+                if ((balanceWithoutReserve <= 0) && (!reserveApplied)) {
+                    require(
+                        !((balanceWithoutReserve <= 0) && (!reserveApplied)),
+                        "ONLY_RSRV"
+                    );
+                }
+                if (
+                    issuerToken.info.lockPriceForReserves &&
+                    balanceWithoutReserve == 1 &&
+                    !reserveApplied
+                ) {
+                    pricingContract.lockPrice(params.issuerId);
                 }
             }
         }
 
-        IPricing pricingContract = IPricing(
-            IPricingManager(pricingManager)
-                .getPricingContract(issuerToken.pricingId)
-                .pricingContract
+        processTransfers(
+            pricingContract,
+            params,
+            issuerToken,
+            tokenId,
+            recipient
         );
-
-        if (isOe) {
-            if (reserveTotal > 0) {
-                require(reserveApplied, "ONLY_RSRV");
-            }
-        } else {
-            uint256 balanceWithoutReserve = issuerToken.balance - reserveTotal;
-            if ((balanceWithoutReserve <= 0) && (!reserveApplied)) {
-                require(
-                    !((balanceWithoutReserve <= 0) && (!reserveApplied)),
-                    "ONLY_RSRV"
-                );
-            }
-            if (
-                issuerToken.lockPriceForReserves &&
-                balanceWithoutReserve == 1 &&
-                !reserveApplied
-            ) {
-                pricingContract.lockPrice(params.issuerId);
-            }
-        }
-
-        uint256 price = pricingContract.getPrice(
-            params.issuerId,
-            block.timestamp
-        );
-        require(msg.value >= price, "INVALID_PRICE");
-
-        uint256 platformFees = fees;
-        if (params.referrer != address(0) && params.referrer != _msgSender()) {
-            uint256 referrerShare = (fees * referrerFees) / 10000;
-            uint256 referrerAmount = (price * referrerShare) / 10000;
-            if (referrerAmount > 0) {
-                payable(params.referrer).transfer(referrerAmount);
-            }
-            platformFees = fees - referrerFees;
-        }
-
-        uint256 feesAmount = (price * platformFees) / 10000;
-        if (feesAmount > 0) {
-            payable(addresses["treasury"]).transfer(feesAmount);
-        }
-
-        uint256 creatorAmount = price - (msg.value - feesAmount);
-        uint256 splitAmount = (creatorAmount *
-            issuerToken.primarySplit.percent) / 10000;
-        if (splitAmount > 0) {
-            payable(issuerToken.primarySplit.receiver).transfer(splitAmount);
-        }
-
-        if (msg.value > price) {
-            uint256 remainingAmount = msg.value - price;
-            if (remainingAmount > 0) {
-                payable(msg.sender).transfer(remainingAmount);
-            }
-        }
-
-        if (createTicket) {
-            IMintTicket(addresses["mint_tickets"]).mint(
-                params.issuerId,
-                recipient,
-                price
-            );
-        } else {
-            issuerToken.iterationsCount += 1;
-            if (issuerToken.royaltiesSplit.receiver == addresses["gentk"]) {}
-
-            IGenTk(addresses["gentk"]).mint(
-                IGenTk.TokenParams({
-                    tokenId: tokenId,
-                    iteration: issuerToken.iterationsCount,
-                    inputBytes: params.inputBytes,
-                    receiver: issuerToken.royaltiesSplit.receiver ==
-                        addresses["gentk"]
-                        ? recipient
-                        : issuerToken.royaltiesSplit.receiver,
-                    metadata: voidMetadata,
-                    issuerId: params.issuerId
-                })
-            );
-            allGenTkTokens++;
-        }
 
         UserAction storage userAction = userActions[_msgSender()];
         if (userAction.lastMintedTime == block.timestamp) {
@@ -495,9 +447,9 @@ contract IssuerToken is
         LibIssuer.IssuerTokenData storage issuerToken = issuerTokens[
             params.issuerId
         ];
-        require(issuerToken.author != address(0), "Token undefined");
+        require(issuerToken.info.author != address(0), "Token undefined");
         require(
-            params.inputBytes.length == issuerToken.inputBytesSize,
+            params.inputBytes.length == issuerToken.info.inputBytesSize,
             "WRONG_INPUT_BYTES"
         );
 
@@ -539,6 +491,83 @@ contract IssuerToken is
         }
     }
 
+    function processTransfers(
+        IPricing pricingContract,
+        MintInput memory params,
+        LibIssuer.IssuerTokenData storage issuerToken,
+        uint256 tokenId,
+        address recipient
+    ) private {
+        {
+            uint256 price = pricingContract.getPrice(
+                params.issuerId,
+                block.timestamp
+            );
+            require(msg.value >= price, "INVALID_PRICE");
+
+            uint256 platformFees = fees;
+            if (
+                params.referrer != address(0) && params.referrer != _msgSender()
+            ) {
+                uint256 referrerShare = (fees * referrerFees) / 10000;
+                uint256 referrerAmount = (price * referrerShare) / 10000;
+                if (referrerAmount > 0) {
+                    payable(params.referrer).transfer(referrerAmount);
+                }
+                platformFees = fees - referrerFees;
+            }
+
+            uint256 feesAmount = (price * platformFees) / 10000;
+            if (feesAmount > 0) {
+                payable(addresses["treasury"]).transfer(feesAmount);
+            }
+
+            uint256 creatorAmount = price - (msg.value - feesAmount);
+            uint256 splitAmount = (creatorAmount *
+                issuerToken.primarySplit.percent) / 10000;
+            if (splitAmount > 0) {
+                payable(issuerToken.primarySplit.receiver).transfer(
+                    splitAmount
+                );
+            }
+
+            if (msg.value > price) {
+                uint256 remainingAmount = msg.value - price;
+                if (remainingAmount > 0) {
+                    payable(msg.sender).transfer(remainingAmount);
+                }
+            }
+
+            if (params.createTicket.length != 0) {
+                IMintTicket(addresses["mint_tickets"]).mint(
+                    params.issuerId,
+                    recipient,
+                    price
+                );
+            } else {
+                issuerToken.iterationsCount += 1;
+                if (
+                    issuerToken.royaltiesSplit.receiver == addresses["gentk"]
+                ) {}
+
+                IGenTk(addresses["gentk"]).mint(
+                    IGenTk.TokenParams({
+                        tokenId: tokenId,
+                        iteration: issuerToken.iterationsCount,
+                        inputBytes: params.inputBytes,
+                        receiver: issuerToken.royaltiesSplit.receiver ==
+                            addresses["gentk"]
+                            ? recipient
+                            : issuerToken.royaltiesSplit.receiver,
+                        metadata: voidMetadata,
+                        issuerId: params.issuerId
+                    })
+                );
+                allGenTkTokens++;
+            }
+        }
+    }
+
     function burnToken(uint256 issuerId) private {
         UserAction storage action = userActions[_msgSender()];
         if (issuerId == action.lastIssuerMinted) {
@@ -563,26 +592,28 @@ contract IssuerToken is
         LibIssuer.IssuerTokenData storage issuerToken = issuerTokens[
             params.issuerId
         ];
-        require(issuerToken.author != address(0), "404");
-        require(issuerToken.author == _msgSender(), "403");
+        require(issuerToken.info.author != address(0), "404");
+        require(issuerToken.info.author == _msgSender(), "403");
         LibIssuer.verifyIssuerUpdateable(issuerToken);
         issuerToken.primarySplit = params.primarySplit;
         issuerToken.royaltiesSplit = params.royaltiesSplit;
-        issuerToken.enabled = params.enabled;
+        issuerToken.info.enabled = params.enabled;
     }
 
     function updatePrice(UpdatePriceInput calldata params) external {
         LibIssuer.IssuerTokenData storage issuerToken = issuerTokens[
             params.issuerId
         ];
-        require(issuerToken.author != address(0), "404");
-        require(issuerToken.author == _msgSender(), "403");
+        require(issuerToken.info.author != address(0), "404");
+        require(issuerToken.info.author == _msgSender(), "403");
         LibIssuer.verifyIssuerUpdateable(issuerToken);
         IPricingManager(pricingManager).verifyPricingMethod(
             params.pricingData.pricingId
         );
-        issuerToken.pricingId = params.pricingData.pricingId;
-        issuerToken.lockPriceForReserves = params.pricingData.lockForReserves;
+        issuerToken.info.pricingId = params.pricingData.pricingId;
+        issuerToken.info.lockPriceForReserves = params
+            .pricingData
+            .lockForReserves;
         IPricing(
             IPricingManager(pricingManager)
                 .getPricingContract(params.pricingData.pricingId)
@@ -590,36 +621,36 @@ contract IssuerToken is
         ).setPrice(params.issuerId, params.pricingData.details);
     }
 
-    function updateReserve(UpdateReserveInput calldata params) external {
-        LibIssuer.IssuerTokenData storage issuerToken = issuerTokens[
-            params.issuerId
-        ];
-        require(issuerToken.author != address(0), "404");
-        require(issuerToken.author == _msgSender(), "403");
-        LibIssuer.verifyIssuerUpdateable(issuerToken);
-        require(issuerToken.enabled, "TOK_DISABLED");
-        for (uint256 i = 0; i < params.reserves.length; i++) {
-            LibReserve.ReserveMethod memory reserve = IReserveManager(
-                reserveManager
-            ).getReserveMethod(params.reserves[i].methodId);
-            require(
-                reserve.reserveContract != IReserve(address(0)),
-                "RSRV_404"
-            );
-            require(reserve.enabled, "RSRV_DIS");
-            require(
-                IReserveManager(reserveManager).isReserveValid(
-                    params.reserves[i]
-                )
-            );
-        }
-        issuerTokens[params.issuerId].reserves = params.reserves;
-    }
+    // function updateReserve(UpdateReserveInput memory params) external {
+    //     LibIssuer.IssuerTokenData storage issuerToken = issuerTokens[
+    //         params.issuerId
+    //     ];
+    //     require(issuerToken.info.author != address(0), "404");
+    //     require(issuerToken.info.author == _msgSender(), "403");
+    //     LibIssuer.verifyIssuerUpdateable(issuerToken);
+    //     require(issuerToken.info.enabled, "TOK_DISABLED");
+    //     for (uint256 i = 0; i < params.reserves.length; i++) {
+    //         LibReserve.ReserveMethod memory reserve = IReserveManager(
+    //             reserveManager
+    //         ).getReserveMethod(params.reserves[i].methodId);
+    //         require(
+    //             reserve.reserveContract != IReserve(address(0)),
+    //             "RSRV_404"
+    //         );
+    //         require(reserve.enabled, "RSRV_DIS");
+    //         require(
+    //             IReserveManager(reserveManager).isReserveValid(
+    //                 params.reserves[i]
+    //             )
+    //         );
+    //     }
+    //     issuerTokens[params.issuerId].reserves = params.reserves;
+    // }
 
     function burn(uint256 issuerId) external {
         LibIssuer.IssuerTokenData storage issuerToken = issuerTokens[issuerId];
-        require(issuerToken.author != address(0), "404");
-        require(issuerToken.author == _msgSender(), "403");
+        require(issuerToken.info.author != address(0), "404");
+        require(issuerToken.info.author == _msgSender(), "403");
         require(issuerToken.balance == issuerToken.supply, "CONSUMED_1");
         burnToken(issuerId);
     }
@@ -627,9 +658,9 @@ contract IssuerToken is
     function burnSupply(uint256 issuerId, uint256 amount) external {
         require(amount > 0, "TOO_LOW");
         LibIssuer.IssuerTokenData storage issuerToken = issuerTokens[issuerId];
-        require(issuerToken.author != address(0), "404");
+        require(issuerToken.info.author != address(0), "404");
         require(issuerToken.openEditions.closingTime == 0, "OES");
-        require(issuerToken.author == _msgSender(), "403");
+        require(issuerToken.info.author == _msgSender(), "403");
         require(amount <= issuerToken.balance, "TOO_HIGH");
         issuerToken.balance = issuerToken.balance - amount;
         issuerToken.supply = issuerToken.supply - amount;
@@ -646,7 +677,7 @@ contract IssuerToken is
             IModeration(addresses["mod_team"]).isAuthorized(_msgSender(), 10),
             "403"
         );
-        issuerTokens[issuerId].tags = tags;
+        issuerTokens[issuerId].info.tags = tags;
     }
 
     function _msgSender()

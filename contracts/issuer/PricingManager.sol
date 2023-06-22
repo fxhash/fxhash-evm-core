@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.20;
 
 import "contracts/interfaces/IModeration.sol";
 import "contracts/libs/LibPricing.sol";
 
 contract PricingManager {
     mapping(uint256 => LibPricing.PricingContract) private pricingContracts;
+
     //TODO: require admin
     function setPricingContract(
         uint256 id,
@@ -26,7 +27,9 @@ contract PricingManager {
         require(pricingContracts[pricingId].enabled == true, "PRC_MTD_DIS");
     }
 
-    function getPricingContract(uint256 pricingId) external view returns (LibPricing.PricingContract memory){
+    function getPricingContract(
+        uint256 pricingId
+    ) external view returns (LibPricing.PricingContract memory) {
         return pricingContracts[pricingId];
     }
 }
