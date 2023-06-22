@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
-import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/interfaces/IERC2981.sol";
 
 import "contracts/interfaces/IIssuerToken.sol";
 import "contracts/interfaces/IMintTicket.sol";
@@ -28,8 +28,8 @@ import "contracts/libs/LibPricing.sol";
 contract IssuerToken is
     IIssuerToken,
     FxHashAdminVerify,
-    ERC721URIStorageUpgradeable,
-    IERC2981Upgradeable,
+    ERC721URIStorage,
+    IERC2981,
     AddressConfig,
     Treasury
 {
@@ -98,20 +98,18 @@ contract IssuerToken is
     mapping(uint256 => LibIssuer.IssuerTokenData) public issuerTokens;
     mapping(address => UserAction) public userActions;
 
-    function initialize(
+    constructor(
         uint256 _fees,
         address _pricingManager,
         address _reserveManager,
         address _codex
-    ) external initializer {
+    ) ERC721("FxHashIssuer", "GTK")  {
         fees = _fees;
         allIssuerTokens = 0;
         allGenTkTokens = 0;
         pricingManager = _pricingManager;
         reserveManager = _reserveManager;
         codex = _codex;
-        __ERC721_init("FxHashIssuer", "GTK");
-        __ERC721URIStorage_init();
     }
 
     function setCodex(uint256 issuerId, uint256 codexId) external {
@@ -685,7 +683,7 @@ contract IssuerToken is
         internal
         view
         virtual
-        override(Context, ContextUpgradeable)
+        override(Context)
         returns (address)
     {
         return super._msgSender();
@@ -695,7 +693,7 @@ contract IssuerToken is
         internal
         view
         virtual
-        override(Context, ContextUpgradeable)
+        override(Context)
         returns (bytes calldata)
     {
         return super._msgData();
@@ -707,7 +705,7 @@ contract IssuerToken is
     )
         public
         view
-        override(IERC2981Upgradeable, IIssuerToken)
+        override(IERC2981, IIssuerToken)
         returns (address receiver, uint256 royaltyAmount)
     {
         LibRoyalty.RoyaltyData memory royalty = issuerTokens[tokenId]
@@ -721,7 +719,7 @@ contract IssuerToken is
     )
         public
         view
-        override(AccessControl, ERC721URIStorageUpgradeable, IERC165Upgradeable)
+        override(AccessControl, ERC721URIStorage, IERC165)
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
