@@ -1,13 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/interfaces/IERC2981.sol";
 
-import "contracts/interfaces/IIssuerToken.sol";
 import "contracts/interfaces/IMintTicket.sol";
-import "contracts/interfaces/IReserve.sol";
 import "contracts/interfaces/IReserveManager.sol";
-import "contracts/interfaces/IPricing.sol";
 import "contracts/interfaces/IPricingManager.sol";
 import "contracts/interfaces/IAllowMintIssuer.sol";
 import "contracts/interfaces/IAllowMint.sol";
@@ -15,6 +11,8 @@ import "contracts/interfaces/IModeration.sol";
 import "contracts/interfaces/IModerationUser.sol";
 import "contracts/interfaces/IGenTk.sol";
 import "contracts/interfaces/ICodex.sol";
+import "contracts/interfaces/IIssuer.sol";
+import "contracts/interfaces/IUserActions.sol";
 
 import "contracts/abstract/admin/FxHashAdminVerify.sol";
 import "contracts/abstract/AddressConfig.sol";
@@ -25,49 +23,12 @@ import "contracts/libs/LibIssuer.sol";
 import "contracts/libs/LibReserve.sol";
 import "contracts/libs/LibPricing.sol";
 
-contract IssuerToken is
-    IIssuerToken,
+contract Issuer is IIssuer,
     FxHashAdminVerify,
-    ERC721URIStorage,
     IERC2981,
     AddressConfig,
     Treasury
 {
-    struct MintTicketSettings {
-        uint256 gracingPeriod; //in days
-        string metadata;
-    }
-
-    struct MintIssuerInput {
-        LibCodex.CodexInput codex;
-        bytes metadata;
-        uint256 inputBytesSize;
-        uint256 amount;
-        LibIssuer.OpenEditions openEditions;
-        MintTicketSettings mintTicketSettings;
-        LibReserve.ReserveData[] reserves;
-        LibPricing.PricingData pricing;
-        LibRoyalty.RoyaltyData primarySplit;
-        LibRoyalty.RoyaltyData royaltiesSplit;
-        bool enabled;
-        uint256[] tags;
-    }
-
-    struct MintInput {
-        uint256 issuerId;
-        bytes inputBytes;
-        address referrer;
-        bytes reserveInput;
-        bytes createTicket;
-        address recipient;
-    }
-
-    struct MintWithTicketInput {
-        uint256 issuerId;
-        uint256 ticketId;
-        bytes inputBytes;
-        address recipient;
-    }
 
     struct UpdateIssuerInput {
         uint256 issuerId;
@@ -86,101 +47,32 @@ contract IssuerToken is
         LibReserve.ReserveData[] reserves;
     }
 
-    uint256 private fees;
-    uint256 private referrerFees;
-    uint256 private lockTime;
-    string private voidMetadata;
-    uint256 private allIssuerTokens;
+    uint256 public fees;
+    uint256 public referrerFees;
+    uint256 public lockTime;
+    string public voidMetadata;
+    uint256 private allissuers;
     uint256 private allGenTkTokens;
-    address private pricingManager;
-    address private reserveManager;
-    address private codex;
-    mapping(uint256 => LibIssuer.IssuerTokenData) public issuerTokens;
-    mapping(address => UserAction) public userActions;
+    address public pricingManager;
+    address public reserveManager;
+    address public userActions;
+    address public codex;
+    mapping(uint256 => LibIssuer.IssuerTokenData) private issuers;
 
     constructor(
         uint256 _fees,
         address _pricingManager,
         address _reserveManager,
+        address _userActions,
         address _codex
-    ) ERC721("FxHashIssuer", "GTK")  {
+    ) {
         fees = _fees;
-        allIssuerTokens = 0;
+        allissuers = 0;
         allGenTkTokens = 0;
         pricingManager = _pricingManager;
         reserveManager = _reserveManager;
+        userActions = _userActions;
         codex = _codex;
-    }
-
-    function setCodex(uint256 issuerId, uint256 codexId) external {
-        issuerTokens[issuerId].info.codexId = codexId;
-    }
-
-    function setFees(uint256 _fees) external onlyFxHashAdmin {
-        fees = _fees;
-    }
-
-    function setLockTime(uint256 _lockTime) external onlyFxHashAdmin {
-        lockTime = _lockTime;
-    }
-
-    function setReferrerFees(uint256 _referrerFees) external onlyFxHashAdmin {
-        referrerFees = _referrerFees;
-    }
-
-    function setVoidMetadata(
-        string calldata _voidMetadata
-    ) external onlyFxHashAdmin {
-        voidMetadata = _voidMetadata;
-    }
-
-    function isTokenLocked(uint256 issuerId) public view returns (bool) {
-        LibIssuer.IssuerTokenData storage issuerToken = issuerTokens[issuerId];
-        int256 diff = int256(block.timestamp) -
-            int256(issuerToken.info.timestampMinted);
-        return SignedMath.abs(diff) < issuerToken.info.lockedSeconds;
-    }
-
-    function getTokenData(
-        uint256 issuerId
-    ) public view returns (LibIssuer.IssuerTokenData memory) {
-        require(issuerTokens[issuerId].info.author != address(0), "NO_TOKEN");
-        return issuerTokens[issuerId];
-    }
-
-    function getTokenPrimarySplit(
-        uint256 issuerId
-    ) public view returns (address receiver, uint256 royaltyAmount) {
-        LibIssuer.IssuerTokenData storage issuerToken = issuerTokens[issuerId];
-        require(issuerToken.info.author != address(0), "NO_TOKEN");
-        return (
-            issuerToken.primarySplit.receiver,
-            issuerToken.primarySplit.percent
-        );
-    }
-
-    function getUserActions(
-        address user
-    ) external view returns (UserAction memory) {
-        return userActions[user];
-    }
-
-    function getIssuerPricingKt(
-        uint256 issuerId
-    ) private view returns (IPricing) {
-        uint256 pricingId = issuerTokens[issuerId].info.pricingId;
-        return
-            IPricingManager(pricingManager)
-                .getPricingContract(pricingId)
-                .pricingContract;
-    }
-
-    function getTokenPrice(
-        uint256 tokenId,
-        uint256 timestamp
-    ) external view returns (uint256) {
-        IPricing pricingKt = getIssuerPricingKt(tokenId);
-        return pricingKt.getPrice(tokenId, timestamp);
     }
 
     function mintIssuer(MintIssuerInput memory params) external {
@@ -208,7 +100,7 @@ contract IssuerToken is
             "WRG_PRIM_SPLIT"
         );
 
-        require(issuerTokens[allIssuerTokens].info.author == address(0), "409");
+        require(issuers[allissuers].info.author == address(0), "409");
 
         IPricingManager(pricingManager).verifyPricingMethod(
             params.pricing.pricingId
@@ -218,12 +110,12 @@ contract IssuerToken is
             IPricingManager(pricingManager)
                 .getPricingContract(params.pricing.pricingId)
                 .pricingContract
-        ).setPrice(allIssuerTokens, params.pricing.details);
+        ).setPrice(allissuers, params.pricing.details);
 
         bool hasTickets = params.mintTicketSettings.gracingPeriod > 0;
         if (hasTickets) {
             IMintTicket(addresses["mint_tickets"]).createProject(
-                allIssuerTokens,
+                allissuers,
                 params.mintTicketSettings.gracingPeriod,
                 params.mintTicketSettings.metadata
             );
@@ -288,7 +180,7 @@ contract IssuerToken is
         if (!isOpenEd) {
             require(reserveTotal <= params.amount, "RSRV_BIG");
         }
-        issuerTokens[allIssuerTokens] = LibIssuer.IssuerTokenData({
+        issuers[allissuers] = LibIssuer.IssuerTokenData({
             metadata: params.metadata,
             balance: params.amount,
             iterationsCount: 0,
@@ -311,14 +203,13 @@ contract IssuerToken is
             })
         });
 
-        userActions[_msgSender()].lastIssuerMinted = allIssuerTokens;
-        userActions[_msgSender()].lastIssuerMintedTime = block.timestamp;
+        IUserActions(userActions).setLastIssuerMinted(_msgSender(), allissuers);
 
-        allIssuerTokens++;
+        allissuers++;
     }
 
     function mint(MintInput memory params) external payable {
-        LibIssuer.IssuerTokenData storage issuerToken = issuerTokens[
+        LibIssuer.IssuerTokenData storage issuerToken = issuers[
             params.issuerId
         ];
 
@@ -349,7 +240,8 @@ contract IssuerToken is
             );
         }
 
-        require(isTokenLocked(params.issuerId) == false, "TOKEN_LOCKED");
+        int256 diff = int256(block.timestamp) - int256(issuerToken.info.timestampMinted);
+        require(SignedMath.abs(diff) < issuerToken.info.lockedSeconds, "TOKEN_LOCKED");
         require(
             issuerToken.info.enabled == true ||
                 _msgSender() == issuerToken.info.author,
@@ -432,17 +324,11 @@ contract IssuerToken is
             recipient
         );
 
-        UserAction storage userAction = userActions[_msgSender()];
-        if (userAction.lastMintedTime == block.timestamp) {
-            userAction.lastMinted.push(tokenId);
-        } else {
-            userAction.lastMintedTime = block.timestamp;
-            userAction.lastMinted = [tokenId];
-        }
+        IUserActions(userActions).setLastMinted(_msgSender(), tokenId);
     }
 
     function mintWithTicket(MintWithTicketInput memory params) public {
-        LibIssuer.IssuerTokenData storage issuerToken = issuerTokens[
+        LibIssuer.IssuerTokenData storage issuerToken = issuers[
             params.issuerId
         ];
         require(issuerToken.info.author != address(0), "Token undefined");
@@ -480,13 +366,7 @@ contract IssuerToken is
 
         allGenTkTokens++;
 
-        UserAction storage userAction = userActions[msg.sender];
-        if (userAction.lastMintedTime == block.timestamp) {
-            userAction.lastMinted.push(params.issuerId);
-        } else {
-            userAction.lastMintedTime = block.timestamp;
-            userAction.lastMinted = [params.issuerId];
-        }
+        IUserActions(userActions).setLastMinted(_msgSender(), params.issuerId);
     }
 
     function processTransfers(
@@ -566,13 +446,19 @@ contract IssuerToken is
         }
     }
 
-    function burnToken(uint256 issuerId) private {
-        UserAction storage action = userActions[_msgSender()];
-        if (issuerId == action.lastIssuerMinted) {
-            action.lastIssuerMintedTime = 0;
-        }
-        delete issuerTokens[issuerId];
+    function getIssuer(uint256 issuerId) external view returns (LibIssuer.IssuerTokenData memory) {
+        return issuers[issuerId];
     }
+
+    function burnToken(uint256 issuerId) private {
+        IUserActions(userActions).resetLastIssuerMinted(_msgSender(), issuerId);
+        delete issuers[issuerId];
+    }
+
+    function setCodex(uint256 issuerId, uint256 codexId) external {
+        issuers[issuerId].info.codexId = codexId;
+    }
+
 
     function updateIssuer(UpdateIssuerInput calldata params) external {
         require(
@@ -587,7 +473,7 @@ contract IssuerToken is
             "WRG_PRIM_SPLIT"
         );
 
-        LibIssuer.IssuerTokenData storage issuerToken = issuerTokens[
+        LibIssuer.IssuerTokenData storage issuerToken = issuers[
             params.issuerId
         ];
         require(issuerToken.info.author != address(0), "404");
@@ -599,7 +485,7 @@ contract IssuerToken is
     }
 
     function updatePrice(UpdatePriceInput calldata params) external {
-        LibIssuer.IssuerTokenData storage issuerToken = issuerTokens[
+        LibIssuer.IssuerTokenData storage issuerToken = issuers[
             params.issuerId
         ];
         require(issuerToken.info.author != address(0), "404");
@@ -620,7 +506,7 @@ contract IssuerToken is
     }
 
     function updateReserve(UpdateReserveInput memory params) external {
-        LibIssuer.IssuerTokenData storage issuerToken = issuerTokens[
+        LibIssuer.IssuerTokenData storage issuerToken = issuers[
             params.issuerId
         ];
         require(issuerToken.info.author != address(0), "404");
@@ -643,11 +529,11 @@ contract IssuerToken is
             );
         }
         //TODO: fix
-        issuerTokens[params.issuerId].reserves = abi.encode(params.reserves);
+        issuers[params.issuerId].reserves = abi.encode(params.reserves);
     }
 
     function burn(uint256 issuerId) external {
-        LibIssuer.IssuerTokenData storage issuerToken = issuerTokens[issuerId];
+        LibIssuer.IssuerTokenData storage issuerToken = issuers[issuerId];
         require(issuerToken.info.author != address(0), "404");
         require(issuerToken.info.author == _msgSender(), "403");
         require(issuerToken.balance == issuerToken.supply, "CONSUMED_1");
@@ -656,7 +542,7 @@ contract IssuerToken is
 
     function burnSupply(uint256 issuerId, uint256 amount) external {
         require(amount > 0, "TOO_LOW");
-        LibIssuer.IssuerTokenData storage issuerToken = issuerTokens[issuerId];
+        LibIssuer.IssuerTokenData storage issuerToken = issuers[issuerId];
         require(issuerToken.info.author != address(0), "404");
         require(issuerToken.openEditions.closingTime == 0, "OES");
         require(issuerToken.info.author == _msgSender(), "403");
@@ -676,7 +562,25 @@ contract IssuerToken is
             IModeration(addresses["mod_team"]).isAuthorized(_msgSender(), 10),
             "403"
         );
-        issuerTokens[issuerId].info.tags = tags;
+        issuers[issuerId].info.tags = tags;
+    }
+
+    function setFees(uint256 _fees) external onlyFxHashAdmin {
+        fees = _fees;
+    }
+
+    function setLockTime(uint256 _lockTime) external onlyFxHashAdmin {
+        lockTime = _lockTime;
+    }
+
+    function setReferrerFees(uint256 _referrerFees) external onlyFxHashAdmin {
+        referrerFees = _referrerFees;
+    }
+
+    function setVoidMetadata(
+        string calldata _voidMetadata
+    ) external onlyFxHashAdmin {
+        voidMetadata = _voidMetadata;
     }
 
     function _msgSender()
@@ -705,10 +609,10 @@ contract IssuerToken is
     )
         public
         view
-        override(IERC2981, IIssuerToken)
+        override(IERC2981, IIssuer)
         returns (address receiver, uint256 royaltyAmount)
     {
-        LibRoyalty.RoyaltyData memory royalty = issuerTokens[tokenId]
+        LibRoyalty.RoyaltyData memory royalty = issuers[tokenId]
             .royaltiesSplit;
         uint256 amount = (salePrice * royalty.percent) / 10000;
         return (royalty.receiver, amount);
@@ -719,7 +623,7 @@ contract IssuerToken is
     )
         public
         view
-        override(AccessControl, ERC721URIStorage, IERC165)
+        override(AccessControl, IERC165, IIssuer)
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
