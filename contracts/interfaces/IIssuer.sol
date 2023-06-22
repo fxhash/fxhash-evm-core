@@ -43,9 +43,11 @@ interface IIssuer {
         address recipient;
     }
 
+    function getIssuer(uint256 issuerId) external view returns (LibIssuer.IssuerData memory);
     function mintIssuer(MintIssuerInput calldata params) external;
     function mint(MintInput calldata params) external payable;
     function mintWithTicket(MintWithTicketInput calldata params) external;
     function royaltyInfo(uint256 tokenId, uint256 salePrice) external view returns (address receiver, uint256 royaltyAmount);
+    function setCodex(uint256 issuerId, uint256 codexId) external;
     function supportsInterface(bytes4 interfaceId) external view returns (bool);
 }

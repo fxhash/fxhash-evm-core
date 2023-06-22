@@ -120,7 +120,9 @@ contract GenTk is
         view
         override(AccessControl, ERC721URIStorageUpgradeable, IERC165Upgradeable)
         returns (bool)
-    {}
+    {
+        return super.supportsInterface(interfaceId);
+    }
 
     function royaltyInfo(
         uint256 tokenId,

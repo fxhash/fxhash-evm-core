@@ -47,17 +47,17 @@ contract Issuer is IIssuer,
         LibReserve.ReserveData[] reserves;
     }
 
-    uint256 public fees;
-    uint256 public referrerFees;
-    uint256 public lockTime;
-    string public voidMetadata;
+    uint256 private fees;
+    uint256 private referrerFees;
+    uint256 private lockTime;
+    string private voidMetadata;
     uint256 private allissuers;
     uint256 private allGenTkTokens;
-    address public pricingManager;
-    address public reserveManager;
-    address public userActions;
-    address public codex;
-    mapping(uint256 => LibIssuer.IssuerTokenData) private issuers;
+    address private pricingManager;
+    address private reserveManager;
+    address private userActions;
+    address private codex;
+    mapping(uint256 => LibIssuer.IssuerData) private issuers;
 
     constructor(
         uint256 _fees,
@@ -180,7 +180,7 @@ contract Issuer is IIssuer,
         if (!isOpenEd) {
             require(reserveTotal <= params.amount, "RSRV_BIG");
         }
-        issuers[allissuers] = LibIssuer.IssuerTokenData({
+        issuers[allissuers] = LibIssuer.IssuerData({
             metadata: params.metadata,
             balance: params.amount,
             iterationsCount: 0,
@@ -189,7 +189,7 @@ contract Issuer is IIssuer,
             reserves: abi.encode(params.reserves),
             primarySplit: params.primarySplit,
             royaltiesSplit: params.royaltiesSplit,
-            info: LibIssuer.IssuerTokenInfo({
+            info: LibIssuer.IssuerInfo({
                 tags: params.tags,
                 enabled: params.enabled,
                 lockedSeconds: _lockTime,
@@ -209,7 +209,7 @@ contract Issuer is IIssuer,
     }
 
     function mint(MintInput memory params) external payable {
-        LibIssuer.IssuerTokenData storage issuerToken = issuers[
+        LibIssuer.IssuerData storage issuerToken = issuers[
             params.issuerId
         ];
 
@@ -328,7 +328,7 @@ contract Issuer is IIssuer,
     }
 
     function mintWithTicket(MintWithTicketInput memory params) public {
-        LibIssuer.IssuerTokenData storage issuerToken = issuers[
+        LibIssuer.IssuerData storage issuerToken = issuers[
             params.issuerId
         ];
         require(issuerToken.info.author != address(0), "Token undefined");
@@ -372,7 +372,7 @@ contract Issuer is IIssuer,
     function processTransfers(
         IPricing pricingContract,
         MintInput memory params,
-        LibIssuer.IssuerTokenData storage issuerToken,
+        LibIssuer.IssuerData storage issuerToken,
         uint256 tokenId,
         address recipient
     ) private {
@@ -446,7 +446,7 @@ contract Issuer is IIssuer,
         }
     }
 
-    function getIssuer(uint256 issuerId) external view returns (LibIssuer.IssuerTokenData memory) {
+    function getIssuer(uint256 issuerId) external view returns (LibIssuer.IssuerData memory) {
         return issuers[issuerId];
     }
 
@@ -473,7 +473,7 @@ contract Issuer is IIssuer,
             "WRG_PRIM_SPLIT"
         );
 
-        LibIssuer.IssuerTokenData storage issuerToken = issuers[
+        LibIssuer.IssuerData storage issuerToken = issuers[
             params.issuerId
         ];
         require(issuerToken.info.author != address(0), "404");
@@ -485,7 +485,7 @@ contract Issuer is IIssuer,
     }
 
     function updatePrice(UpdatePriceInput calldata params) external {
-        LibIssuer.IssuerTokenData storage issuerToken = issuers[
+        LibIssuer.IssuerData storage issuerToken = issuers[
             params.issuerId
         ];
         require(issuerToken.info.author != address(0), "404");
@@ -506,7 +506,7 @@ contract Issuer is IIssuer,
     }
 
     function updateReserve(UpdateReserveInput memory params) external {
-        LibIssuer.IssuerTokenData storage issuerToken = issuers[
+        LibIssuer.IssuerData storage issuerToken = issuers[
             params.issuerId
         ];
         require(issuerToken.info.author != address(0), "404");
@@ -533,7 +533,7 @@ contract Issuer is IIssuer,
     }
 
     function burn(uint256 issuerId) external {
-        LibIssuer.IssuerTokenData storage issuerToken = issuers[issuerId];
+        LibIssuer.IssuerData storage issuerToken = issuers[issuerId];
         require(issuerToken.info.author != address(0), "404");
         require(issuerToken.info.author == _msgSender(), "403");
         require(issuerToken.balance == issuerToken.supply, "CONSUMED_1");
@@ -542,7 +542,7 @@ contract Issuer is IIssuer,
 
     function burnSupply(uint256 issuerId, uint256 amount) external {
         require(amount > 0, "TOO_LOW");
-        LibIssuer.IssuerTokenData storage issuerToken = issuers[issuerId];
+        LibIssuer.IssuerData storage issuerToken = issuers[issuerId];
         require(issuerToken.info.author != address(0), "404");
         require(issuerToken.openEditions.closingTime == 0, "OES");
         require(issuerToken.info.author == _msgSender(), "403");

@@ -2,8 +2,9 @@
 pragma solidity ^0.8.18;
 
 import "contracts/interfaces/IModeration.sol";
-import "contracts/interfaces/IIssuerToken.sol";
+import "contracts/interfaces/IIssuer.sol";
 import "contracts/interfaces/ICodex.sol";
+import "contracts/libs/LibIssuer.sol";
 
 contract Codex is ICodex {
     struct CodexData {
@@ -90,10 +91,8 @@ contract Codex is ICodex {
         LibCodex.CodexInput calldata input
     ) external override {
         require(_issuerId > 0, "NO_ISSUER");
-        //TODO
-        //replace this call by doing it in the issuer directly
-        // IssuerTokenData memory issuer = issuerTokens[_issuerId];
-        // require(issuer.author == msg.sender, "403");
+        LibIssuer.IssuerData memory _issuer = IIssuer(issuer).getIssuer(_issuerId);
+        require(_issuer.info.author == msg.sender, "403");
         uint256 codexId = codexEntryIdFromInput(msg.sender, input);
         require(issuerCodexUpdates[_issuerId] != codexId, "SAME_CDX_ID");
         issuerCodexUpdates[_issuerId] = codexId;
@@ -107,7 +106,7 @@ contract Codex is ICodex {
         require(issuerId > 0, "NO_REQ");
         require(issuerId == _codexId, "WRG_CDX_ID");
         require(IModeration(moderation).isAuthorized(msg.sender, 701), "403");
-        IIssuerToken(issuer).setCodex(issuerId, _codexId);
+        IIssuer(issuer).setCodex(issuerId, _codexId);
         delete issuerCodexUpdates[issuerId];
     }
 

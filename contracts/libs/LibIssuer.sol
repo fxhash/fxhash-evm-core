@@ -10,7 +10,7 @@ library LibIssuer {
         bytes extra;
     }
 
-    struct IssuerTokenData {
+    struct IssuerData {
         uint256 balance;
         uint256 iterationsCount;
         bytes metadata;
@@ -19,10 +19,10 @@ library LibIssuer {
         bytes reserves;
         LibRoyalty.RoyaltyData primarySplit;
         LibRoyalty.RoyaltyData royaltiesSplit;
-        IssuerTokenInfo info;
+        IssuerInfo info;
     }
 
-    struct IssuerTokenInfo {
+    struct IssuerInfo {
         uint256[] tags;
         bool enabled;
         uint256 lockedSeconds;
@@ -36,7 +36,7 @@ library LibIssuer {
     }
 
     function verifyIssuerUpdateable(
-        IssuerTokenData memory issuerToken
+        IssuerData memory issuerToken
     ) external view {
         if (issuerToken.openEditions.closingTime > 0) {
             require(
