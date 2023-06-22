@@ -290,14 +290,13 @@ contract IssuerToken is
         if (!isOpenEd) {
             require(reserveTotal <= params.amount, "RSRV_BIG");
         }
-
         issuerTokens[allIssuerTokens] = LibIssuer.IssuerTokenData({
             metadata: params.metadata,
             balance: params.amount,
             iterationsCount: 0,
             supply: params.amount,
             openEditions: params.openEditions,
-            reserves: params.reserves,
+            reserves: abi.encode(params.reserves),
             primarySplit: params.primarySplit,
             royaltiesSplit: params.royaltiesSplit,
             info: LibIssuer.IssuerTokenInfo({
@@ -386,19 +385,20 @@ contract IssuerToken is
         bool reserveApplied = false;
         uint256 reserveTotal = 0;
         {
-            for (uint256 i = 0; i < issuerToken.reserves.length; i++) {
-                reserveTotal += issuerToken.reserves[i].amount;
+            LibReserve.ReserveData[] memory decodedReserves = abi.decode(issuerToken.reserves, (LibReserve.ReserveData[]));
+            for (uint256 i = 0; i < decodedReserves.length; i++) {
+                reserveTotal += decodedReserves[i].amount;
                 if (
-                    reserveInput.methodId == issuerToken.reserves[i].methodId &&
+                    reserveInput.methodId == decodedReserves[i].methodId &&
                     !reserveApplied
                 ) {
                     (bool applied, bytes memory applyData) = IReserveManager(
                         reserveManager
-                    ).applyReserve(issuerToken.reserves[i], reserveInput.input);
+                    ).applyReserve(decodedReserves[i], reserveInput.input);
                     if (applied) {
                         reserveApplied = true;
-                        issuerToken.reserves[i].amount -= 1;
-                        issuerToken.reserves[i].data = applyData;
+                        decodedReserves[i].amount -= 1;
+                        decodedReserves[i].data = applyData;
                     }
                 }
             }
@@ -621,31 +621,32 @@ contract IssuerToken is
         ).setPrice(params.issuerId, params.pricingData.details);
     }
 
-    // function updateReserve(UpdateReserveInput memory params) external {
-    //     LibIssuer.IssuerTokenData storage issuerToken = issuerTokens[
-    //         params.issuerId
-    //     ];
-    //     require(issuerToken.info.author != address(0), "404");
-    //     require(issuerToken.info.author == _msgSender(), "403");
-    //     LibIssuer.verifyIssuerUpdateable(issuerToken);
-    //     require(issuerToken.info.enabled, "TOK_DISABLED");
-    //     for (uint256 i = 0; i < params.reserves.length; i++) {
-    //         LibReserve.ReserveMethod memory reserve = IReserveManager(
-    //             reserveManager
-    //         ).getReserveMethod(params.reserves[i].methodId);
-    //         require(
-    //             reserve.reserveContract != IReserve(address(0)),
-    //             "RSRV_404"
-    //         );
-    //         require(reserve.enabled, "RSRV_DIS");
-    //         require(
-    //             IReserveManager(reserveManager).isReserveValid(
-    //                 params.reserves[i]
-    //             )
-    //         );
-    //     }
-    //     issuerTokens[params.issuerId].reserves = params.reserves;
-    // }
+    function updateReserve(UpdateReserveInput memory params) external {
+        LibIssuer.IssuerTokenData storage issuerToken = issuerTokens[
+            params.issuerId
+        ];
+        require(issuerToken.info.author != address(0), "404");
+        require(issuerToken.info.author == _msgSender(), "403");
+        LibIssuer.verifyIssuerUpdateable(issuerToken);
+        require(issuerToken.info.enabled, "TOK_DISABLED");
+        for (uint256 i = 0; i < params.reserves.length; i++) {
+            LibReserve.ReserveMethod memory reserve = IReserveManager(
+                reserveManager
+            ).getReserveMethod(params.reserves[i].methodId);
+            require(
+                reserve.reserveContract != IReserve(address(0)),
+                "RSRV_404"
+            );
+            require(reserve.enabled, "RSRV_DIS");
+            require(
+                IReserveManager(reserveManager).isReserveValid(
+                    params.reserves[i]
+                )
+            );
+        }
+        //TODO: fix
+        issuerTokens[params.issuerId].reserves = abi.encode(params.reserves);
+    }
 
     function burn(uint256 issuerId) external {
         LibIssuer.IssuerTokenData storage issuerToken = issuerTokens[issuerId];

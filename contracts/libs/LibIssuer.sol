@@ -16,7 +16,7 @@ library LibIssuer {
         bytes metadata;
         uint256 supply;
         OpenEditions openEditions;
-        LibReserve.ReserveData[] reserves;
+        bytes reserves;
         LibRoyalty.RoyaltyData primarySplit;
         LibRoyalty.RoyaltyData royaltiesSplit;
         IssuerTokenInfo info;
