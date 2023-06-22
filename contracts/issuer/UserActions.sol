@@ -7,7 +7,9 @@ contract UserActions {
     mapping(address => LibUserActions.UserAction) public userActions;
     function getUserActions(
         address addr
-    ) external view returns (LibUserActions.UserAction memory) {}
+    ) external view returns (LibUserActions.UserAction memory) {
+        return  userActions[addr];
+    }
 
     function setLastIssuerMinted(
         address addr,
@@ -16,7 +18,7 @@ contract UserActions {
         userActions[addr].lastIssuerMinted = issuerId;
         userActions[addr].lastIssuerMintedTime = block.timestamp;
     }
-    
+
     function setLastMinted(
         address addr,
         uint256 tokenId
