@@ -3,7 +3,7 @@ pragma solidity ^0.8.18;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "contracts/abstract/admin/FxHashAdminVerify.sol";
-import "contracts/interfaces/IFxHashIssuer.sol";
+import "contracts/interfaces/IIssuerToken.sol";
 
 abstract contract FxHashIssuerVerify is FxHashAdminVerify {
     bytes32 public constant FXHASH_ISSUER = keccak256("FXHASH_ISSUER");
@@ -18,8 +18,8 @@ abstract contract FxHashIssuerVerify is FxHashAdminVerify {
 
     function grantFxHashIssuerRole(address _issuer) public onlyAdmin {
         require(
-            IERC165(_issuer).supportsInterface(type(IFxHashIssuer).interfaceId),
-            "Contract does not support IFxHashIssuer interface."
+            IERC165(_issuer).supportsInterface(type(IIssuerToken).interfaceId),
+            "Contract does not support IIssuerToken interface."
         );
         AccessControl.grantRole(FXHASH_ISSUER, _issuer);
     }

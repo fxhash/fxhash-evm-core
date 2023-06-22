@@ -2,15 +2,6 @@ import { ethers } from "hardhat";
 import { expect } from "chai";
 import { Contract, ContractFactory, Signer } from "ethers";
 
-import "contracts/interfaces/IMintTicket.sol";
-import "contracts/interfaces/IReserve.sol";
-import "contracts/interfaces/IPricing.sol";
-import "contracts/interfaces/IAllowMintIssuer.sol";
-import "contracts/interfaces/IAllowMint.sol";
-import "contracts/interfaces/IModeration.sol";
-import "contracts/interfaces/IModerationUser.sol";
-import "contracts/interfaces/IGenTk.sol";
-
 describe("GenTk", () => {
   let genTk: Contract;
   let admin: Signer;
@@ -54,6 +45,7 @@ describe("GenTk", () => {
       []
     );
     await mintPassGroup.deployed();
+
     const ModerationToken = await ethers.getContractFactory("ModerationToken");
     moderatorToken = await ModerationToken.deploy(await admin.getAddress());
     await moderatorToken.deployed();
@@ -70,6 +62,11 @@ describe("GenTk", () => {
         authorizations,
       },
     ]);
+
+    const ModerationUser = await ethers.getContractFactory("ModerationUser");
+    moderationUser = await ModerationUser.deploy(await admin.getAddress());
+    await moderationUser.setAddress("mod", moderationTeam.address);
+
     const AllowMintFactory = await ethers.getContractFactory("AllowMint");
     allowMint = await AllowMintFactory.deploy(
       await admin.getAddress(),
@@ -144,5 +141,79 @@ describe("GenTk", () => {
     await issuer.setAddresses("al_mi", await allowMintIssuer.address);
     await issuer.setAddresses("al_m", await allowMint.address);
     await issuer.setAddresses("user_mod", await moderationUser.address);
+  });
+
+  describe("Mint issuer", function () {
+    it("It should successfully mint an issuer token", async function () {
+      const mintIssuerInput = {
+        codex: {
+          inputType: 1,
+          value: "0x0123456789abcdef",
+          codexId: 123,
+        },
+        metadata: "0xabcdef0123456789",
+        inputBytesSize: 256,
+        amount: 1000,
+        openEditions: {
+          closingTime: 1735689600,
+          extra: "0xabcdef0123456789",
+        },
+        mintTicketSettings: {
+          gracingPeriod: 30,
+          metadata: "Sample metadata",
+        },
+        reserves: [
+          {
+            methodId: 1,
+            amount: 500,
+            data: "0xabcdef0123456789",
+          },
+          {
+            methodId: 2,
+            amount: 200,
+            data: "0x0123456789abcdef",
+          },
+        ],
+        pricing: {
+          pricingId: 1,
+          details: "0xabcdef0123456789",
+          lockForReserves: true,
+        },
+        primarySplit: {
+          percent: 1500,
+          receiver: "0x0123456789abcdef",
+        },
+        royaltiesSplit: {
+          percent: 1000,
+          receiver: "0xabcdef0123456789",
+        },
+        enabled: true,
+        tags: [1, 2, 3],
+      };
+
+      // Mint issuer using the input
+      await issuer.connect(receiver).mintIssuer(mintIssuerInput);
+
+      expect(await issuer.issuerTokens(0)).to.deep.equal({
+        author: await receiver.getAddress(),
+        balance: mintIssuerInput.amount,
+        iterationsCount: 0,
+        codexId: mintIssuerInput.codex.codexId,
+        metadata: mintIssuerInput.metadata,
+        inputBytesSize: mintIssuerInput.inputBytesSize,
+        supply: mintIssuerInput.amount,
+        openEditions: mintIssuerInput.openEditions,
+        hasTickets: true, // Assuming mintTicketSettings.gracingPeriod > 0
+        reserves: mintIssuerInput.reserves,
+        pricingId: mintIssuerInput.pricing.pricingId,
+        lockPriceForReserves: mintIssuerInput.pricing.lockForReserves,
+        primarySplit: mintIssuerInput.primarySplit,
+        royaltiesSplit: mintIssuerInput.royaltiesSplit,
+        enabled: mintIssuerInput.enabled,
+        timestampMinted: O,
+        lockedSeconds: 0,
+        tags: mintIssuerInput.tags,
+      });
+    });
   });
 });

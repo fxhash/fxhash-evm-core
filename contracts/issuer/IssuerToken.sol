@@ -1,115 +1,54 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol";
-import "contracts/interfaces/IFxHashIssuer.sol";
+
+import "contracts/interfaces/IIssuerToken.sol";
 import "contracts/interfaces/IMintTicket.sol";
 import "contracts/interfaces/IReserve.sol";
+import "contracts/interfaces/IReserveManager.sol";
 import "contracts/interfaces/IPricing.sol";
+import "contracts/interfaces/IPricingManager.sol";
 import "contracts/interfaces/IAllowMintIssuer.sol";
 import "contracts/interfaces/IAllowMint.sol";
 import "contracts/interfaces/IModeration.sol";
 import "contracts/interfaces/IModerationUser.sol";
 import "contracts/interfaces/IGenTk.sol";
+import "contracts/interfaces/ICodex.sol";
+
 import "contracts/abstract/admin/FxHashAdminVerify.sol";
 import "contracts/abstract/AddressConfig.sol";
 import "contracts/abstract/Treasury.sol";
 
-contract FxHashIssuer is
-    IFxHashIssuer,
+import "contracts/libs/LibCodex.sol";
+import "contracts/libs/LibIssuer.sol";
+import "contracts/libs/LibReserve.sol";
+import "contracts/libs/LibPricing.sol";
+
+contract IssuerToken is
+    IIssuerToken,
     FxHashAdminVerify,
     ERC721URIStorageUpgradeable,
     IERC2981Upgradeable,
     AddressConfig,
     Treasury
 {
-    struct ReserveData {
-        uint256 methodId;
-        uint256 amount;
-        bytes data;
-    }
-
-    struct ReserveInput {
-        uint256 methodId;
-        bytes input;
-    }
-
-    struct ReserveMethod {
-        IReserve reserveContract;
-        bool enabled;
-    }
-
-    struct OpenEditions {
-        uint256 closingTime;
-        bytes extra;
-    }
-
-    struct RoyaltyData {
-        uint256 percent;
-        address receiver;
-    }
-
-    struct IssuerTokenData {
-        address author;
-        uint256 balance;
-        uint256 iterationsCount;
-        uint256 codexId;
-        bytes metadata;
-        uint256 inputBytesSize;
-        uint256 supply;
-        OpenEditions openEditions;
-        bool hasTickets;
-        ReserveData[] reserves;
-        uint256 pricingId;
-        bool lockPriceForReserves;
-        RoyaltyData primarySplit;
-        RoyaltyData royaltiesSplit;
-        bool enabled;
-        uint256 timestampMinted;
-        uint256 lockedSeconds;
-        uint256[] tags;
-    }
-
-    struct PricingContract {
-        IPricing pricingContract;
-        bool enabled;
-    }
-
-    struct CodexData {
-        uint256 entryType;
-        address author;
-        bool locked;
-        bytes[] value;
-    }
-
-    struct CodexInput {
-        uint256 inputType;
-        bytes value;
-        uint256 codexId;
-    }
-
     struct MintTicketSettings {
         uint256 gracingPeriod; //in days
         string metadata;
     }
 
-    struct PricingData {
-        uint256 pricingId;
-        bytes details;
-        bool lockForReserves;
-    }
-
     struct MintIssuerInput {
-        CodexInput codex;
+        LibCodex.CodexInput codex;
         bytes metadata;
         uint256 inputBytesSize;
         uint256 amount;
-        OpenEditions openEditions;
+        LibIssuer.OpenEditions openEditions;
         MintTicketSettings mintTicketSettings;
-        ReserveData[] reserves;
-        PricingData pricing;
-        RoyaltyData primarySplit;
-        RoyaltyData royaltiesSplit;
+        LibReserve.ReserveData[] reserves;
+        LibPricing.PricingData pricing;
+        LibRoyalty.RoyaltyData primarySplit;
+        LibRoyalty.RoyaltyData royaltiesSplit;
         bool enabled;
         uint256[] tags;
     }
@@ -132,70 +71,51 @@ contract FxHashIssuer is
 
     struct UpdateIssuerInput {
         uint256 issuerId;
-        RoyaltyData primarySplit;
-        RoyaltyData royaltiesSplit;
+        LibRoyalty.RoyaltyData primarySplit;
+        LibRoyalty.RoyaltyData royaltiesSplit;
         bool enabled;
     }
 
     struct UpdatePriceInput {
         uint256 issuerId;
-        PricingData pricingData;
+        LibPricing.PricingData pricingData;
     }
 
     struct UpdateReserveInput {
         uint256 issuerId;
-        ReserveData[] reserves;
+        LibReserve.ReserveData[] reserves;
     }
 
-    uint256 public fees;
-    uint256 public referrerFees;
-    uint256 public lockTime;
-    string public voidMetadata;
-    uint256 public codexEntriesCount;
-    uint256 public allIssuerTokens;
-    uint256 public allGenTkTokens;
-
-    mapping(uint256 => ReserveMethod) public reserveMethods;
-    mapping(uint256 => IssuerTokenData) public issuerTokens;
+    uint256 private fees;
+    uint256 private referrerFees;
+    uint256 private lockTime;
+    string private voidMetadata;
+    uint256 private allIssuerTokens;
+    uint256 private allGenTkTokens;
+    address private pricingManager;
+    address private reserveManager;
+    address private codex;
+    mapping(uint256 => LibIssuer.IssuerTokenData) public issuerTokens;
     mapping(address => UserAction) public userActions;
-    mapping(uint256 => PricingContract) public pricingContracts;
-    mapping(uint256 => CodexData) private codexEntries;
-    mapping(uint256 => uint256) private issuerCodexUpdates;
 
-    function initialize(uint256 _fees) external initializer {
+    function initialize(
+        uint256 _fees,
+        address _pricingManager,
+        address _reserveManager,
+        address _codex
+    ) external initializer {
         fees = _fees;
-
+        allIssuerTokens = 0;
+        allGenTkTokens = 0;
+        pricingManager = _pricingManager;
+        reserveManager = _reserveManager;
+        codex = _codex;
         __ERC721_init("FxHashIssuer", "GTK");
         __ERC721URIStorage_init();
     }
 
-    function isReserveValid(
-        ReserveData memory reserve
-    ) public view returns (bool) {
-        return
-            reserveMethods[reserve.methodId].reserveContract.isInputValid(
-                LibReserve.InputParams({
-                    data: reserve.data,
-                    amount: reserve.amount,
-                    sender: _msgSender()
-                })
-            );
-    }
-
-    function applyReserve(
-        ReserveData memory reserve,
-        bytes memory userInput
-    ) public returns (bool, bytes memory) {
-        ReserveMethod storage method = reserveMethods[reserve.methodId];
-        return
-            method.reserveContract.applyReserve(
-                LibReserve.ApplyParams({
-                    currentData: reserve.data,
-                    currentAmount: reserve.amount,
-                    sender: _msgSender(),
-                    userInput: userInput
-                })
-            );
+    function setCodex(uint256 issuerId, uint256 codexId) external {
+        issuerTokens[issuerId].codexId = codexId;
     }
 
     function setFees(uint256 _fees) external onlyFxHashAdmin {
@@ -216,15 +136,8 @@ contract FxHashIssuer is
         voidMetadata = _voidMetadata;
     }
 
-    function setReserveMethod(
-        uint256 id,
-        ReserveMethod memory reserveMethod
-    ) external onlyFxHashAdmin {
-        reserveMethods[id] = reserveMethod;
-    }
-
     function isTokenLocked(uint256 issuerId) public view returns (bool) {
-        IssuerTokenData storage issuerToken = issuerTokens[issuerId];
+        LibIssuer.IssuerTokenData storage issuerToken = issuerTokens[issuerId];
         int256 diff = int256(block.timestamp) -
             int256(issuerToken.timestampMinted);
         return SignedMath.abs(diff) < issuerToken.lockedSeconds;
@@ -232,7 +145,7 @@ contract FxHashIssuer is
 
     function getTokenData(
         uint256 issuerId
-    ) public view returns (IssuerTokenData memory) {
+    ) public view returns (LibIssuer.IssuerTokenData memory) {
         require(issuerTokens[issuerId].author != address(0), "NO_TOKEN");
         return issuerTokens[issuerId];
     }
@@ -240,7 +153,7 @@ contract FxHashIssuer is
     function getTokenPrimarySplit(
         uint256 issuerId
     ) public view returns (address receiver, uint256 royaltyAmount) {
-        IssuerTokenData memory issuerToken = issuerTokens[issuerId];
+        LibIssuer.IssuerTokenData storage issuerToken = issuerTokens[issuerId];
         require(issuerToken.author != address(0), "NO_TOKEN");
         return (
             issuerToken.primarySplit.receiver,
@@ -258,7 +171,10 @@ contract FxHashIssuer is
         uint256 issuerId
     ) private view returns (IPricing) {
         uint256 pricingId = issuerTokens[issuerId].pricingId;
-        return pricingContracts[pricingId].pricingContract;
+        return
+            IPricingManager(pricingManager)
+                .getPricingContract(pricingId)
+                .pricingContract;
     }
 
     function getTokenPrice(
@@ -269,118 +185,6 @@ contract FxHashIssuer is
         return pricingKt.getPrice(tokenId, timestamp);
     }
 
-    function setPricingContract(
-        uint256 id,
-        address contractAddress,
-        bool enabled
-    ) public onlyFxHashAdmin {
-        pricingContracts[id] = PricingContract({
-            pricingContract: IPricing(contractAddress),
-            enabled: enabled
-        });
-    }
-
-    function codexInsert(
-        uint256 entryType,
-        address author,
-        bool locked,
-        bytes[] memory value
-    ) private {
-        codexEntries[codexEntriesCount] = CodexData(
-            entryType,
-            author,
-            locked,
-            value
-        );
-        codexEntriesCount++;
-    }
-
-    function codexEntryIdFromInput(
-        address author,
-        CodexInput memory input
-    ) private returns (uint256) {
-        uint256 codexIdValue = 0;
-        if (input.codexId > 0) {
-            require(
-                codexEntries[input.codexId].author != address(0),
-                "CDX_EMPTY"
-            );
-            require(codexEntries[input.codexId].locked, "CDX_NOT_LOCK");
-            codexIdValue = input.codexId;
-        } else {
-            require(input.inputType > 0, "CDX_EMP");
-            bytes[] memory valueBytes = new bytes[](1);
-            valueBytes[0] = input.value;
-            codexInsert(input.inputType, author, true, valueBytes);
-            codexIdValue = codexEntriesCount - 1;
-        }
-        return codexIdValue;
-    }
-
-    function codexAddEntry(uint256 entryType, bytes[] memory value) public {
-        codexInsert(entryType, _msgSender(), true, value);
-    }
-
-    function codexLockEntry(uint256 entryId) public {
-        CodexData storage entry = codexEntries[entryId];
-        require(entry.author == _msgSender(), "403");
-        require(!entry.locked, "CDX_LOCK");
-        require(entry.value.length > 0, "CDX_EMP");
-        entry.locked = true;
-    }
-
-    function codexUpdateEntry(
-        uint256 entryId,
-        bool pushEnd,
-        bytes memory value
-    ) public {
-        CodexData storage entry = codexEntries[entryId];
-        require(entry.author == _msgSender(), "403");
-        require(!entry.locked, "CDX_LOCK");
-        if (pushEnd) {
-            entry.value.push(value);
-        } else {
-            bytes[] memory valueBytes = new bytes[](1);
-            valueBytes[0] = value;
-            entry.value = valueBytes;
-        }
-    }
-
-    function updateIssuerCodexRequest(
-        uint256 _issuerId,
-        CodexInput calldata input
-    ) public {
-        require(_issuerId > 0, "NO_ISSUER");
-        IssuerTokenData memory issuer = issuerTokens[_issuerId];
-        require(issuer.author == _msgSender(), "403");
-        uint256 codexId = codexEntryIdFromInput(_msgSender(), input);
-        require(issuerCodexUpdates[_issuerId] != codexId, "SAME_CDX_ID");
-        issuerCodexUpdates[_issuerId] = codexId;
-    }
-
-    function updateIssuerCodexApprove(
-        uint256 _issuerId,
-        uint256 _codexId
-    ) public {
-        uint256 issuerId = issuerCodexUpdates[_issuerId];
-        require(issuerId > 0, "NO_REQ");
-        require(issuerId == _codexId, "WRG_CDX_ID");
-        require(
-            IModeration(addresses["mod_team"]).isAuthorized(msg.sender, 701),
-            "403"
-        );
-        issuerTokens[_issuerId].codexId = issuerId;
-        delete issuerCodexUpdates[issuerId];
-    }
-
-    function verifyPricingMethod(uint256 pricingId) private view {
-        require(
-            address(pricingContracts[pricingId].pricingContract) != address(0),
-            "PRC_MTD_NOT"
-        );
-        require(pricingContracts[pricingId].enabled == true, "PRC_MTD_DIS");
-    }
-
     function mintIssuer(MintIssuerInput memory params) external {
         require(
             IAllowMintIssuer(addresses["al_mi"]).isAllowed(
@@ -389,7 +193,10 @@ contract FxHashIssuer is
             ),
             "403"
         );
-        uint256 codexId = codexEntryIdFromInput(_msgSender(), params.codex);
+        uint256 codexId = ICodex(codex).codexEntryIdFromInput(
+            _msgSender(),
+            params.codex
+        );
         uint256 _lockTime = lockTime;
         require(
             ((params.royaltiesSplit.percent >= 1000) &&
@@ -405,10 +212,15 @@ contract FxHashIssuer is
 
         require(issuerTokens[allIssuerTokens].author == address(0), "409");
 
-        verifyPricingMethod(params.pricing.pricingId);
+        IPricingManager(pricingManager).verifyPricingMethod(
+            params.pricing.pricingId
+        );
 
-        IPricing(pricingContracts[params.pricing.pricingId].pricingContract)
-            .setPrice(allIssuerTokens, params.pricing.details);
+        IPricing(
+            IPricingManager(pricingManager)
+                .getPricingContract(params.pricing.pricingId)
+                .pricingContract
+        ).setPrice(allIssuerTokens, params.pricing.details);
 
         bool hasTickets = params.mintTicketSettings.gracingPeriod > 0;
         if (hasTickets) {
@@ -459,23 +271,27 @@ contract FxHashIssuer is
 
         uint256 reserveTotal = 0;
         for (uint256 i = 0; i < params.reserves.length; i++) {
+            LibReserve.ReserveMethod memory reserveMethod = IReserveManager(
+                reserveManager
+            ).getReserveMethod(params.reserves[i].methodId);
             require(
-                reserveMethods[params.reserves[i].methodId].reserveContract !=
-                    IReserve(address(0)),
+                reserveMethod.reserveContract != IReserve(address(0)),
                 "NO_RESERVE_METHOD"
             );
-            require(
-                reserveMethods[params.reserves[i].methodId].enabled,
-                "RESERVE_METHOD_DISABLED"
-            );
+            require(reserveMethod.enabled, "RESERVE_METHOD_DISABLED");
             reserveTotal += params.reserves[i].amount;
-            require(isReserveValid(params.reserves[i]), "WRG_RSRV");
+            require(
+                IReserveManager(reserveManager).isReserveValid(
+                    params.reserves[i]
+                ),
+                "WRG_RSRV"
+            );
         }
         if (!isOpenEd) {
             require(reserveTotal <= params.amount, "RSRV_BIG");
         }
 
-        issuerTokens[allIssuerTokens] = IssuerTokenData({
+        issuerTokens[allIssuerTokens] = LibIssuer.IssuerTokenData({
             author: _msgSender(),
             codexId: codexId,
             metadata: params.metadata,
@@ -503,7 +319,9 @@ contract FxHashIssuer is
     }
 
     function mint(MintInput memory params) external payable {
-        IssuerTokenData storage issuerToken = issuerTokens[params.issuerId];
+        LibIssuer.IssuerTokenData storage issuerToken = issuerTokens[
+            params.issuerId
+        ];
 
         require(issuerToken.author != address(0), "Token undefined");
 
@@ -541,7 +359,7 @@ contract FxHashIssuer is
 
         bool isOe = issuerToken.openEditions.closingTime > 0;
         if (isOe) {
-            OpenEditions memory oe = issuerToken.openEditions;
+            LibIssuer.OpenEditions memory oe = issuerToken.openEditions;
             if (oe.closingTime != 0) {
                 require(block.timestamp < oe.closingTime, "OE_CLOSE");
             }
@@ -549,9 +367,12 @@ contract FxHashIssuer is
             require(issuerToken.balance > 0, "NO_BLNCE");
         }
 
-        ReserveInput memory reserveInput;
+        LibReserve.ReserveInput memory reserveInput;
         if (params.reserveInput.length > 0) {
-            reserveInput = abi.decode(params.reserveInput, (ReserveInput));
+            reserveInput = abi.decode(
+                params.reserveInput,
+                (LibReserve.ReserveInput)
+            );
         }
 
         bool reserveApplied = false;
@@ -562,10 +383,9 @@ contract FxHashIssuer is
                 reserveInput.methodId == issuerToken.reserves[i].methodId &&
                 !reserveApplied
             ) {
-                (bool applied, bytes memory applyData) = applyReserve(
-                    issuerToken.reserves[i],
-                    reserveInput.input
-                );
+                (bool applied, bytes memory applyData) = IReserveManager(
+                    reserveManager
+                ).applyReserve(issuerToken.reserves[i], reserveInput.input);
                 if (applied) {
                     reserveApplied = true;
                     issuerToken.reserves[i].amount -= 1;
@@ -575,7 +395,9 @@ contract FxHashIssuer is
         }
 
         IPricing pricingContract = IPricing(
-            pricingContracts[issuerToken.pricingId].pricingContract
+            IPricingManager(pricingManager)
+                .getPricingContract(issuerToken.pricingId)
+                .pricingContract
         );
 
         if (isOe) {
@@ -670,7 +492,9 @@ contract FxHashIssuer is
     }
 
     function mintWithTicket(MintWithTicketInput memory params) public {
-        IssuerTokenData storage issuerToken = issuerTokens[params.issuerId];
+        LibIssuer.IssuerTokenData storage issuerToken = issuerTokens[
+            params.issuerId
+        ];
         require(issuerToken.author != address(0), "Token undefined");
         require(
             params.inputBytes.length == issuerToken.inputBytesSize,
@@ -736,49 +560,64 @@ contract FxHashIssuer is
             "WRG_PRIM_SPLIT"
         );
 
-        IssuerTokenData storage issuerToken = issuerTokens[params.issuerId];
+        LibIssuer.IssuerTokenData storage issuerToken = issuerTokens[
+            params.issuerId
+        ];
         require(issuerToken.author != address(0), "404");
         require(issuerToken.author == _msgSender(), "403");
-        verifyIssuerUpdateable(issuerToken);
+        LibIssuer.verifyIssuerUpdateable(issuerToken);
         issuerToken.primarySplit = params.primarySplit;
         issuerToken.royaltiesSplit = params.royaltiesSplit;
         issuerToken.enabled = params.enabled;
     }
 
     function updatePrice(UpdatePriceInput calldata params) external {
-        IssuerTokenData storage issuerToken = issuerTokens[params.issuerId];
+        LibIssuer.IssuerTokenData storage issuerToken = issuerTokens[
+            params.issuerId
+        ];
         require(issuerToken.author != address(0), "404");
         require(issuerToken.author == _msgSender(), "403");
-        verifyIssuerUpdateable(issuerToken);
-        verifyPricingMethod(params.pricingData.pricingId);
+        LibIssuer.verifyIssuerUpdateable(issuerToken);
+        IPricingManager(pricingManager).verifyPricingMethod(
+            params.pricingData.pricingId
+        );
         issuerToken.pricingId = params.pricingData.pricingId;
         issuerToken.lockPriceForReserves = params.pricingData.lockForReserves;
-        IPricing(pricingContracts[params.pricingData.pricingId].pricingContract)
-            .setPrice(params.issuerId, params.pricingData.details);
+        IPricing(
+            IPricingManager(pricingManager)
+                .getPricingContract(params.pricingData.pricingId)
+                .pricingContract
+        ).setPrice(params.issuerId, params.pricingData.details);
     }
 
     function updateReserve(UpdateReserveInput calldata params) external {
-        IssuerTokenData storage issuerToken = issuerTokens[params.issuerId];
+        LibIssuer.IssuerTokenData storage issuerToken = issuerTokens[
+            params.issuerId
+        ];
         require(issuerToken.author != address(0), "404");
         require(issuerToken.author == _msgSender(), "403");
-        verifyIssuerUpdateable(issuerToken);
+        LibIssuer.verifyIssuerUpdateable(issuerToken);
         require(issuerToken.enabled, "TOK_DISABLED");
         for (uint256 i = 0; i < params.reserves.length; i++) {
-            ReserveMethod storage reserve = reserveMethods[
-                params.reserves[i].methodId
-            ];
+            LibReserve.ReserveMethod memory reserve = IReserveManager(
+                reserveManager
+            ).getReserveMethod(params.reserves[i].methodId);
             require(
                 reserve.reserveContract != IReserve(address(0)),
                 "RSRV_404"
             );
             require(reserve.enabled, "RSRV_DIS");
-            require(isReserveValid(params.reserves[i]));
+            require(
+                IReserveManager(reserveManager).isReserveValid(
+                    params.reserves[i]
+                )
+            );
         }
         issuerTokens[params.issuerId].reserves = params.reserves;
     }
 
     function burn(uint256 issuerId) external {
-        IssuerTokenData storage issuerToken = issuerTokens[issuerId];
+        LibIssuer.IssuerTokenData storage issuerToken = issuerTokens[issuerId];
         require(issuerToken.author != address(0), "404");
         require(issuerToken.author == _msgSender(), "403");
         require(issuerToken.balance == issuerToken.supply, "CONSUMED_1");
@@ -787,7 +626,7 @@ contract FxHashIssuer is
 
     function burnSupply(uint256 issuerId, uint256 amount) external {
         require(amount > 0, "TOO_LOW");
-        IssuerTokenData storage issuerToken = issuerTokens[issuerId];
+        LibIssuer.IssuerTokenData storage issuerToken = issuerTokens[issuerId];
         require(issuerToken.author != address(0), "404");
         require(issuerToken.openEditions.closingTime == 0, "OES");
         require(issuerToken.author == _msgSender(), "403");
@@ -808,19 +647,6 @@ contract FxHashIssuer is
             "403"
         );
         issuerTokens[issuerId].tags = tags;
-    }
-
-    function verifyIssuerUpdateable(
-        IssuerTokenData storage issuerToken
-    ) private view {
-        if (issuerToken.openEditions.closingTime > 0) {
-            require(
-                block.timestamp < issuerToken.openEditions.closingTime,
-                "OE_CLOSE"
-            );
-        } else {
-            require(issuerToken.balance > 0, "NO_BLNC");
-        }
     }
 
     function _msgSender()
@@ -849,10 +675,11 @@ contract FxHashIssuer is
     )
         public
         view
-        override(IERC2981Upgradeable, IFxHashIssuer)
+        override(IERC2981Upgradeable, IIssuerToken)
         returns (address receiver, uint256 royaltyAmount)
     {
-        RoyaltyData memory royalty = issuerTokens[tokenId].royaltiesSplit;
+        LibRoyalty.RoyaltyData memory royalty = issuerTokens[tokenId]
+            .royaltiesSplit;
         uint256 amount = (salePrice * royalty.percent) / 10000;
         return (royalty.receiver, amount);
     }

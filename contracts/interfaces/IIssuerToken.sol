@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-interface IFxHashIssuer {
+interface IIssuerToken {
     struct UserAction {
         uint256 lastIssuerMinted;
         uint256 lastIssuerMintedTime;
@@ -21,4 +21,6 @@ interface IFxHashIssuer {
         uint256 tokenId,
         uint256 salePrice
     ) external view returns (address receiver, uint256 royaltyAmount);
+
+    function setCodex(uint256 issuerId, uint256 codexId) external;
 }
