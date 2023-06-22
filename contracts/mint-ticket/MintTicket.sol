@@ -3,7 +3,7 @@ pragma solidity ^0.8.18;
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol";
 import "contracts/abstract/admin/FxHashAdminVerify.sol";
-import "contracts/interfaces/IFxHashIssuer.sol";
+import "contracts/interfaces/IIssuerToken.sol";
 import "contracts/interfaces/IRandomizer.sol";
 import "contracts/interfaces/IMintTicket.sol";
 
@@ -62,13 +62,13 @@ contract MintTicket is
     uint256 public fees;
     uint256 public availableBalance;
     uint256 public minPrice;
-    IFxHashIssuer public issuer;
+    IIssuerToken public issuer;
     IRandomizer public randomizer;
 
     constructor(address _admin, address _issuer, address _randomizer) {
         _setupRole(DEFAULT_ADMIN_ROLE, _admin);
         _setupRole(FXHASH_ADMIN, _admin);
-        issuer = IFxHashIssuer(_issuer);
+        issuer = IIssuerToken(_issuer);
         randomizer = IRandomizer(_randomizer);
         lastTokenId = 0;
         fees = 0;
@@ -215,7 +215,7 @@ contract MintTicket is
     }
 
     function setIssuer(address _issuer) external onlyAdmin {
-        issuer = IFxHashIssuer(_issuer);
+        issuer = IIssuerToken(_issuer);
     }
 
     function setRandomizer(address _randomizer) external onlyAdmin {
