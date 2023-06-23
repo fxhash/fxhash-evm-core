@@ -1,26 +1,29 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "contracts/abstract/admin/FxHashAdminVerify.sol";
+import "contracts/abstract/admin/AuthorizedCaller.sol";
 import "contracts/moderation/ModerationUser.sol";
 import "@openzeppelin/contracts/utils/math/SignedMath.sol";
 import "contracts/interfaces/IModerationUser.sol";
+import "contracts/interfaces/IUserActions.sol";
+import "contracts/libs/LibUserActions.sol";
+import "hardhat/console.sol";
 
-contract AllowMintIssuer is FxHashAdminVerify {
+contract AllowMintIssuer is AuthorizedCaller {
     uint256 public mintDelay;
     IModerationUser public userModerationContract;
-    address public issuerContract;
+    address public userActions;
 
     constructor(
         address _admin,
         address _userModerationContract,
-        address _issuerContract
+        address _userActions
     ) {
         _setupRole(DEFAULT_ADMIN_ROLE, _admin);
-        _setupRole(FXHASH_ADMIN, _admin);
+        _setupRole(AUTHORIZED_CALLER, _admin);
         mintDelay = 3600;
         userModerationContract = ModerationUser(_userModerationContract);
-        issuerContract = _issuerContract;
+        userActions = _userActions;
     }
 
     function updateUserModerationContract(address _address) external onlyAdmin {
@@ -28,11 +31,11 @@ contract AllowMintIssuer is FxHashAdminVerify {
     }
 
     function updateIssuerContract(address _address) external onlyAdmin {
-        issuerContract = _address;
+        userActions = _address;
     }
 
-    function updateMintDelay(uint256 _address) external onlyAdmin {
-        mintDelay = _address;
+    function updateMintDelay(uint256 _delay) external onlyAdmin {
+        mintDelay = _delay;
     }
 
     function isAllowed(
@@ -55,10 +58,11 @@ contract AllowMintIssuer is FxHashAdminVerify {
         address _address,
         uint256 timestamp
     ) private view returns (bool) {
-        //TODO: replace when issuer contract is available
-        // UserActions memory userActions = IssuerContract(issuer_contract).get_user_actions(_address);
+        LibUserActions.UserAction memory lastUserActions = IUserActions(
+            userActions
+        ).getUserActions(_address);
         uint256 diff = SignedMath.abs(
-            int256(timestamp) - int256(block.timestamp)
+            int256(timestamp) - int256(lastUserActions.lastIssuerMintedTime)
         );
         return diff > mintDelay;
     }

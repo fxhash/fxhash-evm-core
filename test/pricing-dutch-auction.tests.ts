@@ -19,12 +19,12 @@ describe("PricingDutchAuction", () => {
     const [deployer] = await ethers.getSigners();
     signer = deployer;
 
-    fxHashAdminRole = ethers.utils.id("FXHASH_ADMIN");
+    fxHashAdminRole = ethers.utils.id("AUTHORIZED_CALLER");
   });
 
   beforeEach(async () => {
     await pricingDutchAuction.grantAdminRole(await signer.getAddress());
-    await pricingDutchAuction.grantFxHashAdminRole(await signer.getAddress());
+    await pricingDutchAuction.authorizeCaller(await signer.getAddress());
     await pricingDutchAuction.updateMinDecrementDuration(60); // Reset minDecrementDuration
   });
 

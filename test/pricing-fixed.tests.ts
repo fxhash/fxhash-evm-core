@@ -17,13 +17,13 @@ describe("PricingFixed", () => {
     const [deployer] = await ethers.getSigners();
     signer = deployer;
 
-    fxHashAdminRole = ethers.utils.id("FXHASH_ADMIN");
+    fxHashAdminRole = ethers.utils.id("AUTHORIZED_CALLER");
   });
 
   beforeEach(async () => {
     // Reset the contract state before each test
     await pricingFixed.grantAdminRole(await signer.getAddress());
-    await pricingFixed.grantFxHashAdminRole(await signer.getAddress());
+    await pricingFixed.authorizeCaller(await signer.getAddress());
   });
 
   it("should set and get the price", async () => {

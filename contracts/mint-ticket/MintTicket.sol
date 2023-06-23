@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol";
-import "contracts/abstract/admin/FxHashAdminVerify.sol";
+import "contracts/abstract/admin/AuthorizedCaller.sol";
 import "contracts/interfaces/IIssuerToken.sol";
 import "contracts/interfaces/IRandomizer.sol";
 import "contracts/interfaces/IMintTicket.sol";
@@ -10,7 +10,7 @@ import "contracts/interfaces/IMintTicket.sol";
 contract MintTicket is
     ERC721URIStorageUpgradeable,
     IERC2981Upgradeable,
-    FxHashAdminVerify,
+    AuthorizedCaller,
     IMintTicket
 {
     function _msgData()
@@ -67,7 +67,7 @@ contract MintTicket is
 
     constructor(address _admin, address _issuer, address _randomizer) {
         _setupRole(DEFAULT_ADMIN_ROLE, _admin);
-        _setupRole(FXHASH_ADMIN, _admin);
+        _setupRole(AUTHORIZED_CALLER, _admin);
         issuer = IIssuerToken(_issuer);
         randomizer = IRandomizer(_randomizer);
         lastTokenId = 0;

@@ -2,14 +2,14 @@
 pragma solidity ^0.8.18;
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol";
-import "contracts/abstract/admin/FxHashAdminVerify.sol";
+import "contracts/abstract/admin/AuthorizedCaller.sol";
 import "contracts/interfaces/IIssuerToken.sol";
 import "contracts/interfaces/IGenTk.sol";
 
 contract GenTk is
     ERC721URIStorageUpgradeable,
     IERC2981Upgradeable,
-    FxHashAdminVerify,
+    AuthorizedCaller,
     IGenTk
 {
     struct TokenMetadata {
@@ -38,7 +38,7 @@ contract GenTk is
         address _issuer
     ) {
         _setupRole(DEFAULT_ADMIN_ROLE, _admin);
-        _setupRole(FXHASH_ADMIN, _admin);
+        _setupRole(AUTHORIZED_CALLER, _admin);
         issuer = IIssuerToken(_issuer);
         signer = _signer;
         treasury = _treasury;

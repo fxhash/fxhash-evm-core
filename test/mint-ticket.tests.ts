@@ -11,7 +11,7 @@ describe("MintTicket", () => {
   let fxHashAdmin: Signer;
   let nonAdmin: Signer;
 
-  const fxHashAdminRole = ethers.utils.id("FXHASH_ADMIN");
+  const fxHashAdminRole = ethers.utils.id("AUTHORIZED_CALLER");
 
   // Helper functions
   const dailyTaxAmount = (price: BigNumber): BigNumber => {

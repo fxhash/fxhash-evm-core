@@ -21,8 +21,9 @@ describe("AllowMint", function () {
 
     moderationTeam = await ModerationTeam.deploy(admin.getAddress());
     await moderationTeam.deployed();
-    await moderatorToken.setAddress("mod", moderationTeam.address);
-
+    await moderatorToken.setAddresses([
+      { key: "mod", value: moderationTeam.address },
+    ]);
     await moderationTeam.connect(admin).updateModerators([
       {
         moderator: await admin.getAddress(),

@@ -4,9 +4,9 @@ pragma solidity ^0.8.18;
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "hardhat/console.sol";
-import "contracts/abstract/admin/FxHashAdminVerify.sol";
+import "contracts/abstract/admin/AuthorizedCaller.sol";
 
-contract MintPassGroup is FxHashAdminVerify {
+contract MintPassGroup is AuthorizedCaller {
     using EnumerableSet for EnumerableSet.AddressSet;
     struct TokenRecord {
         uint256 minted;
@@ -39,7 +39,7 @@ contract MintPassGroup is FxHashAdminVerify {
         address[] memory _bypass
     ) {
         _setupRole(DEFAULT_ADMIN_ROLE, _signer);
-        _setupRole(FXHASH_ADMIN, _signer);
+        _setupRole(AUTHORIZED_CALLER, _signer);
         maxPerToken = _maxPerToken;
         maxPerTokenPerProject = _maxPerTokenPerProject;
         signer = _signer;
@@ -94,12 +94,14 @@ contract MintPassGroup is FxHashAdminVerify {
     function setConstraints(
         uint256 _maxPerToken,
         uint256 _maxPerTokenPerProject
-    ) external onlyFxHashAdmin {
+    ) external onlyAuthorizedCaller {
         maxPerToken = _maxPerToken;
         maxPerTokenPerProject = _maxPerTokenPerProject;
     }
 
-    function setBypass(address[] memory _addresses) external onlyFxHashAdmin {
+    function setBypass(
+        address[] memory _addresses
+    ) external onlyAuthorizedCaller {
         for (uint256 i = 0; i < _addresses.length; i++) {
             EnumerableSet.add(bypass, _addresses[i]);
         }

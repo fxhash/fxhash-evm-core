@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "contracts/abstract/admin/FxHashAdminVerify.sol";
+import "contracts/abstract/admin/AuthorizedCaller.sol";
 
-contract Randomizer is FxHashAdminVerify {
+contract Randomizer is AuthorizedCaller {
     bytes32 public constant FXHASH_AUTHORITY = keccak256("FXHASH_AUTHORITY");
     bytes32 public constant FXHASH_ISSUER = keccak256("FXHASH_ISSUER");
     struct TokenKey {
@@ -49,7 +49,7 @@ contract Randomizer is FxHashAdminVerify {
         count_requested = 0;
         count_revealed = 0;
         _setupRole(DEFAULT_ADMIN_ROLE, address(bytes20(_msgSender())));
-        _setupRole(FXHASH_ADMIN, address(bytes20(_msgSender())));
+        _setupRole(AUTHORIZED_CALLER, address(bytes20(_msgSender())));
     }
 
     function setTokenSeedAndReturnSerial(

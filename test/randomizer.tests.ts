@@ -7,7 +7,7 @@ describe("Randomizer", function () {
   let admin: Signer;
   let fxHashAdmin: Signer;
   let nonAdmin: Signer;
-  const fxHashAdminRole = ethers.utils.id("FXHASH_ADMIN");
+  const fxHashAdminRole = ethers.utils.id("AUTHORIZED_CALLER");
 
   beforeEach(async function () {
     const RandomizerFactory: ContractFactory = await ethers.getContractFactory(
@@ -46,10 +46,10 @@ describe("Randomizer", function () {
   //       expect(hasAdminRole).to.be.false;
   //     });
 
-  //     it("should grant the FXHASH_ADMIN role to an address", async function () {
+  //     it("should grant the AUTHORIZED_CALLER role to an address", async function () {
   //       const addressToGrant = await fxHashAdmin.getAddress();
 
-  //       await randomizer.connect(admin).grantFxHashAdminRole(addressToGrant);
+  //       await randomizer.connect(admin).authorizeCaller(addressToGrant);
   //       const hasFxHashAdminRole = await randomizer.hasRole(
   //         fxHashAdminRole,
   //         addressToGrant
@@ -58,10 +58,10 @@ describe("Randomizer", function () {
   //       expect(hasFxHashAdminRole).to.be.true;
   //     });
 
-  //     it("should revoke the FXHASH_ADMIN role from an address", async function () {
+  //     it("should revoke the AUTHORIZED_CALLER role from an address", async function () {
   //       const addressToRevoke = await fxHashAdmin.getAddress();
 
-  //       await randomizer.connect(admin).revokeFxHashAdminRole(addressToRevoke);
+  //       await randomizer.connect(admin).revokeCallerAuthorization(addressToRevoke);
   //       const hasFxHashAdminRole = await randomizer.hasRole(
   //         fxHashAdminRole,
   //         addressToRevoke
@@ -73,9 +73,7 @@ describe("Randomizer", function () {
 
   describe("Generate function", function () {
     beforeEach(async function () {
-      await randomizer
-        .connect(admin)
-        .grantFxHashAdminRole(fxHashAdmin.getAddress());
+      await randomizer.connect(admin).authorizeCaller(fxHashAdmin.getAddress());
       await randomizer
         .connect(admin)
         .grantFxHashIssuerRole(fxHashAdmin.getAddress());

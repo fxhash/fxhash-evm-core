@@ -21,8 +21,9 @@ describe("ModerationUser", () => {
     await moderationUser.deployed();
     moderationTeam = await ModerationTeam.deploy(admin.getAddress());
     await moderationTeam.deployed();
-    await moderationUser.setAddress("mod", moderationTeam.address);
-
+    await moderationUser.setAddresses([
+      { key: "mod", value: moderationTeam.address },
+    ]);
     await moderationTeam.connect(admin).updateModerators([
       {
         moderator: moderator.getAddress(),

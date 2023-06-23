@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "contracts/abstract/admin/FxHashAdminVerify.sol";
+import "contracts/abstract/admin/AuthorizedCaller.sol";
 import "contracts/interfaces/IPricing.sol";
 
-contract PricingFixed is FxHashAdminVerify, IPricing {
+contract PricingFixed is AuthorizedCaller, IPricing {
     struct PriceDetails {
         uint256 price;
         uint256 opensAt;
@@ -14,13 +14,13 @@ contract PricingFixed is FxHashAdminVerify, IPricing {
 
     constructor() {
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
-        _setupRole(FXHASH_ADMIN, _msgSender());
+        _setupRole(AUTHORIZED_CALLER, _msgSender());
     }
 
     function setPrice(
         uint256 issuerId,
         bytes memory details
-    ) external onlyFxHashAdmin {
+    ) external onlyAuthorizedCaller {
         PriceDetails memory pricingDetails = abi.decode(
             details,
             (PriceDetails)

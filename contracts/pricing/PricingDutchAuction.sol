@@ -2,10 +2,10 @@
 pragma solidity ^0.8.18;
 
 import "@openzeppelin/contracts/utils/math/Math.sol";
-import "contracts/abstract/admin/FxHashAdminVerify.sol";
+import "contracts/abstract/admin/AuthorizedCaller.sol";
 import "contracts/interfaces/IPricing.sol";
 
-contract PricingDutchAuction is FxHashAdminVerify, IPricing {
+contract PricingDutchAuction is AuthorizedCaller, IPricing {
     struct PriceDetails {
         uint256 opensAt;
         uint256 decrementDuration;
@@ -25,13 +25,13 @@ contract PricingDutchAuction is FxHashAdminVerify, IPricing {
 
     constructor() {
         _setupRole(DEFAULT_ADMIN_ROLE, address(bytes20(_msgSender())));
-        _setupRole(FXHASH_ADMIN, address(bytes20(_msgSender())));
+        _setupRole(AUTHORIZED_CALLER, address(bytes20(_msgSender())));
         minDecrementDuration = 60; // Default value, can be updated
     }
 
     function updateMinDecrementDuration(
         uint256 _minDecrement
-    ) external onlyFxHashAdmin {
+    ) external onlyAuthorizedCaller {
         minDecrementDuration = _minDecrement;
     }
 
@@ -78,7 +78,7 @@ contract PricingDutchAuction is FxHashAdminVerify, IPricing {
     function setPrice(
         uint256 issuerId,
         bytes memory details
-    ) external onlyFxHashAdmin {
+    ) external onlyAuthorizedCaller {
         PriceDetails memory pricingDetails = abi.decode(
             details,
             (PriceDetails)
@@ -87,7 +87,7 @@ contract PricingDutchAuction is FxHashAdminVerify, IPricing {
         pricings[issuerId] = pricingDetails;
     }
 
-    function lockPrice(uint256 issuerId) external onlyFxHashAdmin {
+    function lockPrice(uint256 issuerId) external onlyAuthorizedCaller {
         pricings[issuerId].lockedPrice = computePrice(
             issuerId,
             block.timestamp
