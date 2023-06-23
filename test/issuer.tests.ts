@@ -228,6 +228,7 @@ describe("Issuer", () => {
 
   describe("Mint issuer", function () {
     it("It should successfully mint an issuer token", async function () {
+      const timestamp = 1735589600;
       const price = 1000;
       const whitelist = [
         {
@@ -274,7 +275,7 @@ describe("Issuer", () => {
           pricingId: 1,
           details: ethers.utils.defaultAbiCoder.encode(
             ["uint256", "uint256"],
-            [price, 1735589600]
+            [price, timestamp - 1]
           ),
           lockForReserves: true,
         },
@@ -290,7 +291,56 @@ describe("Issuer", () => {
         tags: [1, 2, 3],
       };
       // Mint issuer using the input
+      await ethers.provider.send("evm_setNextBlockTimestamp", [timestamp]);
       await issuer.connect(receiver).mintIssuer(mintIssuerInput);
+      const issuerData = await issuer.getIssuer(0);
+      expect(issuerData.metadata).to.equal(mintIssuerInput.metadata);
+      expect(issuerData.balance).to.equal(mintIssuerInput.amount);
+      expect(issuerData.iterationsCount).to.equal(0);
+      expect(issuerData.supply).to.equal(mintIssuerInput.amount);
+      expect(issuerData.openEditions.closingTime).to.equal(
+        mintIssuerInput.openEditions.closingTime
+      );
+      expect(issuerData.reserves).to.deep.equal(
+        ethers.utils.defaultAbiCoder.encode(
+          ["tuple(uint256,uint256,bytes)[]"],
+          [
+            mintIssuerInput.reserves.map((entry) => [
+              entry.methodId,
+              entry.amount,
+              entry.data,
+            ]),
+          ]
+        )
+      );
+      expect(issuerData.primarySplit.percent).to.equal(
+        mintIssuerInput.primarySplit.percent
+      );
+      expect(issuerData.primarySplit.receiver).to.equal(
+        mintIssuerInput.primarySplit.receiver
+      );
+      expect(issuerData.royaltiesSplit.percent).to.equal(
+        mintIssuerInput.royaltiesSplit.percent
+      );
+      expect(issuerData.royaltiesSplit.receiver).to.equal(
+        mintIssuerInput.royaltiesSplit.receiver
+      );
+      expect(issuerData.info.tags).to.deep.equal(mintIssuerInput.tags);
+      expect(issuerData.info.enabled).to.equal(mintIssuerInput.enabled);
+      expect(issuerData.info.lockedSeconds).to.equal(0);
+      expect(issuerData.info.timestampMinted).to.equal(timestamp);
+      expect(issuerData.info.lockPriceForReserves).to.equal(
+        mintIssuerInput.pricing.lockForReserves
+      );
+      expect(issuerData.info.hasTickets).to.equal(false);
+      expect(issuerData.info.author).to.equal(await receiver.getAddress());
+      expect(issuerData.info.pricingId).to.equal(
+        mintIssuerInput.pricing.pricingId
+      );
+      expect(issuerData.info.codexId).to.equal(mintIssuerInput.codex.codexId);
+      expect(issuerData.info.inputBytesSize).to.equal(
+        mintIssuerInput.inputBytesSize
+      );
     });
   });
 });
