@@ -5,8 +5,9 @@ import "contracts/interfaces/IModeration.sol";
 import "contracts/interfaces/IIssuer.sol";
 import "contracts/interfaces/ICodex.sol";
 import "contracts/libs/LibIssuer.sol";
+import "contracts/abstract/admin/AuthorizedCaller.sol";
 
-contract Codex is ICodex {
+contract Codex is ICodex, AuthorizedCaller {
     struct CodexData {
         uint256 entryType;
         address author;
@@ -27,16 +28,17 @@ contract Codex is ICodex {
     mapping(uint256 => CodexData) public codexEntries;
     mapping(uint256 => uint256) public issuerCodexUpdates;
 
-    constructor(address _issuer, address _moderation) {
+    constructor(address _issuer, address _moderation, address _admin) {
         issuer = _issuer;
         moderation = _moderation;
         codexEntriesCount = 0;
+        _setupRole(DEFAULT_ADMIN_ROLE, _admin);
     }
 
     function codexEntryIdFromInput(
         address author,
         LibCodex.CodexInput memory input
-    ) public override returns (uint256) {
+    ) public onlyAuthorizedCaller returns (uint256) {
         uint256 codexIdValue = 0;
         if (input.codexId > 0) {
             require(
@@ -55,11 +57,14 @@ contract Codex is ICodex {
         return codexIdValue;
     }
 
-    function codexAddEntry(uint256 entryType, bytes[] memory value) external {
+    function codexAddEntry(
+        uint256 entryType,
+        bytes[] memory value
+    ) external onlyAuthorizedCaller {
         codexInsert(entryType, msg.sender, true, value);
     }
 
-    function codexLockEntry(uint256 entryId) external {
+    function codexLockEntry(uint256 entryId) external onlyAuthorizedCaller {
         CodexData storage entry = codexEntries[entryId];
         require(entry.author == msg.sender, "403");
         require(!entry.locked, "CDX_LOCK");
@@ -71,7 +76,7 @@ contract Codex is ICodex {
         uint256 entryId,
         bool pushEnd,
         bytes memory value
-    ) external {
+    ) external onlyAuthorizedCaller {
         CodexData storage entry = codexEntries[entryId];
         require(entry.author == msg.sender, "403");
         require(!entry.locked, "CDX_LOCK");
@@ -87,7 +92,7 @@ contract Codex is ICodex {
     function updateIssuerCodexRequest(
         uint256 _issuerId,
         LibCodex.CodexInput calldata input
-    ) external {
+    ) external onlyAuthorizedCaller {
         require(_issuerId > 0, "NO_ISSUER");
         LibIssuer.IssuerData memory _issuer = IIssuer(issuer).getIssuer(
             _issuerId
@@ -101,7 +106,7 @@ contract Codex is ICodex {
     function updateIssuerCodexApprove(
         uint256 _issuerId,
         uint256 _codexId
-    ) external {
+    ) external onlyAuthorizedCaller {
         uint256 issuerId = issuerCodexUpdates[_issuerId];
         require(issuerId > 0, "NO_REQ");
         require(issuerId == _codexId, "WRG_CDX_ID");

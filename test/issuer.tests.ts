@@ -146,9 +146,11 @@ describe("Issuer", () => {
       await ethers.getContractFactory("PricingManager");
     const ReserveManagerFactory: ContractFactory =
       await ethers.getContractFactory("ReserveManager");
-    userActions = await UserActionsFactory.deploy();
-    priceManager = await PriceManagerFactory.deploy();
-    reserveManager = await ReserveManagerFactory.deploy();
+    userActions = await UserActionsFactory.deploy(await admin.getAddress());
+    priceManager = await PriceManagerFactory.deploy(await admin.getAddress());
+    reserveManager = await ReserveManagerFactory.deploy(
+      await admin.getAddress()
+    );
 
     allowMintIssuer = await AllowMintIssuerFactory.deploy(
       await admin.getAddress(),
@@ -161,7 +163,11 @@ describe("Issuer", () => {
     issuer = await IssuerFactory.deploy(2500, 1000, await admin.getAddress());
     await issuer.deployed();
 
-    codex = await CodexFactory.deploy(issuer.address, moderationTeam.address);
+    codex = await CodexFactory.deploy(
+      issuer.address,
+      moderationTeam.address,
+      await admin.getAddress()
+    );
 
     await mintTicket.setIssuer(issuer.address);
     await randomizer.grantFxHashIssuerRole(issuer.address);
@@ -224,6 +230,13 @@ describe("Issuer", () => {
 
     await pricingDutch.connect(admin).authorizeCaller(issuer.address);
     await pricingFixed.connect(admin).authorizeCaller(issuer.address);
+
+    await codex.connect(admin).authorizeCaller(issuer.address);
+    await userActions.connect(admin).authorizeCaller(issuer.address);
+    await userActions.connect(admin).authorizeCaller(allowMint.address);
+    await userActions.connect(admin).authorizeCaller(allowMintIssuer.address);
+    await priceManager.connect(admin).authorizeCaller(issuer.address);
+    await reserveManager.connect(admin).authorizeCaller(issuer.address);
   });
 
   describe("Mint issuer", function () {

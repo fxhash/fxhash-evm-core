@@ -59,7 +59,7 @@ contract Issuer is
         fees = _fees;
         allissuers = 0;
         allGenTkTokens = 0;
-        _setupRole(AUTHORIZED_CALLER, _admin);
+        _setupRole(DEFAULT_ADMIN_ROLE, _admin);
     }
 
     function mintIssuer(MintIssuerInput memory params) external {
@@ -322,7 +322,7 @@ contract Issuer is
         IUserActions(addresses["userAct"]).setLastMinted(_msgSender(), tokenId);
     }
 
-    function mintWithTicket(MintWithTicketInput memory params) public {
+    function mintWithTicket(MintWithTicketInput memory params) external {
         LibIssuer.IssuerData storage issuerToken = issuers[params.issuerId];
         require(issuerToken.info.author != address(0), "Token undefined");
         require(
@@ -456,7 +456,7 @@ contract Issuer is
         delete issuers[issuerId];
     }
 
-    function setCodex(uint256 issuerId, uint256 codexId) external {
+    function setCodex(uint256 issuerId, uint256 codexId) external onlyAdmin {
         issuers[issuerId].info.codexId = codexId;
     }
 

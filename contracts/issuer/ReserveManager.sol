@@ -3,13 +3,18 @@ pragma solidity ^0.8.18;
 
 import "contracts/interfaces/IModeration.sol";
 import "contracts/libs/LibReserve.sol";
+import "contracts/abstract/admin/AuthorizedCaller.sol";
 
-contract ReserveManager {
+contract ReserveManager is AuthorizedCaller {
     mapping(uint256 => LibReserve.ReserveMethod) private reserveMethods;
+
+    constructor(address _admin) {
+        _setupRole(DEFAULT_ADMIN_ROLE, _admin);
+    }
 
     function isReserveValid(
         LibReserve.ReserveData memory reserve
-    ) external view returns (bool) {
+    ) external view onlyAuthorizedCaller returns (bool) {
         return
             reserveMethods[reserve.methodId].reserveContract.isInputValid(
                 LibReserve.InputParams({
@@ -23,7 +28,7 @@ contract ReserveManager {
     function applyReserve(
         LibReserve.ReserveData memory reserve,
         bytes memory userInput
-    ) external returns (bool, bytes memory) {
+    ) external onlyAuthorizedCaller returns (bool, bytes memory) {
         LibReserve.ReserveMethod storage method = reserveMethods[
             reserve.methodId
         ];
@@ -42,13 +47,18 @@ contract ReserveManager {
     function setReserveMethod(
         uint256 id,
         LibReserve.ReserveMethod memory reserveMethod
-    ) external {
+    ) external onlyAdmin {
         reserveMethods[id] = reserveMethod;
     }
 
     function getReserveMethod(
         uint256 methodId
-    ) external view returns (LibReserve.ReserveMethod memory) {
+    )
+        external
+        view
+        onlyAuthorizedCaller
+        returns (LibReserve.ReserveMethod memory)
+    {
         return reserveMethods[methodId];
     }
 }
