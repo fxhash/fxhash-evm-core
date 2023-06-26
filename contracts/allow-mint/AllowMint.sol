@@ -36,10 +36,12 @@ contract AllowMint is AuthorizedCaller {
         uint256 state = IModerationToken(tokenMod).tokenState(id);
         require(state < 2, "TOKEN_MODERATED");
         // Prevent batch minting on any token
-        LibUserActions.UserAction memory lastUserActions = IUserActions(
-            userActions
-        ).getUserActions(addr);
-        if (lastUserActions.lastMintedTime > 0) {
+        LibUserActions.UserAction memory lastUserActions = userActions
+            .getUserActions(addr);
+        if (
+            lastUserActions.lastMintedTime > 0 &&
+            timestamp >= lastUserActions.lastMintedTime
+        ) {
             require(
                 timestamp - lastUserActions.lastMintedTime > 0,
                 "NO_BATCH_MINTING"

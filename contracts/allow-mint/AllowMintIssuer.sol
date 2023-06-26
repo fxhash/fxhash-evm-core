@@ -30,7 +30,7 @@ contract AllowMintIssuer is AuthorizedCaller {
         userModerationContract = ModerationUser(_address);
     }
 
-    function updateIssuerContract(address _address) external onlyAdmin {
+    function updateUserActionsContract(address _address) external onlyAdmin {
         userActions = IUserActions(_address);
     }
 
