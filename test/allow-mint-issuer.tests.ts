@@ -8,9 +8,12 @@ describe("AllowIssuerMint", function () {
   let moderationUser: Contract;
   let moderationTeam: Contract;
   let allowIssuerMint: Contract;
+  let userActions: Contract;
   const authorizations = [20];
 
   beforeEach(async function () {
+    await ethers.provider.send("hardhat_reset", []);
+
     [admin, nonAdmin] = await ethers.getSigners();
 
     const ModerationUser = await ethers.getContractFactory("ModerationUser");
@@ -31,14 +34,20 @@ describe("AllowIssuerMint", function () {
         authorizations,
       },
     ]);
+
+    const UserActionsFactory = await ethers.getContractFactory("UserActions");
+    userActions = await UserActionsFactory.deploy(await admin.getAddress());
+    await userActions.deployed();
+
     const AllowMintFactory = await ethers.getContractFactory("AllowMintIssuer");
     allowIssuerMint = await AllowMintFactory.deploy(
       await admin.getAddress(),
       moderationUser.address,
-      await admin.getAddress()
+      userActions.address
     );
 
     await allowIssuerMint.deployed();
+    await userActions.connect(admin).authorizeCaller(allowIssuerMint.address);
   });
 
   it("should update the user moderation contract", async function () {
@@ -52,9 +61,9 @@ describe("AllowIssuerMint", function () {
     );
   });
 
-  it("should update the issuer contract", async function () {
-    await allowIssuerMint.updateIssuerContract(await admin.getAddress());
-    expect(await allowIssuerMint.issuerContract()).to.equal(
+  it("should update the user actions contract", async function () {
+    await allowIssuerMint.updateUserActionsContract(await admin.getAddress());
+    expect(await allowIssuerMint.userActions()).to.equal(
       await admin.getAddress()
     );
   });
@@ -69,7 +78,7 @@ describe("AllowIssuerMint", function () {
     // Mock the isUserAllowed function to return true
     const isAllowed = await allowIssuerMint.isAllowed(
       await admin.getAddress(),
-      0
+      100000
     );
     expect(isAllowed).to.be.true;
   });
@@ -89,10 +98,9 @@ describe("AllowIssuerMint", function () {
   });
 
   it("should throw an error when delay between mint is too short", async function () {
-    // Mock the hasDelayPassed function to return false
     const timestamp = Math.floor(Date.now() / 1000);
+    await allowIssuerMint.updateMintDelay(timestamp * 2);
     await ethers.provider.send("evm_setNextBlockTimestamp", [timestamp * 2]);
-    await ethers.provider.send("evm_mine", []);
     await expect(
       allowIssuerMint.isAllowed(await nonAdmin.getAddress(), timestamp * 2)
     ).to.be.rejectedWith("DELAY_BETWEEN_MINT_TOO_SHORT");
