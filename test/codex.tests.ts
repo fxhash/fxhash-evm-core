@@ -1,15 +1,24 @@
 import { ethers } from "hardhat";
 import { expect } from "chai";
-import { Contract } from "ethers";
+import { Contract, Signer } from "ethers";
 
 describe("Codex", function () {
-  let Codex: Contract;
-  let accounts: any;
+  let codex: Contract;
+  let admin: Signer;
+  let user: Signer;
+  let mock: Signer;
 
   beforeEach(async () => {
-    accounts = await ethers.getSigners();
+    [admin, user, mock] = await ethers.getSigners();
     const CodexFactory = await ethers.getContractFactory("Codex");
-    Codex = await CodexFactory.deploy(accounts[1].address, accounts[2].address);
+    codex = await CodexFactory.deploy(
+      await mock.getAddress(),
+      await mock.getAddress(),
+      await admin.getAddress()
+    );
+    await codex.connect(admin).authorizeCaller(await admin.getAddress());
+    await codex.connect(admin).authorizeCaller(await user.getAddress());
+
   });
 
   describe("codexEntryIdFromInput", function () {
@@ -20,7 +29,7 @@ describe("Codex", function () {
         codexId: 1,
       };
       await expect(
-        Codex.codexEntryIdFromInput(accounts[0].address, codexInput)
+        codex.codexEntryIdFromInput(await user.getAddress(), codexInput)
       ).to.be.revertedWith("CDX_EMPTY");
     });
 
@@ -30,10 +39,10 @@ describe("Codex", function () {
   describe("codexAddEntry", function () {
     it("Should add an entry to codexEntries mapping", async function () {
       const value = [ethers.utils.formatBytes32String("Test")];
-      await Codex.codexAddEntry(1, value);
-      const newEntry = await Codex.codexEntries(0);
+      await codex.connect(admin).codexAddEntry(1, value);
+      const newEntry = await codex.codexEntries(0);
       expect(newEntry.entryType).to.equal(1);
-      expect(newEntry.author).to.equal(accounts[0].address);
+      expect(newEntry.author).to.equal(await admin.getAddress());
       expect(newEntry.locked).to.equal(true);
     });
 
@@ -43,8 +52,8 @@ describe("Codex", function () {
   describe("codexLockEntry", function () {
     it("Should throw an error if an unauthorized user tries to lock an entry", async function () {
       const value = [ethers.utils.formatBytes32String("Test")];
-      await Codex.connect(accounts[1]).codexAddEntry(1, value);
-      await expect(Codex.codexLockEntry(0)).to.be.revertedWith("403");
+      await codex.connect(admin).codexAddEntry(1, value);
+      await expect(codex.connect(user).codexLockEntry(0)).to.be.revertedWith("403");
     });
 
     // Add more test cases to cover other scenarios
@@ -53,9 +62,9 @@ describe("Codex", function () {
   describe("codexUpdateEntry", function () {
     it("Should throw an error if an unauthorized user tries to update an entry", async function () {
       const value = [ethers.utils.formatBytes32String("Test")];
-      await Codex.connect(accounts[1]).codexAddEntry(1, value);
+      await codex.connect(admin).codexAddEntry(1, value);
       await expect(
-        Codex.codexUpdateEntry(
+        codex.connect(user).codexUpdateEntry(
           0,
           true,
           ethers.utils.formatBytes32String("NewTest")
@@ -65,9 +74,9 @@ describe("Codex", function () {
 
     it("Should throw an error if an entry is locked", async function () {
       const value = [ethers.utils.formatBytes32String("Test")];
-      await Codex.codexAddEntry(1, value);
+      await codex.codexAddEntry(1, value);
       await expect(
-        Codex.codexUpdateEntry(
+        codex.codexUpdateEntry(
           0,
           true,
           ethers.utils.formatBytes32String("NewTest")
@@ -86,7 +95,7 @@ describe("Codex", function () {
         codexId: 0,
       };
       await expect(
-        Codex.updateIssuerCodexRequest(0, codexInput)
+        codex.updateIssuerCodexRequest(0, codexInput)
       ).to.be.revertedWith("NO_ISSUER");
     });
 
@@ -95,7 +104,7 @@ describe("Codex", function () {
 
   describe("updateIssuerCodexApprove", function () {
     it("Should throw an error if issuerId is 0", async function () {
-      await expect(Codex.updateIssuerCodexApprove(0, 1)).to.be.revertedWith(
+      await expect(codex.updateIssuerCodexApprove(0, 1)).to.be.revertedWith(
         "NO_REQ"
       );
     });
