@@ -8,13 +8,13 @@ import "contracts/libs/LibUserActions.sol";
 
 contract AllowMint is AuthorizedCaller {
     address public tokenMod;
-    address public userActions;
+    IUserActions public userActions;
 
     constructor(address _admin, address _tokenMod, address _userActions) {
         _setupRole(DEFAULT_ADMIN_ROLE, _admin);
         _setupRole(AUTHORIZED_CALLER, _admin);
         tokenMod = _tokenMod;
-        userActions = _userActions;
+        userActions = IUserActions(_userActions);
     }
 
     function updateTokenModerationContract(
@@ -24,7 +24,7 @@ contract AllowMint is AuthorizedCaller {
     }
 
     function updateUserActions(address _address) external onlyAdmin {
-        userActions = _address;
+        userActions = IUserActions(_address);
     }
 
     function isAllowed(

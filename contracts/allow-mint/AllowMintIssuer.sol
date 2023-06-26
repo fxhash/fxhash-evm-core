@@ -12,7 +12,7 @@ import "hardhat/console.sol";
 contract AllowMintIssuer is AuthorizedCaller {
     uint256 public mintDelay;
     IModerationUser public userModerationContract;
-    address public userActions;
+    IUserActions public userActions;
 
     constructor(
         address _admin,
@@ -23,7 +23,7 @@ contract AllowMintIssuer is AuthorizedCaller {
         _setupRole(AUTHORIZED_CALLER, _admin);
         mintDelay = 3600;
         userModerationContract = ModerationUser(_userModerationContract);
-        userActions = _userActions;
+        userActions = IUserActions(_userActions);
     }
 
     function updateUserModerationContract(address _address) external onlyAdmin {
@@ -31,7 +31,7 @@ contract AllowMintIssuer is AuthorizedCaller {
     }
 
     function updateIssuerContract(address _address) external onlyAdmin {
-        userActions = _address;
+        userActions = IUserActions(_address);
     }
 
     function updateMintDelay(uint256 _delay) external onlyAdmin {

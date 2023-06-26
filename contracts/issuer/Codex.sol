@@ -22,15 +22,15 @@ contract Codex is ICodex, AuthorizedCaller {
     }
 
     uint256 private codexEntriesCount;
-    address private issuer;
-    address private moderation;
+    IIssuer private issuer;
+    IModeration private moderation;
 
     mapping(uint256 => CodexData) public codexEntries;
     mapping(uint256 => uint256) public issuerCodexUpdates;
 
     constructor(address _issuer, address _moderation, address _admin) {
-        issuer = _issuer;
-        moderation = _moderation;
+        issuer = IIssuer(_issuer);
+        moderation = IModeration(_moderation);
         codexEntriesCount = 0;
         _setupRole(DEFAULT_ADMIN_ROLE, _admin);
     }
@@ -94,7 +94,7 @@ contract Codex is ICodex, AuthorizedCaller {
         LibCodex.CodexInput calldata input
     ) external onlyAuthorizedCaller {
         require(_issuerId > 0, "NO_ISSUER");
-        LibIssuer.IssuerData memory _issuer = IIssuer(issuer).getIssuer(
+        LibIssuer.IssuerData memory _issuer = issuer.getIssuer(
             _issuerId
         );
         require(_issuer.info.author == msg.sender, "403");
@@ -110,8 +110,8 @@ contract Codex is ICodex, AuthorizedCaller {
         uint256 issuerId = issuerCodexUpdates[_issuerId];
         require(issuerId > 0, "NO_REQ");
         require(issuerId == _codexId, "WRG_CDX_ID");
-        require(IModeration(moderation).isAuthorized(msg.sender, 701), "403");
-        IIssuer(issuer).setCodex(issuerId, _codexId);
+        require(moderation.isAuthorized(msg.sender, 701), "403");
+        issuer.setCodex(issuerId, _codexId);
         delete issuerCodexUpdates[issuerId];
     }
 

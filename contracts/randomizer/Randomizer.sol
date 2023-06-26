@@ -23,8 +23,8 @@ contract Randomizer is AuthorizedCaller {
     }
 
     Commitment public commitment;
-    uint256 public count_requested;
-    uint256 public count_revealed;
+    uint256 public countRequested;
+    uint256 public countRevealed;
     mapping(bytes32 => Seed) public seeds;
 
     modifier onlyFxHashAuthority() {
@@ -46,8 +46,8 @@ contract Randomizer is AuthorizedCaller {
     constructor(bytes32 _seed, bytes32 _salt) {
         commitment.seed = _seed;
         commitment.salt = _salt;
-        count_requested = 0;
-        count_revealed = 0;
+        countRequested = 0;
+        countRevealed = 0;
         _setupRole(DEFAULT_ADMIN_ROLE, address(bytes20(_msgSender())));
         _setupRole(AUTHORIZED_CALLER, address(bytes20(_msgSender())));
     }
@@ -84,9 +84,9 @@ contract Randomizer is AuthorizedCaller {
         require(seeds[hashedKey].revealed == 0x00, "ALREADY_SEEDED");
         bytes memory base = abi.encodePacked(block.timestamp, hashedKey);
         bytes32 seed = keccak256(base);
-        count_requested += 1;
+        countRequested += 1;
         seeds[hashedKey].chain_seed = seed;
-        seeds[hashedKey].serial_id = count_requested;
+        seeds[hashedKey].serial_id = countRequested;
     }
 
     function reveal(
@@ -106,8 +106,8 @@ contract Randomizer is AuthorizedCaller {
             require(expectedSerialId == serialId, "OOR");
             oracleSeed = iterateOracleSeed(oracleSeed);
         }
-        require(count_revealed + 1 == expectedSerialId, "OOR");
-        count_revealed += tokenList.length;
+        require(countRevealed + 1 == expectedSerialId, "OOR");
+        countRevealed += tokenList.length;
         require(oracleSeed == commitment.seed, "OOR");
         updateCommitment(seed);
     }
