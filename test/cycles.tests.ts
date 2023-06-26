@@ -133,7 +133,7 @@ describe("FxHashCycles", function () {
       // Attempt to remove the cycle by a non-admin
       await expect(
         fxHashCycles.connect(nonAdmin).removeCycle(cycleId)
-      ).to.be.revertedWith("Caller is not a FxHash admin");
+      ).to.be.revertedWith("Caller is not authorized");
 
       // Verify the cycle still exists
       const cycle = await fxHashCycles.cycles(cycleId);
@@ -152,7 +152,7 @@ describe("FxHashCycles", function () {
       // Attempt to remove the cycle by a non-admin
       await expect(
         fxHashCycles.connect(nonAdmin).addCycle(cycleParams)
-      ).to.be.revertedWith("Caller is not a FxHash admin");
+      ).to.be.revertedWith("Caller is not authorized");
     });
 
     it("should add and remove multiple cycles", async function () {
