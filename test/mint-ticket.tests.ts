@@ -55,7 +55,7 @@ describe("MintTicket", () => {
       "Randomizer"
     );
     const IssuerFactory: ContractFactory = await ethers.getContractFactory(
-      "FxHashIssuer"
+      "MockIssuer"
     );
     const MintTicket: ContractFactory = await ethers.getContractFactory(
       "MintTicket"
@@ -488,7 +488,7 @@ describe("MintTicket", () => {
 
   describe("consume", () => {
     it("should consume a token", async () => {
-      const projectId = 1;
+      const projectId = 0;
       const tokenId = 0;
       const minter = await nonAdmin.getAddress();
       const price = ethers.utils.parseUnits("1", 18);
@@ -517,7 +517,7 @@ describe("MintTicket", () => {
     });
 
     it("should not allow consuming a token from the wrong owner", async () => {
-      const projectId = 1;
+      const projectId = 0;
       const tokenId = 0;
       const minter = await nonAdmin.getAddress();
       const price = ethers.utils.parseUnits("1", 18);
@@ -530,7 +530,7 @@ describe("MintTicket", () => {
     });
 
     it("should not allow consuming a token with a different project ID", async () => {
-      const projectId = 1;
+      const projectId = 0;
       const tokenId = 0;
       const minter = await nonAdmin.getAddress();
       const price = ethers.utils.parseUnits("1", 18);

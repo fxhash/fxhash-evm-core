@@ -386,7 +386,7 @@ contract MintTicket is
         uint256 tokenId,
         uint256 projectId
     ) external payable onlyFxHashIssuer {
-        TokenData storage token = tokenData[projectId];
+        TokenData storage token = tokenData[tokenId];
         require(token.minter != address(0), "TOKEN_DOES_NOT_EXIST");
         require(isOwner(owner, tokenId), "INSUFFICIENT_BALANCE");
         require(token.projectId == projectId, "WRONG_PROJECT");

@@ -56,10 +56,10 @@ contract MintPassGroup is AuthorizedCaller {
                 tx.origin == payload.addr,
             "PASS_INVALID_ADDRESS"
         );
-        //require(
-        //    checkSignature(_params.signature, _params.payload),
-        //    "PASS_INVALID_SIGNATURE"
-        //);
+        require(
+            checkSignature(pass.signature, pass.payload),
+            "PASS_INVALID_SIGNATURE"
+        );
         if (tokens[payload.token].minted > 0) {
             TokenRecord storage tokenRecord = tokens[payload.token];
             require(
@@ -118,7 +118,10 @@ contract MintPassGroup is AuthorizedCaller {
             "PASS_INVALID_ADDRESS"
         );
         require(payload.addr == token.consumer, "WRONG_PASS_CONSUMER");
-        //require(checkSignature(_params.payload, _params.signature), "PASS_INVALID_SIGNATURE");
+        require(
+            checkSignature(pass.payload, pass.signature),
+            "PASS_INVALID_SIGNATURE"
+        );
     }
 
     function decodePayload(
