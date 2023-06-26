@@ -10,6 +10,8 @@ describe("PricingDutchAuction", () => {
   let signer: Signer;
 
   before(async () => {
+    await ethers.provider.send("hardhat_reset", []);
+
     const PricingDutchAuction = await ethers.getContractFactory(
       "PricingDutchAuction"
     );

@@ -12,6 +12,8 @@ describe("AllowMint", function () {
   const authorizations = [10];
 
   beforeEach(async function () {
+    await ethers.provider.send("hardhat_reset", []);
+
     [admin, nonAdmin] = await ethers.getSigners();
 
     const ModerationToken = await ethers.getContractFactory("ModerationToken");
