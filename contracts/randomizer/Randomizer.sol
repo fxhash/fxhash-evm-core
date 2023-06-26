@@ -12,8 +12,8 @@ contract Randomizer is AuthorizedCaller {
     }
 
     struct Seed {
-        bytes32 chain_seed;
-        uint256 serial_id;
+        bytes32 chainSeed;
+        uint256 serialId;
         bytes32 revealed;
     }
 
@@ -58,13 +58,13 @@ contract Randomizer is AuthorizedCaller {
     ) private returns (uint256) {
         bytes32 hashedKey = getTokenKey(tokenKey.issuer, tokenKey.id);
         Seed storage seed = seeds[hashedKey];
-        require(seed.chain_seed != 0x00, "NO_REQ");
+        require(seed.chainSeed != 0x00, "NO_REQ");
         require(isRequestedVariant(tokenKey), "AL_REV");
         bytes32 tokenSeed = keccak256(
-            abi.encodePacked(oracleSeed, seed.chain_seed)
+            abi.encodePacked(oracleSeed, seed.chainSeed)
         );
         seed.revealed = tokenSeed;
-        return seed.serial_id;
+        return seed.serialId;
     }
 
     function iterateOracleSeed(
@@ -85,8 +85,8 @@ contract Randomizer is AuthorizedCaller {
         bytes memory base = abi.encodePacked(block.timestamp, hashedKey);
         bytes32 seed = keccak256(base);
         countRequested += 1;
-        seeds[hashedKey].chain_seed = seed;
-        seeds[hashedKey].serial_id = countRequested;
+        seeds[hashedKey].chainSeed = seed;
+        seeds[hashedKey].serialId = countRequested;
     }
 
     function reveal(
@@ -138,7 +138,7 @@ contract Randomizer is AuthorizedCaller {
     function isRequestedVariant(
         TokenKey memory tokenKey
     ) private view returns (bool) {
-        return (seeds[getTokenKey(tokenKey.issuer, tokenKey.id)].chain_seed !=
+        return (seeds[getTokenKey(tokenKey.issuer, tokenKey.id)].chainSeed !=
             0x00);
     }
 

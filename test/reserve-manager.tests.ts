@@ -1,14 +1,14 @@
-import { ethers, waffle } from "hardhat";
+import { ethers } from "hardhat";
 import { expect } from "chai";
-import { Contract } from "ethers";
+import { Contract, Signer } from "ethers";
 
 describe("ReserveManager", function () {
   let ReserveManager: Contract;
   let ReserveWhitelist: Contract;
-  let accounts: any;
+  let admin: Signer;
 
   beforeEach(async () => {
-    accounts = await ethers.getSigners();
+    [admin] = await ethers.getSigners();
 
     // Deploy ReserveWhitelist
     const ReserveWhitelistFactory = await ethers.getContractFactory(
@@ -20,12 +20,15 @@ describe("ReserveManager", function () {
     const ReserveManagerFactory = await ethers.getContractFactory(
       "ReserveManager"
     );
-    ReserveManager = await ReserveManagerFactory.deploy();
+    ReserveManager = await ReserveManagerFactory.deploy(
+      await admin.getAddress()
+    );
+    await ReserveManager.authorizeCaller(await admin.getAddress());
   });
 
   describe("isReserveValid", function () {
     it("Should return true if reserve is valid", async function () {
-      const whitelistEntry = [accounts[1].address, 1000];
+      const whitelistEntry = [await admin.getAddress(), 1000];
       const data = ethers.utils.defaultAbiCoder.encode(
         ["tuple(address,uint256)[]"],
         [[whitelistEntry]]
@@ -50,7 +53,7 @@ describe("ReserveManager", function () {
 
   describe("applyReserve", function () {
     it("Should apply reserve successfully", async function () {
-      const whitelistEntry = [accounts[1].address, 1000];
+      const whitelistEntry = [await admin.getAddress(), 1000];
       const data = ethers.utils.defaultAbiCoder.encode(
         ["tuple(address,uint256)[]"],
         [[whitelistEntry]]
@@ -76,7 +79,7 @@ describe("ReserveManager", function () {
 
   describe("setReserveMethod", function () {
     it("Should set reserve method successfully", async function () {
-      const whitelistEntry = [accounts[1].address, 1000];
+      const whitelistEntry = [await admin.getAddress(), 1000];
       const data = ethers.utils.defaultAbiCoder.encode(
         ["tuple(address,uint256)[]"],
         [[whitelistEntry]]
@@ -107,9 +110,9 @@ describe("ReserveManager", function () {
 
       const method = await ReserveManager.getReserveMethod(1);
       expect(method.reserveContract).to.equal(ReserveWhitelist.address);
-    //   expect(ethers.utils.parseBytes32String(method.methodData)).to.equal(
-    //     "MethodData"
-    //   );
+      //   expect(ethers.utils.parseBytes32String(method.methodData)).to.equal(
+      //     "MethodData"
+      //   );
     });
 
     // Add more test cases to cover other scenarios

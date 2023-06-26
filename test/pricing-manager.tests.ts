@@ -1,21 +1,24 @@
 import { ethers } from "hardhat";
 import { expect } from "chai";
-import { Contract } from "ethers";
+import { Contract, Signer } from "ethers";
 
 describe("PricingManager", function () {
   let PricingManager: Contract;
   let pricingFixed: Contract;
-  let accounts: any;
+  let admin: Signer;
 
   beforeEach(async () => {
-    accounts = await ethers.getSigners();
+    [admin] = await ethers.getSigners();
     const PricingManagerFactory = await ethers.getContractFactory(
       "PricingManager"
     );
     const PricingFixed = await ethers.getContractFactory("PricingFixed");
     pricingFixed = await PricingFixed.deploy();
     await pricingFixed.deployed();
-    PricingManager = await PricingManagerFactory.deploy();
+    PricingManager = await PricingManagerFactory.deploy(
+      await admin.getAddress()
+    );
+    PricingManager.authorizeCaller(await admin.getAddress());
   });
 
   describe("setPricingContract", function () {
@@ -39,11 +42,7 @@ describe("PricingManager", function () {
     });
 
     it("Should throw an error if the pricing contract is disabled", async function () {
-      await PricingManager.setPricingContract(
-        1,
-        pricingFixed.address,
-        false
-      );
+      await PricingManager.setPricingContract(1, pricingFixed.address, false);
 
       await expect(PricingManager.verifyPricingMethod(1)).to.be.revertedWith(
         "PRC_MTD_DIS"

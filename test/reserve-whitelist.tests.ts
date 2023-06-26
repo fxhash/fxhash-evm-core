@@ -95,13 +95,13 @@ describe("ReserveWhitelist", () => {
         },
       ];
       const params = {
-        current_data: ethers.utils.defaultAbiCoder.encode(
+        currentData: ethers.utils.defaultAbiCoder.encode(
           ["tuple(address,uint256)[]"],
           [whitelist.map((entry) => [entry.whitelisted, entry.amount])]
         ),
         sender: addr1.address,
-        current_amount: 8,
-        user_input: "0x00",
+        currentAmount: 8,
+        userInput: "0x00",
       };
 
       // Call the contract function
@@ -136,13 +136,13 @@ describe("ReserveWhitelist", () => {
         },
       ];
       const params = {
-        current_data: ethers.utils.defaultAbiCoder.encode(
+        currentData: ethers.utils.defaultAbiCoder.encode(
           ["tuple(address,uint256)[]"],
           [whitelist.map((entry) => [entry.whitelisted, entry.amount])]
         ),
         sender: addr3.address,
-        current_amount: 0,
-        user_input: "0x00",
+        currentAmount: 0,
+        userInput: "0x00",
       };
 
       // Call the contract function

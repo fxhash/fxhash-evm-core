@@ -53,7 +53,7 @@ describe("ReserveMintPass", () => {
   describe("applyReserve", () => {
     it("should apply the method if user input and current amount are provided", async () => {
       const token = "TOKEN1";
-      const project = 1;
+      const project = 0;
       const addr = await addr1.getAddress();
       const target = group.address;
       const payload = ethers.utils.defaultAbiCoder.encode(
@@ -91,7 +91,7 @@ describe("ReserveMintPass", () => {
 
     it("should not apply the method if user input or current amount is missing", async () => {
       const token = "TOKEN1";
-      const project = 1;
+      const project = 0;
       const addr = await addr1.getAddress();
       const target = group.address;
       const payload = ethers.utils.defaultAbiCoder.encode(
