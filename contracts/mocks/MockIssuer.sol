@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
-import "@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol";
-import "contracts/interfaces/IFxHashIssuer.sol";
 import "contracts/interfaces/IMintTicket.sol";
+import "contracts/libs/LibUserActions.sol";
 
-contract FxHashIssuer is IFxHashIssuer {
+contract MockIssuer {
     IMintTicket ticket;
 
     constructor(address _ticket) {
@@ -13,12 +12,12 @@ contract FxHashIssuer is IFxHashIssuer {
 
     function getUserActions(
         address addr
-    ) external view override returns (UserActions memory) {}
+    ) external view returns (LibUserActions.UserAction memory) {}
 
     function getTokenPrimarySplit(
         uint256 projectId,
         uint256 amount
-    ) external override returns (address receiver, uint256 royaltyAmount) {
+    ) external returns (address receiver, uint256 royaltyAmount) {
         return (address(0), 1000);
     }
 

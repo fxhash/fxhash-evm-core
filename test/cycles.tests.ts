@@ -8,7 +8,7 @@ describe("FxHashCycles", function () {
   let nonAdmin: Signer;
   let fxHashAdmin: Signer;
 
-  const FXHASH_ADMIN = ethers.utils.id("FXHASH_ADMIN");
+  const AUTHORIZED_CALLER = ethers.utils.id("AUTHORIZED_CALLER");
 
   beforeEach(async function () {
     const FxHashCycles: ContractFactory = await ethers.getContractFactory(
@@ -45,24 +45,26 @@ describe("FxHashCycles", function () {
       expect(hasAdminRole).to.be.false;
     });
 
-    it("should grant the FXHASH_ADMIN role to an address", async function () {
+    it("should grant the AUTHORIZED_CALLER role to an address", async function () {
       const addressToGrant = await fxHashAdmin.getAddress();
 
-      await fxHashCycles.connect(admin).grantFxHashAdminRole(addressToGrant);
+      await fxHashCycles.connect(admin).authorizeCaller(addressToGrant);
       const hasFxHashAdminRole = await fxHashCycles.hasRole(
-        FXHASH_ADMIN,
+        AUTHORIZED_CALLER,
         addressToGrant
       );
 
       expect(hasFxHashAdminRole).to.be.true;
     });
 
-    it("should revoke the FXHASH_ADMIN role from an address", async function () {
+    it("should revoke the AUTHORIZED_CALLER role from an address", async function () {
       const addressToRevoke = await fxHashAdmin.getAddress();
 
-      await fxHashCycles.connect(admin).revokeFxHashAdminRole(addressToRevoke);
+      await fxHashCycles
+        .connect(admin)
+        .revokeCallerAuthorization(addressToRevoke);
       const hasFxHashAdminRole = await fxHashCycles.hasRole(
-        FXHASH_ADMIN,
+        AUTHORIZED_CALLER,
         addressToRevoke
       );
 
@@ -83,7 +85,7 @@ describe("FxHashCycles", function () {
       // Grant the FxHash admin role to the fxHashAdmin address
       await fxHashCycles
         .connect(admin)
-        .grantFxHashAdminRole(await fxHashAdmin.getAddress());
+        .authorizeCaller(await fxHashAdmin.getAddress());
     });
 
     it("should add a new cycle", async function () {
@@ -131,7 +133,7 @@ describe("FxHashCycles", function () {
       // Attempt to remove the cycle by a non-admin
       await expect(
         fxHashCycles.connect(nonAdmin).removeCycle(cycleId)
-      ).to.be.revertedWith("Caller is not a FxHash admin");
+      ).to.be.revertedWith("Caller is not authorized");
 
       // Verify the cycle still exists
       const cycle = await fxHashCycles.cycles(cycleId);
@@ -150,7 +152,7 @@ describe("FxHashCycles", function () {
       // Attempt to remove the cycle by a non-admin
       await expect(
         fxHashCycles.connect(nonAdmin).addCycle(cycleParams)
-      ).to.be.revertedWith("Caller is not a FxHash admin");
+      ).to.be.revertedWith("Caller is not authorized");
     });
 
     it("should add and remove multiple cycles", async function () {

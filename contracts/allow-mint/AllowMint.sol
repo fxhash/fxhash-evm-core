@@ -2,31 +2,29 @@
 pragma solidity ^0.8.18;
 
 import "contracts/interfaces/IModerationToken.sol";
-import "contracts/abstract/admin/FxHashAdminVerify.sol";
+import "contracts/interfaces/IUserActions.sol";
+import "contracts/abstract/admin/AuthorizedCaller.sol";
+import "contracts/libs/LibUserActions.sol";
 
-contract AllowMint is FxHashAdminVerify {
-    IModerationToken public tokenModContract;
-    address public issuerContract;
+contract AllowMint is AuthorizedCaller {
+    address public tokenMod;
+    IUserActions public userActions;
 
-    constructor(
-        address _admin,
-        address _tokenModContract,
-        address _issuerContract
-    ) {
+    constructor(address _admin, address _tokenMod, address _userActions) {
         _setupRole(DEFAULT_ADMIN_ROLE, _admin);
-        _setupRole(FXHASH_ADMIN, _admin);
-        tokenModContract = IModerationToken(_tokenModContract);
-        issuerContract = _issuerContract;
+        _setupRole(AUTHORIZED_CALLER, _admin);
+        tokenMod = _tokenMod;
+        userActions = IUserActions(_userActions);
     }
 
     function updateTokenModerationContract(
         address _address
     ) external onlyAdmin {
-        tokenModContract = IModerationToken(_address);
+        tokenMod = _address;
     }
 
-    function updateIssuerContract(address _address) external onlyAdmin {
-        issuerContract = _address;
+    function updateUserActions(address _address) external onlyAdmin {
+        userActions = IUserActions(_address);
     }
 
     function isAllowed(
@@ -35,18 +33,21 @@ contract AllowMint is FxHashAdminVerify {
         uint256 id
     ) external view returns (bool) {
         // Get the state from the token moderation contract
-        uint256 state = tokenModContract.tokenState(id);
+        uint256 state = IModerationToken(tokenMod).tokenState(id);
         require(state < 2, "TOKEN_MODERATED");
-        //TODO: needs to be fixed when issuer will be ready
         // Prevent batch minting on any token
-        // UserActions memory userActions = IIssuerContract(
-        //     self.data.issuerContract
-        // ).getUserActions(addr);
-        // require(timestamp - userActions.lastMintedTime > 0, "NO_BATCH_MINTING");
-        require(
-            SignedMath.abs(int256(timestamp) - int256(block.timestamp)) > 0,
-            "NO_BATCH_MINTING"
-        );
+        LibUserActions.UserAction memory lastUserActions = userActions
+            .getUserActions(addr);
+        if (
+            lastUserActions.lastMintedTime > 0 &&
+            timestamp >= lastUserActions.lastMintedTime
+        ) {
+            require(
+                timestamp - lastUserActions.lastMintedTime > 0,
+                "NO_BATCH_MINTING"
+            );
+        }
+
         return true;
     }
 }

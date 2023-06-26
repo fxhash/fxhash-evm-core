@@ -81,7 +81,7 @@ describe("ReserveWhitelist", () => {
     });
   });
 
-  describe("applyMethod", () => {
+  describe("applyReserve", () => {
     it("should decrease the amount of the whitelisted address by 1", async () => {
       // Prepare test data
       const whitelist = [
@@ -95,17 +95,17 @@ describe("ReserveWhitelist", () => {
         },
       ];
       const params = {
-        current_data: ethers.utils.defaultAbiCoder.encode(
+        currentData: ethers.utils.defaultAbiCoder.encode(
           ["tuple(address,uint256)[]"],
           [whitelist.map((entry) => [entry.whitelisted, entry.amount])]
         ),
         sender: addr1.address,
-        current_amount: 8,
-        user_input: "0x00",
+        currentAmount: 8,
+        userInput: "0x00",
       };
 
       // Call the contract function
-      const [applied, packedNewData] = await reserveWhitelist.applyMethod(
+      const [applied, packedNewData] = await reserveWhitelist.applyReserve(
         params
       );
 
@@ -136,17 +136,17 @@ describe("ReserveWhitelist", () => {
         },
       ];
       const params = {
-        current_data: ethers.utils.defaultAbiCoder.encode(
+        currentData: ethers.utils.defaultAbiCoder.encode(
           ["tuple(address,uint256)[]"],
           [whitelist.map((entry) => [entry.whitelisted, entry.amount])]
         ),
         sender: addr3.address,
-        current_amount: 0,
-        user_input: "0x00",
+        currentAmount: 0,
+        userInput: "0x00",
       };
 
       // Call the contract function
-      const [applied, packedNewData] = await reserveWhitelist.applyMethod(
+      const [applied, packedNewData] = await reserveWhitelist.applyReserve(
         params
       );
 

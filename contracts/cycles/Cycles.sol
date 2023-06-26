@@ -3,9 +3,9 @@ pragma solidity ^0.8.18;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/math/SignedMath.sol";
-import "contracts/abstract/admin/FxHashAdminVerify.sol";
+import "contracts/abstract/admin/AuthorizedCaller.sol";
 
-contract FxHashCycles is FxHashAdminVerify {
+contract FxHashCycles is AuthorizedCaller {
     struct CycleParams {
         uint256 start;
         uint256 openingDuration;
@@ -18,10 +18,12 @@ contract FxHashCycles is FxHashAdminVerify {
     constructor() {
         cyclesCount = 0;
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
-        _setupRole(FXHASH_ADMIN, _msgSender());
+        _setupRole(AUTHORIZED_CALLER, _msgSender());
     }
 
-    function addCycle(CycleParams calldata _params) external onlyFxHashAdmin {
+    function addCycle(
+        CycleParams calldata _params
+    ) external onlyAuthorizedCaller {
         require(_params.start >= 0, "Error: start <= 0");
         require(_params.openingDuration >= 0, "Error: openingDuration <= 0");
         require(_params.closingDuration >= 0, "Error: closingDuration <= 0");
@@ -33,7 +35,7 @@ contract FxHashCycles is FxHashAdminVerify {
         cyclesCount++;
     }
 
-    function removeCycle(uint256 _cycleId) external onlyFxHashAdmin {
+    function removeCycle(uint256 _cycleId) external onlyAuthorizedCaller {
         delete cycles[_cycleId];
     }
 

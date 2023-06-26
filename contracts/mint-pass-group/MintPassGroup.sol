@@ -3,10 +3,9 @@ pragma solidity ^0.8.18;
 
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "hardhat/console.sol";
-import "contracts/abstract/admin/FxHashAdminVerify.sol";
+import "contracts/abstract/admin/AuthorizedCaller.sol";
 
-contract MintPassGroup is FxHashAdminVerify {
+contract MintPassGroup is AuthorizedCaller {
     using EnumerableSet for EnumerableSet.AddressSet;
     struct TokenRecord {
         uint256 minted;
@@ -39,7 +38,7 @@ contract MintPassGroup is FxHashAdminVerify {
         address[] memory _bypass
     ) {
         _setupRole(DEFAULT_ADMIN_ROLE, _signer);
-        _setupRole(FXHASH_ADMIN, _signer);
+        _setupRole(AUTHORIZED_CALLER, _signer);
         maxPerToken = _maxPerToken;
         maxPerTokenPerProject = _maxPerTokenPerProject;
         signer = _signer;
@@ -57,10 +56,10 @@ contract MintPassGroup is FxHashAdminVerify {
                 tx.origin == payload.addr,
             "PASS_INVALID_ADDRESS"
         );
-        //require(
-        //    checkSignature(_params.signature, _params.payload),
-        //    "PASS_INVALID_SIGNATURE"
-        //);
+        require(
+            checkSignature(pass.signature, pass.payload),
+            "PASS_INVALID_SIGNATURE"
+        );
         if (tokens[payload.token].minted > 0) {
             TokenRecord storage tokenRecord = tokens[payload.token];
             require(
@@ -94,12 +93,14 @@ contract MintPassGroup is FxHashAdminVerify {
     function setConstraints(
         uint256 _maxPerToken,
         uint256 _maxPerTokenPerProject
-    ) external onlyFxHashAdmin {
+    ) external onlyAuthorizedCaller {
         maxPerToken = _maxPerToken;
         maxPerTokenPerProject = _maxPerTokenPerProject;
     }
 
-    function setBypass(address[] memory _addresses) external onlyFxHashAdmin {
+    function setBypass(
+        address[] memory _addresses
+    ) external onlyAuthorizedCaller {
         for (uint256 i = 0; i < _addresses.length; i++) {
             EnumerableSet.add(bypass, _addresses[i]);
         }
@@ -117,7 +118,10 @@ contract MintPassGroup is FxHashAdminVerify {
             "PASS_INVALID_ADDRESS"
         );
         require(payload.addr == token.consumer, "WRONG_PASS_CONSUMER");
-        //require(checkSignature(_params.payload, _params.signature), "PASS_INVALID_SIGNATURE");
+        require(
+            checkSignature(pass.payload, pass.signature),
+            "PASS_INVALID_SIGNATURE"
+        );
     }
 
     function decodePayload(

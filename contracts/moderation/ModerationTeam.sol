@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
-import "contracts/abstract/admin/FxHashAdminVerify.sol";
+import "contracts/abstract/admin/AuthorizedCaller.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
-contract ModerationTeam is FxHashAdminVerify {
+contract ModerationTeam is AuthorizedCaller {
     using EnumerableSet for EnumerableSet.AddressSet;
     event Received(address sender, uint256 amount);
 
@@ -45,7 +45,7 @@ contract ModerationTeam is FxHashAdminVerify {
     modifier onlyModeratorOrAdmin() {
         require(
             isModerator(msg.sender) ||
-                AccessControl.hasRole(FXHASH_ADMIN, _msgSender()),
+                AccessControl.hasRole(AUTHORIZED_CALLER, _msgSender()),
             "NOT_MODERATOR_OR_ADMIN"
         );
         _;
@@ -56,7 +56,7 @@ contract ModerationTeam is FxHashAdminVerify {
     */
     constructor(address _admin) {
         _setupRole(DEFAULT_ADMIN_ROLE, _admin);
-        _setupRole(FXHASH_ADMIN, _admin);
+        _setupRole(AUTHORIZED_CALLER, _admin);
         sharesTotal = 0;
     }
 

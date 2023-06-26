@@ -2,15 +2,15 @@
 pragma solidity ^0.8.18;
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol";
-import "contracts/abstract/admin/FxHashAdminVerify.sol";
-import "contracts/interfaces/IFxHashIssuer.sol";
+import "contracts/abstract/admin/AuthorizedCaller.sol";
+import "contracts/interfaces/IIssuer.sol";
 import "contracts/interfaces/IRandomizer.sol";
 import "contracts/interfaces/IMintTicket.sol";
 
 contract MintTicket is
     ERC721URIStorageUpgradeable,
     IERC2981Upgradeable,
-    FxHashAdminVerify,
+    AuthorizedCaller,
     IMintTicket
 {
     function _msgData()
@@ -62,13 +62,13 @@ contract MintTicket is
     uint256 public fees;
     uint256 public availableBalance;
     uint256 public minPrice;
-    IFxHashIssuer public issuer;
+    IIssuer public issuer;
     IRandomizer public randomizer;
 
     constructor(address _admin, address _issuer, address _randomizer) {
         _setupRole(DEFAULT_ADMIN_ROLE, _admin);
-        _setupRole(FXHASH_ADMIN, _admin);
-        issuer = IFxHashIssuer(_issuer);
+        _setupRole(AUTHORIZED_CALLER, _admin);
+        issuer = IIssuer(_issuer);
         randomizer = IRandomizer(_randomizer);
         lastTokenId = 0;
         fees = 0;
@@ -197,8 +197,10 @@ contract MintTicket is
         uint256 amount
     ) internal {
         if (amount > 0) {
-            (address receiver, uint256 royaltyAmount) = issuer
-                .getTokenPrimarySplit(projectId, amount);
+            (address receiver, uint256 royaltyAmount) = issuer.primarySplitInfo(
+                projectId,
+                amount
+            );
             payable(receiver).transfer(royaltyAmount);
         }
     }
@@ -214,7 +216,7 @@ contract MintTicket is
     }
 
     function setIssuer(address _issuer) external onlyAdmin {
-        issuer = IFxHashIssuer(_issuer);
+        issuer = IIssuer(_issuer);
     }
 
     function setRandomizer(address _randomizer) external onlyAdmin {

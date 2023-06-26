@@ -47,8 +47,6 @@ describe("GenTk", () => {
     expect(tokenData.iteration).to.equal(1);
     expect(tokenData.inputBytes).to.equal("0x");
     expect(tokenData.minter).to.equal(await receiver.getAddress());
-    expect(tokenData.royaltyShare).to.equal(10);
-    expect(tokenData.royaltyReceiver).to.equal(await receiver.getAddress());
 
     // Check the token URI
     const tokenURI = await genTk.tokenURI(tokenId);

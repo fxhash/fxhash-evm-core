@@ -27,11 +27,11 @@ contract ReserveWhitelist is IReserve {
         return sumAmounts >= params.amount;
     }
 
-    function applyMethod(
+    function applyReserve(
         LibReserve.ApplyParams calldata params
     ) external pure returns (bool, bytes memory) {
         WhitelistEntry[] memory whitelist = abi.decode(
-            params.current_data,
+            params.currentData,
             (WhitelistEntry[])
         );
 

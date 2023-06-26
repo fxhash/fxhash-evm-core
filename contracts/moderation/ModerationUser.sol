@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 import "contracts/libs/LibModeration.sol";
-import "contracts/abstract/admin/FxHashAdminVerify.sol";
+import "contracts/abstract/admin/AuthorizedCaller.sol";
 import "contracts/abstract/AddressConfig.sol";
 import "contracts/moderation/ModerationTeam.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
@@ -17,7 +17,7 @@ contract ModerationUser is BaseModeration, IModerationUser {
         // Initialize storage variables
         reasonsCount = 0;
         _setupRole(DEFAULT_ADMIN_ROLE, _admin);
-        _setupRole(FXHASH_ADMIN, _admin);
+        _setupRole(AUTHORIZED_CALLER, _admin);
     }
 
     // Helpers

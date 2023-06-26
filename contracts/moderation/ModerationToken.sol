@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "contracts/libs/LibModeration.sol";
-import "contracts/abstract/admin/FxHashAdminVerify.sol";
+import "contracts/abstract/admin/AuthorizedCaller.sol";
 import "contracts/abstract/BaseModeration.sol";
 import "contracts/libs/LibModeration.sol";
 import "contracts/interfaces/IModerationToken.sol";
@@ -15,7 +15,7 @@ contract ModerationToken is BaseModeration, IModerationToken {
     constructor(address _admin) {
         reasonsCount = 0;
         _setupRole(DEFAULT_ADMIN_ROLE, _admin);
-        _setupRole(FXHASH_ADMIN, _admin);
+        _setupRole(AUTHORIZED_CALLER, _admin);
     }
 
     function moderateToken(

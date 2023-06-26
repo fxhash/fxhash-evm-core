@@ -1,8 +1,9 @@
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "contracts/abstract/admin/FxHashAdminVerify.sol";
+import "contracts/abstract/admin/AuthorizedCaller.sol";
 
-contract Randomizer is FxHashAdminVerify {
+contract Randomizer is AuthorizedCaller {
     bytes32 public constant FXHASH_AUTHORITY = keccak256("FXHASH_AUTHORITY");
     bytes32 public constant FXHASH_ISSUER = keccak256("FXHASH_ISSUER");
     struct TokenKey {
@@ -11,8 +12,8 @@ contract Randomizer is FxHashAdminVerify {
     }
 
     struct Seed {
-        bytes32 chain_seed;
-        uint256 serial_id;
+        bytes32 chainSeed;
+        uint256 serialId;
         bytes32 revealed;
     }
 
@@ -22,8 +23,8 @@ contract Randomizer is FxHashAdminVerify {
     }
 
     Commitment public commitment;
-    uint256 public count_requested;
-    uint256 public count_revealed;
+    uint256 public countRequested;
+    uint256 public countRevealed;
     mapping(bytes32 => Seed) public seeds;
 
     modifier onlyFxHashAuthority() {
@@ -45,10 +46,10 @@ contract Randomizer is FxHashAdminVerify {
     constructor(bytes32 _seed, bytes32 _salt) {
         commitment.seed = _seed;
         commitment.salt = _salt;
-        count_requested = 0;
-        count_revealed = 0;
+        countRequested = 0;
+        countRevealed = 0;
         _setupRole(DEFAULT_ADMIN_ROLE, address(bytes20(_msgSender())));
-        _setupRole(FXHASH_ADMIN, address(bytes20(_msgSender())));
+        _setupRole(AUTHORIZED_CALLER, address(bytes20(_msgSender())));
     }
 
     function setTokenSeedAndReturnSerial(
@@ -57,13 +58,13 @@ contract Randomizer is FxHashAdminVerify {
     ) private returns (uint256) {
         bytes32 hashedKey = getTokenKey(tokenKey.issuer, tokenKey.id);
         Seed storage seed = seeds[hashedKey];
-        require(seed.chain_seed != 0x00, "NO_REQ");
+        require(seed.chainSeed != 0x00, "NO_REQ");
         require(isRequestedVariant(tokenKey), "AL_REV");
         bytes32 tokenSeed = keccak256(
-            abi.encodePacked(oracleSeed, seed.chain_seed)
+            abi.encodePacked(oracleSeed, seed.chainSeed)
         );
         seed.revealed = tokenSeed;
-        return seed.serial_id;
+        return seed.serialId;
     }
 
     function iterateOracleSeed(
@@ -83,9 +84,9 @@ contract Randomizer is FxHashAdminVerify {
         require(seeds[hashedKey].revealed == 0x00, "ALREADY_SEEDED");
         bytes memory base = abi.encodePacked(block.timestamp, hashedKey);
         bytes32 seed = keccak256(base);
-        count_requested += 1;
-        seeds[hashedKey].chain_seed = seed;
-        seeds[hashedKey].serial_id = count_requested;
+        countRequested += 1;
+        seeds[hashedKey].chainSeed = seed;
+        seeds[hashedKey].serialId = countRequested;
     }
 
     function reveal(
@@ -105,8 +106,8 @@ contract Randomizer is FxHashAdminVerify {
             require(expectedSerialId == serialId, "OOR");
             oracleSeed = iterateOracleSeed(oracleSeed);
         }
-        require(count_revealed + 1 == expectedSerialId, "OOR");
-        count_revealed += tokenList.length;
+        require(countRevealed + 1 == expectedSerialId, "OOR");
+        countRevealed += tokenList.length;
         require(oracleSeed == commitment.seed, "OOR");
         updateCommitment(seed);
     }
@@ -137,7 +138,7 @@ contract Randomizer is FxHashAdminVerify {
     function isRequestedVariant(
         TokenKey memory tokenKey
     ) private view returns (bool) {
-        return (seeds[getTokenKey(tokenKey.issuer, tokenKey.id)].chain_seed !=
+        return (seeds[getTokenKey(tokenKey.issuer, tokenKey.id)].chainSeed !=
             0x00);
     }
 
