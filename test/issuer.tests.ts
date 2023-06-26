@@ -34,6 +34,8 @@ describe("Issuer", () => {
   const authorizations = [10, 20];
 
   beforeEach(async () => {
+    await ethers.provider.send("hardhat_reset", []);
+
     [admin, receiver, signer, treasury, addr1, addr2, addr3] =
       await ethers.getSigners();
 
@@ -86,11 +88,16 @@ describe("Issuer", () => {
     const ModerationUser = await ethers.getContractFactory("ModerationUser");
     moderationUser = await ModerationUser.deploy(await admin.getAddress());
 
+    const UserActionsFactory: ContractFactory = await ethers.getContractFactory(
+      "UserActions"
+    );
+    userActions = await UserActionsFactory.deploy(await admin.getAddress());
+    await userActions.deployed();
     const AllowMintFactory = await ethers.getContractFactory("AllowMint");
     allowMint = await AllowMintFactory.deploy(
       await admin.getAddress(),
       moderatorToken.address,
-      await admin.getAddress()
+      userActions.address
     );
 
     await allowMint.deployed();
@@ -129,24 +136,14 @@ describe("Issuer", () => {
     randomizer = await RandomizerFactory.deploy(seed, salt);
     await randomizer.deployed();
 
-    mintTicket = await MintTicket.deploy(
-      await admin.getAddress(),
-      randomizer.address,
-      randomizer.address
-    );
-    await mintTicket.deployed();
-
     const CodexFactory: ContractFactory = await ethers.getContractFactory(
       "Codex"
     );
-    const UserActionsFactory: ContractFactory = await ethers.getContractFactory(
-      "UserActions"
-    );
+
     const PriceManagerFactory: ContractFactory =
       await ethers.getContractFactory("PricingManager");
     const ReserveManagerFactory: ContractFactory =
       await ethers.getContractFactory("ReserveManager");
-    userActions = await UserActionsFactory.deploy(await admin.getAddress());
     priceManager = await PriceManagerFactory.deploy(await admin.getAddress());
     reserveManager = await ReserveManagerFactory.deploy(
       await admin.getAddress()
@@ -160,8 +157,20 @@ describe("Issuer", () => {
 
     await allowMintIssuer.deployed();
 
-    issuer = await IssuerFactory.deploy(2500, 1000, await admin.getAddress());
+    issuer = await IssuerFactory.deploy(
+      2500,
+      1000,
+      1000,
+      await admin.getAddress()
+    );
     await issuer.deployed();
+
+    mintTicket = await MintTicket.deploy(
+      await admin.getAddress(),
+      issuer.address,
+      randomizer.address
+    );
+    await mintTicket.deployed();
 
     codex = await CodexFactory.deploy(
       issuer.address,
@@ -215,7 +224,7 @@ describe("Issuer", () => {
 
     await issuer.connect(admin).setAddresses([
       { key: "treasury", value: await treasury.getAddress() },
-      { key: "mint_ticket", value: mintTicket.address },
+      { key: "mint_tickets", value: mintTicket.address },
       { key: "gentk", value: genTk.address },
       { key: "randomizer", value: randomizer.address },
       { key: "mod_team", value: moderationTeam.address },
@@ -340,7 +349,7 @@ describe("Issuer", () => {
       );
       expect(issuerData.info.tags).to.deep.equal(mintIssuerInput.tags);
       expect(issuerData.info.enabled).to.equal(mintIssuerInput.enabled);
-      expect(issuerData.info.lockedSeconds).to.equal(0);
+      expect(issuerData.info.lockedSeconds).to.equal(1000);
       expect(issuerData.info.timestampMinted).to.equal(timestamp);
       expect(issuerData.info.lockPriceForReserves).to.equal(
         mintIssuerInput.pricing.lockForReserves
@@ -354,6 +363,205 @@ describe("Issuer", () => {
       expect(issuerData.info.inputBytesSize).to.equal(
         mintIssuerInput.inputBytesSize
       );
+    });
+  });
+
+  describe("Mint", function () {
+    it("It should successfully mint an issuer token", async function () {
+      const timestamp = 1735589600;
+      const price = 1000;
+      const whitelist = [
+        {
+          whitelisted: await addr1.getAddress(),
+          amount: 10,
+        },
+        {
+          whitelisted: await addr2.getAddress(),
+          amount: 5,
+        },
+        {
+          whitelisted: await addr3.getAddress(),
+          amount: 3,
+        },
+      ];
+      const mintIssuerInput = {
+        codex: {
+          inputType: 1,
+          value: ethers.utils.formatBytes32String("Test"),
+          codexId: 0,
+        },
+        metadata: ethers.utils.formatBytes32String("Metadata"),
+        inputBytesSize: 0,
+        amount: 1000,
+        openEditions: {
+          closingTime: 0,
+          extra: "0x",
+        },
+        mintTicketSettings: {
+          gracingPeriod: 0,
+          metadata: "0x",
+        },
+        reserves: [
+          {
+            methodId: 1,
+            amount: 1,
+            data: ethers.utils.defaultAbiCoder.encode(
+              ["tuple(address,uint256)[]"],
+              [whitelist.map((entry) => [entry.whitelisted, entry.amount])]
+            ),
+          },
+        ],
+        pricing: {
+          pricingId: 1,
+          details: ethers.utils.defaultAbiCoder.encode(
+            ["uint256", "uint256"],
+            [price, timestamp - 1]
+          ),
+          lockForReserves: true,
+        },
+        primarySplit: {
+          percent: 1500,
+          receiver: await receiver.getAddress(),
+        },
+        royaltiesSplit: {
+          percent: 1000,
+          receiver: await receiver.getAddress(),
+        },
+        enabled: true,
+        tags: [1, 2, 3],
+      };
+
+      await ethers.provider.send("evm_setNextBlockTimestamp", [timestamp]);
+
+      // Mint issuer using the input
+      await issuer.connect(receiver).mintIssuer(mintIssuerInput);
+
+      await ethers.provider.send("evm_setNextBlockTimestamp", [
+        timestamp + 1001,
+      ]);
+
+      const mintInput = {
+        issuerId: 0,
+        inputBytes: "0x",
+        referrer: ethers.constants.AddressZero,
+        reserveInput: "0x",
+        createTicket: false,
+        recipient: await addr1.getAddress(),
+      };
+
+      await issuer.connect(addr1).mint(mintInput, {
+        value: 1000,
+      });
+      const issuerData = await issuer.getIssuer(0);
+      expect(issuerData.balance).to.equal(999);
+      expect(issuerData.iterationsCount).to.equal(1);
+      expect(issuerData.supply).to.equal(1000);
+    });
+  });
+
+  describe("Mint with ticket", function () {
+    it("It should successfully mint an issuer token with ticket", async function () {
+      const timestamp = 1735589600;
+      const price = 1000;
+      const whitelist = [
+        {
+          whitelisted: await addr1.getAddress(),
+          amount: 10,
+        },
+        {
+          whitelisted: await addr2.getAddress(),
+          amount: 5,
+        },
+        {
+          whitelisted: await addr3.getAddress(),
+          amount: 3,
+        },
+      ];
+      const mintIssuerInput = {
+        codex: {
+          inputType: 1,
+          value: ethers.utils.formatBytes32String("Test"),
+          codexId: 0,
+        },
+        metadata: ethers.utils.formatBytes32String("Metadata"),
+        inputBytesSize: 0,
+        amount: 1000,
+        openEditions: {
+          closingTime: 0,
+          extra: "0x",
+        },
+        mintTicketSettings: {
+          gracingPeriod: 1000,
+          metadata: "ipfs://",
+        },
+        reserves: [
+          {
+            methodId: 1,
+            amount: 1,
+            data: ethers.utils.defaultAbiCoder.encode(
+              ["tuple(address,uint256)[]"],
+              [whitelist.map((entry) => [entry.whitelisted, entry.amount])]
+            ),
+          },
+        ],
+        pricing: {
+          pricingId: 1,
+          details: ethers.utils.defaultAbiCoder.encode(
+            ["uint256", "uint256"],
+            [price, timestamp - 1]
+          ),
+          lockForReserves: true,
+        },
+        primarySplit: {
+          percent: 1500,
+          receiver: await receiver.getAddress(),
+        },
+        royaltiesSplit: {
+          percent: 1000,
+          receiver: await receiver.getAddress(),
+        },
+        enabled: true,
+        tags: [1, 2, 3],
+      };
+
+      await ethers.provider.send("evm_setNextBlockTimestamp", [timestamp]);
+
+      // Mint issuer using the input
+      await issuer.connect(receiver).mintIssuer(mintIssuerInput);
+
+      await ethers.provider.send("evm_setNextBlockTimestamp", [
+        timestamp + 1001,
+      ]);
+
+      const mintInput = {
+        issuerId: 0,
+        inputBytes: "0x",
+        referrer: ethers.constants.AddressZero,
+        reserveInput: "0x",
+        createTicket: true,
+        recipient: await addr1.getAddress(),
+      };
+
+      await issuer.connect(addr1).mint(mintInput, {
+        value: 1000,
+      });
+      const issuerData = await issuer.getIssuer(0);
+      expect(issuerData.balance).to.equal(999);
+      expect(issuerData.iterationsCount).to.equal(0);
+      expect(issuerData.supply).to.equal(1000);
+
+      const ticketInput = {
+        issuerId: 0,
+        ticketId: 0,
+        inputBytes: "0x",
+        recipient: ethers.constants.AddressZero,
+      };
+
+      await issuer.connect(addr1).mintWithTicket(ticketInput);
+      const issuerData2 = await issuer.getIssuer(0);
+      expect(issuerData2.balance).to.equal(999);
+      expect(issuerData2.iterationsCount).to.equal(1);
+      expect(issuerData2.supply).to.equal(1000);
     });
   });
 });

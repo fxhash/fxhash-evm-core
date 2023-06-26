@@ -39,14 +39,13 @@ contract AllowMint is AuthorizedCaller {
         LibUserActions.UserAction memory lastUserActions = IUserActions(
             userActions
         ).getUserActions(addr);
-        require(
-            timestamp - lastUserActions.lastMintedTime > 0,
-            "NO_BATCH_MINTING"
-        );
-        require(
-            SignedMath.abs(int256(timestamp) - int256(block.timestamp)) > 0,
-            "NO_BATCH_MINTING"
-        );
+        if (lastUserActions.lastMintedTime > 0) {
+            require(
+                timestamp - lastUserActions.lastMintedTime > 0,
+                "NO_BATCH_MINTING"
+            );
+        }
+
         return true;
     }
 }

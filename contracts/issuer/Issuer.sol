@@ -22,6 +22,8 @@ import "contracts/libs/LibIssuer.sol";
 import "contracts/libs/LibReserve.sol";
 import "contracts/libs/LibPricing.sol";
 
+import "hardhat/console.sol";
+
 contract Issuer is
     IIssuer,
     AuthorizedCaller,
@@ -54,9 +56,15 @@ contract Issuer is
     uint256 private allGenTkTokens;
     mapping(uint256 => LibIssuer.IssuerData) private issuers;
 
-    constructor(uint256 _fees, uint256 _referrerFeesShare, address _admin) {
+    constructor(
+        uint256 _fees,
+        uint256 _referrerFeesShare,
+        uint256 _lockTime,
+        address _admin
+    ) {
         referrerFeesShare = _referrerFeesShare;
         fees = _fees;
+        lockTime = _lockTime;
         allissuers = 0;
         allGenTkTokens = 0;
         _setupRole(DEFAULT_ADMIN_ROLE, _admin);
@@ -219,7 +227,7 @@ contract Issuer is
             recipient = params.recipient;
         }
 
-        if (params.createTicket.length != 0) {
+        if (params.createTicket == true) {
             require(issuerToken.info.hasTickets, "ISSUER_NO_TICKETS");
         } else {
             require(
@@ -228,10 +236,11 @@ contract Issuer is
             );
         }
 
-        int256 diff = int256(block.timestamp) -
-            int256(issuerToken.info.timestampMinted);
         require(
-            SignedMath.abs(diff) < issuerToken.info.lockedSeconds,
+            SignedMath.abs(
+                int256(block.timestamp) -
+                    int256(issuerToken.info.timestampMinted)
+            ) > issuerToken.info.lockedSeconds,
             "TOKEN_LOCKED"
         );
         require(
@@ -246,8 +255,10 @@ contract Issuer is
             if (oe.closingTime != 0) {
                 require(block.timestamp < oe.closingTime, "OE_CLOSE");
             }
+            issuerToken.supply += 1;
         } else {
             require(issuerToken.balance > 0, "NO_BLNCE");
+            issuerToken.balance -= 1;
         }
 
         LibReserve.ReserveInput memory reserveInput;
@@ -334,7 +345,6 @@ contract Issuer is
         if (params.recipient != address(0)) {
             recipient = params.recipient;
         }
-
         IMintTicket(addresses["mint_tickets"]).consume(
             _msgSender(),
             params.ticketId,
@@ -412,7 +422,7 @@ contract Issuer is
                 }
             }
 
-            if (params.createTicket.length != 0) {
+            if (params.createTicket == true) {
                 IMintTicket(addresses["mint_tickets"]).mint(
                     params.issuerId,
                     recipient,
@@ -609,6 +619,15 @@ contract Issuer is
         returns (address receiver, uint256 royaltyAmount)
     {
         LibRoyalty.RoyaltyData memory royalty = issuers[tokenId].royaltiesSplit;
+        uint256 amount = (salePrice * royalty.percent) / 10000;
+        return (royalty.receiver, amount);
+    }
+
+    function primarySplitInfo(
+        uint256 tokenId,
+        uint256 salePrice
+    ) public view returns (address receiver, uint256 royaltyAmount) {
+        LibRoyalty.RoyaltyData memory royalty = issuers[tokenId].primarySplit;
         uint256 amount = (salePrice * royalty.percent) / 10000;
         return (royalty.receiver, amount);
     }

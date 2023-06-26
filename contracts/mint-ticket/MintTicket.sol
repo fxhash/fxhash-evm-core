@@ -3,7 +3,7 @@ pragma solidity ^0.8.18;
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol";
 import "contracts/abstract/admin/AuthorizedCaller.sol";
-import "contracts/interfaces/IIssuerToken.sol";
+import "contracts/interfaces/IIssuer.sol";
 import "contracts/interfaces/IRandomizer.sol";
 import "contracts/interfaces/IMintTicket.sol";
 
@@ -62,13 +62,13 @@ contract MintTicket is
     uint256 public fees;
     uint256 public availableBalance;
     uint256 public minPrice;
-    IIssuerToken public issuer;
+    IIssuer public issuer;
     IRandomizer public randomizer;
 
     constructor(address _admin, address _issuer, address _randomizer) {
         _setupRole(DEFAULT_ADMIN_ROLE, _admin);
         _setupRole(AUTHORIZED_CALLER, _admin);
-        issuer = IIssuerToken(_issuer);
+        issuer = IIssuer(_issuer);
         randomizer = IRandomizer(_randomizer);
         lastTokenId = 0;
         fees = 0;
@@ -197,10 +197,11 @@ contract MintTicket is
         uint256 amount
     ) internal {
         if (amount > 0) {
-            //TODO
-            // (address receiver, uint256 royaltyAmount) = issuer
-            //     .getTokenPrimarySplit(projectId, amount);
-            // payable(receiver).transfer(royaltyAmount);
+            (address receiver, uint256 royaltyAmount) = issuer.primarySplitInfo(
+                projectId,
+                amount
+            );
+            payable(receiver).transfer(royaltyAmount);
         }
     }
 
@@ -215,7 +216,7 @@ contract MintTicket is
     }
 
     function setIssuer(address _issuer) external onlyAdmin {
-        issuer = IIssuerToken(_issuer);
+        issuer = IIssuer(_issuer);
     }
 
     function setRandomizer(address _randomizer) external onlyAdmin {
@@ -385,7 +386,7 @@ contract MintTicket is
         uint256 tokenId,
         uint256 projectId
     ) external payable onlyFxHashIssuer {
-        TokenData storage token = tokenData[tokenId];
+        TokenData storage token = tokenData[projectId];
         require(token.minter != address(0), "TOKEN_DOES_NOT_EXIST");
         require(isOwner(owner, tokenId), "INSUFFICIENT_BALANCE");
         require(token.projectId == projectId, "WRONG_PROJECT");
