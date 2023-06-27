@@ -3,13 +3,15 @@ pragma solidity ^0.8.18;
 
 import "@openzeppelin/contracts/interfaces/IERC721.sol";
 import "@openzeppelin/contracts/interfaces/IERC2981.sol";
-
+import "@openzeppelin/contracts/interfaces/IERC20.sol";
+import "@openzeppelin/contracts/interfaces/IERC1155.sol";
 import "contracts/abstract/admin/AuthorizedCaller.sol";
 
 contract Marketplace is AuthorizedCaller {
-    enum CurrencyType {
+    enum TokenType {
         ETH,
         ERC20,
+        ERC721,
         ERC1155
     }
 
@@ -19,7 +21,7 @@ contract Marketplace is AuthorizedCaller {
     }
 
     struct Currency {
-        CurrencyType currencyType;
+        TokenType currencyType;
         bytes currencyData;
         bool enabled;
     }
@@ -97,13 +99,57 @@ contract Marketplace is AuthorizedCaller {
         treasury = _treasury;
     }
 
-    function transferToken(
+    function addCurrency(
+        uint256 _currencyId,
+        Currency calldata _currency
+    ) external onlyAuthorizedCaller {
+        currencies[_currencyId] = _currency;
+    }
+
+    function removeCurrency(uint256 _currencyId) external onlyAuthorizedCaller {
+        delete currencies[_currencyId];
+    }
+
+    function decodeCurrencyData(
+        Currency memory _currency
+    ) private pure returns (address, uint256) {
+        if (_currency.currencyType == TokenType.ETH) {
+            return (address(0), 0);
+        } else if (_currency.currencyType == TokenType.ERC20) {
+            return (abi.decode(_currency.currencyData, (address)), 0);
+        } else if (
+            _currency.currencyType == TokenType.ERC721 ||
+            _currency.currencyType == TokenType.ERC1155
+        ) {
+            return abi.decode(_currency.currencyData, (address, uint256));
+        } else {
+            return (address(0), 0);
+        }
+    }
+
+    function transfer(
         address _contract,
+        uint256 _tokenId,
         address _owner,
         address _receiver,
-        uint256 _tokenId
+        uint256 _amount,
+        TokenType _tokenType
     ) private {
-        IERC721(_contract).safeTransferFrom(_owner, _receiver, _tokenId);
+        if (_tokenType == TokenType.ETH) {
+            payable(_owner).transfer(_amount);
+        } else if (_tokenType == TokenType.ERC20) {
+            IERC20(_contract).transferFrom(_owner, _receiver, _amount);
+        } else if (_tokenType == TokenType.ERC721) {
+            IERC721(_contract).safeTransferFrom(_owner, _receiver, _tokenId);
+        } else if (_tokenType == TokenType.ERC1155) {
+            IERC1155(_contract).safeTransferFrom(
+                _owner,
+                _receiver,
+                _amount,
+                _tokenId,
+                bytes("")
+            );
+        }
     }
 
     function payAssetRoyalties(
@@ -170,12 +216,20 @@ contract Marketplace is AuthorizedCaller {
     ) external {
         Listing memory listing = listings[_listingId];
         require(listing.seller != address(0), "LISTING_NOT_EXISTS");
+        Currency memory currency = currencies[listing.currency];
+        (
+            address decodedCurrencyContract,
+            uint256 decodedCurrencyTokenId
+        ) = decodeCurrencyData(currency);
+        require(currency.enabled == true, "CURRENCY_DISABLED");
         delete listings[_listingId];
-        transferToken(
+        transfer(
             listing.asset.assetContract,
+            listing.asset.tokenId,
             listing.seller,
             _msgSender(),
-            listing.asset.tokenId
+            1,
+            TokenType.ERC721
         );
         uint256 paidRoyalties = payAssetRoyalties(
             listing.asset.assetContract,
@@ -190,15 +244,36 @@ contract Marketplace is AuthorizedCaller {
                     listing.amount,
                     _referrers
                 );
-                payable(treasury).transfer(platformFees - paidReferralFees);
+                transfer(
+                    decodedCurrencyContract,
+                    decodedCurrencyTokenId,
+                    _msgSender(),
+                    treasury,
+                    platformFees - paidReferralFees,
+                    currency.currencyType
+                );
             } else {
-                payable(treasury).transfer(platformFees);
+                transfer(
+                    decodedCurrencyContract,
+                    decodedCurrencyTokenId,
+                    _msgSender(),
+                    treasury,
+                    platformFees,
+                    currency.currencyType
+                );
             }
         }
 
         uint256 sellerAmount = listing.amount - platformFees - paidRoyalties;
         if (sellerAmount > 0) {
-            payable(listing.seller).transfer(sellerAmount);
+            transfer(
+                decodedCurrencyContract,
+                decodedCurrencyTokenId,
+                _msgSender(),
+                listing.seller,
+                sellerAmount,
+                currency.currencyType
+            );
         }
     }
 
@@ -210,7 +285,7 @@ contract Marketplace is AuthorizedCaller {
         Currency memory storedCurrency = currencies[_currency];
         require(storedCurrency.enabled == true, "CURRENCY_DISABLED");
         require(_amount > 0, "AMOUNT_IS_0");
-        if (storedCurrency.currencyType == CurrencyType.ETH) {
+        if (storedCurrency.currencyType == TokenType.ETH) {
             require(msg.value == _amount, "AMOUNT_MISMATCH");
         }
         require(_assetList.length > 0, "REQUIRE_AT_LEAST_1_ASSET");
@@ -233,7 +308,7 @@ contract Marketplace is AuthorizedCaller {
         Offer memory storedOffer = offers[_offerId];
         require(storedOffer.buyer == _msgSender(), "NOT_AUTHORIZED");
         delete offers[_offerId];
-        if (currencies[storedOffer.currency].currencyType == CurrencyType.ETH) {
+        if (currencies[storedOffer.currency].currencyType == TokenType.ETH) {
             payable(storedOffer.buyer).transfer(storedOffer.amount);
         }
     }
@@ -257,11 +332,19 @@ contract Marketplace is AuthorizedCaller {
         }
         require(assetFound, "INVALID_ASSET");
         delete offers[_offerId];
-        transferToken(
+        Currency memory currency = currencies[storedOffer.currency];
+        require(currency.enabled == true, "CURRENCY_DISABLED");
+        (
+            address decodedCurrencyContract,
+            uint256 decodedCurrencyTokenId
+        ) = decodeCurrencyData(currency);
+        transfer(
             _assetContract,
+            _tokenId,
             _msgSender(),
             storedOffer.buyer,
-            _tokenId
+            1,
+            TokenType.ERC721
         );
         uint256 paidRoyalties = payAssetRoyalties(
             _assetContract,
@@ -276,9 +359,23 @@ contract Marketplace is AuthorizedCaller {
                     storedOffer.amount,
                     _referrers
                 );
-                payable(treasury).transfer(platformFees - paidReferralFees);
+                transfer(
+                    decodedCurrencyContract,
+                    decodedCurrencyTokenId,
+                    storedOffer.buyer,
+                    treasury,
+                    platformFees - paidReferralFees,
+                    currency.currencyType
+                );
             } else {
-                payable(treasury).transfer(platformFees);
+                transfer(
+                    decodedCurrencyContract,
+                    decodedCurrencyTokenId,
+                    storedOffer.buyer,
+                    treasury,
+                    platformFees,
+                    currency.currencyType
+                );
             }
         }
 
@@ -286,7 +383,14 @@ contract Marketplace is AuthorizedCaller {
             platformFees -
             paidRoyalties;
         if (sellerAmount > 0) {
-            payable(_msgSender()).transfer(sellerAmount);
+            transfer(
+                decodedCurrencyContract,
+                decodedCurrencyTokenId,
+                storedOffer.buyer,
+                _msgSender(),
+                sellerAmount,
+                currency.currencyType
+            );
         }
     }
 }
