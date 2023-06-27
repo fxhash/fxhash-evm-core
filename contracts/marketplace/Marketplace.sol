@@ -8,6 +8,7 @@ import "contracts/abstract/admin/AuthorizedCaller.sol";
 
 contract Marketplace is AuthorizedCaller {
     enum CurrencyType {
+        ETH,
         ERC20,
         ERC1155
     }
@@ -206,9 +207,12 @@ contract Marketplace is AuthorizedCaller {
         uint256 _amount,
         uint256 _currency
     ) external payable {
-        require(currencies[_currency].enabled == true, "CURRENCY_DISABLED");
+        Currency memory storedCurrency = currencies[_currency];
+        require(storedCurrency.enabled == true, "CURRENCY_DISABLED");
         require(_amount > 0, "AMOUNT_IS_0");
-        require(msg.value == _amount, "AMOUNT_MISMATCH");
+        if (storedCurrency.currencyType == CurrencyType.ETH) {
+            require(msg.value == _amount, "AMOUNT_MISMATCH");
+        }
         require(_assetList.length > 0, "REQUIRE_AT_LEAST_1_ASSET");
         for (uint256 i = 0; i < _assetList.length; i++) {
             require(
@@ -223,5 +227,66 @@ contract Marketplace is AuthorizedCaller {
             currency: _currency
         });
         offerSequence++;
+    }
+
+    function cancelOffer(uint256 _offerId) external {
+        Offer memory storedOffer = offers[_offerId];
+        require(storedOffer.buyer == _msgSender(), "NOT_AUTHORIZED");
+        delete offers[_offerId];
+        if (currencies[storedOffer.currency].currencyType == CurrencyType.ETH) {
+            payable(storedOffer.buyer).transfer(storedOffer.amount);
+        }
+    }
+
+    function acceptOffer(
+        uint256 _offerId,
+        address _assetContract,
+        uint256 _tokenId,
+        Referrer[] calldata _referrers
+    ) external {
+        Offer memory storedOffer = offers[_offerId];
+        require(storedOffer.buyer == _msgSender(), "NOT_AUTHORIZED");
+        bool assetFound = false;
+        for (uint256 i = 0; i < storedOffer.assets.length; i++) {
+            if (
+                storedOffer.assets[i].assetContract == _assetContract &&
+                storedOffer.assets[i].tokenId == _tokenId
+            ) {
+                assetFound = true;
+            }
+        }
+        require(assetFound, "INVALID_ASSET");
+        delete offers[_offerId];
+        transferToken(
+            _assetContract,
+            _msgSender(),
+            storedOffer.buyer,
+            _tokenId
+        );
+        uint256 paidRoyalties = payAssetRoyalties(
+            _assetContract,
+            _tokenId,
+            storedOffer.amount
+        );
+        uint256 platformFeesForListing = (storedOffer.amount * platformFees) /
+            10000;
+        if (platformFeesForListing > 0) {
+            if (_referrers.length > 0) {
+                uint256 paidReferralFees = payReferrers(
+                    storedOffer.amount,
+                    _referrers
+                );
+                payable(treasury).transfer(platformFees - paidReferralFees);
+            } else {
+                payable(treasury).transfer(platformFees);
+            }
+        }
+
+        uint256 sellerAmount = storedOffer.amount -
+            platformFees -
+            paidRoyalties;
+        if (sellerAmount > 0) {
+            payable(_msgSender()).transfer(sellerAmount);
+        }
     }
 }
