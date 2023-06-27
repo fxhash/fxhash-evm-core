@@ -116,8 +116,7 @@ contract Marketplace is AuthorizedCaller {
 
     function decodeCurrencyData(
         Currency memory _currency
-    ) private view returns (address, uint256) {
-        console.log("currency type %s", uint256(_currency.currencyType));
+    ) private pure returns (address, uint256) {
         if (_currency.currencyType == TokenType.ETH) {
             return (address(0), 0);
         } else if (_currency.currencyType == TokenType.ERC20) {
@@ -184,7 +183,7 @@ contract Marketplace is AuthorizedCaller {
             if (_referrers.length > 0) {
                 uint256 paidReferralFees = payReferrers(
                     _sender,
-                    _amount,
+                    platformFeesForListing,
                     decodedCurrencyContract,
                     decodedCurrencyTokenId,
                     _currency.currencyType,
@@ -279,11 +278,10 @@ contract Marketplace is AuthorizedCaller {
                 paid += referralAmount;
             }
         }
-        require(sumShares < maxReferralShare, "TOO_HIGH_REFERRER_PCT");
+        require(sumShares <= maxReferralShare, "TOO_HIGH_REFERRER_PCT");
         return paid;
     }
 
-    //TODO: implement multi-currency
     function list(
         address _assetContract,
         uint256 _tokenId,

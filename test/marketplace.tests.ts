@@ -10,6 +10,7 @@ describe("Marketplace", function () {
   let admin: Signer;
   let buyer: Signer;
   let seller: Signer;
+  let referrer: Signer;
   let royaltyReceiver: Signer;
   let treasury: Signer;
 
@@ -26,7 +27,7 @@ describe("Marketplace", function () {
     const ERC1155: ContractFactory = await ethers.getContractFactory(
       "MockERC1155"
     );
-    [admin, buyer, seller, treasury, royaltyReceiver] =
+    [admin, buyer, seller, treasury, royaltyReceiver, referrer] =
       await ethers.getSigners();
 
     marketplace = await Marketplace.deploy(
@@ -109,6 +110,37 @@ describe("Marketplace", function () {
       expect(postSaleListing == undefined);
     });
 
+    it("should create and buy listing with ETH currency with referrer", async function () {
+      await marketplace.connect(seller).list(erc721.address, 0, 0, 1000);
+      const listing = await marketplace.listings(0);
+      expect(listing.asset.assetContract).to.be.equal(erc721.address);
+      expect(listing.asset.tokenId).to.be.equal(0);
+      expect(listing.seller).to.be.equal(await seller.getAddress());
+      expect(listing.currency).to.be.equal(0);
+      expect(listing.amount).to.be.equal(1000);
+
+      const preSaleOwner = await erc721.ownerOf(0);
+      expect(preSaleOwner == (await seller.getAddress()));
+      expect(
+        await marketplace
+          .connect(buyer)
+          .buyListing(
+            0,
+            [{ referrer: await referrer.getAddress(), share: 1000 }],
+            {
+              value: 1000,
+            }
+          )
+      ).to.changeEtherBalances(
+        [buyer, seller, royaltyReceiver, treasury, referrer],
+        [-1000, 800, 90, 100, 10]
+      );
+      const postSaleOwner = await erc721.ownerOf(0);
+      expect(postSaleOwner == (await buyer.getAddress()));
+      const postSaleListing = await marketplace.listings(0);
+      expect(postSaleListing == undefined);
+    });
+
     it("should create a listing with ERC20 currency without referrer", async function () {
       await marketplace.connect(seller).list(erc721.address, 0, 1, 1000);
       const listing = await marketplace.listings(0);
@@ -134,6 +166,37 @@ describe("Marketplace", function () {
       expect(postSaleListing == undefined);
     });
 
+    it("should create a listing with ERC20 currency with referrer", async function () {
+      await marketplace.connect(seller).list(erc721.address, 0, 1, 1000);
+      const listing = await marketplace.listings(0);
+      expect(listing.asset.assetContract).to.be.equal(erc721.address);
+      expect(listing.asset.tokenId).to.be.equal(0);
+      expect(listing.seller).to.be.equal(await seller.getAddress());
+      expect(listing.currency).to.be.equal(1);
+      expect(listing.amount).to.be.equal(1000);
+      const preSaleOwner = await erc721.ownerOf(0);
+      expect(preSaleOwner == (await seller.getAddress()));
+      expect(
+        await marketplace
+          .connect(buyer)
+          .buyListing(
+            0,
+            [{ referrer: await referrer.getAddress(), share: 1000 }],
+            {
+              value: 1000,
+            }
+          )
+      ).to.changeTokenBalances(
+        erc20,
+        [buyer, seller, royaltyReceiver, treasury, referrer],
+        [-1000, 800, 90, 100, 10]
+      );
+      const postSaleOwner = await erc721.ownerOf(0);
+      expect(postSaleOwner == (await buyer.getAddress()));
+      const postSaleListing = await marketplace.listings(0);
+      expect(postSaleListing == undefined);
+    });
+
     it("should create a listing with ERC1155 currency without referrer", async function () {
       await marketplace.connect(seller).list(erc721.address, 0, 2, 1000);
       const listing = await marketplace.listings(0);
@@ -152,6 +215,36 @@ describe("Marketplace", function () {
         erc1155,
         [buyer, seller, royaltyReceiver, treasury],
         [-1000, 800, 100, 100]
+      );
+      const postSaleOwner = await erc721.ownerOf(0);
+      expect(postSaleOwner == (await buyer.getAddress()));
+      const postSaleListing = await marketplace.listings(0);
+      expect(postSaleListing == undefined);
+    });
+
+    it("should create a listing with ERC1155 currency with referrer", async function () {
+      await marketplace.connect(seller).list(erc721.address, 0, 2, 1000);
+      const listing = await marketplace.listings(0);
+      expect(listing.asset.assetContract).to.be.equal(erc721.address);
+      expect(listing.asset.tokenId).to.be.equal(0);
+      expect(listing.seller).to.be.equal(await seller.getAddress());
+      expect(listing.currency).to.be.equal(2);
+      expect(listing.amount).to.be.equal(1000);
+      const preSaleOwner = await erc721.ownerOf(0);
+      expect(preSaleOwner == (await seller.getAddress()));
+      expect(
+        await marketplace.connect(buyer).buyListing(
+          0,
+          [{ referrer: await referrer.getAddress(), share: 1000 }],
+
+          {
+            value: 1000,
+          }
+        )
+      ).to.changeTokenBalances(
+        erc1155,
+        [buyer, seller, royaltyReceiver, treasury, referrer],
+        [-1000, 800, 90, 100, 10]
       );
       const postSaleOwner = await erc721.ownerOf(0);
       expect(postSaleOwner == (await buyer.getAddress()));
