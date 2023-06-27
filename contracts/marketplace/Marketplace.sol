@@ -39,7 +39,7 @@ contract Marketplace is AuthorizedCaller {
     }
 
     struct Offer {
-        Asset[] assets;
+        bytes assets;
         address buyer;
         uint256 currency;
         uint256 amount;
@@ -70,6 +70,7 @@ contract Marketplace is AuthorizedCaller {
         treasury = _treasury;
         listingSequence = 0;
         offerSequence = 0;
+        _setupRole(DEFAULT_ADMIN_ROLE, _admin);
     }
 
     function setAssetState(
@@ -296,7 +297,7 @@ contract Marketplace is AuthorizedCaller {
             );
         }
         offers[offerSequence] = Offer({
-            assets: _assetList,
+            assets: abi.encode(_assetList),
             buyer: _msgSender(),
             amount: _amount,
             currency: _currency
@@ -322,10 +323,11 @@ contract Marketplace is AuthorizedCaller {
         Offer memory storedOffer = offers[_offerId];
         require(storedOffer.buyer == _msgSender(), "NOT_AUTHORIZED");
         bool assetFound = false;
-        for (uint256 i = 0; i < storedOffer.assets.length; i++) {
+        Asset[] memory assets = abi.decode(storedOffer.assets, (Asset[]));
+        for (uint256 i = 0; i < assets.length; i++) {
             if (
-                storedOffer.assets[i].assetContract == _assetContract &&
-                storedOffer.assets[i].tokenId == _tokenId
+                assets[i].assetContract == _assetContract &&
+                assets[i].tokenId == _tokenId
             ) {
                 assetFound = true;
             }
