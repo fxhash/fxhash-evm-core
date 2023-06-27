@@ -386,7 +386,6 @@ contract Marketplace is AuthorizedCaller {
         Referrer[] calldata _referrers
     ) external {
         Offer memory storedOffer = offers[_offerId];
-        require(storedOffer.buyer == _msgSender(), "NOT_AUTHORIZED");
         bool assetFound = false;
         Asset[] memory assets = abi.decode(storedOffer.assets, (Asset[]));
         for (uint256 i = 0; i < assets.length; i++) {
