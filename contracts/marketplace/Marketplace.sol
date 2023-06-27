@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/interfaces/IERC2981.sol";
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
 import "@openzeppelin/contracts/interfaces/IERC1155.sol";
 import "contracts/abstract/admin/AuthorizedCaller.sol";
+import "hardhat/console.sol";
 
 contract Marketplace is AuthorizedCaller {
     enum TokenType {
@@ -115,7 +116,8 @@ contract Marketplace is AuthorizedCaller {
 
     function decodeCurrencyData(
         Currency memory _currency
-    ) private pure returns (address, uint256) {
+    ) private view returns (address, uint256) {
+        console.log("currency type %s", uint256(_currency.currencyType));
         if (_currency.currencyType == TokenType.ETH) {
             return (address(0), 0);
         } else if (_currency.currencyType == TokenType.ERC20) {
@@ -194,7 +196,7 @@ contract Marketplace is AuthorizedCaller {
                         tokenId: decodedCurrencyTokenId,
                         owner: _sender,
                         receiver: treasury,
-                        amount: platformFees - paidReferralFees,
+                        amount: platformFeesForListing - paidReferralFees,
                         tokenType: _currency.currencyType
                     })
                 );
@@ -205,14 +207,13 @@ contract Marketplace is AuthorizedCaller {
                         tokenId: decodedCurrencyTokenId,
                         owner: _sender,
                         receiver: treasury,
-                        amount: platformFees,
+                        amount: platformFeesForListing,
                         tokenType: _currency.currencyType
                     })
                 );
             }
         }
-
-        uint256 sellerAmount = _amount - platformFees - paidRoyalties;
+        uint256 sellerAmount = _amount - platformFeesForListing - paidRoyalties;
         if (sellerAmount > 0) {
             transfer(
                 TransferParams({
