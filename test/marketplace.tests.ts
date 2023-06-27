@@ -134,7 +134,7 @@ describe("Marketplace", function () {
       expect(postSaleListing == undefined);
     });
 
-    it("should create a listing with ERC1155 currency", async function () {
+    it("should create a listing with ERC1155 currency without referrer", async function () {
       await marketplace.connect(seller).list(erc721.address, 0, 2, 1000);
       const listing = await marketplace.listings(0);
       expect(listing.asset.assetContract).to.be.equal(erc721.address);
@@ -142,6 +142,21 @@ describe("Marketplace", function () {
       expect(listing.seller).to.be.equal(await seller.getAddress());
       expect(listing.currency).to.be.equal(2);
       expect(listing.amount).to.be.equal(1000);
+      const preSaleOwner = await erc721.ownerOf(0);
+      expect(preSaleOwner == (await seller.getAddress()));
+      expect(
+        await marketplace.connect(buyer).buyListing(0, [], {
+          value: 1000,
+        })
+      ).to.changeTokenBalances(
+        erc1155,
+        [buyer, seller, royaltyReceiver, treasury],
+        [-1000, 800, 100, 100]
+      );
+      const postSaleOwner = await erc721.ownerOf(0);
+      expect(postSaleOwner == (await buyer.getAddress()));
+      const postSaleListing = await marketplace.listings(0);
+      expect(postSaleListing == undefined);
     });
   });
 });
