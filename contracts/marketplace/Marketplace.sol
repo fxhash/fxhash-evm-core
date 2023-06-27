@@ -45,6 +45,15 @@ contract Marketplace is AuthorizedCaller {
         uint256 amount;
     }
 
+    struct TransferParams {
+        address assetContract;
+        uint256 tokenId;
+        address owner;
+        address receiver;
+        uint256 amount;
+        TokenType tokenType;
+    }
+
     uint256 maxReferralShare;
     uint256 referralShare;
     uint256 listingSequence;
@@ -121,27 +130,99 @@ contract Marketplace is AuthorizedCaller {
         }
     }
 
-    function transfer(
-        address _contract,
-        uint256 _tokenId,
-        address _owner,
-        address _receiver,
-        uint256 _amount,
-        TokenType _tokenType
-    ) private {
-        if (_tokenType == TokenType.ETH) {
-            payable(_owner).transfer(_amount);
-        } else if (_tokenType == TokenType.ERC20) {
-            IERC20(_contract).transferFrom(_owner, _receiver, _amount);
-        } else if (_tokenType == TokenType.ERC721) {
-            IERC721(_contract).safeTransferFrom(_owner, _receiver, _tokenId);
-        } else if (_tokenType == TokenType.ERC1155) {
-            IERC1155(_contract).safeTransferFrom(
-                _owner,
-                _receiver,
-                _amount,
-                _tokenId,
+    function transfer(TransferParams memory _params) private {
+        if (_params.tokenType == TokenType.ETH) {
+            payable(_params.owner).transfer(_params.amount);
+        } else if (_params.tokenType == TokenType.ERC20) {
+            IERC20(_params.assetContract).transferFrom(
+                _params.owner,
+                _params.receiver,
+                _params.amount
+            );
+        } else if (_params.tokenType == TokenType.ERC721) {
+            IERC721(_params.assetContract).safeTransferFrom(
+                _params.owner,
+                _params.receiver,
+                _params.tokenId
+            );
+        } else if (_params.tokenType == TokenType.ERC1155) {
+            IERC1155(_params.assetContract).safeTransferFrom(
+                _params.owner,
+                _params.receiver,
+                _params.amount,
+                _params.tokenId,
                 bytes("")
+            );
+        }
+    }
+
+    function processPayments(
+        Asset memory _asset,
+        Currency memory _currency,
+        Referrer[] memory _referrers,
+        address _sender,
+        address _receiver,
+        uint256 _amount
+    ) private {
+        (
+            address decodedCurrencyContract,
+            uint256 decodedCurrencyTokenId
+        ) = decodeCurrencyData(_currency);
+        uint256 paidRoyalties = payAssetRoyalties(
+            _asset.assetContract,
+            _asset.tokenId,
+            _sender,
+            _amount,
+            decodedCurrencyContract,
+            decodedCurrencyTokenId,
+            _currency.currencyType
+        );
+        uint256 platformFeesForListing = (_amount * platformFees) / 10000;
+        if (platformFeesForListing > 0) {
+            if (_referrers.length > 0) {
+                uint256 paidReferralFees = payReferrers(
+                    _sender,
+                    _amount,
+                    decodedCurrencyContract,
+                    decodedCurrencyTokenId,
+                    _currency.currencyType,
+                    _referrers
+                );
+                transfer(
+                    TransferParams({
+                        assetContract: decodedCurrencyContract,
+                        tokenId: decodedCurrencyTokenId,
+                        owner: _sender,
+                        receiver: treasury,
+                        amount: platformFees - paidReferralFees,
+                        tokenType: _currency.currencyType
+                    })
+                );
+            } else {
+                transfer(
+                    TransferParams({
+                        assetContract: decodedCurrencyContract,
+                        tokenId: decodedCurrencyTokenId,
+                        owner: _sender,
+                        receiver: treasury,
+                        amount: platformFees,
+                        tokenType: _currency.currencyType
+                    })
+                );
+            }
+        }
+
+        uint256 sellerAmount = _amount - platformFees - paidRoyalties;
+        if (sellerAmount > 0) {
+            transfer(
+                TransferParams({
+                    assetContract: decodedCurrencyContract,
+                    tokenId: decodedCurrencyTokenId,
+                    owner: _sender,
+                    receiver: _receiver,
+                    amount: sellerAmount,
+                    tokenType: _currency.currencyType
+                })
             );
         }
     }
@@ -158,12 +239,14 @@ contract Marketplace is AuthorizedCaller {
         (address receiver, uint256 royaltiesAmount) = IERC2981(_contract)
             .royaltyInfo(_tokenId, _amount);
         transfer(
-            _currencyContract,
-            _currencyTokenId,
-            _sender,
-            receiver,
-            royaltiesAmount,
-            _tokenType
+            TransferParams({
+                assetContract: _currencyContract,
+                tokenId: _currencyTokenId,
+                owner: _sender,
+                receiver: receiver,
+                amount: royaltiesAmount,
+                tokenType: _tokenType
+            })
         );
         return royaltiesAmount;
     }
@@ -174,7 +257,7 @@ contract Marketplace is AuthorizedCaller {
         address _currencyContract,
         uint256 _currencyTokenId,
         TokenType _tokenType,
-        Referrer[] calldata _referrers
+        Referrer[] memory _referrers
     ) private returns (uint256) {
         uint256 paid = 0;
         uint256 sumShares = 0;
@@ -183,12 +266,14 @@ contract Marketplace is AuthorizedCaller {
             sumShares += _referrers[i].share;
             if (referralAmount > 0) {
                 transfer(
-                    _currencyContract,
-                    _currencyTokenId,
-                    _sender,
-                    _referrers[i].referrer,
-                    referralAmount,
-                    _tokenType
+                    TransferParams({
+                        assetContract: _currencyContract,
+                        tokenId: _currencyTokenId,
+                        owner: _sender,
+                        receiver: _referrers[i].referrer,
+                        amount: referralAmount,
+                        tokenType: _tokenType
+                    })
                 );
                 paid += referralAmount;
             }
@@ -237,71 +322,26 @@ contract Marketplace is AuthorizedCaller {
         if (currency.currencyType == TokenType.ETH) {
             require(msg.value == listing.amount, "AMOUNT_MISMATCH");
         }
-        (
-            address decodedCurrencyContract,
-            uint256 decodedCurrencyTokenId
-        ) = decodeCurrencyData(currency);
         delete listings[_listingId];
         transfer(
-            listing.asset.assetContract,
-            listing.asset.tokenId,
-            listing.seller,
-            _msgSender(),
-            1,
-            TokenType.ERC721
+            TransferParams({
+                assetContract: listing.asset.assetContract,
+                tokenId: listing.asset.tokenId,
+                owner: listing.seller,
+                receiver: _msgSender(),
+                amount: 1,
+                tokenType: TokenType.ERC721
+            })
         );
-        uint256 paidRoyalties = payAssetRoyalties(
-            listing.asset.assetContract,
-            listing.asset.tokenId,
-            _msgSender(),
-            listing.amount,
-            decodedCurrencyContract,
-            decodedCurrencyTokenId,
-            currency.currencyType
-        );
-        uint256 platformFeesForListing = (listing.amount * platformFees) /
-            10000;
-        if (platformFeesForListing > 0) {
-            if (_referrers.length > 0) {
-                uint256 paidReferralFees = payReferrers(
-                    _msgSender(),
-                    listing.amount,
-                    decodedCurrencyContract,
-                    decodedCurrencyTokenId,
-                    currency.currencyType,
-                    _referrers
-                );
-                transfer(
-                    decodedCurrencyContract,
-                    decodedCurrencyTokenId,
-                    _msgSender(),
-                    treasury,
-                    platformFees - paidReferralFees,
-                    currency.currencyType
-                );
-            } else {
-                transfer(
-                    decodedCurrencyContract,
-                    decodedCurrencyTokenId,
-                    _msgSender(),
-                    treasury,
-                    platformFees,
-                    currency.currencyType
-                );
-            }
-        }
 
-        uint256 sellerAmount = listing.amount - platformFees - paidRoyalties;
-        if (sellerAmount > 0) {
-            transfer(
-                decodedCurrencyContract,
-                decodedCurrencyTokenId,
-                _msgSender(),
-                listing.seller,
-                sellerAmount,
-                currency.currencyType
-            );
-        }
+        processPayments(
+            listing.asset,
+            currency,
+            _referrers,
+            _msgSender(),
+            listing.seller,
+            listing.amount
+        );
     }
 
     function offer(
@@ -362,72 +402,24 @@ contract Marketplace is AuthorizedCaller {
         delete offers[_offerId];
         Currency memory currency = currencies[storedOffer.currency];
         require(currency.enabled == true, "CURRENCY_DISABLED");
-        (
-            address decodedCurrencyContract,
-            uint256 decodedCurrencyTokenId
-        ) = decodeCurrencyData(currency);
         transfer(
-            _assetContract,
-            _tokenId,
+            TransferParams({
+                assetContract: _assetContract,
+                tokenId: _tokenId,
+                owner: _msgSender(),
+                receiver: storedOffer.buyer,
+                amount: 1,
+                tokenType: TokenType.ERC721
+            })
+        );
+
+        processPayments(
+            Asset({assetContract: _assetContract, tokenId: _tokenId}),
+            currency,
+            _referrers,
+            storedOffer.buyer,
             _msgSender(),
-            storedOffer.buyer,
-            1,
-            TokenType.ERC721
+            storedOffer.amount
         );
-
-        uint256 paidRoyalties = payAssetRoyalties(
-            _assetContract,
-            _tokenId,
-            storedOffer.buyer,
-            storedOffer.amount,
-            decodedCurrencyContract,
-            decodedCurrencyTokenId,
-            currency.currencyType
-        );
-        uint256 platformFeesForListing = (storedOffer.amount * platformFees) /
-            10000;
-        if (platformFeesForListing > 0) {
-            if (_referrers.length > 0) {
-                uint256 paidReferralFees = payReferrers(
-                    storedOffer.buyer,
-                    storedOffer.amount,
-                    decodedCurrencyContract,
-                    decodedCurrencyTokenId,
-                    currency.currencyType,
-                    _referrers
-                );
-                transfer(
-                    decodedCurrencyContract,
-                    decodedCurrencyTokenId,
-                    storedOffer.buyer,
-                    treasury,
-                    platformFees - paidReferralFees,
-                    currency.currencyType
-                );
-            } else {
-                transfer(
-                    decodedCurrencyContract,
-                    decodedCurrencyTokenId,
-                    storedOffer.buyer,
-                    treasury,
-                    platformFees,
-                    currency.currencyType
-                );
-            }
-        }
-
-        uint256 sellerAmount = storedOffer.amount -
-            platformFees -
-            paidRoyalties;
-        if (sellerAmount > 0) {
-            transfer(
-                decodedCurrencyContract,
-                decodedCurrencyTokenId,
-                storedOffer.buyer,
-                _msgSender(),
-                sellerAmount,
-                currency.currencyType
-            );
-        }
     }
 }
