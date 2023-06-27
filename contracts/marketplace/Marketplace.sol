@@ -52,10 +52,10 @@ contract Marketplace is AuthorizedCaller {
     uint256 platformFees;
     address treasury;
 
-    mapping(address => bool) assetContracts;
-    mapping(uint256 => Currency) currencies;
-    mapping(uint256 => Listing) listings;
-    mapping(uint256 => Offer) offers;
+    mapping(address => bool) public assetContracts;
+    mapping(uint256 => Currency) public currencies;
+    mapping(uint256 => Listing) public listings;
+    mapping(uint256 => Offer) public offers;
 
     constructor(
         address _admin,
@@ -73,41 +73,34 @@ contract Marketplace is AuthorizedCaller {
         _setupRole(DEFAULT_ADMIN_ROLE, _admin);
     }
 
-    function setAssetState(
-        address _contract,
-        bool _state
-    ) external onlyAuthorizedCaller {
+    function setAssetState(address _contract, bool _state) external onlyAdmin {
         assetContracts[_contract] = _state;
     }
 
-    function setMaxReferralShare(
-        uint256 _maxShare
-    ) external onlyAuthorizedCaller {
+    function setMaxReferralShare(uint256 _maxShare) external onlyAdmin {
         maxReferralShare = _maxShare;
     }
 
-    function setReferralShare(uint256 _share) external onlyAuthorizedCaller {
+    function setReferralShare(uint256 _share) external onlyAdmin {
         referralShare = _share;
     }
 
-    function setPlatformfees(
-        uint256 _platformFees
-    ) external onlyAuthorizedCaller {
+    function setPlatformfees(uint256 _platformFees) external onlyAdmin {
         platformFees = _platformFees;
     }
 
-    function setTreasury(address _treasury) external onlyAuthorizedCaller {
+    function setTreasury(address _treasury) external onlyAdmin {
         treasury = _treasury;
     }
 
     function addCurrency(
         uint256 _currencyId,
         Currency calldata _currency
-    ) external onlyAuthorizedCaller {
+    ) external onlyAdmin {
         currencies[_currencyId] = _currency;
     }
 
-    function removeCurrency(uint256 _currencyId) external onlyAuthorizedCaller {
+    function removeCurrency(uint256 _currencyId) external onlyAdmin {
         delete currencies[_currencyId];
     }
 
@@ -156,16 +149,31 @@ contract Marketplace is AuthorizedCaller {
     function payAssetRoyalties(
         address _contract,
         uint256 _tokenId,
-        uint256 _amount
+        address _sender,
+        uint256 _amount,
+        address _currencyContract,
+        uint256 _currencyTokenId,
+        TokenType _tokenType
     ) private returns (uint256) {
         (address receiver, uint256 royaltiesAmount) = IERC2981(_contract)
             .royaltyInfo(_tokenId, _amount);
-        payable(receiver).transfer(royaltiesAmount);
+        transfer(
+            _currencyContract,
+            _currencyTokenId,
+            _sender,
+            receiver,
+            royaltiesAmount,
+            _tokenType
+        );
         return royaltiesAmount;
     }
 
     function payReferrers(
+        address _sender,
         uint256 _amount,
+        address _currencyContract,
+        uint256 _currencyTokenId,
+        TokenType _tokenType,
         Referrer[] calldata _referrers
     ) private returns (uint256) {
         uint256 paid = 0;
@@ -174,7 +182,14 @@ contract Marketplace is AuthorizedCaller {
             uint256 referralAmount = (_amount * _referrers[i].share) / 10000;
             sumShares += _referrers[i].share;
             if (referralAmount > 0) {
-                payable(_referrers[i].referrer).transfer(referralAmount);
+                transfer(
+                    _currencyContract,
+                    _currencyTokenId,
+                    _sender,
+                    _referrers[i].referrer,
+                    referralAmount,
+                    _tokenType
+                );
                 paid += referralAmount;
             }
         }
@@ -214,15 +229,18 @@ contract Marketplace is AuthorizedCaller {
     function buyListing(
         uint256 _listingId,
         Referrer[] calldata _referrers
-    ) external {
+    ) external payable {
         Listing memory listing = listings[_listingId];
         require(listing.seller != address(0), "LISTING_NOT_EXISTS");
         Currency memory currency = currencies[listing.currency];
+        require(currency.enabled == true, "CURRENCY_DISABLED");
+        if (currency.currencyType == TokenType.ETH) {
+            require(msg.value == listing.amount, "AMOUNT_MISMATCH");
+        }
         (
             address decodedCurrencyContract,
             uint256 decodedCurrencyTokenId
         ) = decodeCurrencyData(currency);
-        require(currency.enabled == true, "CURRENCY_DISABLED");
         delete listings[_listingId];
         transfer(
             listing.asset.assetContract,
@@ -235,14 +253,22 @@ contract Marketplace is AuthorizedCaller {
         uint256 paidRoyalties = payAssetRoyalties(
             listing.asset.assetContract,
             listing.asset.tokenId,
-            listing.amount
+            _msgSender(),
+            listing.amount,
+            decodedCurrencyContract,
+            decodedCurrencyTokenId,
+            currency.currencyType
         );
         uint256 platformFeesForListing = (listing.amount * platformFees) /
             10000;
         if (platformFeesForListing > 0) {
             if (_referrers.length > 0) {
                 uint256 paidReferralFees = payReferrers(
+                    _msgSender(),
                     listing.amount,
+                    decodedCurrencyContract,
+                    decodedCurrencyTokenId,
+                    currency.currencyType,
                     _referrers
                 );
                 transfer(
@@ -348,17 +374,26 @@ contract Marketplace is AuthorizedCaller {
             1,
             TokenType.ERC721
         );
+
         uint256 paidRoyalties = payAssetRoyalties(
             _assetContract,
             _tokenId,
-            storedOffer.amount
+            storedOffer.buyer,
+            storedOffer.amount,
+            decodedCurrencyContract,
+            decodedCurrencyTokenId,
+            currency.currencyType
         );
         uint256 platformFeesForListing = (storedOffer.amount * platformFees) /
             10000;
         if (platformFeesForListing > 0) {
             if (_referrers.length > 0) {
                 uint256 paidReferralFees = payReferrers(
+                    storedOffer.buyer,
                     storedOffer.amount,
+                    decodedCurrencyContract,
+                    decodedCurrencyTokenId,
+                    currency.currencyType,
                     _referrers
                 );
                 transfer(
