@@ -12,6 +12,9 @@ contract ModerationToken is BaseModeration, IModerationToken {
     mapping(uint256 => LibModeration.ModerationState) public tokens;
     mapping(bytes32 => uint256) public reports;
 
+    event TokenModerated(uint256 tokenId, uint256 state, uint256 reason);
+    event TokenReported(uint256 tokenId, uint256 reason);
+
     constructor(address _admin) {
         reasonsCount = 0;
         _setupRole(DEFAULT_ADMIN_ROLE, _admin);
@@ -25,11 +28,13 @@ contract ModerationToken is BaseModeration, IModerationToken {
     ) external onlyModerator {
         require(!Strings.equal(reasons[reason], ""), "REASON_DOESNT_EXISTS");
         tokens[tokenId] = LibModeration.ModerationState(state, reason);
+        emit TokenModerated(tokenId, state, reason);
     }
 
     function report(uint256 tokenId, uint256 reason) external onlyModerator {
         require(!Strings.equal(reasons[reason], ""), "REASON_DOESNT_EXISTS");
         reports[getReportKey(tokenId, _msgSender())] = reason;
+        emit TokenReported(tokenId, reason);
     }
 
     function tokenState(uint256 tokenId) external view returns (uint256) {

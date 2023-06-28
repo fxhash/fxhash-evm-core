@@ -10,6 +10,8 @@ contract PricingFixed is AuthorizedCaller, IPricing {
         uint256 opensAt;
     }
 
+    event FixedPriceSet(uint256 issuerId, PriceDetails details);
+
     mapping(uint256 => PriceDetails) pricings;
 
     constructor() {
@@ -28,6 +30,7 @@ contract PricingFixed is AuthorizedCaller, IPricing {
         require(pricingDetails.price > 0, "price <= 0");
         require(pricingDetails.opensAt > 0, "opensAt <= 0");
         pricings[issuerId] = pricingDetails;
+        emit FixedPriceSet(issuerId, pricingDetails);
     }
 
     function getPrice(

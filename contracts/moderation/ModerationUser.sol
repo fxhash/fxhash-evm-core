@@ -12,6 +12,8 @@ import "contracts/interfaces/IModerationUser.sol";
 contract ModerationUser is BaseModeration, IModerationUser {
     mapping(address => LibModeration.ModerationState) public users;
 
+    event UserModerated(address user, uint256 state, uint256 reason);
+
     // Constructor
     constructor(address _admin) {
         // Initialize storage variables
@@ -19,8 +21,6 @@ contract ModerationUser is BaseModeration, IModerationUser {
         _setupRole(DEFAULT_ADMIN_ROLE, _admin);
         _setupRole(AUTHORIZED_CALLER, _admin);
     }
-
-    // Helpers
 
     // Check if an address is a user moderator on the moderation team contract
     function isModerator(address user) public view override returns (bool) {
@@ -36,6 +36,7 @@ contract ModerationUser is BaseModeration, IModerationUser {
     ) public onlyModerator {
         require(!Strings.equal(reasons[reason], ""), "REASON_DOESNT_EXISTS");
         users[user] = LibModeration.ModerationState(state, reason);
+        emit UserModerated(user, state, reason);
     }
 
     // Quicker way to set the state of users as "MALICIOUS", which is 3

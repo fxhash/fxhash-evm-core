@@ -31,6 +31,8 @@ contract MintPassGroup is AuthorizedCaller {
     mapping(string => TokenRecord) public tokens;
     mapping(bytes32 => uint256) public projects;
 
+    event PassConsumed(address addr, string token, uint256 project);
+
     constructor(
         uint256 _maxPerToken,
         uint256 _maxPerTokenPerProject,
@@ -88,6 +90,7 @@ contract MintPassGroup is AuthorizedCaller {
             tokenRecord.consumer = payload.addr;
             projects[projectHash] = 1;
         }
+        emit PassConsumed(payload.addr, payload.token, payload.project);
     }
 
     function setConstraints(
@@ -124,6 +127,15 @@ contract MintPassGroup is AuthorizedCaller {
         );
     }
 
+    function getProjectHash(
+        string memory token,
+        uint256 project
+    ) public pure returns (bytes32) {
+        bytes32 tokenHash = keccak256(bytes(token));
+        bytes32 projectHash = bytes32(project);
+        return keccak256(abi.encodePacked(tokenHash, projectHash));
+    }
+
     function decodePayload(
         bytes memory _payload
     ) private pure returns (Payload memory) {
@@ -145,15 +157,6 @@ contract MintPassGroup is AuthorizedCaller {
             revert("PASS_INVALID_SIGNATURE");
         }
         return decodedData;
-    }
-
-    function getProjectHash(
-        string memory token,
-        uint256 project
-    ) public pure returns (bytes32) {
-        bytes32 tokenHash = keccak256(bytes(token));
-        bytes32 projectHash = bytes32(project);
-        return keccak256(abi.encodePacked(tokenHash, projectHash));
     }
 
     function checkSignature(

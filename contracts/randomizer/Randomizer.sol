@@ -22,10 +22,22 @@ contract Randomizer is AuthorizedCaller {
         bytes32 salt;
     }
 
-    Commitment public commitment;
-    uint256 public countRequested;
-    uint256 public countRevealed;
+    Commitment private commitment;
+    uint256 private countRequested;
+    uint256 private countRevealed;
     mapping(bytes32 => Seed) public seeds;
+
+    event RandomizerGenerate(uint256 token_id, Seed seed);
+    event RandomizerReveal(uint256 id, bytes32 seed);
+
+    constructor(bytes32 _seed, bytes32 _salt) {
+        commitment.seed = _seed;
+        commitment.salt = _salt;
+        countRequested = 0;
+        countRevealed = 0;
+        _setupRole(DEFAULT_ADMIN_ROLE, address(bytes20(_msgSender())));
+        _setupRole(AUTHORIZED_CALLER, address(bytes20(_msgSender())));
+    }
 
     modifier onlyFxHashAuthority() {
         require(
@@ -43,50 +55,22 @@ contract Randomizer is AuthorizedCaller {
         _;
     }
 
-    constructor(bytes32 _seed, bytes32 _salt) {
-        commitment.seed = _seed;
-        commitment.salt = _salt;
-        countRequested = 0;
-        countRevealed = 0;
-        _setupRole(DEFAULT_ADMIN_ROLE, address(bytes20(_msgSender())));
-        _setupRole(AUTHORIZED_CALLER, address(bytes20(_msgSender())));
-    }
-
-    function setTokenSeedAndReturnSerial(
-        TokenKey memory tokenKey,
-        bytes32 oracleSeed
-    ) private returns (uint256) {
-        bytes32 hashedKey = getTokenKey(tokenKey.issuer, tokenKey.id);
-        Seed storage seed = seeds[hashedKey];
-        require(seed.chainSeed != 0x00, "NO_REQ");
-        require(isRequestedVariant(tokenKey), "AL_REV");
-        bytes32 tokenSeed = keccak256(
-            abi.encodePacked(oracleSeed, seed.chainSeed)
-        );
-        seed.revealed = tokenSeed;
-        return seed.serialId;
-    }
-
-    function iterateOracleSeed(
-        bytes32 oracleSeed
-    ) private view returns (bytes32) {
-        return keccak256(abi.encodePacked(commitment.salt, oracleSeed));
-    }
-
     function updateCommitment(bytes32 oracleSeed) private {
         commitment.seed = bytes32(
             uint256(keccak256(abi.encodePacked(oracleSeed)))
         );
     }
 
-    function generate(uint256 token_id) external onlyFxHashIssuer {
-        bytes32 hashedKey = getTokenKey(_msgSender(), token_id);
-        require(seeds[hashedKey].revealed == 0x00, "ALREADY_SEEDED");
+    function generate(uint256 tokenId) external onlyFxHashIssuer {
+        bytes32 hashedKey = getTokenKey(_msgSender(), tokenId);
+        Seed storage storedSeed = seeds[hashedKey];
+        require(storedSeed.revealed == 0x00, "ALREADY_SEEDED");
         bytes memory base = abi.encodePacked(block.timestamp, hashedKey);
         bytes32 seed = keccak256(base);
         countRequested += 1;
-        seeds[hashedKey].chainSeed = seed;
-        seeds[hashedKey].serialId = countRequested;
+        storedSeed.chainSeed = seed;
+        storedSeed.serialId = countRequested;
+        emit RandomizerGenerate(tokenId, storedSeed);
     }
 
     function reveal(
@@ -105,6 +89,7 @@ contract Randomizer is AuthorizedCaller {
             );
             require(expectedSerialId == serialId, "OOR");
             oracleSeed = iterateOracleSeed(oracleSeed);
+            emit RandomizerReveal(tokenList[i].id, oracleSeed);
         }
         require(countRevealed + 1 == expectedSerialId, "OOR");
         countRevealed += tokenList.length;
@@ -133,19 +118,38 @@ contract Randomizer is AuthorizedCaller {
         AccessControl.revokeRole(FXHASH_ISSUER, _admin);
     }
 
-    // Helper functions
+    function getTokenKey(
+        address issuer,
+        uint256 id
+    ) public pure returns (bytes32) {
+        return keccak256(abi.encodePacked(issuer, id));
+    }
+
+    function setTokenSeedAndReturnSerial(
+        TokenKey memory tokenKey,
+        bytes32 oracleSeed
+    ) private returns (uint256) {
+        bytes32 hashedKey = getTokenKey(tokenKey.issuer, tokenKey.id);
+        Seed storage seed = seeds[hashedKey];
+        require(seed.chainSeed != 0x00, "NO_REQ");
+        require(isRequestedVariant(tokenKey), "AL_REV");
+        bytes32 tokenSeed = keccak256(
+            abi.encodePacked(oracleSeed, seed.chainSeed)
+        );
+        seed.revealed = tokenSeed;
+        return seed.serialId;
+    }
+
+    function iterateOracleSeed(
+        bytes32 oracleSeed
+    ) private view returns (bytes32) {
+        return keccak256(abi.encodePacked(commitment.salt, oracleSeed));
+    }
 
     function isRequestedVariant(
         TokenKey memory tokenKey
     ) private view returns (bool) {
         return (seeds[getTokenKey(tokenKey.issuer, tokenKey.id)].chainSeed !=
             0x00);
-    }
-
-    function getTokenKey(
-        address issuer,
-        uint256 id
-    ) public pure returns (bytes32) {
-        return keccak256(abi.encodePacked(issuer, id));
     }
 }
