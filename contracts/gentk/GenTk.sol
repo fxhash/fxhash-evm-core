@@ -1,17 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
-import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol";
-import "contracts/abstract/admin/AuthorizedCaller.sol";
 import "contracts/interfaces/IIssuer.sol";
 import "contracts/interfaces/IGenTk.sol";
 
-contract GenTk is
-    ERC721URIStorageUpgradeable,
-    IERC2981Upgradeable,
-    AuthorizedCaller,
-    IGenTk
-{
+import "@openzeppelin/contracts/interfaces/IERC721.sol";
+import "@openzeppelin/contracts/interfaces/IERC2981.sol";
+
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "contracts/abstract/admin/AuthorizedCaller.sol";
+
+contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
     struct TokenMetadata {
         uint256 tokenId;
         string metadata;
@@ -25,18 +23,21 @@ contract GenTk is
         bool assigned;
     }
 
-    mapping(uint256 => TokenData) public tokenData;
-    uint256 public allTokens;
-    address public signer;
-    address public treasury;
-    IIssuer issuer;
+    uint256 private allTokens;
+    address private signer;
+    address private treasury;
+    IIssuer private issuer;
+    mapping(uint256 => TokenData) private tokenData;
+
+    event TokenMinted(TokenParams _params);
+    event MetadataAssigned(TokenMetadata[] _params);
 
     constructor(
         address _admin,
         address _signer,
         address _treasury,
         address _issuer
-    ) {
+    ) ERC721("GenTK", "GTK") {
         _setupRole(DEFAULT_ADMIN_ROLE, _admin);
         _setupRole(AUTHORIZED_CALLER, _admin);
         issuer = IIssuer(_issuer);
@@ -65,6 +66,7 @@ contract GenTk is
             assigned: false
         });
         allTokens += 1;
+        emit TokenMinted(_params);
     }
 
     function assignMetadata(
@@ -78,6 +80,12 @@ contract GenTk is
             );
             _setTokenURI(_tokenData.tokenId, _tokenData.metadata);
         }
+        emit MetadataAssigned(_params);
+    }
+
+    function transferTreasury(uint256 _amount) external onlyAdmin {
+        require(_amount <= address(this).balance, "INSUFFISCIENT_BALANCE");
+        payable(treasury).transfer(_amount);
     }
 
     function setSigner(address _signer) external onlyAdmin {
@@ -86,42 +94,6 @@ contract GenTk is
 
     function setTreasury(address _treasury) external onlyAdmin {
         treasury = _treasury;
-    }
-
-    function transferTreasury(uint256 _amount) external onlyAdmin {
-        require(_amount <= address(this).balance, "INSUFFISCIENT_BALANCE");
-        payable(treasury).transfer(_amount);
-    }
-
-    function _msgSender()
-        internal
-        view
-        virtual
-        override(Context, ContextUpgradeable)
-        returns (address)
-    {
-        return super._msgSender();
-    }
-
-    function _msgData()
-        internal
-        view
-        virtual
-        override(Context, ContextUpgradeable)
-        returns (bytes calldata)
-    {
-        return super._msgData();
-    }
-
-    function supportsInterface(
-        bytes4 interfaceId
-    )
-        public
-        view
-        override(AccessControl, ERC721URIStorageUpgradeable, IERC165Upgradeable)
-        returns (bool)
-    {
-        return super.supportsInterface(interfaceId);
     }
 
     function royaltyInfo(
@@ -137,5 +109,38 @@ contract GenTk is
         return tokenData[_tokenId];
     }
 
-    receive() external payable {}
+    function supportsInterface(
+        bytes4 interfaceId
+    )
+        public
+        view
+        override(AccessControl, ERC721URIStorage, IERC165)
+        returns (bool)
+    {
+        return
+            interfaceId == type(IERC721).interfaceId ||
+            interfaceId == type(IGenTk).interfaceId ||
+            interfaceId == type(IERC2981).interfaceId ||
+            super.supportsInterface(interfaceId);
+    }
+
+    function _msgSender()
+        internal
+        view
+        virtual
+        override(Context)
+        returns (address)
+    {
+        return super._msgSender();
+    }
+
+    function _msgData()
+        internal
+        view
+        virtual
+        override(Context)
+        returns (bytes calldata)
+    {
+        return super._msgData();
+    }
 }

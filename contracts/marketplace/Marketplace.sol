@@ -67,6 +67,30 @@ contract Marketplace is AuthorizedCaller {
     mapping(uint256 => Listing) public listings;
     mapping(uint256 => Offer) public offers;
 
+    event NewListing(
+        address assetContract,
+        uint256 tokenId,
+        uint256 currency,
+        uint256 amount,
+        address seller
+    );
+    event ListingCanceled(uint256 listingId);
+    event ListingBought(uint256 listingId, Referrer[] referrers, address buyer);
+    event NewOffer(
+        Asset[] assetList,
+        uint256 amount,
+        uint256 currency,
+        address buyer
+    );
+    event OfferCanceled(uint256 offerId);
+    event OfferAccepted(
+        uint256 offerId,
+        address assetContract,
+        uint256 tokenId,
+        Referrer[] referrers,
+        address seller
+    );
+
     constructor(
         address _admin,
         uint256 _maxReferralShare,
@@ -112,6 +136,163 @@ contract Marketplace is AuthorizedCaller {
 
     function removeCurrency(uint256 _currencyId) external onlyAdmin {
         delete currencies[_currencyId];
+    }
+
+    function list(
+        address _assetContract,
+        uint256 _tokenId,
+        uint256 _currency,
+        uint256 _amount
+    ) external {
+        require(
+            assetContracts[_assetContract] == true,
+            "ASSET_CONTRACT_NOT_ENABLED"
+        );
+        require(currencies[_currency].enabled == true, "CURRENCY_DISABLED");
+        require(_amount > 0, "AMOUNT_IS_0");
+
+        listings[listingSequence] = Listing({
+            asset: Asset({assetContract: _assetContract, tokenId: _tokenId}),
+            seller: _msgSender(),
+            currency: _currency,
+            amount: _amount
+        });
+        listingSequence++;
+        emit NewListing(
+            _assetContract,
+            _tokenId,
+            _currency,
+            _amount,
+            _msgSender()
+        );
+    }
+
+    function cancelListing(uint256 _listingId) external {
+        Listing storage listing = listings[_listingId];
+        require(listing.seller == _msgSender(), "NOT_AUTHORIZED");
+        delete listings[_listingId];
+        emit ListingCanceled(_listingId);
+    }
+
+    function buyListing(
+        uint256 _listingId,
+        Referrer[] calldata _referrers
+    ) external payable {
+        Listing memory listing = listings[_listingId];
+        require(listing.seller != address(0), "LISTING_NOT_EXISTS");
+        Currency memory currency = currencies[listing.currency];
+        require(currency.enabled == true, "CURRENCY_DISABLED");
+        if (currency.currencyType == TokenType.ETH) {
+            require(msg.value == listing.amount, "AMOUNT_MISMATCH");
+        }
+        delete listings[_listingId];
+        transfer(
+            TransferParams({
+                assetContract: listing.asset.assetContract,
+                tokenId: listing.asset.tokenId,
+                owner: listing.seller,
+                receiver: _msgSender(),
+                amount: 1,
+                tokenType: TokenType.ERC721
+            })
+        );
+
+        processPayments(
+            listing.asset,
+            currency,
+            _referrers,
+            _msgSender(),
+            listing.seller,
+            listing.amount
+        );
+        emit ListingBought(_listingId, _referrers, _msgSender());
+    }
+
+    function offer(
+        Asset[] calldata _assetList,
+        uint256 _amount,
+        uint256 _currency
+    ) external payable {
+        Currency memory storedCurrency = currencies[_currency];
+        require(storedCurrency.enabled == true, "CURRENCY_DISABLED");
+        require(_amount > 0, "AMOUNT_IS_0");
+        if (storedCurrency.currencyType == TokenType.ETH) {
+            require(msg.value == _amount, "AMOUNT_MISMATCH");
+        }
+        require(_assetList.length > 0, "REQUIRE_AT_LEAST_1_ASSET");
+        for (uint256 i = 0; i < _assetList.length; i++) {
+            require(
+                assetContracts[_assetList[i].assetContract] == true,
+                "ASSET_CONTRACT_NOT_ENABLED"
+            );
+        }
+        offers[offerSequence] = Offer({
+            assets: abi.encode(_assetList),
+            buyer: _msgSender(),
+            amount: _amount,
+            currency: _currency
+        });
+        offerSequence++;
+        emit NewOffer(_assetList, _amount, _currency, _msgSender());
+    }
+
+    function cancelOffer(uint256 _offerId) external {
+        Offer memory storedOffer = offers[_offerId];
+        require(storedOffer.buyer == _msgSender(), "NOT_AUTHORIZED");
+        delete offers[_offerId];
+        if (currencies[storedOffer.currency].currencyType == TokenType.ETH) {
+            payable(storedOffer.buyer).transfer(storedOffer.amount);
+        }
+        emit OfferCanceled(_offerId);
+    }
+
+    function acceptOffer(
+        uint256 _offerId,
+        address _assetContract,
+        uint256 _tokenId,
+        Referrer[] calldata _referrers
+    ) external {
+        Offer memory storedOffer = offers[_offerId];
+        bool assetFound = false;
+        Asset[] memory assets = abi.decode(storedOffer.assets, (Asset[]));
+        for (uint256 i = 0; i < assets.length; i++) {
+            if (
+                assets[i].assetContract == _assetContract &&
+                assets[i].tokenId == _tokenId
+            ) {
+                assetFound = true;
+            }
+        }
+        require(assetFound, "INVALID_ASSET");
+        delete offers[_offerId];
+        Currency memory currency = currencies[storedOffer.currency];
+        require(currency.enabled == true, "CURRENCY_DISABLED");
+        transfer(
+            TransferParams({
+                assetContract: _assetContract,
+                tokenId: _tokenId,
+                owner: _msgSender(),
+                receiver: storedOffer.buyer,
+                amount: 1,
+                tokenType: TokenType.ERC721
+            })
+        );
+
+        processPayments(
+            Asset({assetContract: _assetContract, tokenId: _tokenId}),
+            currency,
+            _referrers,
+            storedOffer.buyer,
+            _msgSender(),
+            storedOffer.amount
+        );
+        emit OfferAccepted(
+            _offerId,
+            _assetContract,
+            _tokenId,
+            _referrers,
+            _msgSender()
+        );
     }
 
     function decodeCurrencyData(
@@ -280,144 +461,5 @@ contract Marketplace is AuthorizedCaller {
         }
         require(sumShares <= maxReferralShare, "TOO_HIGH_REFERRER_PCT");
         return paid;
-    }
-
-    function list(
-        address _assetContract,
-        uint256 _tokenId,
-        uint256 _currency,
-        uint256 _amount
-    ) external {
-        require(
-            assetContracts[_assetContract] == true,
-            "ASSET_CONTRACT_NOT_ENABLED"
-        );
-        require(currencies[_currency].enabled == true, "CURRENCY_DISABLED");
-        require(_amount > 0, "AMOUNT_IS_0");
-
-        listings[listingSequence] = Listing({
-            asset: Asset({assetContract: _assetContract, tokenId: _tokenId}),
-            seller: _msgSender(),
-            currency: _currency,
-            amount: _amount
-        });
-        listingSequence++;
-    }
-
-    function cancelListing(uint256 _listingId) external {
-        Listing storage listing = listings[_listingId];
-        require(listing.seller == _msgSender(), "NOT_AUTHORIZED");
-        delete listings[_listingId];
-    }
-
-    function buyListing(
-        uint256 _listingId,
-        Referrer[] calldata _referrers
-    ) external payable {
-        Listing memory listing = listings[_listingId];
-        require(listing.seller != address(0), "LISTING_NOT_EXISTS");
-        Currency memory currency = currencies[listing.currency];
-        require(currency.enabled == true, "CURRENCY_DISABLED");
-        if (currency.currencyType == TokenType.ETH) {
-            require(msg.value == listing.amount, "AMOUNT_MISMATCH");
-        }
-        delete listings[_listingId];
-        transfer(
-            TransferParams({
-                assetContract: listing.asset.assetContract,
-                tokenId: listing.asset.tokenId,
-                owner: listing.seller,
-                receiver: _msgSender(),
-                amount: 1,
-                tokenType: TokenType.ERC721
-            })
-        );
-
-        processPayments(
-            listing.asset,
-            currency,
-            _referrers,
-            _msgSender(),
-            listing.seller,
-            listing.amount
-        );
-    }
-
-    function offer(
-        Asset[] calldata _assetList,
-        uint256 _amount,
-        uint256 _currency
-    ) external payable {
-        Currency memory storedCurrency = currencies[_currency];
-        require(storedCurrency.enabled == true, "CURRENCY_DISABLED");
-        require(_amount > 0, "AMOUNT_IS_0");
-        if (storedCurrency.currencyType == TokenType.ETH) {
-            require(msg.value == _amount, "AMOUNT_MISMATCH");
-        }
-        require(_assetList.length > 0, "REQUIRE_AT_LEAST_1_ASSET");
-        for (uint256 i = 0; i < _assetList.length; i++) {
-            require(
-                assetContracts[_assetList[i].assetContract] == true,
-                "ASSET_CONTRACT_NOT_ENABLED"
-            );
-        }
-        offers[offerSequence] = Offer({
-            assets: abi.encode(_assetList),
-            buyer: _msgSender(),
-            amount: _amount,
-            currency: _currency
-        });
-        offerSequence++;
-    }
-
-    function cancelOffer(uint256 _offerId) external {
-        Offer memory storedOffer = offers[_offerId];
-        require(storedOffer.buyer == _msgSender(), "NOT_AUTHORIZED");
-        delete offers[_offerId];
-        if (currencies[storedOffer.currency].currencyType == TokenType.ETH) {
-            payable(storedOffer.buyer).transfer(storedOffer.amount);
-        }
-    }
-
-    function acceptOffer(
-        uint256 _offerId,
-        address _assetContract,
-        uint256 _tokenId,
-        Referrer[] calldata _referrers
-    ) external {
-        Offer memory storedOffer = offers[_offerId];
-        bool assetFound = false;
-        Asset[] memory assets = abi.decode(storedOffer.assets, (Asset[]));
-        for (uint256 i = 0; i < assets.length; i++) {
-            if (
-                assets[i].assetContract == _assetContract &&
-                assets[i].tokenId == _tokenId
-            ) {
-                assetFound = true;
-            }
-        }
-        require(assetFound, "INVALID_ASSET");
-        delete offers[_offerId];
-        Currency memory currency = currencies[storedOffer.currency];
-        require(currency.enabled == true, "CURRENCY_DISABLED");
-        transfer(
-            TransferParams({
-                assetContract: _assetContract,
-                tokenId: _tokenId,
-                owner: _msgSender(),
-                receiver: storedOffer.buyer,
-                amount: 1,
-                tokenType: TokenType.ERC721
-            })
-        );
-
-        processPayments(
-            Asset({assetContract: _assetContract, tokenId: _tokenId}),
-            currency,
-            _referrers,
-            storedOffer.buyer,
-            _msgSender(),
-            storedOffer.amount
-        );
     }
 }
