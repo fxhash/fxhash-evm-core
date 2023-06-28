@@ -88,7 +88,7 @@ contract PricingDutchAuction is AuthorizedCaller, IPricing {
         );
         verifyDetails(pricingDetails);
         pricings[issuerId] = pricingDetails;
-        emit DutchPriceSet(issuerid, pricingDetails);
+        emit DutchPriceSet(issuerId, pricingDetails);
     }
 
     function lockPrice(uint256 issuerId) external onlyAuthorizedCaller {
