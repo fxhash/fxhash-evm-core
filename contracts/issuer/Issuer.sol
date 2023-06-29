@@ -14,44 +14,14 @@ import "contracts/interfaces/ICodex.sol";
 import "contracts/interfaces/IIssuer.sol";
 import "contracts/interfaces/IUserActions.sol";
 
-import "contracts/abstract/admin/AuthorizedCaller.sol";
 import "contracts/abstract/AddressConfig.sol";
 import "contracts/abstract/Treasury.sol";
 
 import "contracts/libs/LibIssuer.sol";
 import "contracts/libs/LibReserve.sol";
-import "contracts/libs/LibPricing.sol";
 
-import "hardhat/console.sol";
-
-contract Issuer is
-    IIssuer,
-    AuthorizedCaller,
-    IERC2981,
-    AddressConfig,
-    Treasury
-{
-    struct UpdateIssuerInput {
-        uint256 issuerId;
-        LibRoyalty.RoyaltyData primarySplit;
-        LibRoyalty.RoyaltyData royaltiesSplit;
-        bool enabled;
-    }
-
-    struct UpdatePriceInput {
-        uint256 issuerId;
-        LibPricing.PricingData pricingData;
-    }
-
-    struct UpdateReserveInput {
-        uint256 issuerId;
-        LibReserve.ReserveData[] reserves;
-    }
-
-    uint256 private fees;
-    uint256 private referrerFeesShare;
-    uint256 private lockTime;
-    string private voidMetadata;
+contract Issuer is IIssuer, IERC2981, AddressConfig, Treasury {
+    Config private config;
     uint256 private allissuers;
     uint256 private allGenTkTokens;
     mapping(uint256 => LibIssuer.IssuerData) private issuers;
@@ -66,15 +36,8 @@ contract Issuer is
     event SupplyBurned(uint256 issuerId, uint256 amount);
     event TokendModUpdated(uint256 issuerId, uint256[] tags);
 
-    constructor(
-        uint256 _fees,
-        uint256 _referrerFeesShare,
-        uint256 _lockTime,
-        address _admin
-    ) {
-        referrerFeesShare = _referrerFeesShare;
-        fees = _fees;
-        lockTime = _lockTime;
+    constructor(Config memory _config, address _admin) {
+        config = _config;
         allissuers = 0;
         allGenTkTokens = 0;
         _setupRole(DEFAULT_ADMIN_ROLE, _admin);
@@ -92,7 +55,7 @@ contract Issuer is
             _msgSender(),
             params.codex
         );
-        uint256 _lockTime = lockTime;
+        uint256 _lockTime = config.lockTime;
         require(
             ((params.royaltiesSplit.percent >= 1000) &&
                 (params.royaltiesSplit.percent <= 2500)) ||
@@ -194,6 +157,7 @@ contract Issuer is
             reserves: abi.encode(params.reserves),
             primarySplit: params.primarySplit,
             royaltiesSplit: params.royaltiesSplit,
+            onChainData: abi.encode(params.onChainScripts),
             info: LibIssuer.IssuerInfo({
                 tags: params.tags,
                 enabled: params.enabled,
@@ -374,7 +338,7 @@ contract Issuer is
                     addresses["gentk"]
                     ? recipient
                     : issuerToken.royaltiesSplit.receiver,
-                metadata: voidMetadata,
+                metadata: config.voidMetadata,
                 issuerId: params.issuerId
             })
         );
@@ -496,24 +460,8 @@ contract Issuer is
         issuers[issuerId].info.codexId = codexId;
     }
 
-    function setFees(uint256 _fees) external onlyAuthorizedCaller {
-        fees = _fees;
-    }
-
-    function setLockTime(uint256 _lockTime) external onlyAuthorizedCaller {
-        lockTime = _lockTime;
-    }
-
-    function setReferrerFeesShare(
-        uint256 _Share
-    ) external onlyAuthorizedCaller {
-        referrerFeesShare = _Share;
-    }
-
-    function setVoidMetadata(
-        string calldata _voidMetadata
-    ) external onlyAuthorizedCaller {
-        voidMetadata = _voidMetadata;
+    function setConfig(Config calldata _config) external onlyAdmin {
+        config = _config;
     }
 
     function getIssuer(
@@ -596,16 +544,17 @@ contract Issuer is
             );
             require(msg.value >= price, "INVALID_PRICE");
 
-            uint256 platformFees = fees;
+            uint256 platformFees = config.fees;
             if (
                 params.referrer != address(0) && params.referrer != _msgSender()
             ) {
-                uint256 referrerFees = (fees * referrerFeesShare) / 10000;
+                uint256 referrerFees = (config.fees *
+                    config.referrerFeesShare) / 10000;
                 uint256 referrerAmount = (price * referrerFees) / 10000;
                 if (referrerAmount > 0) {
                     payable(params.referrer).transfer(referrerAmount);
                 }
-                platformFees = fees - referrerFees;
+                platformFees = config.fees - referrerFees;
             }
 
             uint256 feesAmount = (price * platformFees) / 10000;
@@ -650,7 +599,7 @@ contract Issuer is
                             addresses["gentk"]
                             ? recipient
                             : issuerToken.royaltiesSplit.receiver,
-                        metadata: voidMetadata,
+                        metadata: config.voidMetadata,
                         issuerId: params.issuerId
                     })
                 );
