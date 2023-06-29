@@ -45,6 +45,8 @@ contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
         treasury = _treasury;
     }
 
+    receive() external payable {}
+
     modifier onlySigner() {
         require(_msgSender() == signer, "Caller is not signer");
         _;
