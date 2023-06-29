@@ -15,12 +15,12 @@ import "contracts/interfaces/IIssuer.sol";
 import "contracts/interfaces/IUserActions.sol";
 
 import "contracts/abstract/AddressConfig.sol";
-import "contracts/abstract/Treasury.sol";
+import "contracts/abstract/admin/AuthorizedCaller.sol";
 
 import "contracts/libs/LibIssuer.sol";
 import "contracts/libs/LibReserve.sol";
 
-contract Issuer is IIssuer, IERC2981, AddressConfig, Treasury {
+contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
     Config private config;
     uint256 private allissuers;
     uint256 private allGenTkTokens;
@@ -366,8 +366,7 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, Treasury {
         );
 
         LibIssuer.IssuerData storage issuerToken = issuers[params.issuerId];
-        require(issuerToken.info.author != address(0), "404");
-        require(issuerToken.info.author == _msgSender(), "403");
+        verifyAuthorized(issuerToken.info.author);
         LibIssuer.verifyIssuerUpdateable(issuerToken);
         issuerToken.primarySplit = params.primarySplit;
         issuerToken.royaltiesSplit = params.royaltiesSplit;
@@ -377,8 +376,7 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, Treasury {
 
     function updatePrice(UpdatePriceInput calldata params) external {
         LibIssuer.IssuerData storage issuerToken = issuers[params.issuerId];
-        require(issuerToken.info.author != address(0), "404");
-        require(issuerToken.info.author == _msgSender(), "403");
+        verifyAuthorized(issuerToken.info.author);
         LibIssuer.verifyIssuerUpdateable(issuerToken);
         IPricingManager(addresses["priceMag"]).verifyPricingMethod(
             params.pricingData.pricingId
@@ -397,8 +395,7 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, Treasury {
 
     function updateReserve(UpdateReserveInput memory params) external {
         LibIssuer.IssuerData storage issuerToken = issuers[params.issuerId];
-        require(issuerToken.info.author != address(0), "404");
-        require(issuerToken.info.author == _msgSender(), "403");
+        verifyAuthorized(issuerToken.info.author);
         LibIssuer.verifyIssuerUpdateable(issuerToken);
         require(issuerToken.info.enabled, "TOK_DISABLED");
         for (uint256 i = 0; i < params.reserves.length; i++) {
@@ -422,8 +419,7 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, Treasury {
 
     function burn(uint256 issuerId) external {
         LibIssuer.IssuerData storage issuerToken = issuers[issuerId];
-        require(issuerToken.info.author != address(0), "404");
-        require(issuerToken.info.author == _msgSender(), "403");
+        verifyAuthorized(issuerToken.info.author);
         require(issuerToken.balance == issuerToken.supply, "CONSUMED_1");
         burnToken(issuerId);
         emit IssuerBurned(issuerId);
@@ -432,9 +428,8 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, Treasury {
     function burnSupply(uint256 issuerId, uint256 amount) external {
         require(amount > 0, "TOO_LOW");
         LibIssuer.IssuerData storage issuerToken = issuers[issuerId];
-        require(issuerToken.info.author != address(0), "404");
+        verifyAuthorized(issuerToken.info.author);
         require(issuerToken.openEditions.closingTime == 0, "OES");
-        require(issuerToken.info.author == _msgSender(), "403");
         require(amount <= issuerToken.balance, "TOO_HIGH");
         issuerToken.balance = issuerToken.balance - amount;
         issuerToken.supply = issuerToken.supply - amount;
@@ -456,7 +451,10 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, Treasury {
         emit TokendModUpdated(issuerId, tags);
     }
 
-    function setCodex(uint256 issuerId, uint256 codexId) external onlyAdmin {
+    function setCodex(
+        uint256 issuerId,
+        uint256 codexId
+    ) external onlyAuthorizedCaller {
         issuers[issuerId].info.codexId = codexId;
     }
 
@@ -528,6 +526,11 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, Treasury {
             issuerId
         );
         delete issuers[issuerId];
+    }
+
+    function verifyAuthorized(address _author) private view {
+        require(_author != address(0), "404");
+        require(_author == _msgSender(), "403");
     }
 
     function processTransfers(

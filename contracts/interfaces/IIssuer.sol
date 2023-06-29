@@ -60,7 +60,6 @@ interface IIssuer {
         bytes reserveInput;
         bool createTicket;
         address recipient;
-        bytes onChainId;
     }
 
     struct MintWithTicketInput {
