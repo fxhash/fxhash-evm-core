@@ -18,6 +18,9 @@ contract PricingDutchAuction is AuthorizedCaller, IPricing {
         uint256 price;
     }
 
+    event DutchPriceSet(uint256 issuerId, PriceDetails details);
+    event DutchPriceLocked(uint256 issuerId, uint256 lockedPrice);
+
     mapping(uint256 => PriceDetails) public pricings;
 
     address public admin;
@@ -85,6 +88,7 @@ contract PricingDutchAuction is AuthorizedCaller, IPricing {
         );
         verifyDetails(pricingDetails);
         pricings[issuerId] = pricingDetails;
+        emit DutchPriceSet(issuerId, pricingDetails);
     }
 
     function lockPrice(uint256 issuerId) external onlyAuthorizedCaller {
@@ -92,6 +96,7 @@ contract PricingDutchAuction is AuthorizedCaller, IPricing {
             issuerId,
             block.timestamp
         );
+        emit DutchPriceLocked(issuerId, pricings[issuerId].lockedPrice);
     }
 
     function getPrice(

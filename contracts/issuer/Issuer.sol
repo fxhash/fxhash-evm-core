@@ -56,6 +56,16 @@ contract Issuer is
     uint256 private allGenTkTokens;
     mapping(uint256 => LibIssuer.IssuerData) private issuers;
 
+    event IssuerMinted(MintIssuerInput params);
+    event TokenMinted(MintInput params);
+    event TokenMintedWithTicket(MintWithTicketInput params);
+    event IssuerBurned(uint256 issuerId);
+    event IssuerUpdated(UpdateIssuerInput params);
+    event PriceUpdated(UpdatePriceInput params);
+    event ReserveUpdated(UpdateReserveInput params);
+    event SupplyBurned(uint256 issuerId, uint256 amount);
+    event TokendModUpdated(uint256 issuerId, uint256[] tags);
+
     constructor(
         uint256 _fees,
         uint256 _referrerFeesShare,
@@ -204,6 +214,7 @@ contract Issuer is
         );
 
         allissuers++;
+        emit IssuerMinted(params);
     }
 
     function mint(MintInput memory params) external payable {
@@ -331,6 +342,7 @@ contract Issuer is
         );
 
         IUserActions(addresses["userAct"]).setLastMinted(_msgSender(), tokenId);
+        emit TokenMinted(params);
     }
 
     function mintWithTicket(MintWithTicketInput memory params) external {
@@ -373,6 +385,201 @@ contract Issuer is
             _msgSender(),
             params.issuerId
         );
+        emit TokenMintedWithTicket(params);
+    }
+
+    function updateIssuer(UpdateIssuerInput calldata params) external {
+        require(
+            ((params.royaltiesSplit.percent >= 1000) &&
+                (params.royaltiesSplit.percent <= 2500)) ||
+                ((!params.enabled) && (params.royaltiesSplit.percent <= 2500)),
+            "WRG_ROY"
+        );
+        require(
+            ((params.primarySplit.percent >= 1000) &&
+                (params.primarySplit.percent <= 2500)),
+            "WRG_PRIM_SPLIT"
+        );
+
+        LibIssuer.IssuerData storage issuerToken = issuers[params.issuerId];
+        require(issuerToken.info.author != address(0), "404");
+        require(issuerToken.info.author == _msgSender(), "403");
+        LibIssuer.verifyIssuerUpdateable(issuerToken);
+        issuerToken.primarySplit = params.primarySplit;
+        issuerToken.royaltiesSplit = params.royaltiesSplit;
+        issuerToken.info.enabled = params.enabled;
+        emit IssuerUpdated(params);
+    }
+
+    function updatePrice(UpdatePriceInput calldata params) external {
+        LibIssuer.IssuerData storage issuerToken = issuers[params.issuerId];
+        require(issuerToken.info.author != address(0), "404");
+        require(issuerToken.info.author == _msgSender(), "403");
+        LibIssuer.verifyIssuerUpdateable(issuerToken);
+        IPricingManager(addresses["priceMag"]).verifyPricingMethod(
+            params.pricingData.pricingId
+        );
+        issuerToken.info.pricingId = params.pricingData.pricingId;
+        issuerToken.info.lockPriceForReserves = params
+            .pricingData
+            .lockForReserves;
+        IPricing(
+            IPricingManager(addresses["priceMag"])
+                .getPricingContract(params.pricingData.pricingId)
+                .pricingContract
+        ).setPrice(params.issuerId, params.pricingData.details);
+        emit PriceUpdated(params);
+    }
+
+    function updateReserve(UpdateReserveInput memory params) external {
+        LibIssuer.IssuerData storage issuerToken = issuers[params.issuerId];
+        require(issuerToken.info.author != address(0), "404");
+        require(issuerToken.info.author == _msgSender(), "403");
+        LibIssuer.verifyIssuerUpdateable(issuerToken);
+        require(issuerToken.info.enabled, "TOK_DISABLED");
+        for (uint256 i = 0; i < params.reserves.length; i++) {
+            LibReserve.ReserveMethod memory reserve = IReserveManager(
+                addresses["resMag"]
+            ).getReserveMethod(params.reserves[i].methodId);
+            require(
+                reserve.reserveContract != IReserve(address(0)),
+                "RSRV_404"
+            );
+            require(reserve.enabled, "RSRV_DIS");
+            require(
+                IReserveManager(addresses["resMag"]).isReserveValid(
+                    params.reserves[i]
+                )
+            );
+        }
+        issuers[params.issuerId].reserves = abi.encode(params.reserves);
+        emit ReserveUpdated(params);
+    }
+
+    function burn(uint256 issuerId) external {
+        LibIssuer.IssuerData storage issuerToken = issuers[issuerId];
+        require(issuerToken.info.author != address(0), "404");
+        require(issuerToken.info.author == _msgSender(), "403");
+        require(issuerToken.balance == issuerToken.supply, "CONSUMED_1");
+        burnToken(issuerId);
+        emit IssuerBurned(issuerId);
+    }
+
+    function burnSupply(uint256 issuerId, uint256 amount) external {
+        require(amount > 0, "TOO_LOW");
+        LibIssuer.IssuerData storage issuerToken = issuers[issuerId];
+        require(issuerToken.info.author != address(0), "404");
+        require(issuerToken.openEditions.closingTime == 0, "OES");
+        require(issuerToken.info.author == _msgSender(), "403");
+        require(amount <= issuerToken.balance, "TOO_HIGH");
+        issuerToken.balance = issuerToken.balance - amount;
+        issuerToken.supply = issuerToken.supply - amount;
+        if (issuerToken.supply == 0) {
+            burnToken(issuerId);
+        }
+        emit SupplyBurned(issuerId, amount);
+    }
+
+    function updateTokenMod(
+        uint256 issuerId,
+        uint256[] calldata tags
+    ) external {
+        require(
+            IModeration(addresses["mod_team"]).isAuthorized(_msgSender(), 10),
+            "403"
+        );
+        issuers[issuerId].info.tags = tags;
+        emit TokendModUpdated(issuerId, tags);
+    }
+
+    function setCodex(uint256 issuerId, uint256 codexId) external onlyAdmin {
+        issuers[issuerId].info.codexId = codexId;
+    }
+
+    function setFees(uint256 _fees) external onlyAuthorizedCaller {
+        fees = _fees;
+    }
+
+    function setLockTime(uint256 _lockTime) external onlyAuthorizedCaller {
+        lockTime = _lockTime;
+    }
+
+    function setReferrerFeesShare(
+        uint256 _Share
+    ) external onlyAuthorizedCaller {
+        referrerFeesShare = _Share;
+    }
+
+    function setVoidMetadata(
+        string calldata _voidMetadata
+    ) external onlyAuthorizedCaller {
+        voidMetadata = _voidMetadata;
+    }
+
+    function getIssuer(
+        uint256 issuerId
+    ) external view returns (LibIssuer.IssuerData memory) {
+        return issuers[issuerId];
+    }
+
+    function royaltyInfo(
+        uint256 tokenId,
+        uint256 salePrice
+    )
+        public
+        view
+        override(IERC2981, IIssuer)
+        returns (address receiver, uint256 royaltyAmount)
+    {
+        LibRoyalty.RoyaltyData memory royalty = issuers[tokenId].royaltiesSplit;
+        uint256 amount = (salePrice * royalty.percent) / 10000;
+        return (royalty.receiver, amount);
+    }
+
+    function primarySplitInfo(
+        uint256 tokenId,
+        uint256 salePrice
+    ) public view returns (address receiver, uint256 royaltyAmount) {
+        LibRoyalty.RoyaltyData memory royalty = issuers[tokenId].primarySplit;
+        uint256 amount = (salePrice * royalty.percent) / 10000;
+        return (royalty.receiver, amount);
+    }
+
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view override(AccessControl, IERC165, IIssuer) returns (bool) {
+        return
+            interfaceId == type(IIssuer).interfaceId ||
+            interfaceId == type(IERC2981).interfaceId ||
+            super.supportsInterface(interfaceId);
+    }
+
+    function _msgSender()
+        internal
+        view
+        virtual
+        override(Context)
+        returns (address)
+    {
+        return super._msgSender();
+    }
+
+    function _msgData()
+        internal
+        view
+        virtual
+        override(Context)
+        returns (bytes calldata)
+    {
+        return super._msgData();
+    }
+
+    function burnToken(uint256 issuerId) private {
+        IUserActions(addresses["userAct"]).resetLastIssuerMinted(
+            _msgSender(),
+            issuerId
+        );
+        delete issuers[issuerId];
     }
 
     function processTransfers(
@@ -450,191 +657,5 @@ contract Issuer is
                 allGenTkTokens++;
             }
         }
-    }
-
-    function getIssuer(
-        uint256 issuerId
-    ) external view returns (LibIssuer.IssuerData memory) {
-        return issuers[issuerId];
-    }
-
-    function burnToken(uint256 issuerId) private {
-        IUserActions(addresses["userAct"]).resetLastIssuerMinted(
-            _msgSender(),
-            issuerId
-        );
-        delete issuers[issuerId];
-    }
-
-    function setCodex(uint256 issuerId, uint256 codexId) external onlyAdmin {
-        issuers[issuerId].info.codexId = codexId;
-    }
-
-    function updateIssuer(UpdateIssuerInput calldata params) external {
-        require(
-            ((params.royaltiesSplit.percent >= 1000) &&
-                (params.royaltiesSplit.percent <= 2500)) ||
-                ((!params.enabled) && (params.royaltiesSplit.percent <= 2500)),
-            "WRG_ROY"
-        );
-        require(
-            ((params.primarySplit.percent >= 1000) &&
-                (params.primarySplit.percent <= 2500)),
-            "WRG_PRIM_SPLIT"
-        );
-
-        LibIssuer.IssuerData storage issuerToken = issuers[params.issuerId];
-        require(issuerToken.info.author != address(0), "404");
-        require(issuerToken.info.author == _msgSender(), "403");
-        LibIssuer.verifyIssuerUpdateable(issuerToken);
-        issuerToken.primarySplit = params.primarySplit;
-        issuerToken.royaltiesSplit = params.royaltiesSplit;
-        issuerToken.info.enabled = params.enabled;
-    }
-
-    function updatePrice(UpdatePriceInput calldata params) external {
-        LibIssuer.IssuerData storage issuerToken = issuers[params.issuerId];
-        require(issuerToken.info.author != address(0), "404");
-        require(issuerToken.info.author == _msgSender(), "403");
-        LibIssuer.verifyIssuerUpdateable(issuerToken);
-        IPricingManager(addresses["priceMag"]).verifyPricingMethod(
-            params.pricingData.pricingId
-        );
-        issuerToken.info.pricingId = params.pricingData.pricingId;
-        issuerToken.info.lockPriceForReserves = params
-            .pricingData
-            .lockForReserves;
-        IPricing(
-            IPricingManager(addresses["priceMag"])
-                .getPricingContract(params.pricingData.pricingId)
-                .pricingContract
-        ).setPrice(params.issuerId, params.pricingData.details);
-    }
-
-    function updateReserve(UpdateReserveInput memory params) external {
-        LibIssuer.IssuerData storage issuerToken = issuers[params.issuerId];
-        require(issuerToken.info.author != address(0), "404");
-        require(issuerToken.info.author == _msgSender(), "403");
-        LibIssuer.verifyIssuerUpdateable(issuerToken);
-        require(issuerToken.info.enabled, "TOK_DISABLED");
-        for (uint256 i = 0; i < params.reserves.length; i++) {
-            LibReserve.ReserveMethod memory reserve = IReserveManager(
-                addresses["resMag"]
-            ).getReserveMethod(params.reserves[i].methodId);
-            require(
-                reserve.reserveContract != IReserve(address(0)),
-                "RSRV_404"
-            );
-            require(reserve.enabled, "RSRV_DIS");
-            require(
-                IReserveManager(addresses["resMag"]).isReserveValid(
-                    params.reserves[i]
-                )
-            );
-        }
-        //TODO: fix
-        issuers[params.issuerId].reserves = abi.encode(params.reserves);
-    }
-
-    function burn(uint256 issuerId) external {
-        LibIssuer.IssuerData storage issuerToken = issuers[issuerId];
-        require(issuerToken.info.author != address(0), "404");
-        require(issuerToken.info.author == _msgSender(), "403");
-        require(issuerToken.balance == issuerToken.supply, "CONSUMED_1");
-        burnToken(issuerId);
-    }
-
-    function burnSupply(uint256 issuerId, uint256 amount) external {
-        require(amount > 0, "TOO_LOW");
-        LibIssuer.IssuerData storage issuerToken = issuers[issuerId];
-        require(issuerToken.info.author != address(0), "404");
-        require(issuerToken.openEditions.closingTime == 0, "OES");
-        require(issuerToken.info.author == _msgSender(), "403");
-        require(amount <= issuerToken.balance, "TOO_HIGH");
-        issuerToken.balance = issuerToken.balance - amount;
-        issuerToken.supply = issuerToken.supply - amount;
-        if (issuerToken.supply == 0) {
-            burnToken(issuerId);
-        }
-    }
-
-    function updateTokenMod(
-        uint256 issuerId,
-        uint256[] calldata tags
-    ) external {
-        require(
-            IModeration(addresses["mod_team"]).isAuthorized(_msgSender(), 10),
-            "403"
-        );
-        issuers[issuerId].info.tags = tags;
-    }
-
-    function setFees(uint256 _fees) external onlyAuthorizedCaller {
-        fees = _fees;
-    }
-
-    function setLockTime(uint256 _lockTime) external onlyAuthorizedCaller {
-        lockTime = _lockTime;
-    }
-
-    function setReferrerFeesShare(
-        uint256 _Share
-    ) external onlyAuthorizedCaller {
-        referrerFeesShare = _Share;
-    }
-
-    function setVoidMetadata(
-        string calldata _voidMetadata
-    ) external onlyAuthorizedCaller {
-        voidMetadata = _voidMetadata;
-    }
-
-    function _msgSender()
-        internal
-        view
-        virtual
-        override(Context)
-        returns (address)
-    {
-        return super._msgSender();
-    }
-
-    function _msgData()
-        internal
-        view
-        virtual
-        override(Context)
-        returns (bytes calldata)
-    {
-        return super._msgData();
-    }
-
-    function royaltyInfo(
-        uint256 tokenId,
-        uint256 salePrice
-    )
-        public
-        view
-        override(IERC2981, IIssuer)
-        returns (address receiver, uint256 royaltyAmount)
-    {
-        LibRoyalty.RoyaltyData memory royalty = issuers[tokenId].royaltiesSplit;
-        uint256 amount = (salePrice * royalty.percent) / 10000;
-        return (royalty.receiver, amount);
-    }
-
-    function primarySplitInfo(
-        uint256 tokenId,
-        uint256 salePrice
-    ) public view returns (address receiver, uint256 royaltyAmount) {
-        LibRoyalty.RoyaltyData memory royalty = issuers[tokenId].primarySplit;
-        uint256 amount = (salePrice * royalty.percent) / 10000;
-        return (royalty.receiver, amount);
-    }
-
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view override(AccessControl, IERC165, IIssuer) returns (bool) {
-        return super.supportsInterface(interfaceId);
     }
 }

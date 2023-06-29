@@ -33,6 +33,18 @@ contract ModerationTeam is AuthorizedCaller {
     mapping(address => ModeratorData) public moderators;
     EnumerableSet.AddressSet private moderatorAddresses;
 
+    event ModeratorsUpdated(UpdateModeratorParam[] params);
+    event SharesUpdated(UpdateShareParam[] params);
+
+    /*
+    INITIALIZATION
+    */
+    constructor(address _admin) {
+        _setupRole(DEFAULT_ADMIN_ROLE, _admin);
+        _setupRole(AUTHORIZED_CALLER, _admin);
+        sharesTotal = 0;
+    }
+
     /*
     MODIFIERS
     */
@@ -49,15 +61,6 @@ contract ModerationTeam is AuthorizedCaller {
             "NOT_MODERATOR_OR_ADMIN"
         );
         _;
-    }
-
-    /*
-    INITIALIZATION
-    */
-    constructor(address _admin) {
-        _setupRole(DEFAULT_ADMIN_ROLE, _admin);
-        _setupRole(AUTHORIZED_CALLER, _admin);
-        sharesTotal = 0;
     }
 
     /*
@@ -86,6 +89,7 @@ contract ModerationTeam is AuthorizedCaller {
                 EnumerableSet.add(moderatorAddresses, userAddress);
             }
         }
+        emit ModeratorsUpdated(params);
     }
 
     function updateShares(
@@ -107,6 +111,7 @@ contract ModerationTeam is AuthorizedCaller {
                 sharesTotal = sharesTotal + sharePercentage;
             }
         }
+        emit SharesUpdated(params);
     }
 
     function withdraw() external onlyModeratorOrAdmin {
