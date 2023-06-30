@@ -13,6 +13,7 @@ import "contracts/interfaces/IGenTk.sol";
 import "contracts/interfaces/ICodex.sol";
 import "contracts/interfaces/IIssuer.sol";
 import "contracts/interfaces/IUserActions.sol";
+import "contracts/interfaces/IOnChainTokenMetadataManager.sol";
 
 import "contracts/abstract/AddressConfig.sol";
 import "contracts/abstract/admin/AuthorizedCaller.sol";
@@ -148,6 +149,7 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
         if (!isOpenEd) {
             require(reserveTotal <= params.amount, "RSRV_BIG");
         }
+
         issuers[allissuers] = LibIssuer.IssuerData({
             metadata: params.metadata,
             balance: params.amount,

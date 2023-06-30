@@ -2,17 +2,25 @@
 pragma solidity ^0.8.18;
 import "contracts/interfaces/IIssuer.sol";
 import "contracts/interfaces/IGenTk.sol";
+import "contracts/interfaces/IOnChainTokenMetadataManager.sol";
 
 import "@openzeppelin/contracts/interfaces/IERC721.sol";
 import "@openzeppelin/contracts/interfaces/IERC2981.sol";
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "contracts/abstract/admin/AuthorizedCaller.sol";
+import "contracts/libs/LibIssuer.sol";
 
 contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
     struct TokenMetadata {
         uint256 tokenId;
         string metadata;
+    }
+
+    struct OnChainTokenMetadata {
+        uint256 tokenId;
+        uint256 issuerId;
+        bytes metadata;
     }
 
     struct TokenData {
@@ -27,22 +35,28 @@ contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
     address private signer;
     address private treasury;
     IIssuer private issuer;
+    IOnChainTokenMetadataManager private onChainTokenMetadataManager;
     mapping(uint256 => TokenData) private tokenData;
 
     event TokenMinted(TokenParams _params);
-    event MetadataAssigned(TokenMetadata[] _params);
+    event TokenMetadataAssigned(TokenMetadata[] _params);
+    event OnChainTokenMetadataAssigned(OnChainTokenMetadata[] _params);
 
     constructor(
         address _admin,
         address _signer,
         address _treasury,
-        address _issuer
+        address _issuer,
+        address _onChainTokenMetadataManager
     ) ERC721("GenTK", "GTK") {
         _setupRole(DEFAULT_ADMIN_ROLE, _admin);
         _setupRole(AUTHORIZED_CALLER, _admin);
         issuer = IIssuer(_issuer);
         signer = _signer;
         treasury = _treasury;
+        onChainTokenMetadataManager = IOnChainTokenMetadataManager(
+            _onChainTokenMetadataManager
+        );
     }
 
     receive() external payable {}
@@ -71,6 +85,25 @@ contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
         emit TokenMinted(_params);
     }
 
+    function assignOnChainMetadata(
+        OnChainTokenMetadata[] calldata _params
+    ) external onlySigner {
+        for (uint256 i = 0; i < _params.length; i++) {
+            OnChainTokenMetadata memory _tokenData = _params[i];
+            LibIssuer.IssuerData memory issuerData = issuer.getIssuer(
+                _tokenData.issuerId
+            );
+            string memory onChainURI = onChainTokenMetadataManager
+                .getOnChainURI(_tokenData.metadata, issuerData.onChainData);
+            require(
+                tokenData[_tokenData.tokenId].minter != address(0),
+                "TOKEN_UNDEFINED"
+            );
+            _setTokenURI(_tokenData.tokenId, onChainURI);
+        }
+        emit OnChainTokenMetadataAssigned(_params);
+    }
+
     function assignMetadata(
         TokenMetadata[] calldata _params
     ) external onlySigner {
@@ -82,7 +115,7 @@ contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
             );
             _setTokenURI(_tokenData.tokenId, _tokenData.metadata);
         }
-        emit MetadataAssigned(_params);
+        emit TokenMetadataAssigned(_params);
     }
 
     function transferTreasury(uint256 _amount) external onlyAdmin {
