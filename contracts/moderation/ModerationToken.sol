@@ -6,7 +6,6 @@ import "contracts/abstract/admin/AuthorizedCaller.sol";
 import "contracts/abstract/BaseModeration.sol";
 import "contracts/libs/LibModeration.sol";
 import "contracts/interfaces/IModerationToken.sol";
-import "hardhat/console.sol";
 
 contract ModerationToken is BaseModeration, IModerationToken {
     mapping(uint256 => LibModeration.ModerationState) public tokens;

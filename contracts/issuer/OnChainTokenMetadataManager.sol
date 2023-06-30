@@ -6,6 +6,8 @@ import {IScriptyBuilder, WrappedScriptRequest} from "scripty.sol/contracts/scrip
 import "contracts/libs/LibIssuer.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 
+import "hardhat/console.sol";
+
 contract OnChainTokenMetadataManager is IOnChainTokenMetadataManager {
     address private scriptyAddress;
     uint256 private scriptyBufferSize;
@@ -52,6 +54,7 @@ contract OnChainTokenMetadataManager is IOnChainTokenMetadataManager {
             string(base64EncodedHTMLDataURI),
             '"}'
         );
+        console.log(metadata);
         bytes memory packedMetadata = abi.encodePacked(metadata);
 
         return

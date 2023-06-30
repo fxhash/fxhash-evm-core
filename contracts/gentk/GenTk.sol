@@ -93,12 +93,13 @@ contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
             LibIssuer.IssuerData memory issuerData = issuer.getIssuer(
                 _tokenData.issuerId
             );
-            string memory onChainURI = onChainTokenMetadataManager
-                .getOnChainURI(_tokenData.metadata, issuerData.onChainData);
             require(
                 tokenData[_tokenData.tokenId].minter != address(0),
                 "TOKEN_UNDEFINED"
             );
+            string memory onChainURI = onChainTokenMetadataManager
+                .getOnChainURI(_tokenData.metadata, issuerData.onChainData);
+
             _setTokenURI(_tokenData.tokenId, onChainURI);
         }
         emit OnChainTokenMetadataAssigned(_params);
