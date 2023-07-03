@@ -17,7 +17,7 @@ contract MockIssuer {
     function getTokenPrimarySplit(
         uint256 projectId,
         uint256 amount
-    ) external returns (address receiver, uint256 royaltyAmount) {
+    ) external pure returns (address receiver, uint256 royaltyAmount) {
         return (address(0), 1000);
     }
 

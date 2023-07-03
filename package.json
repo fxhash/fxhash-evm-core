@@ -14,12 +14,15 @@
     "chai": "^4.3.7",
     "ethereum-waffle": "^4.0.10",
     "ethers": "^5.7.2",
-    "hardhat": "^2.14.0"
+    "hardhat": "^2.14.0",
+    "hardhat-gas-reporter": "^1.0.9",
+    "scripty.sol": "^1.0.2"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.9.1",
     "@openzeppelin/contracts-upgradeable": "^4.9.1",
     "@rarible/royalties": "^0.7.4",
+    "solady": "^0.0.107",
     "solidity-docgen": "^0.6.0-beta.35"
   }
 }

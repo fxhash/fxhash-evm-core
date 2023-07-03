@@ -1,9 +1,12 @@
 import { ethers } from "hardhat";
 import { expect } from "chai";
 import { Contract, ContractFactory, Signer } from "ethers";
+import { gentk } from "../typechain-types/contracts";
+const utilities = require("./utilities/utilities.js");
+const path = require("path");
 
 describe("Issuer", () => {
-  let genTk;
+  let genTk: Contract;
   let admin: Signer;
   let issuer: Contract;
   let mintTicket: Contract;
@@ -28,13 +31,35 @@ describe("Issuer", () => {
   let libReserve: Contract;
   let libPricing: Contract;
   let libIssuer: Contract;
+  let scriptyStorageContract: Contract;
+  let scriptyBuilderContract: Contract;
+  let scriptyContentContract: Contract;
   let addr1: Signer;
   let addr2: Signer;
   let addr3: Signer;
   const authorizations = [10, 20];
+  const bufferSize = 10000;
+
+  async function deployScripty() {
+    scriptyContentContract = await (
+      await ethers.getContractFactory("ContentStore")
+    ).deploy();
+    await scriptyContentContract.deployed();
+
+    scriptyStorageContract = await (
+      await ethers.getContractFactory("ScriptyStorage")
+    ).deploy(scriptyContentContract.address);
+    await scriptyStorageContract.deployed();
+
+    scriptyBuilderContract = await (
+      await ethers.getContractFactory("ScriptyBuilder")
+    ).deploy();
+    await scriptyBuilderContract.deployed();
+  }
 
   beforeEach(async () => {
     await ethers.provider.send("hardhat_reset", []);
+    await deployScripty();
 
     [admin, receiver, signer, treasury, addr1, addr2, addr3] =
       await ethers.getSigners();
@@ -158,9 +183,12 @@ describe("Issuer", () => {
     await allowMintIssuer.deployed();
 
     issuer = await IssuerFactory.deploy(
-      2500,
-      1000,
-      1000,
+      {
+        fees: 2500,
+        referrerFeesShare: 1000,
+        lockTime: 1000,
+        voidMetadata: "",
+      },
       await admin.getAddress()
     );
     await issuer.deployed();
@@ -186,6 +214,14 @@ describe("Issuer", () => {
       "GenTk"
     );
 
+    const onchainTokenMetaManagerFactory: ContractFactory =
+      await ethers.getContractFactory("OnChainTokenMetadataManager");
+
+    const onchainTokenMetaManager = await onchainTokenMetaManagerFactory.deploy(
+      scriptyBuilderContract.address
+    );
+    await onchainTokenMetaManager.deployed();
+
     await priceManager
       .connect(admin)
       .setPricingContract(1, pricingFixed.address, true);
@@ -206,7 +242,8 @@ describe("Issuer", () => {
       await admin.getAddress(),
       await signer.getAddress(),
       await treasury.getAddress(),
-      await issuer.address
+      issuer.address,
+      onchainTokenMetaManager.address
     );
     await moderatorToken.setAddresses([
       { key: "mod", value: moderationTeam.address },
@@ -250,6 +287,93 @@ describe("Issuer", () => {
 
   describe("Mint issuer", function () {
     it("It should successfully mint an issuer token", async function () {
+      const fxhashSnippetScript = utilities.readFile(
+        path.join(__dirname, "./data/fxhash-snippet.js.gz")
+      );
+      await scriptyStorageContract.createScript(
+        "fxhash-snippet.js.gz",
+        utilities.stringToBytes("")
+      );
+      await scriptyStorageContract.addChunkToScript(
+        "fxhash-snippet.js.gz",
+        utilities.stringToBytes(fxhashSnippetScript)
+      );
+
+      const gzipScript = utilities.readFile(
+        path.join(__dirname, "./data/gunzipScripts-0.0.1.js")
+      );
+      await scriptyStorageContract.createScript(
+        "gunzipScripts-0.0.1",
+        utilities.stringToBytes("gunzipScripts-0.0.1")
+      );
+      await scriptyStorageContract.addChunkToScript(
+        "gunzipScripts-0.0.1",
+        utilities.stringToBytes(gzipScript)
+      );
+
+      const tokenScript0 = utilities.readFile(
+        path.join(__dirname, "./data/test-tokens/monad-1960/js.js.gz")
+      );
+      await scriptyStorageContract.createScript(
+        "monad-1960-js.js.gz",
+        utilities.stringToBytes("")
+      );
+      await scriptyStorageContract.addChunkToScript(
+        "monad-1960-js.js.gz",
+        utilities.stringToBytes(tokenScript0)
+      );
+
+      const tokenScript1 = utilities.readFile(
+        path.join(__dirname, "./data/test-tokens/monad-1960/bundle.js")
+      );
+      await scriptyStorageContract.createScript(
+        "monad-1960-bundle.js",
+        utilities.stringToBytes("")
+      );
+      await scriptyStorageContract.addChunkToScript(
+        "monad-1960-bundle.js",
+        utilities.stringToBytes(tokenScript1)
+      );
+
+      const scriptRequests = [
+        {
+          name: "monad-1960-bundle.js",
+          contractAddress: scriptyStorageContract.address,
+          contractData: 0,
+          wrapType: 0,
+          wrapPrefix: utilities.emptyBytes(),
+          wrapSuffix: utilities.emptyBytes(),
+          scriptContent: utilities.emptyBytes(),
+        },
+        {
+          name: "gunzipScripts-0.0.1",
+          contractAddress: scriptyStorageContract.address,
+          contractData: 0,
+          wrapType: 0,
+          wrapPrefix: utilities.emptyBytes(),
+          wrapSuffix: utilities.emptyBytes(),
+          scriptContent: utilities.emptyBytes(),
+        },
+        {
+          name: "fxhash-snippet.js.gz",
+          contractAddress: scriptyStorageContract.address,
+          contractData: 0,
+          wrapType: 2,
+          wrapPrefix: utilities.emptyBytes(),
+          wrapSuffix: utilities.emptyBytes(),
+          scriptContent: utilities.emptyBytes(),
+        },
+        {
+          name: "monad-1960-js.js.gz",
+          contractAddress: scriptyStorageContract.address,
+          contractData: 0,
+          wrapType: 2,
+          wrapPrefix: utilities.emptyBytes(),
+          wrapSuffix: utilities.emptyBytes(),
+          scriptContent: utilities.emptyBytes(),
+        },
+      ];
+
       const timestamp = 1735589600;
       const price = 1000;
       const whitelist = [
@@ -273,7 +397,7 @@ describe("Issuer", () => {
           codexId: 0,
         },
         metadata: ethers.utils.formatBytes32String("Metadata"),
-        inputBytesSize: 256,
+        inputBytesSize: 0,
         amount: 1000,
         openEditions: {
           closingTime: 0,
@@ -311,6 +435,7 @@ describe("Issuer", () => {
         },
         enabled: true,
         tags: [1, 2, 3],
+        onChainScripts: scriptRequests,
       };
       // Mint issuer using the input
       await ethers.provider.send("evm_setNextBlockTimestamp", [timestamp]);
@@ -363,82 +488,22 @@ describe("Issuer", () => {
       expect(issuerData.info.inputBytesSize).to.equal(
         mintIssuerInput.inputBytesSize
       );
-    });
-  });
-
-  describe("Mint", function () {
-    it("It should successfully mint a token", async function () {
-      const timestamp = 1735589600;
-      const price = 1000;
-      const whitelist = [
-        {
-          whitelisted: await addr1.getAddress(),
-          amount: 10,
-        },
-        {
-          whitelisted: await addr2.getAddress(),
-          amount: 5,
-        },
-        {
-          whitelisted: await addr3.getAddress(),
-          amount: 3,
-        },
-      ];
-      const mintIssuerInput = {
-        codex: {
-          inputType: 1,
-          value: ethers.utils.formatBytes32String("Test"),
-          codexId: 0,
-        },
-        metadata: ethers.utils.formatBytes32String("Metadata"),
-        inputBytesSize: 0,
-        amount: 1000,
-        openEditions: {
-          closingTime: 0,
-          extra: "0x",
-        },
-        mintTicketSettings: {
-          gracingPeriod: 0,
-          metadata: "0x",
-        },
-        reserves: [
-          {
-            methodId: 1,
-            amount: 1,
-            data: ethers.utils.defaultAbiCoder.encode(
-              ["tuple(address,uint256)[]"],
-              [whitelist.map((entry) => [entry.whitelisted, entry.amount])]
-            ),
-          },
-        ],
-        pricing: {
-          pricingId: 1,
-          details: ethers.utils.defaultAbiCoder.encode(
-            ["uint256", "uint256"],
-            [price, timestamp - 1]
-          ),
-          lockForReserves: true,
-        },
-        primarySplit: {
-          percent: 1500,
-          receiver: await receiver.getAddress(),
-        },
-        royaltiesSplit: {
-          percent: 1000,
-          receiver: await receiver.getAddress(),
-        },
-        enabled: true,
-        tags: [1, 2, 3],
-      };
-
-      await ethers.provider.send("evm_setNextBlockTimestamp", [timestamp]);
-
-      // Mint issuer using the input
-      await issuer.connect(receiver).mintIssuer(mintIssuerInput);
-
-      await ethers.provider.send("evm_setNextBlockTimestamp", [
-        timestamp + 1001,
-      ]);
+      expect(issuerData.onChainData).to.equal(
+        ethers.utils.defaultAbiCoder.encode(
+          ["tuple(string,address,bytes,uint8,bytes,bytes,bytes)[]"],
+          [
+            scriptRequests.map((entry) => [
+              entry.name,
+              entry.contractAddress,
+              entry.contractData,
+              entry.wrapType,
+              entry.wrapPrefix,
+              entry.wrapSuffix,
+              entry.scriptContent,
+            ]),
+          ]
+        )
+      );
 
       const mintInput = {
         issuerId: 0,
@@ -449,119 +514,37 @@ describe("Issuer", () => {
         recipient: await addr1.getAddress(),
       };
 
-      await issuer.connect(addr1).mint(mintInput, {
-        value: 1000,
-      });
-      const issuerData = await issuer.getIssuer(0);
-      expect(issuerData.balance).to.equal(999);
-      expect(issuerData.iterationsCount).to.equal(1);
-      expect(issuerData.supply).to.equal(1000);
-    });
-  });
-
-  describe("Mint with ticket", function () {
-    it("It should successfully mint an issuer token with ticket", async function () {
-      const timestamp = 1735589600;
-      const price = 1000;
-      const whitelist = [
-        {
-          whitelisted: await addr1.getAddress(),
-          amount: 10,
-        },
-        {
-          whitelisted: await addr2.getAddress(),
-          amount: 5,
-        },
-        {
-          whitelisted: await addr3.getAddress(),
-          amount: 3,
-        },
-      ];
-      const mintIssuerInput = {
-        codex: {
-          inputType: 1,
-          value: ethers.utils.formatBytes32String("Test"),
-          codexId: 0,
-        },
-        metadata: ethers.utils.formatBytes32String("Metadata"),
-        inputBytesSize: 0,
-        amount: 1000,
-        openEditions: {
-          closingTime: 0,
-          extra: "0x",
-        },
-        mintTicketSettings: {
-          gracingPeriod: 1000,
-          metadata: "ipfs://",
-        },
-        reserves: [
-          {
-            methodId: 1,
-            amount: 1,
-            data: ethers.utils.defaultAbiCoder.encode(
-              ["tuple(address,uint256)[]"],
-              [whitelist.map((entry) => [entry.whitelisted, entry.amount])]
-            ),
-          },
-        ],
-        pricing: {
-          pricingId: 1,
-          details: ethers.utils.defaultAbiCoder.encode(
-            ["uint256", "uint256"],
-            [price, timestamp - 1]
-          ),
-          lockForReserves: true,
-        },
-        primarySplit: {
-          percent: 1500,
-          receiver: await receiver.getAddress(),
-        },
-        royaltiesSplit: {
-          percent: 1000,
-          receiver: await receiver.getAddress(),
-        },
-        enabled: true,
-        tags: [1, 2, 3],
-      };
-
-      await ethers.provider.send("evm_setNextBlockTimestamp", [timestamp]);
-
-      // Mint issuer using the input
-      await issuer.connect(receiver).mintIssuer(mintIssuerInput);
-
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         timestamp + 1001,
       ]);
-
-      const mintInput = {
-        issuerId: 0,
-        inputBytes: "0x",
-        referrer: ethers.constants.AddressZero,
-        reserveInput: "0x",
-        createTicket: true,
-        recipient: await addr1.getAddress(),
-      };
-
       await issuer.connect(addr1).mint(mintInput, {
         value: 1000,
       });
-      const issuerData = await issuer.getIssuer(0);
-      expect(issuerData.balance).to.equal(999);
-      expect(issuerData.iterationsCount).to.equal(0);
-      expect(issuerData.supply).to.equal(1000);
+      const issuerDataPost = await issuer.getIssuer(0);
+      expect(issuerDataPost.balance).to.equal(999);
+      expect(issuerDataPost.iterationsCount).to.equal(1);
+      expect(issuerDataPost.supply).to.equal(1000);
 
-      const ticketInput = {
-        issuerId: 0,
-        ticketId: 0,
-        inputBytes: "0x",
-        recipient: ethers.constants.AddressZero,
-      };
-
-      await issuer.connect(addr1).mintWithTicket(ticketInput);
-      const issuerData2 = await issuer.getIssuer(0);
-      expect(issuerData2.balance).to.equal(999);
-      expect(issuerData2.iterationsCount).to.equal(1);
-      expect(issuerData2.supply).to.equal(1000);
+      const attributes = [
+        {
+          key: "name",
+          value: "Nom Token",
+        },
+        {
+          key: "description",
+          value: "Description Token",
+        },
+      ];
+      await genTk.connect(signer).assignOnChainMetadata([
+        {
+          tokenId: 0,
+          issuerId: 0,
+          metadata: ethers.utils.defaultAbiCoder.encode(
+            ["tuple(string,string)[]"],
+            [attributes.map((entry) => [entry.key, entry.value])]
+          ),
+        },
+      ]);
     });
   });
 });

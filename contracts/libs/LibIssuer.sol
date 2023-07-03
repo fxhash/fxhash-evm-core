@@ -20,6 +20,7 @@ library LibIssuer {
         LibRoyalty.RoyaltyData primarySplit;
         LibRoyalty.RoyaltyData royaltiesSplit;
         IssuerInfo info;
+        bytes onChainData;
     }
 
     struct IssuerInfo {

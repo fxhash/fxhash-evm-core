@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/interfaces/IERC2981.sol";
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
 import "@openzeppelin/contracts/interfaces/IERC1155.sol";
 import "contracts/abstract/admin/AuthorizedCaller.sol";
-import "hardhat/console.sol";
 
 contract Marketplace is AuthorizedCaller {
     enum TokenType {

@@ -1,12 +1,38 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
+import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
+
 import "contracts/libs/LibCodex.sol";
 import "contracts/libs/LibIssuer.sol";
 import "contracts/libs/LibPricing.sol";
 import "contracts/libs/LibRoyalty.sol";
 
 interface IIssuer {
+    struct Config {
+        uint256 fees;
+        uint256 referrerFeesShare;
+        uint256 lockTime;
+        string voidMetadata;
+    }
+
+    struct UpdateIssuerInput {
+        uint256 issuerId;
+        LibRoyalty.RoyaltyData primarySplit;
+        LibRoyalty.RoyaltyData royaltiesSplit;
+        bool enabled;
+    }
+
+    struct UpdatePriceInput {
+        uint256 issuerId;
+        LibPricing.PricingData pricingData;
+    }
+
+    struct UpdateReserveInput {
+        uint256 issuerId;
+        LibReserve.ReserveData[] reserves;
+    }
+
     struct MintTicketSettings {
         uint256 gracingPeriod; //in days
         string metadata;
@@ -25,6 +51,7 @@ interface IIssuer {
         LibRoyalty.RoyaltyData royaltiesSplit;
         bool enabled;
         uint256[] tags;
+        WrappedScriptRequest[] onChainScripts;
     }
 
     struct MintInput {
