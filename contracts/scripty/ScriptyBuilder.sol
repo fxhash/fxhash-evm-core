@@ -25,8 +25,6 @@ import {IScriptyBuilder, InlineScriptRequest, WrappedScriptRequest} from "./IScr
 import {IScriptyStorage} from "./IScriptyStorage.sol";
 import {IContractScript} from "./IContractScript.sol";
 
-import "hardhat/console.sol";
-
 contract ScriptyBuilder is IScriptyBuilder {
     using DynamicBuffer for bytes;
 

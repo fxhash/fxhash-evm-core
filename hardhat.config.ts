@@ -14,7 +14,7 @@ const config: HardhatUserConfig = {
   },
   gasReporter: {
     enabled: true,
-    currency: "EUR",
+    currency: "ETH",
     token: "ETH",
     gasPrice: 21,
     showTimeSpent: true,

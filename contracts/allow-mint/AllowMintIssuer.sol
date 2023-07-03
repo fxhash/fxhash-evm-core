@@ -7,7 +7,6 @@ import "@openzeppelin/contracts/utils/math/SignedMath.sol";
 import "contracts/interfaces/IModerationUser.sol";
 import "contracts/interfaces/IUserActions.sol";
 import "contracts/libs/LibUserActions.sol";
-import "hardhat/console.sol";
 
 contract AllowMintIssuer is AuthorizedCaller {
     uint256 public mintDelay;

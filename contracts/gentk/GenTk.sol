@@ -11,8 +11,6 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "contracts/abstract/admin/AuthorizedCaller.sol";
 import "contracts/libs/LibIssuer.sol";
 
-import "hardhat/console.sol";
-
 contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
     struct TokenMetadata {
         uint256 tokenId;
