@@ -1,0 +1,1 @@
+(()=>{console.log(fxhash),console.log(fxrand());const o=new URLSearchParams(window.location.search);console.log(o)})();

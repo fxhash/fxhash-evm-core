@@ -287,41 +287,20 @@ describe("Issuer", () => {
 
   describe("Mint issuer", function () {
     it("It should successfully mint an issuer token", async function () {
-      const script0 = utilities.readFile(
-        path.join(__dirname, "./data/scripts/scriptyBase.js")
+      const fxhashSnippetScript = utilities.readFile(
+        path.join(__dirname, "./data/fxhash-snippet.js.gz")
       );
       await scriptyStorageContract.createScript(
-        "scriptyBase",
-        utilities.stringToBytes("scriptyBase")
+        "fxhash-snippet.js.gz",
+        utilities.stringToBytes("")
       );
       await scriptyStorageContract.addChunkToScript(
-        "scriptyBase",
-        utilities.stringToBytes(script0)
+        "fxhash-snippet.js.gz",
+        utilities.stringToBytes(fxhashSnippetScript)
       );
 
-      // NOTE: Chunks are set to 10,000 because the theoretical limit of 24kb (24576) causes Hardhat to gas out
-      // Breaking a big lib like ThreeJS into 14kb chunks will drastically increase gas costs IRL
-      const threejsMinPNG = utilities.readFile(
-        path.join(__dirname, "./data/scripts/three.min.js.gz.txt")
-      );
-      const threejsMinPNGChunks = utilities.chunkSubstr(
-        threejsMinPNG,
-        bufferSize
-      );
-
-      await scriptyStorageContract.createScript(
-        "three.min.js.gz",
-        utilities.stringToBytes("three.min.js.gz")
-      );
-      for (let i = 0; i < threejsMinPNGChunks.length; i++) {
-        await scriptyStorageContract.addChunkToScript(
-          "three.min.js.gz",
-          utilities.stringToBytes(threejsMinPNGChunks[i])
-        );
-      }
-
-      const script1 = utilities.readFile(
-        path.join(__dirname, "./data/scripts/gunzipScripts-0.0.1.js")
+      const gzipScript = utilities.readFile(
+        path.join(__dirname, "./data/gunzipScripts-0.0.1.js")
       );
       await scriptyStorageContract.createScript(
         "gunzipScripts-0.0.1",
@@ -329,36 +308,39 @@ describe("Issuer", () => {
       );
       await scriptyStorageContract.addChunkToScript(
         "gunzipScripts-0.0.1",
-        utilities.stringToBytes(script1)
+        utilities.stringToBytes(gzipScript)
       );
 
-      const script2 = utilities.readFile(
-        path.join(__dirname, "./data/scripts/cube3D_GZIP.js")
+      const tokenScript0 = utilities.readFile(
+        path.join(__dirname, "./data/test-tokens/monad-1960/js.js.gz")
       );
       await scriptyStorageContract.createScript(
-        "cube3D_GZIP",
-        utilities.stringToBytes("cube3D_GZIP")
+        "monad-1960-js.js.gz",
+        utilities.stringToBytes("")
       );
       await scriptyStorageContract.addChunkToScript(
-        "cube3D_GZIP",
-        utilities.stringToBytes(script2)
+        "monad-1960-js.js.gz",
+        utilities.stringToBytes(tokenScript0)
+      );
+
+      const tokenScript1 = utilities.readFile(
+        path.join(__dirname, "./data/test-tokens/monad-1960/bundle.js")
+      );
+      await scriptyStorageContract.createScript(
+        "monad-1960-bundle.js",
+        utilities.stringToBytes("")
+      );
+      await scriptyStorageContract.addChunkToScript(
+        "monad-1960-bundle.js",
+        utilities.stringToBytes(tokenScript1)
       );
 
       const scriptRequests = [
         {
-          name: "scriptyBase",
+          name: "monad-1960-bundle.js",
           contractAddress: scriptyStorageContract.address,
           contractData: 0,
           wrapType: 0,
-          wrapPrefix: utilities.emptyBytes(),
-          wrapSuffix: utilities.emptyBytes(),
-          scriptContent: utilities.emptyBytes(),
-        },
-        {
-          name: "three.min.js.gz",
-          contractAddress: scriptyStorageContract.address,
-          contractData: 0,
-          wrapType: 2,
           wrapPrefix: utilities.emptyBytes(),
           wrapSuffix: utilities.emptyBytes(),
           scriptContent: utilities.emptyBytes(),
@@ -373,10 +355,19 @@ describe("Issuer", () => {
           scriptContent: utilities.emptyBytes(),
         },
         {
-          name: "cube3D_GZIP",
+          name: "fxhash-snippet.js.gz",
           contractAddress: scriptyStorageContract.address,
           contractData: 0,
-          wrapType: 0,
+          wrapType: 2,
+          wrapPrefix: utilities.emptyBytes(),
+          wrapSuffix: utilities.emptyBytes(),
+          scriptContent: utilities.emptyBytes(),
+        },
+        {
+          name: "monad-1960-js.js.gz",
+          contractAddress: scriptyStorageContract.address,
+          contractData: 0,
+          wrapType: 2,
           wrapPrefix: utilities.emptyBytes(),
           wrapSuffix: utilities.emptyBytes(),
           scriptContent: utilities.emptyBytes(),

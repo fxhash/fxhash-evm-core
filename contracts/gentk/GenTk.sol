@@ -11,6 +11,8 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "contracts/abstract/admin/AuthorizedCaller.sol";
 import "contracts/libs/LibIssuer.sol";
 
+import "hardhat/console.sol";
+
 contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
     struct TokenMetadata {
         uint256 tokenId;
@@ -90,17 +92,12 @@ contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
     ) external onlySigner {
         for (uint256 i = 0; i < _params.length; i++) {
             OnChainTokenMetadata memory _tokenData = _params[i];
-            LibIssuer.IssuerData memory issuerData = issuer.getIssuer(
-                _tokenData.issuerId
-            );
+
             require(
                 tokenData[_tokenData.tokenId].minter != address(0),
                 "TOKEN_UNDEFINED"
             );
-            string memory onChainURI = onChainTokenMetadataManager
-                .getOnChainURI(_tokenData.metadata, issuerData.onChainData);
-
-            _setTokenURI(_tokenData.tokenId, onChainURI);
+            _setTokenURI(_tokenData.tokenId, string(_tokenData.metadata));
         }
         emit OnChainTokenMetadataAssigned(_params);
     }
@@ -143,6 +140,28 @@ contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
         uint256 _tokenId
     ) external view returns (TokenData memory) {
         return tokenData[_tokenId];
+    }
+
+    function tokenURI(
+        uint256 tokenId
+    ) public view virtual override returns (string memory) {
+        _requireMinted(tokenId);
+
+        string memory _tokenURI = super.tokenURI(tokenId);
+        TokenData memory _tokenData = tokenData[tokenId];
+
+        LibIssuer.IssuerData memory issuerData = issuer.getIssuer(
+            _tokenData.issuerId
+        );
+
+        require(_tokenData.minter != address(0), "TOKEN_UNDEFINED");
+
+        string memory onChainURI = onChainTokenMetadataManager.getOnChainURI(
+            bytes(_tokenURI),
+            issuerData.onChainData
+        );
+
+        return onChainURI;
     }
 
     function supportsInterface(
