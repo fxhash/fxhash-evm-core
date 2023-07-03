@@ -218,8 +218,7 @@ describe("Issuer", () => {
       await ethers.getContractFactory("OnChainTokenMetadataManager");
 
     const onchainTokenMetaManager = await onchainTokenMetaManagerFactory.deploy(
-      scriptyBuilderContract.address,
-      bufferSize
+      scriptyBuilderContract.address
     );
     await onchainTokenMetaManager.deployed();
 

@@ -9,12 +9,10 @@ import "@openzeppelin/contracts/utils/Base64.sol";
 import "hardhat/console.sol";
 
 contract OnChainTokenMetadataManager is IOnChainTokenMetadataManager {
-    address private scriptyAddress;
-    uint256 private scriptyBufferSize;
+    IScriptyBuilder private scriptyAddress;
 
-    constructor(address _scriptyAddress, uint256 _scriptyBufferSize) {
-        scriptyAddress = _scriptyAddress;
-        scriptyBufferSize = _scriptyBufferSize;
+    constructor(address _scriptyAddress) {
+        scriptyAddress = IScriptyBuilder(_scriptyAddress);
     }
 
     function getOnChainURI(
@@ -25,17 +23,21 @@ contract OnChainTokenMetadataManager is IOnChainTokenMetadataManager {
             _metadata,
             (TokenAttribute[])
         );
-        bytes memory base64EncodedHTMLDataURI = IScriptyBuilder(scriptyAddress)
-            .getEncodedHTMLWrapped(
-                abi.decode(_onChainData, (WrappedScriptRequest[])),
-                scriptyBufferSize
-            );
+        WrappedScriptRequest[] memory request = abi.decode(
+            _onChainData,
+            (WrappedScriptRequest[])
+        );
+        uint256 bufferSize = scriptyAddress.getBufferSizeForEncodedHTMLWrapped(
+            request
+        );
+        bytes memory base64EncodedHTMLDataURI = scriptyAddress
+            .getEncodedHTMLWrapped(request, bufferSize);
 
         string memory metadata = string.concat(
             '{"',
             tokenMetadata[0].key,
             '":"',
-            tokenMetadata[0].key,
+            tokenMetadata[0].value,
             '"'
         );
         for (uint256 i = 1; i < tokenMetadata.length; i++) {
@@ -44,18 +46,17 @@ contract OnChainTokenMetadataManager is IOnChainTokenMetadataManager {
                 ',"',
                 tokenMetadata[i].key,
                 '":"',
-                tokenMetadata[i].key,
+                tokenMetadata[i].value,
                 '"'
             );
         }
-        metadata = string.concat(
+
+        bytes memory packedMetadata = abi.encodePacked(
             metadata,
             ',"animation_url":"',
-            string(base64EncodedHTMLDataURI),
+            base64EncodedHTMLDataURI,
             '"}'
         );
-        console.log(metadata);
-        bytes memory packedMetadata = abi.encodePacked(metadata);
 
         return
             string(
