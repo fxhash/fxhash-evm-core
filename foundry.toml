@@ -1,0 +1,16 @@
+[profile.default]
+src = "contracts"
+out = "artifacts"
+libs = ["lib", "node_modules"]
+remappings = [
+    "@ensdomains/=node_modules/@ensdomains/",
+    "@ethereum-waffle/=node_modules/@ethereum-waffle/",
+    "@openzeppelin/=node_modules/@openzeppelin/",
+    "eth-gas-reporter/=node_modules/eth-gas-reporter/",
+    "forge-std/=lib/forge-std/src/",
+    "hardhat/=node_modules/hardhat/",
+    "scripty.sol/=node_modules/scripty.sol/",
+    "solady/=node_modules/solady/",
+]
+
+# See more config options https://github.com/foundry-rs/foundry/tree/master/config
