@@ -1,0 +1,17 @@
+{
+    "tabWidth": 4,
+    "printWidth": 100,
+    "useTabs": false,
+
+    "overrides": [
+        {
+            "files": "*.sol",
+            "options": {
+                "printWidth": 100,
+                "tabWidth": 4,
+                "useTabs": false,
+                "bracketSpacing": false
+            }
+        }
+    ]
+}
