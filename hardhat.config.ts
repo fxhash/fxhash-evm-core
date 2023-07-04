@@ -18,6 +18,7 @@ const config: HardhatUserConfig = {
     token: "ETH",
     gasPrice: 21,
     showTimeSpent: true,
+    coinmarketcap: "bebf8f02-d0a9-4508-8fd8-3140dbdf38cb",
   },
 };
 

@@ -28,13 +28,34 @@ describe("Issuer", () => {
   let libReserve: Contract;
   let libPricing: Contract;
   let libIssuer: Contract;
+  let scriptyStorageContract: Contract;
+  let scriptyBuilderContract: Contract;
+  let scriptyContentContract: Contract;
   let addr1: Signer;
   let addr2: Signer;
   let addr3: Signer;
   const authorizations = [10, 20];
 
+  async function deployScripty() {
+    scriptyContentContract = await (
+      await ethers.getContractFactory("ContentStore")
+    ).deploy();
+    await scriptyContentContract.deployed();
+
+    scriptyStorageContract = await (
+      await ethers.getContractFactory("ScriptyStorage")
+    ).deploy(scriptyContentContract.address);
+    await scriptyStorageContract.deployed();
+
+    scriptyBuilderContract = await (
+      await ethers.getContractFactory("ScriptyBuilder")
+    ).deploy();
+    await scriptyBuilderContract.deployed();
+  }
+
   beforeEach(async () => {
     await ethers.provider.send("hardhat_reset", []);
+    await deployScripty();
 
     [admin, receiver, signer, treasury, addr1, addr2, addr3] =
       await ethers.getSigners();
@@ -158,9 +179,12 @@ describe("Issuer", () => {
     await allowMintIssuer.deployed();
 
     issuer = await IssuerFactory.deploy(
-      2500,
-      1000,
-      1000,
+      {
+        fees: 2500,
+        referrerFeesShare: 1000,
+        lockTime: 1000,
+        voidMetadata: "",
+      },
       await admin.getAddress()
     );
     await issuer.deployed();
@@ -186,6 +210,14 @@ describe("Issuer", () => {
       "GenTk"
     );
 
+    const onchainTokenMetaManagerFactory: ContractFactory =
+      await ethers.getContractFactory("OnChainTokenMetadataManager");
+
+    const onchainTokenMetaManager = await onchainTokenMetaManagerFactory.deploy(
+      scriptyBuilderContract.address
+    );
+    await onchainTokenMetaManager.deployed();
+
     await priceManager
       .connect(admin)
       .setPricingContract(1, pricingFixed.address, true);
@@ -206,7 +238,8 @@ describe("Issuer", () => {
       await admin.getAddress(),
       await signer.getAddress(),
       await treasury.getAddress(),
-      await issuer.address
+      issuer.address,
+      onchainTokenMetaManager.address
     );
     await moderatorToken.setAddresses([
       { key: "mod", value: moderationTeam.address },
@@ -311,6 +344,7 @@ describe("Issuer", () => {
         },
         enabled: true,
         tags: [1, 2, 3],
+        onChainScripts: [],
       };
       // Mint issuer using the input
       await ethers.provider.send("evm_setNextBlockTimestamp", [timestamp]);
@@ -429,6 +463,7 @@ describe("Issuer", () => {
         },
         enabled: true,
         tags: [1, 2, 3],
+        onChainScripts: [],
       };
 
       await ethers.provider.send("evm_setNextBlockTimestamp", [timestamp]);
@@ -522,6 +557,7 @@ describe("Issuer", () => {
         },
         enabled: true,
         tags: [1, 2, 3],
+        onChainScripts: [],
       };
 
       await ethers.provider.send("evm_setNextBlockTimestamp", [timestamp]);

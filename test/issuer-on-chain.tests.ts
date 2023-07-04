@@ -1,8 +1,7 @@
 import { ethers } from "hardhat";
 import { expect } from "chai";
 import { Contract, ContractFactory, Signer } from "ethers";
-import { gentk } from "../typechain-types/contracts";
-const utilities = require("./utilities/utilities.js");
+const utilities = require("../utilities/utilities.js");
 const path = require("path");
 
 describe("Issuer", () => {
@@ -288,7 +287,7 @@ describe("Issuer", () => {
   describe("Mint issuer", function () {
     it("It should successfully mint an issuer token", async function () {
       const fxhashSnippetScript = utilities.readFile(
-        path.join(__dirname, "./data/fxhash-snippet.js.gz")
+        path.join(__dirname, "../test-data/fxhash-snippet.js.gz")
       );
       await scriptyStorageContract.createScript(
         "fxhash-snippet.js.gz",
@@ -300,7 +299,7 @@ describe("Issuer", () => {
       );
 
       const gzipScript = utilities.readFile(
-        path.join(__dirname, "./data/gunzipScripts-0.0.1.js")
+        path.join(__dirname, "../test-data/gunzipScripts-0.0.1.js")
       );
       await scriptyStorageContract.createScript(
         "gunzipScripts-0.0.1",
@@ -312,7 +311,7 @@ describe("Issuer", () => {
       );
 
       const tokenScript0 = utilities.readFile(
-        path.join(__dirname, "./data/test-tokens/monad-1960/js.js.gz")
+        path.join(__dirname, "../test-data/monad-1960/js.js.gz")
       );
       await scriptyStorageContract.createScript(
         "monad-1960-js.js.gz",
@@ -324,7 +323,7 @@ describe("Issuer", () => {
       );
 
       const tokenScript1 = utilities.readFile(
-        path.join(__dirname, "./data/test-tokens/monad-1960/bundle.js")
+        path.join(__dirname, "../test-data/monad-1960/bundle.js")
       );
       await scriptyStorageContract.createScript(
         "monad-1960-bundle.js",

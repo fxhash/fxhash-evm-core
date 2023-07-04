@@ -11,6 +11,8 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "contracts/abstract/admin/AuthorizedCaller.sol";
 import "contracts/libs/LibIssuer.sol";
 
+import "hardhat/console.sol";
+
 contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
     struct TokenMetadata {
         uint256 tokenId;
@@ -144,22 +146,32 @@ contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
         uint256 tokenId
     ) public view virtual override returns (string memory) {
         _requireMinted(tokenId);
-
+        console.log("1");
         string memory _tokenURI = super.tokenURI(tokenId);
+        console.log("2");
+
         TokenData memory _tokenData = tokenData[tokenId];
+        console.log("3");
 
         LibIssuer.IssuerData memory issuerData = issuer.getIssuer(
             _tokenData.issuerId
         );
+        console.log("4");
 
         require(_tokenData.minter != address(0), "TOKEN_UNDEFINED");
+        console.log("5");
 
-        string memory onChainURI = onChainTokenMetadataManager.getOnChainURI(
-            bytes(_tokenURI),
-            issuerData.onChainData
-        );
+        if (issuerData.onChainData.length > 0) {
+            console.log("6");
 
-        return onChainURI;
+            string memory onChainURI = onChainTokenMetadataManager
+                .getOnChainURI(bytes(_tokenURI), issuerData.onChainData);
+            console.log("7");
+
+            return onChainURI;
+        } else {
+            return _tokenURI;
+        }
     }
 
     function supportsInterface(
