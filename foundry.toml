@@ -1,7 +1,7 @@
 [profile.default]
 src = "src"
 out = "artifacts"
-libs = ["node_modules"]
+libs = ["node_modules", "lib"]
 remappings = [
     "@ensdomains/=node_modules/@ensdomains/",
     "@ethereum-waffle/=node_modules/@ethereum-waffle/",
