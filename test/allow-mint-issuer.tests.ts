@@ -24,7 +24,7 @@ describe("AllowIssuerMint", function () {
 
     moderationTeam = await ModerationTeam.deploy(admin.getAddress());
     await moderationTeam.deployed();
-    await moderationUser.setAddresses([
+    await moderationUser.setContract([
       { key: "mod", value: moderationTeam.address },
     ]);
 

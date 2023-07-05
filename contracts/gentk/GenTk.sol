@@ -33,7 +33,6 @@ contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
         bool assigned;
     }
 
-    uint256 private allTokens;
     address private signer;
     address private treasury;
     IIssuer private issuer;
@@ -83,7 +82,6 @@ contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
             minter: _params.receiver,
             assigned: false
         });
-        allTokens += 1;
         emit TokenMinted(_params);
     }
 
@@ -146,28 +144,13 @@ contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
         uint256 tokenId
     ) public view virtual override returns (string memory) {
         _requireMinted(tokenId);
-        console.log("1");
         string memory _tokenURI = super.tokenURI(tokenId);
-        console.log("2");
-
         TokenData memory _tokenData = tokenData[tokenId];
-        console.log("3");
-
-        LibIssuer.IssuerData memory issuerData = issuer.getIssuer(
-            _tokenData.issuerId
-        );
-        console.log("4");
-
+        LibIssuer.IssuerData memory issuerData = issuer.getIssuer();
         require(_tokenData.minter != address(0), "TOKEN_UNDEFINED");
-        console.log("5");
-
         if (issuerData.onChainData.length > 0) {
-            console.log("6");
-
             string memory onChainURI = onChainTokenMetadataManager
                 .getOnChainURI(bytes(_tokenURI), issuerData.onChainData);
-            console.log("7");
-
             return onChainURI;
         } else {
             return _tokenURI;

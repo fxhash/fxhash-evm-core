@@ -2,6 +2,7 @@
 pragma solidity ^0.8.18;
 
 import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
+import "contracts/interfaces/IContractRegistry.sol";
 
 import "contracts/libs/LibCodex.sol";
 import "contracts/libs/LibIssuer.sol";
@@ -14,6 +15,7 @@ interface IIssuer {
         uint256 referrerFeesShare;
         uint256 lockTime;
         string voidMetadata;
+        IContractRegistry contractRegistry;
     }
 
     struct UpdateIssuerInput {
@@ -70,10 +72,6 @@ interface IIssuer {
         address recipient;
     }
 
-    function getIssuer(
-        uint256 issuerId
-    ) external view returns (LibIssuer.IssuerData memory);
-
     function mintIssuer(MintIssuerInput calldata params) external;
 
     function mint(MintInput calldata params) external payable;
@@ -86,11 +84,14 @@ interface IIssuer {
     ) external view returns (address receiver, uint256 royaltyAmount);
 
     function primarySplitInfo(
-        uint256 tokenId,
         uint256 salePrice
     ) external view returns (address receiver, uint256 royaltyAmount);
 
-    function setCodex(uint256 issuerId, uint256 codexId) external;
+    function setCodex(uint256 codexId) external;
 
     function supportsInterface(bytes4 interfaceId) external view returns (bool);
+
+    function getIssuer() external view returns (LibIssuer.IssuerData memory);
+
+    function isAuthor(address _author) external view returns (bool);
 }

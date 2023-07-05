@@ -24,31 +24,30 @@ contract UserActions is AuthorizedCaller {
 
     function setLastIssuerMinted(
         address addr,
-        uint256 issuerId
+        address issuer
     ) external onlyAuthorizedCaller {
-        userActions[addr].lastIssuerMinted = issuerId;
+        userActions[addr].lastIssuerMinted = issuer;
         userActions[addr].lastIssuerMintedTime = block.timestamp;
     }
 
     function setLastMinted(
         address addr,
+        address tokenContract,
         uint256 tokenId
     ) external onlyAuthorizedCaller {
         LibUserActions.UserAction storage userAction = userActions[addr];
-        if (userAction.lastMintedTime == block.timestamp) {
-            userAction.lastMinted.push(tokenId);
-        } else {
-            userAction.lastMintedTime = block.timestamp;
-            userAction.lastMinted = [tokenId];
-        }
+        LibUserActions.MintedToken memory mintedToken = LibUserActions
+            .MintedToken({tokenContract: tokenContract, tokenId: tokenId});
+        userAction.lastMintedTime = block.timestamp;
+        userAction.lastMinted = mintedToken;
     }
 
     function resetLastIssuerMinted(
         address addr,
-        uint256 issuerId
+        address issuer
     ) external onlyAuthorizedCaller {
         LibUserActions.UserAction storage action = userActions[addr];
-        if (issuerId == action.lastIssuerMinted) {
+        if (issuer == action.lastIssuerMinted) {
             action.lastIssuerMintedTime = 0;
         }
     }

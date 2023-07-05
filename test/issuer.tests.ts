@@ -241,7 +241,7 @@ describe("Issuer", () => {
       issuer.address,
       onchainTokenMetaManager.address
     );
-    await moderatorToken.setAddresses([
+    await moderatorToken.setContract([
       { key: "mod", value: moderationTeam.address },
     ]);
     await moderationTeam.connect(admin).updateModerators([
@@ -251,11 +251,11 @@ describe("Issuer", () => {
       },
     ]);
 
-    await moderationUser.setAddresses([
+    await moderationUser.setContract([
       { key: "mod", value: moderationTeam.address },
     ]);
 
-    await issuer.connect(admin).setAddresses([
+    await issuer.connect(admin).setContract([
       { key: "treasury", value: await treasury.getAddress() },
       { key: "mint_tickets", value: mintTicket.address },
       { key: "gentk", value: genTk.address },

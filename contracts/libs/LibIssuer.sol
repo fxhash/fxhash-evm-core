@@ -5,6 +5,8 @@ import "contracts/libs/LibReserve.sol";
 import "contracts/libs/LibRoyalty.sol";
 
 library LibIssuer {
+    bytes32 public constant AUTHOR_ROLE = keccak256("AUTHOR_ROLE");
+
     struct OpenEditions {
         uint256 closingTime;
         bytes extra;
@@ -30,7 +32,6 @@ library LibIssuer {
         uint256 timestampMinted;
         bool lockPriceForReserves;
         bool hasTickets;
-        address author;
         uint256 pricingId;
         uint256 codexId;
         uint256 inputBytesSize;

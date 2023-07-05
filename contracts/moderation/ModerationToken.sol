@@ -14,11 +14,7 @@ contract ModerationToken is BaseModeration, IModerationToken {
     event TokenModerated(uint256 tokenId, uint256 state, uint256 reason);
     event TokenReported(uint256 tokenId, uint256 reason);
 
-    constructor(address _admin) {
-        reasonsCount = 0;
-        _setupRole(DEFAULT_ADMIN_ROLE, _admin);
-        _setupRole(AUTHORIZED_CALLER, _admin);
-    }
+    constructor(address _admin) BaseModeration(_admin) {}
 
     function moderateToken(
         uint256 tokenId,

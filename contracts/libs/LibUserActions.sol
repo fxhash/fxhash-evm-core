@@ -2,10 +2,14 @@
 pragma solidity ^0.8.18;
 
 library LibUserActions {
+    struct MintedToken {
+        address tokenContract;
+        uint256 tokenId;
+    }
     struct UserAction {
-        uint256 lastIssuerMinted;
+        address lastIssuerMinted;
         uint256 lastIssuerMintedTime;
-        uint256[] lastMinted;
+        MintedToken lastMinted;
         uint256 lastMintedTime;
     }
 }

@@ -464,7 +464,6 @@ contract MintTicket is ERC721URIStorage, AuthorizedCaller, IMintTicket {
     ) internal {
         if (amount > 0) {
             (address receiver, uint256 royaltyAmount) = issuer.primarySplitInfo(
-                projectId,
                 amount
             );
             payable(receiver).transfer(royaltyAmount);

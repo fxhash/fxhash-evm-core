@@ -77,12 +77,12 @@ contract Codex is ICodex, AuthorizedCaller {
         uint256 entryType,
         bytes[] memory value
     ) external onlyAuthorizedCaller {
-        codexInsert(entryType, tx.origin, true, value);
+        codexInsert(entryType, _msgSender(), true, value);
     }
 
     function codexLockEntry(uint256 entryId) external {
         CodexData storage entry = codexEntries[entryId];
-        require(entry.author == tx.origin, "403");
+        require(entry.author == _msgSender(), "403");
         require(!entry.locked, "CDX_LOCK");
         require(entry.value.length > 0, "CDX_EMP");
         entry.locked = true;
@@ -95,7 +95,7 @@ contract Codex is ICodex, AuthorizedCaller {
         bytes memory value
     ) external {
         CodexData storage entry = codexEntries[entryId];
-        require(entry.author == tx.origin, "403");
+        require(entry.author == _msgSender(), "403");
         require(!entry.locked, "CDX_LOCK");
         if (pushEnd) {
             entry.value.push(value);
@@ -112,9 +112,8 @@ contract Codex is ICodex, AuthorizedCaller {
         LibCodex.CodexInput calldata input
     ) external {
         require(_issuerId > 0, "NO_ISSUER");
-        LibIssuer.IssuerData memory _issuer = issuer.getIssuer(_issuerId);
-        require(_issuer.info.author == tx.origin, "403");
-        uint256 codexId = codexEntryIdFromInput(tx.origin, input);
+        require(issuer.isAuthor(_msgSender()), "403");
+        uint256 codexId = codexEntryIdFromInput(_msgSender(), input);
         require(issuerCodexUpdates[_issuerId] != codexId, "SAME_CDX_ID");
         issuerCodexUpdates[_issuerId] = codexId;
         emit UpdateIssuerCodexRequested(_issuerId, input);
@@ -127,8 +126,8 @@ contract Codex is ICodex, AuthorizedCaller {
         uint256 issuerId = issuerCodexUpdates[_issuerId];
         require(issuerId > 0, "NO_REQ");
         require(issuerId == _codexId, "WRG_CDX_ID");
-        require(moderation.isAuthorized(tx.origin, 701), "403");
-        issuer.setCodex(issuerId, _codexId);
+        require(moderation.isAuthorized(_msgSender(), 701), "403");
+        issuer.setCodex(_codexId);
         delete issuerCodexUpdates[issuerId];
         emit UpdateIssuerCodexApproved(_issuerId, _codexId);
     }

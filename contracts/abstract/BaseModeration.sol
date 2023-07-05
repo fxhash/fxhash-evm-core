@@ -2,16 +2,23 @@
 pragma solidity ^0.8.18;
 
 import "contracts/abstract/admin/AuthorizedCaller.sol";
-import "contracts/abstract/AddressConfig.sol";
+import "contracts/abstract/ContractRegistry.sol";
 import "contracts/moderation/ModerationTeam.sol";
 
-abstract contract BaseModeration is AuthorizedCaller, AddressConfig {
+abstract contract BaseModeration is AuthorizedCaller {
+    uint256 internal reasonsCount;
+    address internal moderation;
+    mapping(uint256 => string) public reasons;
+
+    constructor(address _admin) {
+        _setupRole(DEFAULT_ADMIN_ROLE, _admin);
+        reasonsCount = 0;
+    }
+
     modifier onlyModerator() {
         require(isModerator(_msgSender()), "NOT_MOD");
         _;
     }
-    mapping(uint256 => string) public reasons;
-    uint256 internal reasonsCount;
 
     // Get the address of the moderation team contract
     function getModerationTeamAddress()
@@ -19,7 +26,7 @@ abstract contract BaseModeration is AuthorizedCaller, AddressConfig {
         view
         returns (address payable)
     {
-        return payable(addresses["mod"]);
+        return payable(moderation);
     }
 
     // Check if an address is a user moderator on the moderation team contract
@@ -37,5 +44,9 @@ abstract contract BaseModeration is AuthorizedCaller, AddressConfig {
     ) external onlyModerator {
         require(!Strings.equal(reasons[reasonId], ""), "REASON_DOESNT_EXISTS");
         reasons[reasonId] = reason;
+    }
+
+    function setModeration(address _moderation) external onlyAdmin {
+        moderation = _moderation;
     }
 }
