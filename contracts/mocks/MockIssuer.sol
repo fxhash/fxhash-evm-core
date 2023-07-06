@@ -25,22 +25,22 @@ contract MockIssuer {
     function consume(
         address owner,
         uint256 tokenId,
-        uint256 projectId
+        address issuer
     ) external payable {
-        ticket.consume(owner, tokenId, projectId);
+        ticket.consume(owner, tokenId, issuer);
     }
 
     //TODO: remove this placeholder (used for tests)
-    function mint(uint256 projectId, address minter, uint256 price) external {
-        ticket.mint(projectId, minter, price);
+    function mint(address issuer, address minter, uint256 price) external {
+        ticket.mint(issuer, minter, price);
     }
 
     //TODO: remove this placeholder (used for tests)
     function createProject(
-        uint256 projectId,
+        address issuer,
         uint256 gracingPeriod,
         string calldata metadata
     ) external {
-        ticket.createProject(projectId, gracingPeriod, metadata);
+        ticket.createProject(issuer, gracingPeriod, metadata);
     }
 }

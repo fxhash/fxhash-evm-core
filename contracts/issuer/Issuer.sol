@@ -22,9 +22,9 @@ import "contracts/libs/LibReserve.sol";
 
 contract Issuer is IIssuer, IERC2981, AuthorizedCaller {
     Config private config;
-    uint256 private allissuers;
     uint256 private allGenTkTokens;
-    LibIssuer.IssuerData public issuer;
+    address private author;
+    LibIssuer.IssuerData private issuer;
 
     event IssuerMinted(MintIssuerInput params);
     event TokenMinted(MintInput params);
@@ -38,10 +38,14 @@ contract Issuer is IIssuer, IERC2981, AuthorizedCaller {
 
     constructor(Config memory _config, address _admin, address _author) {
         config = _config;
-        allissuers = 0;
         allGenTkTokens = 0;
+        author = _author;
         _setupRole(DEFAULT_ADMIN_ROLE, _admin);
-        _setupRole(LibIssuer.AUTHOR_ROLE, _author);
+    }
+
+    modifier onlyAuthor() {
+        require(_msgSender() == author, "Caller is not author");
+        _;
     }
 
     function mintIssuer(MintIssuerInput memory params) external {
@@ -74,13 +78,13 @@ contract Issuer is IIssuer, IERC2981, AuthorizedCaller {
             IPricingManager(config.contractRegistry.getContract("priceMag"))
                 .getPricingContract(params.pricing.pricingId)
                 .pricingContract
-        ).setPrice(allissuers, params.pricing.details);
+        ).setPrice(address(this), params.pricing.details);
 
         bool hasTickets = params.mintTicketSettings.gracingPeriod > 0;
         if (hasTickets) {
             IMintTicket(config.contractRegistry.getContract("mint_tickets"))
                 .createProject(
-                    allissuers,
+                    address(this),
                     params.mintTicketSettings.gracingPeriod,
                     params.mintTicketSettings.metadata
                 );
@@ -172,7 +176,6 @@ contract Issuer is IIssuer, IERC2981, AuthorizedCaller {
         IUserActions(config.contractRegistry.getContract("userAct"))
             .setLastIssuerMinted(_msgSender(), address(this));
 
-        allissuers++;
         emit IssuerMinted(params);
     }
 
@@ -183,7 +186,7 @@ contract Issuer is IIssuer, IERC2981, AuthorizedCaller {
             IAllowMint(config.contractRegistry.getContract("al_m")).isAllowed(
                 _msgSender(),
                 block.timestamp,
-                params.issuerId
+                address(this)
             ),
             "403"
         );
@@ -283,7 +286,7 @@ contract Issuer is IIssuer, IERC2981, AuthorizedCaller {
                     balanceWithoutReserve == 1 &&
                     !reserveApplied
                 ) {
-                    pricingContract.lockPrice(params.issuerId);
+                    pricingContract.lockPrice(address(this));
                 }
             }
         }
@@ -306,7 +309,7 @@ contract Issuer is IIssuer, IERC2981, AuthorizedCaller {
             recipient = params.recipient;
         }
         IMintTicket(config.contractRegistry.getContract("mint_tickets"))
-            .consume(_msgSender(), params.ticketId, params.issuerId);
+            .consume(_msgSender(), params.ticketId, address(this));
 
         issuer.iterationsCount += 1;
         address gentkContract = config.contractRegistry.getContract("gentk");
@@ -318,8 +321,7 @@ contract Issuer is IIssuer, IERC2981, AuthorizedCaller {
                 receiver: issuer.royaltiesSplit.receiver == gentkContract
                     ? recipient
                     : issuer.royaltiesSplit.receiver,
-                metadata: config.voidMetadata,
-                issuerId: params.issuerId
+                metadata: config.voidMetadata
             })
         );
 
@@ -332,7 +334,7 @@ contract Issuer is IIssuer, IERC2981, AuthorizedCaller {
 
     function updateIssuer(
         UpdateIssuerInput calldata params
-    ) external onlyRole(LibIssuer.AUTHOR_ROLE) {
+    ) external onlyAuthor {
         require(
             ((params.royaltiesSplit.percent >= 1000) &&
                 (params.royaltiesSplit.percent <= 2500)) ||
@@ -352,9 +354,7 @@ contract Issuer is IIssuer, IERC2981, AuthorizedCaller {
         emit IssuerUpdated(params);
     }
 
-    function updatePrice(
-        UpdatePriceInput calldata params
-    ) external onlyRole(LibIssuer.AUTHOR_ROLE) {
+    function updatePrice(UpdatePriceInput calldata params) external onlyAuthor {
         LibIssuer.verifyIssuerUpdateable(issuer);
         IPricingManager(config.contractRegistry.getContract("priceMag"))
             .verifyPricingMethod(params.pricingData.pricingId);
@@ -364,13 +364,13 @@ contract Issuer is IIssuer, IERC2981, AuthorizedCaller {
             IPricingManager(config.contractRegistry.getContract("priceMag"))
                 .getPricingContract(params.pricingData.pricingId)
                 .pricingContract
-        ).setPrice(params.issuerId, params.pricingData.details);
+        ).setPrice(address(this), params.pricingData.details);
         emit PriceUpdated(params);
     }
 
     function updateReserve(
         UpdateReserveInput memory params
-    ) external onlyRole(LibIssuer.AUTHOR_ROLE) {
+    ) external onlyAuthor {
         LibIssuer.verifyIssuerUpdateable(issuer);
         require(issuer.info.enabled, "TOK_DISABLED");
         for (uint256 i = 0; i < params.reserves.length; i++) {
@@ -391,15 +391,13 @@ contract Issuer is IIssuer, IERC2981, AuthorizedCaller {
         emit ReserveUpdated(params);
     }
 
-    function burn() external onlyRole(LibIssuer.AUTHOR_ROLE) {
+    function burn() external onlyAuthor {
         require(issuer.balance == issuer.supply, "CONSUMED_1");
         burnToken();
         emit IssuerBurned();
     }
 
-    function burnSupply(
-        uint256 amount
-    ) external onlyRole(LibIssuer.AUTHOR_ROLE) {
+    function burnSupply(uint256 amount) external onlyAuthor {
         require(amount > 0, "TOO_LOW");
         require(issuer.openEditions.closingTime == 0, "OES");
         require(amount <= issuer.balance, "TOO_HIGH");
@@ -431,6 +429,10 @@ contract Issuer is IIssuer, IERC2981, AuthorizedCaller {
 
     function getIssuer() external view returns (LibIssuer.IssuerData memory) {
         return issuer;
+    }
+
+    function getAuthor() external view returns (address) {
+        return author;
     }
 
     function royaltyInfo(
@@ -470,10 +472,6 @@ contract Issuer is IIssuer, IERC2981, AuthorizedCaller {
         delete issuer;
     }
 
-    function isAuthor(address _author) external view returns (bool) {
-        return hasRole(LibIssuer.AUTHOR_ROLE, _author);
-    }
-
     function processTransfers(
         IPricing pricingContract,
         MintInput memory params,
@@ -482,7 +480,7 @@ contract Issuer is IIssuer, IERC2981, AuthorizedCaller {
     ) private {
         {
             uint256 price = pricingContract.getPrice(
-                params.issuerId,
+                address(this),
                 block.timestamp
             );
             require(msg.value >= price, "INVALID_PRICE");
@@ -522,7 +520,7 @@ contract Issuer is IIssuer, IERC2981, AuthorizedCaller {
 
             if (params.createTicket == true) {
                 IMintTicket(config.contractRegistry.getContract("mint_tickets"))
-                    .mint(params.issuerId, recipient, price);
+                    .mint(address(this), recipient, price);
             } else {
                 issuer.iterationsCount += 1;
                 address gentkContract = config.contractRegistry.getContract(
@@ -537,8 +535,7 @@ contract Issuer is IIssuer, IERC2981, AuthorizedCaller {
                             gentkContract
                             ? recipient
                             : issuer.royaltiesSplit.receiver,
-                        metadata: config.voidMetadata,
-                        issuerId: params.issuerId
+                        metadata: config.voidMetadata
                     })
                 );
                 allGenTkTokens++;

@@ -21,12 +21,10 @@ contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
 
     struct OnChainTokenMetadata {
         uint256 tokenId;
-        uint256 issuerId;
         bytes metadata;
     }
 
     struct TokenData {
-        uint256 issuerId;
         uint256 iteration;
         bytes inputBytes;
         address minter;
@@ -76,7 +74,6 @@ contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
         _mint(_params.receiver, _params.tokenId);
         _setTokenURI(_params.tokenId, _params.metadata);
         tokenData[_params.tokenId] = TokenData({
-            issuerId: _params.issuerId,
             iteration: _params.iteration,
             inputBytes: _params.inputBytes,
             minter: _params.receiver,

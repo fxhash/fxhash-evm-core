@@ -93,8 +93,10 @@ describe("Issuer", () => {
     );
     await mintPassGroup.deployed();
 
-    const ModerationToken = await ethers.getContractFactory("ModerationToken");
-    moderatorToken = await ModerationToken.deploy(await admin.getAddress());
+    const ModerationIssuer = await ethers.getContractFactory(
+      "ModerationIssuer"
+    );
+    moderatorToken = await ModerationIssuer.deploy(await admin.getAddress());
     await moderatorToken.deployed();
 
     const ModerationTeam = await ethers.getContractFactory("ModerationTeam");

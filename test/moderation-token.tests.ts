@@ -3,7 +3,7 @@ import { Contract, Signer } from "ethers";
 import { expect } from "chai";
 import { describe, before, beforeEach, it } from "mocha";
 
-describe("ModerationToken", () => {
+describe("ModerationIssuer", () => {
   let moderatorToken: Contract;
   let moderationTeam: Contract;
 
@@ -14,8 +14,10 @@ describe("ModerationToken", () => {
 
   beforeEach(async () => {
     [admin, moderator, user1] = await ethers.getSigners();
-    const ModerationToken = await ethers.getContractFactory("ModerationToken");
-    moderatorToken = await ModerationToken.deploy(await admin.getAddress());
+    const ModerationIssuer = await ethers.getContractFactory(
+      "ModerationIssuer"
+    );
+    moderatorToken = await ModerationIssuer.deploy(await admin.getAddress());
     await moderatorToken.deployed();
 
     const ModerationTeam = await ethers.getContractFactory("ModerationTeam");
@@ -53,7 +55,7 @@ describe("ModerationToken", () => {
     });
   });
 
-  describe("moderateToken", () => {
+  describe("moderateIssuer", () => {
     it("should moderate a token", async () => {
       const tokenId = 1;
       const state = 1;
@@ -62,9 +64,9 @@ describe("ModerationToken", () => {
 
       await moderatorToken
         .connect(moderator)
-        .moderateToken(tokenId, state, reason);
+        .moderateIssuer(tokenId, state, reason);
 
-      const moderationState = await moderatorToken.tokenState(tokenId);
+      const moderationState = await moderatorToken.issuerState(tokenId);
       expect(moderationState).to.equal(state);
     });
 
@@ -74,7 +76,7 @@ describe("ModerationToken", () => {
       const reason = 1;
 
       await expect(
-        moderatorToken.connect(user1).moderateToken(tokenId, state, reason)
+        moderatorToken.connect(user1).moderateIssuer(tokenId, state, reason)
       ).to.be.revertedWith("NOT_MOD");
     });
   });

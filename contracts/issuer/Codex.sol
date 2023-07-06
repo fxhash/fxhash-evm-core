@@ -112,7 +112,7 @@ contract Codex is ICodex, AuthorizedCaller {
         LibCodex.CodexInput calldata input
     ) external {
         require(_issuerId > 0, "NO_ISSUER");
-        require(issuer.isAuthor(_msgSender()), "403");
+        require(issuer.getAuthor() == _msgSender(), "403");
         uint256 codexId = codexEntryIdFromInput(_msgSender(), input);
         require(issuerCodexUpdates[_issuerId] != codexId, "SAME_CDX_ID");
         issuerCodexUpdates[_issuerId] = codexId;

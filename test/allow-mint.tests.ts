@@ -16,8 +16,10 @@ describe("AllowMint", function () {
 
     [admin, nonAdmin] = await ethers.getSigners();
 
-    const ModerationToken = await ethers.getContractFactory("ModerationToken");
-    moderatorToken = await ModerationToken.deploy(await admin.getAddress());
+    const ModerationIssuer = await ethers.getContractFactory(
+      "ModerationIssuer"
+    );
+    moderatorToken = await ModerationIssuer.deploy(await admin.getAddress());
     await moderatorToken.deployed();
 
     const ModerationTeam = await ethers.getContractFactory("ModerationTeam");
@@ -69,7 +71,7 @@ describe("AllowMint", function () {
     const reason = 0;
     await moderatorToken.connect(admin).reasonAdd("reason");
 
-    await moderatorToken.connect(admin).moderateToken(id, state, reason);
+    await moderatorToken.connect(admin).moderateIssuer(id, state, reason);
     // The function call should revert with the 'TOKEN_MODERATED' error message
     await expect(allowMint.isAllowed(addr, timestamp, id)).to.be.revertedWith(
       "TOKEN_MODERATED"

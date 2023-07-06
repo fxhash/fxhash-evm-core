@@ -18,10 +18,10 @@ contract PricingDutchAuction is AuthorizedCaller, IPricing {
         uint256 price;
     }
 
-    event DutchPriceSet(uint256 issuerId, PriceDetails details);
-    event DutchPriceLocked(uint256 issuerId, uint256 lockedPrice);
+    event DutchPriceSet(address issuer, PriceDetails details);
+    event DutchPriceLocked(address issuer, uint256 lockedPrice);
 
-    mapping(uint256 => PriceDetails) public pricings;
+    mapping(address => PriceDetails) public pricings;
 
     address public admin;
     uint256 public minDecrementDuration;
@@ -63,10 +63,10 @@ contract PricingDutchAuction is AuthorizedCaller, IPricing {
     }
 
     function computePrice(
-        uint256 issuerId,
+        address issuer,
         uint256 timestamp
     ) private view returns (uint256) {
-        PriceDetails memory pricing = pricings[issuerId];
+        PriceDetails memory pricing = pricings[issuer];
         uint256 diff = 0;
         if (pricing.opensAt < timestamp) {
             diff = timestamp - pricing.opensAt;
@@ -79,7 +79,7 @@ contract PricingDutchAuction is AuthorizedCaller, IPricing {
     }
 
     function setPrice(
-        uint256 issuerId,
+        address issuer,
         bytes memory details
     ) external onlyAuthorizedCaller {
         PriceDetails memory pricingDetails = abi.decode(
@@ -87,23 +87,20 @@ contract PricingDutchAuction is AuthorizedCaller, IPricing {
             (PriceDetails)
         );
         verifyDetails(pricingDetails);
-        pricings[issuerId] = pricingDetails;
-        emit DutchPriceSet(issuerId, pricingDetails);
+        pricings[issuer] = pricingDetails;
+        emit DutchPriceSet(issuer, pricingDetails);
     }
 
-    function lockPrice(uint256 issuerId) external onlyAuthorizedCaller {
-        pricings[issuerId].lockedPrice = computePrice(
-            issuerId,
-            block.timestamp
-        );
-        emit DutchPriceLocked(issuerId, pricings[issuerId].lockedPrice);
+    function lockPrice(address issuer) external onlyAuthorizedCaller {
+        pricings[issuer].lockedPrice = computePrice(issuer, block.timestamp);
+        emit DutchPriceLocked(issuer, pricings[issuer].lockedPrice);
     }
 
     function getPrice(
-        uint256 issuerId,
+        address issuer,
         uint256 timestamp
     ) external view returns (uint256) {
-        PriceDetails storage pricing = pricings[issuerId];
+        PriceDetails storage pricing = pricings[issuer];
         require(pricing.opensAt > 0, "No pricing available for the issuer");
 
         if (block.timestamp < pricing.opensAt) {
@@ -114,12 +111,12 @@ contract PricingDutchAuction is AuthorizedCaller, IPricing {
             return pricing.lockedPrice;
         }
 
-        return computePrice(issuerId, timestamp);
+        return computePrice(issuer, timestamp);
     }
 
     function getLevels(
-        uint256 issuerId
+        address issuer
     ) external view returns (uint256[] memory) {
-        return pricings[issuerId].levels;
+        return pricings[issuer].levels;
     }
 }

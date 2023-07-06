@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "contracts/interfaces/IModerationToken.sol";
+import "contracts/interfaces/IModerationIssuer.sol";
 import "contracts/interfaces/IUserActions.sol";
+import "contracts/interfaces/IAllowMint.sol";
+
 import "contracts/abstract/admin/AuthorizedCaller.sol";
 import "contracts/libs/LibUserActions.sol";
 
-contract AllowMint is AuthorizedCaller {
+contract AllowMint is AuthorizedCaller, IAllowMint {
     address public tokenMod;
     IUserActions public userActions;
 
@@ -28,16 +30,16 @@ contract AllowMint is AuthorizedCaller {
     }
 
     function isAllowed(
-        address addr,
+        address user,
         uint256 timestamp,
-        uint256 id
+        address tokenContract
     ) external view returns (bool) {
         // Get the state from the token moderation contract
-        uint256 state = IModerationToken(tokenMod).tokenState(id);
+        uint256 state = IModerationIssuer(tokenMod).issuerState(tokenContract);
         require(state < 2, "TOKEN_MODERATED");
         // Prevent batch minting on any token
         LibUserActions.UserAction memory lastUserActions = userActions
-            .getUserActions(addr);
+            .getUserActions(user);
         if (
             lastUserActions.lastMintedTime > 0 &&
             timestamp >= lastUserActions.lastMintedTime

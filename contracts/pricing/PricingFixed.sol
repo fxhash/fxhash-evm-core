@@ -10,9 +10,9 @@ contract PricingFixed is AuthorizedCaller, IPricing {
         uint256 opensAt;
     }
 
-    event FixedPriceSet(uint256 issuerId, PriceDetails details);
+    event FixedPriceSet(address issuer, PriceDetails details);
 
-    mapping(uint256 => PriceDetails) pricings;
+    mapping(address => PriceDetails) pricings;
 
     constructor() {
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
@@ -20,7 +20,7 @@ contract PricingFixed is AuthorizedCaller, IPricing {
     }
 
     function setPrice(
-        uint256 issuerId,
+        address issuer,
         bytes memory details
     ) external onlyAuthorizedCaller {
         PriceDetails memory pricingDetails = abi.decode(
@@ -29,15 +29,15 @@ contract PricingFixed is AuthorizedCaller, IPricing {
         );
         require(pricingDetails.price > 0, "price <= 0");
         require(pricingDetails.opensAt > 0, "opensAt <= 0");
-        pricings[issuerId] = pricingDetails;
-        emit FixedPriceSet(issuerId, pricingDetails);
+        pricings[issuer] = pricingDetails;
+        emit FixedPriceSet(issuer, pricingDetails);
     }
 
     function getPrice(
-        uint256 issuerId,
+        address issuer,
         uint256 timestamp
     ) external view returns (uint256) {
-        PriceDetails memory pricing = pricings[issuerId];
+        PriceDetails memory pricing = pricings[issuer];
         require(pricing.price > 0, "PRICING_NO_ISSUER");
 
         if (pricing.opensAt > 0) {
@@ -47,5 +47,5 @@ contract PricingFixed is AuthorizedCaller, IPricing {
         return pricing.price;
     }
 
-    function lockPrice(uint256 issuerId) external override {}
+    function lockPrice(address issuer) external override {}
 }

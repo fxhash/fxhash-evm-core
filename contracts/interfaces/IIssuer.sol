@@ -19,19 +19,16 @@ interface IIssuer {
     }
 
     struct UpdateIssuerInput {
-        uint256 issuerId;
         LibRoyalty.RoyaltyData primarySplit;
         LibRoyalty.RoyaltyData royaltiesSplit;
         bool enabled;
     }
 
     struct UpdatePriceInput {
-        uint256 issuerId;
         LibPricing.PricingData pricingData;
     }
 
     struct UpdateReserveInput {
-        uint256 issuerId;
         LibReserve.ReserveData[] reserves;
     }
 
@@ -57,7 +54,6 @@ interface IIssuer {
     }
 
     struct MintInput {
-        uint256 issuerId;
         bytes inputBytes;
         address referrer;
         bytes reserveInput;
@@ -66,7 +62,6 @@ interface IIssuer {
     }
 
     struct MintWithTicketInput {
-        uint256 issuerId;
         uint256 ticketId;
         bytes inputBytes;
         address recipient;
@@ -93,5 +88,5 @@ interface IIssuer {
 
     function getIssuer() external view returns (LibIssuer.IssuerData memory);
 
-    function isAuthor(address _author) external view returns (bool);
+    function getAuthor() external view returns (address);
 }
