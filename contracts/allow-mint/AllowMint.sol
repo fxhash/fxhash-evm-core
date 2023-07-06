@@ -5,27 +5,26 @@ import "contracts/interfaces/IModerationIssuer.sol";
 import "contracts/interfaces/IUserActions.sol";
 import "contracts/interfaces/IAllowMint.sol";
 
-import "contracts/abstract/admin/AuthorizedCaller.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
 import "contracts/libs/LibUserActions.sol";
 
-contract AllowMint is AuthorizedCaller, IAllowMint {
-    address public issuerMod;
-    IUserActions public userActions;
+contract AllowMint is IAllowMint, Ownable {
+    address private issuerMod;
+    IUserActions private userActions;
 
-    constructor(address _admin, address _issuerMod, address _userActions) {
-        _setupRole(DEFAULT_ADMIN_ROLE, _admin);
-        _setupRole(AUTHORIZED_CALLER, _admin);
+    constructor(address _issuerMod, address _userActions) {
         issuerMod = _issuerMod;
         userActions = IUserActions(_userActions);
     }
 
     function updateIssuerModerationContract(
         address _address
-    ) external onlyAdmin {
+    ) external onlyOwner {
         issuerMod = _address;
     }
 
-    function updateUserActions(address _address) external onlyAdmin {
+    function updateUserActions(address _address) external onlyOwner {
         userActions = IUserActions(_address);
     }
 

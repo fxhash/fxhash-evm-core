@@ -8,13 +8,22 @@ interface IUserActions {
         address addr
     ) external view returns (LibUserActions.UserAction memory);
 
-    function setLastIssuerMinted(address addr, address issuer) external;
+    function setLastIssuerMinted(
+        address addr,
+        address issuer,
+        bytes calldata signature
+    ) external;
 
     function setLastMinted(
         address addr,
         address tokenContract,
-        uint256 tokenId
+        uint256 tokenId,
+        bytes calldata signature
     ) external;
 
-    function resetLastIssuerMinted(address addr, address issuer) external;
+    function resetLastIssuerMinted(
+        address addr,
+        address issuer,
+        bytes calldata signature
+    ) external;
 }

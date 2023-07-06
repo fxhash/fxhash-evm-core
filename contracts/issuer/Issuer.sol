@@ -51,7 +51,10 @@ contract Issuer is IIssuer, IERC2981, Ownable {
         _;
     }
 
-    function mintIssuer(MintIssuerInput memory params) external {
+    function mintIssuer(
+        MintIssuerInput calldata params,
+        bytes calldata userActionSignature
+    ) external {
         require(
             IAllowMintIssuer(configManager.getAddress("al_mi")).isAllowed(
                 msg.sender,
@@ -180,13 +183,17 @@ contract Issuer is IIssuer, IERC2981, Ownable {
 
         IUserActions(configManager.getAddress("userAct")).setLastIssuerMinted(
             msg.sender,
-            address(this)
+            address(this),
+            userActionSignature
         );
 
         emit IssuerMinted(params);
     }
 
-    function mint(MintInput memory params) external payable {
+    function mint(
+        MintInput memory params,
+        bytes calldata signature
+    ) external payable {
         require(issuer.supply > 0, "Token undefined");
 
         require(
@@ -302,12 +309,16 @@ contract Issuer is IIssuer, IERC2981, Ownable {
         IUserActions(configManager.getAddress("userAct")).setLastMinted(
             msg.sender,
             address(this),
-            tokenId
+            tokenId,
+            signature
         );
         emit TokenMinted(params);
     }
 
-    function mintWithTicket(MintWithTicketInput memory params) external {
+    function mintWithTicket(
+        MintWithTicketInput memory params,
+        bytes calldata signature
+    ) external {
         require(
             params.inputBytes.length == issuer.info.inputBytesSize,
             "WRONG_INPUT_BYTES"
@@ -340,7 +351,8 @@ contract Issuer is IIssuer, IERC2981, Ownable {
         IUserActions(configManager.getAddress("userAct")).setLastMinted(
             msg.sender,
             address(this),
-            allGenTkTokens
+            allGenTkTokens,
+            signature
         );
         allGenTkTokens++;
 
@@ -409,20 +421,23 @@ contract Issuer is IIssuer, IERC2981, Ownable {
         emit ReserveUpdated(reserves);
     }
 
-    function burn() external onlyOwner {
+    function burn(bytes calldata signature) external onlyOwner {
         require(issuer.balance == issuer.supply, "CONSUMED_1");
-        burnToken();
+        burnToken(signature);
         emit IssuerBurned();
     }
 
-    function burnSupply(uint256 amount) external onlyOwner {
+    function burnSupply(
+        uint256 amount,
+        bytes calldata signature
+    ) external onlyOwner {
         require(amount > 0, "TOO_LOW");
         require(issuer.openEditions.closingTime == 0, "OES");
         require(amount <= issuer.balance, "TOO_HIGH");
         issuer.balance = issuer.balance - amount;
         issuer.supply = issuer.supply - amount;
         if (issuer.supply == 0) {
-            burnToken();
+            burnToken(signature);
         }
         emit SupplyBurned(amount);
     }
@@ -483,10 +498,11 @@ contract Issuer is IIssuer, IERC2981, Ownable {
             interfaceId == type(IERC2981).interfaceId;
     }
 
-    function burnToken() private {
+    function burnToken(bytes calldata signature) private {
         IUserActions(configManager.getAddress("userAct")).resetLastIssuerMinted(
                 msg.sender,
-                address(this)
+                address(this),
+                signature
             );
         delete issuer;
     }

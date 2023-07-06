@@ -1,39 +1,35 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "contracts/abstract/admin/AuthorizedCaller.sol";
-import "contracts/moderation/ModerationUser.sol";
-import "@openzeppelin/contracts/utils/math/SignedMath.sol";
 import "contracts/interfaces/IModerationUser.sol";
 import "contracts/interfaces/IUserActions.sol";
+
+import "@openzeppelin/contracts/utils/math/SignedMath.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "contracts/moderation/ModerationUser.sol";
+
 import "contracts/libs/LibUserActions.sol";
 
-contract AllowMintIssuer is AuthorizedCaller {
+contract AllowMintIssuer is Ownable {
     uint256 public mintDelay;
     IModerationUser public userModerationContract;
     IUserActions public userActions;
 
-    constructor(
-        address _admin,
-        address _userModerationContract,
-        address _userActions
-    ) {
-        _setupRole(DEFAULT_ADMIN_ROLE, _admin);
-        _setupRole(AUTHORIZED_CALLER, _admin);
+    constructor(address _userModerationContract, address _userActions) {
         mintDelay = 3600;
         userModerationContract = ModerationUser(_userModerationContract);
         userActions = IUserActions(_userActions);
     }
 
-    function updateUserModerationContract(address _address) external onlyAdmin {
+    function updateUserModerationContract(address _address) external onlyOwner {
         userModerationContract = ModerationUser(_address);
     }
 
-    function updateUserActionsContract(address _address) external onlyAdmin {
+    function updateUserActionsContract(address _address) external onlyOwner {
         userActions = IUserActions(_address);
     }
 
-    function updateMintDelay(uint256 _delay) external onlyAdmin {
+    function updateMintDelay(uint256 _delay) external onlyOwner {
         mintDelay = _delay;
     }
 

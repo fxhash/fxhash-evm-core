@@ -2,18 +2,14 @@
 pragma solidity ^0.8.18;
 
 import "contracts/libs/LibReserve.sol";
-import "contracts/abstract/admin/AuthorizedCaller.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract ReserveManager is AuthorizedCaller {
+contract ReserveManager is Ownable {
     mapping(uint256 => LibReserve.ReserveMethod) private reserveMethods;
-
-    constructor(address _admin) {
-        _setupRole(DEFAULT_ADMIN_ROLE, _admin);
-    }
 
     function isReserveValid(
         LibReserve.ReserveData memory reserve
-    ) external view onlyAuthorizedCaller returns (bool) {
+    ) external view returns (bool) {
         return
             reserveMethods[reserve.methodId].reserveContract.isInputValid(
                 LibReserve.InputParams({
@@ -27,7 +23,7 @@ contract ReserveManager is AuthorizedCaller {
     function applyReserve(
         LibReserve.ReserveData memory reserve,
         bytes memory userInput
-    ) external onlyAuthorizedCaller returns (bool, bytes memory) {
+    ) external returns (bool, bytes memory) {
         LibReserve.ReserveMethod storage method = reserveMethods[
             reserve.methodId
         ];
@@ -46,18 +42,13 @@ contract ReserveManager is AuthorizedCaller {
     function setReserveMethod(
         uint256 id,
         LibReserve.ReserveMethod memory reserveMethod
-    ) external onlyAdmin {
+    ) external onlyOwner {
         reserveMethods[id] = reserveMethod;
     }
 
     function getReserveMethod(
         uint256 methodId
-    )
-        external
-        view
-        onlyAuthorizedCaller
-        returns (LibReserve.ReserveMethod memory)
-    {
+    ) external view returns (LibReserve.ReserveMethod memory) {
         return reserveMethods[methodId];
     }
 }

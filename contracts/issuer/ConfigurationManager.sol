@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "contracts/abstract/admin/AdminVerify.sol";
 import "contracts/interfaces/IConfigurationManager.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract ConfigurationManager is AdminVerify, IConfigurationManager {
+contract ConfigurationManager is IConfigurationManager, Ownable {
     Config private config;
     mapping(string => address) addresses;
 
-    function setConfig(Config calldata _config) external onlyAdmin {
+    function setConfig(Config calldata _config) external onlyOwner {
         config = _config;
     }
 
@@ -18,7 +18,7 @@ contract ConfigurationManager is AdminVerify, IConfigurationManager {
 
     function setAddress(
         ContractEntry[] calldata _addresses
-    ) external onlyAdmin {
+    ) external onlyOwner {
         for (uint256 i = 0; i < _addresses.length; i++) {
             require(_addresses[i].value != address(0), "Address is null");
             addresses[_addresses[i].key] = _addresses[i].value;
