@@ -467,7 +467,7 @@ contract Issuer is IIssuer, IERC2981, Ownable {
     }
 
     function royaltyInfo(
-        uint256 tokenId,
+        uint256,
         uint256 salePrice
     )
         public
