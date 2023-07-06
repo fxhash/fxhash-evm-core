@@ -135,7 +135,7 @@ contract UserActions is EIP712 {
         bytes32 data,
         bytes calldata signature,
         address caller
-    ) private view returns (bool) {
+    ) private pure returns (bool) {
         address signer = ECDSA.recover(data, signature);
         return signer == caller;
     }
