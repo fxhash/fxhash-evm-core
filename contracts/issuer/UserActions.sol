@@ -82,7 +82,7 @@ contract UserActions is EIP712 {
     function hashSetLastIssuerMinted(
         address addr,
         address issuer
-    ) internal view returns (bytes32) {
+    ) private view returns (bytes32) {
         return
             _hashTypedDataV4(
                 keccak256(
@@ -100,7 +100,7 @@ contract UserActions is EIP712 {
         address issuer,
         address tokenContract,
         uint256 tokenId
-    ) internal view returns (bytes32) {
+    ) private view returns (bytes32) {
         return
             _hashTypedDataV4(
                 keccak256(
@@ -118,7 +118,7 @@ contract UserActions is EIP712 {
     function hashResetLastIssuerMinted(
         address addr,
         address issuer
-    ) internal view returns (bytes32) {
+    ) private view returns (bytes32) {
         return
             _hashTypedDataV4(
                 keccak256(
