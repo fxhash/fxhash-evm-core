@@ -54,8 +54,8 @@ contract MintPassGroup is AuthorizedCaller {
         Payload memory payload = decodePayload(pass.payload);
         bytes32 projectHash = getProjectHash(payload.token, payload.project);
         require(
-            EnumerableSet.contains(bypass, tx.origin) ||
-                tx.origin == payload.addr,
+            EnumerableSet.contains(bypass, msg.sender) ||
+                msg.sender == payload.addr,
             "PASS_INVALID_ADDRESS"
         );
         require(
@@ -116,8 +116,8 @@ contract MintPassGroup is AuthorizedCaller {
         require(token.minted > 0, "PASS_NOT_CONSUMED");
         require(token.levelConsumed == block.number, "PASS_CONSUMED_PAST");
         require(
-            EnumerableSet.contains(bypass, tx.origin) ||
-                tx.origin == payload.addr,
+            EnumerableSet.contains(bypass, msg.sender) ||
+                msg.sender == payload.addr,
             "PASS_INVALID_ADDRESS"
         );
         require(payload.addr == token.consumer, "WRONG_PASS_CONSUMER");
