@@ -71,5 +71,5 @@ interface IIssuer {
 
     function getIssuer() external view returns (LibIssuer.IssuerData memory);
 
-    function getAuthor() external view returns (address);
+    function owner() external view returns (address);
 }

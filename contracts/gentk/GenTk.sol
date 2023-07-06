@@ -3,17 +3,19 @@ pragma solidity ^0.8.18;
 import "contracts/interfaces/IIssuer.sol";
 import "contracts/interfaces/IGenTk.sol";
 import "contracts/interfaces/IOnChainTokenMetadataManager.sol";
+import "contracts/interfaces/IConfigurationManager.sol";
 
 import "@openzeppelin/contracts/interfaces/IERC721.sol";
 import "@openzeppelin/contracts/interfaces/IERC2981.sol";
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "contracts/abstract/admin/AuthorizedCaller.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
 import "contracts/libs/LibIssuer.sol";
 
 import "hardhat/console.sol";
 
-contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
+contract GenTk is ERC721URIStorage, Ownable, IERC2981, IGenTk {
     struct TokenMetadata {
         uint256 tokenId;
         string metadata;
@@ -31,10 +33,9 @@ contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
         bool assigned;
     }
 
-    address private signer;
-    address private treasury;
     IIssuer private issuer;
-    IOnChainTokenMetadataManager private onChainTokenMetadataManager;
+    IConfigurationManager private configManager;
+
     mapping(uint256 => TokenData) private tokenData;
 
     event TokenMinted(TokenParams _params);
@@ -42,35 +43,37 @@ contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
     event OnChainTokenMetadataAssigned(OnChainTokenMetadata[] _params);
 
     constructor(
-        address _admin,
-        address _signer,
-        address _treasury,
+        address _owner,
         address _issuer,
-        address _onChainTokenMetadataManager
+        address _configManager
     ) ERC721("GenTK", "GTK") {
-        _setupRole(DEFAULT_ADMIN_ROLE, _admin);
-        _setupRole(AUTHORIZED_CALLER, _admin);
         issuer = IIssuer(_issuer);
-        signer = _signer;
-        treasury = _treasury;
-        onChainTokenMetadataManager = IOnChainTokenMetadataManager(
-            _onChainTokenMetadataManager
-        );
+        configManager = IConfigurationManager(_configManager);
+        transferOwnership(_owner);
     }
 
-    receive() external payable {}
-
     modifier onlySigner() {
-        require(_msgSender() == signer, "Caller is not signer");
+        require(
+            _msgSender() == configManager.getAddress("signer"),
+            "Caller is not signer"
+        );
         _;
     }
 
-    modifier onlyFxHashIssuer() {
+    modifier onlyIssuer() {
         require(_msgSender() == address(issuer), "Caller is not issuer");
         _;
     }
 
-    function mint(TokenParams calldata _params) external onlyFxHashIssuer {
+    modifier onlyFxHashAdmin() {
+        require(
+            _msgSender() == configManager.getAddress("admin"),
+            "Caller is not FXHASH admin"
+        );
+        _;
+    }
+
+    function mint(TokenParams calldata _params) external onlyIssuer {
         _mint(_params.receiver, _params.tokenId);
         _setTokenURI(_params.tokenId, _params.metadata);
         tokenData[_params.tokenId] = TokenData({
@@ -111,30 +114,11 @@ contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
         emit TokenMetadataAssigned(_params);
     }
 
-    function transferTreasury(uint256 _amount) external onlyAdmin {
-        require(_amount <= address(this).balance, "INSUFFISCIENT_BALANCE");
-        payable(treasury).transfer(_amount);
-    }
-
-    function setSigner(address _signer) external onlyAdmin {
-        signer = _signer;
-    }
-
-    function setTreasury(address _treasury) external onlyAdmin {
-        treasury = _treasury;
-    }
-
     function royaltyInfo(
         uint256 tokenId,
         uint256 salePrice
     ) external view override returns (address receiver, uint256 royaltyAmount) {
         return issuer.royaltyInfo(tokenId, salePrice);
-    }
-
-    function getTokenData(
-        uint256 _tokenId
-    ) external view returns (TokenData memory) {
-        return tokenData[_tokenId];
     }
 
     function tokenURI(
@@ -146,46 +130,26 @@ contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
         LibIssuer.IssuerData memory issuerData = issuer.getIssuer();
         require(_tokenData.minter != address(0), "TOKEN_UNDEFINED");
         if (issuerData.onChainData.length > 0) {
-            string memory onChainURI = onChainTokenMetadataManager
-                .getOnChainURI(bytes(_tokenURI), issuerData.onChainData);
+            string memory onChainURI = IOnChainTokenMetadataManager(
+                configManager.getAddress("onChainMetaManager")
+            ).getOnChainURI(bytes(_tokenURI), issuerData.onChainData);
             return onChainURI;
         } else {
             return _tokenURI;
         }
     }
 
+    function setConfigManager(address _configManager) external onlyFxHashAdmin {
+        configManager = IConfigurationManager(_configManager);
+    }
+
     function supportsInterface(
         bytes4 interfaceId
-    )
-        public
-        view
-        override(AccessControl, ERC721URIStorage, IERC165)
-        returns (bool)
-    {
+    ) public view override(ERC721URIStorage, IERC165) returns (bool) {
         return
             interfaceId == type(IERC721).interfaceId ||
             interfaceId == type(IGenTk).interfaceId ||
             interfaceId == type(IERC2981).interfaceId ||
             super.supportsInterface(interfaceId);
-    }
-
-    function _msgSender()
-        internal
-        view
-        virtual
-        override(Context)
-        returns (address)
-    {
-        return super._msgSender();
-    }
-
-    function _msgData()
-        internal
-        view
-        virtual
-        override(Context)
-        returns (bytes calldata)
-    {
-        return super._msgData();
     }
 }

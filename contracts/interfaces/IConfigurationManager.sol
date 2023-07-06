@@ -14,9 +14,9 @@ interface IConfigurationManager {
         address value;
     }
 
-    function setContract(ContractEntry[] calldata _contracts) external;
+    function setAddress(ContractEntry[] calldata _contracts) external;
 
-    function getContract(string calldata _name) external view returns (address);
+    function getAddress(string calldata _name) external view returns (address);
 
     function setConfig(Config calldata _config) external;
 

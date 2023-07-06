@@ -7,25 +7,11 @@ import "contracts/interfaces/ICodex.sol";
 import "contracts/libs/LibIssuer.sol";
 import "contracts/abstract/admin/AuthorizedCaller.sol";
 
-contract Codex is ICodex, AuthorizedCaller {
-    struct CodexData {
-        uint256 entryType;
-        address author;
-        bool locked;
-        bytes[] value;
-    }
-
-    struct CodexInput {
-        uint256 inputType;
-        bytes value;
-        uint256 codexId;
-    }
-
+contract Codex is AuthorizedCaller {
     uint256 private codexEntriesCount;
-    IIssuer private issuer;
     IModeration private moderation;
 
-    mapping(uint256 => CodexData) public codexEntries;
+    mapping(uint256 => LibCodex.CodexData) public codexEntries;
     mapping(uint256 => uint256) public issuerCodexUpdates;
 
     event CodexInserted(
@@ -38,13 +24,13 @@ contract Codex is ICodex, AuthorizedCaller {
     event CodexUpdated(uint256 entryId, bool pushEnd, bytes value);
     event CodexReplaced(address author, LibCodex.CodexInput input);
     event UpdateIssuerCodexRequested(
-        uint256 _issuerId,
+        address issuer,
+        uint256 codexId,
         LibCodex.CodexInput input
     );
-    event UpdateIssuerCodexApproved(uint256 _issuerId, uint256 _codexId);
+    event UpdateIssuerCodexApproved(address issuer, uint256 _codexId);
 
-    constructor(address _issuer, address _moderation, address _admin) {
-        issuer = IIssuer(_issuer);
+    constructor(address _moderation, address _admin) {
         moderation = IModeration(_moderation);
         codexEntriesCount = 0;
         _setupRole(DEFAULT_ADMIN_ROLE, _admin);
@@ -81,7 +67,7 @@ contract Codex is ICodex, AuthorizedCaller {
     }
 
     function codexLockEntry(uint256 entryId) external {
-        CodexData storage entry = codexEntries[entryId];
+        LibCodex.CodexData storage entry = codexEntries[entryId];
         require(entry.author == _msgSender(), "403");
         require(!entry.locked, "CDX_LOCK");
         require(entry.value.length > 0, "CDX_EMP");
@@ -94,7 +80,7 @@ contract Codex is ICodex, AuthorizedCaller {
         bool pushEnd,
         bytes memory value
     ) external {
-        CodexData storage entry = codexEntries[entryId];
+        LibCodex.CodexData storage entry = codexEntries[entryId];
         require(entry.author == _msgSender(), "403");
         require(!entry.locked, "CDX_LOCK");
         if (pushEnd) {
@@ -108,28 +94,29 @@ contract Codex is ICodex, AuthorizedCaller {
     }
 
     function updateIssuerCodexRequest(
-        uint256 _issuerId,
+        address _issuer,
+        uint256 _codexId,
         LibCodex.CodexInput calldata input
     ) external {
-        require(_issuerId > 0, "NO_ISSUER");
-        require(issuer.getAuthor() == _msgSender(), "403");
+        require(_issuer != address(0), "NO_ISSUER");
+        require(IIssuer(_issuer).owner() == _msgSender(), "403");
         uint256 codexId = codexEntryIdFromInput(_msgSender(), input);
-        require(issuerCodexUpdates[_issuerId] != codexId, "SAME_CDX_ID");
-        issuerCodexUpdates[_issuerId] = codexId;
-        emit UpdateIssuerCodexRequested(_issuerId, input);
+        require(issuerCodexUpdates[_codexId] != codexId, "SAME_CDX_ID");
+        issuerCodexUpdates[_codexId] = codexId;
+        emit UpdateIssuerCodexRequested(_issuer, _codexId, input);
     }
 
     function updateIssuerCodexApprove(
-        uint256 _issuerId,
+        address _issuer,
         uint256 _codexId
     ) external {
-        uint256 issuerId = issuerCodexUpdates[_issuerId];
+        uint256 issuerId = issuerCodexUpdates[_codexId];
         require(issuerId > 0, "NO_REQ");
         require(issuerId == _codexId, "WRG_CDX_ID");
         require(moderation.isAuthorized(_msgSender(), 701), "403");
-        issuer.setCodex(_codexId);
+        IIssuer(_issuer).setCodex(_codexId);
         delete issuerCodexUpdates[issuerId];
-        emit UpdateIssuerCodexApproved(_issuerId, _codexId);
+        emit UpdateIssuerCodexApproved(_issuer, _codexId);
     }
 
     function codexInsert(
@@ -138,7 +125,7 @@ contract Codex is ICodex, AuthorizedCaller {
         bool locked,
         bytes[] memory value
     ) private {
-        codexEntries[codexEntriesCount] = CodexData(
+        codexEntries[codexEntriesCount] = LibCodex.CodexData(
             entryType,
             author,
             locked,

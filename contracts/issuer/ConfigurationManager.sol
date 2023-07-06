@@ -6,7 +6,7 @@ import "contracts/interfaces/IConfigurationManager.sol";
 
 contract ConfigurationManager is AdminVerify, IConfigurationManager {
     Config private config;
-    mapping(string => address) contracts;
+    mapping(string => address) addresses;
 
     function setConfig(Config calldata _config) external onlyAdmin {
         config = _config;
@@ -16,18 +16,16 @@ contract ConfigurationManager is AdminVerify, IConfigurationManager {
         return config;
     }
 
-    function setContract(
-        ContractEntry[] calldata _contracts
+    function setAddress(
+        ContractEntry[] calldata _addresses
     ) external onlyAdmin {
-        for (uint256 i = 0; i < _contracts.length; i++) {
-            require(_contracts[i].value != address(0), "Address is null");
-            contracts[_contracts[i].key] = _contracts[i].value;
+        for (uint256 i = 0; i < _addresses.length; i++) {
+            require(_addresses[i].value != address(0), "Address is null");
+            addresses[_addresses[i].key] = _addresses[i].value;
         }
     }
 
-    function getContract(
-        string calldata _name
-    ) external view returns (address) {
-        return contracts[_name];
+    function getAddress(string calldata _name) external view returns (address) {
+        return addresses[_name];
     }
 }
