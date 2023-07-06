@@ -22,7 +22,7 @@ import {PricingManager} from "contracts/issuer/PricingManager.sol";
 import {Issuer, IIssuer} from "contracts/issuer/Issuer.sol";
 import {MintTicket} from "contracts/mint-ticket/MintTicket.sol";
 import {GenTk} from "contracts/gentk/GenTk.sol";
-import {OnChainTokenMetadataManager} from "contracts/issuer/OnchainTokenMetadataManager.sol";
+import {OnChainTokenMetadataManager} from "contracts/issuer/OnChainTokenMetadataManager.sol";
 
 contract IssuerTest is Test {
     address public admin = address(1);
