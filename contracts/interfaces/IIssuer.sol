@@ -2,7 +2,6 @@
 pragma solidity ^0.8.18;
 
 import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
-import "contracts/interfaces/IContractRegistry.sol";
 
 import "contracts/libs/LibCodex.sol";
 import "contracts/libs/LibIssuer.sol";
@@ -10,26 +9,10 @@ import "contracts/libs/LibPricing.sol";
 import "contracts/libs/LibRoyalty.sol";
 
 interface IIssuer {
-    struct Config {
-        uint256 fees;
-        uint256 referrerFeesShare;
-        uint256 lockTime;
-        string voidMetadata;
-        IContractRegistry contractRegistry;
-    }
-
     struct UpdateIssuerInput {
         LibRoyalty.RoyaltyData primarySplit;
         LibRoyalty.RoyaltyData royaltiesSplit;
         bool enabled;
-    }
-
-    struct UpdatePriceInput {
-        LibPricing.PricingData pricingData;
-    }
-
-    struct UpdateReserveInput {
-        LibReserve.ReserveData[] reserves;
     }
 
     struct MintTicketSettings {

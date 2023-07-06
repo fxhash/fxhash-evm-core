@@ -3,7 +3,6 @@ pragma solidity ^0.8.18;
 
 import "contracts/libs/LibModeration.sol";
 import "contracts/abstract/admin/AuthorizedCaller.sol";
-import "contracts/abstract/ContractRegistry.sol";
 import "contracts/moderation/ModerationTeam.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "contracts/abstract/BaseModeration.sol";

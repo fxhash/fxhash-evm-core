@@ -35,7 +35,6 @@ contract MintTicket is ERC721URIStorage, AuthorizedCaller, IMintTicket {
 
     constructor(
         address _admin,
-        address _issuer,
         address _randomizer
     ) ERC721("MintTicket", "MTK") {
         _setupRole(DEFAULT_ADMIN_ROLE, _admin);

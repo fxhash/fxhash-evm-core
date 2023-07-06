@@ -9,20 +9,20 @@ import "contracts/abstract/admin/AuthorizedCaller.sol";
 import "contracts/libs/LibUserActions.sol";
 
 contract AllowMint is AuthorizedCaller, IAllowMint {
-    address public tokenMod;
+    address public issuerMod;
     IUserActions public userActions;
 
-    constructor(address _admin, address _tokenMod, address _userActions) {
+    constructor(address _admin, address _issuerMod, address _userActions) {
         _setupRole(DEFAULT_ADMIN_ROLE, _admin);
         _setupRole(AUTHORIZED_CALLER, _admin);
-        tokenMod = _tokenMod;
+        issuerMod = _issuerMod;
         userActions = IUserActions(_userActions);
     }
 
-    function updateTokenModerationContract(
+    function updateIssuerModerationContract(
         address _address
     ) external onlyAdmin {
-        tokenMod = _address;
+        issuerMod = _address;
     }
 
     function updateUserActions(address _address) external onlyAdmin {
@@ -35,7 +35,7 @@ contract AllowMint is AuthorizedCaller, IAllowMint {
         address tokenContract
     ) external view returns (bool) {
         // Get the state from the token moderation contract
-        uint256 state = IModerationIssuer(tokenMod).issuerState(tokenContract);
+        uint256 state = IModerationIssuer(issuerMod).issuerState(tokenContract);
         require(state < 2, "TOKEN_MODERATED");
         // Prevent batch minting on any token
         LibUserActions.UserAction memory lastUserActions = userActions

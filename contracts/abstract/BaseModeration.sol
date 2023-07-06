@@ -2,7 +2,6 @@
 pragma solidity ^0.8.18;
 
 import "contracts/abstract/admin/AuthorizedCaller.sol";
-import "contracts/abstract/ContractRegistry.sol";
 import "contracts/moderation/ModerationTeam.sol";
 
 abstract contract BaseModeration is AuthorizedCaller {

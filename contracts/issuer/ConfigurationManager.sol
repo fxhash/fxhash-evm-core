@@ -2,10 +2,19 @@
 pragma solidity ^0.8.18;
 
 import "contracts/abstract/admin/AdminVerify.sol";
-import "contracts/interfaces/IContractRegistry.sol";
+import "contracts/interfaces/IConfigurationManager.sol";
 
-abstract contract ContractRegister is AdminVerify, IContractRegistry {
+contract ConfigurationManager is AdminVerify, IConfigurationManager {
+    Config private config;
     mapping(string => address) contracts;
+
+    function setConfig(Config calldata _config) external onlyAdmin {
+        config = _config;
+    }
+
+    function getConfig() external view returns (Config memory) {
+        return config;
+    }
 
     function setContract(
         ContractEntry[] calldata _contracts
