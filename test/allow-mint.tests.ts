@@ -1,5 +1,5 @@
 import { ethers } from "hardhat";
-import { Contract, Signer, Wallet, utils } from "ethers";
+import { Contract, Signer, Wallet } from "ethers";
 import { expect } from "chai";
 
 const provider = ethers.provider;
