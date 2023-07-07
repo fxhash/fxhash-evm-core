@@ -34,22 +34,19 @@ contract Codex is ICodex {
         codexEntriesCount = 0;
     }
 
-    function codexEntryIdFromInput(
+    function insertOrUpdateCodex(
         address author,
         LibCodex.CodexInput memory input
     ) public returns (uint256) {
         uint256 codexIdValue = 0;
-        require(input.issuer == msg.sender, "Caller not issuer");
         if (input.codexId > 0) {
-            require(
-                codexEntries[input.codexId].author != address(0),
-                "CDX_EMPTY"
-            );
-            require(codexEntries[input.codexId].locked, "CDX_NOT_LOCK");
+            LibCodex.CodexData storage codexEntry = codexEntries[input.codexId];
+            require(codexEntry.author == msg.sender, "403");
+            require(codexEntry.locked, "CDX_NOT_LOCK");
             codexIdValue = input.codexId;
             emit CodexReplaced(author, input);
         } else {
-            require(input.inputType > 0, "CDX_EMP");
+            require(input.issuer == msg.sender, "Caller not issuer");
             bytes[] memory valueBytes = new bytes[](1);
             valueBytes[0] = input.value;
             codexInsert(
@@ -100,28 +97,26 @@ contract Codex is ICodex {
     }
 
     function updateIssuerCodexRequest(
-        address _issuer,
-        uint256 _codexId,
         LibCodex.CodexInput calldata input
     ) external {
-        require(_issuer != address(0), "NO_ISSUER");
-        require(IIssuer(_issuer).owner() == msg.sender, "403");
-        uint256 codexId = codexEntryIdFromInput(msg.sender, input);
-        require(issuerCodexUpdates[_codexId] != codexId, "SAME_CDX_ID");
-        issuerCodexUpdates[_codexId] = codexId;
-        emit UpdateIssuerCodexRequested(_issuer, _codexId, input);
+        require(input.issuer != address(0), "NO_ISSUER");
+        require(IIssuer(input.issuer).owner() == msg.sender, "403");
+        uint256 codexId = insertOrUpdateCodex(msg.sender, input);
+        require(issuerCodexUpdates[input.codexId] != codexId, "SAME_CDX_ID");
+        issuerCodexUpdates[input.codexId] = codexId;
+        emit UpdateIssuerCodexRequested(input.issuer, input.codexId, input);
     }
 
     function updateIssuerCodexApprove(
         address _issuer,
         uint256 _codexId
     ) external {
-        uint256 issuerId = issuerCodexUpdates[_codexId];
-        require(issuerId > 0, "NO_REQ");
-        require(issuerId == _codexId, "WRG_CDX_ID");
+        uint256 issuerCodexId = issuerCodexUpdates[_codexId];
+        require(issuerCodexId > 0, "NO_REQ");
+        require(issuerCodexId == _codexId, "WRG_CDX_ID");
         require(moderation.isAuthorized(msg.sender, 701), "403");
+        delete issuerCodexUpdates[issuerCodexId];
         IIssuer(_issuer).setCodex(_codexId);
-        delete issuerCodexUpdates[issuerId];
         emit UpdateIssuerCodexApproved(_issuer, _codexId);
     }
 

@@ -4,7 +4,7 @@ pragma solidity ^0.8.18;
 import "contracts/libs/LibCodex.sol";
 
 interface ICodex {
-    function codexEntryIdFromInput(
+    function insertOrUpdateCodex(
         address author,
         LibCodex.CodexInput memory input
     ) external returns (uint256);
@@ -24,8 +24,6 @@ interface ICodex {
     ) external;
 
     function updateIssuerCodexRequest(
-        address _issuer,
-        uint256 _codexId,
         LibCodex.CodexInput calldata input
     ) external;
 

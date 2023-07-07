@@ -18,10 +18,9 @@ describe("Codex", function () {
     );
     await codex.connect(admin).authorizeCaller(await admin.getAddress());
     await codex.connect(admin).authorizeCaller(await user.getAddress());
-
   });
 
-  describe("codexEntryIdFromInput", function () {
+  describe("insertOrUpdateCodex", function () {
     it("Should throw an error if codexId > 0 but there is no author for that codexId", async function () {
       const codexInput = {
         inputType: 1,
@@ -29,7 +28,7 @@ describe("Codex", function () {
         codexId: 1,
       };
       await expect(
-        codex.codexEntryIdFromInput(await user.getAddress(), codexInput)
+        codex.insertOrUpdateCodex(await user.getAddress(), codexInput)
       ).to.be.revertedWith("CDX_EMPTY");
     });
 
@@ -53,7 +52,9 @@ describe("Codex", function () {
     it("Should throw an error if an unauthorized user tries to lock an entry", async function () {
       const value = [ethers.utils.formatBytes32String("Test")];
       await codex.connect(admin).codexAddEntry(1, value);
-      await expect(codex.connect(user).codexLockEntry(0)).to.be.revertedWith("403");
+      await expect(codex.connect(user).codexLockEntry(0)).to.be.revertedWith(
+        "403"
+      );
     });
 
     // Add more test cases to cover other scenarios
@@ -64,11 +65,13 @@ describe("Codex", function () {
       const value = [ethers.utils.formatBytes32String("Test")];
       await codex.connect(admin).codexAddEntry(1, value);
       await expect(
-        codex.connect(user).codexUpdateEntry(
-          0,
-          true,
-          ethers.utils.formatBytes32String("NewTest")
-        )
+        codex
+          .connect(user)
+          .codexUpdateEntry(
+            0,
+            true,
+            ethers.utils.formatBytes32String("NewTest")
+          )
       ).to.be.revertedWith("403");
     });
 

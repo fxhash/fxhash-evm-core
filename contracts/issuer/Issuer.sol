@@ -63,7 +63,7 @@ contract Issuer is IIssuer, IERC2981, Ownable {
             "403"
         );
         uint256 codexId = ICodex(configManager.getAddress("codex"))
-            .codexEntryIdFromInput(msg.sender, params.codex);
+            .insertOrUpdateCodex(msg.sender, params.codex);
         uint256 _lockTime = configManager.getConfig().lockTime;
         require(
             ((params.royaltiesSplit.percent >= 1000) &&
