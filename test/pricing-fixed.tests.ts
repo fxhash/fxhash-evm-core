@@ -27,7 +27,7 @@ describe("PricingFixed", () => {
   });
 
   it("should set and get the price", async () => {
-    const issuerId = 1;
+    const issuerId = await signer.getAddress();
     const price = 100;
     const opensAt = Math.floor(Date.now() / 1000) - 100; // Current timestamp - 100 seconds
 
@@ -44,7 +44,7 @@ describe("PricingFixed", () => {
   });
 
   it("should revert when setting price with invalid details", async () => {
-    const issuerId = 1;
+    const issuerId = await signer.getAddress();
     const price = 0;
     const opensAt = 2;
 
@@ -60,7 +60,7 @@ describe("PricingFixed", () => {
   });
 
   it("should revert when getting price for non-existent issuer", async () => {
-    const issuerId = 2;
+    const issuerId = ethers.constants.AddressZero;
     const timestamp = Math.floor(Date.now() / 1000);
 
     await expect(pricingFixed.getPrice(issuerId, timestamp)).to.be.revertedWith(
@@ -69,7 +69,7 @@ describe("PricingFixed", () => {
   });
 
   it("should revert when getting price before it opens", async () => {
-    const issuerId = 1;
+    const issuerId = await signer.getAddress();
     const price = 100;
     const opensAt = Math.floor(Date.now() / 1000) + 100; // Current timestamp + 100 seconds
 
