@@ -39,12 +39,11 @@ interface IMintTicket {
     ) external;
 
     function createProject(
-        address issuer,
         uint256 gracingPeriod,
         string calldata metadata
     ) external;
 
-    function mint(address issuer, address minter, uint256 price) external;
+    function mint(address minter, uint256 price) external;
 
     function updatePrice(
         uint256 tokenId,

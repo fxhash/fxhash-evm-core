@@ -6,9 +6,9 @@ import "contracts/interfaces/IRandomizer.sol";
 import "contracts/interfaces/IMintTicket.sol";
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "contracts/abstract/admin/AuthorizedCaller.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract MintTicket is ERC721URIStorage, AuthorizedCaller, IMintTicket {
+contract MintTicket is ERC721URIStorage, Ownable, IMintTicket {
     mapping(uint256 => TokenData) public tokenData;
     mapping(address => ProjectData) public projectData;
     uint256 public lastTokenId;
@@ -37,31 +37,25 @@ contract MintTicket is ERC721URIStorage, AuthorizedCaller, IMintTicket {
         address _admin,
         address _randomizer
     ) ERC721("MintTicket", "MTK") {
-        _setupRole(DEFAULT_ADMIN_ROLE, _admin);
-        _setupRole(AUTHORIZED_CALLER, _admin);
         randomizer = IRandomizer(_randomizer);
         lastTokenId = 0;
         fees = 0;
         availableBalance = 0;
         minPrice = 100000;
-    }
-
-    modifier onlyFxHashIssuer() {
-        //require(_msgSender() == address(issuer), "NO_ISSUER");
-        _;
+        transferOwnership(_admin);
     }
 
     // Entry Points
 
-    function setMinPrice(uint256 price) external onlyAdmin {
+    function setMinPrice(uint256 price) external onlyOwner {
         minPrice = price;
     }
 
-    function setFees(uint256 _fees) external onlyAdmin {
+    function setFees(uint256 _fees) external onlyOwner {
         fees = _fees;
     }
 
-    function setRandomizer(address _randomizer) external onlyAdmin {
+    function setRandomizer(address _randomizer) external onlyOwner {
         randomizer = IRandomizer(_randomizer);
     }
 
@@ -69,7 +63,7 @@ contract MintTicket is ERC721URIStorage, AuthorizedCaller, IMintTicket {
         availableBalance = availableBalance + msg.value;
     }
 
-    function withdraw(uint256 amount, address to) external onlyAdmin {
+    function withdraw(uint256 amount, address to) external onlyOwner {
         uint256 withdrawAmount = amount > 0 ? amount : availableBalance;
         require(withdrawAmount <= availableBalance, "OVER_AVAILABLE_BALANCE");
         availableBalance -= withdrawAmount;
@@ -77,39 +71,34 @@ contract MintTicket is ERC721URIStorage, AuthorizedCaller, IMintTicket {
     }
 
     function createProject(
-        address _issuer,
         uint256 _gracingPeriod,
         string calldata _metadata
-    ) external onlyFxHashIssuer {
-        require(projectData[_issuer].gracingPeriod == 0, "PROJECT_EXISTS");
+    ) external {
+        require(projectData[msg.sender].gracingPeriod == 0, "PROJECT_EXISTS");
         require(_gracingPeriod > 0, "GRACING_UNDER_1");
-        projectData[_issuer] = ProjectData({
+        projectData[msg.sender] = ProjectData({
             gracingPeriod: _gracingPeriod,
             metadata: _metadata
         });
-        emit ProjectCreated(_issuer, _gracingPeriod, _metadata);
+        emit ProjectCreated(msg.sender, _gracingPeriod, _metadata);
     }
 
-    function mint(
-        address _issuer,
-        address _minter,
-        uint256 _price
-    ) external onlyFxHashIssuer {
-        ProjectData storage project = projectData[_issuer];
+    function mint(address _minter, uint256 _price) external {
+        ProjectData storage project = projectData[msg.sender];
         require(project.gracingPeriod > 0, "PROJECT_DOES_NOT_EXISTS");
         uint256 tokenId = lastTokenId;
         _mint(_minter, tokenId);
         _setTokenURI(tokenId, project.metadata);
         tokenData[tokenId] = TokenData(
-            _issuer,
+            msg.sender,
             _minter,
             block.timestamp,
             0,
-            block.timestamp + projectData[_issuer].gracingPeriod * 1 days,
+            block.timestamp + projectData[msg.sender].gracingPeriod * 1 days,
             _price < minPrice ? minPrice : _price
         );
         lastTokenId++;
-        emit TicketMinted(_issuer, _minter, _price);
+        emit TicketMinted(msg.sender, _minter, _price);
     }
 
     function updatePrice(
@@ -232,7 +221,7 @@ contract MintTicket is ERC721URIStorage, AuthorizedCaller, IMintTicket {
         address _owner,
         uint256 _tokenId,
         address _issuer
-    ) external payable onlyFxHashIssuer {
+    ) external payable {
         TokenData storage token = tokenData[_tokenId];
         require(token.minter != address(0), "TOKEN_DOES_NOT_EXIST");
         require(isOwner(_owner, _tokenId), "INSUFFICIENT_BALANCE");
@@ -328,7 +317,7 @@ contract MintTicket is ERC721URIStorage, AuthorizedCaller, IMintTicket {
         public
         view
         virtual
-        override(AccessControl, ERC721URIStorage, IMintTicket)
+        override(ERC721URIStorage, IMintTicket)
         returns (bool)
     {
         return
