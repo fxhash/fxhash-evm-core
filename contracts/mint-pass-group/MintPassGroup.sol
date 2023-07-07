@@ -35,7 +35,7 @@ contract MintPassGroup is Ownable, EIP712 {
     address private reserveMintPass;
     EnumerableSet.AddressSet private bypass;
     mapping(string => TokenRecord) private tokens;
-    mapping(bytes32 => uint256) private projects;
+    mapping(bytes32 => uint256) private issuers;
 
     event PassConsumed(address addr, string token, address project);
 
@@ -92,18 +92,18 @@ contract MintPassGroup is Ownable, EIP712 {
             tokenRecord.minted += 1;
             if (maxPerTokenPerProject != 0) {
                 require(
-                    projects[projectHash] < maxPerTokenPerProject,
+                    issuers[projectHash] < maxPerTokenPerProject,
                     "PASS_TOKEN_MAX_PROJECT_CONSUMED"
                 );
             }
-            projects[projectHash] += 1;
+            issuers[projectHash] += 1;
             tokenRecord.levelConsumed = block.number;
         } else {
             TokenRecord storage tokenRecord = tokens[payload.token];
             tokenRecord.minted = 1;
             tokenRecord.levelConsumed = block.number;
             tokenRecord.consumer = payload.addr;
-            projects[projectHash] = 1;
+            issuers[projectHash] = 1;
         }
         emit PassConsumed(payload.addr, payload.token, payload.project);
     }

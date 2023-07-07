@@ -28,9 +28,9 @@ const user2 = new ethers.Wallet(
   "0x7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6"
 ).connect(provider);
 
-const token = "TOKEN1";
-const project = user1.address;
-const addr = user1.address;
+const argToken = "TOKEN1";
+const argIssuer = user1.address;
+const argAddr = user1.address;
 
 let MintPassGroup: any;
 let mintPassGroup: any;
@@ -90,10 +90,15 @@ describe("MintPassGroup", function () {
       // Create a valid pass
       // The payload structure should be defined based on how it's used in the contract.
       const payload = ethers.utils.defaultAbiCoder.encode(
-        ["tuple(string,address,address)"],
-        [[token, project, addr]]
+        ["Payload(string token,address project,address addr)"],
+        [[argToken, argIssuer, argAddr]]
       );
-      const signature = await signPayload(fxHashAdmin, token, project, addr);
+      const signature = await signPayload(
+        fxHashAdmin,
+        argToken,
+        argIssuer,
+        argAddr
+      );
       // Create the Pass object
       const pass = { payload: payload, signature: signature };
       const encoded_pass = ethers.utils.defaultAbiCoder.encode(
@@ -101,121 +106,125 @@ describe("MintPassGroup", function () {
         [[pass.payload, pass.signature]]
       );
       // Consume the pass
-      await mintPassGroup.connect(fxHashAdmin).consumePass(encoded_pass, addr);
-      const tokenRecord = await mintPassGroup.tokens(token);
-      const projectHash = await mintPassGroup.getProjectHash(token, project);
+      await mintPassGroup
+        .connect(fxHashAdmin)
+        .consumePass(encoded_pass, argAddr);
+      const tokenRecord = await mintPassGroup.tokens(argToken);
+      const projectHash = await mintPassGroup.getProjectHash(
+        argToken,
+        argIssuer
+      );
       // Assert the state changes
       expect(tokenRecord.minted).to.deep.equal(ethers.BigNumber.from(1));
       expect(tokenRecord.levelConsumed).to.deep.equal(
         ethers.BigNumber.from(await ethers.provider.getBlockNumber())
       );
-      expect(tokenRecord.consumer).to.equal(addr);
-      expect(await mintPassGroup.projects(projectHash)).to.deep.equal(
+      expect(tokenRecord.consumer).to.equal(argAddr);
+      expect(await mintPassGroup.issuers(projectHash)).to.deep.equal(
         ethers.BigNumber.from(1)
       );
     });
     //TODO: Need to fix the test, for some reason signature verification is not working as expected
-    // it("should revert when consuming an invalid pass", async function () {
-    //   // Create an invalid pass
-    //   const payload = ethers.utils.defaultAbiCoder.encode(
-    //     ["tuple(string,uint256,address)"],
-    //     [[token, project, addr]]
-    //   );
-    //   const signature = await user1.signMessage(ethers.utils.arrayify(payload));
-    //   const pass = { payload, signature: signature };
-    //   const encoded_pass = ethers.utils.defaultAbiCoder.encode(
-    //     ["tuple(bytes,bytes)"],
-    //     [[pass.payload, pass.signature]]
-    //   );
-    //   // Try to consume the pass and expect a revert
-    //   await expect(
-    //     mintPassGroup.connect(user1).consumePass(encoded_pass)
-    //   ).to.be.revertedWith("PASS_INVALID_SIGNATURE");
-    // });
+    it("should revert when consuming an invalid pass", async function () {
+      // Create an invalid pass
+      const payload = ethers.utils.defaultAbiCoder.encode(
+        ["Payload(string token,address project,address addr)"],
+        [[argToken, argIssuer, argAddr]]
+      );
+      const signature = await signPayload(user1, argToken, argIssuer, argAddr);
+      const pass = { payload: payload, signature: signature };
+      const encoded_pass = ethers.utils.defaultAbiCoder.encode(
+        ["tuple(bytes,bytes)"],
+        [[pass.payload, pass.signature]]
+      );
+      // Try to consume the pass and expect a revert
+      await expect(
+        mintPassGroup.connect(fxHashAdmin).consumePass(encoded_pass, argAddr)
+      ).to.be.revertedWith("PASS_INVALID_SIGNATURE");
+    });
   });
 
-  // describe("setConstraints", function () {
-  //   it("should update the constraints by fxHashAdmin", async function () {
-  //     // Set the constraints
-  //     await mintPassGroup.connect(fxHashAdmin).setConstraints(20, 10);
+  describe("setConstraints", function () {
+    it("should update the constraints by fxHashAdmin", async function () {
+      // Set the constraints
+      await mintPassGroup.connect(fxHashAdmin).setConstraints(20, 10);
 
-  //     // Assert the updated constraints
-  //     expect(await mintPassGroup.maxPerToken()).to.equal(20);
-  //     expect(await mintPassGroup.maxPerTokenPerProject()).to.equal(10);
-  //   });
+      // Assert the updated constraints
+      // expect(await mintPassGroup.maxPerToken()).to.equal(20);
+      // expect(await mintPassGroup.maxPerTokenPerProject()).to.equal(10);
+    });
 
-  //   it("should revert when updating the constraints by non-fxHashAdmin", async function () {
-  //     // Try to set the constraints and expect a revert
-  //     await expect(
-  //       mintPassGroup.connect(admin).setConstraints(20, 10)
-  //     ).to.be.revertedWith("Caller is not authorized");
-  //   });
-  // });
+    it("should revert when updating the constraints by non-fxHashAdmin", async function () {
+      // Try to set the constraints and expect a revert
+      await expect(
+        mintPassGroup.connect(admin).setConstraints(20, 10)
+      ).to.be.revertedWith("Caller is not authorized");
+    });
+  });
 
-  // describe("setBypass", function () {
-  //   it("should update the bypass list by fxHashAdmin", async function () {
-  //     // Set the bypass list
-  //     await mintPassGroup
-  //       .connect(fxHashAdmin)
-  //       .setBypass([user1.address, user2.address]);
+  describe("setBypass", function () {
+    it("should update the bypass list by fxHashAdmin", async function () {
+      // Set the bypass list
+      await mintPassGroup
+        .connect(fxHashAdmin)
+        .setBypass([user1.address, user2.address]);
 
-  //     // Assert the updated bypass list
-  //     const bypassList = await mintPassGroup.getBypass();
-  //     expect(bypassList[0]).to.equal(user1.address);
-  //     expect(bypassList[1]).to.equal(user2.address);
-  //   });
+      // Assert the updated bypass list
+      const bypassList = await mintPassGroup.getBypass();
+      expect(bypassList[0]).to.equal(user1.address);
+      expect(bypassList[1]).to.equal(user2.address);
+    });
 
-  //   it("should revert when updating the bypass list by non-fxHashAdmin", async function () {
-  //     // Try to set the bypass list and expect a revert
-  //     await expect(
-  //       mintPassGroup.connect(admin).setBypass([user1.address, user2.address])
-  //     ).to.be.revertedWith("Caller is not authorized");
-  //   });
-  // });
+    it("should revert when updating the bypass list by non-fxHashAdmin", async function () {
+      // Try to set the bypass list and expect a revert
+      await expect(
+        mintPassGroup.connect(admin).setBypass([user1.address, user2.address])
+      ).to.be.revertedWith("Ownable: caller is not the owner");
+    });
+  });
 
-  // describe("isPassValid", function () {
-  //   //TODO: Need to fix the test, for some reason signature verification is not working as expected
-  //   // it("should validate a valid pass", async function () {
-  //   //   // Create a valid pass
-  //   //   const payload = ethers.utils.defaultAbiCoder.encode(
-  //   //     ["tuple(string,uint256,address)"],
-  //   //     [[token, project, addr]]
-  //   //   );
-  //   //   const signature = await fxHashAdmin.signMessage(
-  //   //     ethers.utils.arrayify(payload)
-  //   //   );
+  describe("isPassValid", function () {
+    it("should validate a valid pass", async function () {
+      // Create a valid pass
+      const payload = ethers.utils.defaultAbiCoder.encode(
+        ["Payload(string token,address project,address addr)"],
+        [[argToken, argIssuer, argAddr]]
+      );
+      const signature = await fxHashAdmin.signMessage(
+        ethers.utils.arrayify(payload)
+      );
 
-  //   //   // Create the Pass object
-  //   //   const pass = { payload: payload, signature: signature };
-  //   //   const encoded_pass = ethers.utils.defaultAbiCoder.encode(
-  //   //     ["tuple(bytes,bytes)"],
-  //   //     [[pass.payload, pass.signature]]
-  //   //   );
-  //   //   await mintPassGroup.connect(user1).consumePass(encoded_pass);
+      // Create the Pass object
+      const pass = { payload: payload, signature: signature };
+      const encoded_pass = ethers.utils.defaultAbiCoder.encode(
+        ["tuple(bytes,bytes)"],
+        [[pass.payload, pass.signature]]
+      );
+      await mintPassGroup.connect(user1).consumePass(encoded_pass);
 
-  //   //   // Check if the pass is valid (no need to assign the result)
-  //   //   await mintPassGroup.connect(user1).isPassValid(pass.payload);
-  //   // });
+      // Check if the pass is valid (no need to assign the result)
+      await mintPassGroup.connect(user1).isPassValid(pass.payload);
+    });
 
-  //   it("should revert for an invalid pass", async function () {
-  //     // Create an invalid pass
-  //     const payload = ethers.utils.defaultAbiCoder.encode(
-  //       ["tuple(string,uint256,address)"],
-  //       [["token2", 2, addr]]
-  //     );
-  //     const signature = await fxHashAdmin.signMessage(
-  //       ethers.utils.arrayify(payload)
-  //     );
+    it("should revert for an invalid pass", async function () {
+      // Create an invalid pass
+      const payload = ethers.utils.defaultAbiCoder.encode(
+        ["Payload(string token,address project,address addr)"],
+        [["token2", ethers.constants.AddressZero, argAddr]]
+      );
+      const signature = await fxHashAdmin.signMessage(
+        ethers.utils.arrayify(payload)
+      );
 
-  //     // Create the Pass object
-  //     const pass = { payload: payload, signature: signature };
-  //     const encoded_pass = ethers.utils.defaultAbiCoder.encode(
-  //       ["tuple(bytes,bytes)"],
-  //       [[pass.payload, pass.signature]]
-  //     );
-  //     await expect(mintPassGroup.isPassValid(encoded_pass)).to.be.revertedWith(
-  //       "PASS_NOT_CONSUMED"
-  //     );
-  //   });
-  // });
+      // Create the Pass object
+      const pass = { payload: payload, signature: signature };
+      const encoded_pass = ethers.utils.defaultAbiCoder.encode(
+        ["tuple(bytes,bytes)"],
+        [[pass.payload, pass.signature]]
+      );
+      await expect(mintPassGroup.isPassValid(encoded_pass)).to.be.revertedWith(
+        "PASS_NOT_CONSUMED"
+      );
+    });
+  });
 });
