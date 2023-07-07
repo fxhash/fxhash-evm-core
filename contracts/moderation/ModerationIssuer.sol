@@ -2,7 +2,6 @@
 pragma solidity ^0.8.0;
 
 import "contracts/libs/LibModeration.sol";
-import "contracts/abstract/admin/AuthorizedCaller.sol";
 import "contracts/abstract/BaseModeration.sol";
 import "contracts/libs/LibModeration.sol";
 import "contracts/interfaces/IModerationIssuer.sol";
@@ -14,7 +13,10 @@ contract ModerationIssuer is BaseModeration, IModerationIssuer {
     event IssuerModerated(address issuer, uint256 state, uint256 reason);
     event IssuerReported(address reporter, address issuer, uint256 reason);
 
-    constructor(address _admin) BaseModeration(_admin) {}
+    constructor(
+        address _admin,
+        address _moderation
+    ) BaseModeration(_admin, _moderation) {}
 
     function moderateIssuer(
         address issuerContract,

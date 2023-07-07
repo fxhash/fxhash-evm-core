@@ -2,7 +2,6 @@
 pragma solidity ^0.8.18;
 
 import "contracts/libs/LibModeration.sol";
-import "contracts/abstract/admin/AuthorizedCaller.sol";
 import "contracts/moderation/ModerationTeam.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "contracts/abstract/BaseModeration.sol";
@@ -14,7 +13,10 @@ contract ModerationUser is BaseModeration, IModerationUser {
     event UserModerated(address user, uint256 state, uint256 reason);
 
     // Constructor
-    constructor(address _admin) BaseModeration(_admin) {}
+    constructor(
+        address _admin,
+        address _moderation
+    ) BaseModeration(_admin, _moderation) {}
 
     // Check if an address is a user moderator on the moderation team contract
     function isModerator(address user) public view override returns (bool) {

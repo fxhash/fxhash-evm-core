@@ -16,17 +16,17 @@ describe("AllowIssuerMint", function () {
 
     [admin, nonAdmin] = await ethers.getSigners();
 
-    const ModerationUser = await ethers.getContractFactory("ModerationUser");
-    moderationUser = await ModerationUser.deploy(await admin.getAddress());
-    await moderationUser.deployed();
-
     const ModerationTeam = await ethers.getContractFactory("ModerationTeam");
 
     moderationTeam = await ModerationTeam.deploy(admin.getAddress());
     await moderationTeam.deployed();
-    await moderationUser.setAddress([
-      { key: "mod", value: moderationTeam.address },
-    ]);
+
+    const ModerationUser = await ethers.getContractFactory("ModerationUser");
+    moderationUser = await ModerationUser.deploy(
+      await admin.getAddress(),
+      moderationTeam.address
+    );
+    await moderationUser.deployed();
 
     await moderationTeam.connect(admin).updateModerators([
       {
@@ -36,28 +36,27 @@ describe("AllowIssuerMint", function () {
     ]);
 
     const UserActionsFactory = await ethers.getContractFactory("UserActions");
-    userActions = await UserActionsFactory.deploy(await admin.getAddress());
+    userActions = await UserActionsFactory.deploy();
     await userActions.deployed();
 
-    const AllowMintFactory = await ethers.getContractFactory("AllowMintIssuer");
-    allowIssuerMint = await AllowMintFactory.deploy(
-      await admin.getAddress(),
+    const AllowMintIssuerFactory = await ethers.getContractFactory(
+      "AllowMintIssuer"
+    );
+    allowIssuerMint = await AllowMintIssuerFactory.deploy(
       moderationUser.address,
-      userActions.address
+      userActions.address,
+      await admin.getAddress()
     );
 
     await allowIssuerMint.deployed();
-    await userActions.connect(admin).authorizeCaller(allowIssuerMint.address);
   });
 
   it("should update the user moderation contract", async function () {
-    const ModerationUser = await ethers.getContractFactory("ModerationUser");
-
-    let moderationUser = await ModerationUser.deploy(admin.getAddress());
-    await moderationUser.deployed();
-    await allowIssuerMint.updateUserModerationContract(moderationUser.address);
+    await allowIssuerMint.updateUserModerationContract(
+      await admin.getAddress()
+    );
     expect(await allowIssuerMint.userModerationContract()).to.equal(
-      moderationUser.address
+      await admin.getAddress()
     );
   });
 

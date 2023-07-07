@@ -3,8 +3,9 @@ pragma solidity ^0.8.18;
 import "contracts/abstract/admin/AuthorizedCaller.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract ModerationTeam is AuthorizedCaller {
+contract ModerationTeam is Ownable {
     using EnumerableSet for EnumerableSet.AddressSet;
     event Received(address sender, uint256 amount);
 
@@ -40,9 +41,8 @@ contract ModerationTeam is AuthorizedCaller {
     INITIALIZATION
     */
     constructor(address _admin) {
-        _setupRole(DEFAULT_ADMIN_ROLE, _admin);
-        _setupRole(AUTHORIZED_CALLER, _admin);
         sharesTotal = 0;
+        transferOwnership(_admin);
     }
 
     /*
@@ -56,8 +56,7 @@ contract ModerationTeam is AuthorizedCaller {
 
     modifier onlyModeratorOrAdmin() {
         require(
-            isModerator(msg.sender) ||
-                AccessControl.hasRole(AUTHORIZED_CALLER, _msgSender()),
+            isModerator(msg.sender) || msg.sender == owner(),
             "NOT_MODERATOR_OR_ADMIN"
         );
         _;
@@ -75,7 +74,7 @@ contract ModerationTeam is AuthorizedCaller {
     */
     function updateModerators(
         UpdateModeratorParam[] calldata params
-    ) external onlyAdmin {
+    ) external onlyOwner {
         for (uint256 i = 0; i < params.length; i++) {
             UpdateModeratorParam memory mod = params[i];
             address userAddress = mod.moderator;
@@ -94,7 +93,7 @@ contract ModerationTeam is AuthorizedCaller {
 
     function updateShares(
         UpdateShareParam[] calldata params
-    ) external onlyAdmin {
+    ) external onlyOwner {
         for (uint256 i = 0; i < params.length; i++) {
             UpdateShareParam memory shareData = params[i];
             address shareAddress = shareData.moderator;

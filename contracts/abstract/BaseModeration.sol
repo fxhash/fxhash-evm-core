@@ -1,17 +1,18 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "contracts/abstract/admin/AuthorizedCaller.sol";
 import "contracts/moderation/ModerationTeam.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-abstract contract BaseModeration is AuthorizedCaller {
+abstract contract BaseModeration is Ownable {
     uint256 internal reasonsCount;
     address internal moderation;
     mapping(uint256 => string) public reasons;
 
-    constructor(address _admin) {
-        _setupRole(DEFAULT_ADMIN_ROLE, _admin);
+    constructor(address _admin, address _moderation) {
         reasonsCount = 0;
+        moderation = _moderation;
+        transferOwnership(_admin);
     }
 
     modifier onlyModerator() {
@@ -45,7 +46,7 @@ abstract contract BaseModeration is AuthorizedCaller {
         reasons[reasonId] = reason;
     }
 
-    function setModeration(address _moderation) external onlyAdmin {
+    function setModeration(address _moderation) external onlyOwner {
         moderation = _moderation;
     }
 }
