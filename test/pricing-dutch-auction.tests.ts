@@ -31,7 +31,7 @@ describe("PricingDutchAuction", () => {
   });
 
   it("should set the price correctly", async () => {
-    const issuerId = 1;
+    const issuerId = await signer.getAddress();
     const opensAt = Math.floor(Date.now() / 1000) + 60; // Current timestamp + 60 seconds
     const decrementDuration = 60;
     const levels = [100, 90, 80, 70, 60];
@@ -53,7 +53,7 @@ describe("PricingDutchAuction", () => {
   });
 
   it("should revert when setting price with invalid details", async () => {
-    const issuerId = 1;
+    const issuerId = await signer.getAddress();
     const opensAt = Math.floor(Date.now() / 1000) + 60; // Current timestamp + 60 seconds
     const decrementDuration = 60;
 
@@ -71,7 +71,7 @@ describe("PricingDutchAuction", () => {
   });
 
   it("should lock the price", async () => {
-    const issuerId = 1;
+    const issuerId = await signer.getAddress();
     const opensAt = Math.floor(Date.now() / 1000) + 60; // Current timestamp + 60 seconds
     const decrementDuration = 60;
     const levels = [100, 90, 80, 70, 60];
@@ -90,7 +90,7 @@ describe("PricingDutchAuction", () => {
   });
 
   it("should revert when getting price before it opens", async () => {
-    const issuerId = 1;
+    const issuerId = await signer.getAddress();
     const opensAt = Math.floor(Date.now() / 1000) + 60; // Current timestamp + 60 seconds
     const decrementDuration = 60;
     const levels = [100, 90, 80, 70, 60];
