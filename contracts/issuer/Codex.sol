@@ -5,10 +5,11 @@ import "contracts/interfaces/IModeration.sol";
 import "contracts/interfaces/IIssuer.sol";
 import "contracts/interfaces/ICodex.sol";
 import "contracts/libs/LibIssuer.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Codex is ICodex {
+contract Codex is ICodex, Ownable {
     uint256 private codexEntriesCount;
-    IModeration private moderation;
+    address private moderation;
 
     mapping(uint256 => LibCodex.CodexData) public codexEntries;
     mapping(uint256 => uint256) public issuerCodexUpdates;
@@ -29,9 +30,14 @@ contract Codex is ICodex {
     );
     event UpdateIssuerCodexApproved(address issuer, uint256 _codexId);
 
-    constructor(address _moderation) {
-        moderation = IModeration(_moderation);
+    constructor(address _admin, address _moderation) {
+        moderation = _moderation;
         codexEntriesCount = 0;
+        transferOwnership(_admin);
+    }
+
+    function setModeration(address _moderation) external onlyOwner {
+        moderation = _moderation;
     }
 
     function insertOrUpdateCodex(
@@ -111,10 +117,11 @@ contract Codex is ICodex {
         address _issuer,
         uint256 _codexId
     ) external {
+        require(_issuer != address(0), "NO_ISSUER");
         uint256 issuerCodexId = issuerCodexUpdates[_codexId];
         require(issuerCodexId > 0, "NO_REQ");
         require(issuerCodexId == _codexId, "WRG_CDX_ID");
-        require(moderation.isAuthorized(msg.sender, 701), "403");
+        require(IModeration(moderation).isAuthorized(msg.sender, 701), "403");
         delete issuerCodexUpdates[issuerCodexId];
         IIssuer(_issuer).setCodex(_codexId);
         emit UpdateIssuerCodexApproved(_issuer, _codexId);

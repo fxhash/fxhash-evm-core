@@ -7,7 +7,6 @@ import "contracts/interfaces/IUserActions.sol";
 import "@openzeppelin/contracts/utils/math/SignedMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "contracts/moderation/ModerationUser.sol";
-
 import "contracts/libs/LibUserActions.sol";
 
 contract AllowMintIssuer is Ownable {
@@ -15,7 +14,11 @@ contract AllowMintIssuer is Ownable {
     IModerationUser public userModerationContract;
     IUserActions public userActions;
 
-    constructor(address _userModerationContract, address _userActions, address _admin) {
+    constructor(
+        address _userModerationContract,
+        address _userActions,
+        address _admin
+    ) {
         mintDelay = 3600;
         userModerationContract = ModerationUser(_userModerationContract);
         userActions = IUserActions(_userActions);
