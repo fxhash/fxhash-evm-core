@@ -5,7 +5,6 @@ import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "hardhat/console.sol";
 
 contract MintPassGroup is Ownable, EIP712 {
     bytes32 public constant PAYLOAD_TYPE_HASH =
@@ -180,7 +179,7 @@ contract MintPassGroup is Ownable, EIP712 {
             keccak256(
                 abi.encode(
                     PAYLOAD_TYPE_HASH,
-                    _payload.token,
+                    keccak256(bytes(_payload.token)),
                     _payload.project,
                     _payload.addr
                 )
