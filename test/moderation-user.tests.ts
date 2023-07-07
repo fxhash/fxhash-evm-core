@@ -17,13 +17,14 @@ describe("ModerationUser", () => {
     const ModerationUser = await ethers.getContractFactory("ModerationUser");
     [admin, moderator, user1, user2] = await ethers.getSigners();
 
-    moderationUser = await ModerationUser.deploy(await admin.getAddress());
-    await moderationUser.deployed();
     moderationTeam = await ModerationTeam.deploy(admin.getAddress());
     await moderationTeam.deployed();
-    await moderationUser.setAddress([
-      { key: "mod", value: moderationTeam.address },
-    ]);
+    moderationUser = await ModerationUser.deploy(
+      await admin.getAddress(),
+      moderationTeam.address
+    );
+    await moderationUser.deployed();
+
     await moderationTeam.connect(admin).updateModerators([
       {
         moderator: moderator.getAddress(),
