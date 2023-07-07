@@ -2,11 +2,17 @@
 pragma solidity ^0.8.18;
 
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "hardhat/console.sol";
 
-contract MintPassGroup is Ownable {
+contract MintPassGroup is Ownable, EIP712 {
+    bytes32 public constant PAYLOAD_TYPE_HASH =
+        keccak256("Payload(string token,address project,address addr)");
+
     using EnumerableSet for EnumerableSet.AddressSet;
+
     struct TokenRecord {
         uint256 minted;
         uint256 levelConsumed;
@@ -20,7 +26,7 @@ contract MintPassGroup is Ownable {
 
     struct Payload {
         string token;
-        uint256 project;
+        address project;
         address addr;
     }
 
@@ -32,7 +38,7 @@ contract MintPassGroup is Ownable {
     mapping(string => TokenRecord) private tokens;
     mapping(bytes32 => uint256) private projects;
 
-    event PassConsumed(address addr, string token, uint256 project);
+    event PassConsumed(address addr, string token, address project);
 
     constructor(
         uint256 _maxPerToken,
@@ -40,7 +46,7 @@ contract MintPassGroup is Ownable {
         address _signer,
         address _reserveMintPass,
         address[] memory _bypass
-    ) {
+    ) EIP712("MintPassGroup", "1") {
         maxPerToken = _maxPerToken;
         maxPerTokenPerProject = _maxPerTokenPerProject;
         signer = _signer;
@@ -69,7 +75,7 @@ contract MintPassGroup is Ownable {
             "PASS_INVALID_ADDRESS"
         );
         require(
-            checkSignature(pass.signature, pass.payload),
+            checkSignature(pass.signature, payload),
             "PASS_INVALID_SIGNATURE"
         );
         if (tokens[payload.token].minted > 0) {
@@ -130,18 +136,17 @@ contract MintPassGroup is Ownable {
         );
         require(payload.addr == token.consumer, "WRONG_PASS_CONSUMER");
         require(
-            checkSignature(pass.payload, pass.signature),
+            checkSignature(pass.signature, payload),
             "PASS_INVALID_SIGNATURE"
         );
     }
 
     function getProjectHash(
         string memory token,
-        uint256 project
+        address project
     ) public pure returns (bytes32) {
         bytes32 tokenHash = keccak256(bytes(token));
-        bytes32 projectHash = bytes32(project);
-        return keccak256(abi.encodePacked(tokenHash, projectHash));
+        return keccak256(abi.encodePacked(tokenHash, project));
     }
 
     function decodePayload(
@@ -169,13 +174,19 @@ contract MintPassGroup is Ownable {
 
     function checkSignature(
         bytes memory _signature,
-        bytes memory _payload
+        Payload memory _payload
     ) private view returns (bool) {
-        bytes32 payloadHash = keccak256(_payload);
-        address recovered = ECDSA.recover(
-            ECDSA.toEthSignedMessageHash(payloadHash),
-            _signature
+        bytes32 payloadHash = _hashTypedDataV4(
+            keccak256(
+                abi.encode(
+                    PAYLOAD_TYPE_HASH,
+                    _payload.token,
+                    _payload.project,
+                    _payload.addr
+                )
+            )
         );
+        address recovered = ECDSA.recover(payloadHash, _signature);
         return signer == recovered;
     }
 
