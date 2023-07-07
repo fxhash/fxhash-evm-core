@@ -65,93 +65,83 @@ describe("MintTicket", () => {
     const salt = ethers.utils.formatBytes32String("salt");
     randomizer = await RandomizerFactory.deploy(seed, salt);
     await randomizer.deployed();
-
     mintTicket = await MintTicket.deploy(
       await admin.getAddress(),
-      randomizer.address,
       randomizer.address
     );
     await mintTicket.deployed();
     issuer = await IssuerFactory.deploy(mintTicket.address);
     await issuer.deployed();
-    await mintTicket.setIssuer(issuer.address);
-    await randomizer.grantFxHashIssuerRole(issuer.address);
     await randomizer.grantFxHashIssuerRole(mintTicket.address);
   });
 
   describe("createProject", () => {
     it("should create a new project", async () => {
-      const projectId = 1;
       const gracingPeriod = 30;
       const metadata = "Project metadata";
 
-      await issuer.createProject(projectId, gracingPeriod, metadata);
+      await issuer.createProject(gracingPeriod, metadata);
 
-      const projectData = await mintTicket.projectData(projectId);
+      const projectData = await mintTicket.projectData(await issuer.address);
       expect(projectData.gracingPeriod).to.equal(gracingPeriod);
       expect(projectData.metadata).to.equal(metadata);
     });
 
     it("should revert if the project already exists", async () => {
-      const projectId = 1;
       const gracingPeriod = 30;
       const metadata = "Project metadata";
 
-      await issuer.createProject(projectId, gracingPeriod, metadata);
+      await issuer.createProject(gracingPeriod, metadata);
 
       await expect(
-        issuer.createProject(projectId, gracingPeriod, metadata)
+        issuer.createProject(gracingPeriod, metadata)
       ).to.be.revertedWith("PROJECT_EXISTS");
     });
 
     it("should revert if the gracing period is less than 1 day", async () => {
-      const projectId = 1;
       const gracingPeriod = 0;
       const metadata = "Project metadata";
 
       await expect(
-        issuer.createProject(projectId, gracingPeriod, metadata)
+        issuer.createProject(gracingPeriod, metadata)
       ).to.be.revertedWith("GRACING_UNDER_1");
     });
   });
 
   describe("mint", () => {
     it("should mint a new token with the given project and price", async () => {
-      const projectId = 1;
       const minter = await nonAdmin.getAddress();
       const price = ethers.utils.parseEther("1");
 
-      await issuer.createProject(projectId, 30, "Project metadata");
+      await issuer.createProject(30, "Project metadata");
 
-      await issuer.mint(projectId, minter, price);
+      await issuer.mintTicket(minter, price);
 
       const tokenData = await mintTicket.tokenData(0);
-      expect(tokenData.projectId).to.equal(projectId);
+      expect(tokenData.issuer).to.equal(await issuer.address);
       expect(tokenData.minter).to.equal(minter);
       expect(tokenData.price).to.equal(price);
     });
 
     it("should revert if the project does not exist", async () => {
-      const projectId = 1;
       const minter = await nonAdmin.getAddress();
       const price = ethers.utils.parseEther("1");
 
-      await expect(issuer.mint(projectId, minter, price)).to.be.revertedWith(
+      await expect(issuer.mintTicket(minter, price)).to.be.revertedWith(
         "PROJECT_DOES_NOT_EXISTS"
       );
     });
 
     it("should set the price to min price if the price is below the minimum price", async () => {
-      const projectId = 1;
       const minter = await nonAdmin.getAddress();
       const price = ethers.utils.parseEther("0.001");
       const minprice = ethers.utils.parseEther("0.1");
       await mintTicket.setMinPrice(minprice);
-      await issuer.createProject(projectId, 30, "Project metadata");
-      await issuer.mint(projectId, minter, price);
+      await issuer.createProject(30, "Project metadata");
+      await issuer.mintTicket(minter, price);
 
       const tokenData = await mintTicket.tokenData(0);
-      expect(tokenData.projectId).to.equal(projectId);
+      expect(tokenData.issuer).to.equal(await issuer.address);
       expect(tokenData.minter).to.equal(minter);
       expect(tokenData.price).to.equal(minprice);
     });
@@ -159,7 +149,6 @@ describe("MintTicket", () => {
 
   describe("updatePrice", () => {
     it("should update the price of the token", async () => {
-      const projectId = 1;
       const tokenId = 0;
       const minter = await nonAdmin.getAddress();
       const price = ethers.utils.parseEther("1");
@@ -167,8 +156,8 @@ describe("MintTicket", () => {
       const gracingPeriod = 30;
       const coverage = gracingPeriod + 1; // Set coverage outside the gracing period
 
-      await issuer.createProject(projectId, gracingPeriod, "Project metadata");
-      await issuer.mint(projectId, minter, price);
+      await issuer.createProject(gracingPeriod, "Project metadata");
+      await issuer.mintTicket(minter, price);
 
       // Transfer sufficient funds to cover the tax
       const taxAmount = ethers.utils.parseEther("0.01");
@@ -193,15 +182,15 @@ describe("MintTicket", () => {
     });
 
     it("should revert if the sender is not the owner of the token", async () => {
-      const projectId = 1;
+      const projectId = issuer.address;
       const tokenId = 0;
       const minter = await nonAdmin.getAddress();
       const price = ethers.utils.parseEther("1");
       const newPrice = ethers.utils.parseEther("2");
       const coverage = 10;
 
-      await issuer.createProject(projectId, 30, "Project metadata");
-      await issuer.mint(projectId, minter, price);
+      await issuer.createProject(30, "Project metadata");
+      await issuer.mintTicket(minter, price);
 
       await expect(
         mintTicket.connect(fxHashAdmin).updatePrice(tokenId, newPrice, coverage)
@@ -209,7 +198,7 @@ describe("MintTicket", () => {
     });
 
     it("should revert if the new price is below the minimum price", async () => {
-      const projectId = 1;
+      const projectId = issuer.address;
       const tokenId = 0;
       const minter = await nonAdmin.getAddress();
       const price = ethers.utils.parseEther("1");
@@ -217,8 +206,8 @@ describe("MintTicket", () => {
       const coverage = 10;
 
       await mintTicket.setMinPrice(ethers.utils.parseEther("0.1"));
-      await issuer.createProject(projectId, 30, "Project metadata");
-      await issuer.mint(projectId, minter, price);
+      await issuer.createProject(30, "Project metadata");
+      await issuer.mintTicket(minter, price);
 
       await expect(
         mintTicket.connect(nonAdmin).updatePrice(tokenId, newPrice, coverage)
@@ -226,15 +215,15 @@ describe("MintTicket", () => {
     });
 
     it("should revert if the coverage is less than 1", async () => {
-      const projectId = 1;
+      const projectId = issuer.address;
       const tokenId = 0;
       const minter = await nonAdmin.getAddress();
       const price = ethers.utils.parseEther("1");
       const newPrice = ethers.utils.parseEther("2");
       const coverage = 0;
 
-      await issuer.createProject(projectId, 30, "Project metadata");
-      await issuer.mint(projectId, minter, price);
+      await issuer.createProject(30, "Project metadata");
+      await issuer.mintTicket(minter, price);
 
       await expect(
         mintTicket.connect(nonAdmin).updatePrice(tokenId, newPrice, coverage)
@@ -244,13 +233,13 @@ describe("MintTicket", () => {
 
   describe("payTax", () => {
     it("should pay the tax and update the taxationLocked", async () => {
-      const projectId = 1;
+      const projectId = issuer.address;
       const tokenId = 0;
       const minter = await nonAdmin.getAddress();
       const price = ethers.utils.parseEther("1");
 
-      await issuer.createProject(projectId, 30, "Project metadata");
-      await issuer.mint(projectId, minter, price);
+      await issuer.createProject(30, "Project metadata");
+      await issuer.mintTicket(minter, price);
 
       const tokenDataBefore = await mintTicket.tokenData(tokenId);
       const taxAmount = ethers.utils.parseEther("0.01");
@@ -282,19 +271,19 @@ describe("MintTicket", () => {
 
   describe("claim", () => {
     it("should claim the token and update the necessary values", async () => {
-      const projectId = 1;
+      const projectId = issuer.address;
       const tokenId = 0;
       const minter = await nonAdmin.getAddress();
       const price = ethers.utils.parseUnits("1", 18);
       const coverage = 30;
       const transferTo = await admin.getAddress();
 
-      await issuer.createProject(projectId, 30, "Project metadata");
-      await issuer.mint(projectId, minter, price);
+      await issuer.createProject(30, "Project metadata");
+      await issuer.mintTicket(minter, price);
       // Set taxationStart to a time outside the gracing period
       const tokenDataBefore = await mintTicket.tokenData(tokenId);
       const gracingPeriod = await mintTicket.projectData(
-        tokenDataBefore.projectId
+        tokenDataBefore.issuer
       );
       const startDay = ethers.BigNumber.from(tokenDataBefore.createdAt).add(
         ethers.BigNumber.from(gracingPeriod.gracingPeriod + 1).mul(86400)
@@ -363,15 +352,15 @@ describe("MintTicket", () => {
     });
 
     it("should revert during the gracing period", async () => {
-      const projectId = 1;
+      const projectId = issuer.address;
       const tokenId = 0;
       const minter = await nonAdmin.getAddress();
       const price = ethers.utils.parseEther("1");
       const coverage = 30;
       const transferTo = await admin.getAddress();
 
-      await issuer.createProject(projectId, 30, "Project metadata");
-      await issuer.mint(projectId, minter, price);
+      await issuer.createProject(30, "Project metadata");
+      await issuer.mintTicket(minter, price);
 
       await expect(
         mintTicket.claim(tokenId, price, coverage, transferTo, {
@@ -381,20 +370,20 @@ describe("MintTicket", () => {
     });
 
     it("should revert if the price is below the minimum price", async () => {
-      const projectId = 1;
+      const projectId = issuer.address;
       const tokenId = 0;
       const minter = await nonAdmin.getAddress();
       const price = ethers.utils.parseUnits("0.00000001", 18);
       const coverage = 30;
       const transferTo = await admin.getAddress();
 
-      await issuer.createProject(projectId, 30, "Project metadata");
-      await issuer.mint(projectId, minter, price);
+      await issuer.createProject(30, "Project metadata");
+      await issuer.mintTicket(minter, price);
       await mintTicket.setMinPrice(10000000000000);
       // Set taxationStart to a time outside the gracing period
       const tokenDataBefore = await mintTicket.tokenData(tokenId);
       const gracingPeriod = await mintTicket.projectData(
-        tokenDataBefore.projectId
+        tokenDataBefore.issuer
       );
       const startDay = ethers.BigNumber.from(tokenDataBefore.createdAt).add(
         ethers.BigNumber.from(gracingPeriod.gracingPeriod + 1).mul(86400)
@@ -420,19 +409,19 @@ describe("MintTicket", () => {
     });
 
     it("should revert if the coverage is zero", async () => {
-      const projectId = 1;
+      const projectId = issuer.address;
       const tokenId = 0;
       const minter = await nonAdmin.getAddress();
       const price = ethers.utils.parseUnits("1", 18);
       const coverage = 0;
       const transferTo = await admin.getAddress();
 
-      await issuer.createProject(projectId, 30, "Project metadata");
-      await issuer.mint(projectId, minter, price);
+      await issuer.createProject(30, "Project metadata");
+      await issuer.mintTicket(minter, price);
       // Set taxationStart to a time outside the gracing period
       const tokenDataBefore = await mintTicket.tokenData(tokenId);
       const gracingPeriod = await mintTicket.projectData(
-        tokenDataBefore.projectId
+        tokenDataBefore.issuer
       );
       const startDay = ethers.BigNumber.from(tokenDataBefore.createdAt).add(
         ethers.BigNumber.from(gracingPeriod.gracingPeriod + 1).mul(86400)
@@ -456,19 +445,19 @@ describe("MintTicket", () => {
     });
 
     it("should revert if the sent amount is less than required", async () => {
-      const projectId = 1;
+      const projectId = issuer.address;
       const tokenId = 0;
       const minter = await nonAdmin.getAddress();
       const price = ethers.utils.parseUnits("1", 18);
       const coverage = 30;
       const transferTo = await admin.getAddress();
 
-      await issuer.createProject(projectId, 30, "Project metadata");
-      await issuer.mint(projectId, minter, price);
+      await issuer.createProject(30, "Project metadata");
+      await issuer.mintTicket(minter, price);
       // Set taxationStart to a time outside the gracing period
       const tokenDataBefore = await mintTicket.tokenData(tokenId);
       const gracingPeriod = await mintTicket.projectData(
-        tokenDataBefore.projectId
+        tokenDataBefore.issuer
       );
       const startDay = ethers.BigNumber.from(tokenDataBefore.createdAt).add(
         ethers.BigNumber.from(gracingPeriod.gracingPeriod + 1).mul(86400)
@@ -488,12 +477,12 @@ describe("MintTicket", () => {
 
   describe("consume", () => {
     it("should consume a token", async () => {
-      const projectId = 0;
+      const projectId = issuer.address;
       const tokenId = 0;
       const minter = await nonAdmin.getAddress();
       const price = ethers.utils.parseUnits("1", 18);
-      await issuer.createProject(projectId, 30, "Project metadata");
-      await issuer.mint(projectId, minter, price);
+      await issuer.createProject(30, "Project metadata");
+      await issuer.mintTicket(minter, price);
       await issuer.consume(minter, tokenId, projectId);
 
       const tokenData = await mintTicket.tokenData(tokenId);
@@ -505,7 +494,7 @@ describe("MintTicket", () => {
 
     it("should not allow consuming a token that does not exist", async () => {
       const nonExistentTokenId = 999;
-      const projectId = 1;
+      const projectId = issuer.address;
 
       await expect(
         issuer.consume(
@@ -517,12 +506,12 @@ describe("MintTicket", () => {
     });
 
     it("should not allow consuming a token from the wrong owner", async () => {
-      const projectId = 0;
       const tokenId = 0;
       const minter = await nonAdmin.getAddress();
       const price = ethers.utils.parseUnits("1", 18);
-      await issuer.createProject(projectId, 30, "Project metadata");
-      await issuer.mint(projectId, minter, price);
+      await issuer.createProject(30, "Project metadata");
+      await issuer.mintTicket(minter, price);
+      const projectId = issuer.address;
 
       await expect(
         issuer.consume(await admin.getAddress(), tokenId, projectId)
@@ -530,15 +519,18 @@ describe("MintTicket", () => {
     });
 
     it("should not allow consuming a token with a different project ID", async () => {
-      const projectId = 0;
       const tokenId = 0;
       const minter = await nonAdmin.getAddress();
       const price = ethers.utils.parseUnits("1", 18);
-      await issuer.createProject(projectId, 30, "Project metadata");
-      await issuer.mint(projectId, minter, price);
+      await issuer.createProject(30, "Project metadata");
+      await issuer.mintTicket(minter, price);
 
       await expect(
-        issuer.consume(await nonAdmin.getAddress(), tokenId, 12)
+        issuer.consume(
+          await nonAdmin.getAddress(),
+          tokenId,
+          await nonAdmin.getAddress()
+        )
       ).to.be.revertedWith("WRONG_PROJECT");
     });
   });
