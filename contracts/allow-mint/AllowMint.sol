@@ -13,9 +13,10 @@ contract AllowMint is IAllowMint, Ownable {
     address private issuerMod;
     IUserActions private userActions;
 
-    constructor(address _issuerMod, address _userActions) {
+    constructor(address _issuerMod, address _userActions, address _admin) {
         issuerMod = _issuerMod;
         userActions = IUserActions(_userActions);
+        transferOwnership(_admin);
     }
 
     function updateIssuerModerationContract(
