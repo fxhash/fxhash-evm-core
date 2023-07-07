@@ -298,19 +298,6 @@ contract MintTicket is ERC721URIStorage, Ownable, IMintTicket {
         ERC721.safeTransferFrom(from, to, tokenId, data);
     }
 
-    function _msgData()
-        internal
-        view
-        override(Context)
-        returns (bytes calldata)
-    {
-        return Context._msgData();
-    }
-
-    function _msgSender() internal view override(Context) returns (address) {
-        return Context._msgSender();
-    }
-
     function supportsInterface(
         bytes4 interfaceId
     )
