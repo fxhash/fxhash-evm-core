@@ -3,9 +3,9 @@ pragma solidity ^0.8.18;
 
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "contracts/abstract/admin/AuthorizedCaller.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract MintPassGroup is AuthorizedCaller {
+contract MintPassGroup is Ownable {
     using EnumerableSet for EnumerableSet.AddressSet;
     struct TokenRecord {
         uint256 minted;
@@ -24,12 +24,13 @@ contract MintPassGroup is AuthorizedCaller {
         address addr;
     }
 
-    uint256 public maxPerToken;
-    uint256 public maxPerTokenPerProject;
-    address public signer;
+    uint256 private maxPerToken;
+    uint256 private maxPerTokenPerProject;
+    address private signer;
+    address private reserveMintPass;
     EnumerableSet.AddressSet private bypass;
-    mapping(string => TokenRecord) public tokens;
-    mapping(bytes32 => uint256) public projects;
+    mapping(string => TokenRecord) private tokens;
+    mapping(bytes32 => uint256) private projects;
 
     event PassConsumed(address addr, string token, uint256 project);
 
@@ -37,25 +38,34 @@ contract MintPassGroup is AuthorizedCaller {
         uint256 _maxPerToken,
         uint256 _maxPerTokenPerProject,
         address _signer,
+        address _reserveMintPass,
         address[] memory _bypass
     ) {
-        _setupRole(DEFAULT_ADMIN_ROLE, _signer);
-        _setupRole(AUTHORIZED_CALLER, _signer);
         maxPerToken = _maxPerToken;
         maxPerTokenPerProject = _maxPerTokenPerProject;
         signer = _signer;
+        reserveMintPass = _reserveMintPass;
         for (uint256 i = 0; i < _bypass.length; i++) {
             EnumerableSet.add(bypass, _bypass[i]);
         }
+        transferOwnership(_signer);
     }
 
-    function consumePass(bytes calldata _params) external {
+    modifier onlyReserveMintPass() {
+        require(msg.sender == reserveMintPass, "Caller not Reserve Mint Pass");
+        _;
+    }
+
+    function consumePass(
+        bytes calldata _params,
+        address _caller
+    ) external onlyReserveMintPass {
         Pass memory pass = decodePass(_params);
         Payload memory payload = decodePayload(pass.payload);
         bytes32 projectHash = getProjectHash(payload.token, payload.project);
         require(
             EnumerableSet.contains(bypass, msg.sender) ||
-                msg.sender == payload.addr,
+                _caller == payload.addr,
             "PASS_INVALID_ADDRESS"
         );
         require(
@@ -96,14 +106,12 @@ contract MintPassGroup is AuthorizedCaller {
     function setConstraints(
         uint256 _maxPerToken,
         uint256 _maxPerTokenPerProject
-    ) external onlyAuthorizedCaller {
+    ) external onlyOwner {
         maxPerToken = _maxPerToken;
         maxPerTokenPerProject = _maxPerTokenPerProject;
     }
 
-    function setBypass(
-        address[] memory _addresses
-    ) external onlyAuthorizedCaller {
+    function setBypass(address[] memory _addresses) external onlyOwner {
         for (uint256 i = 0; i < _addresses.length; i++) {
             EnumerableSet.add(bypass, _addresses[i]);
         }

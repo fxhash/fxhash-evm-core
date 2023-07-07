@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
+import "contracts/interfaces/IReserveManager.sol";
 import "contracts/libs/LibReserve.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract ReserveManager is Ownable {
+contract ReserveManager is Ownable, IReserveManager {
     mapping(uint256 => LibReserve.ReserveMethod) private reserveMethods;
 
     function isReserveValid(
@@ -22,7 +23,8 @@ contract ReserveManager is Ownable {
 
     function applyReserve(
         LibReserve.ReserveData memory reserve,
-        bytes memory userInput
+        bytes memory userInput,
+        address caller
     ) external returns (bool, bytes memory) {
         LibReserve.ReserveMethod storage method = reserveMethods[
             reserve.methodId
@@ -34,11 +36,11 @@ contract ReserveManager is Ownable {
                     currentAmount: reserve.amount,
                     sender: msg.sender,
                     userInput: userInput
-                })
+                }),
+                caller
             );
     }
 
-    //TODO: require admin
     function setReserveMethod(
         uint256 id,
         LibReserve.ReserveMethod memory reserveMethod

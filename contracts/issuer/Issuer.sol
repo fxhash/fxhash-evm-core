@@ -273,7 +273,11 @@ contract Issuer is IIssuer, IERC2981, Ownable {
                 ) {
                     (bool applied, bytes memory applyData) = IReserveManager(
                         configManager.getAddress("resMag")
-                    ).applyReserve(decodedReserves[i], reserveInput.input);
+                    ).applyReserve(
+                            decodedReserves[i],
+                            reserveInput.input,
+                            msg.sender
+                        );
                     if (applied) {
                         reserveApplied = true;
                         decodedReserves[i].amount -= 1;

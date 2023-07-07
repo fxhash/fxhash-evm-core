@@ -11,6 +11,7 @@ interface IReserve {
     ) external pure returns (bool);
 
     function applyReserve(
-        LibReserve.ApplyParams calldata params
+        LibReserve.ApplyParams calldata params,
+        address caller
     ) external returns (bool, bytes memory);
 }
