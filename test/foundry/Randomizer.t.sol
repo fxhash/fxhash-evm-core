@@ -42,7 +42,7 @@ contract Reveal is RandomizerTest {}
 
 contract Commit is RandomizerTest {}
 
-contract GranFxHashAuthorityRole is RandomizerTest {
+contract GrantFxHashAuthorityRole is RandomizerTest {
     function test_GrantAdminRole() public {
         randomizer.grantFxHashAuthorityRole(fxHashAdmin);
 
@@ -75,7 +75,7 @@ contract RevokeFxHashAuthorityRole is RandomizerTest {
     }
 }
 
-contract GranFxHashIssuerRole is RandomizerTest {
+contract GrantFxHashIssuerRole is RandomizerTest {
     function test_GrantAdminRole() public {
         randomizer.grantFxHashIssuerRole(fxHashAdmin);
 
