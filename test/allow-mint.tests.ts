@@ -29,7 +29,7 @@ async function signMessage(
   };
 
   const types = {
-    CreateListing: [
+    SetLastMinted: [
       { name: "addr", type: "address" },
       { name: "issuer", type: "address" },
       { name: "tokenContract", type: "address" },
