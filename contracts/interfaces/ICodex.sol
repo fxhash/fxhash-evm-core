@@ -13,19 +13,12 @@ interface ICodex {
 
     function codexLockEntry(uint256 entryId) external;
 
-    function codexUpdateEntry(
-        uint256 entryId,
-        bool pushEnd,
-        bytes memory value
-    ) external;
+    function codexUpdateEntry(uint256 entryId, bool pushEnd, bytes memory value) external;
 
     function updateIssuerCodexRequest(
         uint256 _issuerId,
         LibCodex.CodexInput calldata input
     ) external;
 
-    function updateIssuerCodexApprove(
-        uint256 _issuerId,
-        uint256 _codexId
-    ) external;
+    function updateIssuerCodexApprove(uint256 _issuerId, uint256 _codexId) external;
 }

@@ -46,10 +46,7 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
 
     function mintIssuer(MintIssuerInput memory params) external {
         require(
-            IAllowMintIssuer(addresses["al_mi"]).isAllowed(
-                _msgSender(),
-                block.timestamp
-            ),
+            IAllowMintIssuer(addresses["al_mi"]).isAllowed(_msgSender(), block.timestamp),
             "403"
         );
         uint256 codexId = ICodex(addresses["codex"]).codexEntryIdFromInput(
@@ -58,22 +55,18 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
         );
         uint256 _lockTime = config.lockTime;
         require(
-            ((params.royaltiesSplit.percent >= 1000) &&
-                (params.royaltiesSplit.percent <= 2500)) ||
+            ((params.royaltiesSplit.percent >= 1000) && (params.royaltiesSplit.percent <= 2500)) ||
                 ((!params.enabled) && (params.royaltiesSplit.percent <= 2500)),
             "WRG_ROY"
         );
         require(
-            ((params.primarySplit.percent >= 1000) &&
-                (params.primarySplit.percent <= 2500)),
+            ((params.primarySplit.percent >= 1000) && (params.primarySplit.percent <= 2500)),
             "WRG_PRIM_SPLIT"
         );
 
         require(issuers[allissuers].info.author == address(0), "409");
 
-        IPricingManager(addresses["priceMag"]).verifyPricingMethod(
-            params.pricing.pricingId
-        );
+        IPricingManager(addresses["priceMag"]).verifyPricingMethod(params.pricing.pricingId);
 
         IPricing(
             IPricingManager(addresses["priceMag"])
@@ -112,37 +105,26 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
         //     }
         // } else {
 
-        if (
-            IModerationUser(addresses["user_mod"]).userState(_msgSender()) == 10
-        ) {
+        if (IModerationUser(addresses["user_mod"]).userState(_msgSender()) == 10) {
             _lockTime = 0;
         }
         //}
         bool isOpenEd = params.openEditions.closingTime > 0;
         if (isOpenEd) {
-            require(
-                block.timestamp + _lockTime < params.openEditions.closingTime,
-                "OES_CLOSING"
-            );
+            require(block.timestamp + _lockTime < params.openEditions.closingTime, "OES_CLOSING");
         } else {
             require(params.amount > 0, "!SPLY>0");
         }
 
         uint256 reserveTotal = 0;
         for (uint256 i = 0; i < params.reserves.length; i++) {
-            LibReserve.ReserveMethod memory reserveMethod = IReserveManager(
-                addresses["resMag"]
-            ).getReserveMethod(params.reserves[i].methodId);
-            require(
-                reserveMethod.reserveContract != IReserve(address(0)),
-                "NO_RESERVE_METHOD"
-            );
+            LibReserve.ReserveMethod memory reserveMethod = IReserveManager(addresses["resMag"])
+                .getReserveMethod(params.reserves[i].methodId);
+            require(reserveMethod.reserveContract != IReserve(address(0)), "NO_RESERVE_METHOD");
             require(reserveMethod.enabled, "RESERVE_METHOD_DISABLED");
             reserveTotal += params.reserves[i].amount;
             require(
-                IReserveManager(addresses["resMag"]).isReserveValid(
-                    params.reserves[i]
-                ),
+                IReserveManager(addresses["resMag"]).isReserveValid(params.reserves[i]),
                 "WRG_RSRV"
             );
         }
@@ -174,10 +156,7 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
             })
         });
 
-        IUserActions(addresses["userAct"]).setLastIssuerMinted(
-            _msgSender(),
-            allissuers
-        );
+        IUserActions(addresses["userAct"]).setLastIssuerMinted(_msgSender(), allissuers);
 
         allissuers++;
         emit IssuerMinted(params);
@@ -189,11 +168,7 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
         require(issuerToken.info.author != address(0), "Token undefined");
 
         require(
-            IAllowMint(addresses["al_m"]).isAllowed(
-                _msgSender(),
-                block.timestamp,
-                params.issuerId
-            ),
+            IAllowMint(addresses["al_m"]).isAllowed(_msgSender(), block.timestamp, params.issuerId),
             "403"
         );
 
@@ -214,15 +189,12 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
         }
 
         require(
-            SignedMath.abs(
-                int256(block.timestamp) -
-                    int256(issuerToken.info.timestampMinted)
-            ) > issuerToken.info.lockedSeconds,
+            SignedMath.abs(int256(block.timestamp) - int256(issuerToken.info.timestampMinted)) >
+                issuerToken.info.lockedSeconds,
             "TOKEN_LOCKED"
         );
         require(
-            issuerToken.info.enabled == true ||
-                _msgSender() == issuerToken.info.author,
+            issuerToken.info.enabled == true || _msgSender() == issuerToken.info.author,
             "TOKEN_DISABLED"
         );
 
@@ -240,10 +212,7 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
 
         LibReserve.ReserveInput memory reserveInput;
         if (params.reserveInput.length > 0) {
-            reserveInput = abi.decode(
-                params.reserveInput,
-                (LibReserve.ReserveInput)
-            );
+            reserveInput = abi.decode(params.reserveInput, (LibReserve.ReserveInput));
         }
 
         IPricing pricingContract = IPricing(
@@ -261,13 +230,9 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
             );
             for (uint256 i = 0; i < decodedReserves.length; i++) {
                 reserveTotal += decodedReserves[i].amount;
-                if (
-                    reserveInput.methodId == decodedReserves[i].methodId &&
-                    !reserveApplied
-                ) {
-                    (bool applied, bytes memory applyData) = IReserveManager(
-                        addresses["resMag"]
-                    ).applyReserve(decodedReserves[i], reserveInput.input);
+                if (reserveInput.methodId == decodedReserves[i].methodId && !reserveApplied) {
+                    (bool applied, bytes memory applyData) = IReserveManager(addresses["resMag"])
+                        .applyReserve(decodedReserves[i], reserveInput.input);
                     if (applied) {
                         reserveApplied = true;
                         decodedReserves[i].amount -= 1;
@@ -281,13 +246,9 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
                     require(reserveApplied, "ONLY_RSRV");
                 }
             } else {
-                uint256 balanceWithoutReserve = issuerToken.balance -
-                    reserveTotal;
+                uint256 balanceWithoutReserve = issuerToken.balance - reserveTotal;
                 if ((balanceWithoutReserve <= 0) && (!reserveApplied)) {
-                    require(
-                        !((balanceWithoutReserve <= 0) && (!reserveApplied)),
-                        "ONLY_RSRV"
-                    );
+                    require(!((balanceWithoutReserve <= 0) && (!reserveApplied)), "ONLY_RSRV");
                 }
                 if (
                     issuerToken.info.lockPriceForReserves &&
@@ -299,13 +260,7 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
             }
         }
 
-        processTransfers(
-            pricingContract,
-            params,
-            issuerToken,
-            tokenId,
-            recipient
-        );
+        processTransfers(pricingContract, params, issuerToken, tokenId, recipient);
 
         IUserActions(addresses["userAct"]).setLastMinted(_msgSender(), tokenId);
         emit TokenMinted(params);
@@ -314,10 +269,7 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
     function mintWithTicket(MintWithTicketInput memory params) external {
         LibIssuer.IssuerData storage issuerToken = issuers[params.issuerId];
         require(issuerToken.info.author != address(0), "Token undefined");
-        require(
-            params.inputBytes.length == issuerToken.info.inputBytesSize,
-            "WRONG_INPUT_BYTES"
-        );
+        require(params.inputBytes.length == issuerToken.info.inputBytesSize, "WRONG_INPUT_BYTES");
 
         address recipient = msg.sender;
         if (params.recipient != address(0)) {
@@ -336,8 +288,7 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
                 tokenId: allGenTkTokens,
                 iteration: issuerToken.iterationsCount,
                 inputBytes: params.inputBytes,
-                receiver: issuerToken.royaltiesSplit.receiver ==
-                    addresses["gentk"]
+                receiver: issuerToken.royaltiesSplit.receiver == addresses["gentk"]
                     ? recipient
                     : issuerToken.royaltiesSplit.receiver,
                 metadata: config.voidMetadata,
@@ -347,23 +298,18 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
 
         allGenTkTokens++;
 
-        IUserActions(addresses["userAct"]).setLastMinted(
-            _msgSender(),
-            params.issuerId
-        );
+        IUserActions(addresses["userAct"]).setLastMinted(_msgSender(), params.issuerId);
         emit TokenMintedWithTicket(params);
     }
 
     function updateIssuer(UpdateIssuerInput calldata params) external {
         require(
-            ((params.royaltiesSplit.percent >= 1000) &&
-                (params.royaltiesSplit.percent <= 2500)) ||
+            ((params.royaltiesSplit.percent >= 1000) && (params.royaltiesSplit.percent <= 2500)) ||
                 ((!params.enabled) && (params.royaltiesSplit.percent <= 2500)),
             "WRG_ROY"
         );
         require(
-            ((params.primarySplit.percent >= 1000) &&
-                (params.primarySplit.percent <= 2500)),
+            ((params.primarySplit.percent >= 1000) && (params.primarySplit.percent <= 2500)),
             "WRG_PRIM_SPLIT"
         );
 
@@ -380,13 +326,9 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
         LibIssuer.IssuerData storage issuerToken = issuers[params.issuerId];
         verifyAuthorized(issuerToken.info.author);
         LibIssuer.verifyIssuerUpdateable(issuerToken);
-        IPricingManager(addresses["priceMag"]).verifyPricingMethod(
-            params.pricingData.pricingId
-        );
+        IPricingManager(addresses["priceMag"]).verifyPricingMethod(params.pricingData.pricingId);
         issuerToken.info.pricingId = params.pricingData.pricingId;
-        issuerToken.info.lockPriceForReserves = params
-            .pricingData
-            .lockForReserves;
+        issuerToken.info.lockPriceForReserves = params.pricingData.lockForReserves;
         IPricing(
             IPricingManager(addresses["priceMag"])
                 .getPricingContract(params.pricingData.pricingId)
@@ -401,19 +343,11 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
         LibIssuer.verifyIssuerUpdateable(issuerToken);
         require(issuerToken.info.enabled, "TOK_DISABLED");
         for (uint256 i = 0; i < params.reserves.length; i++) {
-            LibReserve.ReserveMethod memory reserve = IReserveManager(
-                addresses["resMag"]
-            ).getReserveMethod(params.reserves[i].methodId);
-            require(
-                reserve.reserveContract != IReserve(address(0)),
-                "RSRV_404"
-            );
+            LibReserve.ReserveMethod memory reserve = IReserveManager(addresses["resMag"])
+                .getReserveMethod(params.reserves[i].methodId);
+            require(reserve.reserveContract != IReserve(address(0)), "RSRV_404");
             require(reserve.enabled, "RSRV_DIS");
-            require(
-                IReserveManager(addresses["resMag"]).isReserveValid(
-                    params.reserves[i]
-                )
-            );
+            require(IReserveManager(addresses["resMag"]).isReserveValid(params.reserves[i]));
         }
         issuers[params.issuerId].reserves = abi.encode(params.reserves);
         emit ReserveUpdated(params);
@@ -441,22 +375,13 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
         emit SupplyBurned(issuerId, amount);
     }
 
-    function updateTokenMod(
-        uint256 issuerId,
-        uint256[] calldata tags
-    ) external {
-        require(
-            IModeration(addresses["mod_team"]).isAuthorized(_msgSender(), 10),
-            "403"
-        );
+    function updateTokenMod(uint256 issuerId, uint256[] calldata tags) external {
+        require(IModeration(addresses["mod_team"]).isAuthorized(_msgSender(), 10), "403");
         issuers[issuerId].info.tags = tags;
         emit TokendModUpdated(issuerId, tags);
     }
 
-    function setCodex(
-        uint256 issuerId,
-        uint256 codexId
-    ) external onlyAuthorizedCaller {
+    function setCodex(uint256 issuerId, uint256 codexId) external onlyAuthorizedCaller {
         issuers[issuerId].info.codexId = codexId;
     }
 
@@ -464,21 +389,14 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
         config = _config;
     }
 
-    function getIssuer(
-        uint256 issuerId
-    ) external view returns (LibIssuer.IssuerData memory) {
+    function getIssuer(uint256 issuerId) external view returns (LibIssuer.IssuerData memory) {
         return issuers[issuerId];
     }
 
     function royaltyInfo(
         uint256 tokenId,
         uint256 salePrice
-    )
-        public
-        view
-        override(IERC2981, IIssuer)
-        returns (address receiver, uint256 royaltyAmount)
-    {
+    ) public view override(IERC2981, IIssuer) returns (address receiver, uint256 royaltyAmount) {
         LibRoyalty.RoyaltyData memory royalty = issuers[tokenId].royaltiesSplit;
         uint256 amount = (salePrice * royalty.percent) / 10000;
         return (royalty.receiver, amount);
@@ -502,31 +420,16 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
             super.supportsInterface(interfaceId);
     }
 
-    function _msgSender()
-        internal
-        view
-        virtual
-        override(Context)
-        returns (address)
-    {
+    function _msgSender() internal view virtual override(Context) returns (address) {
         return super._msgSender();
     }
 
-    function _msgData()
-        internal
-        view
-        virtual
-        override(Context)
-        returns (bytes calldata)
-    {
+    function _msgData() internal view virtual override(Context) returns (bytes calldata) {
         return super._msgData();
     }
 
     function burnToken(uint256 issuerId) private {
-        IUserActions(addresses["userAct"]).resetLastIssuerMinted(
-            _msgSender(),
-            issuerId
-        );
+        IUserActions(addresses["userAct"]).resetLastIssuerMinted(_msgSender(), issuerId);
         delete issuers[issuerId];
     }
 
@@ -543,18 +446,12 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
         address recipient
     ) private {
         {
-            uint256 price = pricingContract.getPrice(
-                params.issuerId,
-                block.timestamp
-            );
+            uint256 price = pricingContract.getPrice(params.issuerId, block.timestamp);
             require(msg.value >= price, "INVALID_PRICE");
 
             uint256 platformFees = config.fees;
-            if (
-                params.referrer != address(0) && params.referrer != _msgSender()
-            ) {
-                uint256 referrerFees = (config.fees *
-                    config.referrerFeesShare) / 10000;
+            if (params.referrer != address(0) && params.referrer != _msgSender()) {
+                uint256 referrerFees = (config.fees * config.referrerFeesShare) / 10000;
                 uint256 referrerAmount = (price * referrerFees) / 10000;
                 if (referrerAmount > 0) {
                     payable(params.referrer).transfer(referrerAmount);
@@ -568,12 +465,9 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
             }
 
             uint256 creatorAmount = price - (msg.value - feesAmount);
-            uint256 splitAmount = (creatorAmount *
-                issuerToken.primarySplit.percent) / 10000;
+            uint256 splitAmount = (creatorAmount * issuerToken.primarySplit.percent) / 10000;
             if (splitAmount > 0) {
-                payable(issuerToken.primarySplit.receiver).transfer(
-                    splitAmount
-                );
+                payable(issuerToken.primarySplit.receiver).transfer(splitAmount);
             }
 
             if (msg.value > price) {
@@ -584,24 +478,17 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
             }
 
             if (params.createTicket == true) {
-                IMintTicket(addresses["mint_tickets"]).mint(
-                    params.issuerId,
-                    recipient,
-                    price
-                );
+                IMintTicket(addresses["mint_tickets"]).mint(params.issuerId, recipient, price);
             } else {
                 issuerToken.iterationsCount += 1;
-                if (
-                    issuerToken.royaltiesSplit.receiver == addresses["gentk"]
-                ) {}
+                if (issuerToken.royaltiesSplit.receiver == addresses["gentk"]) {}
 
                 IGenTk(addresses["gentk"]).mint(
                     IGenTk.TokenParams({
                         tokenId: tokenId,
                         iteration: issuerToken.iterationsCount,
                         inputBytes: params.inputBytes,
-                        receiver: issuerToken.royaltiesSplit.receiver ==
-                            addresses["gentk"]
+                        receiver: issuerToken.royaltiesSplit.receiver == addresses["gentk"]
                             ? recipient
                             : issuerToken.royaltiesSplit.receiver,
                         metadata: config.voidMetadata,

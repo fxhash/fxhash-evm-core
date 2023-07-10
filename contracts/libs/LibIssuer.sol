@@ -36,14 +36,9 @@ library LibIssuer {
         uint256 inputBytesSize;
     }
 
-    function verifyIssuerUpdateable(
-        IssuerData memory issuerToken
-    ) external view {
+    function verifyIssuerUpdateable(IssuerData memory issuerToken) external view {
         if (issuerToken.openEditions.closingTime > 0) {
-            require(
-                block.timestamp < issuerToken.openEditions.closingTime,
-                "OE_CLOSE"
-            );
+            require(block.timestamp < issuerToken.openEditions.closingTime, "OE_CLOSE");
         } else {
             require(issuerToken.balance > 0, "NO_BLNC");
         }

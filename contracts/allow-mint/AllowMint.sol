@@ -17,9 +17,7 @@ contract AllowMint is AuthorizedCaller {
         userActions = IUserActions(_userActions);
     }
 
-    function updateTokenModerationContract(
-        address _address
-    ) external onlyAdmin {
+    function updateTokenModerationContract(address _address) external onlyAdmin {
         tokenMod = _address;
     }
 
@@ -27,25 +25,14 @@ contract AllowMint is AuthorizedCaller {
         userActions = IUserActions(_address);
     }
 
-    function isAllowed(
-        address addr,
-        uint256 timestamp,
-        uint256 id
-    ) external view returns (bool) {
+    function isAllowed(address addr, uint256 timestamp, uint256 id) external view returns (bool) {
         // Get the state from the token moderation contract
         uint256 state = IModerationToken(tokenMod).tokenState(id);
         require(state < 2, "TOKEN_MODERATED");
         // Prevent batch minting on any token
-        LibUserActions.UserAction memory lastUserActions = userActions
-            .getUserActions(addr);
-        if (
-            lastUserActions.lastMintedTime > 0 &&
-            timestamp >= lastUserActions.lastMintedTime
-        ) {
-            require(
-                timestamp - lastUserActions.lastMintedTime > 0,
-                "NO_BATCH_MINTING"
-            );
+        LibUserActions.UserAction memory lastUserActions = userActions.getUserActions(addr);
+        if (lastUserActions.lastMintedTime > 0 && timestamp >= lastUserActions.lastMintedTime) {
+            require(timestamp - lastUserActions.lastMintedTime > 0, "NO_BATCH_MINTING");
         }
 
         return true;
