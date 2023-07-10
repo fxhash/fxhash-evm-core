@@ -2,13 +2,14 @@
 pragma solidity ^0.8.18;
 
 import "contracts/abstract/admin/AuthorizedCaller.sol";
+import "hardhat/console.sol";
 
 contract Randomizer is AuthorizedCaller {
     bytes32 public constant FXHASH_AUTHORITY = keccak256("FXHASH_AUTHORITY");
     bytes32 public constant FXHASH_ISSUER = keccak256("FXHASH_ISSUER");
     struct TokenKey {
         address issuer;
-        uint256 id;
+        uint256 tokenId;
     }
 
     struct Seed {
@@ -70,30 +71,56 @@ contract Randomizer is AuthorizedCaller {
         countRequested += 1;
         storedSeed.chainSeed = seed;
         storedSeed.serialId = countRequested;
+        console.log("generated token = ");
+
+        console.logBytes32(hashedKey);
+
+        console.log("generated serial ID = %s", storedSeed.serialId);
         emit RandomizerGenerate(tokenId, storedSeed);
     }
 
     function reveal(
-        TokenKey[] memory tokens,
+        TokenKey[] memory tokenList,
         bytes32 seed
     ) external onlyFxHashAuthority {
-        TokenKey[] memory tokenList = tokens;
         uint256 lastSerial = setTokenSeedAndReturnSerial(tokenList[0], seed);
+        console.log("lastSerial: %s", lastSerial);
+
         uint256 expectedSerialId = lastSerial;
+        console.log("expectedSerialId: %s", expectedSerialId);
+
         bytes32 oracleSeed = iterateOracleSeed(seed);
-        for (uint256 i = 0; i < tokenList.length; i++) {
+        console.log("oracleSeed:");
+        console.logBytes32(oracleSeed);
+
+        for (uint256 i = 1; i < tokenList.length; i++) {
+            console.log("i = %s", i);
             expectedSerialId -= 1;
             uint256 serialId = setTokenSeedAndReturnSerial(
                 tokenList[i],
                 oracleSeed
             );
+            console.log("Inside loop - expectedSerialId: %s", expectedSerialId);
+            console.log("Inside loop - serialId: %s", serialId);
+
             require(expectedSerialId == serialId, "OOR");
             oracleSeed = iterateOracleSeed(oracleSeed);
-            emit RandomizerReveal(tokenList[i].id, oracleSeed);
+            console.log("Inside loop - oracleSeed:");
+            console.logBytes32(oracleSeed);
+
+            emit RandomizerReveal(tokenList[i].tokenId, oracleSeed);
         }
+
         require(countRevealed + 1 == expectedSerialId, "OOR");
+        console.log("countRevealed: %s", countRevealed);
+
         countRevealed += tokenList.length;
+        console.log("oracleSeed:");
+        console.logBytes32(oracleSeed);
+        console.log("commitment.seed:");
+        console.logBytes32(commitment.seed);
         require(oracleSeed == commitment.seed, "OOR");
+
         updateCommitment(seed);
     }
 
@@ -129,14 +156,17 @@ contract Randomizer is AuthorizedCaller {
         TokenKey memory tokenKey,
         bytes32 oracleSeed
     ) private returns (uint256) {
-        bytes32 hashedKey = getTokenKey(tokenKey.issuer, tokenKey.id);
-        Seed storage seed = seeds[hashedKey];
+        console.log("setting seed for = ");
+        console.logBytes32(getTokenKey(tokenKey.issuer, tokenKey.tokenId));
+        Seed storage seed = seeds[
+            getTokenKey(tokenKey.issuer, tokenKey.tokenId)
+        ];
         require(seed.chainSeed != 0x00, "NO_REQ");
-        require(isRequestedVariant(tokenKey), "AL_REV");
         bytes32 tokenSeed = keccak256(
             abi.encodePacked(oracleSeed, seed.chainSeed)
         );
         seed.revealed = tokenSeed;
+        console.log("Fetched serial = %s", seed.serialId);
         return seed.serialId;
     }
 
@@ -144,12 +174,5 @@ contract Randomizer is AuthorizedCaller {
         bytes32 oracleSeed
     ) private view returns (bytes32) {
         return keccak256(abi.encodePacked(commitment.salt, oracleSeed));
-    }
-
-    function isRequestedVariant(
-        TokenKey memory tokenKey
-    ) private view returns (bool) {
-        return (seeds[getTokenKey(tokenKey.issuer, tokenKey.id)].chainSeed !=
-            0x00);
     }
 }

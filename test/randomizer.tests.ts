@@ -102,31 +102,43 @@ describe("Randomizer", function () {
       expect(seed.serialId).to.equal(1);
     });
 
-    //TODO need to fix the tests
-    // it("should reveal tokens and update commitment correctly", async function () {
-    //   const tokenKey = {
-    //     issuer: await fxHashAdmin.getAddress(),
-    //     id: 0,
-    //   };
+    it("should reveal tokens and update commitment correctly", async function () {
+      const tokenKey0 = {
+        issuer: await fxHashAdmin.getAddress(),
+        tokenId: 0,
+      };
+      const tokenKey1 = {
+        issuer: await fxHashAdmin.getAddress(),
+        tokenId: 1,
+      };
+      const tokenKey2 = {
+        issuer: await fxHashAdmin.getAddress(),
+        tokenId: 2,
+      };
 
-    //   const seed = ethers.utils.formatBytes32String("seed");
-    //   await randomizer.connect(fxHashAdmin).generate(tokenKey.id);
-    //   await randomizer.connect(fxHashAdmin).reveal([tokenKey], seed);
+      const seed = ethers.utils.formatBytes32String("seed");
+      await randomizer.connect(fxHashAdmin).generate(tokenKey0.tokenId);
+      await randomizer.connect(fxHashAdmin).generate(tokenKey1.tokenId);
+      await randomizer.connect(fxHashAdmin).generate(tokenKey2.tokenId);
 
-    //   const revealedSeed = await randomizer.seeds(
-    //     randomizer.getTokenKey(tokenKey.issuer, tokenKey.id)
-    //   ).revealed;
-    //   expect(revealedSeed).to.equal(
-    //     ethers.utils.keccak256(
-    //       ethers.utils.defaultAbiCoder.encode(
-    //         ["bytes32", "bytes32"],
-    //         [seed, seed]
-    //       )
-    //     )
-    //   );
+      await randomizer
+        .connect(fxHashAdmin)
+        .reveal([tokenKey2, tokenKey1, tokenKey0], seed);
 
-    //   const commitmentSeed = await randomizer.commitment();
-    //   expect(commitmentSeed).to.equal(seed);
-    // });
+      // const revealedSeed = await randomizer.seeds(
+      //   randomizer.getTokenKey(tokenKey.issuer, tokenKey.id)
+      // ).revealed;
+      // expect(revealedSeed).to.equal(
+      //   ethers.utils.keccak256(
+      //     ethers.utils.defaultAbiCoder.encode(
+      //       ["bytes32", "bytes32"],
+      //       [seed, seed]
+      //     )
+      //   )
+      // );
+
+      // const commitmentSeed = await randomizer.commitment();
+      // expect(commitmentSeed).to.equal(seed);
+    });
   });
 });
