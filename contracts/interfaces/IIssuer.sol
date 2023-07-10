@@ -51,19 +51,12 @@ interface IIssuer {
     }
 
     function mintIssuer(
-        MintIssuerInput calldata params,
-        bytes calldata signature
+        MintIssuerInput calldata params
     ) external;
 
-    function mint(
-        MintInput calldata params,
-        bytes calldata signature
-    ) external payable;
+    function mint(MintInput calldata params) external payable;
 
-    function mintWithTicket(
-        MintWithTicketInput calldata params,
-        bytes calldata signature
-    ) external;
+    function mintWithTicket(MintWithTicketInput calldata params) external;
 
     function royaltyInfo(
         uint256 tokenId,

@@ -12,7 +12,6 @@ import "contracts/interfaces/IModerationUser.sol";
 import "contracts/interfaces/IGenTk.sol";
 import "contracts/interfaces/ICodex.sol";
 import "contracts/interfaces/IIssuer.sol";
-import "contracts/interfaces/IUserActions.sol";
 import "contracts/interfaces/IOnChainTokenMetadataManager.sol";
 import "contracts/interfaces/IConfigurationManager.sol";
 
@@ -51,14 +50,10 @@ contract Issuer is IIssuer, IERC2981, Ownable {
         _;
     }
 
-    function mintIssuer(
-        MintIssuerInput calldata params,
-        bytes calldata userActionSignature
-    ) external {
+    function mintIssuer(MintIssuerInput calldata params) external {
         require(
             IAllowMintIssuer(configManager.getAddress("al_mi")).isAllowed(
-                msg.sender,
-                block.timestamp
+                msg.sender
             ),
             "403"
         );
@@ -180,25 +175,14 @@ contract Issuer is IIssuer, IERC2981, Ownable {
             })
         });
 
-        IUserActions(configManager.getAddress("userAct")).setLastIssuerMinted(
-            msg.sender,
-            address(this),
-            userActionSignature
-        );
-
         emit IssuerMinted(params);
     }
 
-    function mint(
-        MintInput memory params,
-        bytes calldata signature
-    ) external payable {
+    function mint(MintInput memory params) external payable {
         require(issuer.supply > 0, "Token undefined");
 
         require(
             IAllowMint(configManager.getAddress("al_m")).isAllowed(
-                msg.sender,
-                block.timestamp,
                 address(this)
             ),
             "403"
@@ -309,19 +293,10 @@ contract Issuer is IIssuer, IERC2981, Ownable {
 
         processTransfers(pricingContract, params, tokenId, recipient);
 
-        IUserActions(configManager.getAddress("userAct")).setLastMinted(
-            msg.sender,
-            address(this),
-            tokenId,
-            signature
-        );
         emit TokenMinted(params);
     }
 
-    function mintWithTicket(
-        MintWithTicketInput memory params,
-        bytes calldata signature
-    ) external {
+    function mintWithTicket(MintWithTicketInput memory params) external {
         require(
             params.inputBytes.length == issuer.info.inputBytesSize,
             "WRONG_INPUT_BYTES"
@@ -351,12 +326,6 @@ contract Issuer is IIssuer, IERC2981, Ownable {
             })
         );
 
-        IUserActions(configManager.getAddress("userAct")).setLastMinted(
-            msg.sender,
-            address(this),
-            allGenTkTokens,
-            signature
-        );
         allGenTkTokens++;
 
         emit TokenMintedWithTicket(params);
@@ -424,15 +393,14 @@ contract Issuer is IIssuer, IERC2981, Ownable {
         emit ReserveUpdated(reserves);
     }
 
-    function burn(bytes calldata signature) external onlyOwner {
+    function burn() external onlyOwner {
         require(issuer.balance == issuer.supply, "CONSUMED_1");
-        burnToken(signature);
+        burnToken();
         emit IssuerBurned();
     }
 
     function burnSupply(
-        uint256 amount,
-        bytes calldata signature
+        uint256 amount
     ) external onlyOwner {
         require(amount > 0, "TOO_LOW");
         require(issuer.openEditions.closingTime == 0, "OES");
@@ -440,7 +408,7 @@ contract Issuer is IIssuer, IERC2981, Ownable {
         issuer.balance = issuer.balance - amount;
         issuer.supply = issuer.supply - amount;
         if (issuer.supply == 0) {
-            burnToken(signature);
+            burnToken();
         }
         emit SupplyBurned(amount);
     }
@@ -501,12 +469,7 @@ contract Issuer is IIssuer, IERC2981, Ownable {
             interfaceId == type(IERC2981).interfaceId;
     }
 
-    function burnToken(bytes calldata signature) private {
-        IUserActions(configManager.getAddress("userAct")).resetLastIssuerMinted(
-                msg.sender,
-                address(this),
-                signature
-            );
+    function burnToken() private {
         delete issuer;
     }
 
