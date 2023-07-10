@@ -21,8 +21,8 @@ interface IContractScript {
      * @param data - Arbitrary data to be passed to storage
      * @return script - Full script from merged chunks
      */
-    function getScript(
-        string calldata name,
-        bytes memory data
-    ) external view returns (bytes memory script);
+    function getScript(string calldata name, bytes memory data)
+        external
+        view
+        returns (bytes memory script);
 }

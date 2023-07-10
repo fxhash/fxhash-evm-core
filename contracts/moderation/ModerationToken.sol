@@ -20,7 +20,11 @@ contract ModerationToken is BaseModeration, IModerationToken {
         _setupRole(AUTHORIZED_CALLER, _admin);
     }
 
-    function moderateToken(uint256 tokenId, uint256 state, uint256 reason) external onlyModerator {
+    function moderateToken(
+        uint256 tokenId,
+        uint256 state,
+        uint256 reason
+    ) external onlyModerator {
         require(!Strings.equal(reasons[reason], ""), "REASON_DOESNT_EXISTS");
         tokens[tokenId] = LibModeration.ModerationState(state, reason);
         emit TokenModerated(tokenId, state, reason);
@@ -41,11 +45,15 @@ contract ModerationToken is BaseModeration, IModerationToken {
         }
     }
 
-    function getReportKey(uint256 tokenId, address reporter) public pure returns (bytes32) {
+    function getReportKey(
+        uint256 tokenId,
+        address reporter
+    ) public pure returns (bytes32) {
         return keccak256(abi.encodePacked(tokenId, reporter));
     }
 
     function isModerator(address user) public view override returns (bool) {
-        return ModerationTeam(getModerationTeamAddress()).isAuthorized(user, 10);
+        return
+            ModerationTeam(getModerationTeamAddress()).isAuthorized(user, 10);
     }
 }

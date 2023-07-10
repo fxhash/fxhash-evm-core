@@ -75,7 +75,12 @@ contract Marketplace is AuthorizedCaller {
     );
     event ListingCanceled(uint256 listingId);
     event ListingBought(uint256 listingId, Referrer[] referrers, address buyer);
-    event NewOffer(Asset[] assetList, uint256 amount, uint256 currency, address buyer);
+    event NewOffer(
+        Asset[] assetList,
+        uint256 amount,
+        uint256 currency,
+        address buyer
+    );
     event OfferCanceled(uint256 offerId);
     event OfferAccepted(
         uint256 offerId,
@@ -121,7 +126,10 @@ contract Marketplace is AuthorizedCaller {
         treasury = _treasury;
     }
 
-    function addCurrency(uint256 _currencyId, Currency calldata _currency) external onlyAdmin {
+    function addCurrency(
+        uint256 _currencyId,
+        Currency calldata _currency
+    ) external onlyAdmin {
         currencies[_currencyId] = _currency;
     }
 
@@ -135,7 +143,10 @@ contract Marketplace is AuthorizedCaller {
         uint256 _currency,
         uint256 _amount
     ) external {
-        require(assetContracts[_assetContract] == true, "ASSET_CONTRACT_NOT_ENABLED");
+        require(
+            assetContracts[_assetContract] == true,
+            "ASSET_CONTRACT_NOT_ENABLED"
+        );
         require(currencies[_currency].enabled == true, "CURRENCY_DISABLED");
         require(_amount > 0, "AMOUNT_IS_0");
 
@@ -146,7 +157,13 @@ contract Marketplace is AuthorizedCaller {
             amount: _amount
         });
         listingSequence++;
-        emit NewListing(_assetContract, _tokenId, _currency, _amount, _msgSender());
+        emit NewListing(
+            _assetContract,
+            _tokenId,
+            _currency,
+            _amount,
+            _msgSender()
+        );
     }
 
     function cancelListing(uint256 _listingId) external {
@@ -156,7 +173,10 @@ contract Marketplace is AuthorizedCaller {
         emit ListingCanceled(_listingId);
     }
 
-    function buyListing(uint256 _listingId, Referrer[] calldata _referrers) external payable {
+    function buyListing(
+        uint256 _listingId,
+        Referrer[] calldata _referrers
+    ) external payable {
         Listing memory listing = listings[_listingId];
         require(listing.seller != address(0), "LISTING_NOT_EXISTS");
         Currency memory currency = currencies[listing.currency];
@@ -235,7 +255,10 @@ contract Marketplace is AuthorizedCaller {
         bool assetFound = false;
         Asset[] memory assets = abi.decode(storedOffer.assets, (Asset[]));
         for (uint256 i = 0; i < assets.length; i++) {
-            if (assets[i].assetContract == _assetContract && assets[i].tokenId == _tokenId) {
+            if (
+                assets[i].assetContract == _assetContract &&
+                assets[i].tokenId == _tokenId
+            ) {
                 assetFound = true;
             }
         }
@@ -262,10 +285,18 @@ contract Marketplace is AuthorizedCaller {
             _msgSender(),
             storedOffer.amount
         );
-        emit OfferAccepted(_offerId, _assetContract, _tokenId, _referrers, _msgSender());
+        emit OfferAccepted(
+            _offerId,
+            _assetContract,
+            _tokenId,
+            _referrers,
+            _msgSender()
+        );
     }
 
-    function decodeCurrencyData(Currency memory _currency) private pure returns (address, uint256) {
+    function decodeCurrencyData(
+        Currency memory _currency
+    ) private pure returns (address, uint256) {
         if (_currency.currencyType == TokenType.ETH) {
             return (address(0), 0);
         } else if (_currency.currencyType == TokenType.ERC20) {
@@ -314,9 +345,10 @@ contract Marketplace is AuthorizedCaller {
         address _receiver,
         uint256 _amount
     ) private {
-        (address decodedCurrencyContract, uint256 decodedCurrencyTokenId) = decodeCurrencyData(
-            _currency
-        );
+        (
+            address decodedCurrencyContract,
+            uint256 decodedCurrencyTokenId
+        ) = decodeCurrencyData(_currency);
         uint256 paidRoyalties = payAssetRoyalties(
             _asset.assetContract,
             _asset.tokenId,
@@ -384,10 +416,8 @@ contract Marketplace is AuthorizedCaller {
         uint256 _currencyTokenId,
         TokenType _tokenType
     ) private returns (uint256) {
-        (address receiver, uint256 royaltiesAmount) = IERC2981(_contract).royaltyInfo(
-            _tokenId,
-            _amount
-        );
+        (address receiver, uint256 royaltiesAmount) = IERC2981(_contract)
+            .royaltyInfo(_tokenId, _amount);
         transfer(
             TransferParams({
                 assetContract: _currencyContract,

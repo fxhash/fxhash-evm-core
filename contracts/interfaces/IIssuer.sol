@@ -70,7 +70,9 @@ interface IIssuer {
         address recipient;
     }
 
-    function getIssuer(uint256 issuerId) external view returns (LibIssuer.IssuerData memory);
+    function getIssuer(
+        uint256 issuerId
+    ) external view returns (LibIssuer.IssuerData memory);
 
     function mintIssuer(MintIssuerInput calldata params) external;
 

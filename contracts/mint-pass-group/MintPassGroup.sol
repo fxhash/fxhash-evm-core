@@ -54,15 +54,25 @@ contract MintPassGroup is AuthorizedCaller {
         Payload memory payload = decodePayload(pass.payload);
         bytes32 projectHash = getProjectHash(payload.token, payload.project);
         require(
-            EnumerableSet.contains(bypass, tx.origin) || tx.origin == payload.addr,
+            EnumerableSet.contains(bypass, tx.origin) ||
+                tx.origin == payload.addr,
             "PASS_INVALID_ADDRESS"
         );
-        require(checkSignature(pass.signature, pass.payload), "PASS_INVALID_SIGNATURE");
+        require(
+            checkSignature(pass.signature, pass.payload),
+            "PASS_INVALID_SIGNATURE"
+        );
         if (tokens[payload.token].minted > 0) {
             TokenRecord storage tokenRecord = tokens[payload.token];
-            require(payload.addr == tokenRecord.consumer, "WRONG_PASS_CONSUMER");
+            require(
+                payload.addr == tokenRecord.consumer,
+                "WRONG_PASS_CONSUMER"
+            );
             if (maxPerToken != 0) {
-                require(tokenRecord.minted < maxPerToken, "PASS_TOKEN_MAX_CONSUMED");
+                require(
+                    tokenRecord.minted < maxPerToken,
+                    "PASS_TOKEN_MAX_CONSUMED"
+                );
             }
             tokenRecord.minted += 1;
             if (maxPerTokenPerProject != 0) {
@@ -91,7 +101,9 @@ contract MintPassGroup is AuthorizedCaller {
         maxPerTokenPerProject = _maxPerTokenPerProject;
     }
 
-    function setBypass(address[] memory _addresses) external onlyAuthorizedCaller {
+    function setBypass(
+        address[] memory _addresses
+    ) external onlyAuthorizedCaller {
         for (uint256 i = 0; i < _addresses.length; i++) {
             EnumerableSet.add(bypass, _addresses[i]);
         }
@@ -104,20 +116,29 @@ contract MintPassGroup is AuthorizedCaller {
         require(token.minted > 0, "PASS_NOT_CONSUMED");
         require(token.levelConsumed == block.number, "PASS_CONSUMED_PAST");
         require(
-            EnumerableSet.contains(bypass, tx.origin) || tx.origin == payload.addr,
+            EnumerableSet.contains(bypass, tx.origin) ||
+                tx.origin == payload.addr,
             "PASS_INVALID_ADDRESS"
         );
         require(payload.addr == token.consumer, "WRONG_PASS_CONSUMER");
-        require(checkSignature(pass.payload, pass.signature), "PASS_INVALID_SIGNATURE");
+        require(
+            checkSignature(pass.payload, pass.signature),
+            "PASS_INVALID_SIGNATURE"
+        );
     }
 
-    function getProjectHash(string memory token, uint256 project) public pure returns (bytes32) {
+    function getProjectHash(
+        string memory token,
+        uint256 project
+    ) public pure returns (bytes32) {
         bytes32 tokenHash = keccak256(bytes(token));
         bytes32 projectHash = bytes32(project);
         return keccak256(abi.encodePacked(tokenHash, projectHash));
     }
 
-    function decodePayload(bytes memory _payload) private pure returns (Payload memory) {
+    function decodePayload(
+        bytes memory _payload
+    ) private pure returns (Payload memory) {
         Payload memory decodedData = abi.decode(_payload, (Payload));
         if (decodedData.addr == address(0)) {
             revert("PASS_INVALID_PAYLOAD");
@@ -125,7 +146,9 @@ contract MintPassGroup is AuthorizedCaller {
         return decodedData;
     }
 
-    function decodePass(bytes memory _payload) private pure returns (Pass memory) {
+    function decodePass(
+        bytes memory _payload
+    ) private pure returns (Pass memory) {
         Pass memory decodedData = abi.decode(_payload, (Pass));
         if (decodedData.payload.length == 0) {
             revert("PASS_INVALID_PAYLOAD");
@@ -141,7 +164,10 @@ contract MintPassGroup is AuthorizedCaller {
         bytes memory _payload
     ) private view returns (bool) {
         bytes32 payloadHash = keccak256(_payload);
-        address recovered = ECDSA.recover(ECDSA.toEthSignedMessageHash(payloadHash), _signature);
+        address recovered = ECDSA.recover(
+            ECDSA.toEthSignedMessageHash(payloadHash),
+            _signature
+        );
         return signer == recovered;
     }
 

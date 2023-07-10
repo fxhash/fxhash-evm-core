@@ -14,7 +14,11 @@ abstract contract BaseModeration is AuthorizedCaller, AddressConfig {
     uint256 internal reasonsCount;
 
     // Get the address of the moderation team contract
-    function getModerationTeamAddress() internal view returns (address payable) {
+    function getModerationTeamAddress()
+        internal
+        view
+        returns (address payable)
+    {
         return payable(addresses["mod"]);
     }
 
@@ -27,7 +31,10 @@ abstract contract BaseModeration is AuthorizedCaller, AddressConfig {
     }
 
     // Update a reason
-    function reasonUpdate(uint256 reasonId, string memory reason) external onlyModerator {
+    function reasonUpdate(
+        uint256 reasonId,
+        string memory reason
+    ) external onlyModerator {
         require(!Strings.equal(reasons[reasonId], ""), "REASON_DOESNT_EXISTS");
         reasons[reasonId] = reason;
     }
