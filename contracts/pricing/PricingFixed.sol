@@ -15,28 +15,19 @@ contract PricingFixed is AuthorizedCaller, IPricing {
     mapping(address => PriceDetails) pricings;
 
     constructor() {
-        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
-        _setupRole(AUTHORIZED_CALLER, _msgSender());
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _setupRole(AUTHORIZED_CALLER, msg.sender);
     }
 
-    function setPrice(
-        address issuer,
-        bytes memory details
-    ) external onlyAuthorizedCaller {
-        PriceDetails memory pricingDetails = abi.decode(
-            details,
-            (PriceDetails)
-        );
+    function setPrice(address issuer, bytes memory details) external onlyAuthorizedCaller {
+        PriceDetails memory pricingDetails = abi.decode(details, (PriceDetails));
         require(pricingDetails.price > 0, "price <= 0");
         require(pricingDetails.opensAt > 0, "opensAt <= 0");
         pricings[issuer] = pricingDetails;
         emit FixedPriceSet(issuer, pricingDetails);
     }
 
-    function getPrice(
-        address issuer,
-        uint256 timestamp
-    ) external view returns (uint256) {
+    function getPrice(address issuer, uint256 timestamp) external view returns (uint256) {
         PriceDetails memory pricing = pricings[issuer];
         require(pricing.price > 0, "PRICING_NO_ISSUER");
 

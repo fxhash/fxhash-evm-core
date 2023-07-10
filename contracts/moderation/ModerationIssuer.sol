@@ -13,10 +13,7 @@ contract ModerationIssuer is BaseModeration, IModerationIssuer {
     event IssuerModerated(address issuer, uint256 state, uint256 reason);
     event IssuerReported(address reporter, address issuer, uint256 reason);
 
-    constructor(
-        address _admin,
-        address _moderation
-    ) BaseModeration(_admin, _moderation) {}
+    constructor(address _admin, address _moderation) BaseModeration(_admin, _moderation) {}
 
     function moderateIssuer(
         address issuerContract,
@@ -28,21 +25,14 @@ contract ModerationIssuer is BaseModeration, IModerationIssuer {
         emit IssuerModerated(issuerContract, state, reason);
     }
 
-    function report(
-        address issuerContract,
-        uint256 reason
-    ) external onlyModerator {
+    function report(address issuerContract, uint256 reason) external onlyModerator {
         require(!Strings.equal(reasons[reason], ""), "REASON_DOESNT_EXISTS");
-        reports[getHashedKey(_msgSender(), issuerContract)] = reason;
-        emit IssuerReported(_msgSender(), issuerContract, reason);
+        reports[getHashedKey(msg.sender, issuerContract)] = reason;
+        emit IssuerReported(msg.sender, issuerContract, reason);
     }
 
-    function issuerState(
-        address issuerContract
-    ) external view returns (uint256) {
-        LibModeration.ModerationState memory moderationState = issuers[
-            issuerContract
-        ];
+    function issuerState(address issuerContract) external view returns (uint256) {
+        LibModeration.ModerationState memory moderationState = issuers[issuerContract];
         if (moderationState.state == 0 && moderationState.reason == 0) {
             return 0;
         } else {
@@ -50,15 +40,11 @@ contract ModerationIssuer is BaseModeration, IModerationIssuer {
         }
     }
 
-    function getHashedKey(
-        address reporter,
-        address issuer
-    ) public pure returns (bytes32) {
+    function getHashedKey(address reporter, address issuer) public pure returns (bytes32) {
         return keccak256(abi.encodePacked(reporter, issuer));
     }
 
     function isModerator(address user) public view override returns (bool) {
-        return
-            ModerationTeam(getModerationTeamAddress()).isAuthorized(user, 10);
+        return ModerationTeam(getModerationTeamAddress()).isAuthorized(user, 10);
     }
 }

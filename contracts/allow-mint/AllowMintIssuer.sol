@@ -6,7 +6,6 @@ import "contracts/interfaces/IModerationUser.sol";
 import "@openzeppelin/contracts/utils/math/SignedMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "contracts/moderation/ModerationUser.sol";
-import "contracts/libs/LibUserActions.sol";
 
 contract AllowMintIssuer is Ownable {
     uint256 public mintDelay;

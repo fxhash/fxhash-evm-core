@@ -17,26 +17,14 @@ contract MintTicket is ERC721URIStorage, Ownable, IMintTicket {
     uint256 public minPrice;
     IRandomizer public randomizer;
 
-    event ProjectCreated(
-        address issuer,
-        uint256 gracingPeriod,
-        string metadata
-    );
+    event ProjectCreated(address issuer, uint256 gracingPeriod, string metadata);
     event TicketMinted(address issuer, address minter, uint256 price);
     event PriceUpdated(uint256 tokenId, uint256 price, uint256 coverage);
     event TaxPayed(uint256 tokenId);
-    event TicketClaimed(
-        uint256 tokenId,
-        uint256 price,
-        uint256 coverage,
-        address transferTo
-    );
+    event TicketClaimed(uint256 tokenId, uint256 price, uint256 coverage, address transferTo);
     event TicketConsumed(address owner, uint256 tokenId, address issuer);
 
-    constructor(
-        address _admin,
-        address _randomizer
-    ) ERC721("MintTicket", "MTK") {
+    constructor(address _admin, address _randomizer) ERC721("MintTicket", "MTK") {
         randomizer = IRandomizer(_randomizer);
         lastTokenId = 0;
         fees = 0;
@@ -70,16 +58,10 @@ contract MintTicket is ERC721URIStorage, Ownable, IMintTicket {
         payable(to).transfer(withdrawAmount);
     }
 
-    function createProject(
-        uint256 _gracingPeriod,
-        string calldata _metadata
-    ) external {
+    function createProject(uint256 _gracingPeriod, string calldata _metadata) external {
         require(projectData[msg.sender].gracingPeriod == 0, "PROJECT_EXISTS");
         require(_gracingPeriod > 0, "GRACING_UNDER_1");
-        projectData[msg.sender] = ProjectData({
-            gracingPeriod: _gracingPeriod,
-            metadata: _metadata
-        });
+        projectData[msg.sender] = ProjectData({gracingPeriod: _gracingPeriod, metadata: _metadata});
         emit ProjectCreated(msg.sender, _gracingPeriod, _metadata);
     }
 
@@ -101,14 +83,10 @@ contract MintTicket is ERC721URIStorage, Ownable, IMintTicket {
         emit TicketMinted(msg.sender, _minter, _price);
     }
 
-    function updatePrice(
-        uint256 tokenId,
-        uint256 price,
-        uint256 coverage
-    ) external payable {
+    function updatePrice(uint256 tokenId, uint256 price, uint256 coverage) external payable {
         TokenData storage token = tokenData[tokenId];
         require(token.minter != address(0), "TOKEN_DOES_NOT_EXIST");
-        require(isOwner(_msgSender(), tokenId), "INSUFFICIENT_BALANCE");
+        require(isOwner(msg.sender, tokenId), "INSUFFICIENT_BALANCE");
         require(price >= minPrice, "PRICE_BELOW_MIN_PRICE");
         require(coverage > 0, "MIN_1_COVERAGE");
 
@@ -116,27 +94,22 @@ contract MintTicket is ERC721URIStorage, Ownable, IMintTicket {
         uint256 startDay = token.createdAt + daysSinceCreated * 1 days;
 
         if (block.timestamp < token.taxationStart) {
-            uint256 gracingRemainingDays = projectData[token.issuer]
-                .gracingPeriod - daysSinceCreated;
+            uint256 gracingRemainingDays = projectData[token.issuer].gracingPeriod -
+                daysSinceCreated;
             require(coverage > gracingRemainingDays, "COVERAGE_GRACED");
             uint256 newDailyTax = dailyTaxAmount(price);
-            uint256 taxRequiredForCoverage = newDailyTax *
-                (coverage - gracingRemainingDays);
+            uint256 taxRequiredForCoverage = newDailyTax * (coverage - gracingRemainingDays);
             uint256 totalAvailable = msg.value + token.taxationLocked;
-            require(
-                totalAvailable >= taxRequiredForCoverage,
-                "NOT_ENOUGH_FOR_COVERAGE"
-            );
+            require(totalAvailable >= taxRequiredForCoverage, "NOT_ENOUGH_FOR_COVERAGE");
 
             uint256 sendBackAmount = totalAvailable - taxRequiredForCoverage;
-            send(_msgSender(), sendBackAmount);
+            send(msg.sender, sendBackAmount);
 
             token.taxationLocked = taxRequiredForCoverage;
             token.price = price;
         } else {
             {
-                uint256 daysSinceLastTaxation = (block.timestamp -
-                    token.taxationStart) / 1 days;
+                uint256 daysSinceLastTaxation = (block.timestamp - token.taxationStart) / 1 days;
                 uint256 dailyTax = dailyTaxAmount(token.price);
                 uint256 taxToPay = dailyTax * daysSinceLastTaxation;
 
@@ -147,14 +120,10 @@ contract MintTicket is ERC721URIStorage, Ownable, IMintTicket {
                 uint256 taxRequiredForCoverage = newDailyTax * coverage;
                 uint256 totalAvailable = msg.value + taxLeft;
 
-                require(
-                    totalAvailable >= taxRequiredForCoverage,
-                    "NOT_ENOUGH_FOR_COVERAGE"
-                );
+                require(totalAvailable >= taxRequiredForCoverage, "NOT_ENOUGH_FOR_COVERAGE");
 
-                uint256 sendBackAmount = totalAvailable -
-                    taxRequiredForCoverage;
-                send(_msgSender(), sendBackAmount);
+                uint256 sendBackAmount = totalAvailable - taxRequiredForCoverage;
+                send(msg.sender, sendBackAmount);
 
                 token.taxationLocked = taxRequiredForCoverage;
                 token.taxationStart = startDay;
@@ -170,7 +139,7 @@ contract MintTicket is ERC721URIStorage, Ownable, IMintTicket {
         uint256 dailyTax = dailyTaxAmount(token.price);
         uint256 daysCoverage = msg.value / dailyTax;
         uint256 cleanCoverage = dailyTax * daysCoverage;
-        send(_msgSender(), msg.value - cleanCoverage);
+        send(msg.sender, msg.value - cleanCoverage);
         token.taxationLocked = token.taxationLocked + cleanCoverage;
         emit TaxPayed(tokenId);
     }
@@ -199,7 +168,7 @@ contract MintTicket is ERC721URIStorage, Ownable, IMintTicket {
         uint256 amountRequired = taxAmount * price;
         require(msg.value >= amountRequired, "AMOUNT_UNDER_PRICE");
 
-        send(_msgSender(), msg.value - amountRequired);
+        send(msg.sender, msg.value - amountRequired);
         send(owner, price);
 
         (uint256 taxToPay, uint256 taxToRelease) = taxRelease(tokenId);
@@ -217,11 +186,7 @@ contract MintTicket is ERC721URIStorage, Ownable, IMintTicket {
         emit TicketClaimed(tokenId, price, coverage, transferTo);
     }
 
-    function consume(
-        address _owner,
-        uint256 _tokenId,
-        address _issuer
-    ) external payable {
+    function consume(address _owner, uint256 _tokenId, address _issuer) external payable {
         TokenData storage token = tokenData[_tokenId];
         require(token.minter != address(0), "TOKEN_DOES_NOT_EXIST");
         require(isOwner(_owner, _tokenId), "INSUFFICIENT_BALANCE");
@@ -300,13 +265,7 @@ contract MintTicket is ERC721URIStorage, Ownable, IMintTicket {
 
     function supportsInterface(
         bytes4 interfaceId
-    )
-        public
-        view
-        virtual
-        override(ERC721URIStorage, IMintTicket)
-        returns (bool)
-    {
+    ) public view virtual override(ERC721URIStorage, IMintTicket) returns (bool) {
         return
             interfaceId == type(IERC721).interfaceId ||
             interfaceId == type(IMintTicket).interfaceId ||
@@ -317,18 +276,13 @@ contract MintTicket is ERC721URIStorage, Ownable, IMintTicket {
         return (price * 14) / 10000;
     }
 
-    function taxationStartDate(
-        uint256 tokenId
-    ) internal view returns (uint256) {
+    function taxationStartDate(uint256 tokenId) internal view returns (uint256) {
         TokenData storage token = tokenData[tokenId];
         ProjectData storage project = projectData[token.issuer];
         return token.createdAt + project.gracingPeriod * 1 days;
     }
 
-    function isGracingByTime(
-        uint256 tokenId,
-        uint256 time
-    ) internal view returns (bool) {
+    function isGracingByTime(uint256 tokenId, uint256 time) internal view returns (bool) {
         if (taxationStartDate(tokenId) < time) {
             return false;
         } else {
@@ -351,26 +305,17 @@ contract MintTicket is ERC721URIStorage, Ownable, IMintTicket {
         return time - foreclosureTime;
     }
 
-    function distanceForeclosure(
-        uint256 tokenId
-    ) internal view returns (uint256) {
+    function distanceForeclosure(uint256 tokenId) internal view returns (uint256) {
         return distanceForeclosureByTime(tokenId, block.timestamp);
     }
 
-    function isForeclosureByTime(
-        uint256 tokenId,
-        uint256 time
-    ) internal view returns (bool) {
+    function isForeclosureByTime(uint256 tokenId, uint256 time) internal view returns (bool) {
         TokenData storage token = tokenData[tokenId];
         uint256 dailyTax = dailyTaxAmount(token.price);
         uint256 daysCovered = token.taxationLocked / dailyTax;
-        uint256 secondsSincePayment = time > token.taxationStart
-            ? time - token.taxationStart
-            : 0;
+        uint256 secondsSincePayment = time > token.taxationStart ? time - token.taxationStart : 0;
         uint256 daysSincePayment = secondsSincePayment / 1 days;
-        return
-            (!isGracingByTime(tokenId, time)) &&
-            (daysSincePayment >= daysCovered);
+        return (!isGracingByTime(tokenId, time)) && (daysSincePayment >= daysCovered);
     }
 
     function isForeclosure(uint256 tokenId) internal view returns (bool) {
@@ -382,15 +327,10 @@ contract MintTicket is ERC721URIStorage, Ownable, IMintTicket {
         uint256 tokenId,
         uint256 time
     ) internal view returns (bool) {
-        return
-            (ownerOf(tokenId) == owner) &&
-            (!isForeclosureByTime(tokenId, time));
+        return (ownerOf(tokenId) == owner) && (!isForeclosureByTime(tokenId, time));
     }
 
-    function isOwner(
-        address owner,
-        uint256 tokenId
-    ) internal view returns (bool) {
+    function isOwner(address owner, uint256 tokenId) internal view returns (bool) {
         return isOwnerByTime(owner, tokenId, block.timestamp);
     }
 
@@ -409,9 +349,7 @@ contract MintTicket is ERC721URIStorage, Ownable, IMintTicket {
         return price - (prange * T) / 10000;
     }
 
-    function taxRelease(
-        uint256 tokenId
-    ) internal view returns (uint256, uint256) {
+    function taxRelease(uint256 tokenId) internal view returns (uint256, uint256) {
         TokenData storage token = tokenData[tokenId];
         uint256 timeDiff = 0;
         if (block.timestamp > token.taxationStart) {
@@ -427,13 +365,9 @@ contract MintTicket is ERC721URIStorage, Ownable, IMintTicket {
         return (taxToPay, taxToRelease);
     }
 
-    function payProjectAuthorsWithSplit(
-        address _issuer,
-        uint256 _amount
-    ) internal {
+    function payProjectAuthorsWithSplit(address _issuer, uint256 _amount) internal {
         if (_amount > 0) {
-            (address receiver, uint256 royaltyAmount) = IIssuer(_issuer)
-                .primarySplitInfo(_amount);
+            (address receiver, uint256 royaltyAmount) = IIssuer(_issuer).primarySplitInfo(_amount);
             payable(receiver).transfer(royaltyAmount);
         }
     }
