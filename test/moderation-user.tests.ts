@@ -19,10 +19,7 @@ describe("ModerationUser", () => {
 
     moderationTeam = await ModerationTeam.deploy(admin.getAddress());
     await moderationTeam.deployed();
-    moderationUser = await ModerationUser.deploy(
-      await admin.getAddress(),
-      moderationTeam.address
-    );
+    moderationUser = await ModerationUser.deploy(moderationTeam.address);
     await moderationUser.deployed();
 
     await moderationTeam.connect(admin).updateModerators([

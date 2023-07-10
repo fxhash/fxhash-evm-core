@@ -13,23 +13,15 @@ contract ModerationUser is BaseModeration, IModerationUser {
     event UserModerated(address user, uint256 state, uint256 reason);
 
     // Constructor
-    constructor(
-        address _admin,
-        address _moderation
-    ) BaseModeration(_admin, _moderation) {}
+    constructor(address _moderation) BaseModeration(_moderation) {}
 
     // Check if an address is a user moderator on the moderation team contract
     function isModerator(address user) public view override returns (bool) {
-        return
-            ModerationTeam(getModerationTeamAddress()).isAuthorized(user, 20);
+        return ModerationTeam(getModerationTeamAddress()).isAuthorized(user, 20);
     }
 
     // Moderate a user with a given state/reason
-    function moderateUser(
-        address user,
-        uint256 state,
-        uint256 reason
-    ) public onlyModerator {
+    function moderateUser(address user, uint256 state, uint256 reason) public onlyModerator {
         require(!Strings.equal(reasons[reason], ""), "REASON_DOESNT_EXISTS");
         users[user] = LibModeration.ModerationState(state, reason);
         emit UserModerated(user, state, reason);

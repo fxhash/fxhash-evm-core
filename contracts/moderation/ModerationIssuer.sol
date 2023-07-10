@@ -13,7 +13,7 @@ contract ModerationIssuer is BaseModeration, IModerationIssuer {
     event IssuerModerated(address issuer, uint256 state, uint256 reason);
     event IssuerReported(address reporter, address issuer, uint256 reason);
 
-    constructor(address _admin, address _moderation) BaseModeration(_admin, _moderation) {}
+    constructor(address _moderation) BaseModeration(_moderation) {}
 
     function moderateIssuer(
         address issuerContract,

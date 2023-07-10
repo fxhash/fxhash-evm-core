@@ -2,7 +2,6 @@
 pragma solidity ^0.8.18;
 
 import "contracts/abstract/admin/AuthorizedCaller.sol";
-import "hardhat/console.sol";
 
 contract Randomizer is AuthorizedCaller {
     bytes32 public constant FXHASH_AUTHORITY = keccak256("FXHASH_AUTHORITY");
@@ -48,16 +47,11 @@ contract Randomizer is AuthorizedCaller {
         _;
     }
 
-    modifier onlyFxHashIssuer() {
-        require(AccessControl.hasRole(FXHASH_ISSUER, msg.sender), "Caller is not a FxHash Issuer");
-        _;
-    }
-
     function updateCommitment(bytes32 oracleSeed) private {
         commitment.seed = oracleSeed;
     }
 
-    function generate(uint256 tokenId) external onlyFxHashIssuer {
+    function generate(uint256 tokenId) external {
         bytes32 hashedKey = getTokenKey(msg.sender, tokenId);
         Seed storage storedSeed = seeds[hashedKey];
         require(storedSeed.revealed == 0x00, "ALREADY_SEEDED");

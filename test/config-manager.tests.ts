@@ -50,14 +50,14 @@ describe("ConfigurationManager", function () {
     });
   });
 
-  describe("setAddress", function () {
+  describe("setAddresses", function () {
     it("should set addresses correctly", async function () {
       const entries = [
         { key: "ContractA", value: await addr1.getAddress() },
         { key: "ContractB", value: await addr2.getAddress() },
       ];
 
-      await configurationManager.connect(owner).setAddress(entries);
+      await configurationManager.connect(owner).setAddresses(entries);
       expect(await configurationManager.getAddress("ContractA")).to.equal(
         await addr1.getAddress()
       );
@@ -72,7 +72,7 @@ describe("ConfigurationManager", function () {
         { key: "ContractB", value: await addr2.getAddress() },
       ];
       await expect(
-        configurationManager.connect(addr1).setAddress(entries)
+        configurationManager.connect(addr1).setAddresses(entries)
       ).to.be.revertedWith("Ownable: caller is not the owner");
     });
 
@@ -81,7 +81,7 @@ describe("ConfigurationManager", function () {
         { key: "ContractA", value: ethers.constants.AddressZero },
       ];
       await expect(
-        configurationManager.connect(owner).setAddress(entries)
+        configurationManager.connect(owner).setAddresses(entries)
       ).to.be.revertedWith("Address is null");
     });
   });

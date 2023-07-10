@@ -9,9 +9,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract AllowMint is IAllowMint, Ownable {
     address private issuerMod;
 
-    constructor(address _issuerMod, address _admin) {
+    constructor(address _issuerMod) {
         issuerMod = _issuerMod;
-        transferOwnership(_admin);
     }
 
     function updateIssuerModerationContract(address _address) external onlyOwner {

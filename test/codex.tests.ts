@@ -28,10 +28,7 @@ describe("Codex", function () {
     ]);
 
     const CodexFactory = await ethers.getContractFactory("Codex");
-    codex = await CodexFactory.deploy(
-      await admin.getAddress(),
-      moderationTeam.address
-    );
+    codex = await CodexFactory.deploy(moderationTeam.address);
   });
 
   describe("insertOrUpdateCodex", function () {

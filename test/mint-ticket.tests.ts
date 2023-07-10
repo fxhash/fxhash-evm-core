@@ -65,10 +65,7 @@ describe("MintTicket", () => {
     const salt = ethers.utils.formatBytes32String("salt");
     randomizer = await RandomizerFactory.deploy(seed, salt);
     await randomizer.deployed();
-    mintTicket = await MintTicket.deploy(
-      await admin.getAddress(),
-      randomizer.address
-    );
+    mintTicket = await MintTicket.deploy(randomizer.address);
     await mintTicket.deployed();
     issuer = await IssuerFactory.deploy(mintTicket.address);
     await issuer.deployed();

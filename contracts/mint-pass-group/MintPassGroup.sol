@@ -53,7 +53,6 @@ contract MintPassGroup is Ownable, EIP712 {
         for (uint256 i = 0; i < _bypass.length; i++) {
             EnumerableSet.add(bypass, _bypass[i]);
         }
-        transferOwnership(_signer);
     }
 
     modifier onlyReserveMintPass() {

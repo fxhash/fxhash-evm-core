@@ -24,7 +24,6 @@ describe("ModerationIssuer", () => {
     moderationTeam = await ModerationTeam.deploy(admin.getAddress());
     await moderationTeam.deployed();
     moderatorToken = await ModerationIssuer.deploy(
-      await admin.getAddress(),
       moderationTeam.address
     );
     await moderatorToken.deployed();

@@ -9,14 +9,13 @@ abstract contract BaseModeration is Ownable {
     address internal moderation;
     mapping(uint256 => string) public reasons;
 
-    constructor(address _admin, address _moderation) {
+    constructor(address _moderation) {
         reasonsCount = 0;
         moderation = _moderation;
-        transferOwnership(_admin);
     }
 
     modifier onlyModerator() {
-        require(isModerator(msg.senderr), "NOT_MOD");
+        require(isModerator(msg.sender), "NOT_MOD");
         _;
     }
 

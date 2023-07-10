@@ -24,13 +24,12 @@ contract MintTicket is ERC721URIStorage, Ownable, IMintTicket {
     event TicketClaimed(uint256 tokenId, uint256 price, uint256 coverage, address transferTo);
     event TicketConsumed(address owner, uint256 tokenId, address issuer);
 
-    constructor(address _admin, address _randomizer) ERC721("MintTicket", "MTK") {
+    constructor(address _randomizer) ERC721("MintTicket", "MTK") {
         randomizer = IRandomizer(_randomizer);
         lastTokenId = 0;
         fees = 0;
         availableBalance = 0;
         minPrice = 100000;
-        transferOwnership(_admin);
     }
 
     // Entry Points

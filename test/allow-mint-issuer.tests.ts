@@ -43,9 +43,7 @@ describe("AllowIssuerMint", function () {
       "AllowMintIssuer"
     );
     allowIssuerMint = await AllowMintIssuerFactory.deploy(
-      moderationUser.address,
-      userActions.address,
-      await admin.getAddress()
+      moderationUser.address
     );
 
     await allowIssuerMint.deployed();

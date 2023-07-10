@@ -11,10 +11,9 @@ contract AllowMintIssuer is Ownable {
     uint256 public mintDelay;
     IModerationUser public userModerationContract;
 
-    constructor(address _userModerationContract, address _admin) {
+    constructor(address _userModerationContract) {
         mintDelay = 3600;
         userModerationContract = ModerationUser(_userModerationContract);
-        transferOwnership(_admin);
     }
 
     function updateUserModerationContract(address _address) external onlyOwner {

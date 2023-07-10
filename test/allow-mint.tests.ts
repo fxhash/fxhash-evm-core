@@ -81,11 +81,7 @@ describe("AllowMint", function () {
     await userActions.deployed();
 
     const AllowMintFactory = await ethers.getContractFactory("AllowMint");
-    allowMint = await AllowMintFactory.deploy(
-      moderationIssuer.address,
-      userActions.address,
-      await admin.getAddress()
-    );
+    allowMint = await AllowMintFactory.deploy(moderationIssuer.address);
     await allowMint.deployed();
   });
 

@@ -74,7 +74,7 @@ contract Issuer is IIssuer, IERC2981, Ownable {
             IPricingManager(configManager.getAddress("priceMag"))
                 .getPricingContract(params.pricing.pricingId)
                 .pricingContract
-        ).setPrice(address(this), params.pricing.details);
+        ).setPrice(params.pricing.details);
 
         bool hasTickets = params.mintTicketSettings.gracingPeriod > 0;
         if (hasTickets) {
@@ -245,7 +245,7 @@ contract Issuer is IIssuer, IERC2981, Ownable {
                     balanceWithoutReserve == 1 &&
                     !reserveApplied
                 ) {
-                    pricingContract.lockPrice(address(this));
+                    pricingContract.lockPrice();
                 }
             }
         }
@@ -317,7 +317,7 @@ contract Issuer is IIssuer, IERC2981, Ownable {
             IPricingManager(configManager.getAddress("priceMag"))
                 .getPricingContract(pricingData.pricingId)
                 .pricingContract
-        ).setPrice(address(this), pricingData.details);
+        ).setPrice(pricingData.details);
         emit PriceUpdated(pricingData);
     }
 
@@ -416,7 +416,7 @@ contract Issuer is IIssuer, IERC2981, Ownable {
         address recipient
     ) private {
         {
-            uint256 price = pricingContract.getPrice(address(this), block.timestamp);
+            uint256 price = pricingContract.getPrice(block.timestamp);
             require(msg.value >= price, "INVALID_PRICE");
 
             uint256 platformFees = configManager.getConfig().fees;
