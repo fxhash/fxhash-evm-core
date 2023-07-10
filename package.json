@@ -22,7 +22,6 @@
   "dependencies": {
     "@openzeppelin/contracts": "^4.9.1",
     "@openzeppelin/contracts-upgradeable": "^4.9.1",
-    "@rarible/royalties": "^0.7.4",
     "solady": "^0.0.107",
     "solidity-docgen": "^0.6.0-beta.35"
   }
