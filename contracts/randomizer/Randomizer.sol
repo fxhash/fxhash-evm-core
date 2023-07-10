@@ -26,7 +26,7 @@ contract Randomizer is AuthorizedCaller {
     Commitment private commitment;
     uint256 private countRequested;
     uint256 private countRevealed;
-    mapping(bytes32 => Seed) public seeds;
+    mapping(bytes32 => Seed) private seeds;
 
     event RandomizerGenerate(uint256 token_id, Seed seed);
     event RandomizerReveal(uint256 id, bytes32 seed);
@@ -57,25 +57,18 @@ contract Randomizer is AuthorizedCaller {
     }
 
     function updateCommitment(bytes32 oracleSeed) private {
-        commitment.seed = bytes32(
-            uint256(keccak256(abi.encodePacked(oracleSeed)))
-        );
+        commitment.seed = oracleSeed;
     }
 
     function generate(uint256 tokenId) external onlyFxHashIssuer {
         bytes32 hashedKey = getTokenKey(_msgSender(), tokenId);
         Seed storage storedSeed = seeds[hashedKey];
         require(storedSeed.revealed == 0x00, "ALREADY_SEEDED");
-        bytes memory base = abi.encodePacked(block.timestamp, hashedKey);
+        bytes memory base = abi.encode(block.timestamp, hashedKey);
         bytes32 seed = keccak256(base);
         countRequested += 1;
         storedSeed.chainSeed = seed;
         storedSeed.serialId = countRequested;
-        console.log("generated token = ");
-
-        console.logBytes32(hashedKey);
-
-        console.log("generated serial ID = %s", storedSeed.serialId);
         emit RandomizerGenerate(tokenId, storedSeed);
     }
 
@@ -84,43 +77,22 @@ contract Randomizer is AuthorizedCaller {
         bytes32 seed
     ) external onlyFxHashAuthority {
         uint256 lastSerial = setTokenSeedAndReturnSerial(tokenList[0], seed);
-        console.log("lastSerial: %s", lastSerial);
-
         uint256 expectedSerialId = lastSerial;
-        console.log("expectedSerialId: %s", expectedSerialId);
-
         bytes32 oracleSeed = iterateOracleSeed(seed);
-        console.log("oracleSeed:");
-        console.logBytes32(oracleSeed);
-
         for (uint256 i = 1; i < tokenList.length; i++) {
-            console.log("i = %s", i);
             expectedSerialId -= 1;
             uint256 serialId = setTokenSeedAndReturnSerial(
                 tokenList[i],
                 oracleSeed
             );
-            console.log("Inside loop - expectedSerialId: %s", expectedSerialId);
-            console.log("Inside loop - serialId: %s", serialId);
-
             require(expectedSerialId == serialId, "OOR");
             oracleSeed = iterateOracleSeed(oracleSeed);
-            console.log("Inside loop - oracleSeed:");
-            console.logBytes32(oracleSeed);
-
             emit RandomizerReveal(tokenList[i].tokenId, oracleSeed);
         }
 
         require(countRevealed + 1 == expectedSerialId, "OOR");
-        console.log("countRevealed: %s", countRevealed);
-
         countRevealed += tokenList.length;
-        console.log("oracleSeed:");
-        console.logBytes32(oracleSeed);
-        console.log("commitment.seed:");
-        console.logBytes32(commitment.seed);
         require(oracleSeed == commitment.seed, "OOR");
-
         updateCommitment(seed);
     }
 
@@ -156,23 +128,18 @@ contract Randomizer is AuthorizedCaller {
         TokenKey memory tokenKey,
         bytes32 oracleSeed
     ) private returns (uint256) {
-        console.log("setting seed for = ");
-        console.logBytes32(getTokenKey(tokenKey.issuer, tokenKey.tokenId));
         Seed storage seed = seeds[
             getTokenKey(tokenKey.issuer, tokenKey.tokenId)
         ];
         require(seed.chainSeed != 0x00, "NO_REQ");
-        bytes32 tokenSeed = keccak256(
-            abi.encodePacked(oracleSeed, seed.chainSeed)
-        );
+        bytes32 tokenSeed = keccak256(abi.encode(oracleSeed, seed.chainSeed));
         seed.revealed = tokenSeed;
-        console.log("Fetched serial = %s", seed.serialId);
         return seed.serialId;
     }
 
     function iterateOracleSeed(
         bytes32 oracleSeed
     ) private view returns (bytes32) {
-        return keccak256(abi.encodePacked(commitment.salt, oracleSeed));
+        return keccak256(abi.encode(commitment.salt, oracleSeed));
     }
 }

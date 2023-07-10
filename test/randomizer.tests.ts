@@ -2,12 +2,28 @@ import { ethers } from "hardhat";
 import { Contract, ContractFactory, Signer } from "ethers";
 import { expect } from "chai";
 
+function oracleIterator(iteration: number, seed: string, salt: string): string {
+  let hash: string = seed;
+  for (let i = 0; i < iteration; i++) {
+    const encodedData: string = ethers.utils.defaultAbiCoder.encode(
+      ["bytes32", "bytes32"],
+      [salt, hash]
+    );
+
+    const hashedData: string = ethers.utils.keccak256(encodedData);
+    hash = hashedData;
+  }
+  return hash;
+}
+
 describe("Randomizer", function () {
   let randomizer: Contract;
   let admin: Signer;
   let fxHashAdmin: Signer;
   let nonAdmin: Signer;
   const fxHashAdminRole = ethers.utils.id("AUTHORIZED_CALLER");
+  const seed = ethers.utils.formatBytes32String("0x");
+  const salt = ethers.utils.formatBytes32String("0x");
 
   beforeEach(async function () {
     const RandomizerFactory: ContractFactory = await ethers.getContractFactory(
@@ -15,9 +31,10 @@ describe("Randomizer", function () {
     );
     [admin, fxHashAdmin, nonAdmin] = await ethers.getSigners();
 
-    const seed = ethers.utils.formatBytes32String("seed");
-    const salt = ethers.utils.formatBytes32String("salt");
-    randomizer = await RandomizerFactory.deploy(seed, salt);
+    randomizer = await RandomizerFactory.deploy(
+      oracleIterator(100, seed, salt),
+      salt
+    );
     await randomizer.deployed();
   });
 
@@ -116,29 +133,33 @@ describe("Randomizer", function () {
         tokenId: 2,
       };
 
-      const seed = ethers.utils.formatBytes32String("seed");
       await randomizer.connect(fxHashAdmin).generate(tokenKey0.tokenId);
       await randomizer.connect(fxHashAdmin).generate(tokenKey1.tokenId);
       await randomizer.connect(fxHashAdmin).generate(tokenKey2.tokenId);
 
       await randomizer
         .connect(fxHashAdmin)
-        .reveal([tokenKey2, tokenKey1, tokenKey0], seed);
+        .reveal(
+          [tokenKey2, tokenKey1, tokenKey0],
+          oracleIterator(100 - 3, seed, salt)
+        );
 
-      // const revealedSeed = await randomizer.seeds(
-      //   randomizer.getTokenKey(tokenKey.issuer, tokenKey.id)
-      // ).revealed;
-      // expect(revealedSeed).to.equal(
+      // const hashedKey = await randomizer.getTokenKey(
+      //   tokenKey0.issuer,
+      //   tokenKey0.tokenId
+      // );
+      // const revealedSeed = await randomizer.seeds(hashedKey);
+      // expect(revealedSeed.revealed).to.equal(
       //   ethers.utils.keccak256(
       //     ethers.utils.defaultAbiCoder.encode(
       //       ["bytes32", "bytes32"],
-      //       [seed, seed]
+      //       [oracleIterator(100 - 1, seed, salt), revealedSeed.chainSeed]
       //     )
       //   )
       // );
 
       // const commitmentSeed = await randomizer.commitment();
-      // expect(commitmentSeed).to.equal(seed);
+      // expect(commitmentSeed.seed).to.equal(oracleIterator(100 - 3, seed, salt));
     });
   });
 });
