@@ -6,6 +6,7 @@ import "contracts/interfaces/IOnChainTokenMetadataManager.sol";
 
 import "@openzeppelin/contracts/interfaces/IERC721.sol";
 import "@openzeppelin/contracts/interfaces/IERC2981.sol";
+import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "contracts/abstract/admin/AuthorizedCaller.sol";
@@ -56,9 +57,7 @@ contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
         issuer = IIssuer(_issuer);
         signer = _signer;
         treasury = _treasury;
-        onChainTokenMetadataManager = IOnChainTokenMetadataManager(
-            _onChainTokenMetadataManager
-        );
+        onChainTokenMetadataManager = IOnChainTokenMetadataManager(_onChainTokenMetadataManager);
     }
 
     receive() external payable {}
@@ -87,30 +86,20 @@ contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
         emit TokenMinted(_params);
     }
 
-    function assignOnChainMetadata(
-        OnChainTokenMetadata[] calldata _params
-    ) external onlySigner {
+    function assignOnChainMetadata(OnChainTokenMetadata[] calldata _params) external onlySigner {
         for (uint256 i = 0; i < _params.length; i++) {
             OnChainTokenMetadata memory _tokenData = _params[i];
 
-            require(
-                tokenData[_tokenData.tokenId].minter != address(0),
-                "TOKEN_UNDEFINED"
-            );
+            require(tokenData[_tokenData.tokenId].minter != address(0), "TOKEN_UNDEFINED");
             _setTokenURI(_tokenData.tokenId, string(_tokenData.metadata));
         }
         emit OnChainTokenMetadataAssigned(_params);
     }
 
-    function assignMetadata(
-        TokenMetadata[] calldata _params
-    ) external onlySigner {
+    function assignMetadata(TokenMetadata[] calldata _params) external onlySigner {
         for (uint256 i = 0; i < _params.length; i++) {
             TokenMetadata memory _tokenData = _params[i];
-            require(
-                tokenData[_tokenData.tokenId].minter != address(0),
-                "TOKEN_UNDEFINED"
-            );
+            require(tokenData[_tokenData.tokenId].minter != address(0), "TOKEN_UNDEFINED");
             _setTokenURI(_tokenData.tokenId, _tokenData.metadata);
         }
         emit TokenMetadataAssigned(_params);
@@ -118,7 +107,7 @@ contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
 
     function transferTreasury(uint256 _amount) external onlyAdmin {
         require(_amount <= address(this).balance, "INSUFFISCIENT_BALANCE");
-        payable(treasury).transfer(_amount);
+        SafeTransferLib.safeTransferETH(treasury, _amount);
     }
 
     function setSigner(address _signer) external onlyAdmin {
@@ -129,22 +118,20 @@ contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
         treasury = _treasury;
     }
 
-    function royaltyInfo(
-        uint256 tokenId,
-        uint256 salePrice
-    ) external view override returns (address receiver, uint256 royaltyAmount) {
+    function royaltyInfo(uint256 tokenId, uint256 salePrice)
+        external
+        view
+        override
+        returns (address receiver, uint256 royaltyAmount)
+    {
         return issuer.royaltyInfo(tokenId, salePrice);
     }
 
-    function getTokenData(
-        uint256 _tokenId
-    ) external view returns (TokenData memory) {
+    function getTokenData(uint256 _tokenId) external view returns (TokenData memory) {
         return tokenData[_tokenId];
     }
 
-    function tokenURI(
-        uint256 tokenId
-    ) public view virtual override returns (string memory) {
+    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
         _requireMinted(tokenId);
         console.log("1");
         string memory _tokenURI = super.tokenURI(tokenId);
@@ -153,9 +140,7 @@ contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
         TokenData memory _tokenData = tokenData[tokenId];
         console.log("3");
 
-        LibIssuer.IssuerData memory issuerData = issuer.getIssuer(
-            _tokenData.issuerId
-        );
+        LibIssuer.IssuerData memory issuerData = issuer.getIssuer(_tokenData.issuerId);
         console.log("4");
 
         require(_tokenData.minter != address(0), "TOKEN_UNDEFINED");
@@ -164,8 +149,10 @@ contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
         if (issuerData.onChainData.length > 0) {
             console.log("6");
 
-            string memory onChainURI = onChainTokenMetadataManager
-                .getOnChainURI(bytes(_tokenURI), issuerData.onChainData);
+            string memory onChainURI = onChainTokenMetadataManager.getOnChainURI(
+                bytes(_tokenURI),
+                issuerData.onChainData
+            );
             console.log("7");
 
             return onChainURI;
@@ -174,9 +161,7 @@ contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
         }
     }
 
-    function supportsInterface(
-        bytes4 interfaceId
-    )
+    function supportsInterface(bytes4 interfaceId)
         public
         view
         override(AccessControl, ERC721URIStorage, IERC165)
@@ -189,23 +174,11 @@ contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
             super.supportsInterface(interfaceId);
     }
 
-    function _msgSender()
-        internal
-        view
-        virtual
-        override(Context)
-        returns (address)
-    {
+    function _msgSender() internal view virtual override(Context) returns (address) {
         return super._msgSender();
     }
 
-    function _msgData()
-        internal
-        view
-        virtual
-        override(Context)
-        returns (bytes calldata)
-    {
+    function _msgData() internal view virtual override(Context) returns (bytes calldata) {
         return super._msgData();
     }
 }

@@ -2,6 +2,7 @@
 pragma solidity ^0.8.18;
 
 import "contracts/abstract/admin/AuthorizedCaller.sol";
+import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
 
 abstract contract Treasury is AuthorizedCaller {
     address treasury;
@@ -12,6 +13,6 @@ abstract contract Treasury is AuthorizedCaller {
 
     function transferTreasury(uint256 _amount) external onlyAdmin {
         require(_amount <= address(this).balance, "INSUFFISCIENT_BALANCE");
-        payable(treasury).transfer(_amount);
+        SafeTransferLib.safeTransferETH(treasury, _amount);
     }
 }
