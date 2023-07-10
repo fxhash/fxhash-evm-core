@@ -1,6 +1,6 @@
 import { ethers } from "hardhat";
 import { expect } from "chai";
-import { Contract, ContractFactory, Signer } from "ethers";
+import { Contract, ContractFactory, ContractReceipt, Signer } from "ethers";
 const utilities = require("../utilities/utilities.js");
 const path = require("path");
 
@@ -11,6 +11,7 @@ describe("Issuer", () => {
   let mintTicket: Contract;
   let allowMint: Contract;
   let allowMintIssuer: Contract;
+  let configurationManager: Contract;
   let reserveMintPass: Contract;
   let reserveWhitelist: Contract;
   let pricingFixed: Contract;
@@ -81,28 +82,29 @@ describe("Issuer", () => {
     await reserveWhitelist.deployed();
 
     const ReserveMintPass = await ethers.getContractFactory("ReserveMintPass");
-    reserveMintPass = await ReserveMintPass.deploy();
+    reserveMintPass = await ReserveMintPass.deploy(await admin.getAddress());
     await reserveMintPass.deployed();
 
     const MintPassGroup = await ethers.getContractFactory("MintPassGroup");
     mintPassGroup = await MintPassGroup.deploy(
       10, // maxPerToken
       5, // maxPerTokenPerProject
-      admin.getAddress(), // publicKey
+      admin.getAddress(),
+      reserveMintPass.address, // publicKey
       []
     );
     await mintPassGroup.deployed();
 
+    const ModerationTeam = await ethers.getContractFactory("ModerationTeam");
+
+    moderationTeam = await ModerationTeam.deploy();
+    await moderationTeam.deployed();
+
     const ModerationIssuer = await ethers.getContractFactory(
       "ModerationIssuer"
     );
-    moderatorToken = await ModerationIssuer.deploy(await admin.getAddress());
+    moderatorToken = await ModerationIssuer.deploy(moderationTeam.address);
     await moderatorToken.deployed();
-
-    const ModerationTeam = await ethers.getContractFactory("ModerationTeam");
-
-    moderationTeam = await ModerationTeam.deploy(admin.getAddress());
-    await moderationTeam.deployed();
 
     await moderationTeam.connect(admin).updateModerators([
       {
@@ -112,19 +114,10 @@ describe("Issuer", () => {
     ]);
 
     const ModerationUser = await ethers.getContractFactory("ModerationUser");
-    moderationUser = await ModerationUser.deploy(await admin.getAddress());
+    moderationUser = await ModerationUser.deploy(moderationTeam.address);
 
-    const UserActionsFactory: ContractFactory = await ethers.getContractFactory(
-      "UserActions"
-    );
-    userActions = await UserActionsFactory.deploy(await admin.getAddress());
-    await userActions.deployed();
     const AllowMintFactory = await ethers.getContractFactory("AllowMint");
-    allowMint = await AllowMintFactory.deploy(
-      await admin.getAddress(),
-      moderatorToken.address,
-      userActions.address
-    );
+    allowMint = await AllowMintFactory.deploy(moderatorToken.address);
 
     await allowMint.deployed();
 
@@ -170,46 +163,37 @@ describe("Issuer", () => {
       await ethers.getContractFactory("PricingManager");
     const ReserveManagerFactory: ContractFactory =
       await ethers.getContractFactory("ReserveManager");
-    priceManager = await PriceManagerFactory.deploy(await admin.getAddress());
-    reserveManager = await ReserveManagerFactory.deploy(
-      await admin.getAddress()
-    );
+    priceManager = await PriceManagerFactory.deploy();
+    reserveManager = await ReserveManagerFactory.deploy();
 
     allowMintIssuer = await AllowMintIssuerFactory.deploy(
-      await admin.getAddress(),
-      moderationUser.address,
-      userActions.address
+      moderationUser.address
     );
 
     await allowMintIssuer.deployed();
 
+    const ConfigurationManager = await ethers.getContractFactory(
+      "ConfigurationManager"
+    );
+
+    // Deploy the contract and wait for it to be mined
+    configurationManager = await ConfigurationManager.deploy();
+    await configurationManager.deployed();
+
     issuer = await IssuerFactory.deploy(
-      {
-        fees: 2500,
-        referrerFeesShare: 1000,
-        lockTime: 1000,
-        voidMetadata: "",
-      },
+      configurationManager.address,
       await admin.getAddress()
     );
     await issuer.deployed();
 
-    mintTicket = await MintTicket.deploy(
-      await admin.getAddress(),
-      issuer.address,
-      randomizer.address
-    );
+    mintTicket = await MintTicket.deploy(randomizer.address);
     await mintTicket.deployed();
 
-    codex = await CodexFactory.deploy(
-      issuer.address,
-      moderationTeam.address,
-      await admin.getAddress()
-    );
+    codex = await CodexFactory.deploy(moderationTeam.address);
 
-    await mintTicket.setIssuer(issuer.address);
     await randomizer.grantFxHashIssuerRole(issuer.address);
     await randomizer.grantFxHashIssuerRole(mintTicket.address);
+
     // Deploy the contract
     const genTkFactory: ContractFactory = await ethers.getContractFactory(
       "GenTk"
@@ -241,14 +225,10 @@ describe("Issuer", () => {
 
     genTk = await genTkFactory.deploy(
       await admin.getAddress(),
-      await signer.getAddress(),
-      await treasury.getAddress(),
       issuer.address,
-      onchainTokenMetaManager.address
+      configurationManager.address
     );
-    await moderatorToken.setAddresses([
-      { key: "mod", value: moderationTeam.address },
-    ]);
+
     await moderationTeam.connect(admin).updateModerators([
       {
         moderator: await admin.getAddress(),
@@ -256,11 +236,7 @@ describe("Issuer", () => {
       },
     ]);
 
-    await moderationUser.setAddresses([
-      { key: "mod", value: moderationTeam.address },
-    ]);
-
-    await issuer.connect(admin).setAddresses([
+    await configurationManager.connect(admin).setAddresses([
       { key: "treasury", value: await treasury.getAddress() },
       { key: "mint_tickets", value: mintTicket.address },
       { key: "gentk", value: genTk.address },
@@ -270,20 +246,17 @@ describe("Issuer", () => {
       { key: "al_m", value: allowMint.address },
       { key: "user_mod", value: moderationUser.address },
       { key: "codex", value: codex.address },
-      { key: "userAct", value: userActions.address },
       { key: "priceMag", value: priceManager.address },
       { key: "resMag", value: reserveManager.address },
+      { key: "signer", value: await signer.getAddress() },
     ]);
 
-    await pricingDutch.connect(admin).authorizeCaller(issuer.address);
-    await pricingFixed.connect(admin).authorizeCaller(issuer.address);
-
-    await codex.connect(admin).authorizeCaller(issuer.address);
-    await userActions.connect(admin).authorizeCaller(issuer.address);
-    await userActions.connect(admin).authorizeCaller(allowMint.address);
-    await userActions.connect(admin).authorizeCaller(allowMintIssuer.address);
-    await priceManager.connect(admin).authorizeCaller(issuer.address);
-    await reserveManager.connect(admin).authorizeCaller(issuer.address);
+    await configurationManager.connect(admin).setConfig({
+      fees: 2500,
+      referrerFeesShare: 1000,
+      lockTime: 1000,
+      voidMetadata: "",
+    });
   });
 
   describe("Mint issuer", function () {
@@ -396,6 +369,7 @@ describe("Issuer", () => {
           inputType: 1,
           value: ethers.utils.formatBytes32String("Test"),
           codexId: 0,
+          issuer: issuer.address,
         },
         metadata: ethers.utils.formatBytes32String("Metadata"),
         inputBytesSize: 0,
@@ -441,7 +415,7 @@ describe("Issuer", () => {
       // Mint issuer using the input
       await ethers.provider.send("evm_setNextBlockTimestamp", [timestamp]);
       await issuer.connect(receiver).mintIssuer(mintIssuerInput);
-      const issuerData = await issuer.getIssuer(0);
+      const issuerData = await issuer.getIssuer();
       expect(issuerData.metadata).to.equal(mintIssuerInput.metadata);
       expect(issuerData.balance).to.equal(mintIssuerInput.amount);
       expect(issuerData.iterationsCount).to.equal(0);
@@ -481,7 +455,6 @@ describe("Issuer", () => {
         mintIssuerInput.pricing.lockForReserves
       );
       expect(issuerData.info.hasTickets).to.equal(false);
-      expect(issuerData.info.author).to.equal(await receiver.getAddress());
       expect(issuerData.info.pricingId).to.equal(
         mintIssuerInput.pricing.pricingId
       );
@@ -521,7 +494,7 @@ describe("Issuer", () => {
       await issuer.connect(addr1).mint(mintInput, {
         value: 1000,
       });
-      const issuerDataPost = await issuer.getIssuer(0);
+      const issuerDataPost = await issuer.getIssuer();
       expect(issuerDataPost.balance).to.equal(999);
       expect(issuerDataPost.iterationsCount).to.equal(1);
       expect(issuerDataPost.supply).to.equal(1000);
