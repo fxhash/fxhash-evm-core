@@ -27,14 +27,15 @@ contract PricingDutchAuction is AuthorizedCaller, IPricing {
     uint256 public minDecrementDuration;
 
     constructor() {
-        _setupRole(DEFAULT_ADMIN_ROLE, address(bytes20(_msgSender())));
-        _setupRole(AUTHORIZED_CALLER, address(bytes20(_msgSender())));
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _setupRole(AUTHORIZED_CALLER, msg.sender);
         minDecrementDuration = 60; // Default value, can be updated
     }
 
-    function updateMinDecrementDuration(
-        uint256 _minDecrement
-    ) external onlyAuthorizedCaller {
+    function updateMinDecrementDuration(uint256 _minDecrement)
+        external
+        onlyAuthorizedCaller
+    {
         minDecrementDuration = _minDecrement;
     }
 
@@ -62,10 +63,11 @@ contract PricingDutchAuction is AuthorizedCaller, IPricing {
         verifyLevels(details.levels);
     }
 
-    function computePrice(
-        uint256 issuerId,
-        uint256 timestamp
-    ) private view returns (uint256) {
+    function computePrice(uint256 issuerId, uint256 timestamp)
+        private
+        view
+        returns (uint256)
+    {
         PriceDetails memory pricing = pricings[issuerId];
         uint256 diff = 0;
         if (pricing.opensAt < timestamp) {
@@ -78,10 +80,10 @@ contract PricingDutchAuction is AuthorizedCaller, IPricing {
         return pricing.levels[levelId];
     }
 
-    function setPrice(
-        uint256 issuerId,
-        bytes memory details
-    ) external onlyAuthorizedCaller {
+    function setPrice(uint256 issuerId, bytes memory details)
+        external
+        onlyAuthorizedCaller
+    {
         PriceDetails memory pricingDetails = abi.decode(
             details,
             (PriceDetails)
@@ -99,10 +101,11 @@ contract PricingDutchAuction is AuthorizedCaller, IPricing {
         emit DutchPriceLocked(issuerId, pricings[issuerId].lockedPrice);
     }
 
-    function getPrice(
-        uint256 issuerId,
-        uint256 timestamp
-    ) external view returns (uint256) {
+    function getPrice(uint256 issuerId, uint256 timestamp)
+        external
+        view
+        returns (uint256)
+    {
         PriceDetails storage pricing = pricings[issuerId];
         require(pricing.opensAt > 0, "No pricing available for the issuer");
 
@@ -117,9 +120,11 @@ contract PricingDutchAuction is AuthorizedCaller, IPricing {
         return computePrice(issuerId, timestamp);
     }
 
-    function getLevels(
-        uint256 issuerId
-    ) external view returns (uint256[] memory) {
+    function getLevels(uint256 issuerId)
+        external
+        view
+        returns (uint256[] memory)
+    {
         return pricings[issuerId].levels;
     }
 }

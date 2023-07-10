@@ -9,7 +9,7 @@ abstract contract AuthorizedCaller is AdminVerify {
 
     modifier onlyAuthorizedCaller() {
         require(
-            AccessControl.hasRole(AUTHORIZED_CALLER, _msgSender()),
+            AccessControl.hasRole(AUTHORIZED_CALLER, msg.sender),
             "Caller is not authorized"
         );
         _;

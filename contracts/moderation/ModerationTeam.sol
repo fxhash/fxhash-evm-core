@@ -57,7 +57,7 @@ contract ModerationTeam is AuthorizedCaller {
     modifier onlyModeratorOrAdmin() {
         require(
             isModerator(msg.sender) ||
-                AccessControl.hasRole(AUTHORIZED_CALLER, _msgSender()),
+                AccessControl.hasRole(AUTHORIZED_CALLER, msg.sender),
             "NOT_MODERATOR_OR_ADMIN"
         );
         _;
@@ -73,9 +73,10 @@ contract ModerationTeam is AuthorizedCaller {
     /*
     ENTRY POINTS
     */
-    function updateModerators(
-        UpdateModeratorParam[] calldata params
-    ) external onlyAdmin {
+    function updateModerators(UpdateModeratorParam[] calldata params)
+        external
+        onlyAdmin
+    {
         for (uint256 i = 0; i < params.length; i++) {
             UpdateModeratorParam memory mod = params[i];
             address userAddress = mod.moderator;
@@ -92,9 +93,10 @@ contract ModerationTeam is AuthorizedCaller {
         emit ModeratorsUpdated(params);
     }
 
-    function updateShares(
-        UpdateShareParam[] calldata params
-    ) external onlyAdmin {
+    function updateShares(UpdateShareParam[] calldata params)
+        external
+        onlyAdmin
+    {
         for (uint256 i = 0; i < params.length; i++) {
             UpdateShareParam memory shareData = params[i];
             address shareAddress = shareData.moderator;
@@ -134,16 +136,19 @@ contract ModerationTeam is AuthorizedCaller {
     /*
     VIEWS
     */
-    function getAuthorizations(
-        address userAddress
-    ) external view returns (uint256[] memory) {
+    function getAuthorizations(address userAddress)
+        external
+        view
+        returns (uint256[] memory)
+    {
         return moderators[userAddress].authorizations;
     }
 
-    function isAuthorized(
-        address userAddress,
-        uint256 authorization
-    ) external view returns (bool) {
+    function isAuthorized(address userAddress, uint256 authorization)
+        external
+        view
+        returns (bool)
+    {
         bool isModAuthorized = false;
         uint256[] memory modAuth = moderators[userAddress].authorizations;
         for (uint256 i = 0; i < modAuth.length; i++) {

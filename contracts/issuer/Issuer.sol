@@ -47,13 +47,13 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
     function mintIssuer(MintIssuerInput memory params) external {
         require(
             IAllowMintIssuer(addresses["al_mi"]).isAllowed(
-                _msgSender(),
+                msg.sender,
                 block.timestamp
             ),
             "403"
         );
         uint256 codexId = ICodex(addresses["codex"]).codexEntryIdFromInput(
-            _msgSender(),
+            msg.sender,
             params.codex
         );
         uint256 _lockTime = config.lockTime;
@@ -113,7 +113,7 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
         // } else {
 
         if (
-            IModerationUser(addresses["user_mod"]).userState(_msgSender()) == 10
+            IModerationUser(addresses["user_mod"]).userState(msg.sender) == 10
         ) {
             _lockTime = 0;
         }
@@ -167,7 +167,7 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
                 timestampMinted: block.timestamp,
                 lockPriceForReserves: params.pricing.lockForReserves,
                 hasTickets: hasTickets,
-                author: _msgSender(),
+                author: msg.sender,
                 pricingId: params.pricing.pricingId,
                 codexId: codexId,
                 inputBytesSize: params.inputBytesSize
@@ -175,7 +175,7 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
         });
 
         IUserActions(addresses["userAct"]).setLastIssuerMinted(
-            _msgSender(),
+            msg.sender,
             allissuers
         );
 
@@ -190,7 +190,7 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
 
         require(
             IAllowMint(addresses["al_m"]).isAllowed(
-                _msgSender(),
+                msg.sender,
                 block.timestamp,
                 params.issuerId
             ),
@@ -199,7 +199,7 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
 
         uint256 tokenId = allGenTkTokens;
 
-        address recipient = _msgSender();
+        address recipient = msg.sender;
         if (params.recipient != address(0)) {
             recipient = params.recipient;
         }
@@ -222,7 +222,7 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
         );
         require(
             issuerToken.info.enabled == true ||
-                _msgSender() == issuerToken.info.author,
+                msg.sender == issuerToken.info.author,
             "TOKEN_DISABLED"
         );
 
@@ -307,7 +307,7 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
             recipient
         );
 
-        IUserActions(addresses["userAct"]).setLastMinted(_msgSender(), tokenId);
+        IUserActions(addresses["userAct"]).setLastMinted(msg.sender, tokenId);
         emit TokenMinted(params);
     }
 
@@ -324,7 +324,7 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
             recipient = params.recipient;
         }
         IMintTicket(addresses["mint_tickets"]).consume(
-            _msgSender(),
+            msg.sender,
             params.ticketId,
             params.issuerId
         );
@@ -348,7 +348,7 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
         allGenTkTokens++;
 
         IUserActions(addresses["userAct"]).setLastMinted(
-            _msgSender(),
+            msg.sender,
             params.issuerId
         );
         emit TokenMintedWithTicket(params);
@@ -441,22 +441,21 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
         emit SupplyBurned(issuerId, amount);
     }
 
-    function updateTokenMod(
-        uint256 issuerId,
-        uint256[] calldata tags
-    ) external {
+    function updateTokenMod(uint256 issuerId, uint256[] calldata tags)
+        external
+    {
         require(
-            IModeration(addresses["mod_team"]).isAuthorized(_msgSender(), 10),
+            IModeration(addresses["mod_team"]).isAuthorized(msg.sender, 10),
             "403"
         );
         issuers[issuerId].info.tags = tags;
         emit TokendModUpdated(issuerId, tags);
     }
 
-    function setCodex(
-        uint256 issuerId,
-        uint256 codexId
-    ) external onlyAuthorizedCaller {
+    function setCodex(uint256 issuerId, uint256 codexId)
+        external
+        onlyAuthorizedCaller
+    {
         issuers[issuerId].info.codexId = codexId;
     }
 
@@ -464,16 +463,15 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
         config = _config;
     }
 
-    function getIssuer(
-        uint256 issuerId
-    ) external view returns (LibIssuer.IssuerData memory) {
+    function getIssuer(uint256 issuerId)
+        external
+        view
+        returns (LibIssuer.IssuerData memory)
+    {
         return issuers[issuerId];
     }
 
-    function royaltyInfo(
-        uint256 tokenId,
-        uint256 salePrice
-    )
+    function royaltyInfo(uint256 tokenId, uint256 salePrice)
         public
         view
         override(IERC2981, IIssuer)
@@ -484,47 +482,31 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
         return (royalty.receiver, amount);
     }
 
-    function primarySplitInfo(
-        uint256 tokenId,
-        uint256 salePrice
-    ) public view returns (address receiver, uint256 royaltyAmount) {
+    function primarySplitInfo(uint256 tokenId, uint256 salePrice)
+        public
+        view
+        returns (address receiver, uint256 royaltyAmount)
+    {
         LibRoyalty.RoyaltyData memory royalty = issuers[tokenId].primarySplit;
         uint256 amount = (salePrice * royalty.percent) / 10000;
         return (royalty.receiver, amount);
     }
 
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view override(AccessControl, IERC165, IIssuer) returns (bool) {
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(AccessControl, IERC165, IIssuer)
+        returns (bool)
+    {
         return
             interfaceId == type(IIssuer).interfaceId ||
             interfaceId == type(IERC2981).interfaceId ||
             super.supportsInterface(interfaceId);
     }
 
-    function _msgSender()
-        internal
-        view
-        virtual
-        override(Context)
-        returns (address)
-    {
-        return super._msgSender();
-    }
-
-    function _msgData()
-        internal
-        view
-        virtual
-        override(Context)
-        returns (bytes calldata)
-    {
-        return super._msgData();
-    }
-
     function burnToken(uint256 issuerId) private {
         IUserActions(addresses["userAct"]).resetLastIssuerMinted(
-            _msgSender(),
+            msg.sender,
             issuerId
         );
         delete issuers[issuerId];
@@ -532,7 +514,7 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
 
     function verifyAuthorized(address _author) private view {
         require(_author != address(0), "404");
-        require(_author == _msgSender(), "403");
+        require(_author == msg.sender, "403");
     }
 
     function processTransfers(
@@ -551,7 +533,7 @@ contract Issuer is IIssuer, IERC2981, AddressConfig, AuthorizedCaller {
 
             uint256 platformFees = config.fees;
             if (
-                params.referrer != address(0) && params.referrer != _msgSender()
+                params.referrer != address(0) && params.referrer != msg.sender
             ) {
                 uint256 referrerFees = (config.fees *
                     config.referrerFeesShare) / 10000;

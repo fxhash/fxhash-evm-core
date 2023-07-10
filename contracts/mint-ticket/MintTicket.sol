@@ -50,7 +50,7 @@ contract MintTicket is ERC721URIStorage, AuthorizedCaller, IMintTicket {
     }
 
     modifier onlyFxHashIssuer() {
-        require(_msgSender() == address(issuer), "NO_ISSUER");
+        require(msg.sender == address(issuer), "NO_ISSUER");
         _;
     }
 
@@ -126,7 +126,7 @@ contract MintTicket is ERC721URIStorage, AuthorizedCaller, IMintTicket {
     ) external payable {
         TokenData storage token = tokenData[tokenId];
         require(token.minter != address(0), "TOKEN_DOES_NOT_EXIST");
-        require(isOwner(_msgSender(), tokenId), "INSUFFICIENT_BALANCE");
+        require(isOwner(msg.sender, tokenId), "INSUFFICIENT_BALANCE");
         require(price >= minPrice, "PRICE_BELOW_MIN_PRICE");
         require(coverage > 0, "MIN_1_COVERAGE");
 
@@ -147,7 +147,7 @@ contract MintTicket is ERC721URIStorage, AuthorizedCaller, IMintTicket {
             );
 
             uint256 sendBackAmount = totalAvailable - taxRequiredForCoverage;
-            send(_msgSender(), sendBackAmount);
+            send(msg.sender, sendBackAmount);
 
             token.taxationLocked = taxRequiredForCoverage;
             token.price = price;
@@ -172,7 +172,7 @@ contract MintTicket is ERC721URIStorage, AuthorizedCaller, IMintTicket {
 
                 uint256 sendBackAmount = totalAvailable -
                     taxRequiredForCoverage;
-                send(_msgSender(), sendBackAmount);
+                send(msg.sender, sendBackAmount);
 
                 token.taxationLocked = taxRequiredForCoverage;
                 token.taxationStart = startDay;
@@ -188,7 +188,7 @@ contract MintTicket is ERC721URIStorage, AuthorizedCaller, IMintTicket {
         uint256 dailyTax = dailyTaxAmount(token.price);
         uint256 daysCoverage = msg.value / dailyTax;
         uint256 cleanCoverage = dailyTax * daysCoverage;
-        send(_msgSender(), msg.value - cleanCoverage);
+        send(msg.sender, msg.value - cleanCoverage);
         token.taxationLocked = token.taxationLocked + cleanCoverage;
         emit TaxPayed(tokenId);
     }
@@ -217,7 +217,7 @@ contract MintTicket is ERC721URIStorage, AuthorizedCaller, IMintTicket {
         uint256 amountRequired = taxAmount * price;
         require(msg.value >= amountRequired, "AMOUNT_UNDER_PRICE");
 
-        send(_msgSender(), msg.value - amountRequired);
+        send(msg.sender, msg.value - amountRequired);
         send(owner, price);
 
         (uint256 taxToPay, uint256 taxToRelease) = taxRelease(tokenId);
@@ -267,9 +267,12 @@ contract MintTicket is ERC721URIStorage, AuthorizedCaller, IMintTicket {
         return tokens;
     }
 
-    function balanceOf(
-        address owner
-    ) public view override(ERC721, IERC721, IMintTicket) returns (uint256) {
+    function balanceOf(address owner)
+        public
+        view
+        override(ERC721, IERC721, IMintTicket)
+        returns (uint256)
+    {
         uint256 balance = 0;
         for (uint256 i = 0; i <= lastTokenId; i++) {
             if (isOwnerByTime(owner, i, block.timestamp)) {
@@ -316,22 +319,7 @@ contract MintTicket is ERC721URIStorage, AuthorizedCaller, IMintTicket {
         ERC721.safeTransferFrom(from, to, tokenId, data);
     }
 
-    function _msgData()
-        internal
-        view
-        override(Context)
-        returns (bytes calldata)
-    {
-        return Context._msgData();
-    }
-
-    function _msgSender() internal view override(Context) returns (address) {
-        return Context._msgSender();
-    }
-
-    function supportsInterface(
-        bytes4 interfaceId
-    )
+    function supportsInterface(bytes4 interfaceId)
         public
         view
         virtual
@@ -348,18 +336,21 @@ contract MintTicket is ERC721URIStorage, AuthorizedCaller, IMintTicket {
         return (price * 14) / 10000;
     }
 
-    function taxationStartDate(
-        uint256 tokenId
-    ) internal view returns (uint256) {
+    function taxationStartDate(uint256 tokenId)
+        internal
+        view
+        returns (uint256)
+    {
         TokenData storage token = tokenData[tokenId];
         ProjectData storage project = projectData[token.projectId];
         return token.createdAt + project.gracingPeriod * 1 days;
     }
 
-    function isGracingByTime(
-        uint256 tokenId,
-        uint256 time
-    ) internal view returns (bool) {
+    function isGracingByTime(uint256 tokenId, uint256 time)
+        internal
+        view
+        returns (bool)
+    {
         if (taxationStartDate(tokenId) < time) {
             return false;
         } else {
@@ -371,10 +362,11 @@ contract MintTicket is ERC721URIStorage, AuthorizedCaller, IMintTicket {
         return isGracingByTime(tokenId, block.timestamp);
     }
 
-    function distanceForeclosureByTime(
-        uint256 tokenId,
-        uint256 time
-    ) internal view returns (uint256) {
+    function distanceForeclosureByTime(uint256 tokenId, uint256 time)
+        internal
+        view
+        returns (uint256)
+    {
         TokenData storage token = tokenData[tokenId];
         uint256 dailyTax = dailyTaxAmount(token.price);
         uint256 daysCovered = token.taxationLocked / dailyTax;
@@ -382,16 +374,19 @@ contract MintTicket is ERC721URIStorage, AuthorizedCaller, IMintTicket {
         return time - foreclosureTime;
     }
 
-    function distanceForeclosure(
-        uint256 tokenId
-    ) internal view returns (uint256) {
+    function distanceForeclosure(uint256 tokenId)
+        internal
+        view
+        returns (uint256)
+    {
         return distanceForeclosureByTime(tokenId, block.timestamp);
     }
 
-    function isForeclosureByTime(
-        uint256 tokenId,
-        uint256 time
-    ) internal view returns (bool) {
+    function isForeclosureByTime(uint256 tokenId, uint256 time)
+        internal
+        view
+        returns (bool)
+    {
         TokenData storage token = tokenData[tokenId];
         uint256 dailyTax = dailyTaxAmount(token.price);
         uint256 daysCovered = token.taxationLocked / dailyTax;
@@ -418,10 +413,11 @@ contract MintTicket is ERC721URIStorage, AuthorizedCaller, IMintTicket {
             (!isForeclosureByTime(tokenId, time));
     }
 
-    function isOwner(
-        address owner,
-        uint256 tokenId
-    ) internal view returns (bool) {
+    function isOwner(address owner, uint256 tokenId)
+        internal
+        view
+        returns (bool)
+    {
         return isOwnerByTime(owner, tokenId, block.timestamp);
     }
 
@@ -431,18 +427,21 @@ contract MintTicket is ERC721URIStorage, AuthorizedCaller, IMintTicket {
         }
     }
 
-    function foreclosurePrice(
-        uint256 price,
-        uint256 secondsElapsed
-    ) internal view returns (uint256) {
+    function foreclosurePrice(uint256 price, uint256 secondsElapsed)
+        internal
+        view
+        returns (uint256)
+    {
         uint256 T = (secondsElapsed * 10000) / 1 days;
         uint256 prange = price - minPrice; // TODO Check this value
         return price - (prange * T) / 10000;
     }
 
-    function taxRelease(
-        uint256 tokenId
-    ) internal view returns (uint256, uint256) {
+    function taxRelease(uint256 tokenId)
+        internal
+        view
+        returns (uint256, uint256)
+    {
         TokenData storage token = tokenData[tokenId];
         uint256 timeDiff = 0;
         if (block.timestamp > token.taxationStart) {
@@ -458,10 +457,9 @@ contract MintTicket is ERC721URIStorage, AuthorizedCaller, IMintTicket {
         return (taxToPay, taxToRelease);
     }
 
-    function payProjectAuthorsWithSplit(
-        uint256 projectId,
-        uint256 amount
-    ) internal {
+    function payProjectAuthorsWithSplit(uint256 projectId, uint256 amount)
+        internal
+    {
         if (amount > 0) {
             (address receiver, uint256 royaltyAmount) = issuer.primarySplitInfo(
                 projectId,

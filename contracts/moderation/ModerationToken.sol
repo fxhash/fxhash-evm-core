@@ -32,7 +32,7 @@ contract ModerationToken is BaseModeration, IModerationToken {
 
     function report(uint256 tokenId, uint256 reason) external onlyModerator {
         require(!Strings.equal(reasons[reason], ""), "REASON_DOESNT_EXISTS");
-        reports[getReportKey(tokenId, _msgSender())] = reason;
+        reports[getReportKey(tokenId, msg.sender)] = reason;
         emit TokenReported(tokenId, reason);
     }
 
@@ -45,10 +45,11 @@ contract ModerationToken is BaseModeration, IModerationToken {
         }
     }
 
-    function getReportKey(
-        uint256 tokenId,
-        address reporter
-    ) public pure returns (bytes32) {
+    function getReportKey(uint256 tokenId, address reporter)
+        public
+        pure
+        returns (bytes32)
+    {
         return keccak256(abi.encodePacked(tokenId, reporter));
     }
 

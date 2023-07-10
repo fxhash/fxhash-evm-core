@@ -64,12 +64,12 @@ contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
     receive() external payable {}
 
     modifier onlySigner() {
-        require(_msgSender() == signer, "Caller is not signer");
+        require(msg.sender == signer, "Caller is not signer");
         _;
     }
 
     modifier onlyFxHashIssuer() {
-        require(_msgSender() == address(issuer), "Caller is not issuer");
+        require(msg.sender == address(issuer), "Caller is not issuer");
         _;
     }
 
@@ -87,9 +87,10 @@ contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
         emit TokenMinted(_params);
     }
 
-    function assignOnChainMetadata(
-        OnChainTokenMetadata[] calldata _params
-    ) external onlySigner {
+    function assignOnChainMetadata(OnChainTokenMetadata[] calldata _params)
+        external
+        onlySigner
+    {
         for (uint256 i = 0; i < _params.length; i++) {
             OnChainTokenMetadata memory _tokenData = _params[i];
 
@@ -102,9 +103,10 @@ contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
         emit OnChainTokenMetadataAssigned(_params);
     }
 
-    function assignMetadata(
-        TokenMetadata[] calldata _params
-    ) external onlySigner {
+    function assignMetadata(TokenMetadata[] calldata _params)
+        external
+        onlySigner
+    {
         for (uint256 i = 0; i < _params.length; i++) {
             TokenMetadata memory _tokenData = _params[i];
             require(
@@ -129,22 +131,30 @@ contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
         treasury = _treasury;
     }
 
-    function royaltyInfo(
-        uint256 tokenId,
-        uint256 salePrice
-    ) external view override returns (address receiver, uint256 royaltyAmount) {
+    function royaltyInfo(uint256 tokenId, uint256 salePrice)
+        external
+        view
+        override
+        returns (address receiver, uint256 royaltyAmount)
+    {
         return issuer.royaltyInfo(tokenId, salePrice);
     }
 
-    function getTokenData(
-        uint256 _tokenId
-    ) external view returns (TokenData memory) {
+    function getTokenData(uint256 _tokenId)
+        external
+        view
+        returns (TokenData memory)
+    {
         return tokenData[_tokenId];
     }
 
-    function tokenURI(
-        uint256 tokenId
-    ) public view virtual override returns (string memory) {
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        virtual
+        override
+        returns (string memory)
+    {
         _requireMinted(tokenId);
         console.log("1");
         string memory _tokenURI = super.tokenURI(tokenId);
@@ -174,9 +184,7 @@ contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
         }
     }
 
-    function supportsInterface(
-        bytes4 interfaceId
-    )
+    function supportsInterface(bytes4 interfaceId)
         public
         view
         override(AccessControl, ERC721URIStorage, IERC165)
@@ -187,25 +195,5 @@ contract GenTk is ERC721URIStorage, AuthorizedCaller, IERC2981, IGenTk {
             interfaceId == type(IGenTk).interfaceId ||
             interfaceId == type(IERC2981).interfaceId ||
             super.supportsInterface(interfaceId);
-    }
-
-    function _msgSender()
-        internal
-        view
-        virtual
-        override(Context)
-        returns (address)
-    {
-        return super._msgSender();
-    }
-
-    function _msgData()
-        internal
-        view
-        virtual
-        override(Context)
-        returns (bytes calldata)
-    {
-        return super._msgData();
     }
 }

@@ -35,13 +35,13 @@ contract Randomizer is AuthorizedCaller {
         commitment.salt = _salt;
         countRequested = 0;
         countRevealed = 0;
-        _setupRole(DEFAULT_ADMIN_ROLE, address(bytes20(_msgSender())));
-        _setupRole(AUTHORIZED_CALLER, address(bytes20(_msgSender())));
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _setupRole(AUTHORIZED_CALLER, msg.sender);
     }
 
     modifier onlyFxHashAuthority() {
         require(
-            AccessControl.hasRole(FXHASH_AUTHORITY, _msgSender()),
+            AccessControl.hasRole(FXHASH_AUTHORITY, msg.sender),
             "Caller is not a FxHash Authority"
         );
         _;
@@ -49,7 +49,7 @@ contract Randomizer is AuthorizedCaller {
 
     modifier onlyFxHashIssuer() {
         require(
-            AccessControl.hasRole(FXHASH_ISSUER, _msgSender()),
+            AccessControl.hasRole(FXHASH_ISSUER, msg.sender),
             "Caller is not a FxHash Issuer"
         );
         _;
@@ -62,7 +62,7 @@ contract Randomizer is AuthorizedCaller {
     }
 
     function generate(uint256 tokenId) external onlyFxHashIssuer {
-        bytes32 hashedKey = getTokenKey(_msgSender(), tokenId);
+        bytes32 hashedKey = getTokenKey(msg.sender, tokenId);
         Seed storage storedSeed = seeds[hashedKey];
         require(storedSeed.revealed == 0x00, "ALREADY_SEEDED");
         bytes memory base = abi.encodePacked(block.timestamp, hashedKey);
@@ -73,10 +73,10 @@ contract Randomizer is AuthorizedCaller {
         emit RandomizerGenerate(tokenId, storedSeed);
     }
 
-    function reveal(
-        TokenKey[] memory tokens,
-        bytes32 seed
-    ) external onlyFxHashAuthority {
+    function reveal(TokenKey[] memory tokens, bytes32 seed)
+        external
+        onlyFxHashAuthority
+    {
         TokenKey[] memory tokenList = tokens;
         uint256 lastSerial = setTokenSeedAndReturnSerial(tokenList[0], seed);
         uint256 expectedSerialId = lastSerial;
@@ -118,10 +118,11 @@ contract Randomizer is AuthorizedCaller {
         AccessControl.revokeRole(FXHASH_ISSUER, _admin);
     }
 
-    function getTokenKey(
-        address issuer,
-        uint256 id
-    ) public pure returns (bytes32) {
+    function getTokenKey(address issuer, uint256 id)
+        public
+        pure
+        returns (bytes32)
+    {
         return keccak256(abi.encodePacked(issuer, id));
     }
 
@@ -140,15 +141,19 @@ contract Randomizer is AuthorizedCaller {
         return seed.serialId;
     }
 
-    function iterateOracleSeed(
-        bytes32 oracleSeed
-    ) private view returns (bytes32) {
+    function iterateOracleSeed(bytes32 oracleSeed)
+        private
+        view
+        returns (bytes32)
+    {
         return keccak256(abi.encodePacked(commitment.salt, oracleSeed));
     }
 
-    function isRequestedVariant(
-        TokenKey memory tokenKey
-    ) private view returns (bool) {
+    function isRequestedVariant(TokenKey memory tokenKey)
+        private
+        view
+        returns (bool)
+    {
         return (seeds[getTokenKey(tokenKey.issuer, tokenKey.id)].chainSeed !=
             0x00);
     }
