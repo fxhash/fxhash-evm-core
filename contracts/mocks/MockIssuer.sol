@@ -10,14 +10,17 @@ contract MockIssuer {
         ticket = IMintTicket(_ticket);
     }
 
-    function getUserActions(
-        address addr
-    ) external view returns (LibUserActions.UserAction memory) {}
+    function getUserActions(address addr)
+        external
+        view
+        returns (LibUserActions.UserAction memory)
+    {}
 
-    function getTokenPrimarySplit(
-        uint256 projectId,
-        uint256 amount
-    ) external pure returns (address receiver, uint256 royaltyAmount) {
+    function getTokenPrimarySplit(uint256 projectId, uint256 amount)
+        external
+        pure
+        returns (address receiver, uint256 royaltyAmount)
+    {
         return (address(0), 1000);
     }
 
@@ -31,16 +34,14 @@ contract MockIssuer {
     }
 
     //TODO: remove this placeholder (used for tests)
-    function mint(address issuer, address minter, uint256 price) external {
-        ticket.mint(issuer, minter, price);
+    function mint(address minter, uint256 price) external {
+        ticket.mint(minter, price);
     }
 
     //TODO: remove this placeholder (used for tests)
-    function createProject(
-        address issuer,
-        uint256 gracingPeriod,
-        string calldata metadata
-    ) external {
-        ticket.createProject(issuer, gracingPeriod, metadata);
+    function createProject(uint256 gracingPeriod, string calldata metadata)
+        external
+    {
+        ticket.createProject(gracingPeriod, metadata);
     }
 }
