@@ -22,11 +22,7 @@ contract MockIssuer {
     }
 
     //TODO: remove this placeholder (used for tests)
-    function consume(
-        address owner,
-        uint256 tokenId,
-        uint256 projectId
-    ) external payable {
+    function consume(address owner, uint256 tokenId, uint256 projectId) external payable {
         ticket.consume(owner, tokenId, projectId);
     }
 

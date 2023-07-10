@@ -28,9 +28,7 @@ contract ReserveManager is AuthorizedCaller {
         LibReserve.ReserveData memory reserve,
         bytes memory userInput
     ) external onlyAuthorizedCaller returns (bool, bytes memory) {
-        LibReserve.ReserveMethod storage method = reserveMethods[
-            reserve.methodId
-        ];
+        LibReserve.ReserveMethod storage method = reserveMethods[reserve.methodId];
         return
             method.reserveContract.applyReserve(
                 LibReserve.ApplyParams({
@@ -52,12 +50,7 @@ contract ReserveManager is AuthorizedCaller {
 
     function getReserveMethod(
         uint256 methodId
-    )
-        external
-        view
-        onlyAuthorizedCaller
-        returns (LibReserve.ReserveMethod memory)
-    {
+    ) external view onlyAuthorizedCaller returns (LibReserve.ReserveMethod memory) {
         return reserveMethods[methodId];
     }
 }

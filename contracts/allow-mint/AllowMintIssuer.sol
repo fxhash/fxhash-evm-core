@@ -13,11 +13,7 @@ contract AllowMintIssuer is AuthorizedCaller {
     IModerationUser public userModerationContract;
     IUserActions public userActions;
 
-    constructor(
-        address _admin,
-        address _userModerationContract,
-        address _userActions
-    ) {
+    constructor(address _admin, address _userModerationContract, address _userActions) {
         _setupRole(DEFAULT_ADMIN_ROLE, _admin);
         _setupRole(AUTHORIZED_CALLER, _admin);
         mintDelay = 3600;
@@ -37,15 +33,9 @@ contract AllowMintIssuer is AuthorizedCaller {
         mintDelay = _delay;
     }
 
-    function isAllowed(
-        address _address,
-        uint256 timestamp
-    ) external view returns (bool) {
+    function isAllowed(address _address, uint256 timestamp) external view returns (bool) {
         require(isUserAllowed(_address), "ACCOUNT_BANNED");
-        require(
-            hasDelayPassed(_address, timestamp),
-            "DELAY_BETWEEN_MINT_TOO_SHORT"
-        );
+        require(hasDelayPassed(_address, timestamp), "DELAY_BETWEEN_MINT_TOO_SHORT");
         return true;
     }
 
@@ -53,13 +43,10 @@ contract AllowMintIssuer is AuthorizedCaller {
         return userModerationContract.userState(_address) != 3;
     }
 
-    function hasDelayPassed(
-        address _address,
-        uint256 timestamp
-    ) private view returns (bool) {
-        LibUserActions.UserAction memory lastUserActions = IUserActions(
-            userActions
-        ).getUserActions(_address);
+    function hasDelayPassed(address _address, uint256 timestamp) private view returns (bool) {
+        LibUserActions.UserAction memory lastUserActions = IUserActions(userActions).getUserActions(
+            _address
+        );
         uint256 diff = SignedMath.abs(
             int256(timestamp) - int256(lastUserActions.lastIssuerMintedTime)
         );

@@ -22,24 +22,14 @@ contract PricingManager is AuthorizedCaller {
         });
     }
 
-    function verifyPricingMethod(
-        uint256 pricingId
-    ) external view onlyAuthorizedCaller {
-        require(
-            address(pricingContracts[pricingId].pricingContract) != address(0),
-            "PRC_MTD_NOT"
-        );
+    function verifyPricingMethod(uint256 pricingId) external view onlyAuthorizedCaller {
+        require(address(pricingContracts[pricingId].pricingContract) != address(0), "PRC_MTD_NOT");
         require(pricingContracts[pricingId].enabled == true, "PRC_MTD_DIS");
     }
 
     function getPricingContract(
         uint256 pricingId
-    )
-        external
-        view
-        onlyAuthorizedCaller
-        returns (LibPricing.PricingContract memory)
-    {
+    ) external view onlyAuthorizedCaller returns (LibPricing.PricingContract memory) {
         return pricingContracts[pricingId];
     }
 }

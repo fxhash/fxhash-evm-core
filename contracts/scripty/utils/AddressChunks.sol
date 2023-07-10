@@ -7,11 +7,7 @@ pragma solidity ^0.8.17;
  * @notice Reads chunk pointers and merges their values
  */
 library AddressChunks {
-    function mergeChunks(address[] memory chunks)
-        internal
-        view
-        returns (bytes memory o_code)
-    {
+    function mergeChunks(address[] memory chunks) internal view returns (bytes memory o_code) {
         unchecked {
             assembly {
                 let len := mload(chunks)

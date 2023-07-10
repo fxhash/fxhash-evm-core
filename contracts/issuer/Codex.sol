@@ -28,19 +28,11 @@ contract Codex is ICodex, AuthorizedCaller {
     mapping(uint256 => CodexData) public codexEntries;
     mapping(uint256 => uint256) public issuerCodexUpdates;
 
-    event CodexInserted(
-        uint256 entryType,
-        address author,
-        bool locked,
-        bytes[] value
-    );
+    event CodexInserted(uint256 entryType, address author, bool locked, bytes[] value);
     event CodexLocked(uint256 entryId);
     event CodexUpdated(uint256 entryId, bool pushEnd, bytes value);
     event CodexReplaced(address author, LibCodex.CodexInput input);
-    event UpdateIssuerCodexRequested(
-        uint256 _issuerId,
-        LibCodex.CodexInput input
-    );
+    event UpdateIssuerCodexRequested(uint256 _issuerId, LibCodex.CodexInput input);
     event UpdateIssuerCodexApproved(uint256 _issuerId, uint256 _codexId);
 
     constructor(address _issuer, address _moderation, address _admin) {
@@ -56,10 +48,7 @@ contract Codex is ICodex, AuthorizedCaller {
     ) public onlyAuthorizedCaller returns (uint256) {
         uint256 codexIdValue = 0;
         if (input.codexId > 0) {
-            require(
-                codexEntries[input.codexId].author != address(0),
-                "CDX_EMPTY"
-            );
+            require(codexEntries[input.codexId].author != address(0), "CDX_EMPTY");
             require(codexEntries[input.codexId].locked, "CDX_NOT_LOCK");
             codexIdValue = input.codexId;
             emit CodexReplaced(author, input);
@@ -73,10 +62,7 @@ contract Codex is ICodex, AuthorizedCaller {
         return codexIdValue;
     }
 
-    function codexAddEntry(
-        uint256 entryType,
-        bytes[] memory value
-    ) external onlyAuthorizedCaller {
+    function codexAddEntry(uint256 entryType, bytes[] memory value) external onlyAuthorizedCaller {
         codexInsert(entryType, tx.origin, true, value);
     }
 
@@ -89,11 +75,7 @@ contract Codex is ICodex, AuthorizedCaller {
         emit CodexLocked(entryId);
     }
 
-    function codexUpdateEntry(
-        uint256 entryId,
-        bool pushEnd,
-        bytes memory value
-    ) external {
+    function codexUpdateEntry(uint256 entryId, bool pushEnd, bytes memory value) external {
         CodexData storage entry = codexEntries[entryId];
         require(entry.author == tx.origin, "403");
         require(!entry.locked, "CDX_LOCK");
@@ -120,10 +102,7 @@ contract Codex is ICodex, AuthorizedCaller {
         emit UpdateIssuerCodexRequested(_issuerId, input);
     }
 
-    function updateIssuerCodexApprove(
-        uint256 _issuerId,
-        uint256 _codexId
-    ) external {
+    function updateIssuerCodexApprove(uint256 _issuerId, uint256 _codexId) external {
         uint256 issuerId = issuerCodexUpdates[_issuerId];
         require(issuerId > 0, "NO_REQ");
         require(issuerId == _codexId, "WRG_CDX_ID");
@@ -139,12 +118,7 @@ contract Codex is ICodex, AuthorizedCaller {
         bool locked,
         bytes[] memory value
     ) private {
-        codexEntries[codexEntriesCount] = CodexData(
-            entryType,
-            author,
-            locked,
-            value
-        );
+        codexEntries[codexEntriesCount] = CodexData(entryType, author, locked, value);
         codexEntriesCount++;
         emit CodexInserted(entryType, author, locked, value);
     }
