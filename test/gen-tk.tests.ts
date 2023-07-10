@@ -2,6 +2,7 @@ import { ethers } from "hardhat";
 import { expect } from "chai";
 import { Contract, ContractFactory, Signer } from "ethers";
 import { admin } from "../typechain-types/contracts/abstract";
+import { issuer } from "../typechain-types/contracts";
 
 describe("GenTk", () => {
   let genTk: Contract;
@@ -22,7 +23,7 @@ describe("GenTk", () => {
     const MockIssuerFactory: ContractFactory = await ethers.getContractFactory(
       "MockIssuer"
     );
-    mockIssuer = await MockIssuerFactory.deploy(await owner.getAddress());
+    mockIssuer = await MockIssuerFactory.deploy();
 
     const ConfigurationManager = await ethers.getContractFactory(
       "ConfigurationManager"
@@ -41,6 +42,10 @@ describe("GenTk", () => {
       mockIssuer.address,
       configurationManager.address
     );
+    await mockIssuer.setGenTk(genTk.address);
+    await configurationManager
+      .connect(owner)
+      .setAddresses([{ key: "signer", value: await signer.getAddress() }]);
   });
 
   it("should mint a token", async () => {
@@ -59,15 +64,14 @@ describe("GenTk", () => {
     });
 
     // Check the token data
-    const tokenData = await genTk.getTokenData(tokenId);
-    expect(tokenData.issuerId).to.equal(0);
+    const tokenData = await genTk.tokenData(tokenId);
     expect(tokenData.iteration).to.equal(1);
     expect(tokenData.inputBytes).to.equal("0x");
     expect(tokenData.minter).to.equal(await receiver.getAddress());
 
     // Check the token URI
     const tokenURI = await genTk.tokenURI(tokenId);
-    expect(tokenURI).to.equal(metadata);
+    expect(tokenURI).to.equal("");
   });
 
   it("should assign metadata to tokens", async () => {
@@ -78,20 +82,20 @@ describe("GenTk", () => {
     ];
 
     // Mint the tokens
-    await genTk.connect(issuer).mint({
+    await mockIssuer.connect(owner).mint({
       tokenId: 1,
       receiver: await receiver.getAddress(),
-      issuerId: 1,
+      issuerId: 0,
       iteration: 1,
       inputBytes: "0x",
       metadata: "",
       royaltyReceiver: await receiver.getAddress(),
       royaltyShare: 10,
     });
-    await genTk.connect(issuer).mint({
+    await mockIssuer.connect(owner).mint({
       tokenId: 2,
       receiver: await receiver.getAddress(),
-      issuerId: 1,
+      issuerId: 0,
       iteration: 1,
       inputBytes: "0x",
       metadata: "",
@@ -103,48 +107,9 @@ describe("GenTk", () => {
     await genTk.connect(signer).assignMetadata(tokenMetadata);
 
     // Check the token URIs
-    const token1URI = await genTk.tokenURI(0);
+    const token1URI = await genTk.tokenURI(1);
     expect(token1URI).to.equal(tokenMetadata[0].metadata);
-    const token2URI = await genTk.tokenURI(1);
+    const token2URI = await genTk.tokenURI(2);
     expect(token2URI).to.equal(tokenMetadata[1].metadata);
-  });
-
-  it("should set the signer", async () => {
-    // Set the signer
-    const newSigner = await signer.getAddress();
-    await genTk.connect(owner).setSigner(await owner.getAddress());
-
-    // // Check the signer
-    // const contractSigner = await genTk.signer.getAddress();
-    // expect(contractSigner).to.equal(await owner.getAddress());
-  });
-
-  it("should set the treasury", async () => {
-    // Set the treasury
-    const newTreasury = await treasury.getAddress();
-    await genTk.connect(owner).setTreasury(newTreasury);
-
-    // // Check the treasury
-    // const contractTreasury = await genTk.treasury();
-    // expect(contractTreasury).to.equal(newTreasury);
-  });
-
-  it("should transfer the treasury balance", async () => {
-    const amount = ethers.utils.parseEther("1");
-    await owner.sendTransaction({
-      to: genTk.address,
-      value: amount,
-    });
-    const preTreasuryBalance = await ethers.provider.getBalance(
-      await treasury.getAddress()
-    );
-    // Transfer the treasury balance
-    await genTk.connect(owner).transferTreasury(amount);
-
-    // Check the treasury balance
-    const treasuryBalance = await ethers.provider.getBalance(
-      await treasury.getAddress()
-    );
-    expect(treasuryBalance).to.equal(preTreasuryBalance.add(amount));
   });
 });

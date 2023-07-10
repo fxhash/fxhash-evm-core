@@ -36,7 +36,7 @@ contract GenTk is ERC721URIStorage, Ownable, IERC2981, IGenTk {
     IIssuer private issuer;
     IConfigurationManager private configManager;
 
-    mapping(uint256 => TokenData) private tokenData;
+    mapping(uint256 => TokenData) public tokenData;
 
     event TokenMinted(TokenParams _params);
     event TokenMetadataAssigned(TokenMetadata[] _params);

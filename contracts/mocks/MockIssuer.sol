@@ -8,9 +8,7 @@ contract MockIssuer {
     IGenTk gentk;
     LibIssuer.IssuerData private issuer;
 
-    constructor(address _ticket) {
-        ticket = IMintTicket(_ticket);
-    }
+    constructor() {}
 
     function getTokenPrimarySplit(
         uint256 projectId,
@@ -40,5 +38,13 @@ contract MockIssuer {
 
     function getIssuer() external view returns (LibIssuer.IssuerData memory) {
         return issuer;
+    }
+
+    function setTicket(address _ticket) external {
+        ticket = IMintTicket(_ticket);
+    }
+
+    function setGenTk(address _gtk) external {
+        gentk = IGenTk(_gtk);
     }
 }
