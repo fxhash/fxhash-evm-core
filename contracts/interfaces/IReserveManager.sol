@@ -10,7 +10,8 @@ interface IReserveManager {
 
     function applyReserve(
         LibReserve.ReserveData memory reserve,
-        bytes memory userInput
+        bytes memory userInput,
+        address caller
     ) external returns (bool, bytes memory);
 
     //TODO: require admin

@@ -13,7 +13,7 @@ describe("ModerationTeam", function () {
     const ModerationTeam = await ethers.getContractFactory("ModerationTeam");
     [admin, moderator1, moderator2] = await ethers.getSigners();
 
-    moderationTeam = await ModerationTeam.deploy(admin.address);
+    moderationTeam = await ModerationTeam.deploy();
     await moderationTeam.deployed();
   });
 

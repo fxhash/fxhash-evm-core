@@ -6,6 +6,7 @@ library LibCodex {
         uint256 entryType;
         address author;
         bool locked;
+        address issuer;
         bytes[] value;
     }
 
@@ -13,5 +14,6 @@ library LibCodex {
         uint256 inputType;
         bytes value;
         uint256 codexId;
+        address issuer;
     }
 }

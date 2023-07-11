@@ -5,52 +5,45 @@ import { describe, before, beforeEach, it } from "mocha";
 
 describe("PricingFixed", () => {
   let pricingFixed: Contract;
-  let adminRole: string;
   let fxHashAdminRole: string;
   let signer: Signer;
+  let user: Signer;
 
   before(async () => {
     const PricingFixed = await ethers.getContractFactory("PricingFixed");
     pricingFixed = await PricingFixed.deploy();
     await pricingFixed.deployed();
 
-    const [deployer] = await ethers.getSigners();
-    signer = deployer;
+    [signer, user] = await ethers.getSigners();
 
     fxHashAdminRole = ethers.utils.id("AUTHORIZED_CALLER");
   });
 
-  beforeEach(async () => {
-    // Reset the contract state before each test
-    await pricingFixed.grantAdminRole(await signer.getAddress());
-    await pricingFixed.authorizeCaller(await signer.getAddress());
-  });
+  beforeEach(async () => {});
 
   it("should set and get the price", async () => {
-    const issuerId = 1;
+    const issuerId = await signer.getAddress();
     const price = 100;
     const opensAt = Math.floor(Date.now() / 1000) - 100; // Current timestamp - 100 seconds
 
     await pricingFixed.setPrice(
-      issuerId,
       ethers.utils.defaultAbiCoder.encode(
         ["uint256", "uint256"],
         [price, opensAt]
       )
     );
 
-    const retrievedPrice = await pricingFixed.getPrice(issuerId, opensAt);
+    const retrievedPrice = await pricingFixed.getPrice(opensAt);
     expect(retrievedPrice).to.equal(price);
   });
 
   it("should revert when setting price with invalid details", async () => {
-    const issuerId = 1;
+    const issuerId = await signer.getAddress();
     const price = 0;
     const opensAt = 2;
 
     await expect(
       pricingFixed.setPrice(
-        issuerId,
         ethers.utils.defaultAbiCoder.encode(
           ["uint256", "uint256"],
           [price, opensAt]
@@ -60,21 +53,20 @@ describe("PricingFixed", () => {
   });
 
   it("should revert when getting price for non-existent issuer", async () => {
-    const issuerId = 2;
+    const issuerId = ethers.constants.AddressZero;
     const timestamp = Math.floor(Date.now() / 1000);
 
-    await expect(pricingFixed.getPrice(issuerId, timestamp)).to.be.revertedWith(
+    await expect(pricingFixed.connect(user).getPrice(timestamp)).to.be.revertedWith(
       "PRICING_NO_ISSUER"
     );
   });
 
   it("should revert when getting price before it opens", async () => {
-    const issuerId = 1;
+    const issuerId = await signer.getAddress();
     const price = 100;
     const opensAt = Math.floor(Date.now() / 1000) + 100; // Current timestamp + 100 seconds
 
     await pricingFixed.setPrice(
-      issuerId,
       ethers.utils.defaultAbiCoder.encode(
         ["uint256", "uint256"],
         [price, opensAt]
@@ -83,7 +75,7 @@ describe("PricingFixed", () => {
 
     const timestamp = Math.floor(Date.now() / 1000);
 
-    await expect(pricingFixed.getPrice(issuerId, timestamp)).to.be.revertedWith(
+    await expect(pricingFixed.getPrice(timestamp)).to.be.revertedWith(
       "NOT_OPENED_YET"
     );
   });

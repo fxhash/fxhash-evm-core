@@ -1,18 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 import "contracts/interfaces/IMintTicket.sol";
-import "contracts/libs/LibUserActions.sol";
+import "contracts/interfaces/IGenTk.sol";
 
 contract MockIssuer {
     IMintTicket ticket;
+    IGenTk gentk;
+    LibIssuer.IssuerData private issuer;
 
-    constructor(address _ticket) {
-        ticket = IMintTicket(_ticket);
-    }
-
-    function getUserActions(
-        address addr
-    ) external view returns (LibUserActions.UserAction memory) {}
+    constructor() {}
 
     function getTokenPrimarySplit(
         uint256 projectId,
@@ -22,25 +18,33 @@ contract MockIssuer {
     }
 
     //TODO: remove this placeholder (used for tests)
-    function consume(
-        address owner,
-        uint256 tokenId,
-        uint256 projectId
-    ) external payable {
-        ticket.consume(owner, tokenId, projectId);
+    function consume(address owner, uint256 tokenId, address issuer) external payable {
+        ticket.consume(owner, tokenId, issuer);
     }
 
     //TODO: remove this placeholder (used for tests)
-    function mint(uint256 projectId, address minter, uint256 price) external {
-        ticket.mint(projectId, minter, price);
+    function mintTicket(address minter, uint256 price) external {
+        ticket.mint(minter, price);
+    }
+
+    function mint(IGenTk.TokenParams calldata _params) external {
+        gentk.mint(_params);
     }
 
     //TODO: remove this placeholder (used for tests)
-    function createProject(
-        uint256 projectId,
-        uint256 gracingPeriod,
-        string calldata metadata
-    ) external {
-        ticket.createProject(projectId, gracingPeriod, metadata);
+    function createProject(uint256 gracingPeriod, string calldata metadata) external {
+        ticket.createProject(gracingPeriod, metadata);
+    }
+
+    function getIssuer() external view returns (LibIssuer.IssuerData memory) {
+        return issuer;
+    }
+
+    function setTicket(address _ticket) external {
+        ticket = IMintTicket(_ticket);
+    }
+
+    function setGenTk(address _gtk) external {
+        gentk = IGenTk(_gtk);
     }
 }

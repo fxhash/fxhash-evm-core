@@ -30,7 +30,6 @@ library LibIssuer {
         uint256 timestampMinted;
         bool lockPriceForReserves;
         bool hasTickets;
-        address author;
         uint256 pricingId;
         uint256 codexId;
         uint256 inputBytesSize;

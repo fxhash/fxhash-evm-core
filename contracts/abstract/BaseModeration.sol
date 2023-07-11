@@ -1,25 +1,27 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "contracts/abstract/admin/AuthorizedCaller.sol";
-import "contracts/abstract/AddressConfig.sol";
 import "contracts/moderation/ModerationTeam.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-abstract contract BaseModeration is AuthorizedCaller, AddressConfig {
+abstract contract BaseModeration is Ownable {
+    uint256 internal reasonsCount;
+    address internal moderation;
+    mapping(uint256 => string) public reasons;
+
+    constructor(address _moderation) {
+        reasonsCount = 0;
+        moderation = _moderation;
+    }
+
     modifier onlyModerator() {
-        require(isModerator(_msgSender()), "NOT_MOD");
+        require(isModerator(msg.sender), "NOT_MOD");
         _;
     }
-    mapping(uint256 => string) public reasons;
-    uint256 internal reasonsCount;
 
     // Get the address of the moderation team contract
-    function getModerationTeamAddress()
-        internal
-        view
-        returns (address payable)
-    {
-        return payable(addresses["mod"]);
+    function getModerationTeamAddress() internal view returns (address payable) {
+        return payable(moderation);
     }
 
     // Check if an address is a user moderator on the moderation team contract
@@ -31,11 +33,12 @@ abstract contract BaseModeration is AuthorizedCaller, AddressConfig {
     }
 
     // Update a reason
-    function reasonUpdate(
-        uint256 reasonId,
-        string memory reason
-    ) external onlyModerator {
+    function reasonUpdate(uint256 reasonId, string memory reason) external onlyModerator {
         require(!Strings.equal(reasons[reasonId], ""), "REASON_DOESNT_EXISTS");
         reasons[reasonId] = reason;
+    }
+
+    function setModeration(address _moderation) external onlyOwner {
+        moderation = _moderation;
     }
 }
