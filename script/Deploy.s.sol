@@ -8,7 +8,10 @@ import {Codex} from "contracts/issuer/Codex.sol";
 import {ConfigurationManager} from "contracts/issuer/ConfigurationManager.sol";
 import {ContentStore} from "contracts/scripty/dependencies/ethfs/ContentStore.sol";
 import {GenTk} from "contracts/gentk/GenTk.sol";
+import {IConfigurationManager} from "contracts/interfaces/IConfigurationManager.sol";
+import {IReserve} from "contracts/interfaces/IReserve.sol";
 import {Issuer} from "contracts/issuer/Issuer.sol";
+import {LibReserve} from "contracts/libs/LibReserve.sol";
 import {Marketplace} from "contracts/marketplace/Marketplace.sol";
 import {MintPassGroup} from "contracts/mint-pass-group/MintPassGroup.sol";
 import {MintTicket} from "contracts/mint-ticket/MintTicket.sol";
@@ -44,7 +47,7 @@ contract Deploy is Script {
     OnChainTokenMetadataManager public onchainMetadataManager;
     PricingDutchAuction public pricingDA;
     PricingFixed public pricingFixed;
-    PricingManager pricingManager;
+    PricingManager public pricingManager;
     Randomizer public randomizer;
     ReserveManager public reserveManager;
     ReserveMintPass public reserveMintPass;
@@ -56,6 +59,7 @@ contract Deploy is Script {
     address public admin;
     address public signer;
     address public treasury;
+    address public moderator;
     address public alice;
     address public bob;
     address public eve;
@@ -68,11 +72,17 @@ contract Deploy is Script {
     uint256 public constant BALANCE = 100 ether;
     uint256 public constant MAX_PER_TOKEN = 10;
     uint256 public constant MAX_PER_TOKEN_PER_PROJECT = 5;
-    uint256 public constant MAX_REFERRAL_SHARE = 1000;
-    uint256 public constant PLATFORM_FEES = 1000;
-    uint256 public constant REFERRAL_SHARE = 1000;
+    uint256 public constant ISSUER_FEES = 1000;
+    uint256 public constant ISSUER_REFERRAL_SHARE = 1000;
+    uint256 public constant ISSUER_LOCK_TIME = 1000;
+    uint256 public constant MARKETPLACE_MAX_REFERRAL_SHARE = 1000;
+    uint256 public constant MARKETPLACE_PLATFORM_FEES = 1000;
+    uint256 public constant MARKETPLACE_REFERRAL_SHARE = 1000;
     bytes32 public constant SALT = keccak256("salt");
     bytes32 public constant SEED = keccak256("seed");
+    string public constant ISSUER_VOID_METADATA = "1000";
+
+    uint256[] public AUTHORIZATIONS = [10, 20];
 
     function setUp() public {
         createAccounts();
@@ -91,6 +101,7 @@ contract Deploy is Script {
     function run() public {
         vm.startBroadcast();
         deployContracts();
+        configureContracts();
         vm.stopBroadcast();
     }
 
@@ -134,9 +145,9 @@ contract Deploy is Script {
         // Marketplace
         marketplace = new Marketplace(
             admin,
-            MAX_REFERRAL_SHARE,
-            REFERRAL_SHARE,
-            PLATFORM_FEES,
+            MARKETPLACE_MAX_REFERRAL_SHARE,
+            MARKETPLACE_REFERRAL_SHARE,
+            MARKETPLACE_PLATFORM_FEES,
             treasury
         );
 
@@ -157,6 +168,94 @@ contract Deploy is Script {
 
         // Token
         genTk = new GenTk(alice, address(issuer), address(configurationManager));
+    }
+
+    function configureContracts() public {
+        ModerationTeam.UpdateModeratorParam[]
+            memory moderators = new ModerationTeam.UpdateModeratorParam[](1);
+        IConfigurationManager.ContractEntry[]
+            memory contractEntries = new IConfigurationManager.ContractEntry[](11);
+
+        moderators[0] = ModerationTeam.UpdateModeratorParam({
+            moderator: moderator,
+            authorizations: AUTHORIZATIONS
+        });
+
+        contractEntries[0] = IConfigurationManager.ContractEntry({
+            key: "treasury",
+            value: treasury
+        });
+        contractEntries[1] = IConfigurationManager.ContractEntry({
+            key: "mint_tickets",
+            value: address(mintTicket)
+        });
+        contractEntries[2] = IConfigurationManager.ContractEntry({
+            key: "gentk",
+            value: address(genTk)
+        });
+        contractEntries[3] = IConfigurationManager.ContractEntry({
+            key: "randomizer",
+            value: address(randomizer)
+        });
+        contractEntries[4] = IConfigurationManager.ContractEntry({
+            key: "mod_team",
+            value: address(moderationTeam)
+        });
+        contractEntries[5] = IConfigurationManager.ContractEntry({
+            key: "al_mi",
+            value: address(allowMintIssuer)
+        });
+        contractEntries[6] = IConfigurationManager.ContractEntry({
+            key: "al_m",
+            value: address(allowMint)
+        });
+        contractEntries[7] = IConfigurationManager.ContractEntry({
+            key: "user_mod",
+            value: address(moderationUser)
+        });
+        contractEntries[8] = IConfigurationManager.ContractEntry({
+            key: "codex",
+            value: address(codex)
+        });
+        contractEntries[9] = IConfigurationManager.ContractEntry({
+            key: "priceMag",
+            value: address(pricingManager)
+        });
+        contractEntries[10] = IConfigurationManager.ContractEntry({
+            key: "resMag",
+            value: address(reserveManager)
+        });
+
+        // Authorize signer on Randomizer
+        randomizer.authorizeCaller(signer);
+
+        // Register a moderator
+        moderationTeam.updateModerators(moderators);
+
+        // Set pricing methods
+        pricingManager.setPricingContract(1, address(pricingFixed), true);
+        pricingManager.setPricingContract(2, address(pricingDA), true);
+
+        // Set reserve methods
+        reserveManager.setReserveMethod(
+            1,
+            LibReserve.ReserveMethod({reserveContract: IReserve(reserveWhitelist), enabled: true})
+        );
+        reserveManager.setReserveMethod(
+            2,
+            LibReserve.ReserveMethod({reserveContract: IReserve(reserveMintPass), enabled: true})
+        );
+
+        configurationManager.setAddresses(contractEntries);
+
+        configurationManager.setConfig(
+            IConfigurationManager.Config({
+                fees: ISSUER_FEES,
+                referrerFeesShare: ISSUER_REFERRAL_SHARE,
+                lockTime: ISSUER_LOCK_TIME,
+                voidMetadata: ISSUER_VOID_METADATA
+            })
+        );
     }
 
     function _createUser(string memory _name) internal returns (address user) {
