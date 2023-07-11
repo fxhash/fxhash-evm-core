@@ -17,6 +17,7 @@ import "contracts/interfaces/IConfigurationManager.sol";
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SignedMath.sol";
+import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
 
 import "contracts/libs/LibIssuer.sol";
 import "contracts/libs/LibReserve.sol";
@@ -425,26 +426,26 @@ contract Issuer is IIssuer, IERC2981, Ownable {
                     configManager.getConfig().referrerFeesShare) / 10000;
                 uint256 referrerAmount = (price * referrerFees) / 10000;
                 if (referrerAmount > 0) {
-                    payable(params.referrer).transfer(referrerAmount);
+                    SafeTransferLib.safeTransferETH(params.referrer, referrerAmount);
                 }
                 platformFees = configManager.getConfig().fees - referrerFees;
             }
 
             uint256 feesAmount = (price * platformFees) / 10000;
             if (feesAmount > 0) {
-                payable(configManager.getAddress("treasury")).transfer(feesAmount);
+                SafeTransferLib.safeTransferETH(configManager.getAddress("treasury"), feesAmount);
             }
 
             uint256 creatorAmount = price - (msg.value - feesAmount);
             uint256 splitAmount = (creatorAmount * issuer.primarySplit.percent) / 10000;
             if (splitAmount > 0) {
-                payable(issuer.primarySplit.receiver).transfer(splitAmount);
+                SafeTransferLib.safeTransferETH(issuer.primarySplit.receiver, splitAmount);
             }
 
             if (msg.value > price) {
                 uint256 remainingAmount = msg.value - price;
                 if (remainingAmount > 0) {
-                    payable(msg.sender).transfer(remainingAmount);
+                    SafeTransferLib.safeTransferETH(msg.sender, remainingAmount);
                 }
             }
 

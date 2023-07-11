@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/interfaces/IERC2981.sol";
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
 import "@openzeppelin/contracts/interfaces/IERC1155.sol";
 import "contracts/abstract/admin/AuthorizedCaller.sol";
+import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
 
 contract Marketplace is AuthorizedCaller {
     enum TokenType {
@@ -220,7 +221,7 @@ contract Marketplace is AuthorizedCaller {
         require(storedOffer.buyer == msg.sender, "NOT_AUTHORIZED");
         delete offers[_offerId];
         if (currencies[storedOffer.currency].currencyType == TokenType.ETH) {
-            payable(storedOffer.buyer).transfer(storedOffer.amount);
+            SafeTransferLib.safeTransferETH(storedOffer.buyer, storedOffer.amount);
         }
         emit OfferCanceled(_offerId);
     }
@@ -282,7 +283,7 @@ contract Marketplace is AuthorizedCaller {
 
     function transfer(TransferParams memory _params) private {
         if (_params.tokenType == TokenType.ETH) {
-            payable(_params.owner).transfer(_params.amount);
+            SafeTransferLib.safeTransferETH(_params.owner, _params.amount);
         } else if (_params.tokenType == TokenType.ERC20) {
             IERC20(_params.assetContract).transferFrom(
                 _params.owner,

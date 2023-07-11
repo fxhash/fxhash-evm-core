@@ -19,14 +19,15 @@
     "hardhat": "^2.14.0",
     "hardhat-contract-sizer": "^2.10.0",
     "hardhat-gas-reporter": "^1.0.9",
-    "scripty.sol": "^1.0.2",
     "prettier": "^2.5.1",
     "prettier-plugin-solidity": "^1.0.0-beta.19",
+    "scripty.sol": "^1.0.2",
     "solhint": "^3.3.6"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^4.9.1",
     "@openzeppelin/contracts-upgradeable": "^4.9.1",
+    "@rari-capital/solmate": "^6.4.0",
     "solady": "^0.0.107",
     "solidity-docgen": "^0.6.0-beta.35"
   }
