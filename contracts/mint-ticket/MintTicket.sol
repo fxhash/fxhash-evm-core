@@ -7,6 +7,7 @@ import "contracts/interfaces/IMintTicket.sol";
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
 
 contract MintTicket is ERC721URIStorage, Ownable, IMintTicket {
     mapping(uint256 => TokenData) public tokenData;
@@ -54,7 +55,7 @@ contract MintTicket is ERC721URIStorage, Ownable, IMintTicket {
         uint256 withdrawAmount = amount > 0 ? amount : availableBalance;
         require(withdrawAmount <= availableBalance, "OVER_AVAILABLE_BALANCE");
         availableBalance -= withdrawAmount;
-        payable(to).transfer(withdrawAmount);
+        SafeTransferLib.safeTransferETH(to, withdrawAmount);
     }
 
     function createProject(uint256 _gracingPeriod, string calldata _metadata) external {
@@ -335,7 +336,7 @@ contract MintTicket is ERC721URIStorage, Ownable, IMintTicket {
 
     function send(address recipient, uint256 amount) internal {
         if (amount > 0) {
-            payable(recipient).transfer(amount);
+            SafeTransferLib.safeTransferETH(recipient, amount);
         }
     }
 
@@ -367,7 +368,7 @@ contract MintTicket is ERC721URIStorage, Ownable, IMintTicket {
     function payProjectAuthorsWithSplit(address _issuer, uint256 _amount) internal {
         if (_amount > 0) {
             (address receiver, uint256 royaltyAmount) = IIssuer(_issuer).primarySplitInfo(_amount);
-            payable(receiver).transfer(royaltyAmount);
+            SafeTransferLib.safeTransferETH(receiver, royaltyAmount);
         }
     }
 }
