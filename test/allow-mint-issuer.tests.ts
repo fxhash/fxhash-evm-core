@@ -18,14 +18,11 @@ describe("AllowIssuerMint", function () {
 
     const ModerationTeam = await ethers.getContractFactory("ModerationTeam");
 
-    moderationTeam = await ModerationTeam.deploy(admin.getAddress());
+    moderationTeam = await ModerationTeam.deploy();
     await moderationTeam.deployed();
 
     const ModerationUser = await ethers.getContractFactory("ModerationUser");
-    moderationUser = await ModerationUser.deploy(
-      await admin.getAddress(),
-      moderationTeam.address
-    );
+    moderationUser = await ModerationUser.deploy(moderationTeam.address);
     await moderationUser.deployed();
 
     await moderationTeam.connect(admin).updateModerators([
@@ -34,10 +31,6 @@ describe("AllowIssuerMint", function () {
         authorizations,
       },
     ]);
-
-    const UserActionsFactory = await ethers.getContractFactory("UserActions");
-    userActions = await UserActionsFactory.deploy();
-    await userActions.deployed();
 
     const AllowMintIssuerFactory = await ethers.getContractFactory(
       "AllowMintIssuer"
@@ -58,13 +51,6 @@ describe("AllowIssuerMint", function () {
     );
   });
 
-  it("should update the user actions contract", async function () {
-    await allowIssuerMint.updateUserActionsContract(await admin.getAddress());
-    expect(await allowIssuerMint.userActions()).to.equal(
-      await admin.getAddress()
-    );
-  });
-
   it("should update the mint delay", async function () {
     const newMintDelay = 1800;
     await allowIssuerMint.updateMintDelay(newMintDelay);
@@ -73,10 +59,7 @@ describe("AllowIssuerMint", function () {
 
   it("should return true when address is allowed", async function () {
     // Mock the isUserAllowed function to return true
-    const isAllowed = await allowIssuerMint.isAllowed(
-      await admin.getAddress(),
-      100000
-    );
+    const isAllowed = await allowIssuerMint.isAllowed(await admin.getAddress());
     expect(isAllowed).to.be.true;
   });
 
@@ -90,16 +73,7 @@ describe("AllowIssuerMint", function () {
       .connect(admin)
       .moderateUser(userAddress, state, reason);
     await expect(
-      allowIssuerMint.isAllowed(await nonAdmin.getAddress(), 0)
+      allowIssuerMint.isAllowed(await nonAdmin.getAddress())
     ).to.be.rejectedWith("ACCOUNT_BANNED");
-  });
-
-  it("should throw an error when delay between mint is too short", async function () {
-    const timestamp = Math.floor(Date.now() / 1000);
-    await allowIssuerMint.updateMintDelay(timestamp * 2);
-    await ethers.provider.send("evm_setNextBlockTimestamp", [timestamp * 2]);
-    await expect(
-      allowIssuerMint.isAllowed(await nonAdmin.getAddress(), timestamp * 2)
-    ).to.be.rejectedWith("DELAY_BETWEEN_MINT_TOO_SHORT");
   });
 });

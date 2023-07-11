@@ -17,9 +17,7 @@ contract ReserveMintPass is IReserve {
         _;
     }
 
-    function isInputValid(
-        LibReserve.InputParams calldata params
-    ) external pure returns (bool) {
+    function isInputValid(LibReserve.InputParams calldata params) external pure returns (bool) {
         require(params.data.length > 0, "INVALID_DATA");
         address unpackedData = abi.decode(params.data, (address));
         require(unpackedData != address(0), "INVALID_RESERVE");
@@ -35,7 +33,7 @@ contract ReserveMintPass is IReserve {
         require(params.currentAmount > 0, "INVALID_CURRENT_AMOUNT");
         address target = abi.decode(params.currentData, (address));
         MintPassGroup(target).consumePass(params.userInput, _caller);
-        MintPassGroup(target).isPassValid(params.userInput);
+        MintPassGroup(target).isPassValid(params.userInput, _caller);
         applied = true;
         emit MethodApplied(applied, params.currentData);
         return (applied, params.currentData);

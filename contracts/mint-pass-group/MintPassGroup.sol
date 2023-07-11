@@ -60,33 +60,20 @@ contract MintPassGroup is Ownable, EIP712 {
         _;
     }
 
-    function consumePass(
-        bytes calldata _params,
-        address _caller
-    ) external onlyReserveMintPass {
+    function consumePass(bytes calldata _params, address _caller) external onlyReserveMintPass {
         Pass memory pass = decodePass(_params);
         Payload memory payload = decodePayload(pass.payload);
         bytes32 projectHash = getProjectHash(payload.token, payload.project);
         require(
-            EnumerableSet.contains(bypass, msg.sender) ||
-                _caller == payload.addr,
+            EnumerableSet.contains(bypass, msg.sender) || _caller == payload.addr,
             "PASS_INVALID_ADDRESS"
         );
-        require(
-            checkSignature(pass.signature, payload),
-            "PASS_INVALID_SIGNATURE"
-        );
+        require(checkSignature(pass.signature, payload), "PASS_INVALID_SIGNATURE");
         if (tokens[payload.token].minted > 0) {
             TokenRecord storage tokenRecord = tokens[payload.token];
-            require(
-                payload.addr == tokenRecord.consumer,
-                "WRONG_PASS_CONSUMER"
-            );
+            require(payload.addr == tokenRecord.consumer, "WRONG_PASS_CONSUMER");
             if (maxPerToken != 0) {
-                require(
-                    tokenRecord.minted < maxPerToken,
-                    "PASS_TOKEN_MAX_CONSUMED"
-                );
+                require(tokenRecord.minted < maxPerToken, "PASS_TOKEN_MAX_CONSUMED");
             }
             tokenRecord.minted += 1;
             if (maxPerTokenPerProject != 0) {
@@ -121,35 +108,26 @@ contract MintPassGroup is Ownable, EIP712 {
         }
     }
 
-    function isPassValid(bytes calldata _payload) external view {
+    function isPassValid(bytes calldata _payload, address _caller) external view {
         Pass memory pass = decodePass(_payload);
         Payload memory payload = decodePayload(pass.payload);
         TokenRecord storage token = tokens[payload.token];
         require(token.minted > 0, "PASS_NOT_CONSUMED");
         require(token.levelConsumed == block.number, "PASS_CONSUMED_PAST");
         require(
-            EnumerableSet.contains(bypass, msg.sender) ||
-                msg.sender == payload.addr,
+            EnumerableSet.contains(bypass, msg.sender) || _caller == payload.addr,
             "PASS_INVALID_ADDRESS"
         );
         require(payload.addr == token.consumer, "WRONG_PASS_CONSUMER");
-        require(
-            checkSignature(pass.signature, payload),
-            "PASS_INVALID_SIGNATURE"
-        );
+        require(checkSignature(pass.signature, payload), "PASS_INVALID_SIGNATURE");
     }
 
-    function getProjectHash(
-        string memory token,
-        address project
-    ) public pure returns (bytes32) {
+    function getProjectHash(string memory token, address project) public pure returns (bytes32) {
         bytes32 tokenHash = keccak256(bytes(token));
         return keccak256(abi.encodePacked(tokenHash, project));
     }
 
-    function decodePayload(
-        bytes memory _payload
-    ) private pure returns (Payload memory) {
+    function decodePayload(bytes memory _payload) private pure returns (Payload memory) {
         Payload memory decodedData = abi.decode(_payload, (Payload));
         if (decodedData.addr == address(0)) {
             revert("PASS_INVALID_PAYLOAD");
@@ -157,9 +135,7 @@ contract MintPassGroup is Ownable, EIP712 {
         return decodedData;
     }
 
-    function decodePass(
-        bytes memory _payload
-    ) private pure returns (Pass memory) {
+    function decodePass(bytes memory _payload) private pure returns (Pass memory) {
         Pass memory decodedData = abi.decode(_payload, (Pass));
         if (decodedData.payload.length == 0) {
             revert("PASS_INVALID_PAYLOAD");

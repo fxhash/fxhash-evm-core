@@ -11,43 +11,7 @@ let nonAdmin: Signer;
 let moderationIssuer: Contract;
 let moderationTeam: Contract;
 let allowMint: Contract;
-let userActions: Contract;
 const authorizations = [10];
-
-async function signMessage(
-  signer: Wallet,
-  addr: string,
-  issuer: string,
-  tokenContract: string,
-  tokenId: number
-) {
-  const domain = {
-    name: "UserActions",
-    version: "1",
-    chainId: (await ethers.provider.getNetwork()).chainId,
-    verifyingContract: userActions.address,
-  };
-
-  const types = {
-    SetLastMinted: [
-      { name: "addr", type: "address" },
-      { name: "issuer", type: "address" },
-      { name: "tokenContract", type: "address" },
-      { name: "tokenId", type: "uint256" },
-    ],
-  };
-
-  const value = {
-    addr: addr,
-    issuer: issuer,
-    tokenContract: tokenContract, // Convert ETH to wei
-    tokenId: tokenId,
-  };
-
-  const signature = await signer._signTypedData(domain, types, value);
-
-  return signature;
-}
 
 describe("AllowMint", function () {
   beforeEach(async function () {
@@ -57,16 +21,13 @@ describe("AllowMint", function () {
 
     const ModerationTeam = await ethers.getContractFactory("ModerationTeam");
 
-    moderationTeam = await ModerationTeam.deploy(admin.getAddress());
+    moderationTeam = await ModerationTeam.deploy();
     await moderationTeam.deployed();
 
     const ModerationIssuer = await ethers.getContractFactory(
       "ModerationIssuer"
     );
-    moderationIssuer = await ModerationIssuer.deploy(
-      await admin.getAddress(),
-      moderationTeam.address
-    );
+    moderationIssuer = await ModerationIssuer.deploy(moderationTeam.address);
     await moderationIssuer.deployed();
 
     await moderationTeam.connect(admin).updateModerators([
@@ -75,10 +36,6 @@ describe("AllowMint", function () {
         authorizations,
       },
     ]);
-
-    const UserActionsFactory = await ethers.getContractFactory("UserActions");
-    userActions = await UserActionsFactory.deploy();
-    await userActions.deployed();
 
     const AllowMintFactory = await ethers.getContractFactory("AllowMint");
     allowMint = await AllowMintFactory.deploy(moderationIssuer.address);
@@ -90,7 +47,7 @@ describe("AllowMint", function () {
     const timestamp = Math.floor(Date.now() / 1000);
     const tokenContract = await nonAdmin.getAddress();
 
-    const isAllowed = await allowMint.isAllowed(addr, timestamp, tokenContract);
+    const isAllowed = await allowMint.isAllowed(tokenContract);
 
     expect(isAllowed).to.be.true;
   });
@@ -109,23 +66,7 @@ describe("AllowMint", function () {
       .moderateIssuer(tokenContract, state, reason);
     // The function call should revert with the 'TOKEN_MODERATED' error message
     await expect(
-      allowMint.isAllowed(addr, timestamp, tokenContract)
+      allowMint.isAllowed(tokenContract)
     ).to.be.revertedWith("TOKEN_MODERATED");
-  });
-
-  it("should throw an error when batch minting is not allowed", async function () {
-    const addr = await admin.getAddress();
-    const timestamp = Math.floor(Date.now() / 1000) * 2;
-    const tokenContract = await nonAdmin.getAddress();
-    const issuer = await nonAdmin.getAddress();
-    const tokenId = 1;
-    const sig = signMessage(admin, addr, issuer, tokenContract, tokenId);
-    await ethers.provider.send("evm_setNextBlockTimestamp", [timestamp - 1]);
-    await ethers.provider.send("evm_mine", []);
-
-    await userActions.setLastMinted(addr, issuer, tokenContract, tokenId, sig);
-    await expect(
-      allowMint.isAllowed(addr, timestamp, tokenContract)
-    ).to.be.revertedWith("NO_BATCH_MINTING");
   });
 });

@@ -67,7 +67,8 @@ describe("MintTicket", () => {
     await randomizer.deployed();
     mintTicket = await MintTicket.deploy(randomizer.address);
     await mintTicket.deployed();
-    issuer = await IssuerFactory.deploy(mintTicket.address);
+    issuer = await IssuerFactory.deploy();
+    await issuer.setTicket(mintTicket.address);
     await issuer.deployed();
     await randomizer.grantFxHashIssuerRole(mintTicket.address);
   });

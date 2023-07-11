@@ -25,8 +25,6 @@ describe("PricingDutchAuction", () => {
   });
 
   beforeEach(async () => {
-    await pricingDutchAuction.grantAdminRole(await signer.getAddress());
-    await pricingDutchAuction.authorizeCaller(await signer.getAddress());
     await pricingDutchAuction.updateMinDecrementDuration(60); // Reset minDecrementDuration
   });
 
@@ -41,9 +39,9 @@ describe("PricingDutchAuction", () => {
       [[opensAt, decrementDuration, 0, levels]]
     );
 
-    await pricingDutchAuction.setPrice(issuerId, details);
+    await pricingDutchAuction.setPrice(details);
     //Fetch stored levels
-    const storedLevels = await pricingDutchAuction.getLevels(issuerId);
+    const storedLevels = await pricingDutchAuction.connect(signer).getLevels();
     // Verify the stored price
     const storedDetails = await pricingDutchAuction.pricings(issuerId);
     expect(storedDetails.opensAt).to.equal(opensAt);
@@ -66,12 +64,11 @@ describe("PricingDutchAuction", () => {
     );
 
     await expect(
-      pricingDutchAuction.setPrice(issuerId, invalidDetails)
+      pricingDutchAuction.connect(signer).setPrice(invalidDetails)
     ).to.be.revertedWith("PRICES_MUST_DECREMENT");
   });
 
   it("should lock the price", async () => {
-    const issuerId = await signer.getAddress();
     const opensAt = Math.floor(Date.now() / 1000) + 60; // Current timestamp + 60 seconds
     const decrementDuration = 60;
     const levels = [100, 90, 80, 70, 60];
@@ -81,11 +78,11 @@ describe("PricingDutchAuction", () => {
       [[opensAt, decrementDuration, 0, levels]]
     );
 
-    await pricingDutchAuction.setPrice(issuerId, details);
-    await pricingDutchAuction.lockPrice(issuerId);
+    await pricingDutchAuction.connect(signer).setPrice(details);
+    await pricingDutchAuction.connect(signer).lockPrice();
 
     // Fetch the storage and verify the locked price
-    const storedDetails = await pricingDutchAuction.pricings(issuerId);
+    const storedDetails = await pricingDutchAuction.pricings(await signer.getAddress());
     expect(storedDetails.lockedPrice).to.equal(levels[0]);
   });
 
@@ -100,19 +97,19 @@ describe("PricingDutchAuction", () => {
       [[opensAt, decrementDuration, 0, levels]]
     );
 
-    await pricingDutchAuction.setPrice(issuerId, details);
+    await pricingDutchAuction.connect(signer).setPrice(details);
 
     const timestamp = Math.floor(Date.now() / 1000);
 
     await expect(
-      pricingDutchAuction.getPrice(issuerId, timestamp)
+      pricingDutchAuction.connect(signer).getPrice(timestamp)
     ).to.be.revertedWith("NOT_OPENED_YET");
   });
 
   it("should update the minDecrementDuration", async () => {
     const newMinDecrementDuration = 120;
 
-    await pricingDutchAuction.updateMinDecrementDuration(
+    await pricingDutchAuction.connect(signer).updateMinDecrementDuration(
       newMinDecrementDuration
     );
 
