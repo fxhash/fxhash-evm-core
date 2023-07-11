@@ -23,16 +23,17 @@ contract MintPassGroupTest is Test {
 
     /// project details
     string public token = "TOKEN1";
-    uint256 public project = 1;
+    address public project = address(1);
     address public addr = user1;
 
     MintPassGroup public mintPassGroup;
 
     function setUp() public virtual {
         mintPassGroup = new MintPassGroup(
-            10, /* maxPerToken */
-            5, /* maxPerTokenPerProject */
-            fxHashAdmin, /* signer (authorized caller)*/
+            10 /* maxPerToken */,
+            5 /* maxPerTokenPerProject */,
+            fxHashAdmin /* signer (authorized caller)*/,
+            fxHashAdmin /* reserve Mint pass*/,
             new address[](0) /* bypass array */
         );
     }
@@ -51,7 +52,7 @@ contract IsValidPass is MintPassGroupTest {
         );
         bytes memory pass = abi.encode(MintPassGroup.Pass(payload, ""));
         vm.expectRevert("PASS_INVALID_SIGNATURE");
-        mintPassGroup.isPassValid(pass);
+        mintPassGroup.isPassValid(pass, addr);
     }
 }
 
@@ -62,7 +63,7 @@ contract ConsumePass is MintPassGroupTest {
         );
         bytes memory pass = abi.encode(MintPassGroup.Pass(payload, ""));
         vm.expectRevert("PASS_INVALID_SIGNATURE");
-        mintPassGroup.consumePass(pass);
+        mintPassGroup.consumePass(pass, addr);
     }
 }
 

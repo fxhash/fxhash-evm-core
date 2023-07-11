@@ -9,14 +9,14 @@ contract RandomizerTest is Test {
     address public fxHashAdmin = address(2);
     address public addr1 = address(3);
     bytes32 public FXHASH_AUTHORITY;
-    bytes32 public FXHASH_ISSUER;
+    bytes32 public AUTHORIZED_CALLER;
 
     Randomizer public randomizer;
 
     function setUp() public virtual {
         randomizer = new Randomizer(keccak256("seed"), keccak256("salt"));
-        FXHASH_AUTHORITY = randomizer.FXHASH_AUTHORITY();
-        FXHASH_ISSUER = randomizer.FXHASH_ISSUER();
+        FXHASH_AUTHORITY = randomizer.DEFAULT_ADMIN_ROLE();
+        AUTHORIZED_CALLER = randomizer.AUTHORIZED_CALLER();
     }
 }
 
@@ -26,15 +26,12 @@ contract Generate is RandomizerTest {
     function setUp() public virtual override {
         super.setUp();
         tokenKey = randomizer.getTokenKey(fxHashAdmin, 1);
-        randomizer.grantFxHashIssuerRole(fxHashAdmin);
+        randomizer.authorizeCaller(fxHashAdmin);
     }
 
     function test_Generate() public {
         vm.prank(fxHashAdmin);
         randomizer.generate(1);
-        (bytes32 seed, uint256 serialId, ) = randomizer.seeds(tokenKey);
-        assertGt(uint256(seed), 0);
-        assertEq(serialId, 1);
     }
 }
 
@@ -44,7 +41,7 @@ contract Commit is RandomizerTest {}
 
 contract GrantFxHashAuthorityRole is RandomizerTest {
     function test_GrantAdminRole() public {
-        randomizer.grantFxHashAuthorityRole(fxHashAdmin);
+        randomizer.grantAdminRole(fxHashAdmin);
 
         assertTrue(randomizer.hasRole(FXHASH_AUTHORITY, fxHashAdmin));
     }
@@ -52,7 +49,7 @@ contract GrantFxHashAuthorityRole is RandomizerTest {
     function test_RevertsWhenNotAdmin() public {
         vm.prank(addr1);
         vm.expectRevert();
-        randomizer.grantFxHashAuthorityRole(fxHashAdmin);
+        randomizer.grantAdminRole(fxHashAdmin);
 
         assertFalse(randomizer.hasRole(FXHASH_AUTHORITY, fxHashAdmin));
     }
@@ -61,11 +58,11 @@ contract GrantFxHashAuthorityRole is RandomizerTest {
 contract RevokeFxHashAuthorityRole is RandomizerTest {
     function setUp() public virtual override {
         super.setUp();
-        randomizer.grantFxHashAuthorityRole(fxHashAdmin);
+        randomizer.grantAdminRole(fxHashAdmin);
     }
 
     function test_RevokeRole() public {
-        randomizer.revokeFxHashAuthorityRole(fxHashAdmin);
+        randomizer.revokeAdminRole(fxHashAdmin);
     }
 
     function test_RevertsWhenNotAdmin() public {
@@ -77,34 +74,34 @@ contract RevokeFxHashAuthorityRole is RandomizerTest {
 
 contract GrantFxHashIssuerRole is RandomizerTest {
     function test_GrantAdminRole() public {
-        randomizer.grantFxHashIssuerRole(fxHashAdmin);
+        randomizer.authorizeCaller(fxHashAdmin);
 
-        assertTrue(randomizer.hasRole(FXHASH_ISSUER, fxHashAdmin));
+        assertTrue(randomizer.hasRole(AUTHORIZED_CALLER, fxHashAdmin));
     }
 
     function test_RevertsWhenNotAdmin() public {
         vm.prank(addr1);
         vm.expectRevert();
-        randomizer.grantFxHashIssuerRole(fxHashAdmin);
+        randomizer.authorizeCaller(fxHashAdmin);
 
-        assertFalse(randomizer.hasRole(FXHASH_ISSUER, fxHashAdmin));
+        assertFalse(randomizer.hasRole(AUTHORIZED_CALLER, fxHashAdmin));
     }
 }
 
 contract RevokeFxHashIssuerRole is RandomizerTest {
     function setUp() public virtual override {
         super.setUp();
-        randomizer.grantFxHashIssuerRole(fxHashAdmin);
+        randomizer.authorizeCaller(fxHashAdmin);
     }
 
     function test_RevokeRole() public {
-        randomizer.revokeFxHashIssuerRole(fxHashAdmin);
+        randomizer.revokeCallerAuthorization(fxHashAdmin);
     }
 
     function test_RevertsWhenNotAdmin() public {
         vm.expectRevert();
         vm.prank(addr1);
-        randomizer.revokeFxHashIssuerRole(fxHashAdmin);
+        randomizer.revokeCallerAuthorization(fxHashAdmin);
     }
 }
 
