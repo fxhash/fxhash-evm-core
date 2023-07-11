@@ -6,10 +6,7 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 abstract contract AdminVerify is AccessControl {
     modifier onlyAdmin() {
         require(
-            AccessControl.hasRole(
-                AccessControl.DEFAULT_ADMIN_ROLE,
-                _msgSender()
-            ),
+            AccessControl.hasRole(AccessControl.DEFAULT_ADMIN_ROLE, msg.sender),
             "Caller is not an admin"
         );
         _;

@@ -5,7 +5,6 @@ interface IGenTk {
     struct TokenParams {
         uint256 tokenId;
         address receiver;
-        uint256 issuerId;
         uint256 iteration;
         bytes inputBytes;
         string metadata;

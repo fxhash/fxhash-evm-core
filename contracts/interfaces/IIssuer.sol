@@ -9,28 +9,10 @@ import "contracts/libs/LibPricing.sol";
 import "contracts/libs/LibRoyalty.sol";
 
 interface IIssuer {
-    struct Config {
-        uint256 fees;
-        uint256 referrerFeesShare;
-        uint256 lockTime;
-        string voidMetadata;
-    }
-
     struct UpdateIssuerInput {
-        uint256 issuerId;
         LibRoyalty.RoyaltyData primarySplit;
         LibRoyalty.RoyaltyData royaltiesSplit;
         bool enabled;
-    }
-
-    struct UpdatePriceInput {
-        uint256 issuerId;
-        LibPricing.PricingData pricingData;
-    }
-
-    struct UpdateReserveInput {
-        uint256 issuerId;
-        LibReserve.ReserveData[] reserves;
     }
 
     struct MintTicketSettings {
@@ -55,7 +37,6 @@ interface IIssuer {
     }
 
     struct MintInput {
-        uint256 issuerId;
         bytes inputBytes;
         address referrer;
         bytes reserveInput;
@@ -64,15 +45,10 @@ interface IIssuer {
     }
 
     struct MintWithTicketInput {
-        uint256 issuerId;
         uint256 ticketId;
         bytes inputBytes;
         address recipient;
     }
-
-    function getIssuer(
-        uint256 issuerId
-    ) external view returns (LibIssuer.IssuerData memory);
 
     function mintIssuer(MintIssuerInput calldata params) external;
 
@@ -86,11 +62,14 @@ interface IIssuer {
     ) external view returns (address receiver, uint256 royaltyAmount);
 
     function primarySplitInfo(
-        uint256 tokenId,
         uint256 salePrice
     ) external view returns (address receiver, uint256 royaltyAmount);
 
-    function setCodex(uint256 issuerId, uint256 codexId) external;
+    function setCodex(uint256 codexId) external;
 
     function supportsInterface(bytes4 interfaceId) external view returns (bool);
+
+    function getIssuer() external view returns (LibIssuer.IssuerData memory);
+
+    function owner() external view returns (address);
 }

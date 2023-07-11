@@ -5,7 +5,7 @@
 1. Clone repository
 
 ```
-git@github.com:fxhash/fxhash-evm-contracts.git
+git clone git@github.com:fxhash/fxhash-evm-contracts.git
 ```
 
 2. Create `.env` file in root directory
@@ -25,13 +25,19 @@ npm ci
 forge install
 ```
 
-4. Run hardhat tests
+4. Run prettier
+
+```
+npm run prettier
+```
+
+5. Run hardhat tests
 
 ```
 npm run test
 ```
 
-5. Run foundry tests
+6. Run foundry tests
 
 ```
 forge test

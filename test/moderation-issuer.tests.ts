@@ -3,7 +3,7 @@ import { Contract, Signer } from "ethers";
 import { expect } from "chai";
 import { describe, before, beforeEach, it } from "mocha";
 
-describe("ModerationToken", () => {
+describe("ModerationIssuer", () => {
   let moderatorToken: Contract;
   let moderationTeam: Contract;
 
@@ -14,18 +14,20 @@ describe("ModerationToken", () => {
 
   beforeEach(async () => {
     [admin, moderator, user1] = await ethers.getSigners();
-    const ModerationToken = await ethers.getContractFactory("ModerationToken");
-    moderatorToken = await ModerationToken.deploy(await admin.getAddress());
-    await moderatorToken.deployed();
+    const ModerationIssuer = await ethers.getContractFactory(
+      "ModerationIssuer"
+    );
 
     const ModerationTeam = await ethers.getContractFactory("ModerationTeam");
     [admin, moderator, user1] = await ethers.getSigners();
 
     moderationTeam = await ModerationTeam.deploy(admin.getAddress());
     await moderationTeam.deployed();
-    await moderatorToken.setAddresses([
-      { key: "mod", value: moderationTeam.address },
-    ]);
+    moderatorToken = await ModerationIssuer.deploy(
+      moderationTeam.address
+    );
+    await moderatorToken.deployed();
+
     await moderationTeam.connect(admin).updateModerators([
       {
         moderator: await moderator.getAddress(),
@@ -53,42 +55,42 @@ describe("ModerationToken", () => {
     });
   });
 
-  describe("moderateToken", () => {
+  describe("moderateIssuer", () => {
     it("should moderate a token", async () => {
-      const tokenId = 1;
+      const issuer = await user1.getAddress();
       const state = 1;
       const reason = 0;
       await moderatorToken.connect(moderator).reasonAdd("reason");
 
       await moderatorToken
         .connect(moderator)
-        .moderateToken(tokenId, state, reason);
+        .moderateIssuer(issuer, state, reason);
 
-      const moderationState = await moderatorToken.tokenState(tokenId);
+      const moderationState = await moderatorToken.issuerState(issuer);
       expect(moderationState).to.equal(state);
     });
 
     it("should revert when non-moderator tries to moderate a token", async () => {
-      const tokenId = 2;
+      const issuer = await user1.getAddress();
       const state = 1;
       const reason = 1;
 
       await expect(
-        moderatorToken.connect(user1).moderateToken(tokenId, state, reason)
+        moderatorToken.connect(user1).moderateIssuer(issuer, state, reason)
       ).to.be.revertedWith("NOT_MOD");
     });
   });
 
   describe("report", () => {
     it("should report a token", async () => {
-      const tokenId = 1;
+      const issuer = await user1.getAddress();
       const reason = 0;
       await moderatorToken.connect(moderator).reasonAdd("reason");
 
-      await moderatorToken.connect(moderator).report(tokenId, reason);
+      await moderatorToken.connect(moderator).report(issuer, reason);
 
-      const reportKey = await moderatorToken.getReportKey(
-        tokenId,
+      const reportKey = await moderatorToken.getHashedKey(
+        issuer,
         await moderator.getAddress()
       );
       const storedReason = await moderatorToken.reports(reportKey);
@@ -96,25 +98,25 @@ describe("ModerationToken", () => {
     });
 
     it("should revert when non-moderator tries to report a token with non-existent reason", async () => {
-      const tokenId = 2;
+      const issuer = await user1.getAddress();
       const reason = 10;
 
       await expect(
-        moderatorToken.connect(moderator).report(tokenId, reason)
+        moderatorToken.connect(moderator).report(issuer, reason)
       ).to.be.revertedWith("REASON_DOESNT_EXISTS");
     });
   });
 
   describe("getReportKey", () => {
     it("should return the correct report key", async () => {
-      const tokenId = 1;
+      const issuer = await user1.getAddress();
       const reporter = await moderator.getAddress();
 
       const expectedKey = ethers.utils.keccak256(
-        ethers.utils.solidityPack(["uint256", "address"], [tokenId, reporter])
+        ethers.utils.solidityPack(["address", "address"], [issuer, reporter])
       );
 
-      const reportKey = await moderatorToken.getReportKey(tokenId, reporter);
+      const reportKey = await moderatorToken.getHashedKey(issuer, reporter);
       expect(reportKey).to.equal(expectedKey);
     });
   });

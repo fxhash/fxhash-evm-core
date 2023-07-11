@@ -1,53 +1,26 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "contracts/interfaces/IModerationToken.sol";
-import "contracts/interfaces/IUserActions.sol";
-import "contracts/abstract/admin/AuthorizedCaller.sol";
-import "contracts/libs/LibUserActions.sol";
+import "contracts/interfaces/IModerationIssuer.sol";
+import "contracts/interfaces/IAllowMint.sol";
 
-contract AllowMint is AuthorizedCaller {
-    address public tokenMod;
-    IUserActions public userActions;
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-    constructor(address _admin, address _tokenMod, address _userActions) {
-        _setupRole(DEFAULT_ADMIN_ROLE, _admin);
-        _setupRole(AUTHORIZED_CALLER, _admin);
-        tokenMod = _tokenMod;
-        userActions = IUserActions(_userActions);
+contract AllowMint is IAllowMint, Ownable {
+    address private issuerMod;
+
+    constructor(address _issuerMod) {
+        issuerMod = _issuerMod;
     }
 
-    function updateTokenModerationContract(
-        address _address
-    ) external onlyAdmin {
-        tokenMod = _address;
+    function updateIssuerModerationContract(address _address) external onlyOwner {
+        issuerMod = _address;
     }
 
-    function updateUserActions(address _address) external onlyAdmin {
-        userActions = IUserActions(_address);
-    }
-
-    function isAllowed(
-        address addr,
-        uint256 timestamp,
-        uint256 id
-    ) external view returns (bool) {
+    function isAllowed(address tokenContract) external view returns (bool) {
         // Get the state from the token moderation contract
-        uint256 state = IModerationToken(tokenMod).tokenState(id);
+        uint256 state = IModerationIssuer(issuerMod).issuerState(tokenContract);
         require(state < 2, "TOKEN_MODERATED");
-        // Prevent batch minting on any token
-        LibUserActions.UserAction memory lastUserActions = userActions
-            .getUserActions(addr);
-        if (
-            lastUserActions.lastMintedTime > 0 &&
-            timestamp >= lastUserActions.lastMintedTime
-        ) {
-            require(
-                timestamp - lastUserActions.lastMintedTime > 0,
-                "NO_BATCH_MINTING"
-            );
-        }
-
         return true;
     }
 }

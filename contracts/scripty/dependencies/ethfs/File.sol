@@ -30,7 +30,11 @@ function read(File memory file) view returns (string memory contents) {
         // - get code and add to contents
         // - update total size
 
-        for { let i := 0 } lt(i, len) { i := add(i, 1) } {
+        for {
+            let i := 0
+        } lt(i, len) {
+            i := add(i, 1)
+        } {
             chunk := mload(add(chunks, add(0x20, mul(i, 0x20))))
             pointer := mload(add(chunk, 0x20))
 
@@ -46,6 +50,4 @@ function read(File memory file) view returns (string memory contents) {
     }
 }
 
-using {
-    read
-} for File global;
+using {read} for File global;
