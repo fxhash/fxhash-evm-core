@@ -2,7 +2,6 @@
 pragma solidity ^0.8.18;
 
 import {Script} from "forge-std/Script.sol";
-
 import {AllowMint} from "contracts/allow-mint/AllowMint.sol";
 import {AllowMintIssuer} from "contracts/allow-mint/AllowMintIssuer.sol";
 import {Codex} from "contracts/issuer/Codex.sol";
