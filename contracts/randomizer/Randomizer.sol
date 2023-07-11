@@ -4,8 +4,6 @@ pragma solidity ^0.8.18;
 import "contracts/abstract/admin/AuthorizedCaller.sol";
 
 contract Randomizer is AuthorizedCaller {
-    bytes32 public constant FXHASH_AUTHORITY = keccak256("FXHASH_AUTHORITY");
-    bytes32 public constant FXHASH_ISSUER = keccak256("FXHASH_ISSUER");
     struct TokenKey {
         address issuer;
         uint256 tokenId;
@@ -39,14 +37,6 @@ contract Randomizer is AuthorizedCaller {
         _setupRole(AUTHORIZED_CALLER, address(bytes20(msg.sender)));
     }
 
-    modifier onlyFxHashAuthority() {
-        require(
-            AccessControl.hasRole(FXHASH_AUTHORITY, msg.sender),
-            "Caller is not a FxHash Authority"
-        );
-        _;
-    }
-
     function updateCommitment(bytes32 oracleSeed) private {
         commitment.seed = oracleSeed;
     }
@@ -63,7 +53,7 @@ contract Randomizer is AuthorizedCaller {
         emit RandomizerGenerate(tokenId, storedSeed);
     }
 
-    function reveal(TokenKey[] memory tokenList, bytes32 seed) external onlyFxHashAuthority {
+    function reveal(TokenKey[] memory tokenList, bytes32 seed) external onlyAuthorizedCaller {
         uint256 lastSerial = setTokenSeedAndReturnSerial(tokenList[0], seed);
         uint256 expectedSerialId = lastSerial;
         bytes32 oracleSeed = iterateOracleSeed(seed);
@@ -81,25 +71,9 @@ contract Randomizer is AuthorizedCaller {
         updateCommitment(seed);
     }
 
-    function commit(bytes32 seed, bytes32 salt) external onlyFxHashAuthority {
+    function commit(bytes32 seed, bytes32 salt) external onlyAuthorizedCaller {
         commitment.seed = seed;
         commitment.salt = salt;
-    }
-
-    function grantFxHashAuthorityRole(address _admin) public onlyAdmin {
-        AccessControl.grantRole(FXHASH_AUTHORITY, _admin);
-    }
-
-    function revokeFxHashAuthorityRole(address _admin) public onlyAdmin {
-        AccessControl.revokeRole(FXHASH_AUTHORITY, _admin);
-    }
-
-    function grantFxHashIssuerRole(address _admin) public onlyAdmin {
-        AccessControl.grantRole(FXHASH_ISSUER, _admin);
-    }
-
-    function revokeFxHashIssuerRole(address _admin) public onlyAdmin {
-        AccessControl.revokeRole(FXHASH_ISSUER, _admin);
     }
 
     function getTokenKey(address issuer, uint256 id) public pure returns (bytes32) {

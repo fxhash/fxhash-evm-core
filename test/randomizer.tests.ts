@@ -93,12 +93,6 @@ describe("Randomizer", function () {
   describe("Generate function", function () {
     beforeEach(async function () {
       await randomizer.connect(admin).authorizeCaller(fxHashAdmin.getAddress());
-      await randomizer
-        .connect(admin)
-        .grantFxHashIssuerRole(fxHashAdmin.getAddress());
-      await randomizer
-        .connect(admin)
-        .grantFxHashAuthorityRole(fxHashAdmin.getAddress());
     });
 
     it("should generate a new token", async function () {
