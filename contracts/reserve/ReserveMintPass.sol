@@ -17,9 +17,7 @@ contract ReserveMintPass is IReserve {
         _;
     }
 
-    function isInputValid(
-        LibReserve.InputParams calldata params
-    ) external pure returns (bool) {
+    function isInputValid(LibReserve.InputParams calldata params) external pure returns (bool) {
         require(params.data.length > 0, "INVALID_DATA");
         address unpackedData = abi.decode(params.data, (address));
         require(unpackedData != address(0), "INVALID_RESERVE");

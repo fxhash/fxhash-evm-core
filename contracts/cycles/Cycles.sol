@@ -21,9 +21,7 @@ contract FxHashCycles is AuthorizedCaller {
         _setupRole(AUTHORIZED_CALLER, msg.sender);
     }
 
-    function addCycle(
-        CycleParams calldata _params
-    ) external onlyAuthorizedCaller {
+    function addCycle(CycleParams calldata _params) external onlyAuthorizedCaller {
         require(_params.start >= 0, "Error: start <= 0");
         require(_params.openingDuration >= 0, "Error: openingDuration <= 0");
         require(_params.closingDuration >= 0, "Error: closingDuration <= 0");
@@ -39,14 +37,9 @@ contract FxHashCycles is AuthorizedCaller {
         delete cycles[_cycleId];
     }
 
-    function isCycleOpen(
-        uint256 _id,
-        uint256 _timestamp
-    ) private view returns (bool) {
+    function isCycleOpen(uint256 _id, uint256 _timestamp) private view returns (bool) {
         CycleParams memory _cycle = cycles[_id];
-        uint256 diff = SignedMath.abs(
-            int256(int256(_timestamp) - int256(_cycle.start))
-        );
+        uint256 diff = SignedMath.abs(int256(int256(_timestamp) - int256(_cycle.start)));
         uint256 cycle_relative = SafeMath.mod(
             diff,
             _cycle.openingDuration + _cycle.closingDuration

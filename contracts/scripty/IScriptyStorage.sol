@@ -69,11 +69,7 @@ interface IScriptyStorage {
      * @param owner - Address of the script owner
      * @param details - Custom details of the script
      */
-    event ScriptDetailsUpdated(
-        string indexed name,
-        address owner,
-        bytes details
-    );
+    event ScriptDetailsUpdated(string indexed name, address owner, bytes details);
 
     // =============================================================
     //                      MANAGEMENT OPERATIONS
@@ -86,10 +82,7 @@ interface IScriptyStorage {
      *
      * Emits an {ScriptCreated} event.
      */
-    function createScript(
-        string calldata name,
-        bytes calldata details
-    ) external;
+    function createScript(string calldata name, bytes calldata details) external;
 
     /**
      * @notice Add a code chunk to the script
@@ -98,10 +91,7 @@ interface IScriptyStorage {
      *
      * Emits an {ChunkStored} event.
      */
-    function addChunkToScript(
-        string calldata name,
-        bytes calldata chunk
-    ) external;
+    function addChunkToScript(string calldata name, bytes calldata chunk) external;
 
     /**
      * @notice Edit the script details
@@ -110,10 +100,7 @@ interface IScriptyStorage {
      *
      * Emits an {ScriptDetailsUpdated} event.
      */
-    function updateDetails(
-        string calldata name,
-        bytes calldata details
-    ) external;
+    function updateDetails(string calldata name, bytes calldata details) external;
 
     /**
      * @notice Update the verification status of the script
@@ -122,8 +109,5 @@ interface IScriptyStorage {
      *
      * Emits an {ScriptVerificationUpdated} event.
      */
-    function updateScriptVerification(
-        string calldata name,
-        bool isVerified
-    ) external;
+    function updateScriptVerification(string calldata name, bool isVerified) external;
 }

@@ -9,26 +9,13 @@ interface ICodex {
         LibCodex.CodexInput memory input
     ) external returns (uint256);
 
-    function codexAddEntry(
-        uint256 entryType,
-        address issuer,
-        bytes[] calldata value
-    ) external;
+    function codexAddEntry(uint256 entryType, address issuer, bytes[] calldata value) external;
 
     function codexLockEntry(uint256 entryId) external;
 
-    function codexUpdateEntry(
-        uint256 entryId,
-        bool pushEnd,
-        bytes memory value
-    ) external;
+    function codexUpdateEntry(uint256 entryId, bool pushEnd, bytes memory value) external;
 
-    function updateIssuerCodexRequest(
-        LibCodex.CodexInput calldata input
-    ) external;
+    function updateIssuerCodexRequest(LibCodex.CodexInput calldata input) external;
 
-    function updateIssuerCodexApprove(
-        address _issuer,
-        uint256 _codexId
-    ) external;
+    function updateIssuerCodexApprove(address _issuer, uint256 _codexId) external;
 }

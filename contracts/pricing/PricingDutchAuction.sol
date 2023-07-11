@@ -30,27 +30,19 @@ contract PricingDutchAuction is IPricing, Ownable {
         minDecrementDuration = 60; // Default value, can be updated
     }
 
-    function updateMinDecrementDuration(
-        uint256 _minDecrement
-    ) external onlyOwner {
+    function updateMinDecrementDuration(uint256 _minDecrement) external onlyOwner {
         minDecrementDuration = _minDecrement;
     }
 
     function setPrice(bytes memory details) external {
-        PriceDetails memory pricingDetails = abi.decode(
-            details,
-            (PriceDetails)
-        );
+        PriceDetails memory pricingDetails = abi.decode(details, (PriceDetails));
         verifyDetails(pricingDetails);
         pricings[msg.sender] = pricingDetails;
         emit DutchPriceSet(msg.sender, pricingDetails);
     }
 
     function lockPrice() external {
-        pricings[msg.sender].lockedPrice = computePrice(
-            msg.sender,
-            block.timestamp
-        );
+        pricings[msg.sender].lockedPrice = computePrice(msg.sender, block.timestamp);
         emit DutchPriceLocked(msg.sender, pricings[msg.sender].lockedPrice);
     }
 
@@ -97,19 +89,13 @@ contract PricingDutchAuction is IPricing, Ownable {
         verifyLevels(details.levels);
     }
 
-    function computePrice(
-        address issuer,
-        uint256 timestamp
-    ) private view returns (uint256) {
+    function computePrice(address issuer, uint256 timestamp) private view returns (uint256) {
         PriceDetails memory pricing = pricings[issuer];
         uint256 diff = 0;
         if (pricing.opensAt < timestamp) {
             diff = timestamp - pricing.opensAt;
         }
-        uint256 levelId = Math.min(
-            diff / pricing.decrementDuration,
-            pricing.levels.length - 1
-        );
+        uint256 levelId = Math.min(diff / pricing.decrementDuration, pricing.levels.length - 1);
         return pricing.levels[levelId];
     }
 }

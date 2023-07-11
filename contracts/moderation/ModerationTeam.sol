@@ -56,10 +56,7 @@ contract ModerationTeam is Ownable {
     }
 
     modifier onlyModeratorOrAdmin() {
-        require(
-            isModerator(msg.sender) || msg.sender == owner(),
-            "NOT_MODERATOR_OR_ADMIN"
-        );
+        require(isModerator(msg.sender) || msg.sender == owner(), "NOT_MODERATOR_OR_ADMIN");
         _;
     }
 
@@ -73,9 +70,7 @@ contract ModerationTeam is Ownable {
     /*
     ENTRY POINTS
     */
-    function updateModerators(
-        UpdateModeratorParam[] calldata params
-    ) external onlyOwner {
+    function updateModerators(UpdateModeratorParam[] calldata params) external onlyOwner {
         for (uint256 i = 0; i < params.length; i++) {
             UpdateModeratorParam memory mod = params[i];
             address userAddress = mod.moderator;
@@ -92,9 +87,7 @@ contract ModerationTeam is Ownable {
         emit ModeratorsUpdated(params);
     }
 
-    function updateShares(
-        UpdateShareParam[] calldata params
-    ) external onlyOwner {
+    function updateShares(UpdateShareParam[] calldata params) external onlyOwner {
         for (uint256 i = 0; i < params.length; i++) {
             UpdateShareParam memory shareData = params[i];
             address shareAddress = shareData.moderator;
@@ -117,11 +110,7 @@ contract ModerationTeam is Ownable {
     function withdraw() external onlyModeratorOrAdmin {
         uint256 amount = address(this).balance;
         if (sharesTotal > 0) {
-            for (
-                uint256 i = 0;
-                i < EnumerableSet.length(moderatorAddresses);
-                i++
-            ) {
+            for (uint256 i = 0; i < EnumerableSet.length(moderatorAddresses); i++) {
                 address recipient = EnumerableSet.at(moderatorAddresses, i);
                 uint256 share = moderators[recipient].share;
                 SafeTransferLib.safeTransferETH(
@@ -135,16 +124,11 @@ contract ModerationTeam is Ownable {
     /*
     VIEWS
     */
-    function getAuthorizations(
-        address userAddress
-    ) external view returns (uint256[] memory) {
+    function getAuthorizations(address userAddress) external view returns (uint256[] memory) {
         return moderators[userAddress].authorizations;
     }
 
-    function isAuthorized(
-        address userAddress,
-        uint256 authorization
-    ) external view returns (bool) {
+    function isAuthorized(address userAddress, uint256 authorization) external view returns (bool) {
         bool isModAuthorized = false;
         uint256[] memory modAuth = moderators[userAddress].authorizations;
         for (uint256 i = 0; i < modAuth.length; i++) {

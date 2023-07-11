@@ -13,9 +13,7 @@ contract AllowMint is IAllowMint, Ownable {
         issuerMod = _issuerMod;
     }
 
-    function updateIssuerModerationContract(
-        address _address
-    ) external onlyOwner {
+    function updateIssuerModerationContract(address _address) external onlyOwner {
         issuerMod = _address;
     }
 

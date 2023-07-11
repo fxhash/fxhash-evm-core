@@ -17,21 +17,15 @@ contract OnChainTokenMetadataManager is IOnChainTokenMetadataManager {
         bytes calldata _metadata,
         bytes calldata _onChainData
     ) external view returns (string memory) {
-        TokenAttribute[] memory tokenMetadata = abi.decode(
-            _metadata,
-            (TokenAttribute[])
-        );
-        WrappedScriptRequest[] memory request = abi.decode(
-            _onChainData,
-            (WrappedScriptRequest[])
-        );
+        TokenAttribute[] memory tokenMetadata = abi.decode(_metadata, (TokenAttribute[]));
+        WrappedScriptRequest[] memory request = abi.decode(_onChainData, (WrappedScriptRequest[]));
 
-        uint256 bufferSize = scriptyAddress.getBufferSizeForEncodedHTMLWrapped(
-            request
-        );
+        uint256 bufferSize = scriptyAddress.getBufferSizeForEncodedHTMLWrapped(request);
 
-        bytes memory base64EncodedHTMLDataURI = scriptyAddress
-            .getEncodedHTMLWrapped(request, bufferSize);
+        bytes memory base64EncodedHTMLDataURI = scriptyAddress.getEncodedHTMLWrapped(
+            request,
+            bufferSize
+        );
 
         string memory metadata = string.concat(
             '{"',
@@ -61,10 +55,7 @@ contract OnChainTokenMetadataManager is IOnChainTokenMetadataManager {
 
         return
             string(
-                abi.encodePacked(
-                    "data:application/json;base64,",
-                    Base64.encode(packedMetadata)
-                )
+                abi.encodePacked("data:application/json;base64,", Base64.encode(packedMetadata))
             );
     }
 }

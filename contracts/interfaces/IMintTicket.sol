@@ -25,11 +25,7 @@ interface IMintTicket {
 
     function transferFrom(address from, address to, uint256 tokenId) external;
 
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) external;
+    function safeTransferFrom(address from, address to, uint256 tokenId) external;
 
     function safeTransferFrom(
         address from,
@@ -38,18 +34,11 @@ interface IMintTicket {
         bytes calldata data
     ) external;
 
-    function createProject(
-        uint256 gracingPeriod,
-        string calldata metadata
-    ) external;
+    function createProject(uint256 gracingPeriod, string calldata metadata) external;
 
     function mint(address minter, uint256 price) external;
 
-    function updatePrice(
-        uint256 tokenId,
-        uint256 price,
-        uint256 coverage
-    ) external payable;
+    function updatePrice(uint256 tokenId, uint256 price, uint256 coverage) external payable;
 
     function payTax(uint256 tokenId) external payable;
 
@@ -60,9 +49,5 @@ interface IMintTicket {
         address transferTo
     ) external payable;
 
-    function consume(
-        address owner,
-        uint256 tokenId,
-        address issuer
-    ) external payable;
+    function consume(address owner, uint256 tokenId, address issuer) external payable;
 }

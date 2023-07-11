@@ -166,9 +166,7 @@ contract ScriptyBuilder is IScriptyBuilder {
         unchecked {
             do {
                 request = requests[i];
-                (wrapPrefix, wrapSuffix) = wrapURLSafePrefixAndSuffixFor(
-                    request
-                );
+                (wrapPrefix, wrapSuffix) = wrapURLSafePrefixAndSuffixFor(request);
                 htmlFile.appendSafe(wrapPrefix);
 
                 // convert raw code into base64
@@ -377,9 +375,7 @@ contract ScriptyBuilder is IScriptyBuilder {
      * @param request - InlineScriptRequest data for code
      * @return Buffer size as an unit256
      */
-    function getInlineScriptSize(
-        InlineScriptRequest memory request
-    ) public view returns (uint256) {
+    function getInlineScriptSize(InlineScriptRequest memory request) public view returns (uint256) {
         return
             fetchScript(
                 request.name,
@@ -398,10 +394,7 @@ contract ScriptyBuilder is IScriptyBuilder {
         WrappedScriptRequest memory request
     ) public view returns (uint256) {
         unchecked {
-            (
-                bytes memory wrapPrefix,
-                bytes memory wrapSuffix
-            ) = wrapPrefixAndSuffixFor(request);
+            (bytes memory wrapPrefix, bytes memory wrapSuffix) = wrapPrefixAndSuffixFor(request);
 
             uint256 scriptSize = fetchScript(
                 request.name,
@@ -425,10 +418,9 @@ contract ScriptyBuilder is IScriptyBuilder {
         WrappedScriptRequest memory request
     ) public view returns (uint256) {
         unchecked {
-            (
-                bytes memory wrapPrefix,
-                bytes memory wrapSuffix
-            ) = wrapURLSafePrefixAndSuffixFor(request);
+            (bytes memory wrapPrefix, bytes memory wrapSuffix) = wrapURLSafePrefixAndSuffixFor(
+                request
+            );
 
             uint256 scriptSize = fetchScript(
                 request.name,
@@ -567,8 +559,7 @@ contract ScriptyBuilder is IScriptyBuilder {
             return scriptContent;
         }
 
-        return
-            IContractScript(storageAddress).getScript(scriptName, contractData);
+        return IContractScript(storageAddress).getScript(scriptName, contractData);
     }
 
     /**
@@ -673,9 +664,7 @@ contract ScriptyBuilder is IScriptyBuilder {
      * @param value - Starting buffer size
      * @return Final buffer size as uint256
      */
-    function sizeForBase64Encoding(
-        uint256 value
-    ) internal pure returns (uint256) {
+    function sizeForBase64Encoding(uint256 value) internal pure returns (uint256) {
         unchecked {
             return 4 * ((value + 2) / 3);
         }

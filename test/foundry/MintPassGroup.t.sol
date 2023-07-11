@@ -6,20 +6,14 @@ import {MintPassGroup} from "contracts/mint-pass-group/MintPassGroup.sol";
 
 contract MintPassGroupTest is Test {
     address public admin =
-        vm.addr(
-            0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
-        );
+        vm.addr(0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80);
     bytes32 public fxHashAdminPk =
         0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d;
     address public fxHashAdmin = vm.addr(uint256(fxHashAdminPk));
     address public user1 =
-        vm.addr(
-            0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a
-        );
+        vm.addr(0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a);
     address public user2 =
-        vm.addr(
-            0x7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6
-        );
+        vm.addr(0x7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6);
 
     /// project details
     string public token = "TOKEN1";
@@ -47,9 +41,7 @@ contract GetProjectHash is MintPassGroupTest {
 
 contract IsValidPass is MintPassGroupTest {
     function test_RevertsWhenSignatureInvalid() public {
-        bytes memory payload = abi.encode(
-            MintPassGroup.Payload(token, project, addr)
-        );
+        bytes memory payload = abi.encode(MintPassGroup.Payload(token, project, addr));
         bytes memory pass = abi.encode(MintPassGroup.Pass(payload, ""));
         vm.expectRevert("PASS_INVALID_SIGNATURE");
         mintPassGroup.isPassValid(pass, addr);
@@ -58,9 +50,7 @@ contract IsValidPass is MintPassGroupTest {
 
 contract ConsumePass is MintPassGroupTest {
     function test_RevertsWhenSignatureInvalid() public {
-        bytes memory payload = abi.encode(
-            MintPassGroup.Payload(token, project, addr)
-        );
+        bytes memory payload = abi.encode(MintPassGroup.Payload(token, project, addr));
         bytes memory pass = abi.encode(MintPassGroup.Pass(payload, ""));
         /// this is the 2nd Admin (mintPass)
         vm.prank(fxHashAdmin);
@@ -96,10 +86,7 @@ contract SetBypass is MintPassGroupTest {
         address[] memory bypassArray = new address[](1);
         bypassArray[0] = fxHashAdmin;
         mintPassGroup.setBypass(bypassArray);
-        assertTrue(
-            mintPassGroup.getBypass().length == 1,
-            "Bypass array not set"
-        );
+        assertTrue(mintPassGroup.getBypass().length == 1, "Bypass array not set");
         /// check contents
     }
 
@@ -120,9 +107,6 @@ contract GetBypass is MintPassGroupTest {
         address[] memory bypassArray = new address[](1);
         bypassArray[0] = fxHashAdmin;
         mintPassGroup.setBypass(bypassArray);
-        assertTrue(
-            mintPassGroup.getBypass().length == 1,
-            "Bypass array not set"
-        );
+        assertTrue(mintPassGroup.getBypass().length == 1, "Bypass array not set");
     }
 }

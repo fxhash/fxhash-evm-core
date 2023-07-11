@@ -26,8 +26,7 @@ contract AddCycle is CyclesTest {
 
     function test_addCycle() public {
         cycles.addCycle(params);
-        (uint256 start, uint256 openDuration, uint256 closeDuration) = cycles
-            .cycles(0);
+        (uint256 start, uint256 openDuration, uint256 closeDuration) = cycles.cycles(0);
         assertEq(start, params.start);
         assertEq(openDuration, params.openingDuration);
         assertEq(closeDuration, params.closingDuration);

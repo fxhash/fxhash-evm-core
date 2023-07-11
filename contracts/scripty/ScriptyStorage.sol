@@ -64,10 +64,7 @@ contract ScriptyStorage is Ownable, IScriptyStorage, IContractScript {
      *
      * Emits an {ScriptCreated} event.
      */
-    function createScript(
-        string calldata name,
-        bytes calldata details
-    ) public canCreate(name) {
+    function createScript(string calldata name, bytes calldata details) public canCreate(name) {
         scripts[name] = Script(false, msg.sender, 0, details, new address[](0));
         emit ScriptCreated(name, msg.sender, details);
     }
@@ -79,10 +76,7 @@ contract ScriptyStorage is Ownable, IScriptyStorage, IContractScript {
      *
      * Emits an {ChunkStored} event.
      */
-    function addChunkToScript(
-        string calldata name,
-        bytes calldata chunk
-    ) public scriptOwner(name) {
+    function addChunkToScript(string calldata name, bytes calldata chunk) public scriptOwner(name) {
         (, address pointer) = contentStore.addContent(chunk);
         scripts[name].chunks.push(pointer);
         scripts[name].size += chunk.length;
@@ -96,10 +90,7 @@ contract ScriptyStorage is Ownable, IScriptyStorage, IContractScript {
      *
      * Emits an {ScriptDetailsUpdated} event.
      */
-    function updateDetails(
-        string calldata name,
-        bytes calldata details
-    ) public scriptOwner(name) {
+    function updateDetails(string calldata name, bytes calldata details) public scriptOwner(name) {
         scripts[name].details = details;
         emit ScriptDetailsUpdated(name, msg.sender, details);
     }
@@ -111,10 +102,7 @@ contract ScriptyStorage is Ownable, IScriptyStorage, IContractScript {
      *
      * Emits an {ScriptVerificationUpdated} event.
      */
-    function updateScriptVerification(
-        string calldata name,
-        bool isVerified
-    ) public onlyOwner {
+    function updateScriptVerification(string calldata name, bool isVerified) public onlyOwner {
         scripts[name].isVerified = isVerified;
         emit ScriptVerificationUpdated(name, isVerified);
     }
