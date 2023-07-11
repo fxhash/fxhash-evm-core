@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
+import "contracts/interfaces/IIssuer.sol";
+
 interface IMintTicket {
     struct TokenData {
-        uint256 projectId;
+        address issuer;
         address minter;
         uint256 createdAt;
         uint256 taxationLocked;
@@ -23,11 +25,7 @@ interface IMintTicket {
 
     function transferFrom(address from, address to, uint256 tokenId) external;
 
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) external;
+    function safeTransferFrom(address from, address to, uint256 tokenId) external;
 
     function safeTransferFrom(
         address from,
@@ -36,19 +34,11 @@ interface IMintTicket {
         bytes calldata data
     ) external;
 
-    function createProject(
-        uint256 projectId,
-        uint256 gracingPeriod,
-        string calldata metadata
-    ) external;
+    function createProject(uint256 gracingPeriod, string calldata metadata) external;
 
-    function mint(uint256 projectId, address minter, uint256 price) external;
+    function mint(address minter, uint256 price) external;
 
-    function updatePrice(
-        uint256 tokenId,
-        uint256 price,
-        uint256 coverage
-    ) external payable;
+    function updatePrice(uint256 tokenId, uint256 price, uint256 coverage) external payable;
 
     function payTax(uint256 tokenId) external payable;
 
@@ -59,9 +49,5 @@ interface IMintTicket {
         address transferTo
     ) external payable;
 
-    function consume(
-        address owner,
-        uint256 tokenId,
-        uint256 projectId
-    ) external payable;
+    function consume(address owner, uint256 tokenId, address issuer) external payable;
 }

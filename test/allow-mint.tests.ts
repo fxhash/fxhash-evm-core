@@ -1,32 +1,35 @@
 import { ethers } from "hardhat";
-import { Contract, Signer } from "ethers";
+import { Contract, Signer, Wallet } from "ethers";
 import { expect } from "chai";
 
-describe("AllowMint", function () {
-  let admin: Signer;
-  let nonAdmin: Signer;
-  let moderatorToken: Contract;
-  let moderationTeam: Contract;
-  let allowMint: Contract;
-  let userActions: Contract;
-  const authorizations = [10];
+const provider = ethers.provider;
+// Create and connect the wallets
+const admin = new ethers.Wallet(
+  "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+).connect(provider);
+let nonAdmin: Signer;
+let moderationIssuer: Contract;
+let moderationTeam: Contract;
+let allowMint: Contract;
+const authorizations = [10];
 
+describe("AllowMint", function () {
   beforeEach(async function () {
     await ethers.provider.send("hardhat_reset", []);
 
-    [admin, nonAdmin] = await ethers.getSigners();
-
-    const ModerationToken = await ethers.getContractFactory("ModerationToken");
-    moderatorToken = await ModerationToken.deploy(await admin.getAddress());
-    await moderatorToken.deployed();
+    [nonAdmin] = await ethers.getSigners();
 
     const ModerationTeam = await ethers.getContractFactory("ModerationTeam");
 
-    moderationTeam = await ModerationTeam.deploy(admin.getAddress());
+    moderationTeam = await ModerationTeam.deploy();
     await moderationTeam.deployed();
-    await moderatorToken.setAddresses([
-      { key: "mod", value: moderationTeam.address },
-    ]);
+
+    const ModerationIssuer = await ethers.getContractFactory(
+      "ModerationIssuer"
+    );
+    moderationIssuer = await ModerationIssuer.deploy(moderationTeam.address);
+    await moderationIssuer.deployed();
+
     await moderationTeam.connect(admin).updateModerators([
       {
         moderator: await admin.getAddress(),
@@ -34,28 +37,17 @@ describe("AllowMint", function () {
       },
     ]);
 
-    const UserActionsFactory = await ethers.getContractFactory("UserActions");
-    userActions = await UserActionsFactory.deploy(await admin.getAddress());
-    await userActions.deployed();
-
     const AllowMintFactory = await ethers.getContractFactory("AllowMint");
-    allowMint = await AllowMintFactory.deploy(
-      await admin.getAddress(),
-      moderatorToken.address,
-      userActions.address
-    );
-
+    allowMint = await AllowMintFactory.deploy(moderationIssuer.address);
     await allowMint.deployed();
-    await userActions.connect(admin).authorizeCaller(allowMint.address);
-    await userActions.connect(admin).authorizeCaller(await admin.getAddress());
   });
 
   it("should allow minting when the token is not moderated and batch minting is allowed", async function () {
     const addr = await admin.getAddress();
     const timestamp = Math.floor(Date.now() / 1000);
-    const id = 1;
+    const tokenContract = await nonAdmin.getAddress();
 
-    const isAllowed = await allowMint.isAllowed(addr, timestamp, id);
+    const isAllowed = await allowMint.isAllowed(tokenContract);
 
     expect(isAllowed).to.be.true;
   });
@@ -63,29 +55,18 @@ describe("AllowMint", function () {
   it("should throw an error when the token is moderated", async function () {
     const addr = await admin.getAddress();
     const timestamp = Math.floor(Date.now() / 1000);
-    const id = 1;
+    const tokenContract = await nonAdmin.getAddress();
 
     const state = 2;
     const reason = 0;
-    await moderatorToken.connect(admin).reasonAdd("reason");
+    await moderationIssuer.connect(admin).reasonAdd("reason");
 
-    await moderatorToken.connect(admin).moderateToken(id, state, reason);
+    await moderationIssuer
+      .connect(admin)
+      .moderateIssuer(tokenContract, state, reason);
     // The function call should revert with the 'TOKEN_MODERATED' error message
-    await expect(allowMint.isAllowed(addr, timestamp, id)).to.be.revertedWith(
-      "TOKEN_MODERATED"
-    );
-  });
-
-  it("should throw an error when batch minting is not allowed", async function () {
-    const addr = await admin.getAddress();
-    const timestamp = Math.floor(Date.now() / 1000) * 2;
-    const id = 1;
-    await ethers.provider.send("evm_setNextBlockTimestamp", [timestamp - 1]);
-    await ethers.provider.send("evm_mine", []);
-
-    await userActions.setLastMinted(addr, id);
-    await expect(allowMint.isAllowed(addr, timestamp, id)).to.be.revertedWith(
-      "NO_BATCH_MINTING"
-    );
+    await expect(
+      allowMint.isAllowed(tokenContract)
+    ).to.be.revertedWith("TOKEN_MODERATED");
   });
 });

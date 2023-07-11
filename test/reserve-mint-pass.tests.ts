@@ -4,6 +4,8 @@ import { expect } from "chai";
 
 describe("ReserveMintPass", () => {
   let reserve: Contract;
+  let reserveManager: Contract;
+
   let group: Contract;
   let owner: Signer;
   let addr1: Signer;
@@ -11,15 +13,22 @@ describe("ReserveMintPass", () => {
   beforeEach(async () => {
     [owner, addr1] = await ethers.getSigners();
 
+    // Deploy ReserveManager
+    const ReserveManagerFactory = await ethers.getContractFactory(
+      "ReserveManager"
+    );
+    reserveManager = await ReserveManagerFactory.deploy();
+
     const ReserveMintPass = await ethers.getContractFactory("ReserveMintPass");
-    reserve = await ReserveMintPass.deploy();
+    reserve = await ReserveMintPass.deploy(await owner.getAddress());
     await reserve.deployed();
 
     const MintPassGroup = await ethers.getContractFactory("MintPassGroup");
     group = await MintPassGroup.deploy(
       10, // maxPerToken
       5, // maxPerTokenPerProject
-      owner.getAddress(), // publicKey
+      await owner.getAddress(),
+      await owner.getAddress(), // publicKey
       []
     );
     await group.deployed();
@@ -92,11 +101,11 @@ describe("ReserveMintPass", () => {
 
     it("should not apply the method if user input or current amount is missing", async () => {
       const token = "TOKEN1";
-      const project = 0;
+      const project = await addr1.getAddress();
       const addr = await addr1.getAddress();
       const target = group.address;
       const payload = ethers.utils.defaultAbiCoder.encode(
-        ["tuple(string,uint256,address)"],
+        ["tuple(string,address,address)"],
         [[token, project, await addr1.getAddress()]]
       );
       const signature = await owner.signMessage(ethers.utils.arrayify(payload));
@@ -119,7 +128,7 @@ describe("ReserveMintPass", () => {
         sender: addr,
       };
       await expect(
-        reserve.connect(addr1).applyReserve(params)
+        reserve.connect(owner).applyReserve(params, addr)
       ).to.be.revertedWith("INVALID_CURRENT_AMOUNT");
     });
   });

@@ -8,10 +8,8 @@ import {ScriptyStorage} from "contracts/scripty/ScriptyStorage.sol";
 import {ScriptyBuilder} from "contracts/scripty/ScriptyBuilder.sol";
 import {ReserveWhitelist} from "contracts/reserve/ReserveWhitelist.sol";
 import {ReserveMintPass} from "contracts/reserve/ReserveMintPass.sol";
-import {ModerationToken} from "contracts/moderation/ModerationToken.sol";
 import {ModerationUser} from "contracts/moderation/ModerationUser.sol";
 import {ModerationTeam} from "contracts/moderation/ModerationTeam.sol";
-import {UserActions} from "contracts/issuer/UserActions.sol";
 import {AllowMint} from "contracts/allow-mint/AllowMint.sol";
 import {AllowMintIssuer} from "contracts/allow-mint/AllowMintIssuer.sol";
 import {PricingDutchAuction} from "contracts/pricing/PricingDutchAuction.sol";
@@ -41,10 +39,8 @@ contract Deploy is Script {
     ReserveWhitelist public reserveWhitelist;
     ReserveMintPass public reserveMintPass;
     MintPassGroup public mintPassGroup;
-    ModerationToken public moderationToken;
     ModerationTeam public moderationTeam;
     ModerationUser public moderationUser;
-    UserActions public userActions;
     AllowMint public allowMint;
     PricingDutchAuction public pricingDA;
     PricingFixed public pricingFixed;
@@ -64,30 +60,20 @@ contract Deploy is Script {
         reserveWhitelist = new ReserveWhitelist();
         reserveMintPass = new ReserveMintPass();
         mintPassGroup = new MintPassGroup(
-            10, /* maxPerToken */
-            5, /* maxPerTokenPerProject */
-            admin, /* signer (authorized caller)*/
+            10 /* maxPerToken */,
+            5 /* maxPerTokenPerProject */,
+            admin /* signer (authorized caller)*/,
             new address[](0) /* bypass array */
         );
-        moderationToken = new ModerationToken(admin);
         moderationTeam = new ModerationTeam(admin);
         moderationUser = new ModerationUser(admin);
-        userActions = new UserActions(admin);
-        allowMint = new AllowMint(
-            admin,
-            address(moderationToken),
-            address(userActions)
-        );
+        allowMint = new AllowMint(admin);
         pricingDA = new PricingDutchAuction();
         pricingFixed = new PricingFixed();
         randomizer = new Randomizer(keccak256("seed"), keccak256("salt"));
-        pricingManager = new PricingManager(admin);
-        reserveManager = new ReserveManager(admin);
-        allowMintIssuer = new AllowMintIssuer(
-            admin,
-            address(moderationUser),
-            address(userActions)
-        );
+        pricingManager = new PricingManager();
+        reserveManager = new ReserveManager();
+        allowMintIssuer = new AllowMintIssuer(admin);
         issuer = new Issuer(IIssuer.Config(2500, 1000, 1000, ""), admin);
         mintTicket = new MintTicket(
             admin,

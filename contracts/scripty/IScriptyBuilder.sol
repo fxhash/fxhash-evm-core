@@ -32,7 +32,6 @@ struct InlineScriptRequest {
 }
 
 interface IScriptyBuilder {
-
     // =============================================================
     //                            ERRORS
     // =============================================================
@@ -203,20 +202,18 @@ interface IScriptyBuilder {
      * @param request - InlineScriptRequest data for code
      * @return Buffer size as an unit256
      */
-    function getInlineScriptSize(InlineScriptRequest memory request)
-        external
-        view
-        returns (uint256);
+    function getInlineScriptSize(
+        InlineScriptRequest memory request
+    ) external view returns (uint256);
 
     /**
      * @notice Get the buffer size of a single wrapped requested code
      * @param request - WrappedScriptRequest data for code
      * @return Buffer size as an unit256
      */
-    function getWrappedScriptSize(WrappedScriptRequest memory request)
-        external
-        view
-        returns (uint256);
+    function getWrappedScriptSize(
+        WrappedScriptRequest memory request
+    ) external view returns (uint256);
 
     /**
      * @notice Get the buffer size of a single wrapped requested code
@@ -225,20 +222,18 @@ interface IScriptyBuilder {
      * @param request - WrappedScriptRequest data for code
      * @return Buffer size as an unit256
      */
-    function getURLSafeWrappedScriptSize(WrappedScriptRequest memory request)
-    external
-    view
-    returns (uint256);
+    function getURLSafeWrappedScriptSize(
+        WrappedScriptRequest memory request
+    ) external view returns (uint256);
 
     /**
      * @notice Get the buffer size of an array of html wrapped inline scripts
      * @param requests - InlineScriptRequests data for code
      * @return Buffer size as an unit256
      */
-    function getBufferSizeForHTMLInline(InlineScriptRequest[] calldata requests)
-        external
-        view
-        returns (uint256);
+    function getBufferSizeForHTMLInline(
+        InlineScriptRequest[] calldata requests
+    ) external view returns (uint256);
 
     /**
      * @notice Get the buffer size of an array of html wrapped, wrapped scripts
@@ -257,7 +252,7 @@ interface IScriptyBuilder {
     function getBufferSizeForURLSafeHTMLWrapped(
         WrappedScriptRequest[] calldata requests
     ) external view returns (uint256);
-    
+
     /**
      * @notice Get the buffer size for encoded HTML inline scripts
      * @param requests - InlineScriptRequests data for code

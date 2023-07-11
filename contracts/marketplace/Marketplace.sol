@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/interfaces/IERC2981.sol";
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
 import "@openzeppelin/contracts/interfaces/IERC1155.sol";
 import "contracts/abstract/admin/AuthorizedCaller.sol";
+import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
 
 contract Marketplace is AuthorizedCaller {
     enum TokenType {
@@ -75,12 +76,7 @@ contract Marketplace is AuthorizedCaller {
     );
     event ListingCanceled(uint256 listingId);
     event ListingBought(uint256 listingId, Referrer[] referrers, address buyer);
-    event NewOffer(
-        Asset[] assetList,
-        uint256 amount,
-        uint256 currency,
-        address buyer
-    );
+    event NewOffer(Asset[] assetList, uint256 amount, uint256 currency, address buyer);
     event OfferCanceled(uint256 offerId);
     event OfferAccepted(
         uint256 offerId,
@@ -126,10 +122,7 @@ contract Marketplace is AuthorizedCaller {
         treasury = _treasury;
     }
 
-    function addCurrency(
-        uint256 _currencyId,
-        Currency calldata _currency
-    ) external onlyAdmin {
+    function addCurrency(uint256 _currencyId, Currency calldata _currency) external onlyAdmin {
         currencies[_currencyId] = _currency;
     }
 
@@ -143,40 +136,28 @@ contract Marketplace is AuthorizedCaller {
         uint256 _currency,
         uint256 _amount
     ) external {
-        require(
-            assetContracts[_assetContract] == true,
-            "ASSET_CONTRACT_NOT_ENABLED"
-        );
+        require(assetContracts[_assetContract] == true, "ASSET_CONTRACT_NOT_ENABLED");
         require(currencies[_currency].enabled == true, "CURRENCY_DISABLED");
         require(_amount > 0, "AMOUNT_IS_0");
 
         listings[listingSequence] = Listing({
             asset: Asset({assetContract: _assetContract, tokenId: _tokenId}),
-            seller: _msgSender(),
+            seller: msg.sender,
             currency: _currency,
             amount: _amount
         });
         listingSequence++;
-        emit NewListing(
-            _assetContract,
-            _tokenId,
-            _currency,
-            _amount,
-            _msgSender()
-        );
+        emit NewListing(_assetContract, _tokenId, _currency, _amount, msg.sender);
     }
 
     function cancelListing(uint256 _listingId) external {
         Listing storage listing = listings[_listingId];
-        require(listing.seller == _msgSender(), "NOT_AUTHORIZED");
+        require(listing.seller == msg.sender, "NOT_AUTHORIZED");
         delete listings[_listingId];
         emit ListingCanceled(_listingId);
     }
 
-    function buyListing(
-        uint256 _listingId,
-        Referrer[] calldata _referrers
-    ) external payable {
+    function buyListing(uint256 _listingId, Referrer[] calldata _referrers) external payable {
         Listing memory listing = listings[_listingId];
         require(listing.seller != address(0), "LISTING_NOT_EXISTS");
         Currency memory currency = currencies[listing.currency];
@@ -190,7 +171,7 @@ contract Marketplace is AuthorizedCaller {
                 assetContract: listing.asset.assetContract,
                 tokenId: listing.asset.tokenId,
                 owner: listing.seller,
-                receiver: _msgSender(),
+                receiver: msg.sender,
                 amount: 1,
                 tokenType: TokenType.ERC721
             })
@@ -200,11 +181,11 @@ contract Marketplace is AuthorizedCaller {
             listing.asset,
             currency,
             _referrers,
-            _msgSender(),
+            msg.sender,
             listing.seller,
             listing.amount
         );
-        emit ListingBought(_listingId, _referrers, _msgSender());
+        emit ListingBought(_listingId, _referrers, msg.sender);
     }
 
     function offer(
@@ -227,20 +208,20 @@ contract Marketplace is AuthorizedCaller {
         }
         offers[offerSequence] = Offer({
             assets: abi.encode(_assetList),
-            buyer: _msgSender(),
+            buyer: msg.sender,
             amount: _amount,
             currency: _currency
         });
         offerSequence++;
-        emit NewOffer(_assetList, _amount, _currency, _msgSender());
+        emit NewOffer(_assetList, _amount, _currency, msg.sender);
     }
 
     function cancelOffer(uint256 _offerId) external {
         Offer memory storedOffer = offers[_offerId];
-        require(storedOffer.buyer == _msgSender(), "NOT_AUTHORIZED");
+        require(storedOffer.buyer == msg.sender, "NOT_AUTHORIZED");
         delete offers[_offerId];
         if (currencies[storedOffer.currency].currencyType == TokenType.ETH) {
-            payable(storedOffer.buyer).transfer(storedOffer.amount);
+            SafeTransferLib.safeTransferETH(storedOffer.buyer, storedOffer.amount);
         }
         emit OfferCanceled(_offerId);
     }
@@ -255,10 +236,7 @@ contract Marketplace is AuthorizedCaller {
         bool assetFound = false;
         Asset[] memory assets = abi.decode(storedOffer.assets, (Asset[]));
         for (uint256 i = 0; i < assets.length; i++) {
-            if (
-                assets[i].assetContract == _assetContract &&
-                assets[i].tokenId == _tokenId
-            ) {
+            if (assets[i].assetContract == _assetContract && assets[i].tokenId == _tokenId) {
                 assetFound = true;
             }
         }
@@ -270,7 +248,7 @@ contract Marketplace is AuthorizedCaller {
             TransferParams({
                 assetContract: _assetContract,
                 tokenId: _tokenId,
-                owner: _msgSender(),
+                owner: msg.sender,
                 receiver: storedOffer.buyer,
                 amount: 1,
                 tokenType: TokenType.ERC721
@@ -282,21 +260,13 @@ contract Marketplace is AuthorizedCaller {
             currency,
             _referrers,
             storedOffer.buyer,
-            _msgSender(),
+            msg.sender,
             storedOffer.amount
         );
-        emit OfferAccepted(
-            _offerId,
-            _assetContract,
-            _tokenId,
-            _referrers,
-            _msgSender()
-        );
+        emit OfferAccepted(_offerId, _assetContract, _tokenId, _referrers, msg.sender);
     }
 
-    function decodeCurrencyData(
-        Currency memory _currency
-    ) private pure returns (address, uint256) {
+    function decodeCurrencyData(Currency memory _currency) private pure returns (address, uint256) {
         if (_currency.currencyType == TokenType.ETH) {
             return (address(0), 0);
         } else if (_currency.currencyType == TokenType.ERC20) {
@@ -313,7 +283,7 @@ contract Marketplace is AuthorizedCaller {
 
     function transfer(TransferParams memory _params) private {
         if (_params.tokenType == TokenType.ETH) {
-            payable(_params.owner).transfer(_params.amount);
+            SafeTransferLib.safeTransferETH(_params.owner, _params.amount);
         } else if (_params.tokenType == TokenType.ERC20) {
             IERC20(_params.assetContract).transferFrom(
                 _params.owner,
@@ -345,10 +315,9 @@ contract Marketplace is AuthorizedCaller {
         address _receiver,
         uint256 _amount
     ) private {
-        (
-            address decodedCurrencyContract,
-            uint256 decodedCurrencyTokenId
-        ) = decodeCurrencyData(_currency);
+        (address decodedCurrencyContract, uint256 decodedCurrencyTokenId) = decodeCurrencyData(
+            _currency
+        );
         uint256 paidRoyalties = payAssetRoyalties(
             _asset.assetContract,
             _asset.tokenId,
@@ -416,8 +385,10 @@ contract Marketplace is AuthorizedCaller {
         uint256 _currencyTokenId,
         TokenType _tokenType
     ) private returns (uint256) {
-        (address receiver, uint256 royaltiesAmount) = IERC2981(_contract)
-            .royaltyInfo(_tokenId, _amount);
+        (address receiver, uint256 royaltiesAmount) = IERC2981(_contract).royaltyInfo(
+            _tokenId,
+            _amount
+        );
         transfer(
             TransferParams({
                 assetContract: _currencyContract,

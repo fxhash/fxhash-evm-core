@@ -8,10 +8,7 @@ abstract contract AuthorizedCaller is AdminVerify {
     bytes32 public constant AUTHORIZED_CALLER = keccak256("AUTHORIZED_CALLER");
 
     modifier onlyAuthorizedCaller() {
-        require(
-            AccessControl.hasRole(AUTHORIZED_CALLER, _msgSender()),
-            "Caller is not authorized"
-        );
+        require(AccessControl.hasRole(AUTHORIZED_CALLER, msg.sender), "Caller is not authorized");
         _;
     }
 

@@ -6,11 +6,10 @@ import "contracts/libs/LibReserve.sol";
 interface IReserve {
     event MethodApplied(bool applied, bytes data);
 
-    function isInputValid(
-        LibReserve.InputParams calldata params
-    ) external pure returns (bool);
+    function isInputValid(LibReserve.InputParams calldata params) external pure returns (bool);
 
     function applyReserve(
-        LibReserve.ApplyParams calldata params
+        LibReserve.ApplyParams calldata params,
+        address caller
     ) external returns (bool, bytes memory);
 }

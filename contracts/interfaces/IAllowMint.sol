@@ -2,9 +2,5 @@
 pragma solidity ^0.8.18;
 
 interface IAllowMint {
-    function isAllowed(
-        address addr,
-        uint256 timestamp,
-        uint256 id
-    ) external view returns (bool);
+    function isAllowed(address tokenContract) external view returns (bool);
 }
