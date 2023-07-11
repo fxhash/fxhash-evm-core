@@ -53,13 +53,19 @@ contract Randomizer is AuthorizedCaller {
         emit RandomizerGenerate(tokenId, storedSeed);
     }
 
-    function reveal(TokenKey[] memory tokenList, bytes32 seed) external onlyAuthorizedCaller {
+    function reveal(
+        TokenKey[] memory tokenList,
+        bytes32 seed
+    ) external onlyAuthorizedCaller {
         uint256 lastSerial = setTokenSeedAndReturnSerial(tokenList[0], seed);
         uint256 expectedSerialId = lastSerial;
         bytes32 oracleSeed = iterateOracleSeed(seed);
         for (uint256 i = 1; i < tokenList.length; i++) {
             expectedSerialId -= 1;
-            uint256 serialId = setTokenSeedAndReturnSerial(tokenList[i], oracleSeed);
+            uint256 serialId = setTokenSeedAndReturnSerial(
+                tokenList[i],
+                oracleSeed
+            );
             require(expectedSerialId == serialId, "OOR");
             oracleSeed = iterateOracleSeed(oracleSeed);
             emit RandomizerReveal(tokenList[i].tokenId, oracleSeed);
@@ -76,7 +82,10 @@ contract Randomizer is AuthorizedCaller {
         commitment.salt = salt;
     }
 
-    function getTokenKey(address issuer, uint256 id) public pure returns (bytes32) {
+    function getTokenKey(
+        address issuer,
+        uint256 id
+    ) public pure returns (bytes32) {
         return keccak256(abi.encodePacked(issuer, id));
     }
 
@@ -84,14 +93,18 @@ contract Randomizer is AuthorizedCaller {
         TokenKey memory tokenKey,
         bytes32 oracleSeed
     ) private returns (uint256) {
-        Seed storage seed = seeds[getTokenKey(tokenKey.issuer, tokenKey.tokenId)];
+        Seed storage seed = seeds[
+            getTokenKey(tokenKey.issuer, tokenKey.tokenId)
+        ];
         require(seed.chainSeed != 0x00, "NO_REQ");
         bytes32 tokenSeed = keccak256(abi.encode(oracleSeed, seed.chainSeed));
         seed.revealed = tokenSeed;
         return seed.serialId;
     }
 
-    function iterateOracleSeed(bytes32 oracleSeed) private view returns (bytes32) {
+    function iterateOracleSeed(
+        bytes32 oracleSeed
+    ) private view returns (bytes32) {
         return keccak256(abi.encode(commitment.salt, oracleSeed));
     }
 }

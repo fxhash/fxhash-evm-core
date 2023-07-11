@@ -16,7 +16,9 @@ contract ConfigurationManager is IConfigurationManager, Ownable {
         return config;
     }
 
-    function setAddresses(ContractEntry[] calldata _addresses) external onlyOwner {
+    function setAddresses(
+        ContractEntry[] calldata _addresses
+    ) external onlyOwner {
         for (uint256 i = 0; i < _addresses.length; i++) {
             require(_addresses[i].value != address(0), "Address is null");
             addresses[_addresses[i].key] = _addresses[i].value;

@@ -18,7 +18,11 @@ contract MockIssuer {
     }
 
     //TODO: remove this placeholder (used for tests)
-    function consume(address owner, uint256 tokenId, address issuer) external payable {
+    function consume(
+        address owner,
+        uint256 tokenId,
+        address issuer
+    ) external payable {
         ticket.consume(owner, tokenId, issuer);
     }
 
@@ -32,7 +36,10 @@ contract MockIssuer {
     }
 
     //TODO: remove this placeholder (used for tests)
-    function createProject(uint256 gracingPeriod, string calldata metadata) external {
+    function createProject(
+        uint256 gracingPeriod,
+        string calldata metadata
+    ) external {
         ticket.createProject(gracingPeriod, metadata);
     }
 

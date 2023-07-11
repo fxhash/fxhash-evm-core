@@ -42,14 +42,21 @@ contract GenTk is ERC721URIStorage, Ownable, IERC2981, IGenTk {
     event TokenMetadataAssigned(TokenMetadata[] _params);
     event OnChainTokenMetadataAssigned(OnChainTokenMetadata[] _params);
 
-    constructor(address _owner, address _issuer, address _configManager) ERC721("GenTK", "GTK") {
+    constructor(
+        address _owner,
+        address _issuer,
+        address _configManager
+    ) ERC721("GenTK", "GTK") {
         issuer = IIssuer(_issuer);
         configManager = IConfigurationManager(_configManager);
         transferOwnership(_owner);
     }
 
     modifier onlySigner() {
-        require(msg.sender == configManager.getAddress("signer"), "Caller is not signer");
+        require(
+            msg.sender == configManager.getAddress("signer"),
+            "Caller is not signer"
+        );
         _;
     }
 
@@ -59,7 +66,10 @@ contract GenTk is ERC721URIStorage, Ownable, IERC2981, IGenTk {
     }
 
     modifier onlyFxHashAdmin() {
-        require(msg.sender == configManager.getAddress("admin"), "Caller is not FXHASH admin");
+        require(
+            msg.sender == configManager.getAddress("admin"),
+            "Caller is not FXHASH admin"
+        );
         _;
     }
 
@@ -75,20 +85,30 @@ contract GenTk is ERC721URIStorage, Ownable, IERC2981, IGenTk {
         emit TokenMinted(_params);
     }
 
-    function assignOnChainMetadata(OnChainTokenMetadata[] calldata _params) external onlySigner {
+    function assignOnChainMetadata(
+        OnChainTokenMetadata[] calldata _params
+    ) external onlySigner {
         for (uint256 i = 0; i < _params.length; i++) {
             OnChainTokenMetadata memory _tokenData = _params[i];
 
-            require(tokenData[_tokenData.tokenId].minter != address(0), "TOKEN_UNDEFINED");
+            require(
+                tokenData[_tokenData.tokenId].minter != address(0),
+                "TOKEN_UNDEFINED"
+            );
             _setTokenURI(_tokenData.tokenId, string(_tokenData.metadata));
         }
         emit OnChainTokenMetadataAssigned(_params);
     }
 
-    function assignMetadata(TokenMetadata[] calldata _params) external onlySigner {
+    function assignMetadata(
+        TokenMetadata[] calldata _params
+    ) external onlySigner {
         for (uint256 i = 0; i < _params.length; i++) {
             TokenMetadata memory _tokenData = _params[i];
-            require(tokenData[_tokenData.tokenId].minter != address(0), "TOKEN_UNDEFINED");
+            require(
+                tokenData[_tokenData.tokenId].minter != address(0),
+                "TOKEN_UNDEFINED"
+            );
             _setTokenURI(_tokenData.tokenId, _tokenData.metadata);
         }
         emit TokenMetadataAssigned(_params);
@@ -101,7 +121,9 @@ contract GenTk is ERC721URIStorage, Ownable, IERC2981, IGenTk {
         return issuer.royaltyInfo(tokenId, salePrice);
     }
 
-    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
+    function tokenURI(
+        uint256 tokenId
+    ) public view virtual override returns (string memory) {
         _requireMinted(tokenId);
         string memory _tokenURI = super.tokenURI(tokenId);
         TokenData memory _tokenData = tokenData[tokenId];

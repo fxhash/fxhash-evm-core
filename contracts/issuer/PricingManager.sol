@@ -19,7 +19,10 @@ contract PricingManager is Ownable {
     }
 
     function verifyPricingMethod(uint256 pricingId) external view {
-        require(address(pricingContracts[pricingId].pricingContract) != address(0), "PRC_MTD_NOT");
+        require(
+            address(pricingContracts[pricingId].pricingContract) != address(0),
+            "PRC_MTD_NOT"
+        );
         require(pricingContracts[pricingId].enabled == true, "PRC_MTD_DIS");
     }
 

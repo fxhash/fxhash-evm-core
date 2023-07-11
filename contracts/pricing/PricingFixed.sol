@@ -16,7 +16,10 @@ contract PricingFixed is IPricing {
     constructor() {}
 
     function setPrice(bytes memory details) external {
-        PriceDetails memory pricingDetails = abi.decode(details, (PriceDetails));
+        PriceDetails memory pricingDetails = abi.decode(
+            details,
+            (PriceDetails)
+        );
         require(pricingDetails.price > 0, "price <= 0");
         require(pricingDetails.opensAt > 0, "opensAt <= 0");
         pricings[msg.sender] = pricingDetails;

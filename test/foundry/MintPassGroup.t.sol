@@ -30,10 +30,10 @@ contract MintPassGroupTest is Test {
 
     function setUp() public virtual {
         mintPassGroup = new MintPassGroup(
-            10, /* maxPerToken */
-            5, /* maxPerTokenPerProject */
-            fxHashAdmin, /* signer (authorized caller)*/
-            fxHashAdmin, /* reserve Mint pass*/
+            10 /* maxPerToken */,
+            5 /* maxPerTokenPerProject */,
+            fxHashAdmin /* signer (authorized caller)*/,
+            fxHashAdmin /* reserve Mint pass*/,
             new address[](0) /* bypass array */
         );
     }
