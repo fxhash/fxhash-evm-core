@@ -30,10 +30,10 @@ contract MintPassGroupTest is Test {
 
     function setUp() public virtual {
         mintPassGroup = new MintPassGroup(
-            10 /* maxPerToken */,
-            5 /* maxPerTokenPerProject */,
-            fxHashAdmin /* signer (authorized caller)*/,
-            fxHashAdmin /* reserve Mint pass*/,
+            10, /* maxPerToken */
+            5, /* maxPerTokenPerProject */
+            fxHashAdmin, /* signer (authorized caller)*/
+            fxHashAdmin, /* reserve Mint pass*/
             new address[](0) /* bypass array */
         );
     }
@@ -62,6 +62,8 @@ contract ConsumePass is MintPassGroupTest {
             MintPassGroup.Payload(token, project, addr)
         );
         bytes memory pass = abi.encode(MintPassGroup.Pass(payload, ""));
+        /// this is the 2nd Admin (mintPass)
+        vm.prank(fxHashAdmin);
         vm.expectRevert("PASS_INVALID_SIGNATURE");
         mintPassGroup.consumePass(pass, addr);
     }
@@ -69,13 +71,13 @@ contract ConsumePass is MintPassGroupTest {
 
 contract SetConstraints is MintPassGroupTest {
     function test_RevertsWhenNotAuthorized() public {
+        vm.prank(address(420));
         vm.expectRevert();
         mintPassGroup.setConstraints(1, 1);
         /// check constraints
     }
 
     function test_setConstraints() public {
-        vm.prank(fxHashAdmin);
         mintPassGroup.setConstraints(1, 1);
         /// check constraints
     }
@@ -85,6 +87,7 @@ contract SetBypass is MintPassGroupTest {
     function test_RevertsWhenNotAuthorized() public {
         address[] memory bypassArray = new address[](1);
         bypassArray[0] = fxHashAdmin;
+        vm.prank(address(420));
         vm.expectRevert();
         mintPassGroup.setBypass(bypassArray);
     }
@@ -92,7 +95,6 @@ contract SetBypass is MintPassGroupTest {
     function test_setBypass() public {
         address[] memory bypassArray = new address[](1);
         bypassArray[0] = fxHashAdmin;
-        vm.prank(fxHashAdmin);
         mintPassGroup.setBypass(bypassArray);
         assertTrue(
             mintPassGroup.getBypass().length == 1,
@@ -104,10 +106,7 @@ contract SetBypass is MintPassGroupTest {
     function test_whenExists() public {
         address[] memory bypassArray = new address[](1);
         bypassArray[0] = fxHashAdmin;
-        vm.prank(fxHashAdmin);
         mintPassGroup.setBypass(bypassArray);
-        /// probably want to revert if duplicating
-        vm.prank(fxHashAdmin);
         mintPassGroup.setBypass(bypassArray);
     }
 }
@@ -120,7 +119,6 @@ contract GetBypass is MintPassGroupTest {
     function test_whenSet() public {
         address[] memory bypassArray = new address[](1);
         bypassArray[0] = fxHashAdmin;
-        vm.prank(fxHashAdmin);
         mintPassGroup.setBypass(bypassArray);
         assertTrue(
             mintPassGroup.getBypass().length == 1,
