@@ -68,9 +68,9 @@ contract Deploy is Script {
     uint256 constant BALANCE = 100 ether;
     uint256 constant MAX_PER_TOKEN = 10;
     uint256 constant MAX_PER_TOKEN_PER_PROJECT = 5;
-    uint256 constant MAX_REFERRAL_SHARE = 0;
-    uint256 constant REFERRAL_SHARE = 0;
-    uint256 constant PLATFORM_FEES = 0;
+    uint256 constant MAX_REFERRAL_SHARE = 1000;
+    uint256 constant REFERRAL_SHARE = 1000;
+    uint256 constant PLATFORM_FEES = 1000;
     bytes32 constant SALT = keccak256("salt");
     bytes32 constant SEED = keccak256("seed");
 
