@@ -106,7 +106,8 @@ describe("ReserveWhitelist", () => {
 
       // Call the contract function
       const [applied, packedNewData] = await reserveWhitelist.applyReserve(
-        params
+        params,
+        addr1.address
       );
 
       // Decode the updated whitelist
@@ -147,7 +148,8 @@ describe("ReserveWhitelist", () => {
 
       // Call the contract function
       const [applied, packedNewData] = await reserveWhitelist.applyReserve(
-        params
+        params,
+        addr3.address
       );
 
       // Decode the updated whitelist

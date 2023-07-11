@@ -20,10 +20,7 @@ describe("ReserveManager", function () {
     const ReserveManagerFactory = await ethers.getContractFactory(
       "ReserveManager"
     );
-    ReserveManager = await ReserveManagerFactory.deploy(
-      await admin.getAddress()
-    );
-    await ReserveManager.authorizeCaller(await admin.getAddress());
+    ReserveManager = await ReserveManagerFactory.deploy();
   });
 
   describe("isReserveValid", function () {
@@ -69,7 +66,11 @@ describe("ReserveManager", function () {
         data: data,
         amount: 10,
       };
-      const output = await ReserveManager.applyReserve(reserve, "0x");
+      const output = await ReserveManager.connect(admin).applyReserve(
+        reserve,
+        "0x",
+        await admin.getAddress()
+      );
       //expect(output).to.equal(true);
       // Parse output data to validate changes
 

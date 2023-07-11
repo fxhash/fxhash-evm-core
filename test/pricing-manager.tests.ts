@@ -15,10 +15,7 @@ describe("PricingManager", function () {
     const PricingFixed = await ethers.getContractFactory("PricingFixed");
     pricingFixed = await PricingFixed.deploy();
     await pricingFixed.deployed();
-    PricingManager = await PricingManagerFactory.deploy(
-      await admin.getAddress()
-    );
-    PricingManager.authorizeCaller(await admin.getAddress());
+    PricingManager = await PricingManagerFactory.deploy();
   });
 
   describe("setPricingContract", function () {

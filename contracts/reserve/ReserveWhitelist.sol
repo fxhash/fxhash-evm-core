@@ -11,13 +11,8 @@ contract ReserveWhitelist is IReserve {
         uint256 amount;
     }
 
-    function isInputValid(
-        LibReserve.InputParams calldata params
-    ) external pure returns (bool) {
-        WhitelistEntry[] memory whitelist = abi.decode(
-            params.data,
-            (WhitelistEntry[])
-        );
+    function isInputValid(LibReserve.InputParams calldata params) external pure returns (bool) {
+        WhitelistEntry[] memory whitelist = abi.decode(params.data, (WhitelistEntry[]));
 
         uint256 sumAmounts = 0;
         for (uint256 i = 0; i < whitelist.length; i++) {
@@ -28,21 +23,15 @@ contract ReserveWhitelist is IReserve {
     }
 
     function applyReserve(
-        LibReserve.ApplyParams calldata params
+        LibReserve.ApplyParams calldata params,
+        address
     ) external pure returns (bool, bytes memory) {
-        WhitelistEntry[] memory whitelist = abi.decode(
-            params.currentData,
-            (WhitelistEntry[])
-        );
+        WhitelistEntry[] memory whitelist = abi.decode(params.currentData, (WhitelistEntry[]));
 
         bool applied = false;
         for (uint256 i = 0; i < whitelist.length; i++) {
             WhitelistEntry memory entry = whitelist[i];
-            if (
-                !applied &&
-                entry.whitelisted == params.sender &&
-                entry.amount > 0
-            ) {
+            if (!applied && entry.whitelisted == params.sender && entry.amount > 0) {
                 applied = true;
                 entry.amount = entry.amount - 1;
             }
