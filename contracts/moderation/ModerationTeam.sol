@@ -3,7 +3,6 @@ pragma solidity ^0.8.18;
 
 import "contracts/abstract/admin/AuthorizedCaller.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
 
@@ -113,10 +112,7 @@ contract ModerationTeam is Ownable {
             for (uint256 i = 0; i < EnumerableSet.length(moderatorAddresses); i++) {
                 address recipient = EnumerableSet.at(moderatorAddresses, i);
                 uint256 share = moderators[recipient].share;
-                SafeTransferLib.safeTransferETH(
-                    recipient,
-                    SafeMath.div(SafeMath.mul(amount, share), sharesTotal)
-                );
+                SafeTransferLib.safeTransferETH(recipient, (amount * share) / sharesTotal);
             }
         }
     }

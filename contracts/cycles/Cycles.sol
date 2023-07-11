@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/math/SignedMath.sol";
 import "contracts/abstract/admin/AuthorizedCaller.sol";
 
@@ -40,11 +39,8 @@ contract FxHashCycles is AuthorizedCaller {
     function isCycleOpen(uint256 _id, uint256 _timestamp) private view returns (bool) {
         CycleParams memory _cycle = cycles[_id];
         uint256 diff = SignedMath.abs(int256(int256(_timestamp) - int256(_cycle.start)));
-        uint256 cycle_relative = SafeMath.mod(
-            diff,
-            _cycle.openingDuration + _cycle.closingDuration
-        );
-        return cycle_relative < _cycle.openingDuration;
+        uint256 cycleRelative = diff % (_cycle.openingDuration + _cycle.closingDuration);
+        return cycleRelative < _cycle.openingDuration;
     }
 
     function areCyclesOpen(
