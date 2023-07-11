@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "forge-std/Script.sol";
-
+import {Script} from "forge-std/Script.sol";
 import {AllowMint} from "contracts/allow-mint/AllowMint.sol";
 import {AllowMintIssuer} from "contracts/allow-mint/AllowMintIssuer.sol";
 import {ConfigurationManager} from "contracts/issuer/ConfigurationManager.sol";
@@ -27,46 +26,46 @@ import {ScriptyStorage} from "contracts/scripty/ScriptyStorage.sol";
 
 contract Deploy is Script {
     // Contracts
-    AllowMint allowMint;
-    AllowMintIssuer allowMintIssuer;
-    ConfigurationManager configurationManager;
-    ContentStore contentStore;
-    GenTk genTk;
-    Issuer issuer;
-    MintPassGroup mintPassGroup;
-    MintTicket mintTicket;
-    ModerationIssuer moderationIssuer;
-    ModerationTeam moderationTeam;
-    ModerationUser moderationUser;
-    OnChainTokenMetadataManager onchainMetadataManager;
-    PricingDutchAuction pricingDA;
-    PricingFixed pricingFixed;
-    PricingManager pricingManager;
-    Randomizer randomizer;
-    ReserveManager reserveManager;
-    ReserveMintPass reserveMintPass;
-    ReserveWhitelist reserveWhitelist;
-    ScriptyBuilder scriptyBuilder;
-    ScriptyStorage scriptyStorage;
+    AllowMint public allowMint;
+    AllowMintIssuer public allowMintIssuer;
+    ConfigurationManager public configurationManager;
+    ContentStore public contentStore;
+    GenTk public genTk;
+    Issuer public issuer;
+    MintPassGroup public mintPassGroup;
+    MintTicket public mintTicket;
+    ModerationIssuer public moderationIssuer;
+    ModerationTeam public moderationTeam;
+    ModerationUser public moderationUser;
+    OnChainTokenMetadataManager public onchainMetadataManager;
+    PricingDutchAuction public pricingDA;
+    PricingFixed public pricingFixed;
+    PricingManager public pricingManager;
+    Randomizer public randomizer;
+    ReserveManager public reserveManager;
+    ReserveMintPass public reserveMintPass;
+    ReserveWhitelist public reserveWhitelist;
+    ScriptyBuilder public scriptyBuilder;
+    ScriptyStorage public scriptyStorage;
 
     // Users
-    address admin;
-    address signer;
-    address treasury;
-    address alice;
-    address bob;
-    address eve;
-    address susan;
+    address public admin;
+    address public signer;
+    address public treasury;
+    address public alice;
+    address public bob;
+    address public eve;
+    address public susan;
 
     // State
-    address[] bypass = new address[](0);
+    address[] public bypass = new address[](0);
 
     // Constants
-    uint256 constant BALANCE = 100 ether;
-    uint256 constant MAX_PER_TOKEN = 10;
-    uint256 constant MAX_PER_TOKEN_PER_PROJECT = 5;
-    bytes32 constant SALT = keccak256("salt");
-    bytes32 constant SEED = keccak256("seed");
+    uint256 public constant BALANCE = 100 ether;
+    uint256 public constant MAX_PER_TOKEN = 10;
+    uint256 public constant MAX_PER_TOKEN_PER_PROJECT = 5;
+    bytes32 public constant SALT = keccak256("salt");
+    bytes32 public constant SEED = keccak256("seed");
 
     function setUp() public {
         createAccounts();
