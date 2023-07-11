@@ -4,6 +4,7 @@ pragma solidity ^0.8.18;
 import "@openzeppelin/contracts/interfaces/IERC721.sol";
 import "@openzeppelin/contracts/interfaces/IERC2981.sol";
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/interfaces/IERC1155.sol";
 import "contracts/abstract/admin/AuthorizedCaller.sol";
 import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
@@ -285,7 +286,8 @@ contract Marketplace is AuthorizedCaller {
         if (_params.tokenType == TokenType.ETH) {
             SafeTransferLib.safeTransferETH(_params.owner, _params.amount);
         } else if (_params.tokenType == TokenType.ERC20) {
-            IERC20(_params.assetContract).transferFrom(
+            SafeERC20.safeTransferFrom(
+                IERC20(_params.assetContract),
                 _params.owner,
                 _params.receiver,
                 _params.amount
