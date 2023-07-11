@@ -68,14 +68,11 @@ contract Deploy is Script {
     bytes32 constant SALT = keccak256("salt");
     bytes32 constant SEED = keccak256("seed");
 
-    function run() public {
-        vm.startBroadcast();
-        setUp();
-        deploy();
-        vm.stopBroadcast();
+    function setUp() public {
+        createAccounts();
     }
 
-    function setUp() public {
+    function createAccounts() public {
         admin = _createUser("admin");
         signer = _createUser("signer");
         treasury = _createUser("treasury");
@@ -85,7 +82,13 @@ contract Deploy is Script {
         susan = _createUser("susan");
     }
 
-    function deploy() public {
+    function run() public {
+        vm.startBroadcast();
+        deployContracts();
+        vm.stopBroadcast();
+    }
+
+    function deployContracts() public {
         // Scripty
         contentStore = new ContentStore();
         scriptyBuilder = new ScriptyBuilder();
