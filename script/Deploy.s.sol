@@ -5,10 +5,12 @@ import "forge-std/Script.sol";
 
 import {AllowMint} from "contracts/allow-mint/AllowMint.sol";
 import {AllowMintIssuer} from "contracts/allow-mint/AllowMintIssuer.sol";
+import {Codex} from "contracts/issuer/Codex.sol";
 import {ConfigurationManager} from "contracts/issuer/ConfigurationManager.sol";
 import {ContentStore} from "contracts/scripty/dependencies/ethfs/ContentStore.sol";
 import {GenTk} from "contracts/gentk/GenTk.sol";
 import {Issuer} from "contracts/issuer/Issuer.sol";
+import {Marketplace} from "contracts/marketplace/Marketplace.sol";
 import {MintPassGroup} from "contracts/mint-pass-group/MintPassGroup.sol";
 import {MintTicket} from "contracts/mint-ticket/MintTicket.sol";
 import {ModerationIssuer} from "contracts/moderation/ModerationIssuer.sol";
@@ -31,8 +33,10 @@ contract Deploy is Script {
     AllowMintIssuer allowMintIssuer;
     ConfigurationManager configurationManager;
     ContentStore contentStore;
+    Codex codex;
     GenTk genTk;
     Issuer issuer;
+    Marketplace marketplace;
     MintPassGroup mintPassGroup;
     MintTicket mintTicket;
     ModerationIssuer moderationIssuer;
@@ -65,6 +69,10 @@ contract Deploy is Script {
     uint256 constant BALANCE = 100 ether;
     uint256 constant MAX_PER_TOKEN = 10;
     uint256 constant MAX_PER_TOKEN_PER_PROJECT = 5;
+    uint256 constant MAX_REFERRAL_SHARE = 0;
+    uint256 constant REFERRAL_SHARE = 0;
+    uint256 constant PLATFORM_FEES = 0;
+
     bytes32 constant SALT = keccak256("salt");
     bytes32 constant SEED = keccak256("seed");
 
@@ -89,19 +97,28 @@ contract Deploy is Script {
     }
 
     function deployContracts() public {
+        //Configuration manager
+        configurationManager = new ConfigurationManager();
+
         // Scripty
         contentStore = new ContentStore();
         scriptyBuilder = new ScriptyBuilder();
         scriptyStorage = new ScriptyStorage(address(contentStore));
 
+        //On chain metadata manager
+        onchainMetadataManager = new OnChainTokenMetadataManager(address(scriptyBuilder));
+
         // Moderation
-        moderationIssuer = new ModerationIssuer(admin);
-        moderationUser = new ModerationUser(admin);
+        moderationIssuer = new ModerationIssuer(address(configurationManager));
+        moderationUser = new ModerationUser(address(configurationManager));
         moderationTeam = new ModerationTeam();
 
         // Allow Mint
-        allowMint = new AllowMint(admin);
+        allowMint = new AllowMint(address(moderationIssuer));
         allowMintIssuer = new AllowMintIssuer(address(moderationUser));
+
+        //Codex
+        codex = new Codex(address(moderationTeam));
 
         // Reserve
         reserveManager = new ReserveManager();
@@ -116,6 +133,15 @@ contract Deploy is Script {
         // Randomizer
         randomizer = new Randomizer(SEED, SALT);
 
+        //Marketplace
+        marketplace = new Marketplace(
+            admin,
+            MAX_REFERRAL_SHARE,
+            REFERRAL_SHARE,
+            PLATFORM_FEES,
+            treasury
+        );
+
         // Mint Ticket
         mintTicket = new MintTicket(address(randomizer));
 
@@ -129,12 +155,10 @@ contract Deploy is Script {
         );
 
         // Issuer
-        configurationManager = new ConfigurationManager();
-        issuer = new Issuer(address(configurationManager), admin);
-        onchainMetadataManager = new OnChainTokenMetadataManager(address(scriptyBuilder));
+        issuer = new Issuer(address(configurationManager), alice);
 
         // Generative Token
-        genTk = new GenTk(admin, address(issuer), address(configurationManager));
+        genTk = new GenTk(alice, address(issuer), address(configurationManager));
     }
 
     function _createUser(string memory _name) internal returns (address user) {
