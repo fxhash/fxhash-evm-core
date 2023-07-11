@@ -6,12 +6,7 @@ import "@openzeppelin/contracts/interfaces/IERC2981.sol";
 contract MockERC1155 is ERC1155, IERC2981 {
     constructor() ERC1155("MockERC1155") {}
 
-    function mint(
-        address to,
-        uint256 id,
-        uint256 amount,
-        bytes memory data
-    ) external {
+    function mint(address to, uint256 id, uint256 amount, bytes memory data) external {
         super._mint(to, id, amount, data);
     }
 

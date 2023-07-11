@@ -13,8 +13,7 @@ contract PricingFixed is IPricing {
 
     mapping(address => PriceDetails) pricings;
 
-    constructor() {
-    }
+    constructor() {}
 
     function setPrice(bytes memory details) external {
         PriceDetails memory pricingDetails = abi.decode(details, (PriceDetails));
