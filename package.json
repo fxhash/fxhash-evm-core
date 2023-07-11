@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "npx hardhat test",
-    "prettier": "prettier --write 'contracts/**/*.sol' 'test/**/*.sol'",
+    "prettier": "prettier --write 'contracts/**/*.sol' 'script/**/*.sol' 'test/**/*.sol'",
     "prettier:check": "prettier --check 'contracts/**/*.sol'"
   },
   "author": "",

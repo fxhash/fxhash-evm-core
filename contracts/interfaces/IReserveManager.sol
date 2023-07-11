@@ -12,7 +12,6 @@ interface IReserveManager {
         address caller
     ) external returns (bool, bytes memory);
 
-    //TODO: require admin
     function setReserveMethod(uint256 id, LibReserve.ReserveMethod memory reserveMethod) external;
 
     function getReserveMethod(
