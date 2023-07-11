@@ -336,7 +336,7 @@ contract MintTicket is ERC721URIStorage, Ownable, IMintTicket {
 
     function send(address recipient, uint256 amount) internal {
         if (amount > 0) {
-            SafeTransferLib.safeTranserETH(recipient, amount);
+            SafeTransferLib.safeTransferETH(recipient, amount);
         }
     }
 
