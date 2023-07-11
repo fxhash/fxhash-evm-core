@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "forge-std/Script.sol";
+import {Script} from "forge-std/Script.sol";
 
 import {AllowMint} from "contracts/allow-mint/AllowMint.sol";
 import {AllowMintIssuer} from "contracts/allow-mint/AllowMintIssuer.sol";
@@ -54,16 +54,16 @@ contract Deploy is Script {
     ScriptyStorage scriptyStorage;
 
     // Users
-    address admin;
-    address signer;
-    address treasury;
-    address alice;
-    address bob;
-    address eve;
-    address susan;
+    address public admin;
+    address public signer;
+    address public treasury;
+    address public alice;
+    address public bob;
+    address public eve;
+    address public susan;
 
     // State
-    address[] bypass = new address[](0);
+    address[] public bypass = new address[](0);
 
     // Constants
     uint256 constant BALANCE = 100 ether;
@@ -72,7 +72,6 @@ contract Deploy is Script {
     uint256 constant MAX_REFERRAL_SHARE = 0;
     uint256 constant REFERRAL_SHARE = 0;
     uint256 constant PLATFORM_FEES = 0;
-
     bytes32 constant SALT = keccak256("salt");
     bytes32 constant SEED = keccak256("seed");
 
