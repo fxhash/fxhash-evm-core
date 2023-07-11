@@ -28,29 +28,29 @@ import {ScriptyStorage} from "contracts/scripty/ScriptyStorage.sol";
 
 contract Deploy is Script {
     // Contracts
-    AllowMint allowMint;
-    AllowMintIssuer allowMintIssuer;
-    ConfigurationManager configurationManager;
-    ContentStore contentStore;
-    Codex codex;
-    GenTk genTk;
-    Issuer issuer;
-    Marketplace marketplace;
-    MintPassGroup mintPassGroup;
-    MintTicket mintTicket;
-    ModerationIssuer moderationIssuer;
-    ModerationTeam moderationTeam;
-    ModerationUser moderationUser;
-    OnChainTokenMetadataManager onchainMetadataManager;
-    PricingDutchAuction pricingDA;
-    PricingFixed pricingFixed;
+    AllowMint public allowMint;
+    AllowMintIssuer public allowMintIssuer;
+    Codex public codex;
+    ConfigurationManager public configurationManager;
+    ContentStore public contentStore;
+    GenTk public genTk;
+    Issuer public issuer;
+    Marketplace public marketplace;
+    MintPassGroup public mintPassGroup;
+    MintTicket public mintTicket;
+    ModerationIssuer public moderationIssuer;
+    ModerationTeam public moderationTeam;
+    ModerationUser public moderationUser;
+    OnChainTokenMetadataManager public onchainMetadataManager;
+    PricingDutchAuction public pricingDA;
+    PricingFixed public pricingFixed;
     PricingManager pricingManager;
-    Randomizer randomizer;
-    ReserveManager reserveManager;
-    ReserveMintPass reserveMintPass;
-    ReserveWhitelist reserveWhitelist;
-    ScriptyBuilder scriptyBuilder;
-    ScriptyStorage scriptyStorage;
+    Randomizer public randomizer;
+    ReserveManager public reserveManager;
+    ReserveMintPass public reserveMintPass;
+    ReserveWhitelist public reserveWhitelist;
+    ScriptyBuilder public scriptyBuilder;
+    ScriptyStorage public scriptyStorage;
 
     // Users
     address public admin;
@@ -65,14 +65,14 @@ contract Deploy is Script {
     address[] public bypass = new address[](0);
 
     // Constants
-    uint256 constant BALANCE = 100 ether;
-    uint256 constant MAX_PER_TOKEN = 10;
-    uint256 constant MAX_PER_TOKEN_PER_PROJECT = 5;
-    uint256 constant MAX_REFERRAL_SHARE = 1000;
-    uint256 constant REFERRAL_SHARE = 1000;
-    uint256 constant PLATFORM_FEES = 1000;
-    bytes32 constant SALT = keccak256("salt");
-    bytes32 constant SEED = keccak256("seed");
+    uint256 public constant BALANCE = 100 ether;
+    uint256 public constant MAX_PER_TOKEN = 10;
+    uint256 public constant MAX_PER_TOKEN_PER_PROJECT = 5;
+    uint256 public constant MAX_REFERRAL_SHARE = 1000;
+    uint256 public constant PLATFORM_FEES = 1000;
+    uint256 public constant REFERRAL_SHARE = 1000;
+    bytes32 public constant SALT = keccak256("salt");
+    bytes32 public constant SEED = keccak256("seed");
 
     function setUp() public {
         createAccounts();
@@ -95,7 +95,7 @@ contract Deploy is Script {
     }
 
     function deployContracts() public {
-        //Configuration manager
+        // Configuration
         configurationManager = new ConfigurationManager();
 
         // Scripty
@@ -103,7 +103,7 @@ contract Deploy is Script {
         scriptyBuilder = new ScriptyBuilder();
         scriptyStorage = new ScriptyStorage(address(contentStore));
 
-        //On chain metadata manager
+        // Metadata
         onchainMetadataManager = new OnChainTokenMetadataManager(address(scriptyBuilder));
 
         // Moderation
@@ -111,11 +111,11 @@ contract Deploy is Script {
         moderationUser = new ModerationUser(address(configurationManager));
         moderationTeam = new ModerationTeam();
 
-        // Allow Mint
+        // Allowlist
         allowMint = new AllowMint(address(moderationIssuer));
         allowMintIssuer = new AllowMintIssuer(address(moderationUser));
 
-        //Codex
+        // Codex
         codex = new Codex(address(moderationTeam));
 
         // Reserve
@@ -131,7 +131,7 @@ contract Deploy is Script {
         // Randomizer
         randomizer = new Randomizer(SEED, SALT);
 
-        //Marketplace
+        // Marketplace
         marketplace = new Marketplace(
             admin,
             MAX_REFERRAL_SHARE,
@@ -143,7 +143,7 @@ contract Deploy is Script {
         // Mint Ticket
         mintTicket = new MintTicket(address(randomizer));
 
-        // Mint Pass Group
+        // Mint Pass
         mintPassGroup = new MintPassGroup(
             MAX_PER_TOKEN,
             MAX_PER_TOKEN_PER_PROJECT,
@@ -155,7 +155,7 @@ contract Deploy is Script {
         // Issuer
         issuer = new Issuer(address(configurationManager), alice);
 
-        // Generative Token
+        // Token
         genTk = new GenTk(alice, address(issuer), address(configurationManager));
     }
 
