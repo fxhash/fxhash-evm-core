@@ -50,9 +50,7 @@ interface IIssuer {
         address recipient;
     }
 
-    function mintIssuer(
-        MintIssuerInput calldata params
-    ) external;
+    function mintIssuer(MintIssuerInput calldata params) external;
 
     function mint(MintInput calldata params) external payable;
 

@@ -19,11 +19,7 @@ library DynamicBuffer {
     /// @dev Allocates `capacity_ + 0x60` bytes of space
     ///      The buffer array starts at the first container data position,
     ///      (i.e. `buffer = container + 0x20`)
-    function allocate(uint256 capacity_)
-        internal
-        pure
-        returns (bytes memory buffer)
-    {
+    function allocate(uint256 capacity_) internal pure returns (bytes memory buffer) {
         assembly {
             // Get next-free memory address
             let container := mload(0x40)
@@ -58,10 +54,7 @@ library DynamicBuffer {
     /// @param data the data to append
     /// @dev Does not perform out-of-bound checks (container capacity)
     ///      for efficiency.
-    function appendUnchecked(bytes memory buffer, bytes memory data)
-        internal
-        pure
-    {
+    function appendUnchecked(bytes memory buffer, bytes memory data) internal pure {
         assembly {
             let length := mload(data)
             for {
@@ -127,10 +120,7 @@ library DynamicBuffer {
                 // if r == 0 => no modification
                 // if r == 1 => encodedLength -= 2
                 // if r == 2 => encodedLength -= 1
-                encodedLength := sub(
-                    encodedLength,
-                    add(iszero(iszero(r)), eq(r, 1))
-                )
+                encodedLength := sub(encodedLength, add(iszero(iszero(r)), eq(r, 1)))
             }
         }
 
@@ -219,10 +209,7 @@ library DynamicBuffer {
                 // if r == 0 => no modification
                 // if r == 1 => encodedLength -= 2
                 // if r == 2 => encodedLength -= 1
-                encodedLength := sub(
-                    encodedLength,
-                    add(iszero(iszero(r)), eq(r, 1))
-                )
+                encodedLength := sub(encodedLength, add(iszero(iszero(r)), eq(r, 1)))
             }
         }
 
@@ -287,10 +274,7 @@ library DynamicBuffer {
 
     /// @notice Reverts if the buffer will overflow after appending a given
     /// number of bytes.
-    function checkOverflow(bytes memory buffer, uint256 addedLength)
-        internal
-        pure
-    {
+    function checkOverflow(bytes memory buffer, uint256 addedLength) internal pure {
         uint256 cap = capacity(buffer);
         uint256 newLength = buffer.length + addedLength;
         if (cap < newLength) {
