@@ -1,14 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "forge-std/Script.sol";
-
+import {Script} from "forge-std/Script.sol";
 import {AllowMint} from "contracts/allow-mint/AllowMint.sol";
 import {AllowMintIssuer} from "contracts/allow-mint/AllowMintIssuer.sol";
+import {Codex} from "contracts/issuer/Codex.sol";
 import {ConfigurationManager} from "contracts/issuer/ConfigurationManager.sol";
 import {ContentStore} from "contracts/scripty/dependencies/ethfs/ContentStore.sol";
 import {GenTk} from "contracts/gentk/GenTk.sol";
 import {Issuer} from "contracts/issuer/Issuer.sol";
+import {Marketplace} from "contracts/marketplace/Marketplace.sol";
 import {MintPassGroup} from "contracts/mint-pass-group/MintPassGroup.sol";
 import {MintTicket} from "contracts/mint-ticket/MintTicket.sol";
 import {ModerationIssuer} from "contracts/moderation/ModerationIssuer.sol";
@@ -27,46 +28,51 @@ import {ScriptyStorage} from "contracts/scripty/ScriptyStorage.sol";
 
 contract Deploy is Script {
     // Contracts
-    AllowMint allowMint;
-    AllowMintIssuer allowMintIssuer;
-    ConfigurationManager configurationManager;
-    ContentStore contentStore;
-    GenTk genTk;
-    Issuer issuer;
-    MintPassGroup mintPassGroup;
-    MintTicket mintTicket;
-    ModerationIssuer moderationIssuer;
-    ModerationTeam moderationTeam;
-    ModerationUser moderationUser;
-    OnChainTokenMetadataManager onchainMetadataManager;
-    PricingDutchAuction pricingDA;
-    PricingFixed pricingFixed;
+    AllowMint public allowMint;
+    AllowMintIssuer public allowMintIssuer;
+    Codex public codex;
+    ConfigurationManager public configurationManager;
+    ContentStore public contentStore;
+    GenTk public genTk;
+    Issuer public issuer;
+    Marketplace public marketplace;
+    MintPassGroup public mintPassGroup;
+    MintTicket public mintTicket;
+    ModerationIssuer public moderationIssuer;
+    ModerationTeam public moderationTeam;
+    ModerationUser public moderationUser;
+    OnChainTokenMetadataManager public onchainMetadataManager;
+    PricingDutchAuction public pricingDA;
+    PricingFixed public pricingFixed;
     PricingManager pricingManager;
-    Randomizer randomizer;
-    ReserveManager reserveManager;
-    ReserveMintPass reserveMintPass;
-    ReserveWhitelist reserveWhitelist;
-    ScriptyBuilder scriptyBuilder;
-    ScriptyStorage scriptyStorage;
+    Randomizer public randomizer;
+    ReserveManager public reserveManager;
+    ReserveMintPass public reserveMintPass;
+    ReserveWhitelist public reserveWhitelist;
+    ScriptyBuilder public scriptyBuilder;
+    ScriptyStorage public scriptyStorage;
 
     // Users
-    address admin;
-    address signer;
-    address treasury;
-    address alice;
-    address bob;
-    address eve;
-    address susan;
+    address public admin;
+    address public signer;
+    address public treasury;
+    address public alice;
+    address public bob;
+    address public eve;
+    address public susan;
 
     // State
-    address[] bypass = new address[](0);
+    address[] public bypass = new address[](0);
 
     // Constants
-    uint256 constant BALANCE = 100 ether;
-    uint256 constant MAX_PER_TOKEN = 10;
-    uint256 constant MAX_PER_TOKEN_PER_PROJECT = 5;
-    bytes32 constant SALT = keccak256("salt");
-    bytes32 constant SEED = keccak256("seed");
+    uint256 public constant BALANCE = 100 ether;
+    uint256 public constant MAX_PER_TOKEN = 10;
+    uint256 public constant MAX_PER_TOKEN_PER_PROJECT = 5;
+    uint256 public constant MAX_REFERRAL_SHARE = 1000;
+    uint256 public constant PLATFORM_FEES = 1000;
+    uint256 public constant REFERRAL_SHARE = 1000;
+    bytes32 public constant SALT = keccak256("salt");
+    bytes32 public constant SEED = keccak256("seed");
 
     function setUp() public {
         createAccounts();
@@ -89,19 +95,28 @@ contract Deploy is Script {
     }
 
     function deployContracts() public {
+        // Configuration
+        configurationManager = new ConfigurationManager();
+
         // Scripty
         contentStore = new ContentStore();
         scriptyBuilder = new ScriptyBuilder();
         scriptyStorage = new ScriptyStorage(address(contentStore));
 
+        // Metadata
+        onchainMetadataManager = new OnChainTokenMetadataManager(address(scriptyBuilder));
+
         // Moderation
-        moderationIssuer = new ModerationIssuer(admin);
-        moderationUser = new ModerationUser(admin);
+        moderationIssuer = new ModerationIssuer(address(configurationManager));
+        moderationUser = new ModerationUser(address(configurationManager));
         moderationTeam = new ModerationTeam();
 
-        // Allow Mint
-        allowMint = new AllowMint(admin);
+        // Allowlist
+        allowMint = new AllowMint(address(moderationIssuer));
         allowMintIssuer = new AllowMintIssuer(address(moderationUser));
+
+        // Codex
+        codex = new Codex(address(moderationTeam));
 
         // Reserve
         reserveManager = new ReserveManager();
@@ -116,10 +131,19 @@ contract Deploy is Script {
         // Randomizer
         randomizer = new Randomizer(SEED, SALT);
 
+        // Marketplace
+        marketplace = new Marketplace(
+            admin,
+            MAX_REFERRAL_SHARE,
+            REFERRAL_SHARE,
+            PLATFORM_FEES,
+            treasury
+        );
+
         // Mint Ticket
         mintTicket = new MintTicket(address(randomizer));
 
-        // Mint Pass Group
+        // Mint Pass
         mintPassGroup = new MintPassGroup(
             MAX_PER_TOKEN,
             MAX_PER_TOKEN_PER_PROJECT,
@@ -129,12 +153,10 @@ contract Deploy is Script {
         );
 
         // Issuer
-        configurationManager = new ConfigurationManager();
-        issuer = new Issuer(address(configurationManager), admin);
-        onchainMetadataManager = new OnChainTokenMetadataManager(address(scriptyBuilder));
+        issuer = new Issuer(address(configurationManager), alice);
 
-        // Generative Token
-        genTk = new GenTk(admin, address(issuer), address(configurationManager));
+        // Token
+        genTk = new GenTk(alice, address(issuer), address(configurationManager));
     }
 
     function _createUser(string memory _name) internal returns (address user) {
