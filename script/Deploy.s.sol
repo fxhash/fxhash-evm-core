@@ -66,6 +66,7 @@ contract Deploy is Script {
     address public susan;
 
     // State
+    uint256[] public authorizations = [10, 20];
     address[] public bypass = new address[](0);
 
     // Constants
@@ -73,16 +74,14 @@ contract Deploy is Script {
     uint256 public constant MAX_PER_TOKEN = 10;
     uint256 public constant MAX_PER_TOKEN_PER_PROJECT = 5;
     uint256 public constant ISSUER_FEES = 1000;
-    uint256 public constant ISSUER_REFERRAL_SHARE = 1000;
     uint256 public constant ISSUER_LOCK_TIME = 1000;
+    uint256 public constant ISSUER_REFERRAL_SHARE = 1000;
     uint256 public constant MARKETPLACE_MAX_REFERRAL_SHARE = 1000;
     uint256 public constant MARKETPLACE_PLATFORM_FEES = 1000;
     uint256 public constant MARKETPLACE_REFERRAL_SHARE = 1000;
     bytes32 public constant SALT = keccak256("salt");
     bytes32 public constant SEED = keccak256("seed");
     string public constant ISSUER_VOID_METADATA = "1000";
-
-    uint256[] public AUTHORIZATIONS = [10, 20];
 
     function setUp() public {
         createAccounts();
@@ -178,7 +177,7 @@ contract Deploy is Script {
 
         moderators[0] = ModerationTeam.UpdateModeratorParam({
             moderator: moderator,
-            authorizations: AUTHORIZATIONS
+            authorizations: authorizations
         });
 
         contractEntries[0] = IConfigurationManager.ContractEntry({
