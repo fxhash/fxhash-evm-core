@@ -43,6 +43,8 @@ contract Seed is Script {
     Deploy public deploy;
 
     uint256 public constant NUMBER = 100;
+    uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
+    address account = vm.addr(deployerPrivateKey);
 
     function setUp() public {
         deploy = new Deploy();
@@ -51,7 +53,7 @@ contract Seed is Script {
     }
 
     function run() public {
-        vm.startBroadcast();
+        vm.startBroadcast(account);
         mintAllGetIssuerCombinations();
         vm.stopBroadcast();
     }
@@ -65,10 +67,10 @@ contract Seed is Script {
 
                             Issuer _issuer = new Issuer(
                                 address(deploy.configurationManager()),
-                                msg.sender
+                                account
                             );
                             GenTk _genTk = new GenTk(
-                                msg.sender,
+                                account,
                                 address(_issuer),
                                 address(deploy.configurationManager())
                             );

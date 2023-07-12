@@ -68,6 +68,8 @@ contract Deploy is Script {
     // State
     uint256[] public authorizations = [10, 20];
     address[] public bypass = new address[](0);
+    uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
+    address account = vm.addr(deployerPrivateKey);
 
     // Constants
     uint256 public constant BALANCE = 100 ether;
@@ -98,7 +100,8 @@ contract Deploy is Script {
     }
 
     function run() public {
-        vm.startBroadcast();
+
+        vm.startBroadcast(account);
         deployContracts();
         configureContracts();
         vm.stopBroadcast();
@@ -163,10 +166,10 @@ contract Deploy is Script {
         );
 
         // Issuer
-        issuer = new Issuer(address(configurationManager), msg.sender);
+        issuer = new Issuer(address(configurationManager), account);
 
         // Token
-        genTk = new GenTk(msg.sender, address(issuer), address(configurationManager));
+        genTk = new GenTk(account, address(issuer), address(configurationManager));
     }
 
     function configureContracts() public {
