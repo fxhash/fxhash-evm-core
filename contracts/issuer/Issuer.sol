@@ -23,9 +23,10 @@ import "contracts/libs/LibIssuer.sol";
 import "contracts/libs/LibReserve.sol";
 
 contract Issuer is IIssuer, IERC2981, Ownable {
-    uint256 private allGenTkTokens;
     IConfigurationManager private configManager;
     LibIssuer.IssuerData private issuer;
+    IGenTk private genTk;
+    uint256 private allGenTkTokens;
 
     event IssuerMinted(MintIssuerInput params);
     event IssuerBurned();
@@ -165,6 +166,7 @@ contract Issuer is IIssuer, IERC2981, Ownable {
 
     function mint(MintInput memory params) external payable {
         require(issuer.supply > 0, "Token undefined");
+        require(address(genTk) != address(0), "GENTK_NOT_SET");
 
         require(IAllowMint(configManager.getAddress("al_m")).isAllowed(address(this)), "403");
 
@@ -258,6 +260,7 @@ contract Issuer is IIssuer, IERC2981, Ownable {
 
     function mintWithTicket(MintWithTicketInput memory params) external {
         require(params.inputBytes.length == issuer.info.inputBytesSize, "WRONG_INPUT_BYTES");
+        require(address(genTk) != address(0), "GENTK_NOT_SET");
 
         address recipient = msg.sender;
         if (params.recipient != address(0)) {
@@ -270,13 +273,12 @@ contract Issuer is IIssuer, IERC2981, Ownable {
         );
 
         issuer.iterationsCount += 1;
-        address gentkContract = configManager.getAddress("gentk");
-        IGenTk(gentkContract).mint(
+        genTk.mint(
             IGenTk.TokenParams({
                 tokenId: allGenTkTokens,
                 iteration: issuer.iterationsCount,
                 inputBytes: params.inputBytes,
-                receiver: issuer.royaltiesSplit.receiver == gentkContract
+                receiver: issuer.royaltiesSplit.receiver == address(genTk)
                     ? recipient
                     : issuer.royaltiesSplit.receiver,
                 metadata: configManager.getConfig().voidMetadata
@@ -337,6 +339,10 @@ contract Issuer is IIssuer, IERC2981, Ownable {
         }
         issuer.reserves = abi.encode(reserves);
         emit ReserveUpdated(reserves);
+    }
+
+    function setGenTk(address _genTk) external onlyOwner {
+        genTk = IGenTk(_genTk);
     }
 
     function burn() external onlyOwner {
@@ -453,13 +459,12 @@ contract Issuer is IIssuer, IERC2981, Ownable {
                 IMintTicket(configManager.getAddress("mint_tickets")).mint(recipient, price);
             } else {
                 issuer.iterationsCount += 1;
-                address gentkContract = configManager.getAddress("gentk");
-                IGenTk(gentkContract).mint(
+                genTk.mint(
                     IGenTk.TokenParams({
                         tokenId: tokenId,
                         iteration: issuer.iterationsCount,
                         inputBytes: params.inputBytes,
-                        receiver: issuer.royaltiesSplit.receiver == gentkContract
+                        receiver: issuer.royaltiesSplit.receiver == address(genTk)
                             ? recipient
                             : issuer.royaltiesSplit.receiver,
                         metadata: configManager.getConfig().voidMetadata
