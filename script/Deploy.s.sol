@@ -6,7 +6,7 @@ import {AllowMint} from "contracts/allow-mint/AllowMint.sol";
 import {AllowMintIssuer} from "contracts/allow-mint/AllowMintIssuer.sol";
 import {Codex} from "contracts/issuer/Codex.sol";
 import {ConfigurationManager} from "contracts/issuer/ConfigurationManager.sol";
-import {ContentStore} from "contracts/scripty/dependencies/ethfs/ContentStore.sol";
+import {ContentStore} from "scripty.sol/contracts/scripty/dependencies/ethfs/ContentStore.sol";
 import {GenTk} from "contracts/gentk/GenTk.sol";
 import {IConfigurationManager} from "contracts/interfaces/IConfigurationManager.sol";
 import {IReserve} from "contracts/interfaces/IReserve.sol";
@@ -26,8 +26,8 @@ import {Randomizer} from "contracts/randomizer/Randomizer.sol";
 import {ReserveManager} from "contracts/issuer/ReserveManager.sol";
 import {ReserveMintPass} from "contracts/reserve/ReserveMintPass.sol";
 import {ReserveWhitelist} from "contracts/reserve/ReserveWhitelist.sol";
-import {ScriptyBuilder} from "contracts/scripty/ScriptyBuilder.sol";
-import {ScriptyStorage} from "contracts/scripty/ScriptyStorage.sol";
+import {ScriptyBuilder} from "scripty.sol/contracts/scripty/ScriptyBuilder.sol";
+import {ScriptyStorage} from "scripty.sol/contracts/scripty/ScriptyStorage.sol";
 
 contract Deploy is Script {
     // Contracts
