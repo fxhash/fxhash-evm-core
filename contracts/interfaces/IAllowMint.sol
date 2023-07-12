@@ -5,4 +5,6 @@ interface IAllowMint {
     error TokenModerated();
 
     function isAllowed(address _tokenContract) external view returns (bool);
+
+    function updateIssuerModerationContract(address _contract) external;
 }

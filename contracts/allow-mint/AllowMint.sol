@@ -17,13 +17,13 @@ contract AllowMint is IAllowMint, Ownable {
     }
 
     /// @notice Updates the Issuer Moderation contract
-    /// @param _address Address of the new moderation contract
-    function updateIssuerModerationContract(address _address) external onlyOwner {
-        issuerMod = _address;
+    /// @param _contract Address of new moderation contract
+    function updateIssuerModerationContract(address _contract) external onlyOwner {
+        issuerMod = _contract;
     }
 
     /// @notice Gets the state from the token moderation contract
-    /// @param _tokenContract Address of the moderation contract
+    /// @param _tokenContract Address of moderation contract
     /// @return boolean value of allowance
     function isAllowed(address _tokenContract) external view returns (bool) {
         uint256 state = IModerationIssuer(issuerMod).issuerState(_tokenContract);
