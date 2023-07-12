@@ -6,25 +6,22 @@ import {IModerationIssuer} from "contracts/interfaces/IModerationIssuer.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 /// @title AllowMint
-/// @notice Checks allowance of token moderation
+/// @dev See the documentation in {IAllowMint}
 contract AllowMint is IAllowMint, Ownable {
-    /// @notice Address of Issuer Moderation contract
-    address issuerMod;
+    /// @dev Address of Issuer Moderation contract
+    address private issuerMod;
 
     /// @dev Initializes Issuer Moderation contract
     constructor(address _issuerMod) {
         issuerMod = _issuerMod;
     }
 
-    /// @notice Updates the Issuer Moderation contract
-    /// @param _contract Address of new moderation contract
-    function updateIssuerModerationContract(address _contract) external onlyOwner {
-        issuerMod = _contract;
+    /// @inheritdoc IAllowMint
+    function updateIssuerModerationContract(address _moderationContract) external onlyOwner {
+        issuerMod = _moderationContract;
     }
 
-    /// @notice Gets the state from the token moderation contract
-    /// @param _tokenContract Address of moderation contract
-    /// @return boolean value of allowance
+    /// @inheritdoc IAllowMint
     function isAllowed(address _tokenContract) external view returns (bool) {
         uint256 state = IModerationIssuer(issuerMod).issuerState(_tokenContract);
         if (state > 1) revert TokenModerated();
