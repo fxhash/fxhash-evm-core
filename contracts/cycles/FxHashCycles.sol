@@ -13,15 +13,16 @@ contract FxHashCycles is IFxHashCycles, AuthorizedCaller {
     /// @inheritdoc IFxHashCycles
     mapping(uint256 => CycleParams) public cycles;
 
+    /// @dev Initializes authorization roles
     constructor() {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _setupRole(AUTHORIZED_CALLER, msg.sender);
     }
 
     /// @inheritdoc IFxHashCycles
-    function addCycle(CycleParams calldata _params) external onlyAuthorizedCaller {
-        if (_params.closingDuration < _params.openingDuration) revert InvalidDurationRange();
-        cycles[cyclesCount++] = _params;
+    function addCycle(CycleParams calldata _cycle) external onlyAuthorizedCaller {
+        if (_cycle.closingDuration < _cycle.openingDuration) revert InvalidDurationRange();
+        cycles[cyclesCount++] = _cycle;
     }
 
     /// @inheritdoc IFxHashCycles
