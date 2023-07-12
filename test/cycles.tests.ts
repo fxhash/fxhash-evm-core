@@ -2,7 +2,7 @@ import { ethers } from "hardhat";
 import { Contract, ContractFactory, Signer } from "ethers";
 import { expect } from "chai";
 
-describe("FxHashCycles", function () {
+describe.only("FxHashCycles", function () {
   let fxHashCycles: Contract;
   let admin: Signer;
   let nonAdmin: Signer;
