@@ -1,26 +1,33 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "contracts/interfaces/IModerationIssuer.sol";
-import "contracts/interfaces/IAllowMint.sol";
+import {IAllowMint} from "contracts/interfaces/IAllowMint.sol";
+import {IModerationIssuer} from "contracts/interfaces/IModerationIssuer.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-
+/// @title AllowMint
+/// @notice Checks allowance of token moderation
 contract AllowMint is IAllowMint, Ownable {
-    address private issuerMod;
+    /// @notice Address of Issuer Moderation contract
+    address issuerMod;
 
+    /// @dev Initializes Issuer Moderation contract
     constructor(address _issuerMod) {
         issuerMod = _issuerMod;
     }
 
+    /// @notice Updates the Issuer Moderation contract
+    /// @param _address Address of the new moderation contract
     function updateIssuerModerationContract(address _address) external onlyOwner {
         issuerMod = _address;
     }
 
-    function isAllowed(address tokenContract) external view returns (bool) {
-        // Get the state from the token moderation contract
-        uint256 state = IModerationIssuer(issuerMod).issuerState(tokenContract);
-        require(state < 2, "TOKEN_MODERATED");
+    /// @notice Gets the state from the token moderation contract
+    /// @param _tokenContract Address of the moderation contract
+    /// @return boolean value of allowance
+    function isAllowed(address _tokenContract) external view returns (bool) {
+        uint256 state = IModerationIssuer(issuerMod).issuerState(_tokenContract);
+        if (state > 1) revert TokenModerated();
         return true;
     }
 }

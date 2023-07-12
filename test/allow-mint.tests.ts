@@ -67,6 +67,6 @@ describe("AllowMint", function () {
     // The function call should revert with the 'TOKEN_MODERATED' error message
     await expect(
       allowMint.isAllowed(tokenContract)
-    ).to.be.revertedWith("TOKEN_MODERATED");
+    ).to.be.revertedWithCustomError(allowMint, "TokenModerated");
   });
 });
