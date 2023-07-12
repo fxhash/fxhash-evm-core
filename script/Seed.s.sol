@@ -44,52 +44,52 @@ contract Seed is Script {
     //  - Pricing (Fixed price/Dutch Auction)
     //  - On chain / off chain
 
-    function getEmptyMintTicketParam() public {
+    function getEmptyMintTicketParam() public pure returns (IIssuer.MintTicketSettings memory){
         return IIssuer.MintTicketSettings({
             gracingPeriod: 0,
             metadata: ""
         });
     }
 
-    function getMintTicketParam() public {
+    function getMintTicketParam() public pure returns (IIssuer.MintTicketSettings memory){
         return IIssuer.MintTicketSettings({
             gracingPeriod: 1000,
             metadata: "ipfs://1234"
         });
     }
 
-    function getOpenEditionParam() public {
+    function getOpenEditionParam() public view returns(LibIssuer.OpenEditions memory){
         return LibIssuer.OpenEditions({
-            gracingPeriod: block.timestamp + 1000,
-            extra: bytes()
+            closingTime: block.timestamp + 1000,
+            extra: bytes("")
         });
     }
 
-    function getEmptyOpenEditionParam() public {
+    function getEmptyOpenEditionParam() public pure returns(LibIssuer.OpenEditions memory) {
         return LibIssuer.OpenEditions({
-            gracingPeriod: 0,
-            extra: bytes()
+            closingTime: 0,
+            extra: bytes("")
         });
     }
 
-    function getEmptyReserveParam() public {
+    function getEmptyReserveParam() public pure returns (LibReserve.ReserveData[] memory){
         return new LibReserve.ReserveData[](0);
     }
 
-    function getWhitelistParam() public {
+    function getWhitelistParam() public view returns (LibReserve.ReserveData[] memory){
         LibReserve.ReserveData[] memory reserves = new LibReserve.ReserveData[](1);
         ReserveWhitelist.WhitelistEntry[] memory whitelistEntries = new ReserveWhitelist.WhitelistEntry[](3);
 
         whitelistEntries[0] = ReserveWhitelist.WhitelistEntry({
-            whitelisted: Deploy.bob(),
+            whitelisted: deploy.bob(),
             amount: 2
         });
         whitelistEntries[1] = ReserveWhitelist.WhitelistEntry({
-            whitelisted: Deploy.eve(),
+            whitelisted: deploy.eve(),
             amount: 1
         });
         whitelistEntries[1] = ReserveWhitelist.WhitelistEntry({
-            whitelisted: Deploy.susan(),
+            whitelisted: deploy.susan(),
             amount: 1
         });
 
@@ -101,30 +101,30 @@ contract Seed is Script {
         return reserves;
     }
 
-    function getMintPassParam() public {
+    function getMintPassParam() public view returns (LibReserve.ReserveData[] memory){
         LibReserve.ReserveData[] memory reserves = new LibReserve.ReserveData[](1);
         reserves[0] = LibReserve.ReserveData({
             methodId: 2,
             amount: 4,
-            data: abi.encode(Deploy.mintPassGroup())
+            data: abi.encode(deploy.mintPassGroup())
         });
         return reserves;
     }
 
-    function getWhitelistAndMintPassParam() public {
+    function getWhitelistAndMintPassParam() public view returns (LibReserve.ReserveData[] memory){
         LibReserve.ReserveData[] memory reserves = new LibReserve.ReserveData[](2);
         ReserveWhitelist.WhitelistEntry[] memory whitelistEntries = new ReserveWhitelist.WhitelistEntry[](3);
 
         whitelistEntries[0] = ReserveWhitelist.WhitelistEntry({
-            whitelisted: Deploy.bob(),
+            whitelisted: deploy.bob(),
             amount: 2
         });
         whitelistEntries[1] = ReserveWhitelist.WhitelistEntry({
-            whitelisted: Deploy.eve(),
+            whitelisted: deploy.eve(),
             amount: 1
         });
         whitelistEntries[1] = ReserveWhitelist.WhitelistEntry({
-            whitelisted: Deploy.susan(),
+            whitelisted: deploy.susan(),
             amount: 1
         });
 
@@ -136,12 +136,12 @@ contract Seed is Script {
         reserves[1] = LibReserve.ReserveData({
             methodId: 2,
             amount: 4,
-            data: abi.encode(Deploy.mintPassGroup())
+            data: abi.encode(deploy.mintPassGroup())
         });
         return reserves;
     }
 
-    function getFixedPriceParam() public {
+    function getFixedPriceParam() public view returns (LibPricing.PricingData memory){
         return LibPricing.PricingData({
             pricingId: 1,
             details: abi.encode(PricingFixed.PriceDetails({
@@ -152,7 +152,12 @@ contract Seed is Script {
         });
     }
 
-    function getDutchAuctionParam() public {
+    function getDutchAuctionParam() public view returns (LibPricing.PricingData memory){
+        uint256[] memory levels = new uint256[](4);
+        levels[0] = 1000;
+        levels[1] = 500;
+        levels[2] = 400;
+        levels[3] = 300;
         return LibPricing.PricingData({
             pricingId: 1,
             details: abi.encode(
@@ -160,23 +165,23 @@ contract Seed is Script {
                     opensAt: block.timestamp,
                     decrementDuration: 600,
                     lockedPrice: 0,
-                    levels: [1000, 500, 400, 300]
+                    levels: levels
                 })
             ),
             lockForReserves: false
         });
     }
 
-    function getEmptyOnChainScripts() public {
+    function getEmptyOnChainScripts() public pure returns (WrappedScriptRequest[] memory){
         return new WrappedScriptRequest[](0);
     }
 
-    function getOnChainScripts() public {
-        WrappedScriptRequest[] scripts = new WrappedScriptRequest[](4);
+    function getOnChainScripts() public view returns (WrappedScriptRequest[] memory){
+        WrappedScriptRequest[] memory scriptRequests = new WrappedScriptRequest[](4);
         bytes memory emptyBytes = "";
         scriptRequests[0] = WrappedScriptRequest({
             name: "monad-1960-bundle.js",
-            contractAddress: _contractAddress,
+            contractAddress: address(deploy.scriptyStorage()),
             contractData: emptyBytes,
             wrapType: 0,
             wrapPrefix: emptyBytes,
@@ -186,7 +191,7 @@ contract Seed is Script {
 
         scriptRequests[1] = WrappedScriptRequest({
             name: "gunzipScripts-0.0.1",
-            contractAddress: _contractAddress,
+            contractAddress: address(deploy.scriptyStorage()),
             contractData: emptyBytes,
             wrapType: 0,
             wrapPrefix: emptyBytes,
@@ -196,7 +201,7 @@ contract Seed is Script {
 
         scriptRequests[2] = WrappedScriptRequest({
             name: "fxhash-snippet.js.gz",
-            contractAddress: _contractAddress,
+            contractAddress: address(deploy.scriptyStorage()),
             contractData: emptyBytes,
             wrapType: 2,
             wrapPrefix: emptyBytes,
@@ -206,7 +211,7 @@ contract Seed is Script {
 
         scriptRequests[3] = WrappedScriptRequest({
             name: "monad-1960-js.js.gz",
-            contractAddress: _contractAddress,
+            contractAddress: address(deploy.scriptyStorage()),
             contractData: emptyBytes,
             wrapType: 2,
             wrapPrefix: emptyBytes,
@@ -217,10 +222,10 @@ contract Seed is Script {
         return scriptRequests;
     }
 
-    function getSplit() public {
+    function getSplit() public view returns (LibRoyalty.RoyaltyData memory){
         return LibRoyalty.RoyaltyData({
             percent: 1000,
-            receiver: Deploy.alice()
+            receiver: deploy.alice()
         });
     }
 }
