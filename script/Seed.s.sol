@@ -202,7 +202,7 @@ contract Seed is Script {
             whitelisted: deploy.eve(),
             amount: 1
         });
-        whitelistEntries[1] = ReserveWhitelist.WhitelistEntry({
+        whitelistEntries[2] = ReserveWhitelist.WhitelistEntry({
             whitelisted: deploy.susan(),
             amount: 1
         });
@@ -238,7 +238,7 @@ contract Seed is Script {
             whitelisted: deploy.eve(),
             amount: 1
         });
-        whitelistEntries[1] = ReserveWhitelist.WhitelistEntry({
+        whitelistEntries[2] = ReserveWhitelist.WhitelistEntry({
             whitelisted: deploy.susan(),
             amount: 1
         });
