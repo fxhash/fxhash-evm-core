@@ -43,6 +43,12 @@ npm run test
 forge test
 ```
 
+7. Deploy contracts
+
+```
+forge script script/Deploy.s.sol --rpc-url $GOERLI_RPC_URL --private-key $DEPLOYER_PRIVATE_KEY --verify --etherscan-api-key $ETHERSCAN_API_KEY --broadcast
+```
+
 ## Architecture
 
 <img src="images/architecture.svg">
