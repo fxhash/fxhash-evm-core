@@ -13,8 +13,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 import "contracts/libs/LibIssuer.sol";
 
-import "hardhat/console.sol";
-
 contract GenTk is ERC721URIStorage, Ownable, IERC2981, IGenTk {
     struct TokenMetadata {
         uint256 tokenId;
