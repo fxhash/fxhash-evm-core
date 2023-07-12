@@ -40,9 +40,44 @@ contract SetAssetState is MarketPlaceTest {
     }
 }
 
-contract SetMaxReferralShare is MarketPlaceTest {}
+contract SetMaxReferralShare is MarketPlaceTest {
+    uint256 public maxReferralShare = 1000;
 
-contract SetReferralShare is MarketPlaceTest {}
+    function test_setMaxReferralShare() public {
+        vm.prank(admin);
+        market.setMaxReferralShare(maxReferralShare);
+
+        assertEq(market.maxReferralShare(), maxReferralShare);
+    }
+
+    function test_RevertsWhenNotAdmin() public {
+        vm.expectRevert("Caller is not an admin");
+        market.setMaxReferralShare(maxReferralShare);
+    }
+}
+
+contract SetReferralShare is MarketPlaceTest {
+    uint256 public maxReferralShare;
+    uint256 public referralShare = 10;
+
+    function setUp() public virtual override {
+        super.setUp();
+        maxReferralShare = market.maxReferralShare();
+        assertGt(maxReferralShare, referralShare, "Max < share");
+    }
+
+    function test_setReferralShare() public {
+        vm.prank(admin);
+        market.setReferralShare(referralShare);
+
+        assertEq(market.referralShare(), referralShare);
+    }
+
+    function test_RevertsWhenNotAdmin() public {
+        vm.expectRevert("Caller is not an admin");
+        market.setReferralShare(referralShare);
+    }
+}
 
 contract SetPlatformFees is MarketPlaceTest {}
 
