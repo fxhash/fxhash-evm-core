@@ -163,17 +163,17 @@ contract Deploy is Script {
         );
 
         // Issuer
-        issuer = new Issuer(address(configurationManager), alice);
+        issuer = new Issuer(address(configurationManager), msg.sender);
 
         // Token
-        genTk = new GenTk(alice, address(issuer), address(configurationManager));
+        genTk = new GenTk(msg.sender, address(issuer), address(configurationManager));
     }
 
     function configureContracts() public {
         ModerationTeam.UpdateModeratorParam[]
             memory moderators = new ModerationTeam.UpdateModeratorParam[](1);
         IConfigurationManager.ContractEntry[]
-            memory contractEntries = new IConfigurationManager.ContractEntry[](11);
+            memory contractEntries = new IConfigurationManager.ContractEntry[](10);
 
         moderators[0] = ModerationTeam.UpdateModeratorParam({
             moderator: moderator,
@@ -189,38 +189,34 @@ contract Deploy is Script {
             value: address(mintTicket)
         });
         contractEntries[2] = IConfigurationManager.ContractEntry({
-            key: "gentk",
-            value: address(genTk)
-        });
-        contractEntries[3] = IConfigurationManager.ContractEntry({
             key: "randomizer",
             value: address(randomizer)
         });
-        contractEntries[4] = IConfigurationManager.ContractEntry({
+        contractEntries[3] = IConfigurationManager.ContractEntry({
             key: "mod_team",
             value: address(moderationTeam)
         });
-        contractEntries[5] = IConfigurationManager.ContractEntry({
+        contractEntries[4] = IConfigurationManager.ContractEntry({
             key: "al_mi",
             value: address(allowMintIssuer)
         });
-        contractEntries[6] = IConfigurationManager.ContractEntry({
+        contractEntries[5] = IConfigurationManager.ContractEntry({
             key: "al_m",
             value: address(allowMint)
         });
-        contractEntries[7] = IConfigurationManager.ContractEntry({
+        contractEntries[6] = IConfigurationManager.ContractEntry({
             key: "user_mod",
             value: address(moderationUser)
         });
-        contractEntries[8] = IConfigurationManager.ContractEntry({
+        contractEntries[7] = IConfigurationManager.ContractEntry({
             key: "codex",
             value: address(codex)
         });
-        contractEntries[9] = IConfigurationManager.ContractEntry({
+        contractEntries[8] = IConfigurationManager.ContractEntry({
             key: "priceMag",
             value: address(pricingManager)
         });
-        contractEntries[10] = IConfigurationManager.ContractEntry({
+        contractEntries[9] = IConfigurationManager.ContractEntry({
             key: "resMag",
             value: address(reserveManager)
         });
@@ -255,6 +251,7 @@ contract Deploy is Script {
                 voidMetadata: ISSUER_VOID_METADATA
             })
         );
+        issuer.setGenTk(address(genTk));
     }
 
     function _createUser(string memory _name) internal returns (address user) {

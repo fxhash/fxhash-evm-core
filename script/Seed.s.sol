@@ -13,6 +13,8 @@ import {LibRoyalty} from "contracts/libs/LibRoyalty.sol";
 import {LibIssuer} from "contracts/libs/LibIssuer.sol";
 import {LibCodex} from "contracts/libs/LibCodex.sol";
 import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
+import {Issuer} from "contracts/issuer/Issuer.sol";
+import {GenTk} from "contracts/gentk/GenTk.sol";
 
 contract Seed is Script {
     enum ReserveOptions {
@@ -44,14 +46,49 @@ contract Seed is Script {
 
     function setUp() public {
         deploy = new Deploy();
+        deploy.setUp();
+        deploy.run();
     }
 
     function run() public {
         vm.startBroadcast();
-
-        deploy.run();
-
+        mintAllGetIssuerCombinations();
         vm.stopBroadcast();
+    }
+
+    function mintAllGetIssuerCombinations() public {
+        for (uint i = 0; i < uint(ReserveOptions.WhitelistAndMintPass) + 1; i++) {
+            for (uint j = 0; j < uint(PricingOptions.DutchAuction) + 1; j++) {
+                for (uint k = 0; k < uint(OpenEditionsOptions.Disabled) + 1; k++) {
+                    for (uint l = 0; l < uint(MintTicketOptions.Disabled) + 1; l++) {
+                        for (uint m = 0; m < uint(OnChainOptions.Disabled) + 1; m++) {
+
+                            Issuer _issuer = new Issuer(
+                                address(deploy.configurationManager()),
+                                msg.sender
+                            );
+                            GenTk _genTk = new GenTk(
+                                msg.sender,
+                                address(_issuer),
+                                address(deploy.configurationManager())
+                            );
+                            _issuer.setGenTk(address(_genTk));
+
+                            _issuer.mintIssuer(
+                                _getIssuerInput(
+                                    address(_issuer),
+                                    ReserveOptions(i),
+                                    PricingOptions(j),
+                                    OpenEditionsOptions(k),
+                                    MintTicketOptions(l),
+                                    OnChainOptions(m)
+                                )
+                            );
+                        }
+                    }
+                }
+            }
+        }
     }
 
     // Issuer features
@@ -60,14 +97,14 @@ contract Seed is Script {
     //  - Reserves (None/Whitelist/Mint Pass)
     //  - Pricing (Fixed price/Dutch Auction)
     //  - On chain / off chain
-
-    function getIssuer(
+    function _getIssuerInput(
+        address issuer,
         ReserveOptions reserveOption,
         PricingOptions pricingOption,
         OpenEditionsOptions openEditionOption,
         MintTicketOptions mintTicketOptions,
         OnChainOptions onChainOptions
-    ) public view returns (IIssuer.MintIssuerInput memory){
+    ) public view returns (IIssuer.MintIssuerInput memory) {
         LibReserve.ReserveData[] memory reserveData;
         LibPricing.PricingData memory pricingData;
         LibIssuer.OpenEditions memory openEditionsData;
@@ -75,37 +112,37 @@ contract Seed is Script {
         WrappedScriptRequest[] memory onChainData;
 
         if (reserveOption == ReserveOptions.None) {
-            reserveData = getEmptyReserveParam();
+            reserveData = _getEmptyReserveParam();
         } else if (reserveOption == ReserveOptions.Whitelist) {
-            reserveData = getWhitelistParam();
+            reserveData = _getWhitelistParam();
         } else if (reserveOption == ReserveOptions.MintPass) {
-            reserveData = getMintPassParam();
+            reserveData = _getMintPassParam();
         } else if (reserveOption == ReserveOptions.WhitelistAndMintPass) {
-            reserveData = getWhitelistAndMintPassParam();
+            reserveData = _getWhitelistAndMintPassParam();
         }
 
         if (pricingOption == PricingOptions.Fixed) {
-            pricingData = getFixedPriceParam();
+            pricingData = _getFixedPriceParam();
         } else {
-            pricingData = getDutchAuctionParam();
+            pricingData = _getDutchAuctionParam();
         }
 
         if (openEditionOption == OpenEditionsOptions.Enabled) {
-            openEditionsData = getOpenEditionParam();
+            openEditionsData = _getOpenEditionParam();
         } else {
-            openEditionsData = getEmptyOpenEditionParam();
+            openEditionsData = _getEmptyOpenEditionParam();
         }
 
         if (mintTicketOptions == MintTicketOptions.Enabled) {
-            mintTicketData = getMintTicketParam();
+            mintTicketData = _getMintTicketParam();
         } else {
-            mintTicketData = getEmptyMintTicketParam();
+            mintTicketData = _getEmptyMintTicketParam();
         }
 
         if (onChainOptions == OnChainOptions.Enabled) {
-            onChainData = getOnChainScripts();
+            onChainData = _getOnChainScripts();
         } else {
-            onChainData = getEmptyOnChainScripts();
+            onChainData = _getEmptyOnChainScripts();
         }
         return
             IIssuer.MintIssuerInput({
@@ -113,7 +150,7 @@ contract Seed is Script {
                     inputType: 0,
                     value: bytes(""),
                     codexId: 0,
-                    issuer: address(deploy.issuer())
+                    issuer: issuer
                 }),
                 metadata: bytes(""),
                 inputBytesSize: 0,
@@ -122,35 +159,35 @@ contract Seed is Script {
                 mintTicketSettings: mintTicketData,
                 reserves: reserveData,
                 pricing: pricingData,
-                primarySplit: getSplit(),
-                royaltiesSplit: getSplit(),
+                primarySplit: _getSplit(),
+                royaltiesSplit: _getSplit(),
                 enabled: true,
                 tags: new uint256[](0),
                 onChainScripts: onChainData
             });
     }
 
-    function getEmptyMintTicketParam() public pure returns (IIssuer.MintTicketSettings memory) {
+    function _getEmptyMintTicketParam() public pure returns (IIssuer.MintTicketSettings memory) {
         return IIssuer.MintTicketSettings({gracingPeriod: 0, metadata: ""});
     }
 
-    function getMintTicketParam() public pure returns (IIssuer.MintTicketSettings memory) {
+    function _getMintTicketParam() public pure returns (IIssuer.MintTicketSettings memory) {
         return IIssuer.MintTicketSettings({gracingPeriod: 1000, metadata: "ipfs://1234"});
     }
 
-    function getOpenEditionParam() public view returns (LibIssuer.OpenEditions memory) {
-        return LibIssuer.OpenEditions({closingTime: block.timestamp + 1000, extra: bytes("")});
+    function _getOpenEditionParam() public view returns (LibIssuer.OpenEditions memory) {
+        return LibIssuer.OpenEditions({closingTime: block.timestamp + 2000, extra: bytes("")});
     }
 
-    function getEmptyOpenEditionParam() public pure returns (LibIssuer.OpenEditions memory) {
+    function _getEmptyOpenEditionParam() public pure returns (LibIssuer.OpenEditions memory) {
         return LibIssuer.OpenEditions({closingTime: 0, extra: bytes("")});
     }
 
-    function getEmptyReserveParam() public pure returns (LibReserve.ReserveData[] memory) {
+    function _getEmptyReserveParam() public pure returns (LibReserve.ReserveData[] memory) {
         return new LibReserve.ReserveData[](0);
     }
 
-    function getWhitelistParam() public view returns (LibReserve.ReserveData[] memory) {
+    function _getWhitelistParam() public view returns (LibReserve.ReserveData[] memory) {
         LibReserve.ReserveData[] memory reserves = new LibReserve.ReserveData[](1);
         ReserveWhitelist.WhitelistEntry[]
             memory whitelistEntries = new ReserveWhitelist.WhitelistEntry[](3);
@@ -176,7 +213,7 @@ contract Seed is Script {
         return reserves;
     }
 
-    function getMintPassParam() public view returns (LibReserve.ReserveData[] memory) {
+    function _getMintPassParam() public view returns (LibReserve.ReserveData[] memory) {
         LibReserve.ReserveData[] memory reserves = new LibReserve.ReserveData[](1);
         reserves[0] = LibReserve.ReserveData({
             methodId: 2,
@@ -186,7 +223,7 @@ contract Seed is Script {
         return reserves;
     }
 
-    function getWhitelistAndMintPassParam() public view returns (LibReserve.ReserveData[] memory) {
+    function _getWhitelistAndMintPassParam() public view returns (LibReserve.ReserveData[] memory) {
         LibReserve.ReserveData[] memory reserves = new LibReserve.ReserveData[](2);
         ReserveWhitelist.WhitelistEntry[]
             memory whitelistEntries = new ReserveWhitelist.WhitelistEntry[](3);
@@ -217,7 +254,7 @@ contract Seed is Script {
         return reserves;
     }
 
-    function getFixedPriceParam() public view returns (LibPricing.PricingData memory) {
+    function _getFixedPriceParam() public view returns (LibPricing.PricingData memory) {
         return
             LibPricing.PricingData({
                 pricingId: 1,
@@ -228,7 +265,7 @@ contract Seed is Script {
             });
     }
 
-    function getDutchAuctionParam() public view returns (LibPricing.PricingData memory) {
+    function _getDutchAuctionParam() public view returns (LibPricing.PricingData memory) {
         uint256[] memory levels = new uint256[](4);
         levels[0] = 1000;
         levels[1] = 500;
@@ -249,11 +286,11 @@ contract Seed is Script {
             });
     }
 
-    function getEmptyOnChainScripts() public pure returns (WrappedScriptRequest[] memory) {
+    function _getEmptyOnChainScripts() public pure returns (WrappedScriptRequest[] memory) {
         return new WrappedScriptRequest[](0);
     }
 
-    function getOnChainScripts() public view returns (WrappedScriptRequest[] memory) {
+    function _getOnChainScripts() public view returns (WrappedScriptRequest[] memory) {
         WrappedScriptRequest[] memory scriptRequests = new WrappedScriptRequest[](4);
         bytes memory emptyBytes = "";
         scriptRequests[0] = WrappedScriptRequest({
@@ -299,7 +336,7 @@ contract Seed is Script {
         return scriptRequests;
     }
 
-    function getSplit() public view returns (LibRoyalty.RoyaltyData memory) {
-        return LibRoyalty.RoyaltyData({percent: 1000, receiver: deploy.alice()});
+    function _getSplit() public view returns (LibRoyalty.RoyaltyData memory) {
+        return LibRoyalty.RoyaltyData({percent: 1000, receiver: msg.sender});
     }
 }
