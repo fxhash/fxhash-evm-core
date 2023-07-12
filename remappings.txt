@@ -1,4 +1,3 @@
-0xsplits/=node_modules/0xsplits/
 @ensdomains/=node_modules/@ensdomains/
 @ethereum-waffle/=node_modules/@ethereum-waffle/
 @openzeppelin/=node_modules/@openzeppelin/
