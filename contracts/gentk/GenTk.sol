@@ -1,50 +1,20 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
-import "contracts/interfaces/IIssuer.sol";
-import "contracts/interfaces/IGenTk.sol";
-import "contracts/interfaces/IOnChainTokenMetadataManager.sol";
-import "contracts/interfaces/IConfigurationManager.sol";
 
-import "@openzeppelin/contracts/interfaces/IERC721.sol";
-import "@openzeppelin/contracts/interfaces/IERC2981.sol";
-
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-
-import "contracts/libs/LibIssuer.sol";
+import {ERC721, ERC721URIStorage} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import {IConfigurationManager} from "contracts/interfaces/IConfigurationManager.sol";
+import {IERC2981} from "@openzeppelin/contracts/interfaces/IERC2981.sol";
+import {IERC721, IERC165} from "@openzeppelin/contracts/interfaces/IERC721.sol";
+import {IGenTk} from "contracts/interfaces/IGenTk.sol";
+import {IIssuer} from "contracts/interfaces/IIssuer.sol";
+import {IOnChainTokenMetadataManager} from "contracts/interfaces/IOnChainTokenMetadataManager.sol";
+import {LibIssuer} from "contracts/libs/LibIssuer.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract GenTk is ERC721URIStorage, Ownable, IERC2981, IGenTk {
-    struct TokenMetadata {
-        uint256 tokenId;
-        string metadata;
-    }
-
-    struct OnChainTokenMetadata {
-        uint256 tokenId;
-        bytes metadata;
-    }
-
-    struct TokenData {
-        uint256 iteration;
-        bytes inputBytes;
-        address minter;
-        bool assigned;
-    }
-
     IIssuer private issuer;
     IConfigurationManager private configManager;
-
     mapping(uint256 => TokenData) public tokenData;
-
-    event TokenMinted(TokenParams _params);
-    event TokenMetadataAssigned(TokenMetadata[] _params);
-    event OnChainTokenMetadataAssigned(OnChainTokenMetadata[] _params);
-
-    constructor(address _owner, address _issuer, address _configManager) ERC721("GenTK", "GTK") {
-        issuer = IIssuer(_issuer);
-        configManager = IConfigurationManager(_configManager);
-        transferOwnership(_owner);
-    }
 
     modifier onlySigner() {
         require(msg.sender == configManager.getAddress("signer"), "Caller is not signer");
@@ -59,6 +29,12 @@ contract GenTk is ERC721URIStorage, Ownable, IERC2981, IGenTk {
     modifier onlyFxHashAdmin() {
         require(msg.sender == configManager.getAddress("admin"), "Caller is not FXHASH admin");
         _;
+    }
+
+    constructor(address _owner, address _issuer, address _configManager) ERC721("GenTK", "GTK") {
+        issuer = IIssuer(_issuer);
+        configManager = IConfigurationManager(_configManager);
+        transferOwnership(_owner);
     }
 
     function mint(TokenParams calldata _params) external onlyIssuer {
@@ -122,10 +98,6 @@ contract GenTk is ERC721URIStorage, Ownable, IERC2981, IGenTk {
     function supportsInterface(
         bytes4 interfaceId
     ) public view override(ERC721URIStorage, IERC165) returns (bool) {
-        return
-            interfaceId == type(IERC721).interfaceId ||
-            interfaceId == type(IGenTk).interfaceId ||
-            interfaceId == type(IERC2981).interfaceId ||
-            super.supportsInterface(interfaceId);
+        return interfaceId == type(IERC2981).interfaceId || super.supportsInterface(interfaceId);
     }
 }
