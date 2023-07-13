@@ -5,6 +5,7 @@ import "contracts/interfaces/IPricing.sol";
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
+import "hardhat/console.sol";
 
 contract PricingDutchAuction is IPricing, Ownable {
     struct PriceDetails {
@@ -49,6 +50,7 @@ contract PricingDutchAuction is IPricing, Ownable {
     function getPrice(uint256 timestamp) external view returns (uint256) {
         PriceDetails storage pricing = pricings[msg.sender];
         require(pricing.opensAt > 0, "No pricing available for the issuer");
+        console.log("%s %s", timestamp, pricing.opensAt);
         require(timestamp >= pricing.opensAt, "NOT_OPENED_YET");
 
         if (pricing.lockedPrice > 0) {
