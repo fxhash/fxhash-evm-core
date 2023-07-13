@@ -44,12 +44,32 @@ contract Seed is Script {
         Disabled
     }
 
+    struct MintIssuerInput {
+        address issuer;
+        address mintPassGroup;
+        ReserveOptions reserveOption;
+        PricingOptions pricingOption;
+        OpenEditionsOptions openEditionsOption;
+        MintTicketOptions mintTicketOption;
+        OnChainOptions onChainOption;
+    }
+
+    struct MintInput {
+        address issuer;
+        address mintPassGroup;
+        address recipient;
+        address referrer;
+        ReserveOptions reserveOption;
+        MintTicketOptions mintTicketOption;
+    }
+
     Deploy public deploy;
 
     uint256 public constant NUMBER = 100;
     uint256 public constant PRICE = 1000;
 
     uint256 public mintNb;
+    uint256 public time;
 
     function setUp() public {
         deploy = new Deploy();
@@ -62,12 +82,16 @@ contract Seed is Script {
     }
 
     function mintAllGetIssuerCombinations() public {
+        time = block.timestamp;
         for (uint i = 0; i < uint(ReserveOptions.WhitelistAndMintPass) + 1; i++) {
             for (uint j = 0; j < uint(PricingOptions.DutchAuction) + 1; j++) {
                 for (uint k = 0; k < uint(OpenEditionsOptions.Disabled) + 1; k++) {
                     for (uint l = 0; l < uint(MintTicketOptions.Disabled) + 1; l++) {
                         for (uint m = 0; m < uint(OnChainOptions.Disabled) + 1; m++) {
                             vm.startBroadcast(deploy.alice());
+                            vm.warp(time);
+
+                            MintPassGroup _mintPassGroup;
                             Issuer _issuer = new Issuer(
                                 address(deploy.configurationManager()),
                                 deploy.alice()
@@ -79,27 +103,45 @@ contract Seed is Script {
                             );
                             _issuer.setGenTk(address(_genTk));
 
+                            if (
+                                i == uint(ReserveOptions.MintPass) ||
+                                i == uint(ReserveOptions.WhitelistAndMintPass)
+                            ) {
+                                _mintPassGroup = new MintPassGroup(
+                                    deploy.MAX_PER_TOKEN(),
+                                    deploy.MAX_PER_TOKEN_PER_PROJECT(),
+                                    deploy.signer(),
+                                    address(deploy.reserveMintPass()),
+                                    new address[](0)
+                                );
+                            }
                             _issuer.mintIssuer(
                                 _getMintIssuerInput(
-                                    address(_issuer),
-                                    ReserveOptions(i),
-                                    PricingOptions(j),
-                                    OpenEditionsOptions(k),
-                                    MintTicketOptions(l),
-                                    OnChainOptions(m)
+                                    MintIssuerInput({
+                                        issuer: address(_issuer),
+                                        mintPassGroup: address(_mintPassGroup),
+                                        reserveOption: ReserveOptions(i),
+                                        pricingOption: PricingOptions(j),
+                                        openEditionsOption: OpenEditionsOptions(k),
+                                        mintTicketOption: MintTicketOptions(l),
+                                        onChainOption: OnChainOptions(m)
+                                    })
                                 )
                             );
+
                             vm.stopBroadcast();
                             vm.startBroadcast(deploy.bob());
-                            vm.warp(block.timestamp + 2);
-                            console.log("new mint");
+                            vm.warp(time + 3);
                             _issuer.mint{value: PRICE}(
                                 _getMintInput(
-                                    address(_issuer),
-                                    deploy.bob(),
-                                    deploy.signer(),
-                                    ReserveOptions(i),
-                                    MintTicketOptions(l)
+                                    MintInput({
+                                        issuer: address(_issuer),
+                                        mintPassGroup: address(_mintPassGroup),
+                                        recipient: deploy.bob(),
+                                        referrer: deploy.signer(),
+                                        reserveOption: ReserveOptions(i),
+                                        mintTicketOption: MintTicketOptions(l)
+                                    })
                                 )
                             );
                             vm.stopBroadcast();
@@ -116,23 +158,17 @@ contract Seed is Script {
     //  - Reserves (None/Whitelist/Mint Pass)
     //  - Pricing (Fixed price/Dutch Auction)
     //  - On chain / off chain
-    function _getMintInput(
-        address issuer,
-        address recipient,
-        address referrer,
-        ReserveOptions reserveOption,
-        MintTicketOptions mintTicketOptions
-    ) public view returns (IIssuer.MintInput memory) {
+    function _getMintInput(MintInput memory mintInput) public returns (IIssuer.MintInput memory) {
         bytes memory inputBytes;
         bytes memory reserveInput;
         bool createTicket = false;
-        if (reserveOption == ReserveOptions.Whitelist) {
+        if (mintInput.reserveOption == ReserveOptions.Whitelist) {
             LibReserve.ReserveData[] memory reserves = new LibReserve.ReserveData[](1);
             ReserveWhitelist.WhitelistEntry[]
                 memory whitelistEntries = new ReserveWhitelist.WhitelistEntry[](1);
 
             whitelistEntries[0] = ReserveWhitelist.WhitelistEntry({
-                whitelisted: recipient,
+                whitelisted: mintInput.recipient,
                 amount: 2
             });
 
@@ -144,68 +180,59 @@ contract Seed is Script {
             reserveInput = abi.encode(
                 LibReserve.ReserveInput({methodId: 1, input: abi.encode(reserves)})
             );
-        } else if (reserveOption == ReserveOptions.MintPass) {
-            MintPassGroup.Payload memory payload = MintPassGroup.Payload({
-                token: string.concat("token", string(abi.encode(mintNb))),
-                project: issuer,
-                addr: recipient
-            });
-            (uint8 v, bytes32 r, bytes32 s) = vm.sign(
-                deploy.SIGNER_PRIVATE_KEY(),
-                ECDSA.toTypedDataHash(
-                    getMintPassGroupDomainSeparator(),
-                    keccak256(
-                        abi.encode(
-                            keccak256(
-                                "Payload(string token,address project,address addr)"
-                            ),
-                            keccak256(bytes(payload.token)),
-                            payload.project,
-                            payload.addr
-                        )
-                    )
-                )
-            );
+        } else if (mintInput.reserveOption == ReserveOptions.MintPass) {
             LibReserve.ReserveData[] memory reserves = new LibReserve.ReserveData[](1);
             reserves[0] = LibReserve.ReserveData({
                 methodId: 2,
                 amount: 1,
-                data: abi.encode(deploy.mintPassGroup())
+                data: abi.encode(mintInput.mintPassGroup)
             });
             reserveInput = abi.encode(
                 LibReserve.ReserveInput({
                     methodId: 2,
-                    input: abi.encode(
-                        MintPassGroup.Pass({
-                            payload: abi.encode(payload),
-                            signature: abi.encodePacked(r,s,v)
-                        })
+                    input: getMintPassGroupPayload(
+                        mintInput.issuer,
+                        mintInput.recipient,
+                        mintInput.mintPassGroup
                     )
                 })
             );
+        } else if (mintInput.reserveOption == ReserveOptions.WhitelistAndMintPass) {
+            LibReserve.ReserveData[] memory reserves = new LibReserve.ReserveData[](1);
+            ReserveWhitelist.WhitelistEntry[]
+                memory whitelistEntries = new ReserveWhitelist.WhitelistEntry[](1);
+
+            whitelistEntries[0] = ReserveWhitelist.WhitelistEntry({
+                whitelisted: mintInput.recipient,
+                amount: 2
+            });
+
+            reserves[0] = LibReserve.ReserveData({
+                methodId: 1,
+                amount: 1,
+                data: abi.encode(whitelistEntries)
+            });
+            reserveInput = abi.encode(
+                LibReserve.ReserveInput({methodId: 1, input: abi.encode(reserves)})
+            );
         }
 
-        if (mintTicketOptions == MintTicketOptions.Enabled) {
+        if (mintInput.mintTicketOption == MintTicketOptions.Enabled) {
             createTicket = true;
         }
 
         return
             IIssuer.MintInput({
                 inputBytes: inputBytes,
-                referrer: referrer,
+                referrer: mintInput.referrer,
                 reserveInput: reserveInput,
                 createTicket: createTicket,
-                recipient: recipient
+                recipient: mintInput.recipient
             });
     }
 
     function _getMintIssuerInput(
-        address issuer,
-        ReserveOptions reserveOption,
-        PricingOptions pricingOption,
-        OpenEditionsOptions openEditionOption,
-        MintTicketOptions mintTicketOptions,
-        OnChainOptions onChainOptions
+        MintIssuerInput memory mintIssuerInput
     ) public view returns (IIssuer.MintIssuerInput memory) {
         LibReserve.ReserveData[] memory reserveData;
         LibPricing.PricingData memory pricingData;
@@ -213,35 +240,35 @@ contract Seed is Script {
         IIssuer.MintTicketSettings memory mintTicketData;
         WrappedScriptRequest[] memory onChainData;
 
-        if (reserveOption == ReserveOptions.None) {
+        if (mintIssuerInput.reserveOption == ReserveOptions.None) {
             reserveData = _getEmptyReserveParam();
-        } else if (reserveOption == ReserveOptions.Whitelist) {
+        } else if (mintIssuerInput.reserveOption == ReserveOptions.Whitelist) {
             reserveData = _getWhitelistParam();
-        } else if (reserveOption == ReserveOptions.MintPass) {
-            reserveData = _getMintPassParam();
-        } else if (reserveOption == ReserveOptions.WhitelistAndMintPass) {
-            reserveData = _getWhitelistAndMintPassParam();
+        } else if (mintIssuerInput.reserveOption == ReserveOptions.MintPass) {
+            reserveData = _getMintPassParam(mintIssuerInput.mintPassGroup);
+        } else if (mintIssuerInput.reserveOption == ReserveOptions.WhitelistAndMintPass) {
+            reserveData = _getWhitelistAndMintPassParam(mintIssuerInput.mintPassGroup);
         }
 
-        if (pricingOption == PricingOptions.Fixed) {
+        if (mintIssuerInput.pricingOption == PricingOptions.Fixed) {
             pricingData = _getFixedPriceParam();
         } else {
             pricingData = _getDutchAuctionParam();
         }
 
-        if (openEditionOption == OpenEditionsOptions.Enabled) {
+        if (mintIssuerInput.openEditionsOption == OpenEditionsOptions.Enabled) {
             openEditionsData = _getOpenEditionParam();
         } else {
             openEditionsData = _getEmptyOpenEditionParam();
         }
 
-        if (mintTicketOptions == MintTicketOptions.Enabled) {
+        if (mintIssuerInput.mintTicketOption == MintTicketOptions.Enabled) {
             mintTicketData = _getMintTicketParam();
         } else {
             mintTicketData = _getEmptyMintTicketParam();
         }
 
-        if (onChainOptions == OnChainOptions.Enabled) {
+        if (mintIssuerInput.onChainOption == OnChainOptions.Enabled) {
             onChainData = _getOnChainScripts();
         } else {
             onChainData = _getEmptyOnChainScripts();
@@ -252,7 +279,7 @@ contract Seed is Script {
                     inputType: 0,
                     value: bytes(""),
                     codexId: 0,
-                    issuer: issuer
+                    issuer: mintIssuerInput.issuer
                 }),
                 metadata: bytes(""),
                 inputBytesSize: 0,
@@ -278,7 +305,7 @@ contract Seed is Script {
     }
 
     function _getOpenEditionParam() public view returns (LibIssuer.OpenEditions memory) {
-        return LibIssuer.OpenEditions({closingTime: block.timestamp + 2000, extra: bytes("")});
+        return LibIssuer.OpenEditions({closingTime: time + 2000, extra: bytes("")});
     }
 
     function _getEmptyOpenEditionParam() public pure returns (LibIssuer.OpenEditions memory) {
@@ -315,17 +342,21 @@ contract Seed is Script {
         return reserves;
     }
 
-    function _getMintPassParam() public view returns (LibReserve.ReserveData[] memory) {
+    function _getMintPassParam(
+        address mintPassGroup
+    ) public pure returns (LibReserve.ReserveData[] memory) {
         LibReserve.ReserveData[] memory reserves = new LibReserve.ReserveData[](1);
         reserves[0] = LibReserve.ReserveData({
             methodId: 2,
             amount: 4,
-            data: abi.encode(deploy.mintPassGroup())
+            data: abi.encode(address(mintPassGroup))
         });
         return reserves;
     }
 
-    function _getWhitelistAndMintPassParam() public view returns (LibReserve.ReserveData[] memory) {
+    function _getWhitelistAndMintPassParam(
+        address mintPassGroup
+    ) public view returns (LibReserve.ReserveData[] memory) {
         LibReserve.ReserveData[] memory reserves = new LibReserve.ReserveData[](2);
         ReserveWhitelist.WhitelistEntry[]
             memory whitelistEntries = new ReserveWhitelist.WhitelistEntry[](3);
@@ -351,7 +382,7 @@ contract Seed is Script {
         reserves[1] = LibReserve.ReserveData({
             methodId: 2,
             amount: 4,
-            data: abi.encode(deploy.mintPassGroup())
+            data: abi.encode(mintPassGroup)
         });
         return reserves;
     }
@@ -360,9 +391,7 @@ contract Seed is Script {
         return
             LibPricing.PricingData({
                 pricingId: 1,
-                details: abi.encode(
-                    PricingFixed.PriceDetails({price: PRICE, opensAt: block.timestamp - 1})
-                ),
+                details: abi.encode(PricingFixed.PriceDetails({price: PRICE, opensAt: time + 1})),
                 lockForReserves: false
             });
     }
@@ -378,7 +407,7 @@ contract Seed is Script {
                 pricingId: 2,
                 details: abi.encode(
                     PricingDutchAuction.PriceDetails({
-                        opensAt: block.timestamp + 1,
+                        opensAt: time + 1,
                         decrementDuration: 600,
                         lockedPrice: 0,
                         levels: levels
@@ -442,7 +471,7 @@ contract Seed is Script {
         return LibRoyalty.RoyaltyData({percent: 1000, receiver: msg.sender});
     }
 
-    function getMintPassGroupDomainSeparator() public view returns (bytes32) {
+    function getMintPassGroupDomainSeparator(address mintPassGroup) public view returns (bytes32) {
         return
             keccak256(
                 abi.encode(
@@ -452,8 +481,42 @@ contract Seed is Script {
                     keccak256(bytes("MintPassGroup")),
                     keccak256(bytes("1")),
                     block.chainid,
-                    address(deploy.mintPassGroup())
+                    address(mintPassGroup)
                 )
+            );
+    }
+
+    function getMintPassGroupPayload(
+        address issuer,
+        address recipient,
+        address mintPassGroup
+    ) public returns (bytes memory) {
+        MintPassGroup.Payload memory payload = MintPassGroup.Payload({
+            token: string.concat("token", string(abi.encode(mintNb))),
+            project: issuer,
+            addr: recipient
+        });
+        mintNb++;
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(
+            deploy.SIGNER_PRIVATE_KEY(),
+            ECDSA.toTypedDataHash(
+                getMintPassGroupDomainSeparator(mintPassGroup),
+                keccak256(
+                    abi.encode(
+                        keccak256("Payload(string token,address project,address addr)"),
+                        keccak256(bytes(payload.token)),
+                        payload.project,
+                        payload.addr
+                    )
+                )
+            )
+        );
+        return
+            abi.encode(
+                MintPassGroup.Pass({
+                    payload: abi.encode(payload),
+                    signature: abi.encodePacked(r, s, v)
+                })
             );
     }
 }

@@ -162,15 +162,6 @@ contract Deploy is Script {
 
         // Mint Ticket
         mintTicket = new MintTicket(address(randomizer));
-
-        // Mint Pass
-        mintPassGroup = new MintPassGroup(
-            MAX_PER_TOKEN,
-            MAX_PER_TOKEN_PER_PROJECT,
-            signer,
-            address(reserveMintPass),
-            bypass
-        );
     }
 
     function configureContracts() public {
