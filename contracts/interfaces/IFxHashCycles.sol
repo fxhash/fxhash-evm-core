@@ -24,9 +24,9 @@ interface IFxHashCycles {
     /// @param _cycleId ID of the cycle
     function removeCycle(uint256 _cycleId) external;
 
-    /// @notice Checks if all given cycles are open
+    /// @notice Checks if batch of cycles are open
     /// @param _ids List of cycle IDs
-    /// @param _timestamp Timestamp being compared to the cycles
+    /// @param _timestamp Timestamp being compared to start time
     /// @return open Status of cycles
     function areCyclesOpen(
         uint256[][] calldata _ids,
@@ -35,4 +35,7 @@ interface IFxHashCycles {
 
     /// @notice Mapping of cycle ID to CycleParams => (start, openingDuration, closingDuration)
     function cycles(uint256) external view returns (uint128, uint64, uint64);
+
+    /// @notice Checks if single cycle is open
+    function isCycleOpen(uint256 _id, uint256 _timestamp) external view returns (bool);
 }

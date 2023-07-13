@@ -48,8 +48,8 @@ contract FxHashCycles is IFxHashCycles, AuthorizedCaller {
         }
     }
 
-    /// @dev Checks if cycle is open
-    function isCycleOpen(uint256 _id, uint256 _timestamp) private view returns (bool) {
+    /// @inheritdoc IFxHashCycles
+    function isCycleOpen(uint256 _id, uint256 _timestamp) public view returns (bool) {
         CycleParams memory _cycle = cycles[_id];
         uint256 diff = SignedMath.abs(int256(_timestamp) - int256(uint256(_cycle.start)));
         uint256 cycleRelative = diff % (_cycle.openingDuration + _cycle.closingDuration);
