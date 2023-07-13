@@ -74,6 +74,6 @@ describe("AllowIssuerMint", function () {
       .moderateUser(userAddress, state, reason);
     await expect(
       allowIssuerMint.isAllowed(await nonAdmin.getAddress())
-    ).to.be.rejectedWith("ACCOUNT_BANNED");
+    ).to.be.revertedWithCustomError(allowIssuerMint, "AccountBanned");
   });
 });
