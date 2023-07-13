@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 import "forge-std/Test.sol";
-import {FxHashCycles} from "contracts/cycles/Cycles.sol";
+import {IFxHashCycles, FxHashCycles} from "contracts/cycles/FxHashCycles.sol";
 
 contract CyclesTest is Test {
     address public admin = address(1);
@@ -21,7 +21,7 @@ contract CyclesTest is Test {
 contract AddCycle is CyclesTest {
     function setUp() public virtual override {
         super.setUp();
-        params = FxHashCycles.CycleParams(100, 50, 100);
+        params = IFxHashCycles.CycleParams(100, 50, 100);
     }
 
     function test_addCycle() public {
@@ -36,7 +36,7 @@ contract AddCycle is CyclesTest {
 contract RemoveCycle is CyclesTest {
     function setUp() public virtual override {
         super.setUp();
-        params = FxHashCycles.CycleParams(100, 50, 100);
+        params = IFxHashCycles.CycleParams(100, 50, 100);
         cycles.addCycle(params);
     }
 
@@ -48,7 +48,7 @@ contract RemoveCycle is CyclesTest {
 contract AreCyclesOpen is CyclesTest {
     function setUp() public virtual override {
         super.setUp();
-        params = FxHashCycles.CycleParams(100, 50, 100);
+        params = IFxHashCycles.CycleParams(100, 50, 100);
         cycles.addCycle(params);
     }
 
