@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 import "@openzeppelin/contracts/utils/math/SignedMath.sol";
-import "contracts/abstract/admin/AuthorizedCaller.sol";
+import "contracts/admin/AuthorizedCaller.sol";
 
 contract FxHashCycles is AuthorizedCaller {
     struct CycleParams {
@@ -20,7 +20,7 @@ contract FxHashCycles is AuthorizedCaller {
         _setupRole(AUTHORIZED_CALLER, msg.sender);
     }
 
-    function addCycle(CycleParams calldata _params) external onlyAuthorizedCaller {
+    function addCycle(CycleParams calldata _params) external onlyRole(AUTHORIZED_CALLER) {
         require(_params.start >= 0, "Error: start <= 0");
         require(_params.openingDuration >= 0, "Error: openingDuration <= 0");
         require(_params.closingDuration >= 0, "Error: closingDuration <= 0");
@@ -32,7 +32,7 @@ contract FxHashCycles is AuthorizedCaller {
         cyclesCount++;
     }
 
-    function removeCycle(uint256 _cycleId) external onlyAuthorizedCaller {
+    function removeCycle(uint256 _cycleId) external onlyRole(AUTHORIZED_CALLER) {
         delete cycles[_cycleId];
     }
 

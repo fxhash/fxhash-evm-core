@@ -70,7 +70,7 @@ describe("MintTicket", () => {
     issuer = await IssuerFactory.deploy();
     await issuer.setTicket(mintTicket.address);
     await issuer.deployed();
-    await randomizer.authorizeCaller(mintTicket.address);
+    await randomizer.grantAuthorizationRole(mintTicket.address);
   });
 
   describe("createProject", () => {

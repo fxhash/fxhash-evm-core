@@ -191,8 +191,8 @@ describe("Issuer", () => {
 
     codex = await CodexFactory.deploy(moderationTeam.address);
 
-    await randomizer.authorizeCaller(issuer.address);
-    await randomizer.authorizeCaller(mintTicket.address);
+    await randomizer.grantAuthorizationRole(issuer.address);
+    await randomizer.grantAuthorizationRole(mintTicket.address);
 
     // Deploy the contract
     const genTkFactory: ContractFactory = await ethers.getContractFactory(

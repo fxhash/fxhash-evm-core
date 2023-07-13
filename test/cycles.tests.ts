@@ -48,7 +48,7 @@ describe("FxHashCycles", function () {
     it("should grant the AUTHORIZED_CALLER role to an address", async function () {
       const addressToGrant = await fxHashAdmin.getAddress();
 
-      await fxHashCycles.connect(admin).authorizeCaller(addressToGrant);
+      await fxHashCycles.connect(admin).grantAuthorizationRole(addressToGrant);
       const hasFxHashAdminRole = await fxHashCycles.hasRole(
         AUTHORIZED_CALLER,
         addressToGrant
@@ -62,7 +62,7 @@ describe("FxHashCycles", function () {
 
       await fxHashCycles
         .connect(admin)
-        .revokeCallerAuthorization(addressToRevoke);
+        .revokeAuthorizationRole(addressToRevoke);
       const hasFxHashAdminRole = await fxHashCycles.hasRole(
         AUTHORIZED_CALLER,
         addressToRevoke
@@ -85,7 +85,7 @@ describe("FxHashCycles", function () {
       // Grant the FxHash admin role to the fxHashAdmin address
       await fxHashCycles
         .connect(admin)
-        .authorizeCaller(await fxHashAdmin.getAddress());
+        .grantAuthorizationRole(await fxHashAdmin.getAddress());
     });
 
     it("should add a new cycle", async function () {
@@ -131,9 +131,8 @@ describe("FxHashCycles", function () {
       await fxHashCycles.connect(fxHashAdmin).addCycle(cycleParams);
 
       // Attempt to remove the cycle by a non-admin
-      await expect(
-        fxHashCycles.connect(nonAdmin).removeCycle(cycleId)
-      ).to.be.revertedWith("Caller is not authorized");
+      await expect(fxHashCycles.connect(nonAdmin).removeCycle(cycleId)).to.be
+        .reverted;
 
       // Verify the cycle still exists
       const cycle = await fxHashCycles.cycles(cycleId);
@@ -150,9 +149,8 @@ describe("FxHashCycles", function () {
       };
 
       // Attempt to remove the cycle by a non-admin
-      await expect(
-        fxHashCycles.connect(nonAdmin).addCycle(cycleParams)
-      ).to.be.revertedWith("Caller is not authorized");
+      await expect(fxHashCycles.connect(nonAdmin).addCycle(cycleParams)).to.be
+        .reverted;
     });
 
     it("should add and remove multiple cycles", async function () {

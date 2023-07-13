@@ -66,7 +66,7 @@ describe("Randomizer", function () {
     it("should grant the AUTHORIZED_CALLER role to an address", async function () {
       const addressToGrant = await fxHashAdmin.getAddress();
 
-      await randomizer.connect(admin).authorizeCaller(addressToGrant);
+      await randomizer.connect(admin).grantAuthorizationRole(addressToGrant);
       const hasFxHashAdminRole = await randomizer.hasRole(
         fxHashAdminRole,
         addressToGrant
@@ -78,9 +78,7 @@ describe("Randomizer", function () {
     it("should revoke the AUTHORIZED_CALLER role from an address", async function () {
       const addressToRevoke = await fxHashAdmin.getAddress();
 
-      await randomizer
-        .connect(admin)
-        .revokeCallerAuthorization(addressToRevoke);
+      await randomizer.connect(admin).revokeAuthorizationRole(addressToRevoke);
       const hasFxHashAdminRole = await randomizer.hasRole(
         fxHashAdminRole,
         addressToRevoke
@@ -92,7 +90,9 @@ describe("Randomizer", function () {
 
   describe("Generate function", function () {
     beforeEach(async function () {
-      await randomizer.connect(admin).authorizeCaller(fxHashAdmin.getAddress());
+      await randomizer
+        .connect(admin)
+        .grantAuthorizationRole(fxHashAdmin.getAddress());
     });
 
     it("should generate a new token", async function () {

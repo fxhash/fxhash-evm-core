@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/interfaces/IERC2981.sol";
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/interfaces/IERC1155.sol";
-import "contracts/abstract/admin/AuthorizedCaller.sol";
+import "contracts/admin/AuthorizedCaller.sol";
 import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
 
 contract Marketplace is AuthorizedCaller {
@@ -103,31 +103,34 @@ contract Marketplace is AuthorizedCaller {
         _setupRole(DEFAULT_ADMIN_ROLE, _admin);
     }
 
-    function setAssetState(address _contract, bool _state) external onlyAdmin {
+    function setAssetState(address _contract, bool _state) external onlyRole(DEFAULT_ADMIN_ROLE) {
         assetContracts[_contract] = _state;
     }
 
-    function setMaxReferralShare(uint256 _maxShare) external onlyAdmin {
+    function setMaxReferralShare(uint256 _maxShare) external onlyRole(DEFAULT_ADMIN_ROLE) {
         maxReferralShare = _maxShare;
     }
 
-    function setReferralShare(uint256 _share) external onlyAdmin {
+    function setReferralShare(uint256 _share) external onlyRole(DEFAULT_ADMIN_ROLE) {
         referralShare = _share;
     }
 
-    function setPlatformfees(uint256 _platformFees) external onlyAdmin {
+    function setPlatformfees(uint256 _platformFees) external onlyRole(DEFAULT_ADMIN_ROLE) {
         platformFees = _platformFees;
     }
 
-    function setTreasury(address _treasury) external onlyAdmin {
+    function setTreasury(address _treasury) external onlyRole(DEFAULT_ADMIN_ROLE) {
         treasury = _treasury;
     }
 
-    function addCurrency(uint256 _currencyId, Currency calldata _currency) external onlyAdmin {
+    function addCurrency(
+        uint256 _currencyId,
+        Currency calldata _currency
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         currencies[_currencyId] = _currency;
     }
 
-    function removeCurrency(uint256 _currencyId) external onlyAdmin {
+    function removeCurrency(uint256 _currencyId) external onlyRole(DEFAULT_ADMIN_ROLE) {
         delete currencies[_currencyId];
     }
 

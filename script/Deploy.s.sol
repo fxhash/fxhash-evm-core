@@ -224,7 +224,7 @@ contract Deploy is Script {
         });
 
         // Authorize signer on Randomizer
-        randomizer.authorizeCaller(signer);
+        randomizer.grantAuthorizationRole(signer);
 
         // Register a moderator
         moderationTeam.updateModerators(moderators);
