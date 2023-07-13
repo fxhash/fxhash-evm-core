@@ -39,6 +39,9 @@ contract SplitTest is Test {
     address public splitMain = 0x2ed6c4B5dA6378c7897AC67Ba9e43102Feb694EE;
     address public splitWallet = 0xD94c0CE4f8eEfA4Ebf44bf6665688EdEEf213B33;
 
+    address[] public accounts;
+    uint32[] public allocations;
+
     function setUp() public {
         bytes memory splitMainBytecode = abi.encodePacked(splitMainCreationCode, abi.encode());
         address deployedAddress;
@@ -50,5 +53,20 @@ contract SplitTest is Test {
         }
         assertEq(deployedAddress, splitMain);
         assertEq(ISplitMain(splitMain).walletImplementation(), splitWallet);
+    }
+
+    function test_VerifyPredictAddress() public {
+        accounts.push(address(2));
+        accounts.push(address(3));
+        allocations.push(uint32(400000));
+        allocations.push(uint32(600000));
+        bytes32 salt = Lib0xSplits.getSalt(accounts, allocations, 0);
+        address libPredicted = Lib0xSplits.predictDeterministicAddress(salt);
+        address mainPredicted = ISplitMain(splitMain).predictImmutableSplitAddress(
+            accounts,
+            allocations,
+            0
+        );
+        assertEq(libPredicted, mainPredicted);
     }
 }
