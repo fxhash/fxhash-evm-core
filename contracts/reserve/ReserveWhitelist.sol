@@ -23,8 +23,7 @@ contract ReserveWhitelist is IReserve {
     }
 
     function applyReserve(
-        LibReserve.ApplyParams calldata params,
-        address
+        LibReserve.ApplyParams calldata params
     ) external pure returns (bool, bytes memory) {
         WhitelistEntry[] memory whitelist = abi.decode(params.currentData, (WhitelistEntry[]));
 

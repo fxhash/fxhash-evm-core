@@ -129,7 +129,8 @@ contract Issuer is IIssuer, IERC2981, Ownable {
             reserveTotal += params.reserves[i].amount;
             require(
                 IReserveManager(configManager.getAddress("resMag")).isReserveValid(
-                    params.reserves[i]
+                    params.reserves[i],
+                    msg.sender
                 ),
                 "WRG_RSRV"
             );
@@ -334,7 +335,7 @@ contract Issuer is IIssuer, IERC2981, Ownable {
             require(reserve.reserveContract != IReserve(address(0)), "RSRV_404");
             require(reserve.enabled, "RSRV_DIS");
             require(
-                IReserveManager(configManager.getAddress("resMag")).isReserveValid(reserves[i])
+                IReserveManager(configManager.getAddress("resMag")).isReserveValid(reserves[i], msg.sender)
             );
         }
         issuer.reserves = abi.encode(reserves);
