@@ -4,7 +4,10 @@ pragma solidity ^0.8.18;
 import "contracts/libs/LibReserve.sol";
 
 interface IReserveManager {
-    function isReserveValid(LibReserve.ReserveData memory reserve, address caller) external view returns (bool);
+    function isReserveValid(
+        LibReserve.ReserveData memory reserve,
+        address caller
+    ) external view returns (bool);
 
     function applyReserve(
         LibReserve.ReserveData memory reserve,

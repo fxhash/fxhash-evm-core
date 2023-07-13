@@ -6,6 +6,8 @@ import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+import "hardhat/console.sol";
+
 contract MintPassGroup is Ownable, EIP712 {
     bytes32 public constant PAYLOAD_TYPE_HASH =
         keccak256("Payload(string token,address project,address addr)");
@@ -62,6 +64,8 @@ contract MintPassGroup is Ownable, EIP712 {
 
     function consumePass(bytes calldata _params, address _caller) external onlyReserveMintPass {
         Pass memory pass = decodePass(_params);
+        console.log("OK PASSS GRP");
+
         Payload memory payload = decodePayload(pass.payload);
         bytes32 projectHash = getProjectHash(payload.token, payload.project);
         require(
@@ -135,8 +139,11 @@ contract MintPassGroup is Ownable, EIP712 {
         return decodedData;
     }
 
-    function decodePass(bytes memory _payload) private pure returns (Pass memory) {
+    function decodePass(bytes memory _payload) private view returns (Pass memory) {
+        console.log("decode pass1");
         Pass memory decodedData = abi.decode(_payload, (Pass));
+        console.log("devode pass2");
+
         if (decodedData.payload.length == 0) {
             revert("PASS_INVALID_PAYLOAD");
         }

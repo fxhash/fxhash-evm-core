@@ -66,17 +66,22 @@ contract Deploy is Script {
     address public susan;
 
     // State
+    uint256 public ADMIN_PRIVATE_KEY = vm.envUint("ADMIN_PRIVATE_KEY");
+    uint256 public SIGNER_PRIVATE_KEY = vm.envUint("SIGNER_PRIVATE_KEY");
+    uint256 public TREASURY_PRIVATE_KEY = vm.envUint("TREASURY_PRIVATE_KEY");
+    uint256 public ALICE_PRIVATE_KEY = vm.envUint("ALICE_PRIVATE_KEY");
+    uint256 public BOB_PRIVATE_KEY = vm.envUint("BOB_PRIVATE_KEY");
+    uint256 public EVE_PRIVATE_KEY = vm.envUint("EVE_PRIVATE_KEY");
+    uint256 public SUSAN_PRIVATE_KEY = vm.envUint("SUSAN_PRIVATE_KEY");
     uint256[] public authorizations = [10, 20];
     address[] public bypass = new address[](0);
-    uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-    address account = vm.addr(deployerPrivateKey);
 
     // Constants
     uint256 public constant BALANCE = 100 ether;
     uint256 public constant MAX_PER_TOKEN = 10;
     uint256 public constant MAX_PER_TOKEN_PER_PROJECT = 5;
     uint256 public constant ISSUER_FEES = 1000;
-    uint256 public constant ISSUER_LOCK_TIME = 1000;
+    uint256 public constant ISSUER_LOCK_TIME = 0;
     uint256 public constant ISSUER_REFERRAL_SHARE = 1000;
     uint256 public constant MARKETPLACE_MAX_REFERRAL_SHARE = 1000;
     uint256 public constant MARKETPLACE_PLATFORM_FEES = 1000;
@@ -90,20 +95,22 @@ contract Deploy is Script {
     }
 
     function createAccounts() public {
-        admin = _createUser("admin");
-        signer = _createUser("signer");
-        treasury = _createUser("treasury");
-        alice = _createUser("alice");
-        bob = _createUser("bob");
-        eve = _createUser("eve");
-        susan = _createUser("susan");
+        admin = vm.addr(ADMIN_PRIVATE_KEY);
+        signer = vm.addr(SIGNER_PRIVATE_KEY);
+        treasury = vm.addr(TREASURY_PRIVATE_KEY);
+        alice = vm.addr(ALICE_PRIVATE_KEY);
+        bob = vm.addr(BOB_PRIVATE_KEY);
+        eve = vm.addr(EVE_PRIVATE_KEY);
+        susan = vm.addr(SUSAN_PRIVATE_KEY);
     }
 
     function run() public {
-
-        vm.startBroadcast(account);
+        vm.startBroadcast(admin);
         deployContracts();
         configureContracts();
+        vm.stopBroadcast();
+        vm.startBroadcast(alice);
+        deployAndConfigureUserContracts();
         vm.stopBroadcast();
     }
 
@@ -164,12 +171,6 @@ contract Deploy is Script {
             address(reserveMintPass),
             bypass
         );
-
-        // Issuer
-        issuer = new Issuer(address(configurationManager), account);
-
-        // Token
-        genTk = new GenTk(account, address(issuer), address(configurationManager));
     }
 
     function configureContracts() public {
@@ -254,6 +255,15 @@ contract Deploy is Script {
                 voidMetadata: ISSUER_VOID_METADATA
             })
         );
+    }
+
+    function deployAndConfigureUserContracts() public {
+        // Issuer
+        issuer = new Issuer(address(configurationManager), alice);
+
+        // Token
+        genTk = new GenTk(alice, address(issuer), address(configurationManager));
+
         issuer.setGenTk(address(genTk));
     }
 
