@@ -83,7 +83,7 @@ contract Deploy is Script {
     bytes32 public constant SEED = keccak256("seed");
     string public constant ISSUER_VOID_METADATA = "1000";
 
-    function setUp() public {
+    function setUp() public virtual {
         createAccounts();
     }
 
