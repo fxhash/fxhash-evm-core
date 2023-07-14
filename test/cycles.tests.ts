@@ -48,7 +48,9 @@ describe("FxHashCycles", function () {
     it("should grant the AUTHORIZED_CALLER role to an address", async function () {
       const addressToGrant = await fxHashAdmin.getAddress();
 
-      await fxHashCycles.connect(admin).grantAuthorizationRole(addressToGrant);
+      await fxHashCycles
+        .connect(admin)
+        .grantAuthorizedCallerRole(addressToGrant);
       const hasFxHashAdminRole = await fxHashCycles.hasRole(
         AUTHORIZED_CALLER,
         addressToGrant
@@ -62,7 +64,7 @@ describe("FxHashCycles", function () {
 
       await fxHashCycles
         .connect(admin)
-        .revokeAuthorizationRole(addressToRevoke);
+        .revokeAuthorizedCallerRole(addressToRevoke);
       const hasFxHashAdminRole = await fxHashCycles.hasRole(
         AUTHORIZED_CALLER,
         addressToRevoke
@@ -85,7 +87,7 @@ describe("FxHashCycles", function () {
       // Grant the FxHash admin role to the fxHashAdmin address
       await fxHashCycles
         .connect(admin)
-        .grantAuthorizationRole(await fxHashAdmin.getAddress());
+        .grantAuthorizedCallerRole(await fxHashAdmin.getAddress());
     });
 
     it("should add a new cycle", async function () {
