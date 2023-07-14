@@ -51,7 +51,7 @@ describe("ModerationUser", () => {
 
       await expect(
         moderationUser.connect(user1).moderateUser(userAddress, state, reason)
-      ).to.be.revertedWith("NOT_MOD");
+      ).to.be.revertedWithCustomError(moderationUser, "NotMod");
     });
   });
 
@@ -83,7 +83,7 @@ describe("ModerationUser", () => {
 
       await expect(
         moderationUser.connect(user1).verify(userAddress)
-      ).to.be.revertedWith("NOT_MOD");
+      ).to.be.revertedWithCustomError(moderationUser, "NotMod");
     });
   });
 
@@ -102,7 +102,7 @@ describe("ModerationUser", () => {
 
       await expect(
         moderationUser.connect(user1).reasonAdd(reason)
-      ).to.be.revertedWith("NOT_MOD");
+      ).to.be.revertedWithCustomError(moderationUser, "NotMod");
     });
   });
 
@@ -129,7 +129,7 @@ describe("ModerationUser", () => {
 
       await expect(
         moderationUser.connect(user1).reasonUpdate(reasonId, updatedReason)
-      ).to.be.revertedWith("NOT_MOD");
+      ).to.be.revertedWithCustomError(moderationUser, "NotMod");
     });
   });
 });
