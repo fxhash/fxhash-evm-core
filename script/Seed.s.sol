@@ -81,16 +81,29 @@ contract Seed is Script {
         mintAllGetIssuerCombinations();
     }
 
+    function getTotalCombinations() public pure returns (uint256) {
+        uint256 reserveOptionsCount = uint256(ReserveOptions.WhitelistAndMintPass) + 1;
+        uint256 pricingOptionsCount = uint256(PricingOptions.DutchAuction) + 1;
+        uint256 openEditionsOptionsCount = uint256(OpenEditionsOptions.Disabled) + 1;
+        uint256 mintTicketOptionsCount = uint256(MintTicketOptions.Disabled) + 1;
+        uint256 onChainOptionsCount = uint256(OnChainOptions.Disabled) + 1;
+
+        return
+            reserveOptionsCount *
+            pricingOptionsCount *
+            openEditionsOptionsCount *
+            mintTicketOptionsCount *
+            onChainOptionsCount;
+    }
+
     function mintAllGetIssuerCombinations() public {
-        time = block.timestamp;
+        MintInput[] memory mintQueue = new MintInput[](getTotalCombinations());
+        vm.startBroadcast(deploy.alice());
         for (uint i = 0; i < uint(ReserveOptions.WhitelistAndMintPass) + 1; i++) {
             for (uint j = 0; j < uint(PricingOptions.DutchAuction) + 1; j++) {
                 for (uint k = 0; k < uint(OpenEditionsOptions.Disabled) + 1; k++) {
                     for (uint l = 0; l < uint(MintTicketOptions.Disabled) + 1; l++) {
                         for (uint m = 0; m < uint(OnChainOptions.Disabled) + 1; m++) {
-                            vm.startBroadcast(deploy.alice());
-                            vm.warp(time);
-
                             MintPassGroup _mintPassGroup;
                             Issuer _issuer = new Issuer(
                                 address(deploy.configurationManager()),
@@ -115,6 +128,7 @@ contract Seed is Script {
                                     new address[](0)
                                 );
                             }
+
                             _issuer.mintIssuer(
                                 _getMintIssuerInput(
                                     MintIssuerInput({
@@ -129,27 +143,26 @@ contract Seed is Script {
                                 )
                             );
 
-                            vm.stopBroadcast();
-                            vm.startBroadcast(deploy.bob());
-                            vm.warp(time + 3);
-                            _issuer.mint{value: PRICE}(
-                                _getMintInput(
-                                    MintInput({
-                                        issuer: address(_issuer),
-                                        mintPassGroup: address(_mintPassGroup),
-                                        recipient: deploy.bob(),
-                                        referrer: deploy.signer(),
-                                        reserveOption: ReserveOptions(i),
-                                        mintTicketOption: MintTicketOptions(l)
-                                    })
-                                )
-                            );
-                            vm.stopBroadcast();
+                            mintQueue[mintNb] = MintInput({
+                                issuer: address(_issuer),
+                                mintPassGroup: address(_mintPassGroup),
+                                recipient: deploy.bob(),
+                                referrer: deploy.signer(),
+                                reserveOption: ReserveOptions(i),
+                                mintTicketOption: MintTicketOptions(l)
+                            });
+                            mintNb++;
                         }
                     }
                 }
             }
         }
+        vm.stopBroadcast();
+
+//        for (uint i = 0; i < mintQueue.length; i++) {
+//            Issuer(mintQueue[i].issuer).mint(_getMintInput(mintQueue[i]));
+//        }
+//        vm.broadcast(deploy.bob());
     }
 
     // Issuer features
@@ -305,7 +318,7 @@ contract Seed is Script {
     }
 
     function _getOpenEditionParam() public view returns (LibIssuer.OpenEditions memory) {
-        return LibIssuer.OpenEditions({closingTime: time + 2000, extra: bytes("")});
+        return LibIssuer.OpenEditions({closingTime: block.timestamp + 2000, extra: bytes("")});
     }
 
     function _getEmptyOpenEditionParam() public pure returns (LibIssuer.OpenEditions memory) {
@@ -391,7 +404,9 @@ contract Seed is Script {
         return
             LibPricing.PricingData({
                 pricingId: 1,
-                details: abi.encode(PricingFixed.PriceDetails({price: PRICE, opensAt: time + 1})),
+                details: abi.encode(
+                    PricingFixed.PriceDetails({price: PRICE, opensAt: block.timestamp + 60})
+                ),
                 lockForReserves: false
             });
     }
@@ -407,7 +422,7 @@ contract Seed is Script {
                 pricingId: 2,
                 details: abi.encode(
                     PricingDutchAuction.PriceDetails({
-                        opensAt: time + 1,
+                        opensAt: block.timestamp + 60,
                         decrementDuration: 600,
                         lockedPrice: 0,
                         levels: levels
@@ -496,7 +511,7 @@ contract Seed is Script {
             project: issuer,
             addr: recipient
         });
-        mintNb++;
+
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(
             deploy.SIGNER_PRIVATE_KEY(),
             ECDSA.toTypedDataHash(
