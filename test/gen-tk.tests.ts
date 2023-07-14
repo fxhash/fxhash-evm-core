@@ -64,7 +64,7 @@ describe("GenTk", () => {
     });
 
     // Check the token data
-    const tokenData = await genTk.tokenData(tokenId);
+    const tokenData = await genTk.tokens(tokenId);
     expect(tokenData.iteration).to.equal(1);
     expect(tokenData.inputBytes).to.equal("0x");
     expect(tokenData.minter).to.equal(await receiver.getAddress());

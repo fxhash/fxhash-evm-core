@@ -5,13 +5,13 @@ interface IGenTk {
     struct TokenParams {
         uint256 tokenId;
         address receiver;
-        uint256 iteration;
+        uint96 iteration;
         bytes inputBytes;
         string metadata;
     }
 
     struct TokenData {
-        uint256 iteration;
+        uint96 iteration;
         address minter;
         bool assigned;
         bytes inputBytes;
@@ -32,15 +32,17 @@ interface IGenTk {
     error NotSigner();
     error TokenUndefined();
 
-    event TokenMinted(TokenParams _params);
-    event TokenMetadataAssigned(TokenMetadata[] _params);
-    event OnChainTokenMetadataAssigned(OnChainTokenMetadata[] _params);
+    event TokenMinted(TokenParams _token);
+    event TokenMetadataAssigned(TokenMetadata[] _metadata);
+    event OnChainTokenMetadataAssigned(OnChainTokenMetadata[] _metadata);
 
     function assignMetadata(TokenMetadata[] calldata _metadata) external;
 
-    function assignOnChainMetadata(OnChainTokenMetadata[] calldata _params) external;
+    function assignOnChainMetadata(OnChainTokenMetadata[] calldata _metadata) external;
 
     function mint(TokenParams calldata _params) external;
 
     function setConfigManager(address _configManager) external;
+
+    function tokens(uint256) external view returns (uint96, address, bool, bytes memory);
 }

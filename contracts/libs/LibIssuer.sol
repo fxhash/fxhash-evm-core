@@ -12,7 +12,7 @@ library LibIssuer {
 
     struct IssuerData {
         uint256 balance;
-        uint256 iterationsCount;
+        uint96 iterationsCount;
         bytes metadata;
         uint256 supply;
         OpenEditions openEditions;

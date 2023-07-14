@@ -17,7 +17,7 @@ contract GenTk is ERC721URIStorage, Ownable, IERC2981, IGenTk {
     string private constant ONCHAIN_META_MANAGER = "onChainMetaManager";
     IIssuer private issuer;
     IConfigurationManager private configManager;
-    mapping(uint256 => TokenData) public tokenData;
+    mapping(uint256 => TokenData) public tokens;
 
     modifier onlyFxHashAdmin() {
         if (msg.sender != configManager.getAddress(ADMIN)) revert NotFxHashAdmin();
@@ -40,47 +40,53 @@ contract GenTk is ERC721URIStorage, Ownable, IERC2981, IGenTk {
         transferOwnership(_owner);
     }
 
-    function mint(TokenParams calldata _params) external onlyIssuer {
-        address receiver = _params.receiver;
-        uint256 tokenId = _params.tokenId;
+    function mint(TokenParams calldata _token) external onlyIssuer {
+        uint256 tokenId = _token.tokenId;
+        address receiver = _token.receiver;
 
         _mint(receiver, tokenId);
-        _setTokenURI(tokenId, _params.metadata);
+        _setTokenURI(tokenId, _token.metadata);
 
-        tokenData[tokenId] = TokenData({
-            iteration: _params.iteration,
-            inputBytes: _params.inputBytes,
+        tokens[tokenId] = TokenData({
+            iteration: _token.iteration,
+            inputBytes: _token.inputBytes,
             minter: receiver,
             assigned: false
         });
 
-        emit TokenMinted(_params);
+        emit TokenMinted(_token);
     }
 
     function assignMetadata(TokenMetadata[] calldata _metadata) external onlySigner {
         uint256 tokenId;
         uint256 length = _metadata.length;
-        for (uint256 i; i < length; ++i) {
-            TokenMetadata memory _tokenData = _metadata[i];
-            tokenId = _tokenData.tokenId;
-            if (tokenData[tokenId].minter == address(0)) revert TokenUndefined();
-            _setTokenURI(tokenId, _tokenData.metadata);
+        for (uint256 i; i < length; ) {
+            TokenMetadata memory tokenData = _metadata[i];
+            tokenId = tokenData.tokenId;
+            if (tokens[tokenId].minter == address(0)) revert TokenUndefined();
+            _setTokenURI(tokenId, tokenData.metadata);
+            unchecked {
+                ++i;
+            }
         }
 
         emit TokenMetadataAssigned(_metadata);
     }
 
-    function assignOnChainMetadata(OnChainTokenMetadata[] calldata _params) external onlySigner {
+    function assignOnChainMetadata(OnChainTokenMetadata[] calldata _metadata) external onlySigner {
         uint256 tokenId;
-        uint256 length = _params.length;
-        for (uint256 i; i < length; ++i) {
-            OnChainTokenMetadata memory _tokenData = _params[i];
-            tokenId = _tokenData.tokenId;
-            if (tokenData[tokenId].minter == address(0)) revert TokenUndefined();
-            _setTokenURI(tokenId, string(_tokenData.metadata));
+        uint256 length = _metadata.length;
+        for (uint256 i; i < length; ) {
+            OnChainTokenMetadata memory tokenData = _metadata[i];
+            tokenId = tokenData.tokenId;
+            if (tokens[tokenId].minter == address(0)) revert TokenUndefined();
+            _setTokenURI(tokenId, string(tokenData.metadata));
+            unchecked {
+                ++i;
+            }
         }
 
-        emit OnChainTokenMetadataAssigned(_params);
+        emit OnChainTokenMetadataAssigned(_metadata);
     }
 
     function setConfigManager(address _configManager) external onlyFxHashAdmin {
@@ -97,7 +103,7 @@ contract GenTk is ERC721URIStorage, Ownable, IERC2981, IGenTk {
     function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
         _requireMinted(_tokenId);
         LibIssuer.IssuerData memory issuerData = issuer.getIssuer();
-        if (tokenData[_tokenId].minter == address(0)) revert TokenUndefined();
+        if (tokens[_tokenId].minter == address(0)) revert TokenUndefined();
 
         if (issuerData.onChainData.length > 0) {
             string memory onChainURI = IOnChainTokenMetadataManager(
