@@ -4,7 +4,7 @@ pragma solidity ^0.8.18;
 import "contracts/libs/LibModeration.sol";
 import "contracts/moderation/ModerationTeam.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
-import "contracts/abstract/BaseModeration.sol";
+import "contracts/admin/BaseModeration.sol";
 import "contracts/interfaces/IModerationUser.sol";
 
 contract ModerationUser is BaseModeration, IModerationUser {
@@ -17,7 +17,7 @@ contract ModerationUser is BaseModeration, IModerationUser {
 
     // Check if an address is a user moderator on the moderation team contract
     function isModerator(address user) public view override returns (bool) {
-        return ModerationTeam(getModerationTeamAddress()).isAuthorized(user, 20);
+        return ModerationTeam(moderation).isAuthorized(user, 20);
     }
 
     // Moderate a user with a given state/reason
