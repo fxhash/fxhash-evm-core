@@ -17,8 +17,7 @@ import {Issuer} from "contracts/issuer/Issuer.sol";
 import {GenTk} from "contracts/gentk/GenTk.sol";
 import {MintPassGroup} from "contracts/mint-pass-group/MintPassGroup.sol";
 import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
-
-import "hardhat/console.sol";
+import "forge-std/console.sol";
 
 contract Seed is Script {
     enum ReserveOptions {
@@ -67,9 +66,11 @@ contract Seed is Script {
 
     uint256 public constant NUMBER = 100;
     uint256 public constant PRICE = 1000;
+    uint256 public constant OPEN_DELAY = 60;
 
     uint256 public mintNb;
     uint256 public time;
+    uint256 public lastMint;
 
     function setUp() public {
         deploy = new Deploy();
@@ -152,17 +153,30 @@ contract Seed is Script {
                                 mintTicketOption: MintTicketOptions(l)
                             });
                             mintNb++;
+                            lastMint = block.timestamp;
                         }
                     }
                 }
             }
         }
-        vm.stopBroadcast();
+        sleep();
 
-//        for (uint i = 0; i < mintQueue.length; i++) {
-//            Issuer(mintQueue[i].issuer).mint(_getMintInput(mintQueue[i]));
-//        }
-//        vm.broadcast(deploy.bob());
+        vm.stopBroadcast();
+        vm.startBroadcast(deploy.bob());
+        for (uint i = 0; i < mintQueue.length; i++) {
+            Issuer(mintQueue[i].issuer).mint(_getMintInput(mintQueue[i]));
+        }
+        vm.stopBroadcast();
+    }
+
+    function sleep() public {
+        string[] memory runJsInputs = new string[](3);
+
+        // Build ffi command string
+        runJsInputs[0] = "node";
+        runJsInputs[1] = "script/sleep.js";
+        runJsInputs[2] = vm.toString((OPEN_DELAY + 10) * 1000);
+        vm.ffi(runJsInputs);
     }
 
     // Issuer features
@@ -171,7 +185,9 @@ contract Seed is Script {
     //  - Reserves (None/Whitelist/Mint Pass)
     //  - Pricing (Fixed price/Dutch Auction)
     //  - On chain / off chain
-    function _getMintInput(MintInput memory mintInput) public returns (IIssuer.MintInput memory) {
+    function _getMintInput(
+        MintInput memory mintInput
+    ) public view returns (IIssuer.MintInput memory) {
         bytes memory inputBytes;
         bytes memory reserveInput;
         bool createTicket = false;
@@ -405,7 +421,7 @@ contract Seed is Script {
             LibPricing.PricingData({
                 pricingId: 1,
                 details: abi.encode(
-                    PricingFixed.PriceDetails({price: PRICE, opensAt: block.timestamp + 60})
+                    PricingFixed.PriceDetails({price: PRICE, opensAt: block.timestamp + OPEN_DELAY})
                 ),
                 lockForReserves: false
             });
@@ -422,7 +438,7 @@ contract Seed is Script {
                 pricingId: 2,
                 details: abi.encode(
                     PricingDutchAuction.PriceDetails({
-                        opensAt: block.timestamp + 60,
+                        opensAt: block.timestamp + OPEN_DELAY,
                         decrementDuration: 600,
                         lockedPrice: 0,
                         levels: levels
@@ -505,7 +521,7 @@ contract Seed is Script {
         address issuer,
         address recipient,
         address mintPassGroup
-    ) public returns (bytes memory) {
+    ) public view returns (bytes memory) {
         MintPassGroup.Payload memory payload = MintPassGroup.Payload({
             token: string.concat("token", string(abi.encode(mintNb))),
             project: issuer,

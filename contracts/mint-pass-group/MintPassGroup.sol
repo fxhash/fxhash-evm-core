@@ -139,7 +139,7 @@ contract MintPassGroup is Ownable, EIP712 {
         return decodedData;
     }
 
-    function decodePass(bytes memory _payload) private view returns (Pass memory) {
+    function decodePass(bytes memory _payload) private pure returns (Pass memory) {
         Pass memory decodedData = abi.decode(_payload, (Pass));
         if (decodedData.payload.length == 0) {
             revert("PASS_INVALID_PAYLOAD");
