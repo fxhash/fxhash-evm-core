@@ -14,7 +14,7 @@ contract CyclesTest is Test {
 
     function setUp() public virtual {
         cycles = new FxHashCycles();
-        cycles.authorizeCaller(fxHashAdmin);
+        cycles.grantAuthorizedCallerRole(fxHashAdmin);
     }
 }
 
