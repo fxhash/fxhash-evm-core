@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "contracts/abstract/admin/AuthorizedCaller.sol";
+import "contracts/admin/AuthorizedCaller.sol";
 
 contract Randomizer is AuthorizedCaller {
     struct TokenKey {
@@ -53,7 +53,10 @@ contract Randomizer is AuthorizedCaller {
         emit RandomizerGenerate(tokenId, storedSeed);
     }
 
-    function reveal(TokenKey[] memory tokenList, bytes32 seed) external onlyAuthorizedCaller {
+    function reveal(
+        TokenKey[] memory tokenList,
+        bytes32 seed
+    ) external onlyRole(AUTHORIZED_CALLER) {
         uint256 lastSerial = setTokenSeedAndReturnSerial(tokenList[0], seed);
         uint256 expectedSerialId = lastSerial;
         bytes32 oracleSeed = iterateOracleSeed(seed);
@@ -71,7 +74,7 @@ contract Randomizer is AuthorizedCaller {
         updateCommitment(seed);
     }
 
-    function commit(bytes32 seed, bytes32 salt) external onlyAuthorizedCaller {
+    function commit(bytes32 seed, bytes32 salt) external onlyRole(AUTHORIZED_CALLER) {
         commitment.seed = seed;
         commitment.salt = salt;
     }
