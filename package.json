@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "npx hardhat test",
+    "test": "npx hardhat test ; forge test",
     "prettier": "prettier --write 'contracts/**/*.sol' 'script/**/*.sol' 'test/**/*.sol'",
     "prettier:check": "prettier --check 'contracts/**/*.sol'"
   },

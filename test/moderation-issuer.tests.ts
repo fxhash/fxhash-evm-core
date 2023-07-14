@@ -23,9 +23,7 @@ describe("ModerationIssuer", () => {
 
     moderationTeam = await ModerationTeam.deploy(admin.getAddress());
     await moderationTeam.deployed();
-    moderatorToken = await ModerationIssuer.deploy(
-      moderationTeam.address
-    );
+    moderatorToken = await ModerationIssuer.deploy(moderationTeam.address);
     await moderatorToken.deployed();
 
     await moderationTeam.connect(admin).updateModerators([
@@ -51,7 +49,7 @@ describe("ModerationIssuer", () => {
 
       await expect(
         moderatorToken.connect(user1).reasonAdd(reason)
-      ).to.be.revertedWith("NOT_MOD");
+      ).to.be.revertedWithCustomError(moderatorToken, "NotMod");
     });
   });
 
@@ -77,7 +75,7 @@ describe("ModerationIssuer", () => {
 
       await expect(
         moderatorToken.connect(user1).moderateIssuer(issuer, state, reason)
-      ).to.be.revertedWith("NOT_MOD");
+      ).to.be.revertedWithCustomError(moderatorToken, "NotMod");
     });
   });
 

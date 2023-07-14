@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import {AuthorizedCaller} from "contracts/abstract/admin/AuthorizedCaller.sol";
+import {AuthorizedCaller} from "contracts/admin/AuthorizedCaller.sol";
 import {IFxHashCycles} from "contracts/interfaces/IFxHashCycles.sol";
 import {SignedMath} from "@openzeppelin/contracts/utils/math/SignedMath.sol";
 
@@ -20,13 +20,13 @@ contract FxHashCycles is IFxHashCycles, AuthorizedCaller {
     }
 
     /// @inheritdoc IFxHashCycles
-    function addCycle(CycleParams calldata _cycle) external onlyAuthorizedCaller {
+    function addCycle(CycleParams calldata _cycle) external onlyRole(AUTHORIZED_CALLER) {
         if (_cycle.closingDuration < _cycle.openingDuration) revert InvalidDurationRange();
         cycles[cyclesCount++] = _cycle;
     }
 
     /// @inheritdoc IFxHashCycles
-    function removeCycle(uint256 _cycleId) external onlyAuthorizedCaller {
+    function removeCycle(uint256 _cycleId) external onlyRole(AUTHORIZED_CALLER) {
         delete cycles[_cycleId];
     }
 
