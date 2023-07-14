@@ -12,22 +12,25 @@ import {LibIssuer} from "contracts/libs/LibIssuer.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract GenTk is ERC721URIStorage, Ownable, IERC2981, IGenTk {
+    string private constant ADMIN = "admin";
+    string private constant SIGNER = "signer";
+    string private constant ONCHAIN_META_MANAGER = "onChainMetaManager";
     IIssuer private issuer;
     IConfigurationManager private configManager;
     mapping(uint256 => TokenData) public tokenData;
 
+    modifier onlyFxHashAdmin() {
+        if (msg.sender != configManager.getAddress(ADMIN)) revert NotFxHashAdmin();
+        _;
+    }
+
     modifier onlySigner() {
-        require(msg.sender == configManager.getAddress("signer"), "Caller is not signer");
+        if (msg.sender != configManager.getAddress(SIGNER)) revert NotSigner();
         _;
     }
 
     modifier onlyIssuer() {
-        require(msg.sender == address(issuer), "Caller is not issuer");
-        _;
-    }
-
-    modifier onlyFxHashAdmin() {
-        require(msg.sender == configManager.getAddress("admin"), "Caller is not FXHASH admin");
+        if (msg.sender != address(issuer)) revert NotIssuer();
         _;
     }
 
@@ -38,66 +41,77 @@ contract GenTk is ERC721URIStorage, Ownable, IERC2981, IGenTk {
     }
 
     function mint(TokenParams calldata _params) external onlyIssuer {
-        _mint(_params.receiver, _params.tokenId);
-        _setTokenURI(_params.tokenId, _params.metadata);
-        tokenData[_params.tokenId] = TokenData({
+        address receiver = _params.receiver;
+        uint256 tokenId = _params.tokenId;
+
+        _mint(receiver, tokenId);
+        _setTokenURI(tokenId, _params.metadata);
+
+        tokenData[tokenId] = TokenData({
             iteration: _params.iteration,
             inputBytes: _params.inputBytes,
-            minter: _params.receiver,
+            minter: receiver,
             assigned: false
         });
+
         emit TokenMinted(_params);
     }
 
+    function assignMetadata(TokenMetadata[] calldata _metadata) external onlySigner {
+        uint256 tokenId;
+        uint256 length = _metadata.length;
+        for (uint256 i; i < length; ++i) {
+            TokenMetadata memory _tokenData = _metadata[i];
+            tokenId = _tokenData.tokenId;
+            if (tokenData[tokenId].minter == address(0)) revert TokenUndefined();
+            _setTokenURI(tokenId, _tokenData.metadata);
+        }
+
+        emit TokenMetadataAssigned(_metadata);
+    }
+
     function assignOnChainMetadata(OnChainTokenMetadata[] calldata _params) external onlySigner {
-        for (uint256 i = 0; i < _params.length; i++) {
+        uint256 tokenId;
+        uint256 length = _params.length;
+        for (uint256 i; i < length; ++i) {
             OnChainTokenMetadata memory _tokenData = _params[i];
-
-            require(tokenData[_tokenData.tokenId].minter != address(0), "TOKEN_UNDEFINED");
-            _setTokenURI(_tokenData.tokenId, string(_tokenData.metadata));
+            tokenId = _tokenData.tokenId;
+            if (tokenData[tokenId].minter == address(0)) revert TokenUndefined();
+            _setTokenURI(tokenId, string(_tokenData.metadata));
         }
+
         emit OnChainTokenMetadataAssigned(_params);
-    }
-
-    function assignMetadata(TokenMetadata[] calldata _params) external onlySigner {
-        for (uint256 i = 0; i < _params.length; i++) {
-            TokenMetadata memory _tokenData = _params[i];
-            require(tokenData[_tokenData.tokenId].minter != address(0), "TOKEN_UNDEFINED");
-            _setTokenURI(_tokenData.tokenId, _tokenData.metadata);
-        }
-        emit TokenMetadataAssigned(_params);
-    }
-
-    function royaltyInfo(
-        uint256 tokenId,
-        uint256 salePrice
-    ) external view override returns (address receiver, uint256 royaltyAmount) {
-        return issuer.royaltyInfo(tokenId, salePrice);
-    }
-
-    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
-        _requireMinted(tokenId);
-        string memory _tokenURI = super.tokenURI(tokenId);
-        TokenData memory _tokenData = tokenData[tokenId];
-        LibIssuer.IssuerData memory issuerData = issuer.getIssuer();
-        require(_tokenData.minter != address(0), "TOKEN_UNDEFINED");
-        if (issuerData.onChainData.length > 0) {
-            string memory onChainURI = IOnChainTokenMetadataManager(
-                configManager.getAddress("onChainMetaManager")
-            ).getOnChainURI(bytes(_tokenURI), issuerData.onChainData);
-            return onChainURI;
-        } else {
-            return _tokenURI;
-        }
     }
 
     function setConfigManager(address _configManager) external onlyFxHashAdmin {
         configManager = IConfigurationManager(_configManager);
     }
 
+    function royaltyInfo(
+        uint256 _tokenId,
+        uint256 _salePrice
+    ) external view override returns (address, uint256) {
+        return issuer.royaltyInfo(_tokenId, _salePrice);
+    }
+
+    function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
+        _requireMinted(_tokenId);
+        LibIssuer.IssuerData memory issuerData = issuer.getIssuer();
+        if (tokenData[_tokenId].minter == address(0)) revert TokenUndefined();
+
+        if (issuerData.onChainData.length > 0) {
+            string memory onChainURI = IOnChainTokenMetadataManager(
+                configManager.getAddress(ONCHAIN_META_MANAGER)
+            ).getOnChainURI(bytes(super.tokenURI(_tokenId)), issuerData.onChainData);
+            return onChainURI;
+        } else {
+            return super.tokenURI(_tokenId);
+        }
+    }
+
     function supportsInterface(
-        bytes4 interfaceId
+        bytes4 _interfaceId
     ) public view override(ERC721URIStorage, IERC165) returns (bool) {
-        return interfaceId == type(IERC2981).interfaceId || super.supportsInterface(interfaceId);
+        return _interfaceId == type(IERC2981).interfaceId || super.supportsInterface(_interfaceId);
     }
 }

@@ -12,9 +12,9 @@ interface IGenTk {
 
     struct TokenData {
         uint256 iteration;
-        bytes inputBytes;
         address minter;
         bool assigned;
+        bytes inputBytes;
     }
 
     struct TokenMetadata {
@@ -27,7 +27,7 @@ interface IGenTk {
         bytes metadata;
     }
 
-    error NotAdmin();
+    error NotFxHashAdmin();
     error NotIssuer();
     error NotSigner();
     error TokenUndefined();
@@ -36,5 +36,11 @@ interface IGenTk {
     event TokenMetadataAssigned(TokenMetadata[] _params);
     event OnChainTokenMetadataAssigned(OnChainTokenMetadata[] _params);
 
+    function assignMetadata(TokenMetadata[] calldata _metadata) external;
+
+    function assignOnChainMetadata(OnChainTokenMetadata[] calldata _params) external;
+
     function mint(TokenParams calldata _params) external;
+
+    function setConfigManager(address _configManager) external;
 }
