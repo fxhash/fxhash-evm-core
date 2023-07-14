@@ -29,7 +29,9 @@ contract SetAssetState is MarketPlaceTest {
     }
 
     function test_RevertsWhenNotAdmin() public {
-        vm.expectRevert("Caller is not an admin");
+        vm.expectRevert(
+            "AccessControl: account 0x7fa9385be102ac3eac297483dd6233d62b3e1496 is missing role 0x0000000000000000000000000000000000000000000000000000000000000000"
+        );
         market.setAssetState(validAsset, true);
 
         assertFalse(market.assetContracts(validAsset));
@@ -51,7 +53,9 @@ contract SetMaxReferralShare is MarketPlaceTest {
     }
 
     function test_RevertsWhenNotAdmin() public {
-        vm.expectRevert("Caller is not an admin");
+        vm.expectRevert(
+            "AccessControl: account 0x7fa9385be102ac3eac297483dd6233d62b3e1496 is missing role 0x0000000000000000000000000000000000000000000000000000000000000000"
+        );
         market.setMaxReferralShare(maxReferralShare);
     }
 }
@@ -74,7 +78,9 @@ contract SetReferralShare is MarketPlaceTest {
     }
 
     function test_RevertsWhenNotAdmin() public {
-        vm.expectRevert("Caller is not an admin");
+        vm.expectRevert(
+            "AccessControl: account 0x7fa9385be102ac3eac297483dd6233d62b3e1496 is missing role 0x0000000000000000000000000000000000000000000000000000000000000000"
+        );
         market.setReferralShare(referralShare);
     }
 }
