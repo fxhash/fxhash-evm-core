@@ -19,7 +19,7 @@ import {MintPassGroup} from "contracts/mint-pass-group/MintPassGroup.sol";
 import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import "forge-std/console.sol";
 
-contract Seed is Script {
+contract SeedIssuers is Script {
     enum ReserveOptions {
         None,
         Whitelist,
@@ -159,14 +159,8 @@ contract Seed is Script {
                 }
             }
         }
-        sleep();
-
         vm.stopBroadcast();
-        vm.startBroadcast(deploy.bob());
-        for (uint i = 0; i < mintQueue.length; i++) {
-            Issuer(mintQueue[i].issuer).mint(_getMintInput(mintQueue[i]));
-        }
-        vm.stopBroadcast();
+        vm.writeJson(vm.serializeBytes("issuers", "issuersData", abi.encode(mintQueue)), "script/issuers.json");
     }
 
     function sleep() public {
@@ -185,81 +179,6 @@ contract Seed is Script {
     //  - Reserves (None/Whitelist/Mint Pass)
     //  - Pricing (Fixed price/Dutch Auction)
     //  - On chain / off chain
-    function _getMintInput(
-        MintInput memory mintInput
-    ) public view returns (IIssuer.MintInput memory) {
-        bytes memory inputBytes;
-        bytes memory reserveInput;
-        bool createTicket = false;
-        if (mintInput.reserveOption == ReserveOptions.Whitelist) {
-            LibReserve.ReserveData[] memory reserves = new LibReserve.ReserveData[](1);
-            ReserveWhitelist.WhitelistEntry[]
-                memory whitelistEntries = new ReserveWhitelist.WhitelistEntry[](1);
-
-            whitelistEntries[0] = ReserveWhitelist.WhitelistEntry({
-                whitelisted: mintInput.recipient,
-                amount: 2
-            });
-
-            reserves[0] = LibReserve.ReserveData({
-                methodId: 1,
-                amount: 1,
-                data: abi.encode(whitelistEntries)
-            });
-            reserveInput = abi.encode(
-                LibReserve.ReserveInput({methodId: 1, input: abi.encode(reserves)})
-            );
-        } else if (mintInput.reserveOption == ReserveOptions.MintPass) {
-            LibReserve.ReserveData[] memory reserves = new LibReserve.ReserveData[](1);
-            reserves[0] = LibReserve.ReserveData({
-                methodId: 2,
-                amount: 1,
-                data: abi.encode(mintInput.mintPassGroup)
-            });
-            reserveInput = abi.encode(
-                LibReserve.ReserveInput({
-                    methodId: 2,
-                    input: getMintPassGroupPayload(
-                        mintInput.issuer,
-                        mintInput.recipient,
-                        mintInput.mintPassGroup
-                    )
-                })
-            );
-        } else if (mintInput.reserveOption == ReserveOptions.WhitelistAndMintPass) {
-            LibReserve.ReserveData[] memory reserves = new LibReserve.ReserveData[](1);
-            ReserveWhitelist.WhitelistEntry[]
-                memory whitelistEntries = new ReserveWhitelist.WhitelistEntry[](1);
-
-            whitelistEntries[0] = ReserveWhitelist.WhitelistEntry({
-                whitelisted: mintInput.recipient,
-                amount: 2
-            });
-
-            reserves[0] = LibReserve.ReserveData({
-                methodId: 1,
-                amount: 1,
-                data: abi.encode(whitelistEntries)
-            });
-            reserveInput = abi.encode(
-                LibReserve.ReserveInput({methodId: 1, input: abi.encode(reserves)})
-            );
-        }
-
-        if (mintInput.mintTicketOption == MintTicketOptions.Enabled) {
-            createTicket = true;
-        }
-
-        return
-            IIssuer.MintInput({
-                inputBytes: inputBytes,
-                referrer: mintInput.referrer,
-                reserveInput: reserveInput,
-                createTicket: createTicket,
-                recipient: mintInput.recipient
-            });
-    }
-
     function _getMintIssuerInput(
         MintIssuerInput memory mintIssuerInput
     ) public view returns (IIssuer.MintIssuerInput memory) {
@@ -500,54 +419,5 @@ contract Seed is Script {
 
     function _getSplit() public view returns (LibRoyalty.RoyaltyData memory) {
         return LibRoyalty.RoyaltyData({percent: 1000, receiver: msg.sender});
-    }
-
-    function getMintPassGroupDomainSeparator(address mintPassGroup) public view returns (bytes32) {
-        return
-            keccak256(
-                abi.encode(
-                    keccak256(
-                        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
-                    ),
-                    keccak256(bytes("MintPassGroup")),
-                    keccak256(bytes("1")),
-                    block.chainid,
-                    address(mintPassGroup)
-                )
-            );
-    }
-
-    function getMintPassGroupPayload(
-        address issuer,
-        address recipient,
-        address mintPassGroup
-    ) public view returns (bytes memory) {
-        MintPassGroup.Payload memory payload = MintPassGroup.Payload({
-            token: string.concat("token", string(abi.encode(mintNb))),
-            project: issuer,
-            addr: recipient
-        });
-
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(
-            deploy.SIGNER_PRIVATE_KEY(),
-            ECDSA.toTypedDataHash(
-                getMintPassGroupDomainSeparator(mintPassGroup),
-                keccak256(
-                    abi.encode(
-                        keccak256("Payload(string token,address project,address addr)"),
-                        keccak256(bytes(payload.token)),
-                        payload.project,
-                        payload.addr
-                    )
-                )
-            )
-        );
-        return
-            abi.encode(
-                MintPassGroup.Pass({
-                    payload: abi.encode(payload),
-                    signature: abi.encodePacked(r, s, v)
-                })
-            );
     }
 }
