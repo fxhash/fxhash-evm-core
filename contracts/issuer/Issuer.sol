@@ -21,6 +21,7 @@ import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
 
 import "contracts/libs/LibIssuer.sol";
 import "contracts/libs/LibReserve.sol";
+import {Lib0xSplits} from "contracts/libs/Lib0xSplits.sol";
 
 contract Issuer is IIssuer, IERC2981, Ownable {
     uint256 private allGenTkTokens;
@@ -46,6 +47,14 @@ contract Issuer is IIssuer, IERC2981, Ownable {
     modifier onlyCodex() {
         require(msg.sender == configManager.getAddress("codex"), "Caller is not Codex");
         _;
+    }
+
+    function computeDeterministicRoyaltySplitAddress(
+        address[] memory accounts,
+        uint32[] memory percentAllocations
+    ) external pure returns (address) {
+        bytes32 salt = Lib0xSplits.getSalt(accounts, percentAllocations, 0);
+        return Lib0xSplits.predictDeterministicAddress(salt);
     }
 
     function mintIssuer(MintIssuerInput calldata params) external {
