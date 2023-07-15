@@ -160,7 +160,10 @@ contract SeedIssuers is Script {
             }
         }
         vm.stopBroadcast();
-        vm.writeJson(vm.serializeBytes("issuers", "issuersData", abi.encode(mintQueue)), "script/issuers.json");
+        vm.writeJson(
+            vm.serializeBytes("issuers", "issuersData", abi.encode(mintQueue)),
+            "script/issuers.json"
+        );
     }
 
     function sleep() public {

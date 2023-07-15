@@ -21,13 +21,11 @@ import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import "forge-std/console.sol";
 
 contract SeedTokens is Script {
-
     address public bob;
     address public signer;
 
     uint256 public BOB_PRIVATE_KEY = vm.envUint("BOB_PRIVATE_KEY");
     uint256 public SIGNER_PRIVATE_KEY = vm.envUint("SIGNER_PRIVATE_KEY");
-
 
     function setUp() public {
         signer = vm.addr(SIGNER_PRIVATE_KEY);
@@ -42,16 +40,16 @@ contract SeedTokens is Script {
     function getMintPassGroupDomainSeparator(address mintPassGroup) public view returns (bytes32) {
         return
             keccak256(
-            abi.encode(
-                keccak256(
-                    "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
-                ),
-                keccak256(bytes("MintPassGroup")),
-                keccak256(bytes("1")),
-                block.chainid,
-                address(mintPassGroup)
-            )
-        );
+                abi.encode(
+                    keccak256(
+                        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+                    ),
+                    keccak256(bytes("MintPassGroup")),
+                    keccak256(bytes("1")),
+                    block.chainid,
+                    address(mintPassGroup)
+                )
+            );
     }
 
     function getMintPassGroupPayload(
@@ -81,11 +79,11 @@ contract SeedTokens is Script {
         );
         return
             abi.encode(
-            MintPassGroup.Pass({
-                payload: abi.encode(payload),
-                signature: abi.encodePacked(r, s, v)
-            })
-        );
+                MintPassGroup.Pass({
+                    payload: abi.encode(payload),
+                    signature: abi.encodePacked(r, s, v)
+                })
+            );
     }
 
     function _getMintInput(
@@ -97,7 +95,7 @@ contract SeedTokens is Script {
         if (mintInput.reserveOption == SeedIssuers.ReserveOptions.Whitelist) {
             LibReserve.ReserveData[] memory reserves = new LibReserve.ReserveData[](1);
             ReserveWhitelist.WhitelistEntry[]
-            memory whitelistEntries = new ReserveWhitelist.WhitelistEntry[](1);
+                memory whitelistEntries = new ReserveWhitelist.WhitelistEntry[](1);
 
             whitelistEntries[0] = ReserveWhitelist.WhitelistEntry({
                 whitelisted: mintInput.recipient,
@@ -132,7 +130,7 @@ contract SeedTokens is Script {
         } else if (mintInput.reserveOption == SeedIssuers.ReserveOptions.WhitelistAndMintPass) {
             LibReserve.ReserveData[] memory reserves = new LibReserve.ReserveData[](1);
             ReserveWhitelist.WhitelistEntry[]
-            memory whitelistEntries = new ReserveWhitelist.WhitelistEntry[](1);
+                memory whitelistEntries = new ReserveWhitelist.WhitelistEntry[](1);
 
             whitelistEntries[0] = ReserveWhitelist.WhitelistEntry({
                 whitelisted: mintInput.recipient,
@@ -155,18 +153,17 @@ contract SeedTokens is Script {
 
         return
             IIssuer.MintInput({
-            inputBytes: inputBytes,
-            referrer: mintInput.referrer,
-            reserveInput: reserveInput,
-            createTicket: createTicket,
-            recipient: mintInput.recipient
-        });
+                inputBytes: inputBytes,
+                referrer: mintInput.referrer,
+                reserveInput: reserveInput,
+                createTicket: createTicket,
+                recipient: mintInput.recipient
+            });
     }
 
-    function loadIssuersJSON() public returns(SeedIssuers.MintInput[] memory){
-        bytes memory data = vm.parseJson(vm.readFile('script/issuers.json'), ".issuersData");
-        console.log("ok");
-        return abi.decode(data,(SeedIssuers.MintInput[])) ;
+    function loadIssuersJSON() public returns (SeedIssuers.MintInput[] memory) {
+        bytes memory data = vm.parseJsonBytes(vm.readFile("script/issuers.json"), ".issuersData");
+        return abi.decode(data, (SeedIssuers.MintInput[]));
     }
 
     function mintAllTokens() public {
@@ -178,6 +175,4 @@ contract SeedTokens is Script {
         }
         vm.stopBroadcast();
     }
-
-
 }
