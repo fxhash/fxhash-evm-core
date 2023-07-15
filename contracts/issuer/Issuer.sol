@@ -446,7 +446,7 @@ contract Issuer is IIssuer, IERC2981, Ownable {
                 SafeTransferLib.safeTransferETH(configManager.getAddress("treasury"), feesAmount);
             }
 
-            uint256 creatorAmount = price - (msg.value - feesAmount);
+            uint256 creatorAmount = price - feesAmount;
             uint256 splitAmount = (creatorAmount * issuer.primarySplit.percent) / 10000;
             if (splitAmount > 0) {
                 SafeTransferLib.safeTransferETH(issuer.primarySplit.receiver, splitAmount);
