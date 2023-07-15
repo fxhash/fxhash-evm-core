@@ -24,12 +24,13 @@ contract SeedTokens is Script {
     address public bob;
     address public signer;
 
-    uint256 public BOB_PRIVATE_KEY = vm.envUint("BOB_PRIVATE_KEY");
-    uint256 public SIGNER_PRIVATE_KEY = vm.envUint("SIGNER_PRIVATE_KEY");
+    string public MNEMONIC = vm.envString("MNEMONIC");
 
     function setUp() public {
-        signer = vm.addr(SIGNER_PRIVATE_KEY);
-        bob = vm.addr(BOB_PRIVATE_KEY);
+        signer = vm.addr(vm.deriveKey(MNEMONIC, 1));
+        bob = vm.addr(vm.deriveKey(MNEMONIC, 4));
+        vm.rememberKey(vm.deriveKey(MNEMONIC, 1));
+        vm.rememberKey(vm.deriveKey(MNEMONIC, 4));
     }
 
     function run() public {
@@ -64,7 +65,7 @@ contract SeedTokens is Script {
         });
 
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(
-            SIGNER_PRIVATE_KEY,
+            vm.deriveKey(MNEMONIC, 1),
             ECDSA.toTypedDataHash(
                 getMintPassGroupDomainSeparator(mintPassGroup),
                 keccak256(
@@ -171,7 +172,7 @@ contract SeedTokens is Script {
         vm.startBroadcast(bob);
         for (uint i = 0; i < mintQueue.length; i++) {
             console.log(mintQueue[i].issuer);
-            Issuer(mintQueue[i].issuer).mint(_getMintInput(mintQueue[i]));
+            Issuer(mintQueue[i].issuer).mint{value: 1000}(_getMintInput(mintQueue[i]));
         }
         vm.stopBroadcast();
     }

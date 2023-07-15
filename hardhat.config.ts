@@ -5,17 +5,23 @@ import "hardhat-contract-sizer";
 
 const config: HardhatUserConfig = {
   // Add this optional config to be able to run Forge scripts with hardhat local node
-  // networks: {
-  //   hardhat: {
-  //     mining: {
-  //       auto: false,
-  //       mempool: {
-  //         order: "fifo",
-  //       },
-  //       interval: [1000, 2000],
-  //     },
-  //   },
-  // },
+  networks: {
+    hardhat: {
+      accounts: {
+        mnemonic: "since swing fatigue addict shallow select derive pepper acoustic midnight code vague",
+        path: "m/44'/60'/0'/0",
+        initialIndex: 0,
+        count: 10,
+      },
+      mining: {
+          auto: false,
+          mempool: {
+            order: "fifo",
+          },
+          interval: [100, 200],
+        },
+    },
+  },
   solidity: {
     version: "0.8.18",
     settings: {

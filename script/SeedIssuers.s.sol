@@ -66,7 +66,7 @@ contract SeedIssuers is Script {
 
     uint256 public constant NUMBER = 100;
     uint256 public constant PRICE = 1000;
-    uint256 public constant OPEN_DELAY = 60;
+    uint256 public constant OPEN_DELAY = 550;
 
     uint256 public mintNb;
     uint256 public time;
@@ -256,7 +256,7 @@ contract SeedIssuers is Script {
     }
 
     function _getOpenEditionParam() public view returns (LibIssuer.OpenEditions memory) {
-        return LibIssuer.OpenEditions({closingTime: block.timestamp + 2000, extra: bytes("")});
+        return LibIssuer.OpenEditions({closingTime: block.timestamp + 200000000, extra: bytes("")});
     }
 
     function _getEmptyOpenEditionParam() public pure returns (LibIssuer.OpenEditions memory) {

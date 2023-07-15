@@ -66,13 +66,7 @@ contract Deploy is Script {
     address public susan;
 
     // State
-    uint256 public ADMIN_PRIVATE_KEY = vm.envUint("ADMIN_PRIVATE_KEY");
-    uint256 public SIGNER_PRIVATE_KEY = vm.envUint("SIGNER_PRIVATE_KEY");
-    uint256 public TREASURY_PRIVATE_KEY = vm.envUint("TREASURY_PRIVATE_KEY");
-    uint256 public ALICE_PRIVATE_KEY = vm.envUint("ALICE_PRIVATE_KEY");
-    uint256 public BOB_PRIVATE_KEY = vm.envUint("BOB_PRIVATE_KEY");
-    uint256 public EVE_PRIVATE_KEY = vm.envUint("EVE_PRIVATE_KEY");
-    uint256 public SUSAN_PRIVATE_KEY = vm.envUint("SUSAN_PRIVATE_KEY");
+    string public MNEMONIC = vm.envString("MNEMONIC");
     uint256[] public authorizations = [10, 20];
     address[] public bypass = new address[](0);
 
@@ -95,13 +89,21 @@ contract Deploy is Script {
     }
 
     function createAccounts() public {
-        admin = vm.addr(ADMIN_PRIVATE_KEY);
-        signer = vm.addr(SIGNER_PRIVATE_KEY);
-        treasury = vm.addr(TREASURY_PRIVATE_KEY);
-        alice = vm.addr(ALICE_PRIVATE_KEY);
-        bob = vm.addr(BOB_PRIVATE_KEY);
-        eve = vm.addr(EVE_PRIVATE_KEY);
-        susan = vm.addr(SUSAN_PRIVATE_KEY);
+        admin = vm.addr(vm.deriveKey(MNEMONIC, 0));
+        signer = vm.addr(vm.deriveKey(MNEMONIC, 1));
+        treasury = vm.addr(vm.deriveKey(MNEMONIC, 2));
+        alice = vm.addr(vm.deriveKey(MNEMONIC, 3));
+        bob = vm.addr(vm.deriveKey(MNEMONIC, 4));
+        eve = vm.addr(vm.deriveKey(MNEMONIC, 5));
+        susan = vm.addr(vm.deriveKey(MNEMONIC, 6));
+
+        vm.rememberKey(vm.deriveKey(MNEMONIC, 0));
+        vm.rememberKey(vm.deriveKey(MNEMONIC, 1));
+        vm.rememberKey(vm.deriveKey(MNEMONIC, 2));
+        vm.rememberKey(vm.deriveKey(MNEMONIC, 3));
+        vm.rememberKey(vm.deriveKey(MNEMONIC, 4));
+        vm.rememberKey(vm.deriveKey(MNEMONIC, 5));
+        vm.rememberKey(vm.deriveKey(MNEMONIC, 6));
     }
 
     function run() public {
