@@ -6,6 +6,13 @@ import "forge-std/Test.sol";
 import {Lib0xSplits} from "contracts/libs/Lib0xSplits.sol";
 
 interface ISplitMain {
+    function distributeETH(
+        address split,
+        address[] calldata accounts,
+        uint32[] calldata percentAllocations,
+        uint32 distributorFee,
+        address distributorAddress
+    ) external;
     function createSplit(
         address[] calldata accounts,
         uint32[] calldata percentAllocations,
@@ -13,11 +20,8 @@ interface ISplitMain {
         address controller
     ) external returns (address);
 
-    function withdraw(
-        address account,
-        uint256 withdrawETH,
-        address[] /*this was type(ERC20)[]*/ calldata tokens
-    ) external;
+    function withdraw(address account, uint256 withdrawETH, address[] /*this was type(ERC20)[]*/ calldata tokens)
+        external;
 
     function walletImplementation() external returns (address);
 
@@ -62,11 +66,23 @@ contract SplitTest is Test {
         allocations.push(uint32(600000));
         bytes32 salt = Lib0xSplits.getSalt(accounts, allocations, 0);
         address libPredicted = Lib0xSplits.predictDeterministicAddress(salt);
-        address mainPredicted = ISplitMain(splitMain).predictImmutableSplitAddress(
-            accounts,
-            allocations,
-            0
-        );
+        address mainPredicted = ISplitMain(splitMain).predictImmutableSplitAddress(accounts, allocations, 0);
         assertEq(libPredicted, mainPredicted);
+    }
+
+    function test_Withdraw() public {
+        accounts.push(address(2));
+        accounts.push(address(3));
+        allocations.push(uint32(400000));
+        allocations.push(uint32(600000));
+        bytes32 salt = Lib0xSplits.getSalt(accounts, allocations, 0);
+        address libPredicted = Lib0xSplits.predictDeterministicAddress(salt);
+        vm.deal(libPredicted, 1 ether);
+        ISplitMain(splitMain).createSplit(accounts, allocations, 0, address(0));
+        ISplitMain(splitMain).distributeETH(libPredicted, accounts, allocations, 0, address(0));
+        ISplitMain(splitMain).withdraw(address(2), 0.4 ether, new address[](0));
+        ISplitMain(splitMain).withdraw(address(3), 0.6 ether, new address[](0));
+        assertGt(address(2).balance, 0.3999999 ether);
+        assertGt(address(3).balance, 0.5999999 ether);
     }
 }
