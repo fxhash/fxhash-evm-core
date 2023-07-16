@@ -70,7 +70,7 @@ contract SplitTest is Test {
         assertEq(libPredicted, mainPredicted);
     }
 
-    function test_Withdraw() public {
+    function test_FirstWithdraw() public {
         accounts.push(address(2));
         accounts.push(address(3));
         allocations.push(uint32(400000));
@@ -84,5 +84,29 @@ contract SplitTest is Test {
         ISplitMain(splitMain).withdraw(address(3), 0.6 ether, new address[](0));
         assertGt(address(2).balance, 0.3999999 ether);
         assertGt(address(3).balance, 0.5999999 ether);
+    }
+
+    function test_2ndWithdraw() public {
+        accounts.push(address(2));
+        accounts.push(address(3));
+        allocations.push(uint32(400000));
+        allocations.push(uint32(600000));
+        bytes32 salt = Lib0xSplits.getSalt(accounts, allocations, 0);
+        address libPredicted = Lib0xSplits.predictDeterministicAddress(salt);
+        vm.deal(libPredicted, 1 ether);
+        ISplitMain(splitMain).createSplit(accounts, allocations, 0, address(0));
+        ISplitMain(splitMain).distributeETH(libPredicted, accounts, allocations, 0, address(0));
+        ISplitMain(splitMain).withdraw(address(2), 0.4 ether, new address[](0));
+        ISplitMain(splitMain).withdraw(address(3), 0.6 ether, new address[](0));
+        assertGt(address(2).balance, 0.3999999 ether);
+        assertGt(address(3).balance, 0.5999999 ether);
+        vm.deal(libPredicted, 1 ether);
+        ISplitMain(splitMain).distributeETH(libPredicted, accounts, allocations, 0, address(0));
+        uint256 cache_2 = address(2).balance;
+        uint256 cache_3 = address(3).balance;
+        ISplitMain(splitMain).withdraw(address(2), 0.4 ether, new address[](0));
+        ISplitMain(splitMain).withdraw(address(3), 0.6 ether, new address[](0));
+        assertEq(address(2).balance - cache_2, 0.4 ether);
+        assertEq(address(3).balance - cache_3, 0.6 ether);
     }
 }
