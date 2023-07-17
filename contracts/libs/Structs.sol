@@ -39,6 +39,15 @@ struct ContractEntry {
 }
 
 ///////////////////////////////////////////////////////////
+//                       CYCLES                          //
+///////////////////////////////////////////////////////////
+struct CycleParams {
+    uint128 start;
+    uint64 openingDuration;
+    uint64 closingDuration;
+}
+
+///////////////////////////////////////////////////////////
 //                         GENTK                         //
 ///////////////////////////////////////////////////////////
 struct TokenMetadata {
@@ -232,6 +241,21 @@ struct ProjectData {
 struct ModerationState {
     uint256 state;
     uint256 reason;
+}
+
+struct ModeratorData {
+    uint256[] authorizations;
+    uint256 share;
+}
+
+struct UpdateModeratorParam {
+    address moderator;
+    uint256[] authorizations;
+}
+
+struct UpdateShareParam {
+    address moderator;
+    uint256 share;
 }
 
 ///////////////////////////////////////////////////////////
