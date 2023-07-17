@@ -62,7 +62,6 @@ contract MintPassGroup is Ownable, EIP712 {
 
     function consumePass(bytes calldata _params, address _caller) external onlyReserveMintPass {
         Pass memory pass = decodePass(_params);
-
         Payload memory payload = decodePayload(pass.payload);
         bytes32 projectHash = getProjectHash(payload.token, payload.project);
         require(
@@ -72,7 +71,6 @@ contract MintPassGroup is Ownable, EIP712 {
         require(checkSignature(pass.signature, payload), "PASS_INVALID_SIGNATURE");
         if (tokens[payload.token].minted > 0) {
             TokenRecord storage tokenRecord = tokens[payload.token];
-
             require(payload.addr == tokenRecord.consumer, "WRONG_PASS_CONSUMER");
             if (maxPerToken != 0) {
                 require(tokenRecord.minted < maxPerToken, "PASS_TOKEN_MAX_CONSUMED");
