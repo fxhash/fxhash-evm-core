@@ -18,7 +18,7 @@ import {GenTk} from "contracts/gentk/GenTk.sol";
 import {MintPassGroup} from "contracts/mint-pass-group/MintPassGroup.sol";
 import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 
-contract SeedIssuers is Script {
+contract SeedIssuers is Deploy {
     enum ReserveOptions {
         None,
         Whitelist,
@@ -62,38 +62,22 @@ contract SeedIssuers is Script {
         MintTicketOptions mintTicketOption;
     }
 
-    Deploy public deploy;
-
-    uint256 public constant NUMBER = 100;
-    uint256 public constant PRICE = 1000;
-    uint256 public constant OPEN_DELAY = 560;
-    uint256 public constant MAX_PER_TOKEN = 10;
-    uint256 public constant MAX_PER_TOKEN_PER_PROJECT = 5;
-
     uint256 public mintNb;
     uint256 public time;
     uint256 public lastMint;
 
     string public MNEMONIC = vm.envString("MNEMONIC");
 
-    // Users
-    address public alice;
-    address public bob;
-    address public eve;
-    address public susan;
-
-    function setUp() public {
-        deploy = new Deploy();
-        deploy.setUp();
-        deploy.run();
+    function setUp() public virtual override {
+        super.setUp();
     }
 
-    function run() public {
+    function run() public virtual override {
         createAccounts();
         mintAllGetIssuerCombinations();
     }
 
-    function createAccounts() public {
+    function createAccounts() public override {
         alice = vm.addr(vm.deriveKey(MNEMONIC, 0));
         bob = vm.addr(vm.deriveKey(MNEMONIC, 1));
         eve = vm.addr(vm.deriveKey(MNEMONIC, 2));
@@ -129,14 +113,11 @@ contract SeedIssuers is Script {
                     for (uint l = 0; l < uint(MintTicketOptions.Disabled) + 1; l++) {
                         for (uint m = 0; m < uint(OnChainOptions.Disabled) + 1; m++) {
                             MintPassGroup _mintPassGroup;
-                            Issuer _issuer = new Issuer(
-                                address(deploy.configurationManager()),
-                                alice
-                            );
+                            Issuer _issuer = new Issuer(address(configurationManager), alice);
                             GenTk _genTk = new GenTk(
                                 alice,
                                 address(_issuer),
-                                address(deploy.configurationManager())
+                                address(configurationManager)
                             );
                             _issuer.setGenTk(address(_genTk));
 
@@ -148,7 +129,7 @@ contract SeedIssuers is Script {
                                     MAX_PER_TOKEN,
                                     MAX_PER_TOKEN_PER_PROJECT,
                                     vm.addr(vm.envUint("SIGNER_PRIVATE_KEY")),
-                                    address(deploy.reserveMintPass()),
+                                    address(reserveMintPass),
                                     new address[](0)
                                 );
                             }
@@ -172,7 +153,7 @@ contract SeedIssuers is Script {
                                 mintPassGroup: address(_mintPassGroup),
                                 recipient: bob,
                                 referrer: eve,
-                                mintTicket: address(deploy.mintTicket()),
+                                mintTicket: address(mintTicket),
                                 reserveOption: ReserveOptions(i),
                                 mintTicketOption: MintTicketOptions(l)
                             });
@@ -385,7 +366,7 @@ contract SeedIssuers is Script {
         bytes memory emptyBytes = "";
         scriptRequests[0] = WrappedScriptRequest({
             name: "monad-1960-bundle.js",
-            contractAddress: address(deploy.scriptyStorage()),
+            contractAddress: address(scriptyStorage),
             contractData: emptyBytes,
             wrapType: 0,
             wrapPrefix: emptyBytes,
@@ -395,7 +376,7 @@ contract SeedIssuers is Script {
 
         scriptRequests[1] = WrappedScriptRequest({
             name: "gunzipScripts-0.0.1",
-            contractAddress: address(deploy.scriptyStorage()),
+            contractAddress: address(scriptyStorage),
             contractData: emptyBytes,
             wrapType: 0,
             wrapPrefix: emptyBytes,
@@ -405,7 +386,7 @@ contract SeedIssuers is Script {
 
         scriptRequests[2] = WrappedScriptRequest({
             name: "fxhash-snippet.js.gz",
-            contractAddress: address(deploy.scriptyStorage()),
+            contractAddress: address(scriptyStorage),
             contractData: emptyBytes,
             wrapType: 2,
             wrapPrefix: emptyBytes,
@@ -415,7 +396,7 @@ contract SeedIssuers is Script {
 
         scriptRequests[3] = WrappedScriptRequest({
             name: "monad-1960-js.js.gz",
-            contractAddress: address(deploy.scriptyStorage()),
+            contractAddress: address(scriptyStorage),
             contractData: emptyBytes,
             wrapType: 2,
             wrapPrefix: emptyBytes,

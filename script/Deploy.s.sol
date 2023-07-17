@@ -26,8 +26,10 @@ import {ReserveMintPass} from "contracts/reserve/ReserveMintPass.sol";
 import {ReserveWhitelist} from "contracts/reserve/ReserveWhitelist.sol";
 import {ScriptyBuilder} from "scripty.sol/contracts/scripty/ScriptyBuilder.sol";
 import {ScriptyStorage} from "scripty.sol/contracts/scripty/ScriptyStorage.sol";
+import {ScriptConfig} from "./ScriptConfig.s.sol";
+import {ScriptAccounts} from "./ScriptAccounts.s.sol";
 
-contract Deploy is Script {
+contract Deploy is Script, ScriptConfig, ScriptAccounts {
     // Contracts
     AllowMint public allowMint;
     AllowMintIssuer public allowMintIssuer;
@@ -54,25 +56,14 @@ contract Deploy is Script {
     ScriptyStorage public scriptyStorage;
 
     // State
-    uint256 deployerPrivateKey = vm.envUint("DEPLOYER_PRIVATE_KEY");
-    address deployer = vm.addr(deployerPrivateKey);
+    uint256 public deployerPrivateKey = vm.envUint("DEPLOYER_PRIVATE_KEY");
+    address public deployer = vm.addr(deployerPrivateKey);
 
-    // Constants
-    uint256 public constant ISSUER_FEES = 1000;
-    uint256 public constant ISSUER_LOCK_TIME = 0;
-    uint256 public constant ISSUER_REFERRAL_SHARE = 1000;
-    uint256 public constant MARKETPLACE_MAX_REFERRAL_SHARE = 1000;
-    uint256 public constant MARKETPLACE_PLATFORM_FEES = 1000;
-    uint256 public constant MARKETPLACE_REFERRAL_SHARE = 1000;
-    bytes32 public constant SALT = keccak256("salt");
-    bytes32 public constant SEED = keccak256("seed");
-    string public constant ISSUER_VOID_METADATA = "1000";
-
-    function setUp() public {
+    function setUp() public virtual override {
         vm.rememberKey(deployerPrivateKey);
     }
 
-    function run() public {
+    function run() public virtual {
         vm.startBroadcast(deployer);
         deployContracts();
         configureContracts();
@@ -127,6 +118,12 @@ contract Deploy is Script {
 
         // Mint Ticket
         mintTicket = new MintTicket(address(randomizer));
+
+        // Issuer
+        issuer = new Issuer(address(configurationManager), alice);
+
+        // Token
+        genTk = new GenTk(alice, address(issuer), address(configurationManager));
     }
 
     function configureContracts() public {
@@ -175,7 +172,7 @@ contract Deploy is Script {
         });
 
         // Authorize signer on Randomizer
-        randomizer.authorizeCaller(vm.addr(vm.envUint("SIGNER_PRIVATE_KEY")));
+        randomizer.grantAuthorizedCallerRole(vm.addr(vm.envUint("SIGNER_PRIVATE_KEY")));
 
         // Set pricing methods
         pricingManager.setPricingContract(1, address(pricingFixed), true);
