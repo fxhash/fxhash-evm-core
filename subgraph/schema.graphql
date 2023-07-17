@@ -1,0 +1,29 @@
+type TransferEvent @entity {
+  "The txn hash of this event"
+  id: ID!
+
+  previousHolder: String!
+
+  "New holder address"
+  newHolder: String!
+
+  "Block number of the event"
+  blockNumber: BigInt!
+
+  "The timestamp of the block the event is in"
+  blockTimestamp: BigInt!
+}
+
+type Holder @entity {
+  "The address of holder"
+  id: String!
+
+  tokens: [NFT!]! 
+
+}
+
+type NFT @entity {
+  "The nft id"
+  id: String!
+
+}
