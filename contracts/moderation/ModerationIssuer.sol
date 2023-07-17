@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "contracts/libs/LibModeration.sol";
-import "contracts/abstract/BaseModeration.sol";
+import "contracts/admin/BaseModeration.sol";
 import "contracts/libs/LibModeration.sol";
 import "contracts/interfaces/IModerationIssuer.sol";
 
@@ -20,13 +20,13 @@ contract ModerationIssuer is BaseModeration, IModerationIssuer {
         uint256 state,
         uint256 reason
     ) external onlyModerator {
-        require(!Strings.equal(reasons[reason], ""), "REASON_DOESNT_EXISTS");
+        require(bytes(reasons[reason]).length > 0, "REASON_DOESNT_EXISTS");
         issuers[issuerContract] = LibModeration.ModerationState(state, reason);
         emit IssuerModerated(issuerContract, state, reason);
     }
 
     function report(address issuerContract, uint256 reason) external onlyModerator {
-        require(!Strings.equal(reasons[reason], ""), "REASON_DOESNT_EXISTS");
+        require(bytes(reasons[reason]).length > 0, "REASON_DOESNT_EXISTS");
         reports[getHashedKey(msg.sender, issuerContract)] = reason;
         emit IssuerReported(msg.sender, issuerContract, reason);
     }
@@ -45,6 +45,6 @@ contract ModerationIssuer is BaseModeration, IModerationIssuer {
     }
 
     function isModerator(address user) public view override returns (bool) {
-        return ModerationTeam(getModerationTeamAddress()).isAuthorized(user, 10);
+        return ModerationTeam(moderation).isAuthorized(user, 10);
     }
 }
