@@ -56,12 +56,12 @@ contract Marketplace is AuthorizedCaller {
         TokenType tokenType;
     }
 
-    uint256 maxReferralShare;
-    uint256 referralShare;
-    uint256 listingSequence;
-    uint256 offerSequence;
-    uint256 platformFees;
-    address treasury;
+    uint256 public maxReferralShare;
+    uint256 public referralShare;
+    uint256 public listingSequence;
+    uint256 public offerSequence;
+    uint256 public platformFees;
+    address public treasury;
 
     mapping(address => bool) public assetContracts;
     mapping(uint256 => Currency) public currencies;
