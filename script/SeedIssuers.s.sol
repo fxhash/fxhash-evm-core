@@ -17,7 +17,6 @@ import {Issuer} from "contracts/issuer/Issuer.sol";
 import {GenTk} from "contracts/gentk/GenTk.sol";
 import {MintPassGroup} from "contracts/mint-pass-group/MintPassGroup.sol";
 import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
-import "forge-std/console.sol";
 
 contract SeedIssuers is Script {
     enum ReserveOptions {
@@ -58,6 +57,7 @@ contract SeedIssuers is Script {
         address mintPassGroup;
         address recipient;
         address referrer;
+        address mintTicket;
         ReserveOptions reserveOption;
         MintTicketOptions mintTicketOption;
     }
@@ -149,6 +149,7 @@ contract SeedIssuers is Script {
                                 mintPassGroup: address(_mintPassGroup),
                                 recipient: deploy.bob(),
                                 referrer: deploy.signer(),
+                                mintTicket: address(deploy.mintTicket()),
                                 reserveOption: ReserveOptions(i),
                                 mintTicketOption: MintTicketOptions(l)
                             });

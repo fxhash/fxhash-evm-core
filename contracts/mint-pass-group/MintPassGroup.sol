@@ -6,8 +6,6 @@ import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-import "hardhat/console.sol";
-
 contract MintPassGroup is Ownable, EIP712 {
     bytes32 public constant PAYLOAD_TYPE_HASH =
         keccak256("Payload(string token,address project,address addr)");

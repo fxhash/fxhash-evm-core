@@ -8,17 +8,16 @@ import {ReserveWhitelist} from "contracts/reserve/ReserveWhitelist.sol";
 import {PricingFixed} from "contracts/pricing/PricingFixed.sol";
 import {PricingDutchAuction} from "contracts/pricing/PricingDutchAuction.sol";
 import {IIssuer} from "contracts/interfaces/IIssuer.sol";
+import {MintTicket} from "contracts/mint-ticket/MintTicket.sol";
 import {LibReserve} from "contracts/libs/LibReserve.sol";
 import {LibPricing} from "contracts/libs/LibPricing.sol";
 import {LibRoyalty} from "contracts/libs/LibRoyalty.sol";
 import {LibIssuer} from "contracts/libs/LibIssuer.sol";
 import {LibCodex} from "contracts/libs/LibCodex.sol";
 import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
-import {Issuer} from "contracts/issuer/Issuer.sol";
 import {GenTk} from "contracts/gentk/GenTk.sol";
 import {MintPassGroup} from "contracts/mint-pass-group/MintPassGroup.sol";
 import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
-import "forge-std/console.sol";
 
 contract SeedTokens is Script {
     address public bob;
@@ -171,8 +170,14 @@ contract SeedTokens is Script {
         SeedIssuers.MintInput[] memory mintQueue = loadIssuersJSON();
         vm.startBroadcast(bob);
         for (uint i = 0; i < mintQueue.length; i++) {
-            console.log(mintQueue[i].issuer);
-            Issuer(mintQueue[i].issuer).mint{value: 1000}(_getMintInput(mintQueue[i]));
+            IIssuer(mintQueue[i].issuer).mint{value: 1000}(_getMintInput(mintQueue[i]));
+            if (mintQueue[i].mintTicketOption == SeedIssuers.MintTicketOptions.Enabled) {
+                MintTicket(payable(mintQueue[i].mintTicket)).consume(
+                    bob,
+                    MintTicket(payable(mintQueue[i].mintTicket)).lastTokenId() - 1,
+                    mintQueue[i].issuer
+                );
+            }
         }
         vm.stopBroadcast();
     }

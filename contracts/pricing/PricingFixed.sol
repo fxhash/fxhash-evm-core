@@ -2,7 +2,6 @@
 pragma solidity ^0.8.18;
 
 import "contracts/interfaces/IPricing.sol";
-import "hardhat/console.sol";
 
 contract PricingFixed is IPricing {
     struct PriceDetails {
@@ -27,7 +26,6 @@ contract PricingFixed is IPricing {
     function getPrice(uint256 timestamp) external view returns (uint256) {
         PriceDetails memory pricing = pricings[msg.sender];
         require(pricing.price > 0, "PRICING_NO_ISSUER");
-        console.log("Pricing fixed: %s %s", timestamp, pricing.opensAt);
         if (pricing.opensAt > 0) {
             require(timestamp >= pricing.opensAt, "NOT_OPENED_YET");
         }
