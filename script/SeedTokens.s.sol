@@ -21,15 +21,12 @@ import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 
 contract SeedTokens is Script {
     address public bob;
-    address public signer;
 
     string public MNEMONIC = vm.envString("MNEMONIC");
 
     function setUp() public {
-        signer = vm.addr(vm.deriveKey(MNEMONIC, 1));
-        bob = vm.addr(vm.deriveKey(MNEMONIC, 4));
+        bob = vm.addr(vm.deriveKey(MNEMONIC, 1));
         vm.rememberKey(vm.deriveKey(MNEMONIC, 1));
-        vm.rememberKey(vm.deriveKey(MNEMONIC, 4));
     }
 
     function run() public {
@@ -64,7 +61,7 @@ contract SeedTokens is Script {
         });
 
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(
-            vm.deriveKey(MNEMONIC, 1),
+            vm.envUint("SIGNER_PRIVATE_KEY"),
             ECDSA.toTypedDataHash(
                 getMintPassGroupDomainSeparator(mintPassGroup),
                 keccak256(

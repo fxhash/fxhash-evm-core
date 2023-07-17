@@ -55,25 +55,11 @@ contract Deploy is Script {
     ScriptyBuilder public scriptyBuilder;
     ScriptyStorage public scriptyStorage;
 
-    // Users
-    address public admin;
-    address public signer;
-    address public treasury;
-    address public moderator;
-    address public alice;
-    address public bob;
-    address public eve;
-    address public susan;
-
     // State
-    string public MNEMONIC = vm.envString("MNEMONIC");
-    uint256[] public authorizations = [10, 20];
-    address[] public bypass = new address[](0);
+    uint256 deployerPrivateKey = vm.envUint("DEPLOYER_PRIVATE_KEY");
+    address deployer = vm.addr(deployerPrivateKey);
 
     // Constants
-    uint256 public constant BALANCE = 100 ether;
-    uint256 public constant MAX_PER_TOKEN = 10;
-    uint256 public constant MAX_PER_TOKEN_PER_PROJECT = 5;
     uint256 public constant ISSUER_FEES = 1000;
     uint256 public constant ISSUER_LOCK_TIME = 0;
     uint256 public constant ISSUER_REFERRAL_SHARE = 1000;
@@ -85,34 +71,13 @@ contract Deploy is Script {
     string public constant ISSUER_VOID_METADATA = "1000";
 
     function setUp() public {
-        createAccounts();
-    }
-
-    function createAccounts() public {
-        admin = vm.addr(vm.deriveKey(MNEMONIC, 0));
-        signer = vm.addr(vm.deriveKey(MNEMONIC, 1));
-        treasury = vm.addr(vm.deriveKey(MNEMONIC, 2));
-        alice = vm.addr(vm.deriveKey(MNEMONIC, 3));
-        bob = vm.addr(vm.deriveKey(MNEMONIC, 4));
-        eve = vm.addr(vm.deriveKey(MNEMONIC, 5));
-        susan = vm.addr(vm.deriveKey(MNEMONIC, 6));
-
-        vm.rememberKey(vm.deriveKey(MNEMONIC, 0));
-        vm.rememberKey(vm.deriveKey(MNEMONIC, 1));
-        vm.rememberKey(vm.deriveKey(MNEMONIC, 2));
-        vm.rememberKey(vm.deriveKey(MNEMONIC, 3));
-        vm.rememberKey(vm.deriveKey(MNEMONIC, 4));
-        vm.rememberKey(vm.deriveKey(MNEMONIC, 5));
-        vm.rememberKey(vm.deriveKey(MNEMONIC, 6));
+        vm.rememberKey(deployerPrivateKey);
     }
 
     function run() public {
-        vm.startBroadcast(admin);
+        vm.startBroadcast(deployer);
         deployContracts();
         configureContracts();
-        vm.stopBroadcast();
-        vm.startBroadcast(alice);
-        deployAndConfigureUserContracts();
         vm.stopBroadcast();
     }
 
@@ -155,11 +120,11 @@ contract Deploy is Script {
 
         // Marketplace
         marketplace = new Marketplace(
-            admin,
+            deployer,
             MARKETPLACE_MAX_REFERRAL_SHARE,
             MARKETPLACE_REFERRAL_SHARE,
             MARKETPLACE_PLATFORM_FEES,
-            treasury
+            vm.envAddress("TREASURY_ADDRESS")
         );
 
         // Mint Ticket
@@ -167,19 +132,12 @@ contract Deploy is Script {
     }
 
     function configureContracts() public {
-        ModerationTeam.UpdateModeratorParam[]
-            memory moderators = new ModerationTeam.UpdateModeratorParam[](1);
         IConfigurationManager.ContractEntry[]
             memory contractEntries = new IConfigurationManager.ContractEntry[](10);
 
-        moderators[0] = ModerationTeam.UpdateModeratorParam({
-            moderator: moderator,
-            authorizations: authorizations
-        });
-
         contractEntries[0] = IConfigurationManager.ContractEntry({
             key: "treasury",
-            value: treasury
+            value: vm.envAddress("TREASURY_ADDRESS")
         });
         contractEntries[1] = IConfigurationManager.ContractEntry({
             key: "mint_tickets",
@@ -219,10 +177,7 @@ contract Deploy is Script {
         });
 
         // Authorize signer on Randomizer
-        randomizer.authorizeCaller(signer);
-
-        // Register a moderator
-        moderationTeam.updateModerators(moderators);
+        randomizer.authorizeCaller(vm.addr(vm.envUint("SIGNER_PRIVATE_KEY")));
 
         // Set pricing methods
         pricingManager.setPricingContract(1, address(pricingFixed), true);
@@ -248,21 +203,5 @@ contract Deploy is Script {
                 voidMetadata: ISSUER_VOID_METADATA
             })
         );
-    }
-
-    function deployAndConfigureUserContracts() public {
-        // Issuer
-        issuer = new Issuer(address(configurationManager), alice);
-
-        // Token
-        genTk = new GenTk(alice, address(issuer), address(configurationManager));
-
-        issuer.setGenTk(address(genTk));
-    }
-
-    function _createUser(string memory _name) internal returns (address user) {
-        user = address(uint160(uint256(keccak256(abi.encodePacked(_name)))));
-        vm.deal(user, BALANCE);
-        vm.label(user, _name);
     }
 }

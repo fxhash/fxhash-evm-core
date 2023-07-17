@@ -66,11 +66,21 @@ contract SeedIssuers is Script {
 
     uint256 public constant NUMBER = 100;
     uint256 public constant PRICE = 1000;
-    uint256 public constant OPEN_DELAY = 550;
+    uint256 public constant OPEN_DELAY = 560;
+    uint256 public constant MAX_PER_TOKEN = 10;
+    uint256 public constant MAX_PER_TOKEN_PER_PROJECT = 5;
 
     uint256 public mintNb;
     uint256 public time;
     uint256 public lastMint;
+
+    string public MNEMONIC = vm.envString("MNEMONIC");
+
+    // Users
+    address public alice;
+    address public bob;
+    address public eve;
+    address public susan;
 
     function setUp() public {
         deploy = new Deploy();
@@ -79,7 +89,20 @@ contract SeedIssuers is Script {
     }
 
     function run() public {
+        createAccounts();
         mintAllGetIssuerCombinations();
+    }
+
+    function createAccounts() public {
+        alice = vm.addr(vm.deriveKey(MNEMONIC, 0));
+        bob = vm.addr(vm.deriveKey(MNEMONIC, 1));
+        eve = vm.addr(vm.deriveKey(MNEMONIC, 2));
+        susan = vm.addr(vm.deriveKey(MNEMONIC, 3));
+
+        vm.rememberKey(vm.deriveKey(MNEMONIC, 0));
+        vm.rememberKey(vm.deriveKey(MNEMONIC, 1));
+        vm.rememberKey(vm.deriveKey(MNEMONIC, 2));
+        vm.rememberKey(vm.deriveKey(MNEMONIC, 3));
     }
 
     function getTotalCombinations() public pure returns (uint256) {
@@ -99,7 +122,7 @@ contract SeedIssuers is Script {
 
     function mintAllGetIssuerCombinations() public {
         MintInput[] memory mintQueue = new MintInput[](getTotalCombinations());
-        vm.startBroadcast(deploy.alice());
+        vm.startBroadcast(alice);
         for (uint i = 0; i < uint(ReserveOptions.WhitelistAndMintPass) + 1; i++) {
             for (uint j = 0; j < uint(PricingOptions.DutchAuction) + 1; j++) {
                 for (uint k = 0; k < uint(OpenEditionsOptions.Disabled) + 1; k++) {
@@ -108,10 +131,10 @@ contract SeedIssuers is Script {
                             MintPassGroup _mintPassGroup;
                             Issuer _issuer = new Issuer(
                                 address(deploy.configurationManager()),
-                                deploy.alice()
+                                alice
                             );
                             GenTk _genTk = new GenTk(
-                                deploy.alice(),
+                                alice,
                                 address(_issuer),
                                 address(deploy.configurationManager())
                             );
@@ -122,9 +145,9 @@ contract SeedIssuers is Script {
                                 i == uint(ReserveOptions.WhitelistAndMintPass)
                             ) {
                                 _mintPassGroup = new MintPassGroup(
-                                    deploy.MAX_PER_TOKEN(),
-                                    deploy.MAX_PER_TOKEN_PER_PROJECT(),
-                                    deploy.signer(),
+                                    MAX_PER_TOKEN,
+                                    MAX_PER_TOKEN_PER_PROJECT,
+                                    vm.addr(vm.envUint("SIGNER_PRIVATE_KEY")),
                                     address(deploy.reserveMintPass()),
                                     new address[](0)
                                 );
@@ -147,8 +170,8 @@ contract SeedIssuers is Script {
                             mintQueue[mintNb] = MintInput({
                                 issuer: address(_issuer),
                                 mintPassGroup: address(_mintPassGroup),
-                                recipient: deploy.bob(),
-                                referrer: deploy.signer(),
+                                recipient: bob,
+                                referrer: eve,
                                 mintTicket: address(deploy.mintTicket()),
                                 reserveOption: ReserveOptions(i),
                                 mintTicketOption: MintTicketOptions(l)
@@ -273,18 +296,9 @@ contract SeedIssuers is Script {
         ReserveWhitelist.WhitelistEntry[]
             memory whitelistEntries = new ReserveWhitelist.WhitelistEntry[](3);
 
-        whitelistEntries[0] = ReserveWhitelist.WhitelistEntry({
-            whitelisted: deploy.bob(),
-            amount: 2
-        });
-        whitelistEntries[1] = ReserveWhitelist.WhitelistEntry({
-            whitelisted: deploy.eve(),
-            amount: 1
-        });
-        whitelistEntries[2] = ReserveWhitelist.WhitelistEntry({
-            whitelisted: deploy.susan(),
-            amount: 1
-        });
+        whitelistEntries[0] = ReserveWhitelist.WhitelistEntry({whitelisted: bob, amount: 2});
+        whitelistEntries[1] = ReserveWhitelist.WhitelistEntry({whitelisted: eve, amount: 1});
+        whitelistEntries[2] = ReserveWhitelist.WhitelistEntry({whitelisted: susan, amount: 1});
 
         reserves[0] = LibReserve.ReserveData({
             methodId: 1,
@@ -313,18 +327,9 @@ contract SeedIssuers is Script {
         ReserveWhitelist.WhitelistEntry[]
             memory whitelistEntries = new ReserveWhitelist.WhitelistEntry[](3);
 
-        whitelistEntries[0] = ReserveWhitelist.WhitelistEntry({
-            whitelisted: deploy.bob(),
-            amount: 2
-        });
-        whitelistEntries[1] = ReserveWhitelist.WhitelistEntry({
-            whitelisted: deploy.eve(),
-            amount: 1
-        });
-        whitelistEntries[2] = ReserveWhitelist.WhitelistEntry({
-            whitelisted: deploy.susan(),
-            amount: 1
-        });
+        whitelistEntries[0] = ReserveWhitelist.WhitelistEntry({whitelisted: bob, amount: 2});
+        whitelistEntries[1] = ReserveWhitelist.WhitelistEntry({whitelisted: eve, amount: 1});
+        whitelistEntries[2] = ReserveWhitelist.WhitelistEntry({whitelisted: susan, amount: 1});
 
         reserves[0] = LibReserve.ReserveData({
             methodId: 1,
