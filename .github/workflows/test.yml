@@ -46,7 +46,7 @@ jobs:
           forge build --sizes
         id: build
 
-      - name: Run Forge tests
+      - name: Run tests
         run: |
-          forge test -vvv
+          npm test
         id: test
