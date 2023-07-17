@@ -185,7 +185,7 @@ contract Issuer is IIssuer, IERC2981, Ownable {
         }
 
         require(
-            SignedMath.abs(int256(block.timestamp) - int256(issuer.info.timestampMinted)) >=
+            SignedMath.abs(int256(block.timestamp) - int256(issuer.info.timestampMinted)) >
                 issuer.info.lockedSeconds,
             "TOKEN_LOCKED"
         );
