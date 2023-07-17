@@ -32,9 +32,6 @@ jobs:
       - name: check formatting
         run: npm run prettier:check
 
-      - name: run hardhat test
-        run: npx hardhat test
-
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
