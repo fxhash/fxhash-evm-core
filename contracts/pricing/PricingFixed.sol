@@ -29,7 +29,6 @@ contract PricingFixed is IPricing {
         if (pricing.opensAt > 0) {
             require(timestamp >= pricing.opensAt, "NOT_OPENED_YET");
         }
-
         return pricing.price;
     }
 
