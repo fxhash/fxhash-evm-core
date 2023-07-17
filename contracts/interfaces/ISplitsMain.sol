@@ -9,6 +9,7 @@ interface ISplitsMain {
         uint32 distributorFee,
         address distributorAddress
     ) external;
+
     function createSplit(
         address[] calldata accounts,
         uint32[] calldata percentAllocations,
@@ -16,8 +17,11 @@ interface ISplitsMain {
         address controller
     ) external returns (address);
 
-    function withdraw(address account, uint256 withdrawETH, address[] /*this was type(ERC20)[]*/ calldata tokens)
-        external;
+    function withdraw(
+        address account,
+        uint256 withdrawETH,
+        address[] /*this was type(ERC20)[]*/ calldata tokens
+    ) external;
 
     function walletImplementation() external returns (address);
 

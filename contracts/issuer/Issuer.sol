@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
+
 import "@openzeppelin/contracts/interfaces/IERC2981.sol";
 
 import "contracts/interfaces/IMintTicket.sol";
@@ -37,6 +38,7 @@ contract Issuer is IIssuer, IERC2981, Ownable {
     event PriceUpdated(LibPricing.PricingData params);
     event ReserveUpdated(LibReserve.ReserveData[] reserves);
     event SupplyBurned(uint256 amount);
+    event RoyaltySplit(address[] accounts, uint32[] allocations, uint256 percent);
 
     constructor(address _configManager, address _owner) {
         configManager = IConfigurationManager(_configManager);
@@ -49,15 +51,11 @@ contract Issuer is IIssuer, IERC2981, Ownable {
         _;
     }
 
-    function computeDeterministicRoyaltySplitAddress(
+    function mintIssuer(
+        MintIssuerInput calldata params,
         address[] memory accounts,
-        uint32[] memory percentAllocations
-    ) external pure returns (address) {
-        bytes32 salt = Lib0xSplits.getSalt(accounts, percentAllocations, 0);
-        return Lib0xSplits.predictDeterministicAddress(salt);
-    }
-
-    function mintIssuer(MintIssuerInput calldata params) external {
+        uint32[] memory allocations
+    ) external {
         require(IAllowMintIssuer(configManager.getAddress("al_mi")).isAllowed(msg.sender), "403");
         uint256 codexId = ICodex(configManager.getAddress("codex")).insertOrUpdateCodex(
             msg.sender,
@@ -146,6 +144,19 @@ contract Issuer is IIssuer, IERC2981, Ownable {
             require(reserveTotal <= params.amount, "RSRV_BIG");
         }
 
+        require(accounts.length == allocations.length, "Length Mismatch");
+        require(accounts.length > 0, "InvalidRoyalty");
+        if (accounts.length == 1) {
+            /// for accounts > 1 this check of alloctionsSum == 100% happens in the splits contract
+            require(allocations[0] == 1000000, "InvalidRoyalty must be 100%");
+        }
+        LibRoyalty.RoyaltyData memory royaltySplit = (accounts.length == 1)
+            ? LibRoyalty.RoyaltyData(params.royaltiesSplit.percent, accounts[0])
+            : LibRoyalty.RoyaltyData(
+                params.royaltiesSplit.percent,
+                Lib0xSplits.getImmutableSplitAddress(accounts, allocations)
+            );
+
         issuer = LibIssuer.IssuerData({
             metadata: params.metadata,
             balance: params.amount,
@@ -154,7 +165,7 @@ contract Issuer is IIssuer, IERC2981, Ownable {
             openEditions: params.openEditions,
             reserves: abi.encode(params.reserves),
             primarySplit: params.primarySplit,
-            royaltiesSplit: params.royaltiesSplit,
+            royaltiesSplit: royaltySplit,
             onChainData: abi.encode(params.onChainScripts),
             info: LibIssuer.IssuerInfo({
                 tags: params.tags,
@@ -168,6 +179,7 @@ contract Issuer is IIssuer, IERC2981, Ownable {
                 inputBytesSize: params.inputBytesSize
             })
         });
+        emit RoyaltySplit(accounts, allocations, params.royaltiesSplit.percent);
 
         emit IssuerMinted(params);
     }
