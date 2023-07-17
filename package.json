@@ -6,7 +6,7 @@
   "scripts": {
     "deploy": "./script/deploy.sh",
     "seed": "./script/seed.sh",
-    "test": "npx hardhat test ; forge test",
+    "test": "forge test",
     "prettier": "prettier --write 'contracts/**/*.sol' 'script/**/*.sol' 'test/**/*.sol'",
     "prettier:check": "prettier --check 'contracts/**/*.sol'"
   },
