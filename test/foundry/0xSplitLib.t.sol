@@ -4,35 +4,7 @@ pragma solidity ^0.8.18;
 import "forge-std/Test.sol";
 
 import {Lib0xSplits} from "contracts/libs/Lib0xSplits.sol";
-
-interface ISplitMain {
-    function distributeETH(
-        address split,
-        address[] calldata accounts,
-        uint32[] calldata percentAllocations,
-        uint32 distributorFee,
-        address distributorAddress
-    ) external;
-    function createSplit(
-        address[] calldata accounts,
-        uint32[] calldata percentAllocations,
-        uint32 distributorFee,
-        address controller
-    ) external returns (address);
-
-    function withdraw(address account, uint256 withdrawETH, address[] /*this was type(ERC20)[]*/ calldata tokens)
-        external;
-
-    function walletImplementation() external returns (address);
-
-    function predictImmutableSplitAddress(
-        address[] calldata accounts,
-        uint32[] calldata percentAllocations,
-        uint32 distributorFee
-    ) external view returns (address);
-}
-
-interface ISplitWallet {}
+import {ISplitsMain} from "contracts/interfaces/ISplitsMain.sol";
 
 contract SplitTest is Test {
     /// creation code from https://etherscan.io/address/0x2ed6c4b5da6378c7897ac67ba9e43102feb694ee#code
@@ -42,71 +14,65 @@ contract SplitTest is Test {
     // mainnet + testnet deployment addresses
     address public splitMain = 0x2ed6c4B5dA6378c7897AC67Ba9e43102Feb694EE;
     address public splitWallet = 0xD94c0CE4f8eEfA4Ebf44bf6665688EdEEf213B33;
+    address public deployedAddress;
 
     address[] public accounts;
     uint32[] public allocations;
+    bytes32 public salt;
 
     function setUp() public {
         bytes memory splitMainBytecode = abi.encodePacked(splitMainCreationCode, abi.encode());
-        address deployedAddress;
+        accounts.push(address(2));
+        accounts.push(address(3));
+        allocations.push(uint32(400000));
+        allocations.push(uint32(600000));
+        salt = Lib0xSplits.getSalt(accounts, allocations, 0);
+        address deployedAddress_;
         // original deployer + original nonce used at deployment
         vm.startPrank(0x9ebC8E61f87A301fF25a606d7C06150f856F24E2);
         vm.setNonce(0x9ebC8E61f87A301fF25a606d7C06150f856F24E2, 0);
         assembly {
-            deployedAddress := create(0, add(splitMainBytecode, 32), mload(splitMainBytecode))
+            deployedAddress_ := create(0, add(splitMainBytecode, 32), mload(splitMainBytecode))
         }
+
+        deployedAddress = deployedAddress_;
+    }
+
+    function test_VerifyDeployment() public {
         assertEq(deployedAddress, splitMain);
-        assertEq(ISplitMain(splitMain).walletImplementation(), splitWallet);
+        assertEq(ISplitsMain(splitMain).walletImplementation(), splitWallet);
     }
 
     function test_VerifyPredictAddress() public {
-        accounts.push(address(2));
-        accounts.push(address(3));
-        allocations.push(uint32(400000));
-        allocations.push(uint32(600000));
-        bytes32 salt = Lib0xSplits.getSalt(accounts, allocations, 0);
         address libPredicted = Lib0xSplits.predictDeterministicAddress(salt);
-        address mainPredicted = ISplitMain(splitMain).predictImmutableSplitAddress(accounts, allocations, 0);
-        assertEq(libPredicted, mainPredicted);
+        address computedAddress = ISplitsMain(splitMain).predictImmutableSplitAddress(accounts, allocations, 0);
+        assertEq(libPredicted, computedAddress);
     }
 
     function test_FirstWithdraw() public {
-        accounts.push(address(2));
-        accounts.push(address(3));
-        allocations.push(uint32(400000));
-        allocations.push(uint32(600000));
-        bytes32 salt = Lib0xSplits.getSalt(accounts, allocations, 0);
+        salt = Lib0xSplits.getSalt(accounts, allocations, 0);
         address libPredicted = Lib0xSplits.predictDeterministicAddress(salt);
         vm.deal(libPredicted, 1 ether);
-        ISplitMain(splitMain).createSplit(accounts, allocations, 0, address(0));
-        ISplitMain(splitMain).distributeETH(libPredicted, accounts, allocations, 0, address(0));
-        ISplitMain(splitMain).withdraw(address(2), 0.4 ether, new address[](0));
-        ISplitMain(splitMain).withdraw(address(3), 0.6 ether, new address[](0));
+        ISplitsMain(splitMain).createSplit(accounts, allocations, 0, address(0));
+        ISplitsMain(splitMain).distributeETH(libPredicted, accounts, allocations, 0, address(0));
+        ISplitsMain(splitMain).withdraw(address(2), 0.4 ether, new address[](0));
+        ISplitsMain(splitMain).withdraw(address(3), 0.6 ether, new address[](0));
+        /// on first withdraw, 1 wei is withheld for gas savings
         assertGt(address(2).balance, 0.3999999 ether);
         assertGt(address(3).balance, 0.5999999 ether);
     }
 
     function test_2ndWithdraw() public {
-        accounts.push(address(2));
-        accounts.push(address(3));
-        allocations.push(uint32(400000));
-        allocations.push(uint32(600000));
-        bytes32 salt = Lib0xSplits.getSalt(accounts, allocations, 0);
-        address libPredicted = Lib0xSplits.predictDeterministicAddress(salt);
-        vm.deal(libPredicted, 1 ether);
-        ISplitMain(splitMain).createSplit(accounts, allocations, 0, address(0));
-        ISplitMain(splitMain).distributeETH(libPredicted, accounts, allocations, 0, address(0));
-        ISplitMain(splitMain).withdraw(address(2), 0.4 ether, new address[](0));
-        ISplitMain(splitMain).withdraw(address(3), 0.6 ether, new address[](0));
-        assertGt(address(2).balance, 0.3999999 ether);
-        assertGt(address(3).balance, 0.5999999 ether);
-        vm.deal(libPredicted, 1 ether);
-        ISplitMain(splitMain).distributeETH(libPredicted, accounts, allocations, 0, address(0));
-        uint256 cache_2 = address(2).balance;
-        uint256 cache_3 = address(3).balance;
-        ISplitMain(splitMain).withdraw(address(2), 0.4 ether, new address[](0));
-        ISplitMain(splitMain).withdraw(address(3), 0.6 ether, new address[](0));
-        assertEq(address(2).balance - cache_2, 0.4 ether);
-        assertEq(address(3).balance - cache_3, 0.6 ether);
+        test_FirstWithdraw();
+        address computedAddress = ISplitsMain(splitMain).predictImmutableSplitAddress(accounts, allocations, 0);
+        vm.deal(computedAddress, 1 ether);
+        ISplitsMain(splitMain).distributeETH(computedAddress, accounts, allocations, 0, address(0));
+        uint256 cachedBalance2 = address(2).balance;
+        uint256 cachedBalance3 = address(3).balance;
+        ISplitsMain(splitMain).withdraw(address(2), 0.4 ether, new address[](0));
+        ISplitsMain(splitMain).withdraw(address(3), 0.6 ether, new address[](0));
+        /// balance fully availalble
+        assertEq(address(2).balance - cachedBalance2, 0.4 ether);
+        assertEq(address(3).balance - cachedBalance3, 0.6 ether);
     }
 }
