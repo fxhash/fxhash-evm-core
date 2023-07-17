@@ -38,7 +38,12 @@ contract Issuer is IIssuer, IERC2981, Ownable {
     event PriceUpdated(LibPricing.PricingData params);
     event ReserveUpdated(LibReserve.ReserveData[] reserves);
     event SupplyBurned(uint256 amount);
-    event RoyaltySplit(address[] accounts, uint32[] allocations, uint256 percent);
+    event RoyaltySplit(
+        address indexed token,
+        address[] accounts,
+        uint32[] allocations,
+        uint256 percent
+    );
 
     constructor(address _configManager, address _owner) {
         configManager = IConfigurationManager(_configManager);
@@ -179,7 +184,8 @@ contract Issuer is IIssuer, IERC2981, Ownable {
                 inputBytesSize: params.inputBytesSize
             })
         });
-        emit RoyaltySplit(accounts, allocations, params.royaltiesSplit.percent);
+        address gentkContract = configManager.getAddress("gentk");
+        emit RoyaltySplit(gentkContract, accounts, allocations, params.royaltiesSplit.percent);
 
         emit IssuerMinted(params);
     }
