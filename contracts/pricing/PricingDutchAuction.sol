@@ -48,7 +48,6 @@ contract PricingDutchAuction is IPricing, Ownable {
 
     function getPrice(uint256 timestamp) external view returns (uint256) {
         PriceDetails storage pricing = pricings[msg.sender];
-        require(pricing.opensAt > 0, "No pricing available for the issuer");
         require(timestamp >= pricing.opensAt, "NOT_OPENED_YET");
 
         if (pricing.lockedPrice > 0) {
