@@ -43,16 +43,15 @@ jobs:
           forge build --sizes
         id: build
 
+      - name: Load .env file
+        uses: aarcangeli/load-dotenv@v1.0.0
+        with:
+          filenames: |
+            .env.example
+          quiet: false
+
       - name: Run tests
         shell: bash
-        env:
-          COIN_MARKET_CAP_API_KEY: ${{ secrets.COIN_MARKET_CAP_API_KEY }}
-          DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
-          SIGNER_PRIVATE_KEY: ${{ secrets.SIGNER_PRIVATE_KEY }}
-          MNEMONIC: ${{ secrets.MNEMONIC }}
-          ALICE_ADDRESS: ${{ env.ALICE_ADDRESS }}
-          BOB_ADDRESS: ${{ env.BOB_ADDRESS }}
-          TREASURY_ADDRESS: ${{ env.TREASURY_ADDRESS }}
         run: |
           npm test
         id: test
