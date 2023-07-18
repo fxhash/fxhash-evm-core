@@ -22,7 +22,6 @@ import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
 
 import "contracts/libs/LibIssuer.sol";
 import "contracts/libs/LibReserve.sol";
-import {Lib0xSplits} from "contracts/libs/Lib0xSplits.sol";
 
 contract Issuer is IIssuer, IERC2981, Ownable {
     uint256 private allGenTkTokens;
@@ -56,11 +55,7 @@ contract Issuer is IIssuer, IERC2981, Ownable {
         _;
     }
 
-    function mintIssuer(
-        MintIssuerInput calldata params,
-        address[] memory accounts,
-        uint32[] memory allocations
-    ) external {
+    function mintIssuer(MintIssuerInput calldata params) external {
         require(IAllowMintIssuer(configManager.getAddress("al_mi")).isAllowed(msg.sender), "403");
         uint256 codexId = ICodex(configManager.getAddress("codex")).insertOrUpdateCodex(
             msg.sender,
@@ -149,19 +144,6 @@ contract Issuer is IIssuer, IERC2981, Ownable {
             require(reserveTotal <= params.amount, "RSRV_BIG");
         }
 
-        require(accounts.length == allocations.length, "Length Mismatch");
-        require(accounts.length > 0, "InvalidRoyalty");
-        if (accounts.length == 1) {
-            /// for accounts > 1 this check of alloctionsSum == 100% happens in the splits contract
-            require(allocations[0] == 1000000, "InvalidRoyalty must be 100%");
-        }
-        LibRoyalty.RoyaltyData memory royaltySplit = (accounts.length == 1)
-            ? LibRoyalty.RoyaltyData(params.royaltiesSplit.percent, accounts[0])
-            : LibRoyalty.RoyaltyData(
-                params.royaltiesSplit.percent,
-                Lib0xSplits.getImmutableSplitAddress(accounts, allocations)
-            );
-
         issuer = LibIssuer.IssuerData({
             metadata: params.metadata,
             balance: params.amount,
@@ -170,7 +152,7 @@ contract Issuer is IIssuer, IERC2981, Ownable {
             openEditions: params.openEditions,
             reserves: abi.encode(params.reserves),
             primarySplit: params.primarySplit,
-            royaltiesSplit: royaltySplit,
+            royaltiesSplit: params.royaltiesSplit,
             onChainData: abi.encode(params.onChainScripts),
             info: LibIssuer.IssuerInfo({
                 tags: params.tags,
@@ -185,8 +167,6 @@ contract Issuer is IIssuer, IERC2981, Ownable {
             })
         });
         address gentkContract = configManager.getAddress("gentk");
-        emit RoyaltySplit(gentkContract, accounts, allocations, params.royaltiesSplit.percent);
-
         emit IssuerMinted(params);
     }
 

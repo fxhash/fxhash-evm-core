@@ -257,8 +257,6 @@ describe("Issuer", () => {
     it("It should successfully mint an issuer token", async function () {
       const timestamp = 1735589600;
       const price = 1000;
-      const royaltySplitAddress = [await receiver.getAddress()];
-      const royaltyAllocation = [1000000];
       const whitelist = [
         {
           whitelisted: await addr1.getAddress(),
@@ -323,9 +321,7 @@ describe("Issuer", () => {
       };
       // Mint issuer using the input
       await ethers.provider.send("evm_setNextBlockTimestamp", [timestamp]);
-      await issuer
-        .connect(receiver)
-        .mintIssuer(mintIssuerInput, royaltySplitAddress, royaltyAllocation);
+      await issuer.connect(receiver).mintIssuer(mintIssuerInput);
       const issuerData = await issuer.getIssuer();
       expect(issuerData.metadata).to.equal(mintIssuerInput.metadata);
       expect(issuerData.balance).to.equal(mintIssuerInput.amount);
@@ -380,8 +376,6 @@ describe("Issuer", () => {
     it("It should successfully mint a token", async function () {
       const timestamp = 1735589600;
       const price = 1000;
-      const royaltySplitAddress = [await receiver.getAddress()];
-      const royaltyAllocation = [1000000];
       const whitelist = [
         {
           whitelisted: await addr1.getAddress(),
@@ -449,9 +443,7 @@ describe("Issuer", () => {
 
       // Mint issuer using the input
       //
-      await issuer
-        .connect(receiver)
-        .mintIssuer(mintIssuerInput, royaltySplitAddress, royaltyAllocation);
+      await issuer.connect(receiver).mintIssuer(mintIssuerInput);
 
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         timestamp + 1001,
@@ -480,8 +472,6 @@ describe("Issuer", () => {
     it("It should successfully mint an issuer token with ticket", async function () {
       const timestamp = 1735589600;
       const price = 1000;
-      const royaltySplitAddress = [await receiver.getAddress()];
-      const royaltyAllocation = [1000000];
       const whitelist = [
         {
           whitelisted: await addr1.getAddress(),
@@ -548,9 +538,7 @@ describe("Issuer", () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [timestamp]);
 
       // Mint issuer using the input
-      await issuer
-        .connect(receiver)
-        .mintIssuer(mintIssuerInput, royaltySplitAddress, royaltyAllocation);
+      await issuer.connect(receiver).mintIssuer(mintIssuerInput);
 
       await ethers.provider.send("evm_setNextBlockTimestamp", [
         timestamp + 1001,

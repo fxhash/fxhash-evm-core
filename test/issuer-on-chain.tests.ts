@@ -348,8 +348,6 @@ describe("Issuer", () => {
         },
       ];
 
-      const royaltySplitAddress = [await receiver.getAddress()];
-      const royaltyAllocation = [1000000];
       const timestamp = 1735589600;
       const price = 1000;
       const whitelist = [
@@ -416,9 +414,7 @@ describe("Issuer", () => {
       };
       // Mint issuer using the input
       await ethers.provider.send("evm_setNextBlockTimestamp", [timestamp]);
-      await issuer
-        .connect(receiver)
-        .mintIssuer(mintIssuerInput, royaltySplitAddress, royaltyAllocation);
+      await issuer.connect(receiver).mintIssuer(mintIssuerInput);
       const issuerData = await issuer.getIssuer();
       expect(issuerData.metadata).to.equal(mintIssuerInput.metadata);
       expect(issuerData.balance).to.equal(mintIssuerInput.amount);
