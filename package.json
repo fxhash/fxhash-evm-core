@@ -6,7 +6,7 @@
   "scripts": {
     "deploy": "./script/deploy.sh",
     "seed": "./script/seed.sh",
-    "test": "forge test",
+    "test": "./test/test.sh",
     "prettier": "prettier --write 'contracts/**/*.sol' 'script/**/*.sol' 'test/**/*.sol'",
     "prettier:check": "prettier --check 'contracts/**/*.sol'"
   },
