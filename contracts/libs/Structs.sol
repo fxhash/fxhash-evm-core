@@ -35,7 +35,7 @@ struct Config {
 
 struct ContractEntry {
     string key; // name of contract (evolving)
-    address value; // contract to call 
+    address value; // contract to call
 }
 
 ///////////////////////////////////////////////////////////
@@ -61,7 +61,7 @@ struct OnChainTokenMetadata {
 }
 
 struct TokenData {
-    uint256 iteration; // is same as tokenId and not needed 
+    uint256 iteration; // is same as tokenId and not needed
     bytes inputBytes; // fxParams bytes params genrated (possibly use SSTORE2 and just store pointer)
     address minter; // might not being used
     bool assigned;
@@ -94,7 +94,7 @@ struct IssuerData {
     OpenEditions openEditions; // scrap and move closingTime here
     bytes reserves; // should be array of structs ({ reserve_id: int, reserve_data: bytes, amount: int } []) | FLO: I remember now why I encoded it as bytes, it is because we can't store nested struct arrays in the storage
     RoyaltyData primarySplit; // will come back to
-    RoyaltyData royaltiesSplit; // will come back to 
+    RoyaltyData royaltiesSplit; // will come back to
     IssuerInfo info;
     bytes onChainData; // scripty info (move to codex) | FLO: same here stored as bytes because we can't save nested struct arrays in the storage
 }
