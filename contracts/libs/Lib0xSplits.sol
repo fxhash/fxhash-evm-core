@@ -111,7 +111,11 @@ library Lib0xSplits {
     /**
      * @dev Computes the address of a clone deployed using {Clones-cloneDeterministic}.
      */
-    function predictDeterministicAddress(bytes32 salt) internal pure returns (address predicted) {
+    function predictDeterministicAddress(
+        address[] memory accounts,
+        uint32[] memory percentAllocations
+    ) internal pure returns (address predicted) {
+        bytes32 salt = getSalt(accounts, percentAllocations, 0);
         assembly {
             let ptr := mload(0x40)
             mstore(ptr, 0x3d605d80600a3d3981f336603057343d52307f00000000000000000000000000)
