@@ -1,3 +1,3 @@
 #!/bin/bash
-source .env.example
+source .env
 forge test -vvv
