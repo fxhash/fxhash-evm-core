@@ -43,12 +43,16 @@ jobs:
           forge build --sizes
         id: build
 
-      - name: 'Create env file'
-        run: |
-          echo "${{ secrets.ENV_FILE }}" > .env
-
       - name: Run tests
         shell: bash
+        env:
+          COIN_MARKET_CAP_API_KEY: ${{ secrets.COIN_MARKET_CAP_API_KEY }}
+          DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+          SIGNER_PRIVATE_KEY: ${{ secrets.SIGNER_PRIVATE_KEY }}
+          MNEMONIC: ${{ secrets.MNEMONIC }}
+          ALICE_ADDRESS: ${{ env.ALICE_ADDRESS }}
+          BOB_ADDRESS: ${{ env.BOB_ADDRESS }}
+          TREASURY_ADDRESS: ${{ env.TREASURY_ADDRESS }}
         run: |
           npm test
         id: test
