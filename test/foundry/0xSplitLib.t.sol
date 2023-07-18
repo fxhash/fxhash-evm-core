@@ -11,14 +11,12 @@ import {Deploy} from "script/Deploy.s.sol";
 contract SplitTest is Test, Deploy {
     address[] public accounts;
     uint32[] public allocations;
-    bytes32 public salt;
 
     function setUp() public override {
         accounts.push(address(2));
         accounts.push(address(3));
         allocations.push(uint32(400000));
         allocations.push(uint32(600000));
-        salt = Lib0xSplits.getSalt(accounts, allocations, 0);
         mock0xSplits();
     }
 
@@ -28,7 +26,7 @@ contract SplitTest is Test, Deploy {
     }
 
     function test_VerifyPredictAddress() public {
-        address libPredicted = Lib0xSplits.predictDeterministicAddress(salt);
+        address libPredicted = Lib0xSplits.predictDeterministicAddress(accounts, allocations);
         address computedAddress = ISplitsMain(splitMain).predictImmutableSplitAddress(
             accounts,
             allocations,
@@ -38,8 +36,7 @@ contract SplitTest is Test, Deploy {
     }
 
     function test_FirstWithdraw() public {
-        salt = Lib0xSplits.getSalt(accounts, allocations, 0);
-        address libPredicted = Lib0xSplits.predictDeterministicAddress(salt);
+        address libPredicted = Lib0xSplits.predictDeterministicAddress(accounts, allocations);
         vm.deal(libPredicted, 1 ether);
         ISplitsMain(splitMain).createSplit(accounts, allocations, 0, address(0));
         ISplitsMain(splitMain).distributeETH(libPredicted, accounts, allocations, 0, address(0));
