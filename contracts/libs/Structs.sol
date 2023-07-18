@@ -9,8 +9,8 @@ import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilde
 //                         CODEX                         //
 ///////////////////////////////////////////////////////////
 struct CodexData {
-    uint256 entryType;
-    address author;
+    uint256 entryType; // (uint88) => ipfs, arweave, onchain
+    address author; // artist
     bool locked;
     address issuer;
     bytes[] value;
@@ -27,15 +27,15 @@ struct CodexInput {
 //                     CONFIGURATION                     //
 ///////////////////////////////////////////////////////////
 struct Config {
-    uint256 fees;
-    uint256 referrerFeesShare;
-    uint256 lockTime;
-    string voidMetadata;
+    uint256 fees; // 10000 bps (100%) (uint16)
+    uint256 referrerFeesShare; // 10000 (uint16)
+    uint256 lockTime; // less than 1 week
+    string voidMetadata; // default metadata (same for all projects)
 }
 
 struct ContractEntry {
-    string key;
-    address value;
+    string key; // name of contract (evolving)
+    address value; // contract to call 
 }
 
 ///////////////////////////////////////////////////////////
@@ -61,12 +61,13 @@ struct OnChainTokenMetadata {
 }
 
 struct TokenData {
-    uint256 iteration;
-    bytes inputBytes;
-    address minter;
+    uint256 iteration; // is same as tokenId and not needed 
+    bytes inputBytes; // fxParams bytes params genrated (possibly use SSTORE2 and just store pointer)
+    address minter; // might not being used
     bool assigned;
 }
 
+// scrap struct
 struct TokenParams {
     uint256 tokenId;
     address receiver;
@@ -78,35 +79,42 @@ struct TokenParams {
 ///////////////////////////////////////////////////////////
 //                         ISSUER                        //
 ///////////////////////////////////////////////////////////
+// not needed
 struct OpenEditions {
     uint256 closingTime;
-    bytes extra;
+    bytes extra; // not being used
 }
 
+// Project supply, details and royalties
 struct IssuerData {
-    uint256 balance;
-    uint256 iterationsCount;
-    bytes metadata;
-    uint256 supply;
-    OpenEditions openEditions;
-    bytes reserves;
-    RoyaltyData primarySplit;
-    RoyaltyData royaltiesSplit;
+    uint256 balance; // current available (can be removed)
+    uint256 iterationsCount; // total minted
+    bytes metadata; // IPFS pointer => could also be string
+    uint256 supply; // max supply
+    OpenEditions openEditions; // scrap and move closingTime here
+    bytes reserves; // should be array of structs ({ reserve_id: int, reserve_data: bytes, amount: int } [])
+    RoyaltyData primarySplit; // will come back to
+    RoyaltyData royaltiesSplit; // will come back to 
     IssuerInfo info;
-    bytes onChainData;
+    bytes onChainData; // scripty info (move to codex)
 }
 
+// Baptiste left here
+
+// Mint details
 struct IssuerInfo {
-    uint256[] tags;
-    bool enabled;
-    uint256 lockedSeconds;
-    uint256 timestampMinted;
-    bool lockPriceForReserves;
-    bool hasTickets;
-    uint256 pricingId;
+    uint256[] tags; // integer identifers (max is 30000) => metadata-related (project attribute)
+    bool enabled; // minting is active
+    uint256 lockedSeconds; // duration for unverified artists (max is about 3 hrs)
+    uint256 timestampMinted; // beginning of locked duration (can combine with lockedseconds to only store timestamp of when minting can be active)
+    bool lockPriceForReserves; // edge case
+    bool hasTickets; // project has mint tickets
+    uint256 pricingId; // uint8 (0 or 1) => evolving
     uint256 codexId;
-    uint256 inputBytesSize;
+    uint256 inputBytesSize; // specify size of input provided at mint time of token (fxParams size) => use different approach to enforce content
 }
+
+// Refactor Issue Structs into => ProjectInfo, TokenInfo, MintInfo, ReserveInfo
 
 struct UpdateIssuerInput {
     RoyaltyData primarySplit;
@@ -123,7 +131,7 @@ struct MintIssuerInput {
     CodexInput codex;
     bytes metadata;
     uint256 inputBytesSize;
-    uint256 amount;
+    uint256 amount; // is same as supply
     OpenEditions openEditions;
     MintTicketSettings mintTicketSettings;
     ReserveData[] reserves;
