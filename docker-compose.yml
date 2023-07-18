@@ -1,5 +1,10 @@
 version: '3'
 services:
+  hardhat-node:
+    build:
+      dockerfile: ./Dockerfile.hardhat
+    ports:
+      - '8545:8545'
   graph-node:
     image: graphprotocol/graph-node
     ports:
@@ -22,7 +27,7 @@ services:
       ethereum: 'mainnet:http://host.docker.internal:8545'
       GRAPH_LOG: info
   ipfs:
-    image: ipfs/go-ipfs:v0.4.23
+    image: ipfs/go-ipfs:v0.10.0
     ports:
       - '5001:5001'
     volumes:
@@ -40,5 +45,10 @@ services:
       POSTGRES_USER: graph-node
       POSTGRES_PASSWORD: let-me-in
       POSTGRES_DB: graph-node
+      # FIXME: remove this env. var. which we shouldn't need. Introduced by
+      # <https://github.com/graphprotocol/graph-node/pull/3511>, maybe as a
+      # workaround for https://github.com/docker/for-mac/issues/6270?
+      PGDATA: "/var/lib/postgresql/data"
+      POSTGRES_INITDB_ARGS: "-E UTF8 --locale=C"
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
