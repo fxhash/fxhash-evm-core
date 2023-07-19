@@ -30,6 +30,7 @@
     "@openzeppelin/contracts": "^4.9.1",
     "@openzeppelin/contracts-upgradeable": "^4.9.1",
     "@rari-capital/solmate": "^6.4.0",
+    "dotenv": "^16.3.1",
     "solady": "^0.0.107",
     "solidity-docgen": "^0.6.0-beta.35"
   }
