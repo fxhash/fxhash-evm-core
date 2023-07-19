@@ -293,38 +293,44 @@ struct TransferParams {
 ///////////////////////////////////////////////////////////
 //                    MINT PASS GROUP                    //
 ///////////////////////////////////////////////////////////
+// FLO: stores the values for a token
 struct TokenRecord {
-    uint256 minted;
-    uint256 levelConsumed;
-    address consumer;
+    uint256 minted; // FLO: number of token minted, should be quite small
+    uint256 levelConsumed; // FLO: block level where the mint pass was consumed
+    address consumer; // FLO: address of the user that consumed the pass
 }
 
+// FLO: the pass stores the payload for the consumePass function
+// it is passed as bytes to the function, but now that I think about it, I don't think it is actually needed
 struct Pass {
-    bytes payload;
-    bytes signature;
+    bytes payload; // FLO: it is the Payload type encoded as bytes
+    bytes signature; // FLO: this is the EIP712 signature of the hash of the Payload
 }
 
+// FLO: these are the real data used by the consume pass function
 struct Payload {
-    string token;
-    address project;
-    address addr;
+    string token; // FLO: this is the identifier of the mint pass, not used on chain. Need @baptiste insights on this
+    address project; // FLO: this is the address of the issuer, can be renamed to issuer
+    address addr; // FLO: this is the address of the consumer of the pass (recipient of the token)
 }
 
 ///////////////////////////////////////////////////////////
 //                      MINT TICKET                      //
 ///////////////////////////////////////////////////////////
+
+// FLO: struct representing what is stored for the mint ticket, most of it are duplicate from the issuer/token
 struct TokenInfo {
-    address issuer;
-    address minter;
-    uint256 createdAt;
-    uint256 taxationLocked;
-    uint256 taxationStart;
-    uint256 price;
+    address issuer; // FLO: contract of the issuer contract that created the ticket
+    address minter; // FLO: address of the consumer that minted the ticket
+    uint256 createdAt; // FLO: creation timestamp
+    uint256 taxationLocked; // FLO: used to track the amount of tax that has been paid and is currently locked for a specific token.
+    uint256 taxationStart; // FLO: used to mark the starting point for calculating and tracking the taxation period of a token.
+    uint256 price; // FLO: price of a mint ticket
 }
 
 struct ProjectData {
-    uint256 gracingPeriod; //in days
-    string metadata;
+    uint256 gracingPeriod; //in days | FLO: see previous gacingPeriod explanation in MintTicketSettings
+    string metadata; // FLO: same here, see MintTicketSettings
 }
 
 ///////////////////////////////////////////////////////////
@@ -332,19 +338,165 @@ struct ProjectData {
 ///////////////////////////////////////////////////////////
 struct ModerationState {
     uint256 state;
+    /* FLO:
+Possible states for user and tokens:
+
+const UserFlagValues: Record<UserFlag, number> = {
+  NONE          : 0,
+  REVIEW        : 1,
+  SUSPICIOUS    : 2,
+  MALICIOUS     : 3,
+  VERIFIED      : 10,
+}
+
+export enum GenTokFlag {
+  NONE = "NONE",                            // 0
+  CLEAN = "CLEAN",                          // 1
+  REPORTED = "REPORTED",                    // 2
+  AUTO_DETECT_COPY = "AUTO_DETECT_COPY",    // 3
+  MALICIOUS = "MALICIOUS",                  // 4
+  HIDDEN = "HIDDEN",                        // 5
+}
+*/
     uint256 reason;
+    /*
+    Possible reasons values:
+
+    user reasons:
+[{
+	"key": "0",
+	"value": "Moderating from malicious to none because they repaired."
+}, {
+	"key": "1",
+	"value": "Copyminter"
+}, {
+	"key": "2",
+	"value": "Removing verification because they or and alternate account has engaged in malicious activity in the past"
+}, {
+	"key": "3",
+	"value": "Taking advantage of scheduling exploit"
+}, {
+	"key": "4",
+	"value": "Batch Moderation"
+}, {
+	"key": "5",
+	"value": "Impersonification"
+}, {
+	"key": "6",
+	"value": "Comes from a restricted chain"
+}, {
+	"key": "7",
+	"value": "Market manipulation"
+}, {
+	"key": "8",
+	"value": "Connected to a known malicious actor"
+}, {
+	"key": "9",
+	"value": "Market manipulation"
+}, {
+	"key": "10",
+	"value": "Mass Botting / Associated with coordinated botting group"
+}, {
+	"key": "11",
+	"value": "Impersonation"
+}]
+
+Token reasons
+
+[
+  {
+    "key": "0",
+    "value": "Non-deterministic"
+  },
+  {
+    "key": "1",
+    "value": "Copymint"
+  },
+  {
+    "key": "2",
+    "value": "Non-generative: single image chosen at random"
+  },
+  {
+    "key": "3",
+    "value": "PNG composition, but primarily 1 layer"
+  },
+  {
+    "key": "4",
+    "value": "Artist requested hidden"
+  },
+  {
+    "key": "5",
+    "value": "Copyright Issue"
+  },
+  {
+    "key": "6",
+    "value": "Gambling"
+  },
+  {
+    "key": "7",
+    "value": "Malicious to hidden - user repaired"
+  },
+  {
+    "key": "8",
+    "value": "Double post (token also posted elsewhere)"
+  },
+  {
+    "key": "9",
+    "value": "Abuse of the rescheduling system"
+  },
+  {
+    "key": "10",
+    "value": "Misleading - Loading pre-generated imagery"
+  },
+  {
+    "key": "11",
+    "value": "Output not based on transaction hash"
+  },
+  {
+    "key": "12",
+    "value": "Loading external resources"
+  },
+  {
+    "key": "13",
+    "value": "Using copyrighted code without license and/or attribution"
+  },
+  {
+    "key": "14",
+    "value": "Unauthorized derivative / \"Inspired\" by without attribution"
+  },
+  {
+    "key": "15",
+    "value": "Broken"
+  },
+  {
+    "key": "16",
+    "value": "Misleading description "
+  },
+  {
+    "key": "17",
+    "value": "Connected to a known malicious actor"
+  }
+]
+    */
 }
 
+// FLO: struct describing the data for a specific moderator
 struct ModeratorData {
-    uint256[] authorizations;
-    uint256 share;
+    uint256[] authorizations; // FLO: list of authorizations a moderator can have:
+/*| Code | Authorization |
+|------|---------------|
+| `10` | Can moderate tokens, update the tags of a token |
+| `20` | Can moderate users (ban, verification) |*/
+    uint256 share; // FLO : share of the moderator to be able to pay him for his work
 }
 
+// FLO: input struct to be able to update a moderator authorizations, can be removed
 struct UpdateModeratorParam {
     address moderator;
     uint256[] authorizations;
 }
 
+// FLO: input struct to be able to update a moderator share, can be removed
 struct UpdateShareParam {
     address moderator;
     uint256 share;
@@ -353,6 +505,8 @@ struct UpdateShareParam {
 ///////////////////////////////////////////////////////////
 //                ONCHAIN METADATA MANAGER               //
 ///////////////////////////////////////////////////////////
+
+// FLO: list of token attributes to be able to reconstruct the JSON for the metadata. This will be encoded as bytes and stored in the tokenURI of the token
 struct TokenAttribute {
     string key;
     string value;
@@ -361,73 +515,151 @@ struct TokenAttribute {
 ///////////////////////////////////////////////////////////
 //                       PRICING                         //
 ///////////////////////////////////////////////////////////
+
+// FLO: struct defining the a pricing method with its address and if it is enabled or not. I guess it can be moved from the interface to an address ?
+// I stored it as interface because I thought that casting it multiple times would be more expensive than storing it as interface
 struct PricingContract {
     IPricing pricingContract;
     bool enabled;
 }
 
+// FLO: struct used in the issuer input to describe the pricing that will be used by the issuer contract (and the mint issuer function)
 struct PricingData {
-    uint256 pricingId;
-    bytes details;
-    bool lockForReserves;
+    uint256 pricingId; // FLO: Id of the pricing method stored
+    bytes details; // FLO: payload used by the pricing method. The underlying data will be different based on the method
+    /*
+    example for prixing fixed:
+
+                LibPricing.PricingData({
+                pricingId: 1,
+                details: abi.encode(
+                    PricingFixed.PriceDetails({price: PRICE, opensAt: block.timestamp + OPEN_DELAY})
+                ),
+                lockForReserves: false
+            });
+
+    example for pricing dutch:
+
+     uint256[] memory levels = new uint256[](4);
+        levels[0] = PRICE;
+        levels[1] = PRICE / 2;
+        levels[2] = PRICE / 3;
+        levels[3] = PRICE / 4;
+        return
+            LibPricing.PricingData({
+                pricingId: 2,
+                details: abi.encode(
+                    PricingDutchAuction.PriceDetails({
+                        opensAt: block.timestamp + OPEN_DELAY,
+                        decrementDuration: 600,
+                        lockedPrice: 0,
+                        levels: levels
+                    })
+                ),
+                lockForReserves: false
+            });
+    */
+    bool lockForReserves; // FLO: see previous explanation for lockForReserves
 }
 
+// FLO: price details are actually different in Dutch and Fixed price
+/*
+See dutch version:
+
+    struct PriceDetails {
+        uint256 opensAt; // FLO : timestamp where the dutch auction start
+        uint256 decrementDuration; // FLO: interval between each price decrement
+        uint256 lockedPrice; // FLO: price to where it has been locked
+        uint256[] levels; // FLO: price levels, in descending order
+    }
+*/
 struct PriceDetails {
-    uint256 price;
-    uint256 opensAt;
+    uint256 price; // FLO: fixed price for minting
+    uint256 opensAt; // FLO : timestamp where the token can be minted
 }
+
+
 
 ///////////////////////////////////////////////////////////
 //                         RANDOMIZER                    //
 ///////////////////////////////////////////////////////////
+
+//FLO: struct used for identifying a token
 struct TokenKey {
-    address issuer;
-    uint256 tokenId;
+    address issuer; // FLO: address of the issuer
+    uint256 tokenId; // FLO: token id of the token to reveal
 }
 
+//FLO: struct used to store the secret seed of the token
+// As per our discussion we can merge `chainSeed` and `revealed` to save a slot, and move `serialId` to a `uint248`
+// Optionally we can also replace `revealed` by a `bool`
 struct Seed {
-    bytes32 chainSeed;
-    uint256 serialId;
-    bytes32 revealed;
+    bytes32 chainSeed; // FLO: when generated, this value is built this way:
+    /*
+        bytes32 hashedKey = keccak256(abi.encodePacked(issuer, id));
+        bytes memory base = abi.encode(block.timestamp, hashedKey);
+        bytes32 seed = keccak256(base);
+    */
+    // THis is probably too much processing for not that much added value
+    uint256 serialId; // FLO: this is the value corresponding the value of the sequence used for generating ids
+    bytes32 revealed; // FLO: in the current situation: empty if not revealed, and set to the secret hash when revealed (see randomizer impl)
 }
 
+// FLO: this struct stores the configuration for the randomizer, probably does not need to be in a struct
 struct Commitment {
-    bytes32 seed;
-    bytes32 salt;
+    bytes32 seed; // FLO: this value correspond to the last hash of the hash chain (the one from the token with the lowest index)
+    bytes32 salt; // FLO: salt used to generate and iterate hashes
 }
 
 ///////////////////////////////////////////////////////////
 //                         RESERVE                       //
 ///////////////////////////////////////////////////////////
+
+// FLO: this is the struct defining the payload for the IReserve.isInputValid function. Only used at mint issuer time
 struct InputParams {
-    bytes data;
-    uint256 amount;
-    address sender;
+    bytes data; // FLO: the underlying data will be different depending on the reserve used
+    /*
+For whitelist:
+
+        WhitelistEntry[] memory whitelist = abi.decode(params.data, (WhitelistEntry[]));
+
+For MintPass:
+
+        address unpackedData = abi.decode(params.data, (address)); --> address of the mint pass group contract
+
+    */
+    uint256 amount; // FLO: total amount of token for the reserve
+    address sender; // FLO: creator of the issuer
 }
 
+// FLO: struct defining the input for the IReserve.applyReserve
 struct ApplyParams {
-    bytes currentData;
-    uint256 currentAmount;
-    address sender;
-    bytes userInput;
+    bytes currentData; // FLO: it is the reserve data currently stored in the issuer, will be different depending on the reserve used, see explanation above for InputParams.data (they are the same)
+    uint256 currentAmount; // FLO: current amount of tokens in the reserve
+    address sender; // FLO: address of the minter
+    bytes userInput; // FLO : not used in the whitelist, but in the MintPassGroup it is Pass encoded as bytes
 }
 
+// FLO: struct defining the input used for the reserve with the id of the reserve, the amount of tokens, and the payload for the reserve
 struct ReserveData {
     uint256 methodId;
     uint256 amount;
-    bytes data;
+    bytes data; // FLO: it is the payload for the reserve contract encoded as bytes
 }
 
 struct ReserveInput {
     uint256 methodId;
-    bytes input;
+    bytes input; // FLO: this is the ReserveData[] encoded as bytes, encoded as bytes. We can probably just use ReserveData[] here
 }
 
+// FLO: self explanatory, similar to pricing methods
 struct ReserveMethod {
     IReserve reserveContract;
     bool enabled;
 }
 
+
+// FLO, pretty self explanatory, will be replaced by the merkle tree
 struct WhitelistEntry {
     address whitelisted;
     uint256 amount;
