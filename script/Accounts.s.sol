@@ -4,7 +4,7 @@ pragma solidity ^0.8.18;
 import {Script} from "forge-std/Script.sol";
 import "hardhat/console.sol";
 
-contract ScriptAccounts is Script {
+contract Accounts is Script {
     address public admin;
     address public signer;
     address public treasury;

@@ -18,9 +18,9 @@ import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilde
 import {GenTk} from "contracts/gentk/GenTk.sol";
 import {MintPassGroup} from "contracts/mint-pass-group/MintPassGroup.sol";
 import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
-import {ScriptConfig} from "./ScriptConfig.s.sol";
+import {Constants} from "script/Constants.sol";
 
-contract SeedTokens is ScriptConfig {
+contract SeedTokens is Script {
     address public bob;
 
     string public MNEMONIC = vm.envString("MNEMONIC");

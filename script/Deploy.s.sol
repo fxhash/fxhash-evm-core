@@ -26,10 +26,10 @@ import {ReserveMintPass} from "contracts/reserve/ReserveMintPass.sol";
 import {ReserveWhitelist} from "contracts/reserve/ReserveWhitelist.sol";
 import {ScriptyBuilder} from "scripty.sol/contracts/scripty/ScriptyBuilder.sol";
 import {ScriptyStorage} from "scripty.sol/contracts/scripty/ScriptyStorage.sol";
-import {ScriptConfig} from "./ScriptConfig.s.sol";
-import {ScriptAccounts} from "./ScriptAccounts.s.sol";
+import {Constants} from "script/Constants.sol";
+import {Accounts} from "script/Accounts.s.sol";
 
-contract Deploy is Script, ScriptConfig, ScriptAccounts {
+contract Deploy is Script, Accounts {
     // Contracts
     AllowMint public allowMint;
     AllowMintIssuer public allowMintIssuer;
@@ -105,14 +105,14 @@ contract Deploy is Script, ScriptConfig, ScriptAccounts {
         pricingFixed = new PricingFixed();
 
         // Randomizer
-        randomizer = new Randomizer(SEED, SALT);
+        randomizer = new Randomizer(Constants.SEED, Constants.SALT);
 
         // Marketplace
         marketplace = new Marketplace(
             deployer,
-            MARKETPLACE_MAX_REFERRAL_SHARE,
-            MARKETPLACE_REFERRAL_SHARE,
-            MARKETPLACE_PLATFORM_FEES,
+            Constants.MARKETPLACE_MAX_REFERRAL_SHARE,
+            Constants.MARKETPLACE_REFERRAL_SHARE,
+            Constants.MARKETPLACE_PLATFORM_FEES,
             vm.envAddress("TREASURY_ADDRESS")
         );
 
@@ -192,10 +192,10 @@ contract Deploy is Script, ScriptConfig, ScriptAccounts {
 
         configurationManager.setConfig(
             IConfigurationManager.Config({
-                fees: ISSUER_FEES,
-                referrerFeesShare: ISSUER_REFERRAL_SHARE,
-                lockTime: ISSUER_LOCK_TIME,
-                voidMetadata: ISSUER_VOID_METADATA
+                fees: Constants.ISSUER_FEES,
+                referrerFeesShare: Constants.ISSUER_REFERRAL_SHARE,
+                lockTime: Constants.ISSUER_LOCK_TIME,
+                voidMetadata: Constants.ISSUER_VOID_METADATA
             })
         );
     }

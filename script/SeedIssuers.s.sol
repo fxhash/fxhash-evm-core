@@ -16,7 +16,7 @@ import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilde
 import {Issuer} from "contracts/issuer/Issuer.sol";
 import {GenTk} from "contracts/gentk/GenTk.sol";
 import {MintPassGroup} from "contracts/mint-pass-group/MintPassGroup.sol";
-import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
+import {Constants} from "script/Constants.sol";
 
 contract SeedIssuers is Deploy {
     enum ReserveOptions {
@@ -126,8 +126,8 @@ contract SeedIssuers is Deploy {
                                 i == uint(ReserveOptions.WhitelistAndMintPass)
                             ) {
                                 _mintPassGroup = new MintPassGroup(
-                                    MAX_PER_TOKEN,
-                                    MAX_PER_TOKEN_PER_PROJECT,
+                                    Constants.MAX_PER_TOKEN,
+                                    Constants.MAX_PER_TOKEN_PER_PROJECT,
                                     vm.addr(vm.envUint("SIGNER_PRIVATE_KEY")),
                                     address(reserveMintPass),
                                     new address[](0)
@@ -177,7 +177,7 @@ contract SeedIssuers is Deploy {
         // Build ffi command string
         runJsInputs[0] = "node";
         runJsInputs[1] = "script/sleep.js";
-        runJsInputs[2] = vm.toString((OPEN_DELAY + 10) * 1000);
+        runJsInputs[2] = vm.toString((Constants.OPEN_DELAY + 10) * 1000);
         vm.ffi(runJsInputs);
     }
 
@@ -330,7 +330,7 @@ contract SeedIssuers is Deploy {
             LibPricing.PricingData({
                 pricingId: 1,
                 details: abi.encode(
-                    PricingFixed.PriceDetails({price: PRICE, opensAt: block.timestamp + OPEN_DELAY})
+                    PricingFixed.PriceDetails({price: Constants.PRICE, opensAt: block.timestamp + Constants.OPEN_DELAY})
                 ),
                 lockForReserves: false
             });
@@ -338,16 +338,16 @@ contract SeedIssuers is Deploy {
 
     function _getDutchAuctionParam() public view returns (LibPricing.PricingData memory) {
         uint256[] memory levels = new uint256[](4);
-        levels[0] = PRICE;
-        levels[1] = PRICE / 2;
-        levels[2] = PRICE / 3;
-        levels[3] = PRICE / 4;
+        levels[0] = Constants.PRICE;
+        levels[1] = Constants.PRICE / 2;
+        levels[2] = Constants.PRICE / 3;
+        levels[3] = Constants.PRICE / 4;
         return
             LibPricing.PricingData({
                 pricingId: 2,
                 details: abi.encode(
                     PricingDutchAuction.PriceDetails({
-                        opensAt: block.timestamp + OPEN_DELAY,
+                        opensAt: block.timestamp + Constants.OPEN_DELAY,
                         decrementDuration: 600,
                         lockedPrice: 0,
                         levels: levels
