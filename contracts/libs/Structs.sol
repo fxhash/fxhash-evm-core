@@ -483,7 +483,7 @@ Token reasons
 // FLO: struct describing the data for a specific moderator
 struct ModeratorData {
     uint256[] authorizations; // FLO: list of authorizations a moderator can have:
-/*| Code | Authorization |
+    /*| Code | Authorization |
 |------|---------------|
 | `10` | Can moderate tokens, update the tags of a token |
 | `20` | Can moderate users (ban, verification) |*/
@@ -578,8 +578,6 @@ struct PriceDetails {
     uint256 opensAt; // FLO : timestamp where the token can be minted
 }
 
-
-
 ///////////////////////////////////////////////////////////
 //                         RANDOMIZER                    //
 ///////////////////////////////////////////////////////////
@@ -657,7 +655,6 @@ struct ReserveMethod {
     IReserve reserveContract;
     bool enabled;
 }
-
 
 // FLO, pretty self explanatory, will be replaced by the merkle tree
 struct WhitelistEntry {
