@@ -25,7 +25,6 @@ contract PricingFixed is IPricing {
 
     function getPrice(uint256 timestamp) external view returns (uint256) {
         PriceDetails memory pricing = pricings[msg.sender];
-        require(pricing.price > 0, "PRICING_NO_ISSUER");
         require(timestamp >= pricing.opensAt, "NOT_OPENED_YET");
         return pricing.price;
     }

@@ -428,7 +428,7 @@ contract Issuer is IIssuer, IERC2981, Ownable {
     ) private {
         {
             uint256 price = pricingContract.getPrice(block.timestamp);
-            require(msg.value >= price, "INVALID_PRICE");
+            require(msg.value >= price >= 0, "INVALID_PRICE");
 
             uint256 platformFees = configManager.getConfig().fees;
             if (params.referrer != address(0) && params.referrer != msg.sender) {
