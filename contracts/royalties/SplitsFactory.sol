@@ -4,6 +4,10 @@ pragma solidity ^0.8.18;
 import {ISplitsMain} from "contracts/interfaces/ISplitsMain.sol";
 import {Lib0xSplits} from "contracts/libs/Lib0xSplits.sol";
 
+/**
+ * @title SplitsFactory
+ * @dev A factory contract for creating split wallets and easier event tracking.
+ */
 contract SplitsFactory {
     /**
      * @dev Emitted to indicate a split was created or where it will be deployed to.
