@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
-
 import "@openzeppelin/contracts/interfaces/IERC2981.sol";
 
 import "contracts/interfaces/IMintTicket.sol";
@@ -38,12 +37,6 @@ contract Issuer is IIssuer, IERC2981, Ownable {
     event PriceUpdated(LibPricing.PricingData params);
     event ReserveUpdated(LibReserve.ReserveData[] reserves);
     event SupplyBurned(uint256 amount);
-    event RoyaltySplit(
-        address indexed token,
-        address[] accounts,
-        uint32[] allocations,
-        uint256 percent
-    );
 
     constructor(address _configManager, address _owner) {
         configManager = IConfigurationManager(_configManager);

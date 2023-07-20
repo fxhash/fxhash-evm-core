@@ -442,7 +442,6 @@ describe("Issuer", () => {
       await ethers.provider.send("evm_setNextBlockTimestamp", [timestamp]);
 
       // Mint issuer using the input
-      //
       await issuer.connect(receiver).mintIssuer(mintIssuerInput);
 
       await ethers.provider.send("evm_setNextBlockTimestamp", [
