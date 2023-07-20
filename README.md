@@ -13,9 +13,13 @@ git clone git@github.com:fxhash/fxhash-evm-contracts.git
 ```
 COIN_MARKET_CAP_API_KEY=
 DEPLOYER_PRIVATE_KEY=
+SIGNER_PRIVATE_KEY=
+MNEMONIC=
+ALICE_ADDRESS=
+BOB_ADDRESS=
+TREASURY_ADDRESS=
 ETHERSCAN_API_KEY=
-GOERLI_RPC_URL=
-MAINNET_RPC_URL=
+RPC_URL=
 ```
 
 3. Install dependencies
@@ -46,7 +50,12 @@ forge test
 7. Deploy contracts
 
 ```
-forge script script/Deploy.s.sol --rpc-url $GOERLI_RPC_URL --private-key $DEPLOYER_PRIVATE_KEY --verify --etherscan-api-key $ETHERSCAN_API_KEY --broadcast
+npm run deploy
+```
+
+8. Seed contracts
+```
+npm run seed
 ```
 
 ## Architecture
