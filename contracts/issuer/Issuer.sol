@@ -15,15 +15,16 @@ import "contracts/interfaces/IIssuer.sol";
 import "contracts/interfaces/IOnChainTokenMetadataManager.sol";
 import "contracts/interfaces/IConfigurationManager.sol";
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts/utils/math/SignedMath.sol";
 import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
-import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
 import "contracts/libs/LibIssuer.sol";
 import "contracts/libs/LibReserve.sol";
 
-contract Issuer is IIssuer, IERC2981, Ownable, Initializable {
+import "hardhat/console.sol";
+
+contract Issuer is IIssuer, IERC2981, OwnableUpgradeable {
     IConfigurationManager private configManager;
     LibIssuer.IssuerData private issuer;
     IGenTk private genTk;
@@ -39,8 +40,14 @@ contract Issuer is IIssuer, IERC2981, Ownable, Initializable {
     event ReserveUpdated(LibReserve.ReserveData[] reserves);
     event SupplyBurned(uint256 amount);
 
-    function initialize(address _configManager, address _owner) initializer public {
+    function initialize(
+        address _configManager,
+        address _genTk,
+        address _owner
+    ) external initializer {
+        __Ownable_init();
         configManager = IConfigurationManager(_configManager);
+        genTk = IGenTk(_genTk);
         allGenTkTokens = 0;
         transferOwnership(_owner);
     }
@@ -348,10 +355,6 @@ contract Issuer is IIssuer, IERC2981, Ownable, Initializable {
         emit ReserveUpdated(reserves);
     }
 
-    function setGenTk(address _genTk) external onlyOwner {
-        genTk = IGenTk(_genTk);
-    }
-
     function burn() external onlyOwner {
         require(issuer.balance == issuer.supply, "CONSUMED_1");
         burnToken();
@@ -419,7 +422,7 @@ contract Issuer is IIssuer, IERC2981, Ownable, Initializable {
         delete issuer;
     }
 
-    function owner() public view override(IIssuer, Ownable) returns (address) {
+    function owner() public view override(IIssuer, OwnableUpgradeable) returns (address) {
         return super.owner();
     }
 

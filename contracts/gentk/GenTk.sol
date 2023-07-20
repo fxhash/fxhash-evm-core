@@ -40,12 +40,16 @@ contract GenTk is ERC721URIStorageUpgradeable, OwnableUpgradeable, IERC2981, IGe
     event TokenMetadataAssigned(TokenMetadata[] _params);
     event OnChainTokenMetadataAssigned(OnChainTokenMetadata[] _params);
 
-    constructor() ERC721Upgradeable() {
-    }
+    constructor() ERC721Upgradeable() {}
 
-    function initialize(address _owner, address _issuer, address _configManager) initializer public {
+    function initialize(
+        address _configManager,
+        address _owner,
+        address _issuer
+    ) external initializer {
         __ERC721_init("GenTk", "GTK");
         __ERC721URIStorage_init();
+        __Ownable_init();
         issuer = IIssuer(_issuer);
         configManager = IConfigurationManager(_configManager);
         transferOwnership(_owner);

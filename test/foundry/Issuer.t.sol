@@ -5,6 +5,8 @@ import "forge-std/Test.sol";
 import {Deploy} from "script/Deploy.s.sol";
 import {IIssuer, LibIssuer, LibReserve, LibRoyalty, LibPricing, LibCodex} from "contracts/interfaces/IIssuer.sol";
 import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
+import {Issuer} from "contracts/issuer/Issuer.sol";
+import {GenTk} from "contracts/gentk/GenTk.sol";
 
 contract IssuerTest is Test, Deploy {
     uint256 internal timestamp = 1000;
@@ -51,8 +53,10 @@ contract IssuerTest is Test, Deploy {
         enabled = true;
         for (uint256 i; i < tagsFixed.length; i++) tags.push(tagsFixed[i]);
         /// onchain scripts remains uninitialized
+        (address _issuer, address _genTk) = fxHashFactory.createProject(alice);
+        issuer = Issuer(_issuer);
+        genTk = GenTk(_genTk);
         vm.prank(alice);
-        issuer.setGenTk(address(genTk));
     }
 }
 

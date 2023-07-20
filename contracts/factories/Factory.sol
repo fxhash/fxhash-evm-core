@@ -11,7 +11,7 @@ contract Factory is IFactory, Ownable {
 
     constructor(address _fxhashFactory, address _implementation) {
         fxhashFactory = _fxhashFactory;
-    implementation = _implementation;
+        implementation = _implementation;
     }
 
     function setFxHashFactory(address _fxhashFactory) external onlyOwner {

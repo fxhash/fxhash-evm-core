@@ -10,7 +10,10 @@ import {GenTk} from "contracts/gentk/GenTk.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
 contract GenTkFactory is Factory, IGenTkFactory {
-    constructor(address _fxhashFactory, address _implementation) Factory(_fxhashFactory, _implementation) {}
+    constructor(
+        address _fxhashFactory,
+        address _implementation
+    ) Factory(_fxhashFactory, _implementation) {}
 
     function createGenTk(
         address _owner,
@@ -22,9 +25,8 @@ contract GenTkFactory is Factory, IGenTkFactory {
         require(_issuer != address(0), "FxHashFactory: Invalid issuer address");
         require(_configManager != address(0), "FxHashFactory: Invalid configManager address");
 
-        GenTk newGenTk = GenTk(Clones.clone(implementation));
-        newGenTk.initialize(_owner, _issuer, _configManager);
-        emit GenTkCreated(_owner, _issuer, _configManager, address(newGenTk));
+        address newGenTk = Clones.clone(implementation);
+        emit GenTkCreated(_owner, _issuer, _configManager, newGenTk);
 
         return address(newGenTk);
     }

@@ -126,14 +126,14 @@ contract Deploy is Script, Accounts {
         mintTicket = new MintTicket(address(randomizer));
 
         // Issuer
-        issuer = new Issuer(address(configurationManager), alice);
+        issuer = new Issuer();
 
         // Token
-        genTk = new GenTk(alice, address(issuer), address(configurationManager));
+        genTk = new GenTk();
 
         fxHashFactory = new FxHashFactory(address(configurationManager));
-        genTkFactory = new GenTkFactory(address(fxHashFactory));
-        issuerFactory = new IssuerFactory(address(fxHashFactory));
+        genTkFactory = new GenTkFactory(address(fxHashFactory), address(genTk));
+        issuerFactory = new IssuerFactory(address(fxHashFactory), address(issuer));
     }
 
     function configureContracts() public {
