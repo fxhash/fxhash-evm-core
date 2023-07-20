@@ -8,12 +8,12 @@ import "contracts/interfaces/IConfigurationManager.sol";
 import "@openzeppelin/contracts/interfaces/IERC721.sol";
 import "@openzeppelin/contracts/interfaces/IERC2981.sol";
 
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 import "contracts/libs/LibIssuer.sol";
 
-contract GenTk is ERC721URIStorage, Ownable, IERC2981, IGenTk {
+contract GenTk is ERC721URIStorageUpgradeable, OwnableUpgradeable, IERC2981, IGenTk {
     struct TokenMetadata {
         uint256 tokenId;
         string metadata;
@@ -40,7 +40,12 @@ contract GenTk is ERC721URIStorage, Ownable, IERC2981, IGenTk {
     event TokenMetadataAssigned(TokenMetadata[] _params);
     event OnChainTokenMetadataAssigned(OnChainTokenMetadata[] _params);
 
-    constructor(address _owner, address _issuer, address _configManager) ERC721("GenTK", "GTK") {
+    constructor() ERC721Upgradeable() {
+    }
+
+    function initialize(address _owner, address _issuer, address _configManager) initializer public {
+        __ERC721_init("GenTk", "GTK");
+        __ERC721URIStorage_init();
         issuer = IIssuer(_issuer);
         configManager = IConfigurationManager(_configManager);
         transferOwnership(_owner);
@@ -121,7 +126,7 @@ contract GenTk is ERC721URIStorage, Ownable, IERC2981, IGenTk {
 
     function supportsInterface(
         bytes4 interfaceId
-    ) public view override(ERC721URIStorage, IERC165) returns (bool) {
+    ) public view override(ERC721URIStorageUpgradeable, IERC165) returns (bool) {
         return
             interfaceId == type(IERC721).interfaceId ||
             interfaceId == type(IGenTk).interfaceId ||

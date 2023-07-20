@@ -18,11 +18,12 @@ import "contracts/interfaces/IConfigurationManager.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SignedMath.sol";
 import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
+import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
 import "contracts/libs/LibIssuer.sol";
 import "contracts/libs/LibReserve.sol";
 
-contract Issuer is IIssuer, IERC2981, Ownable {
+contract Issuer is IIssuer, IERC2981, Ownable, Initializable {
     IConfigurationManager private configManager;
     LibIssuer.IssuerData private issuer;
     IGenTk private genTk;
@@ -38,11 +39,13 @@ contract Issuer is IIssuer, IERC2981, Ownable {
     event ReserveUpdated(LibReserve.ReserveData[] reserves);
     event SupplyBurned(uint256 amount);
 
-    constructor(address _configManager, address _owner) {
+    function initialize(address _configManager, address _owner) initializer public {
         configManager = IConfigurationManager(_configManager);
         allGenTkTokens = 0;
         transferOwnership(_owner);
     }
+
+    constructor() {}
 
     modifier onlyCodex() {
         require(msg.sender == configManager.getAddress("codex"), "Caller is not Codex");
