@@ -22,7 +22,10 @@ contract CreateProject is FxHashFactoryTest {
 
     function test_createProject() public {
         //vm.expectEmit(address(factory)); --> does not work for some reason
-        (address issuer, address gentk) = factory.createProject(alice, address(configurationManager));
+        (address issuer, address gentk) = factory.createProject(
+            alice,
+            address(configurationManager)
+        );
         assertNotEq(issuer, address(0));
         assertNotEq(gentk, address(0));
     }

@@ -14,7 +14,7 @@ contract FxHashFactory {
         address indexed genTk
     );
 
-    constructor () {}
+    constructor() {}
 
     function createGenTk(
         address _owner,
@@ -41,7 +41,10 @@ contract FxHashFactory {
         return address(newIssuer);
     }
 
-    function createProject(address _owner, address _configManager) external returns (address, address){
+    function createProject(
+        address _owner,
+        address _configManager
+    ) external returns (address, address) {
         address issuer = createIssuer(_owner, _configManager);
         address gentk = createGenTk(_owner, issuer, _configManager);
         return (issuer, gentk);
