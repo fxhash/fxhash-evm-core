@@ -2,18 +2,12 @@
 pragma solidity ^0.8.18;
 
 import "forge-std/Test.sol";
+import {IFxHashFactory} from "contracts/interfaces/IFxHashFactory.sol";
 import {FxHashFactory} from "contracts/factories/FxHashFactory.sol";
+
 import {Deploy} from "script/Deploy.s.sol";
 
 contract FxHashFactoryTest is Test, Deploy {
-    FxHashFactory public factory;
-
-    function setUp() public virtual override {
-        factory = new FxHashFactory();
-    }
-}
-
-contract CreateProject is FxHashFactoryTest {
     event IssuerCreated(address indexed _owner, address _configManager, address indexed issuer);
     event GenTkCreated(
         address indexed _owner,
@@ -22,6 +16,14 @@ contract CreateProject is FxHashFactoryTest {
         address indexed genTk
     );
 
+    IFxHashFactory public factory;
+
+    function setUp() public virtual override {
+        factory = new FxHashFactory();
+    }
+}
+
+contract CreateProject is FxHashFactoryTest {
     function setUp() public virtual override {
         super.setUp();
         createAccounts();

@@ -1,19 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {IFxHashFactory} from "contracts/interfaces/IFxHashFactory.sol";
+
 import {GenTk} from "contracts/gentk/GenTk.sol";
 import {Issuer} from "contracts/issuer/Issuer.sol";
 
-contract FxHashFactory {
-    event IssuerCreated(address indexed _owner, address _configManager, address indexed issuer);
-    event GenTkCreated(
-        address indexed _owner,
-        address indexed _issuer,
-        address _configManager,
-        address indexed genTk
-    );
-
+contract FxHashFactory is IFxHashFactory{
     constructor() {}
 
     function createGenTk(
