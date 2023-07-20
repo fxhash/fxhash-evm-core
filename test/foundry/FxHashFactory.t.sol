@@ -14,6 +14,14 @@ contract FxHashFactoryTest is Test, Deploy {
 }
 
 contract CreateProject is FxHashFactoryTest {
+    event IssuerCreated(address indexed _owner, address _configManager, address indexed issuer);
+    event GenTkCreated(
+        address indexed _owner,
+        address indexed _issuer,
+        address _configManager,
+        address indexed genTk
+    );
+
     function setUp() public virtual override {
         super.setUp();
         createAccounts();
@@ -21,12 +29,16 @@ contract CreateProject is FxHashFactoryTest {
     }
 
     function test_createProject() public {
-        //vm.expectEmit(address(factory)); --> does not work for some reason
+        vm.expectEmit(true, false, true, false, address(factory));
+        emit IssuerCreated(alice, address(configurationManager), address(0));
+        emit GenTkCreated(alice, address(0), address(configurationManager), address(0));
         (address issuer, address gentk) = factory.createProject(
             alice,
             address(configurationManager)
         );
         assertNotEq(issuer, address(0));
         assertNotEq(gentk, address(0));
+        assertEq(issuer.code.length > 0, true);
+        assertEq(gentk.code.length > 0, true);
     }
 }
