@@ -168,7 +168,7 @@ contract Issuer is IIssuer, IERC2981, Ownable {
                 inputBytesSize: params.inputBytesSize
             })
         });
-        address gentkContract = configManager.getAddress("gentk");
+
         emit IssuerMinted(params);
     }
 
