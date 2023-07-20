@@ -19,10 +19,6 @@ interface IMintTicket {
 
     function supportsInterface(bytes4 interfaceId) external view returns (bool);
 
-    function tokensOf(address owner) external view returns (uint256[] memory);
-
-    function balanceOf(address owner) external view returns (uint256);
-
     function transferFrom(address from, address to, uint256 tokenId) external;
 
     function safeTransferFrom(address from, address to, uint256 tokenId) external;

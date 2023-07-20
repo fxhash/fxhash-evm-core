@@ -9,7 +9,6 @@ interface IReserve {
     function isInputValid(LibReserve.InputParams calldata params) external pure returns (bool);
 
     function applyReserve(
-        LibReserve.ApplyParams calldata params,
-        address caller
+        LibReserve.ApplyParams calldata params
     ) external returns (bool, bytes memory);
 }
