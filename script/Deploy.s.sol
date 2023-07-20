@@ -7,7 +7,10 @@ import {AllowMintIssuer} from "contracts/allow-mint/AllowMintIssuer.sol";
 import {Codex} from "contracts/issuer/Codex.sol";
 import {ConfigurationManager, IConfigurationManager} from "contracts/issuer/ConfigurationManager.sol";
 import {ContentStore} from "scripty.sol/contracts/scripty/dependencies/ethfs/ContentStore.sol";
+import {FxHashFactory} from "contracts/factories/FxHashFactory.sol";
 import {GenTk} from "contracts/gentk/GenTk.sol";
+import {GenTkFactory} from "contracts/factories/GenTkFactory.sol";
+import {IssuerFactory} from "contracts/factories/IssuerFactory.sol";
 import {Issuer} from "contracts/issuer/Issuer.sol";
 import {LibReserve} from "contracts/libs/LibReserve.sol";
 import {Marketplace} from "contracts/marketplace/Marketplace.sol";
@@ -36,6 +39,9 @@ contract Deploy is Script {
     ContentStore public contentStore;
     GenTk public genTk;
     Issuer public issuer;
+    FxHashFactory public fxHashFactory;
+    GenTkFactory public genTkFactory;
+    IssuerFactory public issuerFactory;
     Marketplace public marketplace;
     MintPassGroup public mintPassGroup;
     MintTicket public mintTicket;
@@ -165,13 +171,17 @@ contract Deploy is Script {
 
         // Token
         genTk = new GenTk(alice, address(issuer), address(configurationManager));
+
+        fxHashFactory = new FxHashFactory(address(configurationManager));
+        genTkFactory = new GenTkFactory(address(fxHashFactory));
+        issuerFactory = new IssuerFactory(address(fxHashFactory));
     }
 
     function configureContracts() public {
         ModerationTeam.UpdateModeratorParam[]
             memory moderators = new ModerationTeam.UpdateModeratorParam[](1);
         IConfigurationManager.ContractEntry[]
-            memory contractEntries = new IConfigurationManager.ContractEntry[](11);
+            memory contractEntries = new IConfigurationManager.ContractEntry[](12);
 
         moderators[0] = ModerationTeam.UpdateModeratorParam({
             moderator: moderator,
@@ -222,6 +232,10 @@ contract Deploy is Script {
             key: "resMag",
             value: address(reserveManager)
         });
+        contractEntries[11] = IConfigurationManager.ContractEntry({
+            key: "fxHashFactory",
+            value: address(fxHashFactory)
+        });
 
         // Authorize signer on Randomizer
         randomizer.grantAuthorizedCallerRole(signer);
@@ -253,6 +267,9 @@ contract Deploy is Script {
                 voidMetadata: ISSUER_VOID_METADATA
             })
         );
+
+        fxHashFactory.setGenTkFactory(address(genTkFactory));
+        fxHashFactory.setIssuerFactory(address(issuerFactory));
     }
 
     function _createUser(string memory _name) internal returns (address user) {

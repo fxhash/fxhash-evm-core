@@ -2,16 +2,16 @@
 pragma solidity ^0.8.18;
 
 interface IFxHashFactory {
-    event IssuerCreated(address indexed _owner, address _configManager, address indexed issuer);
-    event GenTkCreated(
+    event FxHashProjectCreated(
         address indexed _owner,
         address indexed _issuer,
-        address _configManager,
-        address indexed genTk
+        address indexed genTk,
+        address _configManager
     );
 
-    function createProject(
-        address _owner,
-        address _configManager
-    ) external returns (address, address);
+    function createProject(address _owner) external returns (address, address);
+
+    function setGenTkFactory(address _genTkFactory) external;
+
+    function setIssuerFactory(address _issuerFactory) external;
 }
