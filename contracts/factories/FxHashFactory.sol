@@ -6,7 +6,7 @@ import {IFxHashFactory} from "contracts/interfaces/IFxHashFactory.sol";
 import {GenTk} from "contracts/gentk/GenTk.sol";
 import {Issuer} from "contracts/issuer/Issuer.sol";
 
-contract FxHashFactory is IFxHashFactory{
+contract FxHashFactory is IFxHashFactory {
     constructor() {}
 
     function createGenTk(
