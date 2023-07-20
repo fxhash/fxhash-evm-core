@@ -8,14 +8,13 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract ReserveManager is Ownable, IReserveManager {
     mapping(uint256 => LibReserve.ReserveMethod) private reserveMethods;
 
-    function isReserveValid(LibReserve.ReserveData memory reserve) external view returns (bool) {
+    function isReserveValid(
+        LibReserve.ReserveData memory reserve,
+        address caller
+    ) external view returns (bool) {
         return
             reserveMethods[reserve.methodId].reserveContract.isInputValid(
-                LibReserve.InputParams({
-                    data: reserve.data,
-                    amount: reserve.amount,
-                    sender: msg.sender
-                })
+                LibReserve.InputParams({data: reserve.data, amount: reserve.amount, sender: caller})
             );
     }
 
@@ -30,10 +29,9 @@ contract ReserveManager is Ownable, IReserveManager {
                 LibReserve.ApplyParams({
                     currentData: reserve.data,
                     currentAmount: reserve.amount,
-                    sender: msg.sender,
+                    sender: caller,
                     userInput: userInput
-                }),
-                caller
+                })
             );
     }
 
