@@ -2,11 +2,8 @@
 pragma solidity ^0.8.18;
 
 import {IGenTkFactory} from "contracts/interfaces/IGenTkFactory.sol";
-
 import {Factory} from "contracts/factories/Factory.sol";
-
 import {GenTk} from "contracts/gentk/GenTk.sol";
-
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
 contract GenTkFactory is Factory, IGenTkFactory {

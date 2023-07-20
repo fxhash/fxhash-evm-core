@@ -6,7 +6,6 @@ import {IIssuerFactory} from "contracts/interfaces/IIssuerFactory.sol";
 import {IGenTkFactory} from "contracts/interfaces/IGenTkFactory.sol";
 import {IIssuer} from "contracts/interfaces/IIssuer.sol";
 import {IGenTk} from "contracts/interfaces/IGenTk.sol";
-
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract FxHashFactory is IFxHashFactory, Ownable {
@@ -23,7 +22,6 @@ contract FxHashFactory is IFxHashFactory, Ownable {
         address gentk = IGenTkFactory(genTkFactory).createGenTk(_owner, issuer, configManager);
         IIssuer(issuer).initialize(configManager, _owner, gentk);
         IGenTk(gentk).initialize(configManager, _owner, issuer);
-
         emit FxHashProjectCreated(_owner, issuer, gentk, configManager);
         return (issuer, gentk);
     }

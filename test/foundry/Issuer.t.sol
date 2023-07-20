@@ -56,6 +56,7 @@ contract IssuerTest is Test, Deploy {
         (address _issuer, address _genTk) = fxHashFactory.createProject(alice);
         issuer = Issuer(_issuer);
         genTk = GenTk(_genTk);
+        codexInput = LibCodex.CodexInput(1, "Test", 0, address(issuer));
         vm.prank(alice);
     }
 }
