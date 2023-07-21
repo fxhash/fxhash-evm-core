@@ -51,7 +51,7 @@ contract IssuerTest is Test, Deploy {
         enabled = true;
         for (uint256 i; i < tagsFixed.length; i++) tags.push(tagsFixed[i]);
         /// onchain scripts remains uninitialized
-        vm.prank(alice);
+        vm.prank(deployer);
         issuer.setGenTk(address(genTk));
     }
 }
