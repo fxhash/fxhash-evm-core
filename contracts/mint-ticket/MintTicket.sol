@@ -8,6 +8,8 @@ import "contracts/interfaces/IMintTicket.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
 
+import "hardhat/console.sol";
+
 contract MintTicket is Ownable, IMintTicket {
     mapping(address => uint256) public tickets;
     mapping(uint256 => TicketData) public userTickets;
@@ -65,6 +67,7 @@ contract MintTicket is Ownable, IMintTicket {
     function mintTicket(address _minter, uint256 _price) external {
         uint256 gracingPeriod = tickets[msg.sender];
         require(gracingPeriod > 0, "PROJECT_DOES_NOT_EXISTS");
+        console.log("block.timestamp %s", block.timestamp);
         userTickets[lastTicketId] = TicketData(
             msg.sender,
             _minter,
@@ -79,14 +82,16 @@ contract MintTicket is Ownable, IMintTicket {
 
     function updatePrice(uint256 ticketId, uint256 price, uint256 coverage) external payable {
         TicketData storage userTicket = userTickets[ticketId];
+        console.log("contract created at %s", userTicket.createdAt);
         uint256 gracingPeriod = tickets[userTicket.issuer];
         require(userTicket.createdAt > 0, "USER_TICKET_DOES_NOT_EXIST");
         require(gracingPeriod > 0, "TICKET_DOES_NOT_EXIST");
         require(price >= minPrice, "PRICE_BELOW_MIN_PRICE");
         require(coverage > 0, "MIN_1_COVERAGE");
-
+        require(userTicket.owner == msg.sender, "CALLER_NOT_OWNER");
         uint256 daysSinceCreated = (block.timestamp - userTicket.createdAt) / 1 days;
         uint256 startDay = userTicket.createdAt + daysSinceCreated * 1 days;
+        console.log("startDay= %s", startDay);
 
         if (block.timestamp < userTicket.taxationStart) {
             uint256 gracingRemainingDays = gracingPeriod - daysSinceCreated;

@@ -2,7 +2,6 @@
 pragma solidity ^0.8.18;
 
 import {Script} from "forge-std/Script.sol";
-import "hardhat/console.sol";
 
 contract Accounts is Script {
     address public admin;
@@ -27,7 +26,6 @@ contract Accounts is Script {
     }
 
     function createAccounts() public virtual {
-        console.log("create");
         admin = _createUser("admin");
         signer = _createUser("signer");
         treasury = _createUser("treasury");
