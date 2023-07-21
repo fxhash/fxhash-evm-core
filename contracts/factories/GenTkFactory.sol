@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import {IGenTkFactory} from "contracts/interfaces/IGenTkFactory.sol";
+import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 import {Factory} from "contracts/factories/Factory.sol";
 import {GenTk} from "contracts/gentk/GenTk.sol";
-import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
+import {IGenTkFactory} from "contracts/interfaces/IGenTkFactory.sol";
 
+/// @title GenTkFactory
+/// @dev See the documentation in {IFactory} and {IGenTkFactory}
 contract GenTkFactory is Factory, IGenTkFactory {
     constructor(
         address _fxhashFactory,
@@ -17,15 +19,15 @@ contract GenTkFactory is Factory, IGenTkFactory {
         address _owner,
         address _issuer,
         address _configManager
-    ) external returns (address) {
-        require(msg.sender == fxhashFactory, "Caller must be FxHash Factory");
-        require(_owner != address(0), "FxHashFactory: Invalid owner address");
-        require(_issuer != address(0), "FxHashFactory: Invalid issuer address");
-        require(_configManager != address(0), "FxHashFactory: Invalid configManager address");
+    ) external returns (address newGenTk) {
+        if(msg.sender != fxhashFactory) {
+            revert callerNotFxHashFactory();
+        }
+        if(_owner == address(0) || _issuer == address(0) || _configManager == address(0)) {
+            revert invalidAddress();
+        }
 
-        address newGenTk = Clones.clone(implementation);
+        newGenTk = Clones.clone(implementation);
         emit GenTkCreated(_owner, _issuer, _configManager, newGenTk);
-
-        return address(newGenTk);
     }
 }

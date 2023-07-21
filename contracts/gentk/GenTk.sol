@@ -1,19 +1,19 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
-import "contracts/interfaces/IIssuer.sol";
-import "contracts/interfaces/IGenTk.sol";
-import "contracts/interfaces/IOnChainTokenMetadataManager.sol";
-import "contracts/interfaces/IConfigurationManager.sol";
 
-import "@openzeppelin/contracts/interfaces/IERC721.sol";
-import "@openzeppelin/contracts/interfaces/IERC2981.sol";
+import {ERC721URIStorageUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
+import {IConfigurationManager} from "contracts/interfaces/IConfigurationManager.sol";
+import {IERC165Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC165Upgradeable.sol";
+import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC721Upgradeable.sol";
+import {IERC2981Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol";
+import {IFactory} from "contracts/interfaces/IFactory.sol";
+import {IGenTk} from "contracts/interfaces/IGenTk.sol";
+import {IIssuer} from "contracts/interfaces/IIssuer.sol";
+import {IOnChainTokenMetadataManager} from "contracts/interfaces/IOnChainTokenMetadataManager.sol";
+import {LibIssuer} from "contracts/libs/LibIssuer.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-
-import "contracts/libs/LibIssuer.sol";
-
-contract GenTk is ERC721URIStorageUpgradeable, OwnableUpgradeable, IERC2981, IGenTk {
+contract GenTk is ERC721URIStorageUpgradeable, OwnableUpgradeable, IERC2981Upgradeable, IGenTk {
     struct TokenMetadata {
         uint256 tokenId;
         string metadata;
@@ -39,8 +39,6 @@ contract GenTk is ERC721URIStorageUpgradeable, OwnableUpgradeable, IERC2981, IGe
     event TokenMinted(TokenParams _params);
     event TokenMetadataAssigned(TokenMetadata[] _params);
     event OnChainTokenMetadataAssigned(OnChainTokenMetadata[] _params);
-
-    constructor() ERC721Upgradeable() {}
 
     function initialize(
         address _configManager,
@@ -130,11 +128,11 @@ contract GenTk is ERC721URIStorageUpgradeable, OwnableUpgradeable, IERC2981, IGe
 
     function supportsInterface(
         bytes4 interfaceId
-    ) public view override(ERC721URIStorageUpgradeable, IERC165) returns (bool) {
+    ) public view override(ERC721URIStorageUpgradeable, IERC165Upgradeable) returns (bool) {
         return
-            interfaceId == type(IERC721).interfaceId ||
+            interfaceId == type(IERC721Upgradeable).interfaceId ||
             interfaceId == type(IGenTk).interfaceId ||
-            interfaceId == type(IERC2981).interfaceId ||
+            interfaceId == type(IERC2981Upgradeable).interfaceId ||
             super.supportsInterface(interfaceId);
     }
 }

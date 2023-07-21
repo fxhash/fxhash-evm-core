@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-/// @title Factory interface for the Issuer factory used by the FxHash Factory
-/// @notice Contains the methods to create a new Issuer contract instance, and the event that it will emit
+/// @title IIssuerFactory
+/// @notice Interface for the Issuer factory used by the FxHash Factory. Contains the methods to create a new Issuer contract instance, and the event that it will emit
 interface IIssuerFactory {
     /// @notice Event emitted when a new Issuer contract is deployed via `#createIssuer`
     /// @param _owner The account for which the contracts has been deployed.

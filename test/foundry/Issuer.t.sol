@@ -57,7 +57,6 @@ contract IssuerTest is Test, Deploy {
         /// onchain scripts remains uninitialized
         (scriptIssuer, scriptGentk) = fxHashFactory.createProject(alice);
         codexInput = LibCodex.CodexInput(1, "Test", 0, scriptIssuer);
-        vm.prank(alice);
     }
 }
 
