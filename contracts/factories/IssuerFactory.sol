@@ -15,11 +15,14 @@ contract IssuerFactory is Factory, IIssuerFactory {
     ) Factory(_fxhashFactory, _implementation) {}
 
     /// @inheritdoc IIssuerFactory
-    function createIssuer(address _owner, address _configManager) external returns (address newIssuer) {
-        if(msg.sender != fxhashFactory) {
+    function createIssuer(
+        address _owner,
+        address _configManager
+    ) external returns (address newIssuer) {
+        if (msg.sender != fxhashFactory) {
             revert callerNotFxHashFactory();
         }
-        if(_owner == address(0) || _configManager == address(0)) {
+        if (_owner == address(0) || _configManager == address(0)) {
             revert invalidAddress();
         }
 

@@ -20,10 +20,10 @@ contract GenTkFactory is Factory, IGenTkFactory {
         address _issuer,
         address _configManager
     ) external returns (address newGenTk) {
-        if(msg.sender != fxhashFactory) {
+        if (msg.sender != fxhashFactory) {
             revert callerNotFxHashFactory();
         }
-        if(_owner == address(0) || _issuer == address(0) || _configManager == address(0)) {
+        if (_owner == address(0) || _issuer == address(0) || _configManager == address(0)) {
             revert invalidAddress();
         }
 

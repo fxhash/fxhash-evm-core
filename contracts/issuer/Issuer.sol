@@ -395,7 +395,12 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
     function royaltyInfo(
         uint256,
         uint256 salePrice
-    ) public view override(IERC2981Upgradeable, IIssuer) returns (address receiver, uint256 royaltyAmount) {
+    )
+        public
+        view
+        override(IERC2981Upgradeable, IIssuer)
+        returns (address receiver, uint256 royaltyAmount)
+    {
         LibRoyalty.RoyaltyData memory royalty = issuer.royaltiesSplit;
         uint256 amount = (salePrice * royalty.percent) / 10000;
         return (royalty.receiver, amount);
@@ -413,7 +418,8 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
         bytes4 interfaceId
     ) public pure override(IERC165Upgradeable, IIssuer) returns (bool) {
         return
-            interfaceId == type(IIssuer).interfaceId || interfaceId == type(IERC2981Upgradeable).interfaceId;
+            interfaceId == type(IIssuer).interfaceId ||
+            interfaceId == type(IERC2981Upgradeable).interfaceId;
     }
 
     function burnToken() private {
