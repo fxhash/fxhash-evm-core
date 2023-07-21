@@ -8,12 +8,14 @@ import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
 import {IIssuerFactory} from "contracts/interfaces/IIssuerFactory.sol";
 
+/// @inheritdoc IIssuerFactory
 contract IssuerFactory is Factory, IIssuerFactory {
     constructor(
         address _fxhashFactory,
         address _implementation
     ) Factory(_fxhashFactory, _implementation) {}
 
+    /// @inheritdoc IIssuerFactory
     function createIssuer(address _owner, address _configManager) external returns (address) {
         require(msg.sender == fxhashFactory, "Caller must be FxHash Factory");
         require(_owner != address(0), "FxHashFactory: Invalid owner address");

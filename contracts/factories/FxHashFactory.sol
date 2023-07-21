@@ -8,6 +8,7 @@ import {IIssuer} from "contracts/interfaces/IIssuer.sol";
 import {IGenTk} from "contracts/interfaces/IGenTk.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
+/// @inheritdoc IFxHashFactory
 contract FxHashFactory is IFxHashFactory, Ownable {
     address private genTkFactory;
     address private issuerFactory;
@@ -17,6 +18,7 @@ contract FxHashFactory is IFxHashFactory, Ownable {
         configManager = _configManager;
     }
 
+    /// @inheritdoc IFxHashFactory
     function createProject(address _owner) external returns (address, address) {
         address issuer = IIssuerFactory(issuerFactory).createIssuer(_owner, configManager);
         address gentk = IGenTkFactory(genTkFactory).createGenTk(_owner, issuer, configManager);
@@ -26,10 +28,12 @@ contract FxHashFactory is IFxHashFactory, Ownable {
         return (issuer, gentk);
     }
 
+    /// @inheritdoc IFxHashFactory
     function setGenTkFactory(address _genTkFactory) external onlyOwner {
         genTkFactory = _genTkFactory;
     }
 
+    /// @inheritdoc IFxHashFactory
     function setIssuerFactory(address _issuerFactory) external onlyOwner {
         issuerFactory = _issuerFactory;
     }

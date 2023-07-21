@@ -6,12 +6,14 @@ import {Factory} from "contracts/factories/Factory.sol";
 import {GenTk} from "contracts/gentk/GenTk.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
+/// @inheritdoc IGenTkFactory
 contract GenTkFactory is Factory, IGenTkFactory {
     constructor(
         address _fxhashFactory,
         address _implementation
     ) Factory(_fxhashFactory, _implementation) {}
 
+    /// @inheritdoc IGenTkFactory
     function createGenTk(
         address _owner,
         address _issuer,
