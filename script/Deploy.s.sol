@@ -7,7 +7,10 @@ import {AllowMintIssuer} from "contracts/allow-mint/AllowMintIssuer.sol";
 import {Codex} from "contracts/issuer/Codex.sol";
 import {ConfigurationManager, IConfigurationManager} from "contracts/issuer/ConfigurationManager.sol";
 import {ContentStore} from "scripty.sol/contracts/scripty/dependencies/ethfs/ContentStore.sol";
+import {FxHashFactory} from "contracts/factories/FxHashFactory.sol";
 import {GenTk} from "contracts/gentk/GenTk.sol";
+import {GenTkFactory} from "contracts/factories/GenTkFactory.sol";
+import {IssuerFactory} from "contracts/factories/IssuerFactory.sol";
 import {Issuer} from "contracts/issuer/Issuer.sol";
 import {LibReserve} from "contracts/libs/LibReserve.sol";
 import {Marketplace} from "contracts/marketplace/Marketplace.sol";
@@ -38,6 +41,9 @@ contract Deploy is Script, Accounts {
     ContentStore public contentStore;
     GenTk public genTk;
     Issuer public issuer;
+    FxHashFactory public fxHashFactory;
+    GenTkFactory public genTkFactory;
+    IssuerFactory public issuerFactory;
     Marketplace public marketplace;
     MintPassGroup public mintPassGroup;
     MintTicket public mintTicket;
@@ -120,15 +126,19 @@ contract Deploy is Script, Accounts {
         mintTicket = new MintTicket(address(randomizer));
 
         // Issuer
-        issuer = new Issuer(address(configurationManager), alice);
+        issuer = new Issuer();
 
         // Token
-        genTk = new GenTk(alice, address(issuer), address(configurationManager));
+        genTk = new GenTk();
+
+        fxHashFactory = new FxHashFactory(address(configurationManager));
+        genTkFactory = new GenTkFactory(address(fxHashFactory), address(genTk));
+        issuerFactory = new IssuerFactory(address(fxHashFactory), address(issuer));
     }
 
     function configureContracts() public {
         IConfigurationManager.ContractEntry[]
-            memory contractEntries = new IConfigurationManager.ContractEntry[](10);
+            memory contractEntries = new IConfigurationManager.ContractEntry[](11);
 
         contractEntries[0] = IConfigurationManager.ContractEntry({
             key: "treasury",
@@ -170,6 +180,10 @@ contract Deploy is Script, Accounts {
             key: "resMag",
             value: address(reserveManager)
         });
+        contractEntries[10] = IConfigurationManager.ContractEntry({
+            key: "fxHashFactory",
+            value: address(fxHashFactory)
+        });
 
         // Authorize signer on Randomizer
         randomizer.grantAuthorizedCallerRole(vm.addr(vm.envUint("SIGNER_PRIVATE_KEY")));
@@ -198,5 +212,8 @@ contract Deploy is Script, Accounts {
                 voidMetadata: Constants.ISSUER_VOID_METADATA
             })
         );
+
+        fxHashFactory.setGenTkFactory(address(genTkFactory));
+        fxHashFactory.setIssuerFactory(address(issuerFactory));
     }
 }
