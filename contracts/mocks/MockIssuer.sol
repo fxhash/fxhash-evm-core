@@ -24,7 +24,7 @@ contract MockIssuer {
 
     //TODO: remove this placeholder (used for tests)
     function mintTicket(address minter, uint256 price) external {
-        ticket.mint(minter, price);
+        ticket.mintTicket(minter, price);
     }
 
     function mint(IGenTk.TokenParams calldata _params) external {
@@ -32,8 +32,8 @@ contract MockIssuer {
     }
 
     //TODO: remove this placeholder (used for tests)
-    function createProject(uint256 gracingPeriod, string calldata metadata) external {
-        ticket.createProject(gracingPeriod, metadata);
+    function createTicket(uint256 gracingPeriod) external {
+        ticket.createTicket(gracingPeriod);
     }
 
     function getIssuer() external view returns (LibIssuer.IssuerData memory) {

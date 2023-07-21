@@ -5,32 +5,29 @@ import "contracts/interfaces/IIssuer.sol";
 import "contracts/interfaces/IRandomizer.sol";
 import "contracts/interfaces/IMintTicket.sol";
 
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
 
-contract MintTicket is ERC721URIStorage, Ownable, IMintTicket {
-    mapping(uint256 => TokenData) public tokenData;
-    mapping(address => ProjectData) public projectData;
-    uint256 public lastTokenId;
+contract MintTicket is Ownable, IMintTicket {
+    mapping(address => uint256) public tickets;
+    mapping(uint256 => TicketData) public userTickets;
+    uint256 public lastTicketId;
     uint256 public fees;
     uint256 public availableBalance;
     uint256 public minPrice;
     IRandomizer public randomizer;
 
-    event ProjectCreated(address issuer, uint256 gracingPeriod, string metadata);
+    event TicketCreated(address issuer, uint256 gracingPeriod);
     event TicketMinted(address issuer, address minter, uint256 price);
     event PriceUpdated(uint256 tokenId, uint256 price, uint256 coverage);
     event TaxPayed(uint256 tokenId);
     event TicketClaimed(uint256 tokenId, uint256 price, uint256 coverage, address transferTo);
     event TicketConsumed(address owner, uint256 tokenId, address issuer);
 
-    constructor(address _randomizer) ERC721("MintTicket", "MTK") {
+    constructor(address _randomizer, uint256 _fees, uint256 _minPrice){
         randomizer = IRandomizer(_randomizer);
-        lastTokenId = 0;
-        fees = 0;
-        availableBalance = 0;
-        minPrice = 100000;
+        fees = _fees;
+        minPrice = _minPrice;
     }
 
     // Entry Points
@@ -58,64 +55,61 @@ contract MintTicket is ERC721URIStorage, Ownable, IMintTicket {
         SafeTransferLib.safeTransferETH(to, withdrawAmount);
     }
 
-    function createProject(uint256 _gracingPeriod, string calldata _metadata) external {
-        require(projectData[msg.sender].gracingPeriod == 0, "PROJECT_EXISTS");
+    function createTicket(uint256 _gracingPeriod) external {
+        require(tickets[msg.sender] == 0, "PROJECT_EXISTS");
         require(_gracingPeriod > 0, "GRACING_UNDER_1");
-        projectData[msg.sender] = ProjectData({gracingPeriod: _gracingPeriod, metadata: _metadata});
-        emit ProjectCreated(msg.sender, _gracingPeriod, _metadata);
+        tickets[msg.sender] = _gracingPeriod;
+        emit TicketCreated(msg.sender, _gracingPeriod);
     }
 
-    function mint(address _minter, uint256 _price) external {
-        ProjectData storage project = projectData[msg.sender];
-        require(project.gracingPeriod > 0, "PROJECT_DOES_NOT_EXISTS");
-        uint256 tokenId = lastTokenId;
-        _mint(_minter, tokenId);
-        _setTokenURI(tokenId, project.metadata);
-        tokenData[tokenId] = TokenData(
+    function mintTicket(address _minter, uint256 _price) external {
+        uint256 gracingPeriod = tickets[msg.sender];
+        require(gracingPeriod > 0, "PROJECT_DOES_NOT_EXISTS");
+        userTickets[lastTicketId] = TicketData(
             msg.sender,
             _minter,
             block.timestamp,
             0,
-            block.timestamp + projectData[msg.sender].gracingPeriod * 1 days,
+            block.timestamp + gracingPeriod * 1 days,
             _price < minPrice ? minPrice : _price
         );
-        lastTokenId++;
+        lastTicketId++;
         emit TicketMinted(msg.sender, _minter, _price);
     }
 
-    function updatePrice(uint256 tokenId, uint256 price, uint256 coverage) external payable {
-        TokenData storage token = tokenData[tokenId];
-        require(token.minter != address(0), "TOKEN_DOES_NOT_EXIST");
-        require(isOwner(msg.sender, tokenId), "INSUFFICIENT_BALANCE");
-        require(price >= minPrice, "PRICE_BELOW_MIN_PRICE");
+    function updatePrice(uint256 ticketId, uint256 price, uint256 coverage) external payable {
+        TicketData storage userTicket = userTickets[ticketId];
+        uint256 gracingPeriod = tickets[userTicket.issuer];
+        require(userTicket.createdAt > 0, "USER_TICKET_DOES_NOT_EXIST");
+        require(gracingPeriod > 0, "TICKET_DOES_NOT_EXIST");
+    require(price >= minPrice, "PRICE_BELOW_MIN_PRICE");
         require(coverage > 0, "MIN_1_COVERAGE");
 
-        uint256 daysSinceCreated = (block.timestamp - token.createdAt) / 1 days;
-        uint256 startDay = token.createdAt + daysSinceCreated * 1 days;
+        uint256 daysSinceCreated = (block.timestamp - userTicket.createdAt) / 1 days;
+        uint256 startDay = userTicket.createdAt + daysSinceCreated * 1 days;
 
-        if (block.timestamp < token.taxationStart) {
-            uint256 gracingRemainingDays = projectData[token.issuer].gracingPeriod -
-                daysSinceCreated;
+        if (block.timestamp < userTicket.taxationStart) {
+            uint256 gracingRemainingDays = gracingPeriod - daysSinceCreated;
             require(coverage > gracingRemainingDays, "COVERAGE_GRACED");
             uint256 newDailyTax = dailyTaxAmount(price);
             uint256 taxRequiredForCoverage = newDailyTax * (coverage - gracingRemainingDays);
-            uint256 totalAvailable = msg.value + token.taxationLocked;
+            uint256 totalAvailable = msg.value + userTicket.taxationLocked;
             require(totalAvailable >= taxRequiredForCoverage, "NOT_ENOUGH_FOR_COVERAGE");
 
             uint256 sendBackAmount = totalAvailable - taxRequiredForCoverage;
             send(msg.sender, sendBackAmount);
 
-            token.taxationLocked = taxRequiredForCoverage;
-            token.price = price;
+            userTicket.taxationLocked = taxRequiredForCoverage;
+            userTicket.price = price;
         } else {
             {
-                uint256 daysSinceLastTaxation = (block.timestamp - token.taxationStart) / 1 days;
-                uint256 dailyTax = dailyTaxAmount(token.price);
+                uint256 daysSinceLastTaxation = (block.timestamp - userTicket.taxationStart) / 1 days;
+                uint256 dailyTax = dailyTaxAmount(userTicket.price);
                 uint256 taxToPay = dailyTax * daysSinceLastTaxation;
 
-                payProjectAuthorsWithSplit(token.issuer, taxToPay);
+                payProjectAuthorsWithSplit(userTicket.issuer, taxToPay);
 
-                uint256 taxLeft = token.taxationLocked - taxToPay;
+                uint256 taxLeft = userTicket.taxationLocked - taxToPay;
                 uint256 newDailyTax = dailyTaxAmount(price);
                 uint256 taxRequiredForCoverage = newDailyTax * coverage;
                 uint256 totalAvailable = msg.value + taxLeft;
@@ -125,38 +119,39 @@ contract MintTicket is ERC721URIStorage, Ownable, IMintTicket {
                 uint256 sendBackAmount = totalAvailable - taxRequiredForCoverage;
                 send(msg.sender, sendBackAmount);
 
-                token.taxationLocked = taxRequiredForCoverage;
-                token.taxationStart = startDay;
-                token.price = price;
+                userTicket.taxationLocked = taxRequiredForCoverage;
+                userTicket.taxationStart = startDay;
+                userTicket.price = price;
             }
         }
-        emit PriceUpdated(tokenId, price, coverage);
+        emit PriceUpdated(ticketId, price, coverage);
     }
 
-    function payTax(uint256 tokenId) external payable {
-        TokenData storage token = tokenData[tokenId];
-        require(token.minter != address(0), "TOKEN_DOES_NOT_EXIST");
-        uint256 dailyTax = dailyTaxAmount(token.price);
+    function payTax(uint256 ticketId) external payable {
+        TicketData storage userTicket = userTickets[ticketId];
+        require(userTicket.createdAt > 0, "USER_TICKET_DOES_NOT_EXIST");
+        uint256 dailyTax = dailyTaxAmount(userTicket.price);
         uint256 daysCoverage = msg.value / dailyTax;
         uint256 cleanCoverage = dailyTax * daysCoverage;
         send(msg.sender, msg.value - cleanCoverage);
-        token.taxationLocked = token.taxationLocked + cleanCoverage;
-        emit TaxPayed(tokenId);
+        userTicket.taxationLocked = userTicket.taxationLocked + cleanCoverage;
+        emit TaxPayed(ticketId);
     }
 
     function claim(
-        uint256 tokenId,
+        uint256 ticketId,
         uint256 price,
         uint256 coverage,
         address transferTo
     ) external payable {
-        TokenData storage token = tokenData[tokenId];
-        require(token.minter != address(0), "TOKEN_DOES_NOT_EXIST");
-        require(!isGracing(tokenId), "GRACING_PERIOD");
+        TicketData storage userTicket = userTickets[ticketId];
+        address owner = userTicket.owner;
+        require(userTicket.createdAt > 0, "USER_TICKET_DOES_NOT_EXIST");
+        require(!isGracing(ticketId), "GRACING_PERIOD");
         require(price >= minPrice, "PRICE_BELOW_MIN_PRICE");
         require(coverage > 0, "MIN_1_COVERAGE");
-        address owner = ownerOf(tokenId);
-        uint256 distanceFc = distanceForeclosure(tokenId);
+        require(msg.sender == owner, "CALLER_NOT_OWNER");
+        uint256 distanceFc = distanceForeclosure(ticketId);
         if (distanceFc >= 0) {
             if (distanceFc > 1 days) {
                 distanceFc = 1 days;
@@ -171,172 +166,131 @@ contract MintTicket is ERC721URIStorage, Ownable, IMintTicket {
         send(msg.sender, msg.value - amountRequired);
         send(owner, price);
 
-        (uint256 taxToPay, uint256 taxToRelease) = taxRelease(tokenId);
-        payProjectAuthorsWithSplit(token.issuer, taxToPay);
+        (uint256 taxToPay, uint256 taxToRelease) = taxRelease(ticketId);
+        payProjectAuthorsWithSplit(userTicket.issuer, taxToPay);
         send(owner, taxToRelease);
-        uint256 startDay = token.createdAt +
-            ((block.timestamp - token.createdAt) / 1 days) *
+        uint256 startDay = userTicket.createdAt +
+            ((block.timestamp - userTicket.createdAt) / 1 days) *
             1 days;
-        token.taxationLocked = taxAmount;
-        token.taxationStart = startDay;
-        token.price = price;
+        userTicket.taxationLocked = taxAmount;
+        userTicket.taxationStart = startDay;
+        userTicket.price = price;
         if (transferTo != address(0)) {
-            safeTransferFrom(owner, transferTo, tokenId);
+            userTicket.owner = transferTo;
         }
-        emit TicketClaimed(tokenId, price, coverage, transferTo);
+        emit TicketClaimed(ticketId, price, coverage, transferTo);
     }
 
-    function consume(address _owner, uint256 _tokenId, address _issuer) external payable {
-        TokenData storage token = tokenData[_tokenId];
-        require(token.minter != address(0), "TOKEN_DOES_NOT_EXIST");
-        require(isOwner(_owner, _tokenId), "INSUFFICIENT_BALANCE");
-        require(token.issuer == _issuer, "WRONG_PROJECT");
-        (uint256 taxToPay, uint256 taxToRelease) = taxRelease(_tokenId);
-        payProjectAuthorsWithSplit(token.issuer, taxToPay);
+    function consume(address _owner, uint256 _ticketId, address _issuer) external payable {
+        TicketData storage userTicket = userTickets[_ticketId];
+        require(userTicket.createdAt > 0, "USER_TICKET_DOES_NOT_EXIST");
+        require(userTicket.issuer == _issuer, "WRONG_PROJECT");
+        (uint256 taxToPay, uint256 taxToRelease) = taxRelease(_ticketId);
+        payProjectAuthorsWithSplit(userTicket.issuer, taxToPay);
         send(_owner, taxToRelease);
-        randomizer.generate(_tokenId);
-        delete tokenData[_tokenId];
-        delete projectData[_issuer];
-        _burn(_tokenId);
-        emit TicketConsumed(_owner, _tokenId, _issuer);
-    }
-
-    /**
-     * @dev See {IERC721-transferFrom}.
-     */
-    function transferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) public virtual override(ERC721, IERC721, IMintTicket) {
-        require(isOwner(from, tokenId), "MUST_BE_OWNER");
-        ERC721.transferFrom(from, to, tokenId);
-    }
-
-    /**
-     * @dev See {IERC721-safeTransferFrom}.
-     */
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) public virtual override(ERC721, IERC721, IMintTicket) {
-        require(isOwner(from, tokenId));
-        safeTransferFrom(from, to, tokenId, "");
-    }
-
-    /**
-     * @dev See {IERC721-safeTransferFrom}.
-     */
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 tokenId,
-        bytes memory data
-    ) public virtual override(ERC721, IERC721, IMintTicket) {
-        require(isOwner(from, tokenId));
-        ERC721.safeTransferFrom(from, to, tokenId, data);
-    }
-
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view virtual override(ERC721URIStorage, IMintTicket) returns (bool) {
-        return
-            interfaceId == type(IERC721).interfaceId ||
-            interfaceId == type(IMintTicket).interfaceId ||
-            super.supportsInterface(interfaceId);
+        randomizer.generate(_ticketId);
+        delete userTickets[_ticketId];
+        delete tickets[_issuer];
+        emit TicketConsumed(_owner, _ticketId, _issuer);
     }
 
     function dailyTaxAmount(uint256 price) internal pure returns (uint256) {
         return (price * 14) / 10000;
     }
 
-    function taxationStartDate(uint256 tokenId) internal view returns (uint256) {
-        TokenData storage token = tokenData[tokenId];
-        ProjectData storage project = projectData[token.issuer];
-        return token.createdAt + project.gracingPeriod * 1 days;
+    function taxationStartDate(uint256 ticketId) internal view returns (uint256) {
+        TicketData storage userTicket = userTickets[ticketId];
+        uint256 gracingPeriod = tickets[userTicket.issuer];
+        require(gracingPeriod > 0, "TICKET_DOES_NOT_EXIST");
+        return userTicket.createdAt + gracingPeriod * 1 days;
     }
 
-    function isGracingByTime(uint256 tokenId, uint256 time) internal view returns (bool) {
-        if (taxationStartDate(tokenId) < time) {
+    function isGracingByTime(
+        uint256 ticketId,
+        uint256 time
+    ) internal view returns (bool) {
+        if (taxationStartDate(ticketId) < time) {
             return false;
         } else {
-            return taxationStartDate(tokenId) - time > 0;
+            return taxationStartDate(ticketId) - time > 0;
         }
     }
 
-    function isGracing(uint256 tokenId) internal view returns (bool) {
-        return isGracingByTime(tokenId, block.timestamp);
+    function isGracing(uint256 ticketId) internal view returns (bool) {
+        return isGracingByTime(ticketId, block.timestamp);
     }
 
     function distanceForeclosureByTime(
-        uint256 tokenId,
-        uint256 time
+        uint256 _ticketId,
+        uint256 _time
     ) internal view returns (uint256) {
-        TokenData storage token = tokenData[tokenId];
-        uint256 dailyTax = dailyTaxAmount(token.price);
-        uint256 daysCovered = token.taxationLocked / dailyTax;
-        uint256 foreclosureTime = token.taxationStart + daysCovered * 1 days;
-        return time - foreclosureTime;
+        TicketData storage userTicket = userTickets[_ticketId];
+        uint256 dailyTax = dailyTaxAmount(userTicket.price);
+        uint256 daysCovered = userTicket.taxationLocked / dailyTax;
+        uint256 foreclosureTime = userTicket.taxationStart + daysCovered * 1 days;
+        return _time - foreclosureTime;
     }
 
-    function distanceForeclosure(uint256 tokenId) internal view returns (uint256) {
-        return distanceForeclosureByTime(tokenId, block.timestamp);
+    function distanceForeclosure(uint256 _ticketId) internal view returns (uint256) {
+        return distanceForeclosureByTime(_ticketId, block.timestamp);
     }
 
-    function isForeclosureByTime(uint256 tokenId, uint256 time) internal view returns (bool) {
-        TokenData storage token = tokenData[tokenId];
-        uint256 dailyTax = dailyTaxAmount(token.price);
-        uint256 daysCovered = token.taxationLocked / dailyTax;
-        uint256 secondsSincePayment = time > token.taxationStart ? time - token.taxationStart : 0;
+    function isForeclosureByTime(
+        uint256 _ticketId,
+        uint256 _time
+    ) internal view returns (bool) {
+        TicketData storage userTicket = userTickets[_ticketId];
+        uint256 dailyTax = dailyTaxAmount(userTicket.price);
+        uint256 daysCovered = userTicket.taxationLocked / dailyTax;
+        uint256 secondsSincePayment = _time > userTicket.taxationStart ? _time - userTicket.taxationStart : 0;
         uint256 daysSincePayment = secondsSincePayment / 1 days;
-        return (!isGracingByTime(tokenId, time)) && (daysSincePayment >= daysCovered);
+        return (!isGracingByTime(_ticketId, _time)) && (daysSincePayment >= daysCovered);
     }
 
-    function isForeclosure(uint256 tokenId) internal view returns (bool) {
-        return isForeclosureByTime(tokenId, block.timestamp);
+    function isForeclosure(uint256 _ticketId) internal view returns (bool) {
+        return isForeclosureByTime(_ticketId, block.timestamp);
     }
 
     function isOwnerByTime(
-        address owner,
-        uint256 tokenId,
-        uint256 time
+        uint256 _ticketId,
+        address _owner,
+        uint256 _time
     ) internal view returns (bool) {
-        return (ownerOf(tokenId) == owner) && (!isForeclosureByTime(tokenId, time));
+        return (userTickets[_ticketId].owner == _owner) && (!isForeclosureByTime(_ticketId, _time));
     }
 
-    function isOwner(address owner, uint256 tokenId) internal view returns (bool) {
-        return isOwnerByTime(owner, tokenId, block.timestamp);
+    function isOwner(address _owner, uint256 _ticketId) internal view returns (bool) {
+        return isOwnerByTime(_ticketId, _owner, block.timestamp);
     }
 
-    function send(address recipient, uint256 amount) internal {
-        if (amount > 0) {
-            SafeTransferLib.safeTransferETH(recipient, amount);
+    function send(address _recipient, uint256 _amount) internal {
+        if (_amount > 0) {
+            SafeTransferLib.safeTransferETH(_recipient, _amount);
         }
     }
 
     function foreclosurePrice(
-        uint256 price,
-        uint256 secondsElapsed
+        uint256 _price,
+        uint256 _secondsElapsed
     ) internal view returns (uint256) {
-        uint256 T = (secondsElapsed * 10000) / 1 days;
-        uint256 prange = price - minPrice; // TODO Check this value
-        return price - (prange * T) / 10000;
+        uint256 T = (_secondsElapsed * 10000) / 1 days;
+        uint256 prange = _price - minPrice; // TODO Check this value
+        return _price - (prange * T) / 10000;
     }
 
-    function taxRelease(uint256 tokenId) internal view returns (uint256, uint256) {
-        TokenData storage token = tokenData[tokenId];
+    function taxRelease(uint256 _ticketId) internal view returns (uint256, uint256) {
+        TicketData storage userTicket = userTickets[_ticketId];
         uint256 timeDiff = 0;
-        if (block.timestamp > token.taxationStart) {
-            timeDiff = block.timestamp - token.taxationStart;
+        if (block.timestamp > userTicket.taxationStart) {
+            timeDiff = block.timestamp - userTicket.taxationStart;
         }
         uint256 daysSinceLastTaxation = timeDiff / 1 days;
-        uint256 dailyTax = dailyTaxAmount(token.price);
+        uint256 dailyTax = dailyTaxAmount(userTicket.price);
         uint256 taxToPay = dailyTax * daysSinceLastTaxation;
-        if (taxToPay > token.taxationLocked) {
-            taxToPay = token.taxationLocked;
+        if (taxToPay > userTicket.taxationLocked) {
+            taxToPay = userTicket.taxationLocked;
         }
-        uint256 taxToRelease = token.taxationLocked - taxToPay;
+        uint256 taxToRelease = userTicket.taxationLocked - taxToPay;
         return (taxToPay, taxToRelease);
     }
 

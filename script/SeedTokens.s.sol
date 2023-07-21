@@ -172,7 +172,7 @@ contract SeedTokens is Script {
             if (mintQueue[i].mintTicketOption == SeedIssuers.MintTicketOptions.Enabled) {
                 MintTicket(payable(mintQueue[i].mintTicket)).consume(
                     bob,
-                    MintTicket(payable(mintQueue[i].mintTicket)).lastTokenId() - 1,
+                    MintTicket(payable(mintQueue[i].mintTicket)).lastTicketId() - 1,
                     mintQueue[i].issuer
                 );
             }

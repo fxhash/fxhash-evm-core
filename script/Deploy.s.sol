@@ -117,7 +117,7 @@ contract Deploy is Script, Accounts {
         );
 
         // Mint Ticket
-        mintTicket = new MintTicket(address(randomizer));
+        mintTicket = new MintTicket(address(randomizer), Constants.MINT_TICKET_FEES, Constants.MINT_TICKET_MIN_PRICE);
 
         // Issuer
         issuer = new Issuer(address(configurationManager), alice);

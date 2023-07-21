@@ -80,9 +80,8 @@ contract Issuer is IIssuer, IERC2981, Ownable {
 
         bool hasTickets = params.mintTicketSettings.gracingPeriod > 0;
         if (hasTickets) {
-            IMintTicket(configManager.getAddress("mint_tickets")).createProject(
-                params.mintTicketSettings.gracingPeriod,
-                params.mintTicketSettings.metadata
+            IMintTicket(configManager.getAddress("mint_tickets")).createTicket(
+                params.mintTicketSettings.gracingPeriod
             );
         }
 
@@ -460,7 +459,7 @@ contract Issuer is IIssuer, IERC2981, Ownable {
             }
 
             if (params.createTicket == true) {
-                IMintTicket(configManager.getAddress("mint_tickets")).mint(recipient, price);
+                IMintTicket(configManager.getAddress("mint_tickets")).mintTicket(recipient, price);
             } else {
                 issuer.iterationsCount += 1;
                 genTk.mint(
