@@ -44,8 +44,8 @@ contract GenTk is ERC721URIStorageUpgradeable, OwnableUpgradeable, IERC2981, IGe
 
     function initialize(
         address _configManager,
-        address _owner,
-        address _issuer
+        address _issuer,
+        address _owner
     ) external initializer {
         __ERC721_init("GenTk", "GTK");
         __ERC721URIStorage_init();

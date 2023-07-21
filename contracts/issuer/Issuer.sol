@@ -22,8 +22,6 @@ import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
 import "contracts/libs/LibIssuer.sol";
 import "contracts/libs/LibReserve.sol";
 
-import "hardhat/console.sol";
-
 contract Issuer is IIssuer, IERC2981, OwnableUpgradeable {
     IConfigurationManager private configManager;
     LibIssuer.IssuerData private issuer;
@@ -435,16 +433,16 @@ contract Issuer is IIssuer, IERC2981, OwnableUpgradeable {
         {
             uint256 price = pricingContract.getPrice(block.timestamp);
             require(msg.value >= price && price > 0, "INVALID_PRICE");
-
-            uint256 platformFees = configManager.getConfig().fees;
+            IConfigurationManager.Config memory configuration = configManager.getConfig();
+            uint256 platformFees = configuration.fees;
             if (params.referrer != address(0) && params.referrer != msg.sender) {
-                uint256 referrerFees = (configManager.getConfig().fees *
-                    configManager.getConfig().referrerFeesShare) / 10000;
+                uint256 referrerFees = (configuration.fees * configuration.referrerFeesShare) /
+                    10000;
                 uint256 referrerAmount = (price * referrerFees) / 10000;
                 if (referrerAmount > 0) {
                     SafeTransferLib.safeTransferETH(params.referrer, referrerAmount);
                 }
-                platformFees = configManager.getConfig().fees - referrerFees;
+                platformFees = configuration.fees - referrerFees;
             }
 
             uint256 feesAmount = (price * platformFees) / 10000;
@@ -477,7 +475,7 @@ contract Issuer is IIssuer, IERC2981, OwnableUpgradeable {
                         receiver: issuer.royaltiesSplit.receiver == address(genTk)
                             ? recipient
                             : issuer.royaltiesSplit.receiver,
-                        metadata: configManager.getConfig().voidMetadata
+                        metadata: configuration.voidMetadata
                     })
                 );
                 allGenTkTokens++;

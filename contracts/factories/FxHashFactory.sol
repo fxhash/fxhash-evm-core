@@ -20,8 +20,8 @@ contract FxHashFactory is IFxHashFactory, Ownable {
     function createProject(address _owner) external returns (address, address) {
         address issuer = IIssuerFactory(issuerFactory).createIssuer(_owner, configManager);
         address gentk = IGenTkFactory(genTkFactory).createGenTk(_owner, issuer, configManager);
-        IIssuer(issuer).initialize(configManager, _owner, gentk);
-        IGenTk(gentk).initialize(configManager, _owner, issuer);
+        IIssuer(issuer).initialize(configManager, gentk, _owner);
+        IGenTk(gentk).initialize(configManager, issuer, _owner);
         emit FxHashProjectCreated(_owner, issuer, gentk, configManager);
         return (issuer, gentk);
     }
