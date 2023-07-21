@@ -69,11 +69,12 @@ contract SeedIssuers is Deploy {
     string public MNEMONIC = vm.envString("MNEMONIC");
 
     function setUp() public virtual override {
-        super.setUp();
+        createAccounts();
+        Deploy.setUp();
+        Deploy.run();
     }
 
     function run() public virtual override {
-        createAccounts();
         mintAllGetIssuerCombinations();
     }
 

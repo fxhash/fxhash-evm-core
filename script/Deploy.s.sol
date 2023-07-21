@@ -120,10 +120,10 @@ contract Deploy is Script, Accounts {
         mintTicket = new MintTicket(address(randomizer), Constants.MINT_TICKET_FEES, Constants.MINT_TICKET_MIN_PRICE);
 
         // Issuer
-        issuer = new Issuer(address(configurationManager), alice);
+        issuer = new Issuer(address(configurationManager), deployer);
 
         // Token
-        genTk = new GenTk(alice, address(issuer), address(configurationManager));
+        genTk = new GenTk(deployer, address(issuer), address(configurationManager));
     }
 
     function configureContracts() public {

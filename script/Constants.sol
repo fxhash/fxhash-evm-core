@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 library Constants {
-    // Constants$
+    // Constants
     uint256 public constant MINT_TICKET_FEES = 1000;
     uint256 public constant MINT_TICKET_MIN_PRICE = 100;
     uint256 public constant ISSUER_FEES = 1000;
