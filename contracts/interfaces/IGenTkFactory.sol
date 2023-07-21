@@ -4,7 +4,6 @@ pragma solidity ^0.8.18;
 /// @title Factory interface for the GenTk factory used by the FxHash Factory
 /// @notice Contains the methods to create a new GenTk contract instance, and the event that it will emit
 interface IGenTkFactory {
-
     /// @notice Event emitted when a new GenTk contract is deployed via `#createGenTk`
     /// @param _owner The account for which the contracts has been deployed.
     /// @param _issuer Address of the Issuer contract newly deployed

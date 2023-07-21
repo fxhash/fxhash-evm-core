@@ -327,7 +327,10 @@ contract SeedIssuers is Deploy {
             LibPricing.PricingData({
                 pricingId: 1,
                 details: abi.encode(
-                    PricingFixed.PriceDetails({price: Constants.PRICE, opensAt: block.timestamp + Constants.OPEN_DELAY})
+                    PricingFixed.PriceDetails({
+                        price: Constants.PRICE,
+                        opensAt: block.timestamp + Constants.OPEN_DELAY
+                    })
                 ),
                 lockForReserves: false
             });
