@@ -8,7 +8,6 @@ import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
 import {IIssuerFactory} from "contracts/interfaces/IIssuerFactory.sol";
 
-/// @inheritdoc IIssuerFactory
 contract IssuerFactory is Factory, IIssuerFactory {
     constructor(
         address _fxhashFactory,

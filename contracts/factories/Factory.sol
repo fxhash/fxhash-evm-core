@@ -5,7 +5,6 @@ import {IFactory} from "contracts/interfaces/IFactory.sol";
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-/// @inheritdoc IFactory
 contract Factory is IFactory, Ownable {
     /// @dev address of the main factory that will be authorized to call the `create` functions of the factory implementing this interface
     address internal fxhashFactory;
