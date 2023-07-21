@@ -24,7 +24,7 @@ contract MintTicket is Ownable, IMintTicket {
     event TicketClaimed(uint256 tokenId, uint256 price, uint256 coverage, address transferTo);
     event TicketConsumed(address owner, uint256 tokenId, address issuer);
 
-    constructor(address _randomizer, uint256 _fees, uint256 _minPrice){
+    constructor(address _randomizer, uint256 _fees, uint256 _minPrice) {
         randomizer = IRandomizer(_randomizer);
         fees = _fees;
         minPrice = _minPrice;
@@ -82,7 +82,7 @@ contract MintTicket is Ownable, IMintTicket {
         uint256 gracingPeriod = tickets[userTicket.issuer];
         require(userTicket.createdAt > 0, "USER_TICKET_DOES_NOT_EXIST");
         require(gracingPeriod > 0, "TICKET_DOES_NOT_EXIST");
-    require(price >= minPrice, "PRICE_BELOW_MIN_PRICE");
+        require(price >= minPrice, "PRICE_BELOW_MIN_PRICE");
         require(coverage > 0, "MIN_1_COVERAGE");
 
         uint256 daysSinceCreated = (block.timestamp - userTicket.createdAt) / 1 days;
@@ -103,7 +103,8 @@ contract MintTicket is Ownable, IMintTicket {
             userTicket.price = price;
         } else {
             {
-                uint256 daysSinceLastTaxation = (block.timestamp - userTicket.taxationStart) / 1 days;
+                uint256 daysSinceLastTaxation = (block.timestamp - userTicket.taxationStart) /
+                    1 days;
                 uint256 dailyTax = dailyTaxAmount(userTicket.price);
                 uint256 taxToPay = dailyTax * daysSinceLastTaxation;
 
@@ -205,10 +206,7 @@ contract MintTicket is Ownable, IMintTicket {
         return userTicket.createdAt + gracingPeriod * 1 days;
     }
 
-    function isGracingByTime(
-        uint256 ticketId,
-        uint256 time
-    ) internal view returns (bool) {
+    function isGracingByTime(uint256 ticketId, uint256 time) internal view returns (bool) {
         if (taxationStartDate(ticketId) < time) {
             return false;
         } else {
@@ -235,14 +233,13 @@ contract MintTicket is Ownable, IMintTicket {
         return distanceForeclosureByTime(_ticketId, block.timestamp);
     }
 
-    function isForeclosureByTime(
-        uint256 _ticketId,
-        uint256 _time
-    ) internal view returns (bool) {
+    function isForeclosureByTime(uint256 _ticketId, uint256 _time) internal view returns (bool) {
         TicketData storage userTicket = userTickets[_ticketId];
         uint256 dailyTax = dailyTaxAmount(userTicket.price);
         uint256 daysCovered = userTicket.taxationLocked / dailyTax;
-        uint256 secondsSincePayment = _time > userTicket.taxationStart ? _time - userTicket.taxationStart : 0;
+        uint256 secondsSincePayment = _time > userTicket.taxationStart
+            ? _time - userTicket.taxationStart
+            : 0;
         uint256 daysSincePayment = secondsSincePayment / 1 days;
         return (!isGracingByTime(_ticketId, _time)) && (daysSincePayment >= daysCovered);
     }
