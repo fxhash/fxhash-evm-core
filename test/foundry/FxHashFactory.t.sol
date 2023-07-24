@@ -33,6 +33,7 @@ contract CreateProject is FxHashFactoryTest {
     LibRoyalty.RoyaltyData public royalty;
 
     function setUp() public virtual override {
+        royalty = LibRoyalty.RoyaltyData(1000, alice);
         createAccounts();
         Deploy.run();
     }
