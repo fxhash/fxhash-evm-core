@@ -95,10 +95,12 @@ struct ProjectInfo {
 /// @param lockedTime Timestamp of when minting is locked
 /// @param closingTime Timestamp of when mint closes
 /// @param lockedReserve Status of locking current price for reserves
+/// @param hasTickets Status of mint tickets
 struct MintInfo {
     uint120 lockedTimestamp;
-    uint128 closingTimestamp;
+    uint120 closingTimestamp;
     bool lockedReserve;
+    bool hasTickets;
 }
 
 /// @param primarySplit Royalty splits of primary sales
