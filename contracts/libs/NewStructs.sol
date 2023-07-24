@@ -74,31 +74,31 @@ struct GenerativeInfo {
 struct IssuserInfo {
     ProjectInfo projectInfo;
     MintInfo mintInfo;
-    SaleInfo reserveInfo;
+    SaleInfo saleInfo;
 }
 
 /// @param pricingId ID of pricing type
 /// @param totalMinted Total tokens minted
 /// @param maxSupply Maximum supplt of tokens
 /// @param codexId ID of codex info
+/// @param metadata Bytes-encoded metadata
 /// @param tags List of tags describing project
 struct ProjectInfo {
     uint8 pricingId;
     uint64 totalMinted;
     uint64 maxSupply;
     uint120 codexId;
+    bytes metadata;
     uint16[] tags;
 }
 
 /// @param lockedTime Timestamp of when minting is locked
 /// @param closingTime Timestamp of when mint closes
 /// @param lockedReserve Status of locking current price for reserves
-/// @param referrer Address of referrer
 struct MintInfo {
-    uint40 lockedTimestamp;
-    uint48 closingTimestamp;
+    uint120 lockedTimestamp;
+    uint128 closingTimestamp;
     bool lockedReserve;
-    address referrer;
 }
 
 /// @param primarySplit Royalty splits of primary sales
