@@ -7,6 +7,7 @@ import "contracts/interfaces/IMintTicket.sol";
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
+import {SignedMath} from "@openzeppelin/contracts/utils/math/SignedMath.sol";
 
 import "hardhat/console.sol";
 
@@ -102,7 +103,7 @@ contract MintTicket is Ownable, IMintTicket {
 
             uint256 sendBackAmount = totalAvailable - taxRequiredForCoverage;
 
-        send(msg.sender, sendBackAmount);
+            send(msg.sender, sendBackAmount);
 
             userTicket.taxationLocked = taxRequiredForCoverage;
             userTicket.price = price;
@@ -115,19 +116,27 @@ contract MintTicket is Ownable, IMintTicket {
 
                 console.log("update");
 
-            payProjectAuthorsWithSplit(userTicket.issuer, taxToPay);
+                payProjectAuthorsWithSplit(userTicket.issuer, taxToPay);
+                console.log("userTicket.taxationLocked %s", userTicket.taxationLocked);
+                uint256 taxLeft = SignedMath.abs(
+                    int256(userTicket.taxationLocked) - int256(taxToPay)
+                );
+
                 console.log("update2");
 
-                uint256 taxLeft = userTicket.taxationLocked - taxToPay;
                 uint256 newDailyTax = dailyTaxAmount(price);
+                console.log("contract newDailyTax %s", newDailyTax );
+
                 uint256 taxRequiredForCoverage = newDailyTax * coverage;
-                uint256 totalAvailable = msg.value + taxLeft;
+                console.log("taxRequiredForCoverage = newDailyTax * coverage // %s = %s * %s", taxRequiredForCoverage, newDailyTax, coverage );
+
+            uint256 totalAvailable = msg.value + taxLeft;
 
                 require(totalAvailable >= taxRequiredForCoverage, "NOT_ENOUGH_FOR_COVERAGE");
 
                 uint256 sendBackAmount = totalAvailable - taxRequiredForCoverage;
 
-            send(msg.sender, sendBackAmount);
+                send(msg.sender, sendBackAmount);
 
                 userTicket.taxationLocked = taxRequiredForCoverage;
                 userTicket.taxationStart = startDay;

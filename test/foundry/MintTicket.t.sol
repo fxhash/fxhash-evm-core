@@ -4,13 +4,16 @@ pragma solidity ^0.8.18;
 import {Test} from "forge-std/Test.sol";
 import {IMintTicket} from "contracts/interfaces/IMintTicket.sol";
 import {MintTicket} from "contracts/mint-ticket/MintTicket.sol";
+import {IIssuer, LibIssuer, LibReserve, LibRoyalty, LibPricing, LibCodex} from "contracts/interfaces/IIssuer.sol";
+import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
 import {Randomizer} from "contracts/randomizer/Randomizer.sol";
 import {Constants} from "script/Constants.sol";
 import {Accounts} from "script/Accounts.s.sol";
-import {SeedIssuers} from "script/SeedIssuers.s.sol";
+import {Deploy} from "script/Deploy.s.sol";
 
 import "hardhat/console.sol";
-contract MintTicketTest is Test, Accounts {
+
+contract MintTicketTest is Test, Deploy {
     event TicketCreated(address issuer, uint256 gracingPeriod);
     event TicketMinted(address issuer, address minter, uint256 price);
     event PriceUpdated(uint256 tokenId, uint256 price, uint256 coverage);
@@ -18,21 +21,33 @@ contract MintTicketTest is Test, Accounts {
     event TicketClaimed(uint256 tokenId, uint256 price, uint256 coverage, address transferTo);
     event TicketConsumed(address owner, uint256 tokenId, address issuer);
 
-    MintTicket public mintTicket;
-    Randomizer public randomizer;
+    address public testIssuer;
 
     // Additional state variables
     uint256 public constant GRACING_PERIOD = 30;
     uint256 public constant TICKET_PRICE = 1000;
 
-    function setUp() public override {
+    function setUp() public virtual override {
         createAccounts();
-        // Randomizer
-        randomizer = new Randomizer(Constants.SEED, Constants.SALT);
-        mintTicket = new MintTicket(
-            address(randomizer),
-            Constants.MINT_TICKET_FEES,
-            Constants.MINT_TICKET_MIN_PRICE
+        Deploy.setUp();
+        Deploy.run();
+        (testIssuer, ) = fxHashFactory.createProject(alice);
+        IIssuer(testIssuer).mintIssuer(
+            IIssuer.MintIssuerInput(
+                LibCodex.CodexInput(1, "Test", 0, testIssuer),
+                "",
+                0,
+                1000,
+                LibIssuer.OpenEditions(0, ""),
+                IIssuer.MintTicketSettings(GRACING_PERIOD, ""),
+                new LibReserve.ReserveData[](0),
+                LibPricing.PricingData(1, abi.encode(TICKET_PRICE, 1), true),
+                LibRoyalty.RoyaltyData(1500, alice),
+                LibRoyalty.RoyaltyData(1500, alice),
+                true,
+                new uint256[](0),
+                new WrappedScriptRequest[](0)
+            )
         );
     }
 }
@@ -80,7 +95,10 @@ contract MintTicketTestMint is MintTicketTest {
         assertTrue(issuer == alice, "Invalid issuer");
         assertTrue(createdAt == block.timestamp, "Invalid createdAt");
         assertTrue(taxationLocked == 0, "Invalid taxationLocked");
-        assertTrue(taxationStart == block.timestamp + GRACING_PERIOD * 1 days, "Invalid taxationStart");
+        assertTrue(
+            taxationStart == block.timestamp + GRACING_PERIOD * 1 days,
+            "Invalid taxationStart"
+        );
         assertTrue(price == TICKET_PRICE, "Invalid price");
     }
 
@@ -109,7 +127,10 @@ contract MintTicketTestMint is MintTicketTest {
         assertTrue(issuer == alice, "Invalid issuer");
         assertTrue(createdAt == block.timestamp, "Invalid createdAt");
         assertTrue(taxationLocked == 0, "Invalid taxationLocked");
-        assertTrue(taxationStart == block.timestamp + GRACING_PERIOD * 1 days, "Invalid taxationStart");
+        assertTrue(
+            taxationStart == block.timestamp + GRACING_PERIOD * 1 days,
+            "Invalid taxationStart"
+        );
         assertTrue(price == Constants.MINT_TICKET_MIN_PRICE, "Invalid price");
     }
 }
@@ -118,21 +139,23 @@ contract MintTicketTestUpdatePrice is MintTicketTest {
     function test_updatePrice() public {
         uint256 newPrice = TICKET_PRICE * 2;
         uint256 newCoverage = 45;
-        uint256 taxAmount = (newPrice * 14 * newCoverage) / 10000;
+        uint256 dailyTax = (newPrice * 14) / 10000;
+        console.log("dailyTax %s", dailyTax);
         uint256 initialBalance = address(mintTicket).balance;
-        uint256 initTimestamp = 1;
+        uint256 initTimestamp = 2;
+        uint256 updateTimestamp = initTimestamp + GRACING_PERIOD * 1 days + 1 days;
         vm.warp(initTimestamp);
-
-        vm.prank(alice);
-        mintTicket.createTicket(GRACING_PERIOD);
-        vm.prank(alice);
-        mintTicket.mintTicket(bob, TICKET_PRICE);
+        vm.prank(bob);
+        console.log(testIssuer);
+        IIssuer(testIssuer).mint{value: TICKET_PRICE}(
+            IIssuer.MintInput("", address(0), "", true, bob)
+        );
 
         // Increase time to make sure gracing period is over
-        vm.warp( initTimestamp + GRACING_PERIOD * 1 days + 1 days);
+        vm.warp(updateTimestamp);
 
         vm.prank(bob);
-        mintTicket.updatePrice{value: taxAmount}(0, newPrice, newCoverage);
+        mintTicket.updatePrice{value: dailyTax * newCoverage}(0, newPrice, newCoverage);
         (
             address issuer,
             address owner,
@@ -143,17 +166,21 @@ contract MintTicketTestUpdatePrice is MintTicketTest {
         ) = mintTicket.userTickets(0);
         require(price == newPrice, "Price not updated correctly");
         console.log("taxationStart %s", taxationStart);
-        console.log("GRACING_PERIOD * 1 days + 1 days %s", initTimestamp + GRACING_PERIOD * 1 days);
+        console.log(
+            "GRACING_PERIOD * 1 days + 1 days %s",
+            updateTimestamp
+        );
         console.log("block.timestamp %s", block.timestamp);
-    require(taxationStart == initTimestamp + GRACING_PERIOD * 1 days, "taxationStart not updated correctly");
-        console.log("taxationLocked = %s / taxAmount = %s", taxationLocked,taxAmount );
-        require(taxationLocked == taxAmount, "taxationLocked not updated correctly");
+        require(
+            taxationStart == updateTimestamp,
+            "taxationStart not updated correctly"
+        );
+        console.log("taxationLocked = %s / taxAmount = %s", taxationLocked, dailyTax);
+        require(taxationLocked == dailyTax * newCoverage, "taxationLocked not updated correctly");
         uint256 finalBalance = address(mintTicket).balance;
-        uint256 expectedBalance = initialBalance + taxAmount;
+        uint256 expectedBalance = initialBalance + dailyTax * newCoverage;
         require(finalBalance == expectedBalance, "Contract balance not increased correctly");
     }
-
-
 }
 
 //
