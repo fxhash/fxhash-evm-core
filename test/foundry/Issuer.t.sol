@@ -46,16 +46,22 @@ contract IssuerTest is Test, Deploy {
         amount = 1000;
         oe = LibIssuer.OpenEditions(0, "");
         mintTicketSettings = IIssuer.MintTicketSettings(0, "");
-        for (uint256 i; i < whitelistFixed.length; i++) whitelist.push(whitelistFixed[i]);
-        for (uint256 i; i < allocationsFixed.length; i++) allocations.push(allocationsFixed[i]);
+        for (uint256 i; i < whitelistFixed.length; i++) {
+            whitelist.push(whitelistFixed[i]);
+        }
+        for (uint256 i; i < allocationsFixed.length; i++) {
+            allocations.push(allocationsFixed[i]);
+        }
         reserveData.push(LibReserve.ReserveData(1, 1, abi.encode(whitelist, allocations)));
         pricing = LibPricing.PricingData(1, abi.encode(price, timestamp - 1), true);
         primary = LibRoyalty.RoyaltyData(1500, alice);
         royalty = LibRoyalty.RoyaltyData(1000, alice);
         enabled = true;
-        for (uint256 i; i < tagsFixed.length; i++) tags.push(tagsFixed[i]);
+        for (uint256 i; i < tagsFixed.length; i++) {
+            tags.push(tagsFixed[i]);
+        }
         /// onchain scripts remains uninitialized
-        (scriptIssuer, scriptGentk) = fxHashFactory.createProject(alice);
+        (scriptIssuer, scriptGentk) = fxHashFactory.createProject(royalty, alice);
         codexInput = LibCodex.CodexInput(1, "Test", 0, scriptIssuer);
     }
 }
@@ -73,7 +79,6 @@ contract MintIssuer is IssuerTest {
                 reserveData,
                 pricing,
                 primary,
-                royalty,
                 enabled,
                 tags,
                 onchainScripts
@@ -100,7 +105,6 @@ contract Mint is IssuerTest {
                 reserveData,
                 pricing,
                 primary,
-                royalty,
                 enabled,
                 tags,
                 onchainScripts
@@ -137,7 +141,6 @@ contract MintWithTicket is IssuerTest {
                 reserveData,
                 pricing,
                 primary,
-                royalty,
                 enabled,
                 tags,
                 onchainScripts

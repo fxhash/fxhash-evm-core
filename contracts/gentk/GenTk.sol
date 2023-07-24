@@ -12,6 +12,7 @@ import {IIssuer} from "contracts/interfaces/IIssuer.sol";
 import {IOnChainTokenMetadataManager} from "contracts/interfaces/IOnChainTokenMetadataManager.sol";
 import {LibIssuer} from "contracts/libs/LibIssuer.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {LibRoyalty} from "contracts/libs/LibRoyalty.sol";
 
 contract GenTk is ERC721URIStorageUpgradeable, OwnableUpgradeable, IERC2981Upgradeable, IGenTk {
     struct TokenMetadata {
@@ -31,6 +32,7 @@ contract GenTk is ERC721URIStorageUpgradeable, OwnableUpgradeable, IERC2981Upgra
         bool assigned;
     }
 
+    LibRoyalty.RoyaltyData public royaltiesSplit;
     IIssuer private issuer;
     IConfigurationManager private configManager;
 
@@ -41,10 +43,14 @@ contract GenTk is ERC721URIStorageUpgradeable, OwnableUpgradeable, IERC2981Upgra
     event OnChainTokenMetadataAssigned(OnChainTokenMetadata[] _params);
 
     function initialize(
+        LibRoyalty.RoyaltyData memory _royalties,
         address _configManager,
         address _issuer,
         address _owner
     ) external initializer {
+        require(_royalties.percent >= 1000 && _royalties.percent <= 2500, "WRG_ROY");
+
+        royaltiesSplit = _royalties;
         __ERC721_init("GenTk", "GTK");
         __ERC721URIStorage_init();
         __Ownable_init();
@@ -99,11 +105,14 @@ contract GenTk is ERC721URIStorageUpgradeable, OwnableUpgradeable, IERC2981Upgra
         emit TokenMetadataAssigned(_params);
     }
 
-    function royaltyInfo(
-        uint256 tokenId,
-        uint256 salePrice
-    ) external view override returns (address receiver, uint256 royaltyAmount) {
-        return issuer.royaltyInfo(tokenId, salePrice);
+    function royaltyInfo(uint256, uint256 salePrice) external view returns (address, uint256) {
+        LibRoyalty.RoyaltyData memory royalty = royaltiesSplit;
+        uint256 amount = (salePrice * royalty.percent) / 10000;
+        return (royalty.receiver, amount);
+    }
+
+    function getRoyaltyReceiver() external view returns (address) {
+        return royaltiesSplit.receiver;
     }
 
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {

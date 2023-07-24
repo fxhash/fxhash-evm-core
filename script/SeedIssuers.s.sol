@@ -17,6 +17,7 @@ import {Issuer} from "contracts/issuer/Issuer.sol";
 import {GenTk} from "contracts/gentk/GenTk.sol";
 import {MintPassGroup} from "contracts/mint-pass-group/MintPassGroup.sol";
 import {Constants} from "script/Constants.sol";
+import {LibRoyalty} from "contracts/libs/LibRoyalty.sol";
 
 contract SeedIssuers is Deploy {
     enum ReserveOptions {
@@ -67,6 +68,7 @@ contract SeedIssuers is Deploy {
     uint256 public lastMint;
 
     string public MNEMONIC = vm.envString("MNEMONIC");
+    LibRoyalty.RoyaltyData public royalty;
 
     function setUp() public virtual override {
         //vm.startBroadcast(deployer);
@@ -110,17 +112,20 @@ contract SeedIssuers is Deploy {
     function mintAllGetIssuerCombinations() public {
         MintInput[] memory mintQueue = new MintInput[](getTotalCombinations());
         vm.startBroadcast(alice);
-        for (uint i = 0; i < uint(ReserveOptions.WhitelistAndMintPass) + 1; i++) {
-            for (uint j = 0; j < uint(PricingOptions.DutchAuction) + 1; j++) {
-                for (uint k = 0; k < uint(OpenEditionsOptions.Disabled) + 1; k++) {
-                    for (uint l = 0; l < uint(MintTicketOptions.Disabled) + 1; l++) {
-                        for (uint m = 0; m < uint(OnChainOptions.Disabled) + 1; m++) {
+        for (uint256 i = 0; i < uint256(ReserveOptions.WhitelistAndMintPass) + 1; i++) {
+            for (uint256 j = 0; j < uint256(PricingOptions.DutchAuction) + 1; j++) {
+                for (uint256 k = 0; k < uint256(OpenEditionsOptions.Disabled) + 1; k++) {
+                    for (uint256 l = 0; l < uint256(MintTicketOptions.Disabled) + 1; l++) {
+                        for (uint256 m = 0; m < uint256(OnChainOptions.Disabled) + 1; m++) {
                             MintPassGroup _mintPassGroup;
-                            (address _issuer, address _genTk) = fxHashFactory.createProject(alice);
+                            (address _issuer, address _genTk) = fxHashFactory.createProject(
+                                royalty,
+                                alice
+                            );
 
                             if (
-                                i == uint(ReserveOptions.MintPass) ||
-                                i == uint(ReserveOptions.WhitelistAndMintPass)
+                                i == uint256(ReserveOptions.MintPass) ||
+                                i == uint256(ReserveOptions.WhitelistAndMintPass)
                             ) {
                                 _mintPassGroup = new MintPassGroup(
                                     Constants.MAX_PER_TOKEN,
@@ -242,7 +247,6 @@ contract SeedIssuers is Deploy {
                 reserves: reserveData,
                 pricing: pricingData,
                 primarySplit: _getSplit(),
-                royaltiesSplit: _getSplit(),
                 enabled: true,
                 tags: new uint256[](0),
                 onChainScripts: onChainData
