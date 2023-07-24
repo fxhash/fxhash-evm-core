@@ -9,8 +9,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
 import {SignedMath} from "@openzeppelin/contracts/utils/math/SignedMath.sol";
 
-import "hardhat/console.sol";
-
 contract MintTicket is Ownable, IMintTicket {
     mapping(address => uint256) public tickets;
     mapping(uint256 => TicketData) public userTickets;
@@ -68,7 +66,6 @@ contract MintTicket is Ownable, IMintTicket {
     function mintTicket(address _minter, uint256 _price) external {
         uint256 gracingPeriod = tickets[msg.sender];
         require(gracingPeriod > 0, "PROJECT_DOES_NOT_EXISTS");
-        console.log("block.timestamp %s", block.timestamp);
         userTickets[lastTicketId] = TicketData(
             msg.sender,
             _minter,
@@ -83,7 +80,6 @@ contract MintTicket is Ownable, IMintTicket {
 
     function updatePrice(uint256 ticketId, uint256 price, uint256 coverage) external payable {
         TicketData storage userTicket = userTickets[ticketId];
-        console.log("contract created at %s", userTicket.createdAt);
         uint256 gracingPeriod = tickets[userTicket.issuer];
         require(userTicket.createdAt > 0, "USER_TICKET_DOES_NOT_EXIST");
         require(gracingPeriod > 0, "TICKET_DOES_NOT_EXIST");
@@ -114,23 +110,14 @@ contract MintTicket is Ownable, IMintTicket {
                 uint256 dailyTax = dailyTaxAmount(userTicket.price);
                 uint256 taxToPay = dailyTax * daysSinceLastTaxation;
 
-                console.log("update");
-
                 payProjectAuthorsWithSplit(userTicket.issuer, taxToPay);
-                console.log("userTicket.taxationLocked %s", userTicket.taxationLocked);
-                uint256 taxLeft = SignedMath.abs(
-                    int256(userTicket.taxationLocked) - int256(taxToPay)
-                );
-
-                console.log("update2");
-
+                require(userTicket.taxationLocked >= taxToPay, "INSUFFICIENT_TAX_PAID");
+                uint256 taxLeft = userTicket.taxationLocked - taxToPay;
                 uint256 newDailyTax = dailyTaxAmount(price);
-                console.log("contract newDailyTax %s", newDailyTax );
 
                 uint256 taxRequiredForCoverage = newDailyTax * coverage;
-                console.log("taxRequiredForCoverage = newDailyTax * coverage // %s = %s * %s", taxRequiredForCoverage, newDailyTax, coverage );
 
-            uint256 totalAvailable = msg.value + taxLeft;
+                uint256 totalAvailable = msg.value + taxLeft;
 
                 require(totalAvailable >= taxRequiredForCoverage, "NOT_ENOUGH_FOR_COVERAGE");
 
