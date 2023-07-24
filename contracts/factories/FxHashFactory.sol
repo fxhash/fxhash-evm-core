@@ -8,7 +8,6 @@ import {IIssuer} from "contracts/interfaces/IIssuer.sol";
 import {IIssuerFactory} from "contracts/interfaces/IIssuerFactory.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {LibRoyalty} from "contracts/libs/LibRoyalty.sol";
-import {LibRoyalty} from "contracts/libs/LibRoyalty.sol";
 
 /// @title FxHashFactory
 /// @dev See the documentation in {IFxHashFactory}
