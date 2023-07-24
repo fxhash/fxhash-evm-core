@@ -5,8 +5,13 @@ import "forge-std/Test.sol";
 import {Deploy} from "script/Deploy.s.sol";
 import {IIssuer, LibIssuer, LibReserve, LibRoyalty, LibPricing, LibCodex} from "contracts/interfaces/IIssuer.sol";
 import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
+import {Issuer} from "contracts/issuer/Issuer.sol";
+import {GenTk} from "contracts/gentk/GenTk.sol";
 
 contract IssuerTest is Test, Deploy {
+    address public scriptIssuer;
+    address public scriptGentk;
+
     uint256 internal timestamp = 1000;
     uint256 internal price = 1000;
 
@@ -36,7 +41,6 @@ contract IssuerTest is Test, Deploy {
         createAccounts();
         Deploy.setUp();
         Deploy.run();
-        codexInput = LibCodex.CodexInput(1, "Test", 0, address(issuer));
         metadata = "metdata";
         metadataBytesSize = 256;
         amount = 1000;
@@ -51,14 +55,14 @@ contract IssuerTest is Test, Deploy {
         enabled = true;
         for (uint256 i; i < tagsFixed.length; i++) tags.push(tagsFixed[i]);
         /// onchain scripts remains uninitialized
-        vm.prank(deployer);
-        issuer.setGenTk(address(genTk));
+        (scriptIssuer, scriptGentk) = fxHashFactory.createProject(alice);
+        codexInput = LibCodex.CodexInput(1, "Test", 0, scriptIssuer);
     }
 }
 
 contract MintIssuer is IssuerTest {
     function test_MintIssuer() public {
-        issuer.mintIssuer(
+        IIssuer(scriptIssuer).mintIssuer(
             IIssuer.MintIssuerInput(
                 codexInput,
                 metadata,
@@ -85,7 +89,7 @@ contract Mint is IssuerTest {
         super.setUp();
         metadataBytesSize = 0;
         mintInput = IIssuer.MintInput("", address(0), "", false, alice);
-        issuer.mintIssuer(
+        IIssuer(scriptIssuer).mintIssuer(
             IIssuer.MintIssuerInput(
                 codexInput,
                 metadata,
@@ -108,7 +112,7 @@ contract Mint is IssuerTest {
 
     function test_Mint() public {
         vm.prank(bob);
-        issuer.mint{value: 1000}(mintInput);
+        IIssuer(scriptIssuer).mint{value: 1000}(mintInput);
     }
 }
 
@@ -122,7 +126,7 @@ contract MintWithTicket is IssuerTest {
         mintTicketSettings.gracingPeriod = 1000;
         metadataBytesSize = 0;
         mintInput = IIssuer.MintInput("", address(0), "", true, alice);
-        issuer.mintIssuer(
+        IIssuer(scriptIssuer).mintIssuer(
             IIssuer.MintIssuerInput(
                 codexInput,
                 metadata,
@@ -144,11 +148,11 @@ contract MintWithTicket is IssuerTest {
 
         ticketInput = IIssuer.MintWithTicketInput(0, "", address(0));
         vm.prank(alice);
-        issuer.mint{value: 1000}(mintInput);
+        IIssuer(scriptIssuer).mint{value: 1000}(mintInput);
     }
 
     function test_MintWithTicket() public {
         vm.prank(alice);
-        issuer.mintWithTicket(ticketInput);
+        IIssuer(scriptIssuer).mintWithTicket(ticketInput);
     }
 }

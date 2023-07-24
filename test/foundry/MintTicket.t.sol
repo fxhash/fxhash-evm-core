@@ -7,6 +7,7 @@ import {MintTicket} from "contracts/mint-ticket/MintTicket.sol";
 import {Randomizer} from "contracts/randomizer/Randomizer.sol";
 import {Constants} from "script/Constants.sol";
 import {Accounts} from "script/Accounts.s.sol";
+import {SeedIssuers} from "script/SeedIssuers.s.sol";
 
 import "hardhat/console.sol";
 contract MintTicketTest is Test, Accounts {
@@ -116,13 +117,20 @@ contract MintTicketTestMint is MintTicketTest {
 contract MintTicketTestUpdatePrice is MintTicketTest {
     function test_updatePrice() public {
         uint256 newPrice = TICKET_PRICE * 2;
-        uint256 tax = (newPrice * 14) / 10000;
         uint256 newCoverage = 45;
-        uint256 taxAmount = newCoverage * tax;
+        uint256 taxAmount = (newPrice * 14 * newCoverage) / 10000;
+        uint256 initialBalance = address(mintTicket).balance;
+        uint256 initTimestamp = 1;
+        vm.warp(initTimestamp);
+
         vm.prank(alice);
         mintTicket.createTicket(GRACING_PERIOD);
         vm.prank(alice);
         mintTicket.mintTicket(bob, TICKET_PRICE);
+
+        // Increase time to make sure gracing period is over
+        vm.warp( initTimestamp + GRACING_PERIOD * 1 days + 1 days);
+
         vm.prank(bob);
         mintTicket.updatePrice{value: taxAmount}(0, newPrice, newCoverage);
         (
@@ -133,12 +141,16 @@ contract MintTicketTestUpdatePrice is MintTicketTest {
             uint256 taxationStart,
             uint256 price
         ) = mintTicket.userTickets(0);
-        uint256 daysSinceCreated = (block.timestamp - createdAt) / 1 days;
-        uint256 startDay = createdAt + daysSinceCreated * 1 days;
-        console.log("%s %s", startDay, taxationStart);
         require(price == newPrice, "Price not updated correctly");
-        require(taxationStart == startDay, "taxationStart not updated correctly");
-        require(taxationLocked == taxAmount, "TaxationLocked not updated correctly");
+        console.log("taxationStart %s", taxationStart);
+        console.log("GRACING_PERIOD * 1 days + 1 days %s", initTimestamp + GRACING_PERIOD * 1 days);
+        console.log("block.timestamp %s", block.timestamp);
+    require(taxationStart == initTimestamp + GRACING_PERIOD * 1 days, "taxationStart not updated correctly");
+        console.log("taxationLocked = %s / taxAmount = %s", taxationLocked,taxAmount );
+        require(taxationLocked == taxAmount, "taxationLocked not updated correctly");
+        uint256 finalBalance = address(mintTicket).balance;
+        uint256 expectedBalance = initialBalance + taxAmount;
+        require(finalBalance == expectedBalance, "Contract balance not increased correctly");
     }
 
 

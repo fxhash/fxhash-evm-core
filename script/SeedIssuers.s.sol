@@ -69,9 +69,11 @@ contract SeedIssuers is Deploy {
     string public MNEMONIC = vm.envString("MNEMONIC");
 
     function setUp() public virtual override {
+        //vm.startBroadcast(deployer);
         createAccounts();
         Deploy.setUp();
         Deploy.run();
+        //vm.stopBroadcast();
     }
 
     function run() public virtual override {
@@ -114,13 +116,7 @@ contract SeedIssuers is Deploy {
                     for (uint l = 0; l < uint(MintTicketOptions.Disabled) + 1; l++) {
                         for (uint m = 0; m < uint(OnChainOptions.Disabled) + 1; m++) {
                             MintPassGroup _mintPassGroup;
-                            Issuer _issuer = new Issuer(address(configurationManager), alice);
-                            GenTk _genTk = new GenTk(
-                                alice,
-                                address(_issuer),
-                                address(configurationManager)
-                            );
-                            _issuer.setGenTk(address(_genTk));
+                            (address _issuer, address _genTk) = fxHashFactory.createProject(alice);
 
                             if (
                                 i == uint(ReserveOptions.MintPass) ||
@@ -135,10 +131,10 @@ contract SeedIssuers is Deploy {
                                 );
                             }
 
-                            _issuer.mintIssuer(
+                            IIssuer(_issuer).mintIssuer(
                                 _getMintIssuerInput(
                                     MintIssuerInput({
-                                        issuer: address(_issuer),
+                                        issuer: _issuer,
                                         mintPassGroup: address(_mintPassGroup),
                                         reserveOption: ReserveOptions(i),
                                         pricingOption: PricingOptions(j),
@@ -150,7 +146,7 @@ contract SeedIssuers is Deploy {
                             );
 
                             mintQueue[mintNb] = MintInput({
-                                issuer: address(_issuer),
+                                issuer: _issuer,
                                 mintPassGroup: address(_mintPassGroup),
                                 recipient: bob,
                                 referrer: eve,

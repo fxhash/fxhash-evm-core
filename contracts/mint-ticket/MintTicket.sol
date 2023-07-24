@@ -91,7 +91,6 @@ contract MintTicket is Ownable, IMintTicket {
         require(userTicket.owner == msg.sender, "CALLER_NOT_OWNER");
         uint256 daysSinceCreated = (block.timestamp - userTicket.createdAt) / 1 days;
         uint256 startDay = userTicket.createdAt + daysSinceCreated * 1 days;
-        console.log("startDay= %s", startDay);
 
         if (block.timestamp < userTicket.taxationStart) {
             uint256 gracingRemainingDays = gracingPeriod - daysSinceCreated;
@@ -102,7 +101,8 @@ contract MintTicket is Ownable, IMintTicket {
             require(totalAvailable >= taxRequiredForCoverage, "NOT_ENOUGH_FOR_COVERAGE");
 
             uint256 sendBackAmount = totalAvailable - taxRequiredForCoverage;
-            send(msg.sender, sendBackAmount);
+
+        send(msg.sender, sendBackAmount);
 
             userTicket.taxationLocked = taxRequiredForCoverage;
             userTicket.price = price;
@@ -113,7 +113,10 @@ contract MintTicket is Ownable, IMintTicket {
                 uint256 dailyTax = dailyTaxAmount(userTicket.price);
                 uint256 taxToPay = dailyTax * daysSinceLastTaxation;
 
-                payProjectAuthorsWithSplit(userTicket.issuer, taxToPay);
+                console.log("update");
+
+            payProjectAuthorsWithSplit(userTicket.issuer, taxToPay);
+                console.log("update2");
 
                 uint256 taxLeft = userTicket.taxationLocked - taxToPay;
                 uint256 newDailyTax = dailyTaxAmount(price);
@@ -123,7 +126,8 @@ contract MintTicket is Ownable, IMintTicket {
                 require(totalAvailable >= taxRequiredForCoverage, "NOT_ENOUGH_FOR_COVERAGE");
 
                 uint256 sendBackAmount = totalAvailable - taxRequiredForCoverage;
-                send(msg.sender, sendBackAmount);
+
+            send(msg.sender, sendBackAmount);
 
                 userTicket.taxationLocked = taxRequiredForCoverage;
                 userTicket.taxationStart = startDay;

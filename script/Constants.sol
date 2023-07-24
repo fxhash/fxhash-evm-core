@@ -16,6 +16,6 @@ library Constants {
     string public constant ISSUER_VOID_METADATA = "1000";
     uint256 public constant MAX_PER_TOKEN = 10;
     uint256 public constant MAX_PER_TOKEN_PER_PROJECT = 5;
-    uint256 public constant OPEN_DELAY = 560;
+    uint256 public constant OPEN_DELAY = 360;
     uint256 public constant PRICE = 1000;
 }
