@@ -1,29 +1,15 @@
-type TransferEvent @entity {
+type ProjectCreationEvent @entity {
   "The txn hash of this event"
   id: ID!
 
-  previousHolder: String!
+  owner: Bytes!
 
   "New holder address"
-  newHolder: String!
+  issuer: Bytes!
 
   "Block number of the event"
-  blockNumber: BigInt!
+  gentk: Bytes!
 
   "The timestamp of the block the event is in"
   blockTimestamp: BigInt!
-}
-
-type Holder @entity {
-  "The address of holder"
-  id: String!
-
-  tokens: [NFT!]! 
-
-}
-
-type NFT @entity {
-  "The nft id"
-  id: String!
-
 }

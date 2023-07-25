@@ -30,9 +30,16 @@
     "mustache": "mustache"
   },
   "dependencies": {
+    "@ethersproject/strings": "^5.7.0",
     "@graphprotocol/graph-cli": "^0.52.0",
     "@graphprotocol/graph-ts": "^0.31.0",
+    "ethers": "^6.6.5",
     "matchstick-as": "^0.5.2",
     "mustache": "^4.2.0"
+  },
+  "devDependencies": {
+    "chai": "^4.3.7",
+    "graph-cli": "^0.0.1",
+    "mocha": "^10.2.0"
   }
 }
