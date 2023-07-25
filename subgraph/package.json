@@ -38,8 +38,6 @@
     "mustache": "^4.2.0"
   },
   "devDependencies": {
-    "chai": "^4.3.7",
-    "graph-cli": "^0.0.1",
-    "mocha": "^10.2.0"
+    "graph-cli": "^0.0.1"
   }
 }

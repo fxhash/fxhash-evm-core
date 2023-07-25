@@ -8,9 +8,9 @@ dataSources:
     name: FxhashFactory
     network: {{network}}
     source:
-      address: "'{{factory.address}}'"
+      address: "{{factory.address}}"
       abi: FxHashFactory
-      startBlock: {{token.startBlock}}
+      startBlock: {{factory.startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6

@@ -10,6 +10,7 @@ dataSources:
     source:
       address: "0xCA0E799A9248a2a05B7b728C970623A9f50E0e87"
       abi: FxHashFactory
+      startBlock: 0
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
