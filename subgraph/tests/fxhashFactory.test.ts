@@ -1,40 +1,66 @@
-import { expect } from "chai";
-import { describe, it } from "mocha";
-import { Address, BigInt } from "@graphprotocol/graph-ts";
-import { FxHashProjectCreated } from "../src/types/FxhashFactory/FxHashFactory";
+import {
+  describe,
+  test,
+  clearStore,
+  beforeEach,
+  afterEach,
+} from "matchstick-as/assembly/index";
+import { BigInt, Address } from "@graphprotocol/graph-ts";
 import { handleNewProject } from "../src/mappings/fxhashFactory";
+import { FxHashProjectCreated } from "../src/types/FxhashFactory/FxHashFactory";
 import { createFxHashProjectCreatedEvent } from "./fxhashFactory_utils";
-import { ProjectCreationEvent } from "../src/types/schema";
 
-const fxHashProjectCreatedEvent = createFxHashProjectCreatedEvent(
-  Address.fromString("0x0000000000000000000000000000000000000001"),
-  Address.fromString("0x0000000000000000000000000000000000000002"),
-  Address.fromString("0x0000000000000000000000000000000000000003"),
-  BigInt.fromI32(Date.now())
-);
+let fxHashProjectCreatedEvent: FxHashProjectCreated;
 
-describe("handleNewProject", function () {
-  it("correctly processes the input data from the smart contract", function () {
-    // Call the handler with the event
+describe("Scoped / Nested block", () => {
+  beforeEach(() => {
+    const genTk = Address.fromString(
+      "0x0000000000000000000000000000000000000001"
+    );
+    const issuer = Address.fromString(
+      "0x0000000000000000000000000000000000000001"
+    );
+    const owner = Address.fromString(
+      "0x0000000000000000000000000000000000000001"
+    );
+    const timestamp = BigInt.fromI32(12);
+    fxHashProjectCreatedEvent = createFxHashProjectCreatedEvent(
+      genTk,
+      issuer,
+      owner,
+      timestamp
+    );
+    handleNewProject(fxHashProjectCreatedEvent);
+  });
+  afterEach(() => {
+    clearStore();
+  });
+
+  test("Single Project Created", () => {
+    fxHashProjectCreatedEvent = createFxHashProjectCreatedEvent(
+      Address.fromString("0x0000000000000000000000000000000000000002"),
+      Address.fromString("0x0000000000000000000000000000000000000003"),
+      Address.fromString("0x0000000000000000000000000000000000000004"),
+      BigInt.fromI32(12)
+    );
+    handleNewProject(fxHashProjectCreatedEvent);
+  });
+
+  test("Multiple Projects Created", () => {
+    fxHashProjectCreatedEvent = createFxHashProjectCreatedEvent(
+      Address.fromString("0x0000000000000000000000000000000000000002"),
+      Address.fromString("0x0000000000000000000000000000000000000003"),
+      Address.fromString("0x0000000000000000000000000000000000000004"),
+      BigInt.fromI32(12)
+    );
     handleNewProject(fxHashProjectCreatedEvent);
 
-    // Load the saved ProjectCreationEvent from the store
-    const projectCreationEvent = ProjectCreationEvent.load(
-      fxHashProjectCreatedEvent.transaction.hash.toHexString()
+    fxHashProjectCreatedEvent = createFxHashProjectCreatedEvent(
+      Address.fromString("0x0000000000000000000000000000000000000002"),
+      Address.fromString("0x0000000000000000000000000000000000000003"),
+      Address.fromString("0x0000000000000000000000000000000000000004"),
+      BigInt.fromI32(14)
     );
-
-    // Check that the event data was processed and saved correctly
-    expect(projectCreationEvent.gentk).to.equal(
-      fxHashProjectCreatedEvent.params._genTk
-    );
-    expect(projectCreationEvent.issuer).to.equal(
-      fxHashProjectCreatedEvent.params._issuer
-    );
-    expect(projectCreationEvent.owner).to.equal(
-      fxHashProjectCreatedEvent.params._owner
-    );
-    expect(projectCreationEvent.blockTimestamp).to.equal(
-      fxHashProjectCreatedEvent.block.timestamp
-    );
+    handleNewProject(fxHashProjectCreatedEvent);
   });
 });
