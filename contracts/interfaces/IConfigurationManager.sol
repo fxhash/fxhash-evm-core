@@ -2,23 +2,25 @@
 pragma solidity ^0.8.18;
 
 interface IConfigurationManager {
-    struct Config {
-        uint256 fees;
-        uint256 referrerFeesShare;
-        uint256 lockTime;
-        string voidMetadata;
+    /// @param feeShare Share fee out of 10000 basis points
+    /// @param referrerShare Referrer fee share out of 10000 basis points
+    /// @param lockTime Time duration of locked
+    /// @param defaultMetadata Default URI of metadata
+    struct ConfigInfo {
+        uint64 feeShare;
+        uint64 referrerShare;
+        uint128 lockTime;
+        string defaultMetadata;
     }
 
-    struct ContractEntry {
-        string key;
-        address value;
-    }
+    error InvalidContract();
+    error InvalidLength();
 
-    function setAddresses(ContractEntry[] calldata _contracts) external;
+    function setConfig(ConfigInfo calldata _config) external;
 
-    function getAddress(string calldata _name) external view returns (address);
+    function setContracts(string[] calldata _names, address[] calldata _contracts) external;
 
-    function setConfig(Config calldata _config) external;
+    function config() external view returns (uint64, uint64, uint128, string memory);
 
-    function getConfig() external view returns (Config memory);
+    function contracts(string memory) external view returns (address);
 }

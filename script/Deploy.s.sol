@@ -144,53 +144,30 @@ contract Deploy is Script, Accounts {
     }
 
     function configureContracts() public {
-        IConfigurationManager.ContractEntry[]
-            memory contractEntries = new IConfigurationManager.ContractEntry[](11);
-
-        contractEntries[0] = IConfigurationManager.ContractEntry({
-            key: "treasury",
-            value: vm.envAddress("TREASURY_ADDRESS")
-        });
-        contractEntries[1] = IConfigurationManager.ContractEntry({
-            key: "mint_tickets",
-            value: address(mintTicket)
-        });
-        contractEntries[2] = IConfigurationManager.ContractEntry({
-            key: "randomizer",
-            value: address(randomizer)
-        });
-        contractEntries[3] = IConfigurationManager.ContractEntry({
-            key: "mod_team",
-            value: address(moderationTeam)
-        });
-        contractEntries[4] = IConfigurationManager.ContractEntry({
-            key: "al_mi",
-            value: address(allowMintIssuer)
-        });
-        contractEntries[5] = IConfigurationManager.ContractEntry({
-            key: "al_m",
-            value: address(allowMint)
-        });
-        contractEntries[6] = IConfigurationManager.ContractEntry({
-            key: "user_mod",
-            value: address(moderationUser)
-        });
-        contractEntries[7] = IConfigurationManager.ContractEntry({
-            key: "codex",
-            value: address(codex)
-        });
-        contractEntries[8] = IConfigurationManager.ContractEntry({
-            key: "priceMag",
-            value: address(pricingManager)
-        });
-        contractEntries[9] = IConfigurationManager.ContractEntry({
-            key: "resMag",
-            value: address(reserveManager)
-        });
-        contractEntries[10] = IConfigurationManager.ContractEntry({
-            key: "fxHashFactory",
-            value: address(fxHashFactory)
-        });
+        string[] memory names;
+        address[] memory contracts;
+        names[0] = "treasury";
+        contracts[0] = vm.envAddress("TREASURY_ADDRESS");
+        names[1] = "mint_tickets";
+        contracts[1] = address(mintTicket);
+        names[2] = "randomizer";
+        contracts[2] = address(randomizer);
+        names[3] = "mod_team";
+        contracts[3] = address(moderationTeam);
+        names[4] = "al_mi";
+        contracts[4] = address(allowMintIssuer);
+        names[5] = "al_m";
+        contracts[5] = address(allowMint);
+        names[6] = "user_mod";
+        contracts[6] = address(moderationUser);
+        names[7] = "codex";
+        contracts[7] = address(codex);
+        names[8] = "priceMag";
+        contracts[8] = address(pricingManager);
+        names[9] = "resMag";
+        contracts[9] = address(reserveManager);
+        names[10] = "fxHashFactory";
+        contracts[10] = address(fxHashFactory);
 
         // Authorize signer on Randomizer
         randomizer.grantAuthorizedCallerRole(vm.addr(vm.envUint("SIGNER_PRIVATE_KEY")));
@@ -209,14 +186,14 @@ contract Deploy is Script, Accounts {
             LibReserve.ReserveMethod({reserveContract: IReserve(reserveMintPass), enabled: true})
         );
 
-        configurationManager.setAddresses(contractEntries);
+        configurationManager.setContracts(names, contracts);
 
         configurationManager.setConfig(
-            IConfigurationManager.Config({
-                fees: Constants.ISSUER_FEES,
-                referrerFeesShare: Constants.ISSUER_REFERRAL_SHARE,
+            IConfigurationManager.ConfigInfo({
+                feeShare: Constants.ISSUER_FEES,
+                referrerShare: Constants.ISSUER_REFERRAL_SHARE,
                 lockTime: Constants.ISSUER_LOCK_TIME,
-                voidMetadata: Constants.ISSUER_VOID_METADATA
+                defaultMetadata: Constants.ISSUER_VOID_METADATA
             })
         );
 
