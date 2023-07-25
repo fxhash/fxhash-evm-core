@@ -50,6 +50,8 @@ interface IIssuer {
         address recipient;
     }
 
+    function initialize(address _configManager, address _owner, address _genTk) external;
+
     function mintIssuer(MintIssuerInput calldata params) external;
 
     function mint(MintInput calldata params) external payable;

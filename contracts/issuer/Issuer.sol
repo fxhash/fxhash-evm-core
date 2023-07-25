@@ -1,31 +1,35 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
-import "@openzeppelin/contracts/interfaces/IERC2981.sol";
 
-import "contracts/interfaces/IMintTicket.sol";
-import "contracts/interfaces/IReserveManager.sol";
-import "contracts/interfaces/IPricingManager.sol";
-import "contracts/interfaces/IAllowMintIssuer.sol";
-import "contracts/interfaces/IAllowMint.sol";
-import "contracts/interfaces/IModeration.sol";
-import "contracts/interfaces/IModerationUser.sol";
-import "contracts/interfaces/IGenTk.sol";
-import "contracts/interfaces/ICodex.sol";
-import "contracts/interfaces/IIssuer.sol";
-import "contracts/interfaces/IOnChainTokenMetadataManager.sol";
-import "contracts/interfaces/IConfigurationManager.sol";
+import {IAllowMint} from "contracts/interfaces/IAllowMint.sol";
+import {IAllowMintIssuer} from "contracts/interfaces/IAllowMintIssuer.sol";
+import {ICodex} from "contracts/interfaces/ICodex.sol";
+import {IConfigurationManager} from "contracts/interfaces/IConfigurationManager.sol";
+import {IERC165Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC165Upgradeable.sol";
+import {IERC2981Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol";
+import {IGenTk} from "contracts/interfaces/IGenTk.sol";
+import {IIssuer} from "contracts/interfaces/IIssuer.sol";
+import {IMintTicket} from "contracts/interfaces/IMintTicket.sol";
+import {IModeration} from "contracts/interfaces/IModeration.sol";
+import {IModerationUser} from "contracts/interfaces/IModerationUser.sol";
+import {IOnChainTokenMetadataManager} from "contracts/interfaces/IOnChainTokenMetadataManager.sol";
+import {IPricing} from "contracts/interfaces/IPricing.sol";
+import {IPricingManager} from "contracts/interfaces/IPricingManager.sol";
+import {IReserve} from "contracts/interfaces/IReserve.sol";
+import {IReserveManager} from "contracts/interfaces/IReserveManager.sol";
+import {LibIssuer} from "contracts/libs/LibIssuer.sol";
+import {LibPricing} from "contracts/libs/LibPricing.sol";
+import {LibReserve} from "contracts/libs/LibReserve.sol";
+import {LibRoyalty} from "contracts/libs/LibRoyalty.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {SafeTransferLib} from "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
+import {SignedMath} from "@openzeppelin/contracts/utils/math/SignedMath.sol";
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/math/SignedMath.sol";
-import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
-
-import "contracts/libs/LibIssuer.sol";
-import "contracts/libs/LibReserve.sol";
-
-contract Issuer is IIssuer, IERC2981, Ownable {
-    uint256 private allGenTkTokens;
+contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
     IConfigurationManager private configManager;
     LibIssuer.IssuerData private issuer;
+    IGenTk private genTk;
+    uint256 private allGenTkTokens;
 
     event IssuerMinted(MintIssuerInput params);
     event IssuerBurned();
@@ -37,9 +41,14 @@ contract Issuer is IIssuer, IERC2981, Ownable {
     event ReserveUpdated(LibReserve.ReserveData[] reserves);
     event SupplyBurned(uint256 amount);
 
-    constructor(address _configManager, address _owner) {
+    function initialize(
+        address _configManager,
+        address _genTk,
+        address _owner
+    ) external initializer {
+        __Ownable_init();
         configManager = IConfigurationManager(_configManager);
-        allGenTkTokens = 0;
+        genTk = IGenTk(_genTk);
         transferOwnership(_owner);
     }
 
@@ -128,7 +137,8 @@ contract Issuer is IIssuer, IERC2981, Ownable {
             reserveTotal += params.reserves[i].amount;
             require(
                 IReserveManager(configManager.getAddress("resMag")).isReserveValid(
-                    params.reserves[i]
+                    params.reserves[i],
+                    msg.sender
                 ),
                 "WRG_RSRV"
             );
@@ -165,6 +175,7 @@ contract Issuer is IIssuer, IERC2981, Ownable {
 
     function mint(MintInput memory params) external payable {
         require(issuer.supply > 0, "Token undefined");
+        require(address(genTk) != address(0), "GENTK_NOT_SET");
 
         require(IAllowMint(configManager.getAddress("al_m")).isAllowed(address(this)), "403");
 
@@ -258,6 +269,7 @@ contract Issuer is IIssuer, IERC2981, Ownable {
 
     function mintWithTicket(MintWithTicketInput memory params) external {
         require(params.inputBytes.length == issuer.info.inputBytesSize, "WRONG_INPUT_BYTES");
+        require(address(genTk) != address(0), "GENTK_NOT_SET");
 
         address recipient = msg.sender;
         if (params.recipient != address(0)) {
@@ -270,13 +282,12 @@ contract Issuer is IIssuer, IERC2981, Ownable {
         );
 
         issuer.iterationsCount += 1;
-        address gentkContract = configManager.getAddress("gentk");
-        IGenTk(gentkContract).mint(
+        genTk.mint(
             IGenTk.TokenParams({
                 tokenId: allGenTkTokens,
                 iteration: issuer.iterationsCount,
                 inputBytes: params.inputBytes,
-                receiver: issuer.royaltiesSplit.receiver == gentkContract
+                receiver: issuer.royaltiesSplit.receiver == address(genTk)
                     ? recipient
                     : issuer.royaltiesSplit.receiver,
                 metadata: configManager.getConfig().voidMetadata
@@ -332,7 +343,10 @@ contract Issuer is IIssuer, IERC2981, Ownable {
             require(reserve.reserveContract != IReserve(address(0)), "RSRV_404");
             require(reserve.enabled, "RSRV_DIS");
             require(
-                IReserveManager(configManager.getAddress("resMag")).isReserveValid(reserves[i])
+                IReserveManager(configManager.getAddress("resMag")).isReserveValid(
+                    reserves[i],
+                    msg.sender
+                )
             );
         }
         issuer.reserves = abi.encode(reserves);
@@ -381,7 +395,12 @@ contract Issuer is IIssuer, IERC2981, Ownable {
     function royaltyInfo(
         uint256,
         uint256 salePrice
-    ) public view override(IERC2981, IIssuer) returns (address receiver, uint256 royaltyAmount) {
+    )
+        public
+        view
+        override(IERC2981Upgradeable, IIssuer)
+        returns (address receiver, uint256 royaltyAmount)
+    {
         LibRoyalty.RoyaltyData memory royalty = issuer.royaltiesSplit;
         uint256 amount = (salePrice * royalty.percent) / 10000;
         return (royalty.receiver, amount);
@@ -397,16 +416,17 @@ contract Issuer is IIssuer, IERC2981, Ownable {
 
     function supportsInterface(
         bytes4 interfaceId
-    ) public pure override(IERC165, IIssuer) returns (bool) {
+    ) public pure override(IERC165Upgradeable, IIssuer) returns (bool) {
         return
-            interfaceId == type(IIssuer).interfaceId || interfaceId == type(IERC2981).interfaceId;
+            interfaceId == type(IIssuer).interfaceId ||
+            interfaceId == type(IERC2981Upgradeable).interfaceId;
     }
 
     function burnToken() private {
         delete issuer;
     }
 
-    function owner() public view override(IIssuer, Ownable) returns (address) {
+    function owner() public view override(IIssuer, OwnableUpgradeable) returns (address) {
         return super.owner();
     }
 
@@ -418,17 +438,17 @@ contract Issuer is IIssuer, IERC2981, Ownable {
     ) private {
         {
             uint256 price = pricingContract.getPrice(block.timestamp);
-            require(msg.value >= price, "INVALID_PRICE");
-
-            uint256 platformFees = configManager.getConfig().fees;
+            require(msg.value >= price && price > 0, "INVALID_PRICE");
+            IConfigurationManager.Config memory configuration = configManager.getConfig();
+            uint256 platformFees = configuration.fees;
             if (params.referrer != address(0) && params.referrer != msg.sender) {
-                uint256 referrerFees = (configManager.getConfig().fees *
-                    configManager.getConfig().referrerFeesShare) / 10000;
+                uint256 referrerFees = (configuration.fees * configuration.referrerFeesShare) /
+                    10000;
                 uint256 referrerAmount = (price * referrerFees) / 10000;
                 if (referrerAmount > 0) {
                     SafeTransferLib.safeTransferETH(params.referrer, referrerAmount);
                 }
-                platformFees = configManager.getConfig().fees - referrerFees;
+                platformFees = configuration.fees - referrerFees;
             }
 
             uint256 feesAmount = (price * platformFees) / 10000;
@@ -436,7 +456,7 @@ contract Issuer is IIssuer, IERC2981, Ownable {
                 SafeTransferLib.safeTransferETH(configManager.getAddress("treasury"), feesAmount);
             }
 
-            uint256 creatorAmount = price - (msg.value - feesAmount);
+            uint256 creatorAmount = price - feesAmount;
             uint256 splitAmount = (creatorAmount * issuer.primarySplit.percent) / 10000;
             if (splitAmount > 0) {
                 SafeTransferLib.safeTransferETH(issuer.primarySplit.receiver, splitAmount);
@@ -453,16 +473,15 @@ contract Issuer is IIssuer, IERC2981, Ownable {
                 IMintTicket(configManager.getAddress("mint_tickets")).mint(recipient, price);
             } else {
                 issuer.iterationsCount += 1;
-                address gentkContract = configManager.getAddress("gentk");
-                IGenTk(gentkContract).mint(
+                genTk.mint(
                     IGenTk.TokenParams({
                         tokenId: tokenId,
                         iteration: issuer.iterationsCount,
                         inputBytes: params.inputBytes,
-                        receiver: issuer.royaltiesSplit.receiver == gentkContract
+                        receiver: issuer.royaltiesSplit.receiver == address(genTk)
                             ? recipient
                             : issuer.royaltiesSplit.receiver,
-                        metadata: configManager.getConfig().voidMetadata
+                        metadata: configuration.voidMetadata
                     })
                 );
                 allGenTkTokens++;

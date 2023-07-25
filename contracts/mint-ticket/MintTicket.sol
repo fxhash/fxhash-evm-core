@@ -201,31 +201,6 @@ contract MintTicket is ERC721URIStorage, Ownable, IMintTicket {
         emit TicketConsumed(_owner, _tokenId, _issuer);
     }
 
-    function tokensOf(address owner) external view returns (uint256[] memory) {
-        uint256 balance = balanceOf(owner);
-        uint256[] memory tokens = new uint256[](balance);
-        uint256 tokenIdx = 0;
-        for (uint256 i = 0; i <= lastTokenId; i++) {
-            if (isOwnerByTime(owner, i, block.timestamp)) {
-                tokens[tokenIdx] = i;
-                tokenIdx++;
-            }
-        }
-        return tokens;
-    }
-
-    function balanceOf(
-        address owner
-    ) public view override(ERC721, IERC721, IMintTicket) returns (uint256) {
-        uint256 balance = 0;
-        for (uint256 i = 0; i <= lastTokenId; i++) {
-            if (isOwnerByTime(owner, i, block.timestamp)) {
-                balance++;
-            }
-        }
-        return balance;
-    }
-
     /**
      * @dev See {IERC721-transferFrom}.
      */
