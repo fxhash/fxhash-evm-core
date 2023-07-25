@@ -69,6 +69,8 @@ contract Deploy is Script, Accounts {
     address public deployedAddress;
 
     // State
+    string[] names;
+    address[] contracts;
     uint256 public deployerPrivateKey = vm.envUint("DEPLOYER_PRIVATE_KEY");
     address public deployer = vm.addr(deployerPrivateKey);
 
@@ -144,8 +146,9 @@ contract Deploy is Script, Accounts {
     }
 
     function configureContracts() public {
-        string[] memory names;
-        address[] memory contracts;
+        names = new string[](11);
+        contracts = new address[](11);
+
         names[0] = "treasury";
         contracts[0] = vm.envAddress("TREASURY_ADDRESS");
         names[1] = "mint_tickets";
