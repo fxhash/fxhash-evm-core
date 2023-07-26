@@ -20,7 +20,7 @@ interface IConfigurationManager {
     /// @notice Error thrown when names and contracts arrays are not equal length
     error InvalidLength();
 
-    /// @notice Sets the configuration of platform info
+    /// @notice Sets the platform configuration
     /// @param _config Struct of config info
     function setConfig(ConfigInfo calldata _config) external;
 
