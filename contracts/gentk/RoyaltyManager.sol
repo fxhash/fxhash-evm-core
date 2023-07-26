@@ -7,6 +7,7 @@ abstract contract RoyaltyManager is IRoyaltyManager {
     bool public perTokenRoyaltiesEnabled;
     /// @notice A struct containing basisPoints and receiver address for a royalty
     RoyaltyInfo[] public royalties;
+    uint256 public maxRoyaltyAmount;
 
     mapping(uint256 => RoyaltyInfo[]) public royaltyTokenInfo;
 
@@ -21,6 +22,9 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         uint96[] basisPoint
     );
 
+    error LengthMismatch();
+    error TokenRoyaltiesAlreadySet();
+
     /// @notice Royalty configuration is greater than or equal to 100% in terms of basisPoints
     error InvalidRoyaltyConfig();
 
@@ -34,14 +38,44 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         address payable[] memory receivers,
         uint96[] memory basisPoints
     ) external virtual {
-        _setRoyalties(receivers, basisPoints);
+        _setBaseRoyalties(receivers, basisPoints);
+        emit TokenRoyaltiesUpdated(receivers, basisPoints);
+    }
+
+    function setTokenRoyalties(
+        uint256 _tokenId,
+        address payable[] memory receivers,
+        uint96[] memory basisPoints
+    ) external virtual {
+        _setTokenRoyalties(_tokenId, receivers, basisPoints);
+        emit TokenIdRoyaltiesUpdated(_tokenId, receivers, basisPoints);
     }
 
     function _setTokenRoyalties(
+        uint256 _tokenId,
         address payable[] memory receivers,
         uint96[] memory basisPoints
     ) internal virtual {
-        _setRoyalties(receivers, basisPoints);
+        RoyaltyInfo[] storage tokenRoyalties = royaltyTokenInfo[_tokenId];
+        if (tokenRoyalties.length != 0) revert TokenRoyaltiesAlreadySet();
+        if (receivers.length != basisPoints.length) revert LengthMismatch();
+        RoyaltyInfo[] memory royalties_ = royalties;
+        uint256 baseLength = royalties.length;
+        uint256 tokenLength = basisPoints.length;
+        uint96[] memory totalBasisPoints = new uint96[](baseLength + basisPoints.length);
+        for (uint256 i; i < baseLength; i++) {
+            totalBasisPoints[i] = royalties_[i].basisPoints;
+        }
+
+        for (uint256 i; i < tokenLength; i++) {
+            totalBasisPoints[i + baseLength] = tokenRoyalties[i].basisPoints;
+        }
+
+        _checkRoyalties(totalBasisPoints);
+
+        for (uint256 i; i < basisPoints.length; i++) {
+            tokenRoyalties.push(RoyaltyInfo(receivers[i], basisPoints[i]));
+        }
     }
 
     /**
@@ -49,12 +83,11 @@ abstract contract RoyaltyManager is IRoyaltyManager {
      * @param receivers "
      * @param basisPoints "
      */
-    function _setRoyalties(
+    function _setBaseRoyalties(
         address payable[] memory receivers,
         uint96[] memory basisPoints
     ) internal {
-        _checkRoyalties(receivers, basisPoints);
-        require(receivers.length == basisPoints.length, "Length Mismatch");
+        _checkRoyalties(basisPoints);
         for (uint256 i; i < basisPoints.length; i++) {
             royalties.push(RoyaltyInfo(receivers[i], basisPoints[i]));
         }
@@ -62,9 +95,24 @@ abstract contract RoyaltyManager is IRoyaltyManager {
     }
 
     /**
-     * @dev Returns the royalty amount
+     * @dev Removes default royalty information.
      */
 
+    function _resetBaseRoyalty() internal virtual {
+        delete royalties;
+    }
+
+    /**
+     * @dev Resets royalty information for the token id back to the global default.
+     */
+
+    function _resetTokenRoyalty(uint256 tokenId) internal virtual {
+        delete royaltyTokenInfo[tokenId];
+    }
+
+    /**
+     * @dev Returns the royalty amount
+     */
     function _getRoyalties(
         uint256 _tokenId,
         uint96 _value
@@ -90,18 +138,18 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         }
     }
 
+    function _feeDenominator() internal pure virtual returns (uint96) {
+        return 10000;
+    }
+
     /**
      * @dev Checks that the total basis points for the royalties do not exceed 10000 (100%)
      */
-    function _checkRoyalties(
-        address payable[] memory receivers,
-        uint96[] memory basisPoints
-    ) internal pure {
+    function _checkRoyalties(uint96[] memory basisPoints) internal pure {
         uint256 totalBasisPoints;
-        require(receivers.length == basisPoints.length, "Length Mismatch");
         for (uint256 i; i < basisPoints.length; i++) {
             totalBasisPoints += basisPoints[i];
         }
-        if (totalBasisPoints >= 10_000) revert InvalidRoyaltyConfig();
+        if (totalBasisPoints >= _feeDenominator()) revert InvalidRoyaltyConfig();
     }
 }
