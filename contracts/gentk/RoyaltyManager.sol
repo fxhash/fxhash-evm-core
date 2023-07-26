@@ -51,6 +51,10 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         emit TokenIdRoyaltiesUpdated(_tokenId, receivers, basisPoints);
     }
 
+    function _setPerTokenRoyaltiesAllowed(bool isAllowed) internal virtual {
+        perTokenRoyaltiesEnabled = isAllowed;
+    }
+
     function _setTokenRoyalties(
         uint256 _tokenId,
         address payable[] memory receivers,
