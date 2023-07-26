@@ -1,31 +1,30 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
+import {WrappedScriptRequest} from "scripty.sol/contracts/IScriptyBuilder.sol";
+
 ///////////////////////////////////////////////////////////
 //                         CODEX                         //
 ///////////////////////////////////////////////////////////
 
 /// @param entryType Storage type of metadata (Ex: IPFS, Arweave, Scripty, etc.)
-/// @param author Address of author
+/// @param artist Address of artist
 /// @param locked Status of codex entry
 /// @param issuer Address of Issuer contract
+/// @param pointer Offchain URI of pointer
+/// @param scripts Onchain list of script requests
 struct CodexInfo {
     uint88 entryType;
-    address author;
+    address artist;
     bool locked;
     address issuer;
+    string pointer;
+    WrappedScriptRequest[] scripts;
 }
 
 ///////////////////////////////////////////////////////////
 //                     CONFIGURATION                     //
 ///////////////////////////////////////////////////////////
-
-/// @param name Name of contract
-/// @param contractAddr Address of contract
-struct ContractInfo {
-    string name;
-    address contractAddr;
-}
 
 /// @param feeShare Share fee out of 10000 basis points
 /// @param referrerShare Referrer fee share out of 10000 basis points
@@ -57,11 +56,11 @@ struct CycleInfo {
 
 /// @param fxParams Randon sequence of string bytes in fixed length
 /// @param onChainMetadata Name of onchain metadata key storage mapping
-/// @param offChainMetadata URI of offchain metadata
+/// @param offChainPointer URI of offchain metadata pointer
 struct GenerativeInfo {
     bytes fxParams;
     string onChainMetadata;
-    string offChainMetadata;
+    string offChainPointer;
 }
 
 ///////////////////////////////////////////////////////////
@@ -71,12 +70,15 @@ struct GenerativeInfo {
 /// @param projectInfo Project information
 /// @param mintInfo Mint information
 /// @param SaleInfo Sale information
+/// @param ReserveInfo List of Reserve information
 struct IssuserInfo {
     ProjectInfo projectInfo;
     MintInfo mintInfo;
     SaleInfo saleInfo;
+    ReserveInfo[] reserves;
 }
 
+/// @param enabled Active status of project
 /// @param pricingId ID of pricing type
 /// @param totalMinted Total tokens minted
 /// @param maxSupply Maximum supplt of tokens
@@ -84,10 +86,11 @@ struct IssuserInfo {
 /// @param metadata Bytes-encoded metadata
 /// @param tags List of tags describing project
 struct ProjectInfo {
+    bool enabled;
     uint8 pricingId;
     uint64 totalMinted;
     uint64 maxSupply;
-    uint120 codexId;
+    uint112 codexId;
     bytes metadata;
     uint16[] tags;
 }
@@ -163,12 +166,10 @@ struct Offer {
 
 /// @param amount Number of tokens minted
 /// @param consumer Address of the consumer
-/// @param blockNumber Block number of when pass is consumed
 /// @param issuer Address of the Issuer contract
 struct MintPassInfo {
     uint96 amount;
     address consumer;
-    uint96 blockNumber;
     address issuer;
 }
 
@@ -263,9 +264,11 @@ struct KeyInfo {
 
 /// @param serialId ID of the generated sequence
 /// @param revealed Status of whether token has been revealed
+/// @param seed Hash of revealed seed
 struct SeedInfo {
     uint248 serialId;
     bool revealed;
+    bytes32 seed;
 }
 
 ///////////////////////////////////////////////////////////
