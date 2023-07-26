@@ -11,8 +11,4 @@ contract MockRoyaltyManager is RoyaltyManager {
     function deleteTokenRoyalty(uint256 _tokenId) external {
         _resetTokenRoyalty(_tokenId);
     }
-
-    function setPerTokenRoyaltiesAllowed(bool isAllowed) external {
-        _setPerTokenRoyaltiesAllowed(isAllowed);
-    }
 }

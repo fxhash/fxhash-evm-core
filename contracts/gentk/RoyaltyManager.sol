@@ -4,7 +4,6 @@ pragma solidity ^0.8.17;
 import {IRoyaltyManager} from "contracts/interfaces/IRoyaltyManager.sol";
 
 abstract contract RoyaltyManager is IRoyaltyManager {
-    bool public perTokenRoyaltiesEnabled;
     /// @notice A struct containing basisPoints and receiver address for a royalty
     RoyaltyInfo[] public royalties;
 
@@ -23,7 +22,6 @@ abstract contract RoyaltyManager is IRoyaltyManager {
 
     error LengthMismatch();
     error TokenRoyaltiesAlreadySet();
-    error TokenRoyaltiesNotAllowed();
 
     /// @notice Royalty configuration is greater than or equal to 100% in terms of basisPoints
     error InvalidRoyaltyConfig();
@@ -51,19 +49,15 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         emit TokenIdRoyaltiesUpdated(_tokenId, receivers, basisPoints);
     }
 
-    function _setPerTokenRoyaltiesAllowed(bool isAllowed) internal virtual {
-        perTokenRoyaltiesEnabled = isAllowed;
-    }
-
     function _setTokenRoyalties(
         uint256 _tokenId,
         address payable[] memory receivers,
         uint96[] memory basisPoints
     ) internal virtual {
         RoyaltyInfo[] storage tokenRoyalties = royaltyTokenInfo[_tokenId];
+        /// TODO: check for duplicates
         if (tokenRoyalties.length != 0) revert TokenRoyaltiesAlreadySet();
         if (receivers.length != basisPoints.length) revert LengthMismatch();
-        if (!perTokenRoyaltiesEnabled) revert TokenRoyaltiesNotAllowed();
         RoyaltyInfo[] memory royalties_ = royalties;
         uint256 baseLength = royalties.length;
         uint256 tokenLength = basisPoints.length;
@@ -92,6 +86,7 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         address payable[] memory receivers,
         uint96[] memory basisPoints
     ) internal {
+        /// TODO: check for duplicates
         _checkRoyalties(basisPoints);
         for (uint256 i; i < basisPoints.length; i++) {
             royalties.push(RoyaltyInfo(receivers[i], basisPoints[i]));
