@@ -41,8 +41,6 @@ templates:
         - name: GenTk
           file: ./abis/GenTk.json
       eventHandlers:
-        - event: TokenMinted((uint256,address,uint256,bytes,string))
-          handler: handleTokenMinted
         - event: TokenMetadataAssigned((uint256,string)[])
           handler: handleTokenMetadataAssigned
         - event: OnChainTokenMetadataAssigned((uint256,bytes)[])
@@ -64,3 +62,22 @@ templates:
       abis:
         - name: Issuer
           file: ./abis/Issuer.json
+      eventHandlers:
+        - event: IssuerBurned()
+          handler: handleIssuerBurned
+        - event: IssuerMinted(((uint256,bytes,uint256,address),bytes,uint256,uint256,(uint256,bytes),(uint256,string),(uint256,uint256,bytes)[],(uint256,bytes,bool),(uint256,address),(uint256,address),bool,uint256[],(string,address,bytes,uint8,bytes,bytes,bytes)[]))
+          handler: handleIssuerMinted
+        - event: IssuerModUpdated(uint256[])
+          handler: handleModUpdated
+        - event: IssuerUpdated(((uint256,address),(uint256,address),bool))
+          handler: handleOnChainTokenMetadataAssigned
+        - event: PriceUpdated((uint256,bytes,bool))
+          handler: handlePriceUpdated
+        - event: ReserveUpdated((uint256,uint256,bytes)[])
+          handler: handleReserveUpdated
+        - event: SupplyBurned(uint256)
+          handler: handleSupplyBurned
+        - event: TokenMinted((bytes,address,bytes,bool,address))
+          handler: handleTokenMinted
+        - event: TokenMintedWithTicket((uint256,bytes,address))
+          handler: handleTokenMintedWithTicket

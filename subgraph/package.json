@@ -38,6 +38,6 @@
     "mustache": "^4.2.0"
   },
   "devDependencies": {
-    "graph-cli": "^0.0.1"
+    "prettier": "^3.0.0"
   }
 }

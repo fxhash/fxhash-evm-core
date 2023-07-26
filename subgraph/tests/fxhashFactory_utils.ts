@@ -6,19 +6,14 @@ export function createFxHashProjectCreatedEvent(
   genTk: Address,
   issuer: Address,
   owner: Address,
-  timestamp: BigInt
 ): FxHashProjectCreated {
   const fxHashProjectCreatedEvent = changetype<FxHashProjectCreated>(
-    newMockEvent()
+    newMockEvent(),
   );
   fxHashProjectCreatedEvent.parameters = [
     new ethereum.EventParam("_genTk", ethereum.Value.fromAddress(genTk)),
     new ethereum.EventParam("_issuer", ethereum.Value.fromAddress(issuer)),
     new ethereum.EventParam("_owner", ethereum.Value.fromAddress(owner)),
-    new ethereum.EventParam(
-      "timestamp",
-      ethereum.Value.fromUnsignedBigInt(timestamp)
-    ),
   ];
 
   return fxHashProjectCreatedEvent;

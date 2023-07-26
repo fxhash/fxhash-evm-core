@@ -4,12 +4,62 @@ type ProjectCreationEvent @entity {
 
   owner: Bytes!
 
-  "New holder address"
+  "Address of the issuer contract generated"
   issuer: Bytes!
 
-  "Block number of the event"
+  "Address of the gentk contract generated"
   gentk: Bytes!
 
   "The timestamp of the block the event is in"
-  blockTimestamp: BigInt!
+  timestamp: BigInt!
+}
+
+type TokenMetadataAssignedEvent @entity {
+  "The txn hash of this event"
+  id: ID!
+
+  "URL of the off chain storage storing the token metadata"
+  offChainMetadata: [OffChainTokenMetadata!]
+
+  "List of attributes describing the token"
+  onChainMetadata: [OnChainTokenMetadata!]
+
+  "The timestamp of the block the event is in"
+  timestamp: BigInt!
+}
+
+type OnChainTokenMetadata @entity {
+  "The id of the token <contract:tokenId>"
+  id: ID!
+
+  "List of attributes describing the token"
+  metadata: Bytes!
+}
+
+type OffChainTokenMetadata @entity {
+  "The id of the token <contract:tokenId>"
+  id: ID!
+
+  "List of attributes describing the token"
+  metadata: String!
+}
+
+type TokenTransferEvent @entity {
+  "The txn hash of this event"
+  id: ID!
+
+  "Address of the ender of the NFT"
+  from: Bytes!
+
+  "Address of the receiver of the NFT"
+  to: Bytes!
+
+  "Address of the contract of the NFT"
+  contract: Bytes!
+
+  "Token ID of the transferred NFT"
+  tokenId: BigInt!
+
+  "The timestamp of the block the event is in"
+  timestamp: BigInt!
 }
