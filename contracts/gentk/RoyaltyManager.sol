@@ -105,7 +105,6 @@ abstract contract RoyaltyManager is IRoyaltyManager {
     /**
      * @dev Resets royalty information for the token id back to the global default.
      */
-
     function _resetTokenRoyalty(uint256 tokenId) internal virtual {
         delete royaltyTokenInfo[tokenId];
     }
