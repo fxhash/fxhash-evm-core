@@ -11,3 +11,11 @@ contract RoyaltyManagerTest is Test {
         royaltyManager = new MockRoyaltyManager();
     }
 }
+
+contract SetBaseRoyalties is RoyaltyManagerTest {}
+
+contract SetTokenRoyalties is RoyaltyManagerTest {}
+
+contract ResetDefaultRoyalties is RoyaltyManagerTest {}
+
+contract ResetTokenRoyalties is RoyaltyManagerTest {}

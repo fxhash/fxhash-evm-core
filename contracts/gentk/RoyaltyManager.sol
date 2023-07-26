@@ -7,7 +7,6 @@ abstract contract RoyaltyManager is IRoyaltyManager {
     bool public perTokenRoyaltiesEnabled;
     /// @notice A struct containing basisPoints and receiver address for a royalty
     RoyaltyInfo[] public royalties;
-    uint256 public maxRoyaltyAmount;
 
     mapping(uint256 => RoyaltyInfo[]) public royaltyTokenInfo;
 
@@ -24,6 +23,7 @@ abstract contract RoyaltyManager is IRoyaltyManager {
 
     error LengthMismatch();
     error TokenRoyaltiesAlreadySet();
+    error TokenRoyaltiesNotAllowed();
 
     /// @notice Royalty configuration is greater than or equal to 100% in terms of basisPoints
     error InvalidRoyaltyConfig();
@@ -34,7 +34,7 @@ abstract contract RoyaltyManager is IRoyaltyManager {
     /**
      * @dev Sets the royalties for the contract
      */
-    function setRoyalties(
+    function setBaseRoyalties(
         address payable[] memory receivers,
         uint96[] memory basisPoints
     ) external virtual {
@@ -59,6 +59,7 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         RoyaltyInfo[] storage tokenRoyalties = royaltyTokenInfo[_tokenId];
         if (tokenRoyalties.length != 0) revert TokenRoyaltiesAlreadySet();
         if (receivers.length != basisPoints.length) revert LengthMismatch();
+        if (!perTokenRoyaltiesEnabled) revert TokenRoyaltiesNotAllowed();
         RoyaltyInfo[] memory royalties_ = royalties;
         uint256 baseLength = royalties.length;
         uint256 tokenLength = basisPoints.length;
