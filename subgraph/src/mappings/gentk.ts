@@ -9,6 +9,7 @@ import {
   TokenMetadataAssigned,
   OnChainTokenMetadataAssigned,
 } from "../types/templates/GenTk/GenTk";
+import { Value, log } from "@graphprotocol/graph-ts";
 
 export function handleTransfer(event: Transfer): void {
   let transferEvent = new TokenTransferEvent(
@@ -28,17 +29,18 @@ export function handleTokenMetadataAssigned(
   let transferEvent = new TokenMetadataAssignedEvent(
     event.transaction.hash.toHexString(),
   );
-
+  transferEvent.offChainMetadata = [];
+  transferEvent.onChainMetadata = [];
   for (let i: i32 = 0; i < event.params._params.length; i++) {
     let value = event.params._params[i];
     let metadataEntry = new OffChainTokenMetadata(
-      `${event.address}:${value.tokenId}`,
+      `${event.address.toHexString()}:${value.tokenId.toString()}`,
     );
     metadataEntry.metadata = value.metadata;
     metadataEntry.save();
     transferEvent.offChainMetadata.push(metadataEntry.id);
   }
-
+  transferEvent.timestamp = event.block.timestamp;
   transferEvent.save();
 }
 
@@ -48,16 +50,17 @@ export function handleOnChainTokenMetadataAssigned(
   let transferEvent = new TokenMetadataAssignedEvent(
     event.transaction.hash.toHexString(),
   );
-
+  transferEvent.offChainMetadata = [];
+  transferEvent.onChainMetadata = [];
   for (let i: i32 = 0; i < event.params._params.length; i++) {
     let value = event.params._params[i];
     let metadataEntry = new OnChainTokenMetadata(
-      `${event.address}:${value.tokenId}`,
+      `${event.address.toHexString()}:${value.tokenId.toString()}`,
     );
     metadataEntry.metadata = value.metadata;
     metadataEntry.save();
-    transferEvent.offChainMetadata.push(metadataEntry.id);
+    transferEvent.onChainMetadata.push(metadataEntry.id);
   }
-
+  transferEvent.timestamp = event.block.timestamp;
   transferEvent.save();
 }

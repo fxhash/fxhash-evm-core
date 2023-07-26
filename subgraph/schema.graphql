@@ -19,10 +19,10 @@ type TokenMetadataAssignedEvent @entity {
   id: ID!
 
   "URL of the off chain storage storing the token metadata"
-  offChainMetadata: [OffChainTokenMetadata!]
+  offChainMetadata: [OffChainTokenMetadata!]!
 
   "List of attributes describing the token"
-  onChainMetadata: [OnChainTokenMetadata!]
+  onChainMetadata: [OnChainTokenMetadata!]!
 
   "The timestamp of the block the event is in"
   timestamp: BigInt!
