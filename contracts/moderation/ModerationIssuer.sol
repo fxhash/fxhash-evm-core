@@ -6,30 +6,31 @@ import {ModerationTeam} from "contracts/moderation/ModerationTeam.sol";
 import {IModerationIssuer, IssuerModInfo} from "contracts/interfaces/IModerationIssuer.sol";
 
 contract ModerationIssuer is BaseModeration, IModerationIssuer {
+    uint16 public constant TOKEN_AUTH = 10;
     mapping(address => IssuerModInfo) public issuers;
     mapping(bytes32 => uint256) public reports;
 
     constructor(address _moderation) BaseModeration(_moderation) {}
 
-    function moderate(address _issuer, uint128 _state, uint128 _reason) external onlyModerator {
-        if (bytes(reasons[_reason]).length == 0) revert InvalidReason();
-        issuers[_issuer] = IssuerModInfo(_state, _reason);
+    function moderate(address _issuer, uint128 _state, uint128 _reasonId) external onlyModerator {
+        if (bytes(reasons[_reasonId]).length == 0) revert InvalidReason();
+        issuers[_issuer] = IssuerModInfo(_state, _reasonId);
 
-        emit IssuerModerated(_issuer, _state, _reason);
+        emit IssuerModerated(_issuer, _state, _reasonId);
     }
 
-    function report(address _issuer, uint128 _reason) external onlyModerator {
-        if (bytes(reasons[_reason]).length == 0) revert InvalidReason();
-        reports[getHashedKey(msg.sender, _issuer)] = _reason;
+    function report(address _issuer, uint128 _reasonId) external onlyModerator {
+        if (bytes(reasons[_reasonId]).length == 0) revert InvalidReason();
+        reports[getReporterKey(msg.sender, _issuer)] = _reasonId;
 
-        emit IssuerReported(msg.sender, _issuer, _reason);
+        emit IssuerReported(msg.sender, _issuer, _reasonId);
     }
 
     function isModerator(address _account) public view override returns (bool) {
-        return ModerationTeam(moderation).isAuthorized(_account, VERIFIED);
+        return ModerationTeam(moderation).isAuthorized(_account, TOKEN_AUTH);
     }
 
-    function getHashedKey(address _reporter, address _reason) public pure returns (bytes32) {
-        return keccak256(abi.encodePacked(_reporter, _reason));
+    function getReporterKey(address _reporter, address _issuer) public pure returns (bytes32) {
+        return keccak256(abi.encodePacked(_reporter, _issuer));
     }
 }

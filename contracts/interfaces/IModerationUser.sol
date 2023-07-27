@@ -7,7 +7,7 @@ struct UserModInfo {
 }
 
 interface IModerationUser {
-    event UserModerated(address _account, uint128 _state, uint128 _reason);
+    event UserModerated(address _account, uint128 _state, uint128 _reasonId);
 
     function users(address) external view returns (uint128, uint128);
 }

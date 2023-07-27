@@ -7,9 +7,9 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 /// @notice Configures user moderation settings
 abstract contract BaseModeration is Ownable {
     /// @notice Malicious state of moderation
-    uint16 public constant MALICIOUS = 3;
+    uint128 public constant MALICIOUS = 3;
     /// @notice Verified state of moderation
-    uint16 public constant VERIFIED = 10;
+    uint128 public constant VERIFIED = 10;
     /// @notice Address of Moderation contract
     address payable public moderation;
     /// @notice Counter for reason ID
