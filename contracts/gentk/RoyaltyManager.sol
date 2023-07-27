@@ -21,7 +21,6 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         address payable[] memory receivers,
         uint96[] memory basisPoints
     ) external virtual {
-        delete royalties;
         _setBaseRoyalties(receivers, basisPoints);
         emit TokenRoyaltiesUpdated(receivers, basisPoints);
     }
@@ -37,7 +36,6 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         address payable[] memory receivers,
         uint96[] memory basisPoints
     ) external virtual {
-        delete royaltyTokenInfo[_tokenId];
         _setTokenRoyalties(_tokenId, receivers, basisPoints);
         emit TokenIdRoyaltiesUpdated(_tokenId, receivers, basisPoints);
     }
@@ -109,6 +107,7 @@ abstract contract RoyaltyManager is IRoyaltyManager {
     ) internal virtual {
         if (!_exists(_tokenId)) revert NonExistentToken();
         if (receivers.length != basisPoints.length) revert LengthMismatch();
+        delete royaltyTokenInfo[_tokenId];
         RoyaltyInfo[] storage tokenRoyalties = royaltyTokenInfo[_tokenId];
         if (tokenRoyalties.length != 0) revert TokenRoyaltiesAlreadySet();
         RoyaltyInfo[] memory royalties_ = royalties;
@@ -135,12 +134,11 @@ abstract contract RoyaltyManager is IRoyaltyManager {
      * @param receivers The addresses that will receive royalties.
      * @param basisPoints The basis points to calculate royalty payments (1/100th of a percent) for each receiver.
      */
-    /// TODO: Move to like how manifold does it where its assumed that if you're setting royalties that youre first,
-    /// reseting them and then setting them
     function _setBaseRoyalties(
         address payable[] memory receivers,
         uint96[] memory basisPoints
     ) internal {
+        delete royalties;
         if (receivers.length != basisPoints.length) revert LengthMismatch();
         if (royalties.length != 0) revert BaseRoyaltiesAlreadySet();
         _checkRoyalties(basisPoints);
