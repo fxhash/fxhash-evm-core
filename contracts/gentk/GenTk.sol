@@ -108,10 +108,6 @@ contract GenTk is ERC721URIStorageUpgradeable, OwnableUpgradeable, RoyaltyManage
         configManager = IConfigurationManager(_configManager);
     }
 
-    function deleteBaseRoyalty() external {}
-
-    function deleteTokenRoyalty(uint256 _tokenId) external {}
-
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
         _requireMinted(tokenId);
         string memory _tokenURI = super.tokenURI(tokenId);

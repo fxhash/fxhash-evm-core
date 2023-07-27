@@ -58,12 +58,6 @@ contract SetBaseRoyaltiesTest is RoyaltyManagerTest {
         vm.expectRevert(abi.encodeWithSelector(IRoyaltyManager.LengthMismatch.selector));
         royaltyManager.setBaseRoyalties(accounts, basisPoints);
     }
-
-    function test_RevertsWhen_BaseRoyaltiesAlreadySet() public {
-        royaltyManager.setBaseRoyalties(accounts, basisPoints);
-        vm.expectRevert(abi.encodeWithSelector(IRoyaltyManager.BaseRoyaltiesAlreadySet.selector));
-        royaltyManager.setBaseRoyalties(accounts, basisPoints);
-    }
 }
 
 contract SetTokenRoyaltiesTest is RoyaltyManagerTest {
@@ -118,68 +112,5 @@ contract SetTokenRoyaltiesTest is RoyaltyManagerTest {
         basisPoints.push(2500);
         vm.expectRevert(abi.encodeWithSelector(IRoyaltyManager.LengthMismatch.selector));
         royaltyManager.setTokenRoyalties(tokenId, accounts, basisPoints);
-    }
-
-    function test_RevertsWhen_TokenRoyaltiesAlreadySet() public {
-        royaltyManager.setTokenRoyalties(tokenId, accounts, basisPoints);
-
-        vm.expectRevert(abi.encodeWithSelector(IRoyaltyManager.TokenRoyaltiesAlreadySet.selector));
-        royaltyManager.setTokenRoyalties(tokenId, accounts, basisPoints);
-    }
-}
-
-contract ResetDefaultRoyalties is RoyaltyManagerTest {
-    function setUp() public override {
-        super.setUp();
-        accounts.push(payable(address(40)));
-        accounts.push(payable(address(20)));
-        accounts.push(payable(address(10)));
-
-        basisPoints.push(1500);
-        basisPoints.push(1500);
-        basisPoints.push(1500);
-
-        royaltyManager.setBaseRoyalties(accounts, basisPoints);
-    }
-
-    function test_ResetBaseRoyalty() public {
-        royaltyManager.deleteBaseRoyalty();
-    }
-
-    function test_RevertsWhen_NotSet() public {
-        royaltyManager.deleteBaseRoyalty();
-
-        vm.expectRevert(abi.encodeWithSelector(IRoyaltyManager.BaseRoyaltiesNotSet.selector));
-        royaltyManager.deleteBaseRoyalty();
-    }
-}
-
-contract ResetTokenRoyalties is RoyaltyManagerTest {
-    function setUp() public override {
-        super.setUp();
-        tokenId = 1;
-        MockRoyaltyManager(address(royaltyManager)).setTokenExists(tokenId, true);
-        accounts.push(payable(address(42)));
-
-        basisPoints.push(2500);
-        royaltyManager.setTokenRoyalties(tokenId, accounts, basisPoints);
-    }
-
-    function test_ResetTokenRoyalty() public {
-        royaltyManager.deleteTokenRoyalty(tokenId);
-    }
-
-    function test_RevertsWhen_NotSet() public {
-        royaltyManager.deleteTokenRoyalty(tokenId);
-
-        vm.expectRevert(abi.encodeWithSelector(IRoyaltyManager.TokenRoyaltiesNotSet.selector));
-        royaltyManager.deleteTokenRoyalty(tokenId);
-    }
-
-    function test_RevertsWhen_TokenDoesntExist() public {
-        tokenId = 2;
-
-        vm.expectRevert(abi.encodeWithSelector(IRoyaltyManager.NonExistentToken.selector));
-        royaltyManager.deleteTokenRoyalty(tokenId);
     }
 }

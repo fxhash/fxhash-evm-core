@@ -22,6 +22,7 @@ abstract contract RoyaltyManager is IRoyaltyManager, IERC2981Upgradeable {
         address payable[] memory receivers,
         uint96[] memory basisPoints
     ) external virtual {
+        delete royalties;
         _setBaseRoyalties(receivers, basisPoints);
         emit TokenRoyaltiesUpdated(receivers, basisPoints);
     }
@@ -37,6 +38,7 @@ abstract contract RoyaltyManager is IRoyaltyManager, IERC2981Upgradeable {
         address payable[] memory receivers,
         uint96[] memory basisPoints
     ) external virtual {
+        delete royaltyTokenInfo[_tokenId];
         _setTokenRoyalties(_tokenId, receivers, basisPoints);
         emit TokenIdRoyaltiesUpdated(_tokenId, receivers, basisPoints);
     }
@@ -92,6 +94,8 @@ abstract contract RoyaltyManager is IRoyaltyManager, IERC2981Upgradeable {
         return (allReceivers, allBasisPoints);
     }
 
+    function supportsInterface(bytes4 interfaceId) public view virtual returns (bool);
+
     /**
      * @dev Sets the token-specific royalties for a given token ID
      * @param _tokenId The token ID for which the royalties are being set.
@@ -146,36 +150,16 @@ abstract contract RoyaltyManager is IRoyaltyManager, IERC2981Upgradeable {
         emit TokenRoyaltiesUpdated(receivers, basisPoints);
     }
 
-    /**
-     * @dev Removes default royalty information.
-     */
-    function _resetBaseRoyalty() internal virtual {
-        if (royalties.length == 0) revert BaseRoyaltiesNotSet();
-        delete royalties;
-    }
-
-    /**
-     * @dev Resets royalty information for the token ID back to the global default.
-     * @param _tokenId The token ID for which the royalties are being reset.
-     */
-    function _resetTokenRoyalty(uint256 _tokenId) internal virtual {
-        RoyaltyInfo[] storage tokenRoyalties = royaltyTokenInfo[_tokenId];
-        if (!_exists(_tokenId)) revert NonExistentToken();
-        if (tokenRoyalties.length == 0) revert TokenRoyaltiesNotSet();
-        delete royaltyTokenInfo[_tokenId];
-    }
+    function _exists(uint256) internal virtual returns (bool);
 
     /**
      * @dev Returns the fee denominator for calculating royalty amounts.
      * @return The fee denominator.
      */
+
     function _feeDenominator() internal pure virtual returns (uint96) {
         return 10000;
     }
-
-    function _exists(uint256) internal virtual returns (bool);
-
-    function supportsInterface(bytes4 interfaceId) public view virtual returns (bool);
 
     /**
      * @dev Checks that the total basis points for the royalties do not exceed 10000 (100%)

@@ -10,14 +10,6 @@ contract MockRoyaltyManager is RoyaltyManager {
         tokens[tokenId] = exists;
     }
 
-    function deleteBaseRoyalty() external {
-        _resetBaseRoyalty();
-    }
-
-    function deleteTokenRoyalty(uint256 _tokenId) external {
-        _resetTokenRoyalty(_tokenId);
-    }
-
     function _exists(uint256 _tokenId) internal view override returns (bool) {
         return tokens[_tokenId];
     }

@@ -52,10 +52,6 @@ interface IRoyaltyManager {
     /// @notice Reverts if the token Id hasn't been minted
     error NonExistentToken();
 
-    function deleteBaseRoyalty() external;
-
-    function deleteTokenRoyalty(uint256 _tokenId) external;
-
     function setBaseRoyalties(
         address payable[] memory receivers,
         uint96[] memory basisPoints
