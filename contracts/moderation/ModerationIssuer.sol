@@ -9,7 +9,7 @@ contract ModerationIssuer is BaseModeration, IModerationIssuer {
     mapping(address => IssuerModInfo) public issuers;
     mapping(bytes32 => uint256) public reports;
 
-    constructor(address payable _moderation) BaseModeration(_moderation) {}
+    constructor(address _moderation) BaseModeration(_moderation) {}
 
     function moderate(address _issuer, uint128 _state, uint128 _reason) external onlyModerator {
         if (bytes(reasons[_reason]).length == 0) revert ReasonDoesNotExist();

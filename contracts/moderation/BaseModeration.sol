@@ -29,14 +29,14 @@ abstract contract BaseModeration is Ownable {
     }
 
     /// @dev Initializes Moderation contract
-    constructor(address payable _moderation) {
-        moderation = _moderation;
+    constructor(address _moderation) {
+        moderation = payable(_moderation);
     }
 
     /// @notice Sets new Moderation contract
     /// @param _moderation Address of Moderation contract
-    function setModeration(address payable _moderation) external onlyOwner {
-        moderation = _moderation;
+    function setModeration(address _moderation) external onlyOwner {
+        moderation = payable(_moderation);
     }
 
     /// @notice Adds new reason value

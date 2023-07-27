@@ -9,7 +9,7 @@ import {IModerationUser, UserModInfo} from "contracts/interfaces/IModerationUser
 contract ModerationUser is BaseModeration, IModerationUser {
     mapping(address => UserModInfo) public users;
 
-    constructor(address payable _moderation) BaseModeration(_moderation) {}
+    constructor(address _moderation) BaseModeration(_moderation) {}
 
     // Check if an address is a user moderator on the moderation team contract
     function isModerator(address _account) public view override returns (bool) {
