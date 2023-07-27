@@ -265,10 +265,8 @@ contract Issuer is IIssuer, OwnableUpgradeable {
         require(params.inputBytes.length == issuer.info.inputBytesSize, "WRONG_INPUT_BYTES");
         require(address(genTk) != address(0), "GENTK_NOT_SET");
 
-        address recipient = msg.sender;
-        if (params.recipient != address(0)) {
-            recipient = params.recipient;
-        }
+        if (params.recipient == address(0)) params.recipient = msg.sender;
+
         IMintTicket(configManager.getAddress("mint_tickets")).consume(
             msg.sender,
             params.ticketId,
@@ -281,9 +279,7 @@ contract Issuer is IIssuer, OwnableUpgradeable {
                 tokenId: allGenTkTokens,
                 iteration: issuer.iterationsCount,
                 inputBytes: params.inputBytes,
-                receiver: IGenTk(genTk).getRoyaltyReceiver() == address(genTk)
-                    ? recipient
-                    : IGenTk(genTk).getRoyaltyReceiver(),
+                receiver: params.recipient,
                 metadata: configManager.getConfig().voidMetadata
             })
         );
@@ -448,9 +444,7 @@ contract Issuer is IIssuer, OwnableUpgradeable {
                         tokenId: tokenId,
                         iteration: issuer.iterationsCount,
                         inputBytes: params.inputBytes,
-                        receiver: IGenTk(genTk).getRoyaltyReceiver() == address(genTk)
-                            ? recipient
-                            : IGenTk(genTk).getRoyaltyReceiver(),
+                        receiver: recipient,
                         metadata: configuration.voidMetadata
                     })
                 );

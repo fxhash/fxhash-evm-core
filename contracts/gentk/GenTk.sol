@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import {ERC721URIStorageUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
+import {ERC721URIStorageUpgradeable, ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
 import {IConfigurationManager} from "contracts/interfaces/IConfigurationManager.sol";
 import {IERC165Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC165Upgradeable.sol";
 import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC721Upgradeable.sol";
@@ -13,8 +13,15 @@ import {IOnChainTokenMetadataManager} from "contracts/interfaces/IOnChainTokenMe
 import {LibIssuer} from "contracts/libs/LibIssuer.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {LibRoyalty} from "contracts/libs/LibRoyalty.sol";
+import {RoyaltyManager} from "contracts/gentk/RoyaltyManager.sol";
 
-contract GenTk is ERC721URIStorageUpgradeable, OwnableUpgradeable, IERC2981Upgradeable, IGenTk {
+contract GenTk is
+    ERC721URIStorageUpgradeable,
+    OwnableUpgradeable,
+    IERC2981Upgradeable,
+    RoyaltyManager,
+    IGenTk
+{
     struct TokenMetadata {
         uint256 tokenId;
         string metadata;
@@ -42,23 +49,6 @@ contract GenTk is ERC721URIStorageUpgradeable, OwnableUpgradeable, IERC2981Upgra
     event TokenMetadataAssigned(TokenMetadata[] _params);
     event OnChainTokenMetadataAssigned(OnChainTokenMetadata[] _params);
 
-    function initialize(
-        LibRoyalty.RoyaltyData memory _royalties,
-        address _configManager,
-        address _issuer,
-        address _owner
-    ) external initializer {
-        require(_royalties.percent >= 1000 && _royalties.percent <= 2500, "WRG_ROY");
-
-        royaltiesSplit = _royalties;
-        __ERC721_init("GenTk", "GTK");
-        __ERC721URIStorage_init();
-        __Ownable_init();
-        issuer = IIssuer(_issuer);
-        configManager = IConfigurationManager(_configManager);
-        transferOwnership(_owner);
-    }
-
     modifier onlySigner() {
         require(msg.sender == configManager.getAddress("signer"), "Caller is not signer");
         _;
@@ -72,6 +62,22 @@ contract GenTk is ERC721URIStorageUpgradeable, OwnableUpgradeable, IERC2981Upgra
     modifier onlyFxHashAdmin() {
         require(msg.sender == configManager.getAddress("admin"), "Caller is not FXHASH admin");
         _;
+    }
+
+    function initialize(
+        address payable[] memory _receivers,
+        uint96[] memory _basisPoints,
+        address _configManager,
+        address _issuer,
+        address _owner
+    ) external initializer {
+        _setBaseRoyalties(_receivers, _basisPoints);
+        __ERC721_init("GenTk", "GTK");
+        __ERC721URIStorage_init();
+        __Ownable_init();
+        issuer = IIssuer(_issuer);
+        configManager = IConfigurationManager(_configManager);
+        transferOwnership(_owner);
     }
 
     function mint(TokenParams calldata _params) external onlyIssuer {
@@ -105,6 +111,10 @@ contract GenTk is ERC721URIStorageUpgradeable, OwnableUpgradeable, IERC2981Upgra
         emit TokenMetadataAssigned(_params);
     }
 
+    function setConfigManager(address _configManager) external onlyFxHashAdmin {
+        configManager = IConfigurationManager(_configManager);
+    }
+
     function royaltyInfo(uint256, uint256 salePrice) external view returns (address, uint256) {
         LibRoyalty.RoyaltyData memory royalty = royaltiesSplit;
         uint256 amount = (salePrice * royalty.percent) / 10000;
@@ -114,6 +124,10 @@ contract GenTk is ERC721URIStorageUpgradeable, OwnableUpgradeable, IERC2981Upgra
     function getRoyaltyReceiver() external view returns (address) {
         return royaltiesSplit.receiver;
     }
+
+    function deleteBaseRoyalty() external {}
+
+    function deleteTokenRoyalty(uint256 _tokenId) external {}
 
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
         _requireMinted(tokenId);
@@ -131,10 +145,6 @@ contract GenTk is ERC721URIStorageUpgradeable, OwnableUpgradeable, IERC2981Upgra
         }
     }
 
-    function setConfigManager(address _configManager) external onlyFxHashAdmin {
-        configManager = IConfigurationManager(_configManager);
-    }
-
     function supportsInterface(
         bytes4 interfaceId
     ) public view override(ERC721URIStorageUpgradeable, IERC165Upgradeable) returns (bool) {
@@ -143,5 +153,11 @@ contract GenTk is ERC721URIStorageUpgradeable, OwnableUpgradeable, IERC2981Upgra
             interfaceId == type(IGenTk).interfaceId ||
             interfaceId == type(IERC2981Upgradeable).interfaceId ||
             super.supportsInterface(interfaceId);
+    }
+
+    function _exists(
+        uint256 _tokenId
+    ) internal view override(ERC721Upgradeable, RoyaltyManager) returns (bool) {
+        return super._exists(_tokenId);
     }
 }

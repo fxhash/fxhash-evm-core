@@ -34,4 +34,8 @@ interface IRoyaltyManager {
         address payable[] memory receivers,
         uint96[] memory basisPoints
     ) external;
+
+    function getRoyalties(
+        uint256 tokenId
+    ) external view returns (address payable[] memory, uint256[] memory);
 }

@@ -22,7 +22,8 @@ interface IFxHashFactory {
     /// @param _owner The account for which the contracts will be deployed. After the deployment, this account will be admin of the deployed contracts.
     /// @return Returns the addresses of the newly deployed contracts in the following order: (issuer, gentk)
     function createProject(
-        LibRoyalty.RoyaltyData calldata _royalty,
+        address payable[] calldata _receivers,
+        uint96[] calldata _basisPoints,
         address _owner
     ) external returns (address, address);
 

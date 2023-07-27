@@ -13,13 +13,12 @@ interface IGenTk {
     }
 
     function initialize(
-        LibRoyalty.RoyaltyData calldata _royaltyInfo,
+        address payable[] calldata _receivers,
+        uint96[] calldata _basisPoints,
         address _configManager,
         address _owner,
         address _issuer
     ) external;
 
     function mint(TokenParams calldata _params) external;
-
-    function getRoyaltyReceiver() external view returns (address);
 }

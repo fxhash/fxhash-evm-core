@@ -68,11 +68,14 @@ contract SeedIssuers is Deploy {
     uint256 public lastMint;
 
     string public MNEMONIC = vm.envString("MNEMONIC");
-    LibRoyalty.RoyaltyData public royalty;
+    address payable[] public royaltyReceivers;
+    uint96[] public royaltyBasisPoints;
 
     function setUp() public virtual override {
         //vm.startBroadcast(deployer);
         createAccounts();
+        royaltyReceivers.push(payable(alice));
+        royaltyBasisPoints.push(1500);
         Deploy.setUp();
         Deploy.run();
         //vm.stopBroadcast();
@@ -119,7 +122,8 @@ contract SeedIssuers is Deploy {
                         for (uint256 m = 0; m < uint256(OnChainOptions.Disabled) + 1; m++) {
                             MintPassGroup _mintPassGroup;
                             (address _issuer, address _genTk) = fxHashFactory.createProject(
-                                royalty,
+                                royaltyReceivers,
+                                royaltyBasisPoints,
                                 alice
                             );
 
