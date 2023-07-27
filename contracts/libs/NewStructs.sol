@@ -7,15 +7,15 @@ import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilde
 //                         CODEX                         //
 ///////////////////////////////////////////////////////////
 
-/// @param entryType Storage type of metadata (Ex: IPFS, Arweave, Scripty, etc.)
-/// @param artist Address of artist
+/// @param entryType Storage type of JS scripts (Ex: IPFS, Arweave, Scripty, etc.)
+/// @param artist Address of author
 /// @param locked Status of codex entry
 /// @param issuer Address of Issuer contract
-/// @param pointer Offchain URI of pointer
+/// @param pointer Offchain URI of pointer to raw code
 /// @param scripts Onchain list of script requests
 struct CodexInfo {
     uint88 entryType;
-    address artist;
+    address author;
     bool locked;
     address issuer;
     string pointer;
@@ -55,12 +55,14 @@ struct CycleInfo {
 ///////////////////////////////////////////////////////////
 
 /// @param fxParams Randon sequence of string bytes in fixed length
-/// @param onChainMetadata Name of onchain metadata key storage mapping
+/// @param seed Hash of revealed seed
 /// @param offChainPointer URI of offchain metadata pointer
+/// @param onChainAttributes List of key value mappings of onchain metadata storage
 struct GenerativeInfo {
     bytes fxParams;
-    string onChainMetadata;
+    bytes32 seed;
     string offChainPointer;
+    MetadataInfo[] onChainAttributes;
 }
 
 ///////////////////////////////////////////////////////////
@@ -80,28 +82,28 @@ struct IssuserInfo {
 
 /// @param enabled Active status of project
 /// @param pricingId ID of pricing type
-/// @param totalMinted Total tokens minted
-/// @param maxSupply Maximum supplt of tokens
+/// @param supply Maximum supply of tokens
 /// @param codexId ID of codex info
 /// @param metadata Bytes-encoded metadata
-/// @param tags List of tags describing project
+/// @param labels List of labels describing project
 struct ProjectInfo {
     bool enabled;
     uint8 pricingId;
-    uint64 totalMinted;
-    uint64 maxSupply;
+    uint112 supply;
     uint112 codexId;
     bytes metadata;
-    uint16[] tags;
+    uint16[] labels;
 }
 
+/// @param inputSize Size of input bytes
 /// @param lockedTime Timestamp of when minting is locked
 /// @param closingTime Timestamp of when mint closes
 /// @param lockedReserve Status of locking current price for reserves
 /// @param hasTickets Status of mint tickets
 struct MintInfo {
-    uint120 lockedTimestamp;
-    uint120 closingTimestamp;
+    uint32 inputSize;
+    uint104 lockedTime;
+    uint104 closingTime;
     bool lockedReserve;
     bool hasTickets;
 }
@@ -184,7 +186,7 @@ struct MintPassInfo {
 /// @param issuer Address of the Issuer contract
 /// @param price Price of the ticket
 /// @param gracePeriod Initial period after ticket is minted
-/// @param metadata URI pointer of ticket metadata
+/// @param pointer URI pointer of ticket metadata
 struct MintTicketInfo {
     uint96 createdAt;
     address minter;
@@ -193,7 +195,7 @@ struct MintTicketInfo {
     address issuer;
     uint128 price;
     uint128 gracePeriod;
-    string metadata;
+    string pointer;
 }
 
 ///////////////////////////////////////////////////////////
@@ -237,17 +239,15 @@ struct MetadataInfo {
 ///////////////////////////////////////////////////////////
 
 /// @param contractAddr Address of the contract
-/// @param pricingId ID of the pricing method
 /// @param lockedReserve Status of locking current price for reserves
-/// @param price Current price amount
 /// @param startTime Timestamp of when minting opens
+/// @param price Current price amount
 /// @param details Payload of the pricing method
 struct PricingInfo {
     address contractAddr;
-    uint88 pricingId;
     bool lockedReserve;
-    uint128 price;
-    uint128 startTime;
+    uint88 startTime;
+    uint256 price;
     bytes pricingDetails;
 }
 
@@ -264,11 +264,9 @@ struct KeyInfo {
 
 /// @param serialId ID of the generated sequence
 /// @param revealed Status of whether token has been revealed
-/// @param seed Hash of revealed seed
 struct SeedInfo {
     uint248 serialId;
     bool revealed;
-    bytes32 seed;
 }
 
 ///////////////////////////////////////////////////////////
@@ -278,16 +276,18 @@ struct SeedInfo {
 /// @param enabled Status of the reserve
 /// @param supply Current supply of reserved tokens
 /// @param minter Address of the minter
-/// @param methodId ID of the reserved method
+/// @param reserveType Type of the reserve method
 /// @param contractAddr Address of the Reserve contract
 /// @param whitelist List of the whitelisted addresses
+/// @param reserves List of reserved addresses
 struct ReserveInfo {
     bool enabled;
     uint88 supply;
     address minter;
-    uint96 methodId;
+    uint96 reserveType;
     address contractAddr;
     WhitelistInfo[] whitelist;
+    bytes reserves;
 }
 
 /// @param account Address of the whitelisted account
