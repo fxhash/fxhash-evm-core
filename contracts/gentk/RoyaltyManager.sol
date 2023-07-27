@@ -123,6 +123,7 @@ abstract contract RoyaltyManager is IRoyaltyManager {
      */
     function _resetTokenRoyalty(uint256 _tokenId) internal virtual {
         RoyaltyInfo[] storage tokenRoyalties = royaltyTokenInfo[_tokenId];
+        if (!_exists(_tokenId)) revert NonExistentToken();
         if (tokenRoyalties.length == 0) revert TokenRoyaltiesNotSet();
         delete royaltyTokenInfo[_tokenId];
     }

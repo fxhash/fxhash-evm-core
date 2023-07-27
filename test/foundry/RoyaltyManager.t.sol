@@ -149,7 +149,7 @@ contract ResetDefaultRoyalties is RoyaltyManagerTest {
     function test_RevertsWhen_NotSet() public {
         royaltyManager.deleteBaseRoyalty();
 
-        vm.expectRevert();
+        vm.expectRevert(abi.encodeWithSelector(IRoyaltyManager.RoyaltiesNotSet.selector));
         royaltyManager.deleteBaseRoyalty();
     }
 }
@@ -172,14 +172,14 @@ contract ResetTokenRoyalties is RoyaltyManagerTest {
     function test_RevertsWhen_NotSet() public {
         royaltyManager.deleteTokenRoyalty(tokenId);
 
-        vm.expectRevert();
+        vm.expectRevert(abi.encodeWithSelector(IRoyaltyManager.TokenRoyaltiesNotSet.selector));
         royaltyManager.deleteTokenRoyalty(tokenId);
     }
 
     function test_RevertsWhen_TokenDoesntExist() public {
         tokenId = 2;
 
-        vm.expectRevert();
+        vm.expectRevert(abi.encodeWithSelector(IRoyaltyManager.NonExistentToken.selector));
         royaltyManager.deleteTokenRoyalty(tokenId);
     }
 }
