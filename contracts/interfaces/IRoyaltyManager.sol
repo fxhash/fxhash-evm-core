@@ -7,13 +7,43 @@ interface IRoyaltyManager {
         uint96 basisPoints;
     }
 
+    /// @notice Emitted when the royalties for a set of receivers have been updated.
+    /// @param receivers the addressaddress that will receive royalties.
+    /// @param basisPoints the basis points to calculate royalty payments(1/100th of a percent) for
+    /// each receiver.
+    event TokenRoyaltiesUpdated(address payable[] receivers, uint96[] basisPoints);
+    /// @dev Emitted when the royalties for a specific token ID have been updated.
+    /// @param tokenId The token ID for which the royalties have been updated.
+    /// @param receivers The addresses that will receive royalties.
+    /// @param basisPoint The basis points to calculate royalty payments (1/100th of a percent) for each receiver.
+    event TokenIdRoyaltiesUpdated(
+        uint256 indexed tokenId,
+        address payable[] receivers,
+        uint96[] basisPoint
+    );
+
+    /// @dev Throws an error if no royalty receiver is provided.
     error NoRoyaltyReceiver();
+
+    /// @dev Throws an error if more than one royalty receiver was set .
     error MoreThanOneRoyaltyReceiver();
-    error RoyaltiesNotSet();
+
+    /// @dev Throws an error if the royalties are not set.
+    error BaseRoyaltiesNotSet();
+
+    /// @dev Throws an error if the token royalties are not set.
     error TokenRoyaltiesNotSet();
+
+    /// @dev Throws an error if the basis point value exceeds the maximum allowed value.
     error OverMaxBasisPointAllowed();
-    error RoyaltiesAlreadySet();
+
+    /// @dev Throws an error if the royalties are already set.
+    error BaseRoyaltiesAlreadySet();
+
+    /// @dev Throws an error if there is a length mismatch between the receivers and basis points arrays.
     error LengthMismatch();
+
+    /// @dev Throws an error if the token royalties are already set.
     error TokenRoyaltiesAlreadySet();
 
     /// @notice Royalty configuration is greater than or equal to 100% in terms of basisPoints

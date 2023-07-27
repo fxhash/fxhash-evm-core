@@ -13,21 +13,6 @@ abstract contract RoyaltyManager is IRoyaltyManager, IERC2981Upgradeable {
     /// @dev Mapping of token IDs to token-specific royalties
     mapping(uint256 => RoyaltyInfo[]) public royaltyTokenInfo;
 
-    /// @notice Emitted when the royalties for a set of receivers have been updated.
-    /// @param receivers the addressaddress that will receive royalties.
-    /// @param basisPoints the basis points to calculate royalty payments(1/100th of a percent) for
-    /// each receiver.
-    event TokenRoyaltiesUpdated(address payable[] receivers, uint96[] basisPoints);
-    /// @dev Emitted when the royalties for a specific token ID have been updated.
-    /// @param tokenId The token ID for which the royalties have been updated.
-    /// @param receivers The addresses that will receive royalties.
-    /// @param basisPoint The basis points to calculate royalty payments (1/100th of a percent) for each receiver.
-    event TokenIdRoyaltiesUpdated(
-        uint256 indexed tokenId,
-        address payable[] receivers,
-        uint96[] basisPoint
-    );
-
     /**
      * @dev Sets the base royalties for the contract
      * @param receivers The addresses that will receive royalties.
@@ -153,7 +138,7 @@ abstract contract RoyaltyManager is IRoyaltyManager, IERC2981Upgradeable {
         uint96[] memory basisPoints
     ) internal {
         if (receivers.length != basisPoints.length) revert LengthMismatch();
-        if (royalties.length != 0) revert RoyaltiesAlreadySet();
+        if (royalties.length != 0) revert BaseRoyaltiesAlreadySet();
         _checkRoyalties(basisPoints);
         for (uint256 i; i < basisPoints.length; i++) {
             royalties.push(RoyaltyInfo(receivers[i], basisPoints[i]));
@@ -165,7 +150,7 @@ abstract contract RoyaltyManager is IRoyaltyManager, IERC2981Upgradeable {
      * @dev Removes default royalty information.
      */
     function _resetBaseRoyalty() internal virtual {
-        if (royalties.length == 0) revert RoyaltiesNotSet();
+        if (royalties.length == 0) revert BaseRoyaltiesNotSet();
         delete royalties;
     }
 

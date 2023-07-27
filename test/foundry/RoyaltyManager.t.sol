@@ -59,9 +59,9 @@ contract SetBaseRoyaltiesTest is RoyaltyManagerTest {
         royaltyManager.setBaseRoyalties(accounts, basisPoints);
     }
 
-    function test_RevertsWhen_RoyaltiesAlreadySet() public {
+    function test_RevertsWhen_BaseRoyaltiesAlreadySet() public {
         royaltyManager.setBaseRoyalties(accounts, basisPoints);
-        vm.expectRevert(abi.encodeWithSelector(IRoyaltyManager.RoyaltiesAlreadySet.selector));
+        vm.expectRevert(abi.encodeWithSelector(IRoyaltyManager.BaseRoyaltiesAlreadySet.selector));
         royaltyManager.setBaseRoyalties(accounts, basisPoints);
     }
 }
@@ -120,7 +120,7 @@ contract SetTokenRoyaltiesTest is RoyaltyManagerTest {
         royaltyManager.setTokenRoyalties(tokenId, accounts, basisPoints);
     }
 
-    function test_RevertsWhen_RoyaltiesAlreadySet() public {
+    function test_RevertsWhen_TokenRoyaltiesAlreadySet() public {
         royaltyManager.setTokenRoyalties(tokenId, accounts, basisPoints);
 
         vm.expectRevert(abi.encodeWithSelector(IRoyaltyManager.TokenRoyaltiesAlreadySet.selector));
@@ -149,7 +149,7 @@ contract ResetDefaultRoyalties is RoyaltyManagerTest {
     function test_RevertsWhen_NotSet() public {
         royaltyManager.deleteBaseRoyalty();
 
-        vm.expectRevert(abi.encodeWithSelector(IRoyaltyManager.RoyaltiesNotSet.selector));
+        vm.expectRevert(abi.encodeWithSelector(IRoyaltyManager.BaseRoyaltiesNotSet.selector));
         royaltyManager.deleteBaseRoyalty();
     }
 }
