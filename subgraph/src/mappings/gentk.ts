@@ -9,7 +9,6 @@ import {
   TokenMetadataAssigned,
   OnChainTokenMetadataAssigned,
 } from "../types/templates/GenTk/GenTk";
-import { Value, log } from "@graphprotocol/graph-ts";
 
 export function handleTransfer(event: Transfer): void {
   let transferEvent = new TokenTransferEvent(

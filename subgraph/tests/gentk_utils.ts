@@ -6,10 +6,6 @@ import {
   Transfer,
 } from "../src/types/templates/GenTk/GenTk";
 import { newMockEvent } from "matchstick-as";
-import {
-  OffChainTokenMetadata,
-  OnChainTokenMetadata,
-} from "../src/types/schema";
 
 export function createTransferEvent(
   from: Address,
