@@ -7,6 +7,8 @@ import {IModerationUser, UserModInfo} from "contracts/interfaces/IModerationUser
 
 contract ModerationUser is BaseModeration, IModerationUser {
     uint16 public constant USER_AUTH = 20;
+    uint128 public constant MALICIOUS = 3;
+    uint128 public constant VERIFIED = 10;
     mapping(address => UserModInfo) public users;
 
     constructor(address _moderation) BaseModeration(_moderation) {}

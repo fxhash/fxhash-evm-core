@@ -4,12 +4,8 @@ pragma solidity ^0.8.18;
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 /// @title BaseModeration
-/// @notice Configures user moderation settings
+/// @notice Configures platform moderation settings
 abstract contract BaseModeration is Ownable {
-    /// @notice Malicious state of moderation
-    uint128 public constant MALICIOUS = 3;
-    /// @notice Verified state of moderation
-    uint128 public constant VERIFIED = 10;
     /// @notice Address of Moderation contract
     address payable public moderation;
     /// @notice Counter for reason ID
