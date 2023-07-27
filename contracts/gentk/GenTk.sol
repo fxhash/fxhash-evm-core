@@ -32,7 +32,6 @@ contract GenTk is ERC721URIStorageUpgradeable, OwnableUpgradeable, RoyaltyManage
         bool assigned;
     }
 
-    LibRoyalty.RoyaltyData public royaltiesSplit;
     IIssuer private issuer;
     IConfigurationManager private configManager;
 
