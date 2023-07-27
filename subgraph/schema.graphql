@@ -75,7 +75,7 @@ type IssuerMintedEvent @entity {
   codexData: Codex!
 
   "Metadata of the issuer contract"
-  metadata: String!
+  metadata: Bytes!
 
   "Size of the input for the Fx Params"
   inputBytesSize: BigInt!
@@ -178,7 +178,7 @@ type OnChainScript @entity {
   contractData: Bytes!
 
   "Wrapping type of the script in the storage: Base64, Inlined, GZIPPED, etc"
-  wrapType: BigInt!
+  wrapType: Int!
 
   "Optional wrap prefix"
   wrapPrefix: Bytes
