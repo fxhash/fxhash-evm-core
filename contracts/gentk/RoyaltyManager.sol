@@ -57,7 +57,8 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         RoyaltyInfo[] memory royalties_ = royalties;
 
         if (tokenRoyalties.length + royalties.length > 1) revert MoreThanOneRoyaltyReceiver();
-        if (tokenRoyalties.length + royalties.length == 0) revert NoRoyaltyReceiver();
+        /// return early
+        if (tokenRoyalties.length + royalties.length == 0) return (address(0), 0);
         (address receiver, uint96 basisPoints) = tokenRoyalties.length > 0
             ? (tokenRoyalties[0].receiver, tokenRoyalties[0].basisPoints)
             : (royalties_[0].receiver, royalties_[0].basisPoints);

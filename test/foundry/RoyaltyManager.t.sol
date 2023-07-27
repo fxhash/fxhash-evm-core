@@ -153,8 +153,9 @@ contract RoyaltyInfo is RoyaltyManagerTest {
         accounts.pop();
         basisPoints.pop();
         royaltyManager.setBaseRoyalties(accounts, basisPoints);
-        vm.expectRevert(abi.encodeWithSelector(IRoyaltyManager.NoRoyaltyReceiver.selector));
-        royaltyManager.royaltyInfo(tokenId, 100);
+        (address receiver, uint256 bps) = royaltyManager.royaltyInfo(tokenId, 100);
+        assertEq(receiver, address(0));
+        assertEq(bps, 0);
     }
 
     function test_RevertsWhenBaseLengthGt1() public {
