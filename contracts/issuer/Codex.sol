@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "contracts/interfaces/IModeration.sol";
+import "contracts/interfaces/IModerationTeam.sol";
 import "contracts/interfaces/IIssuer.sol";
 import "contracts/interfaces/ICodex.sol";
 import "contracts/libs/LibIssuer.sol";
@@ -92,7 +92,7 @@ contract Codex is ICodex, Ownable {
         uint256 issuerCodexId = issuerCodexUpdates[_codexId];
         require(issuerCodexId > 0, "NO_REQ");
         require(issuerCodexId == _codexId, "WRG_CDX_ID");
-        require(IModeration(moderation).isAuthorized(msg.sender, 701), "403");
+        require(IModerationTeam(moderation).isAuthorized(msg.sender, 701), "403");
         delete issuerCodexUpdates[issuerCodexId];
         IIssuer(_issuer).setCodex(_codexId);
         emit UpdateIssuerCodexApproved(_issuer, _codexId);

@@ -10,7 +10,7 @@ import {IERC2981Upgradeable} from "@openzeppelin/contracts-upgradeable/interface
 import {IGenTk} from "contracts/interfaces/IGenTk.sol";
 import {IIssuer} from "contracts/interfaces/IIssuer.sol";
 import {IMintTicket} from "contracts/interfaces/IMintTicket.sol";
-import {IModeration} from "contracts/interfaces/IModeration.sol";
+import {IModerationTeam} from "contracts/interfaces/IModerationTeam.sol";
 import {IModerationUser} from "contracts/interfaces/IModerationUser.sol";
 import {IOnChainTokenMetadataManager} from "contracts/interfaces/IOnChainTokenMetadataManager.sol";
 import {IPricing} from "contracts/interfaces/IPricing.sol";
@@ -116,10 +116,9 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
         //     }
         // } else {
 
-        if (IModerationUser(configManager.getAddress("user_mod")).userState(msg.sender) == 10) {
-            _lockTime = 0;
-        }
-        //}
+        (uint128 state, ) = IModerationUser(configManager.getAddress("user_mod")).users(msg.sender);
+        if (state == 10) _lockTime = 0;
+
         bool isOpenEd = params.openEditions.closingTime > 0;
         if (isOpenEd) {
             require(block.timestamp + _lockTime < params.openEditions.closingTime, "OES_CLOSING");
@@ -373,7 +372,7 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
 
     function updateIssuerMod(uint256[] calldata tags) external {
         require(
-            IModeration(configManager.getAddress("mod_team")).isAuthorized(msg.sender, 10),
+            IModerationTeam(configManager.getAddress("mod_team")).isAuthorized(msg.sender, 10),
             "403"
         );
         issuer.info.tags = tags;

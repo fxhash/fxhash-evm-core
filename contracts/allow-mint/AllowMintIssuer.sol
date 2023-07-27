@@ -7,15 +7,17 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 /// @title AllowMintIssuer
 /// @notice See the documentation in {IAllowMintIssuer}
 contract AllowMintIssuer is IAllowMintIssuer, Ownable {
+    /// @notice Malicious state of moderation
+    uint128 public constant MALICIOUS = 3;
     /// @inheritdoc IAllowMintIssuer
-    ModerationUser public userModerationContract;
+    ModerationUser public userModeration;
     /// @inheritdoc IAllowMintIssuer
     uint96 public mintDelay;
 
     /// @dev Initializes duration of mint delay and sets User Moderation contract
-    constructor(address _userModerationContract) {
+    constructor(address _userModeration) {
         mintDelay = 3600;
-        userModerationContract = ModerationUser(_userModerationContract);
+        userModeration = ModerationUser(_userModeration);
     }
 
     /// @inheritdoc IAllowMintIssuer
@@ -24,13 +26,14 @@ contract AllowMintIssuer is IAllowMintIssuer, Ownable {
     }
 
     /// @inheritdoc IAllowMintIssuer
-    function updateUserModerationContract(address _moderationContract) external onlyOwner {
-        userModerationContract = ModerationUser(_moderationContract);
+    function updateUserModeration(address _moderationContract) external onlyOwner {
+        userModeration = ModerationUser(_moderationContract);
     }
 
     /// @inheritdoc IAllowMintIssuer
     function isAllowed(address _account) external view returns (bool) {
-        if (userModerationContract.userState(_account) == 3) revert AccountBanned();
+        (uint128 state, ) = userModeration.users(_account);
+        if (state == MALICIOUS) revert AccountBanned();
         return true;
     }
 }

@@ -9,21 +9,21 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 /// @dev See the documentation in {IAllowMint}
 contract AllowMint is IAllowMint, Ownable {
     /// @dev Address of Issuer Moderation contract
-    address private issuerMod;
+    address private issuerModeration;
 
     /// @dev Initializes Issuer Moderation contract
     constructor(address _issuerMod) {
-        issuerMod = _issuerMod;
+        issuerModeration = _issuerMod;
     }
 
     /// @inheritdoc IAllowMint
-    function updateIssuerModerationContract(address _moderationContract) external onlyOwner {
-        issuerMod = _moderationContract;
+    function updateIssuerModeration(address _moderation) external onlyOwner {
+        issuerModeration = _moderation;
     }
 
     /// @inheritdoc IAllowMint
-    function isAllowed(address _tokenContract) external view returns (bool) {
-        uint256 state = IModerationIssuer(issuerMod).issuerState(_tokenContract);
+    function isAllowed(address _issuer) external view returns (bool) {
+        (uint128 state, ) = IModerationIssuer(issuerModeration).issuers(_issuer);
         if (state > 1) revert TokenModerated();
         return true;
     }

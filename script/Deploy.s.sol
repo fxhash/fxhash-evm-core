@@ -94,8 +94,8 @@ contract Deploy is Script, Accounts {
         onchainMetadataManager = new OnChainTokenMetadataManager(address(scriptyBuilder));
 
         // Moderation
-        moderationIssuer = new ModerationIssuer(address(configurationManager));
-        moderationUser = new ModerationUser(address(configurationManager));
+        moderationIssuer = new ModerationIssuer(payable(address(configurationManager)));
+        moderationUser = new ModerationUser(payable(address(configurationManager)));
         moderationTeam = new ModerationTeam();
 
         // Allowlist

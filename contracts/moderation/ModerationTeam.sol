@@ -1,141 +1,113 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "contracts/admin/AuthorizedCaller.sol";
-import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
+import {AuthorizedCaller} from "contracts/admin/AuthorizedCaller.sol";
+import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {SafeTransferLib} from "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
 
-contract ModerationTeam is Ownable {
+import {IModerationTeam, TeamModInfo} from "contracts/interfaces/IModerationTeam.sol";
+
+contract ModerationTeam is Ownable, IModerationTeam {
     using EnumerableSet for EnumerableSet.AddressSet;
-    event Received(address sender, uint256 amount);
-
-    /*
-    TYPES DEFINITION
-    */
-    struct ModeratorData {
-        uint256[] authorizations;
-        uint256 share;
-    }
-
-    struct UpdateModeratorParam {
-        address moderator;
-        uint256[] authorizations;
-    }
-
-    struct UpdateShareParam {
-        address moderator;
-        uint256 share;
-    }
-
-    /*
-    STORAGE
-    */
-    uint256 sharesTotal;
-    mapping(address => ModeratorData) public moderators;
-    EnumerableSet.AddressSet private moderatorAddresses;
-
-    event ModeratorsUpdated(UpdateModeratorParam[] params);
-    event SharesUpdated(UpdateShareParam[] params);
-
-    /*
-    INITIALIZATION
-    */
-    constructor() {
-        sharesTotal = 0;
-    }
-
-    /*
-    MODIFIERS
-    */
+    EnumerableSet.AddressSet private modSet;
+    uint256 public totalShares;
+    mapping(address => TeamModInfo) public moderators;
 
     modifier onlyModerator() {
-        require(isModerator(msg.sender), "NOT_MODERATOR");
+        if (!isModerator(msg.sender)) revert NotModerator();
         _;
     }
 
     modifier onlyModeratorOrAdmin() {
-        require(isModerator(msg.sender) || msg.sender == owner(), "NOT_MODERATOR_OR_ADMIN");
+        if (!isModerator(msg.sender) || msg.sender == owner()) revert NotAuthorized();
         _;
     }
 
-    /*
-    HELPERS
-    */
-    function isModerator(address _address) private view returns (bool) {
-        return moderators[_address].authorizations.length > 0;
-    }
-
-    /*
-    ENTRY POINTS
-    */
-    function updateModerators(UpdateModeratorParam[] calldata params) external onlyOwner {
-        for (uint256 i = 0; i < params.length; i++) {
-            UpdateModeratorParam memory mod = params[i];
-            address userAddress = mod.moderator;
-            uint256[] memory userAuthorizations = mod.authorizations;
-
-            if (userAuthorizations.length == 0) {
-                delete moderators[userAddress];
-                EnumerableSet.remove(moderatorAddresses, userAddress);
-            } else {
-                moderators[userAddress].authorizations = userAuthorizations;
-                EnumerableSet.add(moderatorAddresses, userAddress);
-            }
-        }
-        emit ModeratorsUpdated(params);
-    }
-
-    function updateShares(UpdateShareParam[] calldata params) external onlyOwner {
-        for (uint256 i = 0; i < params.length; i++) {
-            UpdateShareParam memory shareData = params[i];
-            address shareAddress = shareData.moderator;
-            uint256 sharePercentage = shareData.share;
-            ModeratorData memory modData = moderators[shareAddress];
-
-            if (sharePercentage == 0) {
-                if (sharesTotal > modData.share) {
-                    sharesTotal = sharesTotal - modData.share;
-                }
-                delete moderators[shareAddress];
-            } else {
-                moderators[shareAddress].share = sharePercentage;
-                sharesTotal = sharesTotal + sharePercentage;
-            }
-        }
-        emit SharesUpdated(params);
-    }
-
-    function withdraw() external onlyModeratorOrAdmin {
-        uint256 amount = address(this).balance;
-        if (sharesTotal > 0) {
-            for (uint256 i = 0; i < EnumerableSet.length(moderatorAddresses); i++) {
-                address recipient = EnumerableSet.at(moderatorAddresses, i);
-                uint256 share = moderators[recipient].share;
-                SafeTransferLib.safeTransferETH(recipient, (amount * share) / sharesTotal);
-            }
-        }
-    }
-
-    /*
-    VIEWS
-    */
-    function getAuthorizations(address userAddress) external view returns (uint256[] memory) {
-        return moderators[userAddress].authorizations;
-    }
-
-    function isAuthorized(address userAddress, uint256 authorization) external view returns (bool) {
-        bool isModAuthorized = false;
-        uint256[] memory modAuth = moderators[userAddress].authorizations;
-        for (uint256 i = 0; i < modAuth.length; i++) {
-            if (modAuth[i] == authorization) {
-                isModAuthorized = true;
-            }
-        }
-        return isModAuthorized;
-    }
+    constructor() {}
 
     receive() external payable {
         emit Received(msg.sender, msg.value);
+    }
+
+    function updateAuthorizations(
+        address[] calldata _moderators,
+        uint16[][] calldata _authorizations
+    ) external onlyOwner {
+        address moderator;
+        uint16[] memory authorizations;
+        uint256 length = _moderators.length;
+        for (uint256 i; i < length; ) {
+            moderator = _moderators[i];
+            authorizations = _authorizations[i];
+            if (authorizations.length == 0) {
+                delete moderators[moderator];
+                EnumerableSet.remove(modSet, moderator);
+            } else {
+                moderators[moderator].authorizations = authorizations;
+                EnumerableSet.add(modSet, moderator);
+            }
+
+            unchecked {
+                ++i;
+            }
+        }
+        emit ModeratorsUpdated(_moderators, _authorizations);
+    }
+
+    function updateShares(
+        address[] calldata _moderators,
+        uint256[] calldata _shares
+    ) external onlyOwner {
+        address moderator;
+        uint256 share;
+        uint256 length = _moderators.length;
+        for (uint256 i; i < length; ++i) {
+            share = _shares[i];
+            moderator = _moderators[i];
+
+            if (share == 0) {
+                delete moderators[moderator];
+                if (totalShares > share) {
+                    totalShares = totalShares - share;
+                }
+            } else {
+                moderators[moderator].share = share;
+                totalShares = totalShares + share;
+            }
+        }
+
+        emit SharesUpdated(_moderators, _shares);
+    }
+
+    function withdraw() external onlyModeratorOrAdmin {
+        if (totalShares > 0) {
+            uint256 balance = address(this).balance;
+            uint256 length = EnumerableSet.length(modSet);
+            unchecked {
+                for (uint256 i; i < length; ++i) {
+                    address recipient = EnumerableSet.at(modSet, i);
+                    uint256 amount = (balance * moderators[recipient].share) / totalShares;
+                    SafeTransferLib.safeTransferETH(recipient, amount);
+                }
+            }
+        }
+    }
+
+    function isAuthorized(address _account, uint16 _authorization) external view returns (bool) {
+        uint16[] memory authorizations = moderators[_account].authorizations;
+        uint256 length = authorizations.length;
+        for (uint256 i; i < length; ) {
+            if (authorizations[i] == _authorization) {
+                return true;
+            }
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
+    function isModerator(address _account) public view returns (bool) {
+        return moderators[_account].authorizations.length > 0;
     }
 }

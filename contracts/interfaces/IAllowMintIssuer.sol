@@ -14,8 +14,8 @@ interface IAllowMintIssuer {
     function updateMintDelay(uint96 _delay) external;
 
     /// @notice Updates User Moderation contract
-    /// @param _moderationContract Address of new moderation contract
-    function updateUserModerationContract(address _moderationContract) external;
+    /// @param _moderation Address of new moderation contract
+    function updateUserModeration(address _moderation) external;
 
     /// @notice Checks current moderation state of account
     /// @param _account Address of user
@@ -26,5 +26,5 @@ interface IAllowMintIssuer {
     function mintDelay() external view returns (uint96);
 
     /// @notice Gets User Moderation contract
-    function userModerationContract() external view returns (ModerationUser);
+    function userModeration() external view returns (ModerationUser);
 }
