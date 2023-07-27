@@ -3,83 +3,183 @@ pragma solidity ^0.8.18;
 
 import {Test} from "forge-std/Test.sol";
 import {MockRoyaltyManager} from "test/foundry/mocks/MockRoyaltyManager.sol";
+import {IRoyaltyManager} from "contracts/interfaces/IRoyaltyManager.sol";
 
 contract RoyaltyManagerTest is Test {
-    MockRoyaltyManager public royaltyManager;
+    uint256 tokenId;
+    address payable[] public accounts;
+    uint96[] public basisPoints;
+    IRoyaltyManager public royaltyManager;
 
-    function setUp() public {
-        royaltyManager = new MockRoyaltyManager();
+    function setUp() public virtual {
+        royaltyManager = IRoyaltyManager(new MockRoyaltyManager());
     }
 }
 
-contract SetBaseRoyalties is RoyaltyManagerTest {
+contract SetBaseRoyaltiesTest is RoyaltyManagerTest {
+    function setUp() public override {
+        super.setUp();
+        accounts.push(payable(address(40)));
+        accounts.push(payable(address(20)));
+        accounts.push(payable(address(10)));
+
+        basisPoints.push(2500);
+        basisPoints.push(2500);
+        basisPoints.push(2500);
+    }
+
     function test_SetBaseRoyalties() public {
-        this;
+        royaltyManager.setBaseRoyalties(accounts, basisPoints);
     }
 
     function test_RevertsWhen_SingleGt25() public {
-        this;
+        basisPoints[0] = 2501;
+        vm.expectRevert(abi.encodeWithSelector(IRoyaltyManager.OverMaxBasisPointAllowed.selector));
+        royaltyManager.setBaseRoyalties(accounts, basisPoints);
     }
 
     function test_RevertsWhen_AllGt100() public {
-        this;
+        basisPoints.push(2500);
+        accounts.push(payable(address(1)));
+        basisPoints.push(1);
+        accounts.push(payable(address(0xBad)));
+        vm.expectRevert(abi.encodeWithSelector(IRoyaltyManager.InvalidRoyaltyConfig.selector));
+        royaltyManager.setBaseRoyalties(accounts, basisPoints);
     }
 
-    function test_RevertsWhen_Duplicate() public {
-        this;
+    function test_RevertsWhen_LengthMismatchAccounts() public {
+        accounts.pop();
+        vm.expectRevert(abi.encodeWithSelector(IRoyaltyManager.LengthMismatch.selector));
+        royaltyManager.setBaseRoyalties(accounts, basisPoints);
     }
 
-    function test_RevertsWhen_LenthMismatch() public {
-        this;
+    function test_RevertsWhen_LengthMismatchBasisPoints() public {
+        basisPoints.pop();
+        vm.expectRevert(abi.encodeWithSelector(IRoyaltyManager.LengthMismatch.selector));
+        royaltyManager.setBaseRoyalties(accounts, basisPoints);
     }
 
     function test_RevertsWhen_RoyaltiesAlreadySet() public {
-        this;
+        royaltyManager.setBaseRoyalties(accounts, basisPoints);
+        vm.expectRevert(abi.encodeWithSelector(IRoyaltyManager.RoyaltiesAlreadySet.selector));
+        royaltyManager.setBaseRoyalties(accounts, basisPoints);
     }
 }
 
-contract SetTokenRoyalties is RoyaltyManagerTest {
-    function test_SetTokenRoyalties() public {
-        this;
+contract SetTokenRoyaltiesTest is RoyaltyManagerTest {
+    function setUp() public override {
+        super.setUp();
+        tokenId = 1;
+        MockRoyaltyManager(address(royaltyManager)).setTokenExists(tokenId, true);
+        accounts.push(payable(address(42)));
+
+        basisPoints.push(2500);
     }
 
-    function test_RevertsWHen_TokenDoesntExist() public {
-        this;
+    function test_SetTokenRoyalties() public {
+        royaltyManager.setTokenRoyalties(tokenId, accounts, basisPoints);
+    }
+
+    function test_RevertsWhen_TokenDoesntExist() public {
+        tokenId = 2;
+        vm.expectRevert(abi.encodeWithSelector(IRoyaltyManager.NonExistentToken.selector));
+        royaltyManager.setTokenRoyalties(tokenId, accounts, basisPoints);
     }
 
     function test_RevertsWhen_SingleGt25() public {
-        this;
+        basisPoints[0] = 2501;
+        vm.expectRevert(abi.encodeWithSelector(IRoyaltyManager.OverMaxBasisPointAllowed.selector));
+        royaltyManager.setTokenRoyalties(tokenId, accounts, basisPoints);
     }
 
     function test_RevertsWhen_TokenAndBaseGt100() public {
-        this;
+        /// Get royalty Config to 100 without being over on any individual one
+        accounts.push(payable(address(40)));
+        accounts.push(payable(address(20)));
+        accounts.push(payable(address(10)));
+
+        basisPoints.push(2500);
+        basisPoints.push(2500);
+        basisPoints.push(2500);
+        accounts.push(payable(address(0xbad)));
+        basisPoints.push(1);
+
+        vm.expectRevert(abi.encodeWithSelector(IRoyaltyManager.InvalidRoyaltyConfig.selector));
+        royaltyManager.setTokenRoyalties(tokenId, accounts, basisPoints);
     }
 
-    function test_RevertsWhen_Duplicate() public {
-        this;
+    function test_RevertsWhen_LengthMismatchAccounts() public {
+        accounts.push(payable(address(40)));
+        vm.expectRevert(abi.encodeWithSelector(IRoyaltyManager.LengthMismatch.selector));
+        royaltyManager.setTokenRoyalties(tokenId, accounts, basisPoints);
     }
 
-    function test_RevertsWhen_LenthMismatch() public {
-        this;
+    function test_RevertsWhen_LengthMismatchBasisPoints() public {
+        basisPoints.push(2500);
+        vm.expectRevert(abi.encodeWithSelector(IRoyaltyManager.LengthMismatch.selector));
+        royaltyManager.setTokenRoyalties(tokenId, accounts, basisPoints);
     }
 
     function test_RevertsWhen_RoyaltiesAlreadySet() public {
-        this;
+        royaltyManager.setTokenRoyalties(tokenId, accounts, basisPoints);
+
+        vm.expectRevert(abi.encodeWithSelector(IRoyaltyManager.TokenRoyaltiesAlreadySet.selector));
+        royaltyManager.setTokenRoyalties(tokenId, accounts, basisPoints);
     }
 }
 
 contract ResetDefaultRoyalties is RoyaltyManagerTest {
+    function setUp() public override {
+        super.setUp();
+        accounts.push(payable(address(40)));
+        accounts.push(payable(address(20)));
+        accounts.push(payable(address(10)));
+
+        basisPoints.push(1500);
+        basisPoints.push(1500);
+        basisPoints.push(1500);
+
+        royaltyManager.setBaseRoyalties(accounts, basisPoints);
+    }
+
     function test_ResetBaseRoyalty() public {
-        this;
+        royaltyManager.deleteBaseRoyalty();
+    }
+
+    function test_RevertsWhen_NotSet() public {
+        royaltyManager.deleteBaseRoyalty();
+
+        vm.expectRevert();
+        royaltyManager.deleteBaseRoyalty();
     }
 }
 
 contract ResetTokenRoyalties is RoyaltyManagerTest {
+    function setUp() public override {
+        super.setUp();
+        tokenId = 1;
+        MockRoyaltyManager(address(royaltyManager)).setTokenExists(tokenId, true);
+        accounts.push(payable(address(42)));
+
+        basisPoints.push(2500);
+        royaltyManager.setTokenRoyalties(tokenId, accounts, basisPoints);
+    }
+
     function test_ResetTokenRoyalty() public {
-        this;
+        royaltyManager.deleteTokenRoyalty(tokenId);
+    }
+
+    function test_RevertsWhen_NotSet() public {
+        royaltyManager.deleteTokenRoyalty(tokenId);
+
+        vm.expectRevert();
+        royaltyManager.deleteTokenRoyalty(tokenId);
     }
 
     function test_RevertsWhen_TokenDoesntExist() public {
-        this;
+        tokenId = 2;
+
+        vm.expectRevert();
+        royaltyManager.deleteTokenRoyalty(tokenId);
     }
 }

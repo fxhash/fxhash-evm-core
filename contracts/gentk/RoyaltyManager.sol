@@ -20,15 +20,6 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         uint96[] basisPoint
     );
 
-    error LengthMismatch();
-    error TokenRoyaltiesAlreadySet();
-
-    /// @notice Royalty configuration is greater than or equal to 100% in terms of basisPoints
-    error InvalidRoyaltyConfig();
-
-    /// @notice Reverts if the token Id hasn't been minted
-    error NonExistentToken();
-
     /**
      * @dev Sets the royalties for the contract
      */
@@ -54,10 +45,10 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         address payable[] memory receivers,
         uint96[] memory basisPoints
     ) internal virtual {
-        RoyaltyInfo[] storage tokenRoyalties = royaltyTokenInfo[_tokenId];
-        /// TODO: check for duplicates
-        if (tokenRoyalties.length != 0) revert TokenRoyaltiesAlreadySet();
+        if (!_exists(_tokenId)) revert NonExistentToken();
         if (receivers.length != basisPoints.length) revert LengthMismatch();
+        RoyaltyInfo[] storage tokenRoyalties = royaltyTokenInfo[_tokenId];
+        if (tokenRoyalties.length != 0) revert TokenRoyaltiesAlreadySet();
         RoyaltyInfo[] memory royalties_ = royalties;
         uint256 baseLength = royalties.length;
         uint256 tokenLength = basisPoints.length;
@@ -67,7 +58,7 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         }
 
         for (uint256 i; i < tokenLength; i++) {
-            totalBasisPoints[i + baseLength] = tokenRoyalties[i].basisPoints;
+            totalBasisPoints[i + baseLength] = basisPoints[i];
         }
 
         _checkRoyalties(totalBasisPoints);
@@ -87,6 +78,8 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         uint96[] memory basisPoints
     ) internal {
         /// TODO: check for duplicates
+        if (receivers.length != basisPoints.length) revert LengthMismatch();
+        if (royalties.length != 0) revert RoyaltiesAlreadySet();
         _checkRoyalties(basisPoints);
         for (uint256 i; i < basisPoints.length; i++) {
             royalties.push(RoyaltyInfo(receivers[i], basisPoints[i]));
@@ -99,14 +92,17 @@ abstract contract RoyaltyManager is IRoyaltyManager {
      */
 
     function _resetBaseRoyalty() internal virtual {
+        if (royalties.length == 0) revert RoyaltiesNotSet();
         delete royalties;
     }
 
     /**
      * @dev Resets royalty information for the token id back to the global default.
      */
-    function _resetTokenRoyalty(uint256 tokenId) internal virtual {
-        delete royaltyTokenInfo[tokenId];
+    function _resetTokenRoyalty(uint256 _tokenId) internal virtual {
+        RoyaltyInfo[] storage tokenRoyalties = royaltyTokenInfo[_tokenId];
+        if (tokenRoyalties.length == 0) revert TokenRoyaltiesNotSet();
+        delete royaltyTokenInfo[_tokenId];
     }
 
     /**
@@ -147,8 +143,11 @@ abstract contract RoyaltyManager is IRoyaltyManager {
     function _checkRoyalties(uint96[] memory basisPoints) internal pure {
         uint256 totalBasisPoints;
         for (uint256 i; i < basisPoints.length; i++) {
+            if (basisPoints[i] > 2500) revert OverMaxBasisPointAllowed();
             totalBasisPoints += basisPoints[i];
         }
         if (totalBasisPoints >= _feeDenominator()) revert InvalidRoyaltyConfig();
     }
+
+    function _exists(uint256) internal virtual returns (bool);
 }

@@ -7,6 +7,19 @@ interface IRoyaltyManager {
         uint96 basisPoints;
     }
 
+    error RoyaltiesNotSet();
+    error TokenRoyaltiesNotSet();
+    error OverMaxBasisPointAllowed();
+    error RoyaltiesAlreadySet();
+    error LengthMismatch();
+    error TokenRoyaltiesAlreadySet();
+
+    /// @notice Royalty configuration is greater than or equal to 100% in terms of basisPoints
+    error InvalidRoyaltyConfig();
+
+    /// @notice Reverts if the token Id hasn't been minted
+    error NonExistentToken();
+
     function deleteBaseRoyalty() external;
 
     function deleteTokenRoyalty(uint256 _tokenId) external;
