@@ -28,7 +28,9 @@ contract ModerationUser is BaseModeration, IModerationUser {
         emit UserModerated(_account, _state, _reasonId);
     }
 
-    function isModerator(address _account) public view override returns (bool) {
+    function isModerator(
+        address _account
+    ) public view override(BaseModeration, IModerationUser) returns (bool) {
         return ModerationTeam(moderation).isAuthorized(_account, USER_AUTH);
     }
 }

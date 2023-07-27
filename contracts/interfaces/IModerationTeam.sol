@@ -19,4 +19,15 @@ interface IModerationTeam {
     /// @param _authorization ID of the authorization code
     /// @return status of the authorization
     function isAuthorized(address _account, uint16 _authorization) external view returns (bool);
+
+    function updateAuthorizations(
+        address[] calldata _moderators,
+        uint16[][] calldata _authorizations
+    ) external;
+
+    function updateShares(address[] calldata _moderators, uint256[] calldata _shares) external;
+
+    function withdraw() external;
+
+    function isModerator(address _account) external view returns (bool);
 }
