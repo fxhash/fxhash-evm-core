@@ -13,7 +13,6 @@ import {GenTkFactory} from "contracts/factories/GenTkFactory.sol";
 import {IssuerFactory} from "contracts/factories/IssuerFactory.sol";
 import {Issuer} from "contracts/issuer/Issuer.sol";
 import {LibReserve} from "contracts/libs/LibReserve.sol";
-import {Marketplace} from "contracts/marketplace/Marketplace.sol";
 import {MintPassGroup} from "contracts/mint-pass-group/MintPassGroup.sol";
 import {MintTicket} from "contracts/mint-ticket/MintTicket.sol";
 import {ModerationIssuer} from "contracts/moderation/ModerationIssuer.sol";
@@ -44,7 +43,6 @@ contract Deploy is Script, Accounts {
     FxHashFactory public fxHashFactory;
     GenTkFactory public genTkFactory;
     IssuerFactory public issuerFactory;
-    Marketplace public marketplace;
     MintPassGroup public mintPassGroup;
     MintTicket public mintTicket;
     ModerationIssuer public moderationIssuer;
@@ -119,15 +117,6 @@ contract Deploy is Script, Accounts {
 
         // Randomizer
         randomizer = new Randomizer(Constants.SEED, Constants.SALT);
-
-        // Marketplace
-        marketplace = new Marketplace(
-            deployer,
-            Constants.MARKETPLACE_MAX_REFERRAL_SHARE,
-            Constants.MARKETPLACE_REFERRAL_SHARE,
-            Constants.MARKETPLACE_PLATFORM_FEES,
-            vm.envAddress("TREASURY_ADDRESS")
-        );
 
         // Mint Ticket
         mintTicket = new MintTicket(address(randomizer));
