@@ -71,6 +71,9 @@ type IssuerMintedEvent @entity {
   "Address of the issuer contract"
   address: Bytes!
 
+  "Codex data for the issuer"
+  codexData: Codex!
+
   "Metadata of the issuer contract"
   metadata: String!
 
@@ -106,10 +109,27 @@ type IssuerMintedEvent @entity {
 
   "List of the issuer on chain scripts, only for fully on chain tokens"
   onChainScripts: [OnChainScript!]
+
+  "The timestamp of the block the event is in"
+  timestamp: BigInt!
+}
+
+type Codex @entity {
+  "The id of the codex, equal to the issuer mint event id"
+  id: ID!
+
+  "Type of the input: either off or on chain"
+  inputType: BigInt!
+
+  "Encoded value for the codex"
+  value: Bytes!
+
+  "Id of the codex entry"
+  codexId: BigInt!
 }
 
 type Reserve @entity {
-  "The id of the reserve, equal to the issuer address and method id concatenated: <issuer:methodId>"
+  "The id of the reserve, equal to the issuer event id and method id concatenated: <issuer:methodId>"
   id: ID!
 
   "Idenfitier of the reserve method"
@@ -123,7 +143,7 @@ type Reserve @entity {
 }
 
 type Pricing @entity {
-  "The id of the pricing, equal to the issuer address"
+  "The id of the pricing, equal to the issuer mint event id"
   id: ID!
 
   "Idenfitier of the pricing method"
@@ -137,7 +157,7 @@ type Pricing @entity {
 }
 
 type Split @entity {
-  "The id of the royalty, equal to the issuer address"
+  "The id of the royalty, equal to the issuer mint event id, prefixed with 'P-' if it is primary, and 'S-' if it is secondary"
   id: ID!
 
   "Recipient of the royalties"
