@@ -7,10 +7,10 @@ import {IRoyaltyManager} from "contracts/interfaces/IRoyaltyManager.sol";
 /// @notice A contract for managing royalties
 abstract contract RoyaltyManager is IRoyaltyManager {
     /// @notice A struct containing basisPoints and receiver address for a royalty
-    RoyaltyInfo[] public royalties;
+    RoyaltyInfo[] private royalties;
 
     /// @dev Mapping of token IDs to token-specific royalties
-    mapping(uint256 => RoyaltyInfo[]) public royaltyTokenInfo;
+    mapping(uint256 => RoyaltyInfo[]) private royaltyTokenInfo;
 
     /**
      * @dev Sets the base royalties for the contract
@@ -107,9 +107,9 @@ abstract contract RoyaltyManager is IRoyaltyManager {
     ) internal virtual {
         if (!_exists(_tokenId)) revert NonExistentToken();
         if (receivers.length != basisPoints.length) revert LengthMismatch();
+        /// Deleting first, so this could be used to reset royalties to a new config
         delete royaltyTokenInfo[_tokenId];
         RoyaltyInfo[] storage tokenRoyalties = royaltyTokenInfo[_tokenId];
-        if (tokenRoyalties.length != 0) revert TokenRoyaltiesAlreadySet();
         RoyaltyInfo[] memory royalties_ = royalties;
         uint256 baseLength = royalties.length;
         uint256 tokenLength = basisPoints.length;
@@ -140,7 +140,6 @@ abstract contract RoyaltyManager is IRoyaltyManager {
     ) internal {
         delete royalties;
         if (receivers.length != basisPoints.length) revert LengthMismatch();
-        if (royalties.length != 0) revert BaseRoyaltiesAlreadySet();
         _checkRoyalties(basisPoints);
         for (uint256 i; i < basisPoints.length; i++) {
             royalties.push(RoyaltyInfo(receivers[i], basisPoints[i]));
@@ -154,7 +153,6 @@ abstract contract RoyaltyManager is IRoyaltyManager {
      * @dev Returns the fee denominator for calculating royalty amounts.
      * @return The fee denominator.
      */
-
     function _feeDenominator() internal pure virtual returns (uint96) {
         return 10000;
     }

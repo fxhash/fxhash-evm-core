@@ -37,14 +37,8 @@ interface IRoyaltyManager {
     /// @dev Throws an error if the basis point value exceeds the maximum allowed value.
     error OverMaxBasisPointAllowed();
 
-    /// @dev Throws an error if the royalties are already set.
-    error BaseRoyaltiesAlreadySet();
-
     /// @dev Throws an error if there is a length mismatch between the receivers and basis points arrays.
     error LengthMismatch();
-
-    /// @dev Throws an error if the token royalties are already set.
-    error TokenRoyaltiesAlreadySet();
 
     /// @notice Royalty configuration is greater than or equal to 100% in terms of basisPoints
     error InvalidRoyaltyConfig();
