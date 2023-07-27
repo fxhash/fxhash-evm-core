@@ -12,7 +12,7 @@ import { createFxHashProjectCreatedEvent } from "./fxhashFactory_utils";
 
 let fxHashProjectCreatedEvent: FxHashProjectCreated;
 
-describe("Scoped / Nested block", () => {
+describe("FxHash factory handlers", () => {
   beforeEach(() => {
     const genTk = Address.fromString(
       "0x0000000000000000000000000000000000000001",
