@@ -2,8 +2,9 @@
 pragma solidity ^0.8.17;
 
 import {IRoyaltyManager} from "contracts/interfaces/IRoyaltyManager.sol";
+import {IERC2981Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol";
 
-abstract contract RoyaltyManager is IRoyaltyManager {
+abstract contract RoyaltyManager is IRoyaltyManager, IERC2981Upgradeable {
     /// @notice A struct containing basisPoints and receiver address for a royalty
     RoyaltyInfo[] public royalties;
 
@@ -38,6 +39,22 @@ abstract contract RoyaltyManager is IRoyaltyManager {
     ) external virtual {
         _setTokenRoyalties(_tokenId, receivers, basisPoints);
         emit TokenIdRoyaltiesUpdated(_tokenId, receivers, basisPoints);
+    }
+
+    function royaltyInfo(
+        uint256 _tokenId,
+        uint256 salePrice
+    ) external view virtual returns (address, uint256) {
+        RoyaltyInfo[] storage tokenRoyalties = royaltyTokenInfo[_tokenId];
+        RoyaltyInfo[] memory royalties_ = royalties;
+
+        if (tokenRoyalties.length + royalties.length > 1) revert MoreThanOneRoyaltyReceiver();
+        if (tokenRoyalties.length + royalties.length == 0) revert NoRoyaltyReceiver();
+        (address receiver, uint96 basisPoints) = tokenRoyalties.length > 0
+            ? (tokenRoyalties[0].receiver, tokenRoyalties[0].basisPoints)
+            : (royalties_[0].receiver, royalties_[0].basisPoints);
+        uint256 amount = (salePrice * basisPoints) / _feeDenominator();
+        return (receiver, amount);
     }
 
     function getRoyalties(
@@ -128,37 +145,13 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         delete royaltyTokenInfo[_tokenId];
     }
 
-    /**
-     * @dev Returns the royalty amount
-     */
-    function _getRoyalties(
-        uint256 _tokenId,
-        uint96 _value
-    ) internal view returns (address payable[] memory receivers, uint96[] memory royaltyPayments) {
-        RoyaltyInfo[] memory royalties_ = royalties;
-        RoyaltyInfo[] storage tokenRoyalties = royaltyTokenInfo[_tokenId];
-        uint256 baseLength = royalties.length;
-        uint256 tokenLength = tokenRoyalties.length;
-        receivers = new address payable[](baseLength + tokenLength);
-        royaltyPayments = new uint96[](baseLength + tokenLength);
-        for (uint256 i; i < baseLength; i++) {
-            (receivers[i], royaltyPayments[i]) = (
-                royalties_[i].receiver,
-                (royalties_[i].basisPoints * _value) / 10_000
-            );
-        }
-
-        for (uint256 i; i < tokenLength; i++) {
-            (receivers[i + baseLength], royaltyPayments[i + baseLength]) = (
-                tokenRoyalties[i].receiver,
-                (tokenRoyalties[i].basisPoints * _value) / 10_000
-            );
-        }
-    }
-
     function _feeDenominator() internal pure virtual returns (uint96) {
         return 10000;
     }
+
+    function _exists(uint256) internal virtual returns (bool);
+
+    function supportsInterface(bytes4 interfaceId) public view virtual returns (bool);
 
     /**
      * @dev Checks that the total basis points for the royalties do not exceed 10000 (100%)
@@ -171,6 +164,4 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         }
         if (totalBasisPoints >= _feeDenominator()) revert InvalidRoyaltyConfig();
     }
-
-    function _exists(uint256) internal virtual returns (bool);
 }

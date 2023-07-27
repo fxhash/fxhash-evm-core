@@ -5,7 +5,6 @@ import {ERC721URIStorageUpgradeable, ERC721Upgradeable} from "@openzeppelin/cont
 import {IConfigurationManager} from "contracts/interfaces/IConfigurationManager.sol";
 import {IERC165Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC165Upgradeable.sol";
 import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC721Upgradeable.sol";
-import {IERC2981Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol";
 import {IFactory} from "contracts/interfaces/IFactory.sol";
 import {IGenTk} from "contracts/interfaces/IGenTk.sol";
 import {IIssuer} from "contracts/interfaces/IIssuer.sol";
@@ -15,13 +14,7 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 import {LibRoyalty} from "contracts/libs/LibRoyalty.sol";
 import {RoyaltyManager} from "contracts/gentk/RoyaltyManager.sol";
 
-contract GenTk is
-    ERC721URIStorageUpgradeable,
-    OwnableUpgradeable,
-    IERC2981Upgradeable,
-    RoyaltyManager,
-    IGenTk
-{
+contract GenTk is ERC721URIStorageUpgradeable, OwnableUpgradeable, RoyaltyManager, IGenTk {
     struct TokenMetadata {
         uint256 tokenId;
         string metadata;
@@ -115,16 +108,6 @@ contract GenTk is
         configManager = IConfigurationManager(_configManager);
     }
 
-    function royaltyInfo(uint256, uint256 salePrice) external view returns (address, uint256) {
-        LibRoyalty.RoyaltyData memory royalty = royaltiesSplit;
-        uint256 amount = (salePrice * royalty.percent) / 10000;
-        return (royalty.receiver, amount);
-    }
-
-    function getRoyaltyReceiver() external view returns (address) {
-        return royaltiesSplit.receiver;
-    }
-
     function deleteBaseRoyalty() external {}
 
     function deleteTokenRoyalty(uint256 _tokenId) external {}
@@ -147,11 +130,10 @@ contract GenTk is
 
     function supportsInterface(
         bytes4 interfaceId
-    ) public view override(ERC721URIStorageUpgradeable, IERC165Upgradeable) returns (bool) {
+    ) public view override(ERC721URIStorageUpgradeable, RoyaltyManager) returns (bool) {
         return
             interfaceId == type(IERC721Upgradeable).interfaceId ||
             interfaceId == type(IGenTk).interfaceId ||
-            interfaceId == type(IERC2981Upgradeable).interfaceId ||
             super.supportsInterface(interfaceId);
     }
 

@@ -7,6 +7,8 @@ interface IRoyaltyManager {
         uint96 basisPoints;
     }
 
+    error NoRoyaltyReceiver();
+    error MoreThanOneRoyaltyReceiver();
     error RoyaltiesNotSet();
     error TokenRoyaltiesNotSet();
     error OverMaxBasisPointAllowed();
