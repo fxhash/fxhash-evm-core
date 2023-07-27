@@ -12,14 +12,14 @@ contract ModerationIssuer is BaseModeration, IModerationIssuer {
     constructor(address _moderation) BaseModeration(_moderation) {}
 
     function moderate(address _issuer, uint128 _state, uint128 _reason) external onlyModerator {
-        if (bytes(reasons[_reason]).length == 0) revert ReasonDoesNotExist();
+        if (bytes(reasons[_reason]).length == 0) revert InvalidReason();
         issuers[_issuer] = IssuerModInfo(_state, _reason);
 
         emit IssuerModerated(_issuer, _state, _reason);
     }
 
     function report(address _issuer, uint128 _reason) external onlyModerator {
-        if (bytes(reasons[_reason]).length == 0) revert ReasonDoesNotExist();
+        if (bytes(reasons[_reason]).length == 0) revert InvalidReason();
         reports[getHashedKey(msg.sender, _issuer)] = _reason;
 
         emit IssuerReported(msg.sender, _issuer, _reason);

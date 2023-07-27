@@ -17,10 +17,10 @@ abstract contract BaseModeration is Ownable {
     /// @notice Mapping of reason ID to reason
     mapping(uint128 => string) public reasons;
 
+    /// @notice Thrown when reason value is invalid
+    error InvalidReason();
     /// @notice Thrown when caller is not a moderator
     error NotModerator();
-    /// @notice Thrown when reason value is empty
-    error ReasonDoesNotExist();
 
     /// @dev Checks if caller is a moderator
     modifier onlyModerator() {
@@ -49,7 +49,7 @@ abstract contract BaseModeration is Ownable {
     /// @param _reasonId ID of reason
     /// @param _reason String value of reason
     function updateReason(uint128 _reasonId, string calldata _reason) external onlyModerator {
-        if (bytes(reasons[_reasonId]).length == 0) revert ReasonDoesNotExist();
+        if (bytes(reasons[_reasonId]).length == 0) revert InvalidReason();
         reasons[_reasonId] = _reason;
     }
 

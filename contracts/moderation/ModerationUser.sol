@@ -16,20 +16,17 @@ contract ModerationUser is BaseModeration, IModerationUser {
         return ModerationTeam(moderation).isAuthorized(_account, 20);
     }
 
-    // Moderate a user with a given state/reason
-    function moderate(address _account, uint128 _state, uint128 _reason) public onlyModerator {
-        if (bytes(reasons[_reason]).length == 0) revert ReasonDoesNotExist();
-        users[_account] = UserModInfo(_state, _reason);
-        emit UserModerated(_account, _state, _reason);
+    function verify(address _account) external onlyModerator {
+        users[_account] = UserModInfo(VERIFIED, 0);
     }
 
-    // Quicker way to set the state of users as "MALICIOUS", which is 3
     function ban(address _account, uint128 _reason) external onlyModerator {
         moderate(_account, MALICIOUS, _reason);
     }
 
-    // Quicker way to verify a user (set its state as 10 = VERIFIED)
-    function verify(address _account) external onlyModerator {
-        users[_account] = UserModInfo(VERIFIED, 0);
+    function moderate(address _account, uint128 _state, uint128 _reason) public onlyModerator {
+        if (bytes(reasons[_reason]).length == 0) revert InvalidReason();
+        users[_account] = UserModInfo(_state, _reason);
+        emit UserModerated(_account, _state, _reason);
     }
 }
