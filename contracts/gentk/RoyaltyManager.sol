@@ -2,11 +2,10 @@
 pragma solidity ^0.8.17;
 
 import {IRoyaltyManager} from "contracts/interfaces/IRoyaltyManager.sol";
-import {IERC2981Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol";
 
 /// @title RoyaltyManager
 /// @notice A contract for managing royalties
-abstract contract RoyaltyManager is IRoyaltyManager, IERC2981Upgradeable {
+abstract contract RoyaltyManager is IRoyaltyManager {
     /// @notice A struct containing basisPoints and receiver address for a royalty
     RoyaltyInfo[] public royalties;
 

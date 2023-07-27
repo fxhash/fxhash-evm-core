@@ -66,4 +66,9 @@ interface IRoyaltyManager {
     function getRoyalties(
         uint256 tokenId
     ) external view returns (address payable[] memory, uint256[] memory);
+
+    function royaltyInfo(
+        uint256 _tokenId,
+        uint256 salePrice
+    ) external view returns (address, uint256);
 }

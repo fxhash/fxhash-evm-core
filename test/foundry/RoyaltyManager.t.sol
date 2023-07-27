@@ -114,3 +114,56 @@ contract SetTokenRoyaltiesTest is RoyaltyManagerTest {
         royaltyManager.setTokenRoyalties(tokenId, accounts, basisPoints);
     }
 }
+
+contract GetRoyalties is RoyaltyManagerTest {
+    function setUp() public override {
+        super.setUp();
+        accounts.push(payable(address(40)));
+        accounts.push(payable(address(20)));
+        accounts.push(payable(address(10)));
+
+        basisPoints.push(2500);
+        basisPoints.push(2500);
+        basisPoints.push(2500);
+    }
+
+    function test_getRoyalties() public {
+        royaltyManager.setBaseRoyalties(accounts, basisPoints);
+        address payable[] memory receivers;
+        uint256[] memory bps;
+        (receivers, bps) = royaltyManager.getRoyalties(tokenId);
+        assertEq(receivers.length, accounts.length, "accounts mismatch");
+        assertEq(basisPoints.length, bps.length, "Basispoint mismatch");
+    }
+}
+
+contract RoyaltyInfo is RoyaltyManagerTest {
+    function setUp() public override {
+        super.setUp();
+        accounts.push(payable(address(10)));
+        basisPoints.push(2500);
+    }
+
+    function test_WhenBaseLength1() public {
+        royaltyManager.setBaseRoyalties(accounts, basisPoints);
+        royaltyManager.royaltyInfo(tokenId, 100);
+    }
+
+    function test_WhenBaseLength0() public {
+        accounts.pop();
+        basisPoints.pop();
+        royaltyManager.setBaseRoyalties(accounts, basisPoints);
+        vm.expectRevert(abi.encodeWithSelector(IRoyaltyManager.NoRoyaltyReceiver.selector));
+        royaltyManager.royaltyInfo(tokenId, 100);
+    }
+
+    function test_RevertsWhenBaseLengthGt1() public {
+        accounts.push(payable(address(42)));
+        basisPoints.push(1000);
+        royaltyManager.setBaseRoyalties(accounts, basisPoints);
+        vm.expectRevert(
+            abi.encodeWithSelector(IRoyaltyManager.MoreThanOneRoyaltyReceiver.selector)
+        );
+        royaltyManager.royaltyInfo(tokenId, 100);
+    }
+}
