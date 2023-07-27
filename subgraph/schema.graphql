@@ -63,3 +63,109 @@ type TokenTransferEvent @entity {
   "The timestamp of the block the event is in"
   timestamp: BigInt!
 }
+
+type IssuerMintedEvent @entity {
+  "The txn hash of this event"
+  id: ID!
+
+  "Address of the issuer contract"
+  address: Bytes!
+
+  "Metadata of the issuer contract"
+  metadata: String!
+
+  "Size of the input for the Fx Params"
+  inputBytesSize: BigInt!
+
+  "Amount of token that will be mintable through the issuer"
+  amount: BigInt!
+
+  "Optional closing time if the issuer is using Open Editions"
+  openEditionsClosingTime: BigInt
+
+  "Gracing period for the mint tickets if they are used by the issuer"
+  mintTicketGracingPeriod: BigInt
+
+  "List of the issuer reserves"
+  reserves: [Reserve!]!
+
+  "Pricing method and configuration used by the issuer"
+  pricing: Pricing!
+
+  "Primary split of the issuer, used for the minting"
+  primarySplit: Split!
+
+  "Royalties split of the issuer, used for the secondary market"
+  royaltiesSplit: Split!
+
+  "Flag setting if the issuer is currently enabled"
+  enabled: Boolean!
+
+  "List of the issuer tags"
+  tags: [BigInt!]!
+
+  "List of the issuer on chain scripts, only for fully on chain tokens"
+  onChainScripts: [OnChainScript!]
+}
+
+type Reserve @entity {
+  "The id of the reserve, equal to the issuer address and method id concatenated: <issuer:methodId>"
+  id: ID!
+
+  "Idenfitier of the reserve method"
+  methodId: BigInt!
+
+  "Amount of tokens allocated to this reserve"
+  amount: BigInt!
+
+  "Encoded data for the reserve"
+  data: Bytes!
+}
+
+type Pricing @entity {
+  "The id of the pricing, equal to the issuer address"
+  id: ID!
+
+  "Idenfitier of the pricing method"
+  pricingId: BigInt!
+
+  "Encoded data for the pricing configuration"
+  details: Bytes!
+
+  "Flag for When there is only one token remaining after deducting the reserves from the balance, the contract locks the current price - only for dutch auction"
+  lockForReserves: Boolean!
+}
+
+type Split @entity {
+  "The id of the royalty, equal to the issuer address"
+  id: ID!
+
+  "Recipient of the royalties"
+  recipient: Bytes!
+
+  "Share of the royalties"
+  value: BigInt!
+}
+
+type OnChainScript @entity {
+  "The id of the script, equal to its name"
+  id: ID!
+
+  "Address of the contract storing the script code"
+  storageContractAddress: Bytes!
+
+  "Data provided to the storage contract"
+  contractData: Bytes!
+
+  "Wrapping type of the script in the storage: Base64, Inlined, GZIPPED, etc"
+  wrapType: BigInt!
+
+  "Optional wrap prefix"
+  wrapPrefix: Bytes
+
+  "Optional wrap suffix"
+  wrapSuffix: Bytes
+
+  "Optional script content"
+  scriptContent: Bytes
+}
