@@ -10,6 +10,8 @@ import { newMockEvent, log } from "matchstick-as";
 import {
   IssuerBurned,
   IssuerMinted,
+  IssuerModUpdated,
+  IssuerUpdated,
 } from "../src/types/templates/Issuer/Issuer";
 
 export function newCodex(
@@ -139,4 +141,33 @@ export function createIssuerMintedEvent(
 
 export function createIssuerBurnedEvent(): IssuerBurned {
   return changetype<IssuerBurned>(newMockEvent());
+}
+
+export function createIssuerModUpdatedEvent(
+  tags: Array<BigInt>,
+): IssuerModUpdated {
+  let event = changetype<IssuerModUpdated>(newMockEvent());
+  event.parameters = [
+    new ethereum.EventParam("tags", ethereum.Value.fromSignedBigIntArray(tags)),
+  ];
+  return event;
+}
+
+export function createIssuerUpdatedEvent(
+  primarySplit: ethereum.Tuple,
+  royaltiesSplit: ethereum.Tuple,
+  enabled: boolean,
+): IssuerUpdated {
+  let event = changetype<IssuerUpdated>(newMockEvent());
+  let updateIssuerInput: ethereum.Tuple = new ethereum.Tuple(13);
+  updateIssuerInput[0] = ethereum.Value.fromTuple(primarySplit);
+  updateIssuerInput[1] = ethereum.Value.fromTuple(royaltiesSplit);
+  updateIssuerInput[2] = ethereum.Value.fromBoolean(enabled);
+  event.parameters = [
+    new ethereum.EventParam(
+      "params",
+      ethereum.Value.fromTuple(updateIssuerInput),
+    ),
+  ];
+  return event;
 }

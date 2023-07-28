@@ -3,12 +3,19 @@ import {
   Codex,
   IssuerBurnedEvent,
   IssuerMintedEvent,
+  IssuerModUpdatedEvent,
+  IssuerUpdatedEvent,
   OnChainScript,
   Pricing,
   Reserve,
   Split,
 } from "../types/schema";
-import { IssuerBurned, IssuerMinted } from "../types/templates/Issuer/Issuer";
+import {
+  IssuerBurned,
+  IssuerMinted,
+  IssuerModUpdated,
+  IssuerUpdated,
+} from "../types/templates/Issuer/Issuer";
 
 export function handleIssuerMinted(event: IssuerMinted): void {
   let issuerMintedEvent = new IssuerMintedEvent(
@@ -111,4 +118,43 @@ export function handleIssuerBurned(event: IssuerBurned): void {
   issuerBurnedEvent.timestamp = event.block.timestamp;
   issuerBurnedEvent.level = event.block.number;
   issuerBurnedEvent.save();
+}
+
+export function handleIssuerModUpdated(event: IssuerModUpdated): void {
+  let issuerModUpdatedEvent = new IssuerModUpdatedEvent(
+    event.transaction.hash.toHexString(),
+  );
+  issuerModUpdatedEvent.tags = event.params.tags;
+  issuerModUpdatedEvent.issuer = event.address;
+  issuerModUpdatedEvent.timestamp = event.block.timestamp;
+  issuerModUpdatedEvent.level = event.block.number;
+  issuerModUpdatedEvent.save();
+}
+
+export function handleIssuerUpdated(event: IssuerUpdated): void {
+  let issuerModUpdatedEvent = new IssuerUpdatedEvent(
+    event.transaction.hash.toHexString(),
+  );
+
+  let primarySplit = new Split("P-" + event.transaction.hash.toHexString());
+  //TODO: same hack here
+  primarySplit.recipient = event.params.params.primarySplit[0].toAddress();
+  //TODO: same hack here
+  primarySplit.value = event.params.params.primarySplit[1].toBigInt();
+  primarySplit.save();
+
+  let royaltiesSplit = new Split("S-" + event.transaction.hash.toHexString());
+  //TODO: same hack here
+  royaltiesSplit.recipient = event.params.params.royaltiesSplit[0].toAddress();
+  //TODO: same hack here
+  royaltiesSplit.value = event.params.params.royaltiesSplit[1].toBigInt();
+  royaltiesSplit.save();
+
+  issuerModUpdatedEvent.primarySplit = primarySplit.id;
+  issuerModUpdatedEvent.royaltiesSplit = royaltiesSplit.id;
+  issuerModUpdatedEvent.enabled = event.params.params.enabled;
+  issuerModUpdatedEvent.issuer = event.address;
+  issuerModUpdatedEvent.timestamp = event.block.timestamp;
+  issuerModUpdatedEvent.level = event.block.number;
+  issuerModUpdatedEvent.save();
 }

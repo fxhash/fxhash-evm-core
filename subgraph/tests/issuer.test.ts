@@ -8,6 +8,8 @@ import {
 import {
   createIssuerBurnedEvent,
   createIssuerMintedEvent,
+  createIssuerModUpdatedEvent,
+  createIssuerUpdatedEvent,
   newCodex,
   newMintTicketSettings,
   newOnChainScript,
@@ -17,7 +19,12 @@ import {
   newSplit,
 } from "./issuer_utils";
 import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
-import { handleIssuerBurned, handleIssuerMinted } from "../src/mappings/issuer";
+import {
+  handleIssuerBurned,
+  handleIssuerMinted,
+  handleIssuerModUpdated,
+  handleIssuerUpdated,
+} from "../src/mappings/issuer";
 
 describe("Issuer Handlers", () => {
   beforeEach(() => {});
@@ -90,5 +97,25 @@ describe("Issuer Handlers", () => {
   test("handleIssuerBurned correctly processes the IssuerBurned event", () => {
     let event = createIssuerBurnedEvent();
     handleIssuerBurned(event);
+  });
+
+  test("handleIssuerModUpdated correctly processes the IssuerModUpdated event", () => {
+    let event = createIssuerModUpdatedEvent([new BigInt(1), new BigInt(2)]);
+    handleIssuerModUpdated(event);
+  });
+
+  test("handleIssuerUpdated correctly processes the IssuerUpdated event", () => {
+    let event = createIssuerUpdatedEvent(
+      newSplit(
+        Address.fromString("0x0000000000000000000000000000000000000001"),
+        BigInt.fromI32(100),
+      ),
+      newSplit(
+        Address.fromString("0x0000000000000000000000000000000000000002"),
+        BigInt.fromI32(200),
+      ),
+      true,
+    );
+    handleIssuerUpdated(event);
   });
 });
