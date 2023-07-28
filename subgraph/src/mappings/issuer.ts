@@ -1,4 +1,4 @@
-import { log } from "@graphprotocol/graph-ts";
+import { Address, log } from "@graphprotocol/graph-ts";
 import {
   Codex,
   IssuerBurnedEvent,
@@ -9,7 +9,10 @@ import {
   PriceUpdatedEvent,
   Pricing,
   Reserve,
+  ReserveUpdatedEvent,
   Split,
+  SupplyBurnedEvent,
+  TokenMintedEvent,
 } from "../types/schema";
 import {
   IssuerBurned,
@@ -17,7 +20,11 @@ import {
   IssuerModUpdated,
   IssuerUpdated,
   PriceUpdated,
+  ReserveUpdated,
+  SupplyBurned,
+  TokenMinted,
 } from "../types/templates/Issuer/Issuer";
+import { ZERO_ADDRESS } from "./constants";
 
 export function handleIssuerMinted(event: IssuerMinted): void {
   let issuerMintedEvent = new IssuerMintedEvent(
@@ -29,7 +36,7 @@ export function handleIssuerMinted(event: IssuerMinted): void {
   codex.value = event.params.params.codex.value;
   codex.codexId = event.params.params.codex.codexId;
 
-  let reserves: Reserve[] = [];
+  issuerMintedEvent.reserves = [];
   for (let i = 0; i < event.params.params.reserves.length; i++) {
     const methodId = event.params.params.reserves[i].methodId;
     let reserve = new Reserve(
@@ -39,7 +46,7 @@ export function handleIssuerMinted(event: IssuerMinted): void {
     reserve.amount = event.params.params.reserves[i].amount;
     reserve.data = event.params.params.reserves[i].data;
     reserve.save();
-    reserves.push(reserve);
+    issuerMintedEvent.reserves.push(reserve.id);
   }
 
   let pricing = new Pricing(event.transaction.hash.toHexString());
@@ -99,7 +106,6 @@ export function handleIssuerMinted(event: IssuerMinted): void {
     event.params.params.openEditions.closingTime;
   issuerMintedEvent.mintTicketGracingPeriod =
     event.params.params.mintTicketSettings.gracingPeriod;
-  issuerMintedEvent.reserves = reserves.map<string>((r) => r.id);
   issuerMintedEvent.pricing = pricing.id;
   issuerMintedEvent.primarySplit = primarySplit.id;
   issuerMintedEvent.royaltiesSplit = royaltiesSplit.id;
@@ -176,4 +182,60 @@ export function handlePriceUpdated(event: PriceUpdated): void {
   priceUpdatedEvent.timestamp = event.block.timestamp;
   priceUpdatedEvent.level = event.block.number;
   priceUpdatedEvent.save();
+}
+
+export function handleReserveUpdated(event: ReserveUpdated): void {
+  let reserveUpdatedEvent = new ReserveUpdatedEvent(
+    event.transaction.hash.toHexString(),
+  );
+  reserveUpdatedEvent.reserves = [];
+  for (let i = 0; i < event.params.reserves.length; i++) {
+    const methodId = event.params.reserves[i].methodId;
+    let reserve = new Reserve(
+      event.transaction.hash.toHexString() + "-" + methodId.toString(),
+    );
+    reserve.methodId = methodId;
+    reserve.amount = event.params.reserves[i].amount;
+    reserve.data = event.params.reserves[i].data;
+    reserve.save();
+    reserveUpdatedEvent.reserves.push(reserve.id);
+  }
+  reserveUpdatedEvent.issuer = event.address;
+  reserveUpdatedEvent.timestamp = event.block.timestamp;
+  reserveUpdatedEvent.level = event.block.number;
+  reserveUpdatedEvent.save();
+}
+
+export function handleSupplyBurned(event: SupplyBurned): void {
+  let supplyBurnedEvent = new SupplyBurnedEvent(
+    event.transaction.hash.toHexString(),
+  );
+  supplyBurnedEvent.amount = event.params.amount;
+  supplyBurnedEvent.issuer = event.address;
+  supplyBurnedEvent.timestamp = event.block.timestamp;
+  supplyBurnedEvent.level = event.block.number;
+  supplyBurnedEvent.save();
+}
+
+export function handleTokenMinted(event: TokenMinted): void {
+  let tokenMintedEvent = new TokenMintedEvent(
+    event.transaction.hash.toHexString(),
+  );
+
+  tokenMintedEvent.createTicket = event.params.params.createTicket;
+  tokenMintedEvent.issuer = event.address;
+  tokenMintedEvent.level = event.block.number;
+  tokenMintedEvent.recipient = event.params.params.recipient;
+  tokenMintedEvent.timestamp = event.block.timestamp;
+
+  if (event.params.params.referrer != ZERO_ADDRESS) {
+    tokenMintedEvent.referrer = event.params.params.referrer;
+  }
+  if (event.params.params.inputBytes.length > 0) {
+    tokenMintedEvent.inputBytes = event.params.params.inputBytes;
+  }
+  if (event.params.params.reserveInput.length > 0) {
+    tokenMintedEvent.reserveInput = event.params.params.reserveInput;
+  }
+  tokenMintedEvent.save();
 }

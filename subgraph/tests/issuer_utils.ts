@@ -13,6 +13,9 @@ import {
   IssuerModUpdated,
   IssuerUpdated,
   PriceUpdated,
+  ReserveUpdated,
+  SupplyBurned,
+  TokenMinted,
 } from "../src/types/templates/Issuer/Issuer";
 
 export function newCodex(
@@ -177,6 +180,47 @@ export function createPriceUpdatedEvent(pricing: ethereum.Tuple): PriceUpdated {
   let event = changetype<PriceUpdated>(newMockEvent());
   event.parameters = [
     new ethereum.EventParam("params", ethereum.Value.fromTuple(pricing)),
+  ];
+  return event;
+}
+
+export function createReserveUpdatedEvent(
+  reserves: Array<ethereum.Tuple>,
+): ReserveUpdated {
+  let event = changetype<ReserveUpdated>(newMockEvent());
+  event.parameters = [
+    new ethereum.EventParam("params", ethereum.Value.fromTupleArray(reserves)),
+  ];
+  return event;
+}
+
+export function createSuplyBurnedEvent(amount: BigInt): SupplyBurned {
+  let event = changetype<SupplyBurned>(newMockEvent());
+  event.parameters = [
+    new ethereum.EventParam(
+      "amount",
+      ethereum.Value.fromUnsignedBigInt(amount),
+    ),
+  ];
+  return event;
+}
+
+export function createTokenMintedEvent(
+  inputBytes: Bytes,
+  referrer: Address,
+  reserveInput: Bytes,
+  createTicket: boolean,
+  recipient: Address,
+): TokenMinted {
+  let event = changetype<TokenMinted>(newMockEvent());
+  let input = new ethereum.Tuple(5);
+  input[0] = ethereum.Value.fromBytes(inputBytes);
+  input[1] = ethereum.Value.fromAddress(referrer);
+  input[2] = ethereum.Value.fromBytes(reserveInput);
+  input[3] = ethereum.Value.fromBoolean(createTicket);
+  input[4] = ethereum.Value.fromAddress(recipient);
+  event.parameters = [
+    new ethereum.EventParam("params", ethereum.Value.fromTuple(input)),
   ];
   return event;
 }

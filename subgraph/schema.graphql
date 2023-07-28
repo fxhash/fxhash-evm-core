@@ -203,7 +203,7 @@ type OnChainScript @entity {
 }
 
 type IssuerBurnedEvent @entity {
-  "The id of the script, equal to its name"
+  "The txn hash of this event"
   id: ID!
 
   "Address of the issuer contract that emitted the event"
@@ -217,7 +217,7 @@ type IssuerBurnedEvent @entity {
 }
 
 type IssuerModUpdatedEvent @entity {
-  "The id of the script, equal to its name"
+  "The txn hash of this event"
   id: ID!
 
   "Address of the issuer contract that emitted the event"
@@ -234,7 +234,7 @@ type IssuerModUpdatedEvent @entity {
 }
 
 type IssuerUpdatedEvent @entity {
-  "The id of the script, equal to its name"
+  "The txn hash of this event"
   id: ID!
 
   "Address of the issuer contract that emitted the event"
@@ -257,7 +257,7 @@ type IssuerUpdatedEvent @entity {
 }
 
 type PriceUpdatedEvent @entity {
-  "The id of the script, equal to its name"
+  "The txn hash of this event"
   id: ID!
 
   "Address of the issuer contract that emitted the event"
@@ -265,6 +265,69 @@ type PriceUpdatedEvent @entity {
 
   "Primary split of the issuer, used for the minting"
   pricing: Pricing!
+
+  "The timestamp of the block the event is in"
+  timestamp: BigInt!
+
+  "The block level of the transaction"
+  level: BigInt!
+}
+
+type ReserveUpdatedEvent @entity {
+  "The txn hash of this event"
+  id: ID!
+
+  "Address of the issuer contract that emitted the event"
+  issuer: Bytes!
+
+  "Primary split of the issuer, used for the minting"
+  reserves: [Reserve!]!
+
+  "The timestamp of the block the event is in"
+  timestamp: BigInt!
+
+  "The block level of the transaction"
+  level: BigInt!
+}
+
+type SupplyBurnedEvent @entity {
+  "The txn hash of this event"
+  id: ID!
+
+  "Address of the issuer contract that emitted the event"
+  issuer: Bytes!
+
+  "Primary split of the issuer, used for the minting"
+  amount: BigInt!
+
+  "The timestamp of the block the event is in"
+  timestamp: BigInt!
+
+  "The block level of the transaction"
+  level: BigInt!
+}
+
+type TokenMintedEvent @entity {
+  "The txn hash of this event"
+  id: ID!
+
+  "Address of the issuer contract that emitted the event"
+  issuer: Bytes!
+
+  "Primary split of the issuer, used for the minting"
+  inputBytes: Bytes
+
+  "Optional address of the referrer"
+  referrer: Bytes
+
+  "Optional input bytes for the reserve"
+  reserveInput: Bytes
+
+  "Flag displaying if a ticket is used"
+  createTicket: Boolean!
+
+  "Address of the minter that will receive the token"
+  recipient: Bytes!
 
   "The timestamp of the block the event is in"
   timestamp: BigInt!

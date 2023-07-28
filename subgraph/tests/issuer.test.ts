@@ -11,6 +11,9 @@ import {
   createIssuerModUpdatedEvent,
   createIssuerUpdatedEvent,
   createPriceUpdatedEvent,
+  createReserveUpdatedEvent,
+  createSuplyBurnedEvent,
+  createTokenMintedEvent,
   newCodex,
   newMintTicketSettings,
   newOnChainScript,
@@ -26,6 +29,9 @@ import {
   handleIssuerModUpdated,
   handleIssuerUpdated,
   handlePriceUpdated,
+  handleReserveUpdated,
+  handleSupplyBurned,
+  handleTokenMinted,
 } from "../src/mappings/issuer";
 
 describe("Issuer Handlers", () => {
@@ -126,5 +132,37 @@ describe("Issuer Handlers", () => {
       newPricing(BigInt.fromI32(1), Bytes.fromHexString("0x01"), false),
     );
     handlePriceUpdated(event);
+  });
+
+  test("handleReserveUpdated correctly processes the ReserveUpdated event", () => {
+    let event = createReserveUpdatedEvent([
+      newReserve(
+        BigInt.fromI32(0),
+        BigInt.fromI32(100),
+        Bytes.fromHexString("0x01"),
+      ),
+      newReserve(
+        BigInt.fromI32(1),
+        BigInt.fromI32(200),
+        Bytes.fromHexString("0x02"),
+      ),
+    ]);
+    handleReserveUpdated(event);
+  });
+
+  test("handleSupplyBurned correctly processes the SupplyBurned event", () => {
+    let event = createSuplyBurnedEvent(BigInt.fromI32(1));
+    handleSupplyBurned(event);
+  });
+
+  test("handleTokenMinted correctly processes the TokenMinted event", () => {
+    let event = createTokenMintedEvent(
+      Bytes.fromHexString("0x01"),
+      Address.fromString("0x0000000000000000000000000000000000000001"),
+      Bytes.fromHexString("0x01"),
+      false,
+      Address.fromString("0x0000000000000000000000000000000000000001"),
+    );
+    handleTokenMinted(event);
   });
 });
