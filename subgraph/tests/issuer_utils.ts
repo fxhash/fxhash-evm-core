@@ -12,6 +12,7 @@ import {
   IssuerMinted,
   IssuerModUpdated,
   IssuerUpdated,
+  PriceUpdated,
 } from "../src/types/templates/Issuer/Issuer";
 
 export function newCodex(
@@ -159,7 +160,7 @@ export function createIssuerUpdatedEvent(
   enabled: boolean,
 ): IssuerUpdated {
   let event = changetype<IssuerUpdated>(newMockEvent());
-  let updateIssuerInput: ethereum.Tuple = new ethereum.Tuple(13);
+  let updateIssuerInput: ethereum.Tuple = new ethereum.Tuple(3);
   updateIssuerInput[0] = ethereum.Value.fromTuple(primarySplit);
   updateIssuerInput[1] = ethereum.Value.fromTuple(royaltiesSplit);
   updateIssuerInput[2] = ethereum.Value.fromBoolean(enabled);
@@ -168,6 +169,14 @@ export function createIssuerUpdatedEvent(
       "params",
       ethereum.Value.fromTuple(updateIssuerInput),
     ),
+  ];
+  return event;
+}
+
+export function createPriceUpdatedEvent(pricing: ethereum.Tuple): PriceUpdated {
+  let event = changetype<PriceUpdated>(newMockEvent());
+  event.parameters = [
+    new ethereum.EventParam("params", ethereum.Value.fromTuple(pricing)),
   ];
   return event;
 }

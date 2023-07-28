@@ -10,6 +10,7 @@ import {
   createIssuerMintedEvent,
   createIssuerModUpdatedEvent,
   createIssuerUpdatedEvent,
+  createPriceUpdatedEvent,
   newCodex,
   newMintTicketSettings,
   newOnChainScript,
@@ -24,6 +25,7 @@ import {
   handleIssuerMinted,
   handleIssuerModUpdated,
   handleIssuerUpdated,
+  handlePriceUpdated,
 } from "../src/mappings/issuer";
 
 describe("Issuer Handlers", () => {
@@ -117,5 +119,12 @@ describe("Issuer Handlers", () => {
       true,
     );
     handleIssuerUpdated(event);
+  });
+
+  test("handlePriceUpdated correctly processes the PriceUpdated event", () => {
+    let event = createPriceUpdatedEvent(
+      newPricing(BigInt.fromI32(1), Bytes.fromHexString("0x01"), false),
+    );
+    handlePriceUpdated(event);
   });
 });

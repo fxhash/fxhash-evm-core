@@ -6,6 +6,7 @@ import {
   IssuerModUpdatedEvent,
   IssuerUpdatedEvent,
   OnChainScript,
+  PriceUpdatedEvent,
   Pricing,
   Reserve,
   Split,
@@ -15,6 +16,7 @@ import {
   IssuerMinted,
   IssuerModUpdated,
   IssuerUpdated,
+  PriceUpdated,
 } from "../types/templates/Issuer/Issuer";
 
 export function handleIssuerMinted(event: IssuerMinted): void {
@@ -157,4 +159,21 @@ export function handleIssuerUpdated(event: IssuerUpdated): void {
   issuerModUpdatedEvent.timestamp = event.block.timestamp;
   issuerModUpdatedEvent.level = event.block.number;
   issuerModUpdatedEvent.save();
+}
+
+export function handlePriceUpdated(event: PriceUpdated): void {
+  let priceUpdatedEvent = new PriceUpdatedEvent(
+    event.transaction.hash.toHexString(),
+  );
+  let pricing = new Pricing(event.transaction.hash.toHexString());
+  pricing.pricingId = event.params.params.pricingId;
+  pricing.details = event.params.params.details;
+  pricing.lockForReserves = event.params.params.lockForReserves;
+  pricing.save();
+
+  priceUpdatedEvent.issuer = event.address;
+  priceUpdatedEvent.pricing = pricing.id;
+  priceUpdatedEvent.timestamp = event.block.timestamp;
+  priceUpdatedEvent.level = event.block.number;
+  priceUpdatedEvent.save();
 }

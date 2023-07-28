@@ -255,3 +255,20 @@ type IssuerUpdatedEvent @entity {
   "The block level of the transaction"
   level: BigInt!
 }
+
+type PriceUpdatedEvent @entity {
+  "The id of the script, equal to its name"
+  id: ID!
+
+  "Address of the issuer contract that emitted the event"
+  issuer: Bytes!
+
+  "Primary split of the issuer, used for the minting"
+  pricing: Pricing!
+
+  "The timestamp of the block the event is in"
+  timestamp: BigInt!
+
+  "The block level of the transaction"
+  level: BigInt!
+}
