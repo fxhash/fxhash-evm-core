@@ -12,5 +12,11 @@ interface IGenTk {
 
     function initialize(address _configManager, address _owner, address _issuer) external;
 
+    /**
+     * @notice The issuer calls this entrypoint to issue a NFT within the
+     * project. This function is agnostic of any checks, which are happening at
+     * the Issuer level; it simply registers a new NFT in the contract.
+     * @param _params mint parameters 
+     */
     function mint(TokenParams calldata _params) external;
 }
