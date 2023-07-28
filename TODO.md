@@ -9,3 +9,9 @@
 - `contracts/interfaces/ICodex.sol` > `updateIssuerCodexRequest`: this should be moved to the issuer, we are updating the codex pointer of an issuer, not directly a codex entry. codex entries are immutable once locked.
 - `contracts/interfaces/IIssuer.sol` > `mintIssuer`: needs to be removed in favor of Factory instanciation
 - `contracts/interfaces/IIssuer.sol` > `setCodex`: see `updateIssuerCodexRequest` above (we need to change the mechanism of updating the codex to match the request/approve pattern)
+- `contracts/interfaces/IMintTicket.sol` > `createProject`: instead of having 1 contract for all the projects, use the same Factory pattern to have 1 contract for the tickets as well
+- `contracts/interfaces/IMintTicket.sol` > `consume`: (see point above) once we migrate to the factory pattern for the mint ticket contract, the issuer will not be required in the field (as inferred by having 1 ticket contract per issuer)
+
+# Questions
+
+- `contracts/interfaces/IMintTicket.sol` > `mint`: is `minter` the right way to describe the recipient of the mint ? non-idomatic imo
