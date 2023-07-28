@@ -14,6 +14,7 @@ import {
   createReserveUpdatedEvent,
   createSuplyBurnedEvent,
   createTokenMintedEvent,
+  createTokenMintedWithTicketEvent,
   newCodex,
   newMintTicketSettings,
   newOnChainScript,
@@ -32,6 +33,7 @@ import {
   handleReserveUpdated,
   handleSupplyBurned,
   handleTokenMinted,
+  handleTokenMintedWithTicket,
 } from "../src/mappings/issuer";
 
 describe("Issuer Handlers", () => {
@@ -164,5 +166,14 @@ describe("Issuer Handlers", () => {
       Address.fromString("0x0000000000000000000000000000000000000001"),
     );
     handleTokenMinted(event);
+  });
+
+  test("handleTokenMintedWithTicket correctly processes the TokenMintedWithTicket event", () => {
+    let event = createTokenMintedWithTicketEvent(
+      BigInt.fromI32(1),
+      Bytes.fromHexString("0x01"),
+      Address.fromString("0x0000000000000000000000000000000000000001"),
+    );
+    handleTokenMintedWithTicket(event);
   });
 });

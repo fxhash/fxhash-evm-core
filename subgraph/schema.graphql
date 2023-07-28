@@ -335,3 +335,26 @@ type TokenMintedEvent @entity {
   "The block level of the transaction"
   level: BigInt!
 }
+
+type TokenMintedWithTicketEvent @entity {
+  "The txn hash of this event"
+  id: ID!
+
+  "Address of the issuer contract that emitted the event"
+  issuer: Bytes!
+
+  "ID of the ticket to consume"
+  ticketId: BigInt!
+
+  "Optional input fxparams bytes for the minting"
+  inputBytes: Bytes
+
+  "Address of the minter that will receive the token"
+  recipient: Bytes!
+
+  "The timestamp of the block the event is in"
+  timestamp: BigInt!
+
+  "The block level of the transaction"
+  level: BigInt!
+}

@@ -13,6 +13,7 @@ import {
   Split,
   SupplyBurnedEvent,
   TokenMintedEvent,
+  TokenMintedWithTicketEvent,
 } from "../types/schema";
 import {
   IssuerBurned,
@@ -23,6 +24,7 @@ import {
   ReserveUpdated,
   SupplyBurned,
   TokenMinted,
+  TokenMintedWithTicket,
 } from "../types/templates/Issuer/Issuer";
 import { ZERO_ADDRESS } from "./constants";
 
@@ -238,4 +240,23 @@ export function handleTokenMinted(event: TokenMinted): void {
     tokenMintedEvent.reserveInput = event.params.params.reserveInput;
   }
   tokenMintedEvent.save();
+}
+
+export function handleTokenMintedWithTicket(
+  event: TokenMintedWithTicket,
+): void {
+  let tokenMintedWithTicketEvent = new TokenMintedWithTicketEvent(
+    event.transaction.hash.toHexString(),
+  );
+
+  if (event.params.params.inputBytes.length > 0) {
+    tokenMintedWithTicketEvent.inputBytes = event.params.params.inputBytes;
+  }
+
+  tokenMintedWithTicketEvent.ticketId = event.params.params.ticketId;
+  tokenMintedWithTicketEvent.issuer = event.address;
+  tokenMintedWithTicketEvent.level = event.block.number;
+  tokenMintedWithTicketEvent.recipient = event.params.params.recipient;
+  tokenMintedWithTicketEvent.timestamp = event.block.timestamp;
+  tokenMintedWithTicketEvent.save();
 }

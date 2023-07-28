@@ -16,6 +16,7 @@ import {
   ReserveUpdated,
   SupplyBurned,
   TokenMinted,
+  TokenMintedWithTicket,
 } from "../src/types/templates/Issuer/Issuer";
 
 export function newCodex(
@@ -219,6 +220,22 @@ export function createTokenMintedEvent(
   input[2] = ethereum.Value.fromBytes(reserveInput);
   input[3] = ethereum.Value.fromBoolean(createTicket);
   input[4] = ethereum.Value.fromAddress(recipient);
+  event.parameters = [
+    new ethereum.EventParam("params", ethereum.Value.fromTuple(input)),
+  ];
+  return event;
+}
+
+export function createTokenMintedWithTicketEvent(
+  ticketId: BigInt,
+  intputBytes: Bytes,
+  recipient: Address
+): TokenMintedWithTicket {
+  let event = changetype<TokenMintedWithTicket>(newMockEvent());
+  let input = new ethereum.Tuple(3);
+  input[0] = ethereum.Value.fromUnsignedBigInt(ticketId);
+  input[1] = ethereum.Value.fromBytes(intputBytes);
+  input[2] = ethereum.Value.fromAddress(recipient);
   event.parameters = [
     new ethereum.EventParam("params", ethereum.Value.fromTuple(input)),
   ];
