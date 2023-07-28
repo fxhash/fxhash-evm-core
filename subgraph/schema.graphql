@@ -12,6 +12,9 @@ type ProjectCreationEvent @entity {
 
   "The timestamp of the block the event is in"
   timestamp: BigInt!
+
+  "The block level of the transaction"
+  level: BigInt!
 }
 
 type TokenMetadataAssignedEvent @entity {
@@ -26,6 +29,9 @@ type TokenMetadataAssignedEvent @entity {
 
   "The timestamp of the block the event is in"
   timestamp: BigInt!
+
+  "The block level of the transaction"
+  level: BigInt!
 }
 
 type OnChainTokenMetadata @entity {
@@ -62,6 +68,9 @@ type TokenTransferEvent @entity {
 
   "The timestamp of the block the event is in"
   timestamp: BigInt!
+
+  "The block level of the transaction"
+  level: BigInt!
 }
 
 type IssuerMintedEvent @entity {
@@ -112,6 +121,9 @@ type IssuerMintedEvent @entity {
 
   "The timestamp of the block the event is in"
   timestamp: BigInt!
+
+  "The block level of the transaction"
+  level: BigInt!
 }
 
 type Codex @entity {

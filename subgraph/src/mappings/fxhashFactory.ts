@@ -13,5 +13,6 @@ export function handleNewProject(event: FxHashProjectCreated): void {
   projectCreationEvent.issuer = event.params._issuer;
   projectCreationEvent.owner = event.params._owner;
   projectCreationEvent.timestamp = event.block.timestamp;
+  projectCreationEvent.level = event.block.number;
   projectCreationEvent.save();
 }

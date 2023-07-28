@@ -19,6 +19,7 @@ export function handleTransfer(event: Transfer): void {
   transferEvent.contract = event.address;
   transferEvent.tokenId = event.params.tokenId;
   transferEvent.timestamp = event.block.timestamp;
+  transferEvent.level = event.block.number;
   transferEvent.save();
 }
 
@@ -40,6 +41,7 @@ export function handleTokenMetadataAssigned(
     transferEvent.offChainMetadata.push(metadataEntry.id);
   }
   transferEvent.timestamp = event.block.timestamp;
+  transferEvent.level = event.block.number;
   transferEvent.save();
 }
 
@@ -61,5 +63,6 @@ export function handleOnChainTokenMetadataAssigned(
     transferEvent.onChainMetadata.push(metadataEntry.id);
   }
   transferEvent.timestamp = event.block.timestamp;
+  transferEvent.level = event.block.number;
   transferEvent.save();
 }
