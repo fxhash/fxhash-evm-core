@@ -53,17 +53,17 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
     }
 
     modifier onlyCodex() {
-        require(msg.sender == configManager.getAddress("codex"), "Caller is not Codex");
+        require(msg.sender == configManager.contracts("codex"), "Caller is not Codex");
         _;
     }
 
     function mintIssuer(MintIssuerInput calldata params) external {
-        require(IAllowMintIssuer(configManager.getAddress("al_mi")).isAllowed(msg.sender), "403");
-        uint256 codexId = ICodex(configManager.getAddress("codex")).insertOrUpdateCodex(
+        require(IAllowMintIssuer(configManager.contracts("al_mi")).isAllowed(msg.sender), "403");
+        uint256 codexId = ICodex(configManager.contracts("codex")).insertOrUpdateCodex(
             msg.sender,
             params.codex
         );
-        uint256 _lockTime = configManager.getConfig().lockTime;
+        (, , uint128 _lockTime, ) = configManager.config();
         require(
             ((params.royaltiesSplit.percent >= 1000) && (params.royaltiesSplit.percent <= 2500)) ||
                 ((!params.enabled) && (params.royaltiesSplit.percent <= 2500)),
@@ -76,19 +76,19 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
 
         require(issuer.supply == 0, "409");
 
-        IPricingManager(configManager.getAddress("priceMag")).verifyPricingMethod(
+        IPricingManager(configManager.contracts("priceMag")).verifyPricingMethod(
             params.pricing.pricingId
         );
 
         IPricing(
-            IPricingManager(configManager.getAddress("priceMag"))
+            IPricingManager(configManager.contracts("priceMag"))
                 .getPricingContract(params.pricing.pricingId)
                 .pricingContract
         ).setPrice(params.pricing.details);
 
         bool hasTickets = params.mintTicketSettings.gracingPeriod > 0;
         if (hasTickets) {
-            IMintTicket(configManager.getAddress("mint_tickets")).createProject(
+            IMintTicket(configManager.contracts("mint_tickets")).createProject(
                 params.mintTicketSettings.gracingPeriod,
                 params.mintTicketSettings.metadata
             );
@@ -116,7 +116,7 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
         //     }
         // } else {
 
-        (uint128 state, ) = IModerationUser(configManager.getAddress("user_mod")).users(msg.sender);
+        (uint128 state, ) = IModerationUser(configManager.contracts("user_mod")).users(msg.sender);
         if (state == 10) _lockTime = 0;
 
         bool isOpenEd = params.openEditions.closingTime > 0;
@@ -129,13 +129,13 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
         uint256 reserveTotal = 0;
         for (uint256 i = 0; i < params.reserves.length; i++) {
             LibReserve.ReserveMethod memory reserveMethod = IReserveManager(
-                configManager.getAddress("resMag")
+                configManager.contracts("resMag")
             ).getReserveMethod(params.reserves[i].methodId);
             require(reserveMethod.reserveContract != IReserve(address(0)), "NO_RESERVE_METHOD");
             require(reserveMethod.enabled, "RESERVE_METHOD_DISABLED");
             reserveTotal += params.reserves[i].amount;
             require(
-                IReserveManager(configManager.getAddress("resMag")).isReserveValid(
+                IReserveManager(configManager.contracts("resMag")).isReserveValid(
                     params.reserves[i],
                     msg.sender
                 ),
@@ -176,7 +176,7 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
         require(issuer.supply > 0, "Token undefined");
         require(address(genTk) != address(0), "GENTK_NOT_SET");
 
-        require(IAllowMint(configManager.getAddress("al_m")).isAllowed(address(this)), "403");
+        require(IAllowMint(configManager.contracts("al_m")).isAllowed(address(this)), "403");
 
         uint256 tokenId = allGenTkTokens;
 
@@ -216,7 +216,7 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
         }
 
         IPricing pricingContract = IPricing(
-            IPricingManager(configManager.getAddress("priceMag"))
+            IPricingManager(configManager.contracts("priceMag"))
                 .getPricingContract(issuer.info.pricingId)
                 .pricingContract
         );
@@ -232,7 +232,7 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
                 reserveTotal += decodedReserves[i].amount;
                 if (reserveInput.methodId == decodedReserves[i].methodId && !reserveApplied) {
                     (bool applied, bytes memory applyData) = IReserveManager(
-                        configManager.getAddress("resMag")
+                        configManager.contracts("resMag")
                     ).applyReserve(decodedReserves[i], reserveInput.input, msg.sender);
                     if (applied) {
                         reserveApplied = true;
@@ -274,11 +274,13 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
         if (params.recipient != address(0)) {
             recipient = params.recipient;
         }
-        IMintTicket(configManager.getAddress("mint_tickets")).consume(
+        IMintTicket(configManager.contracts("mint_tickets")).consume(
             msg.sender,
             params.ticketId,
             address(this)
         );
+
+        (, , , string memory defaultMetadata) = configManager.config();
 
         issuer.iterationsCount += 1;
         genTk.mint(
@@ -289,7 +291,7 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
                 receiver: issuer.royaltiesSplit.receiver == address(genTk)
                     ? recipient
                     : issuer.royaltiesSplit.receiver,
-                metadata: configManager.getConfig().voidMetadata
+                metadata: defaultMetadata
             })
         );
 
@@ -319,13 +321,13 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
 
     function updatePrice(LibPricing.PricingData calldata pricingData) external onlyOwner {
         LibIssuer.verifyIssuerUpdateable(issuer);
-        IPricingManager(configManager.getAddress("priceMag")).verifyPricingMethod(
+        IPricingManager(configManager.contracts("priceMag")).verifyPricingMethod(
             pricingData.pricingId
         );
         issuer.info.pricingId = pricingData.pricingId;
         issuer.info.lockPriceForReserves = pricingData.lockForReserves;
         IPricing(
-            IPricingManager(configManager.getAddress("priceMag"))
+            IPricingManager(configManager.contracts("priceMag"))
                 .getPricingContract(pricingData.pricingId)
                 .pricingContract
         ).setPrice(pricingData.details);
@@ -337,12 +339,12 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
         require(issuer.info.enabled, "TOK_DISABLED");
         for (uint256 i = 0; i < reserves.length; i++) {
             LibReserve.ReserveMethod memory reserve = IReserveManager(
-                configManager.getAddress("resMag")
+                configManager.contracts("resMag")
             ).getReserveMethod(reserves[i].methodId);
             require(reserve.reserveContract != IReserve(address(0)), "RSRV_404");
             require(reserve.enabled, "RSRV_DIS");
             require(
-                IReserveManager(configManager.getAddress("resMag")).isReserveValid(
+                IReserveManager(configManager.contracts("resMag")).isReserveValid(
                     reserves[i],
                     msg.sender
                 )
@@ -372,7 +374,7 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
 
     function updateIssuerMod(uint256[] calldata tags) external {
         require(
-            IModerationTeam(configManager.getAddress("mod_team")).isAuthorized(msg.sender, 10),
+            IModerationTeam(configManager.contracts("mod_team")).isAuthorized(msg.sender, 10),
             "403"
         );
         issuer.info.tags = tags;
@@ -438,21 +440,25 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
         {
             uint256 price = pricingContract.getPrice(block.timestamp);
             require(msg.value >= price && price > 0, "INVALID_PRICE");
-            IConfigurationManager.Config memory configuration = configManager.getConfig();
-            uint256 platformFees = configuration.fees;
+            (
+                uint64 feeShare,
+                uint64 referrerShare,
+                uint128 lockTime,
+                string memory defaultMetadata
+            ) = configManager.config();
+            uint256 platformFees = feeShare;
             if (params.referrer != address(0) && params.referrer != msg.sender) {
-                uint256 referrerFees = (configuration.fees * configuration.referrerFeesShare) /
-                    10000;
+                uint256 referrerFees = (feeShare * referrerShare) / 10000;
                 uint256 referrerAmount = (price * referrerFees) / 10000;
                 if (referrerAmount > 0) {
                     SafeTransferLib.safeTransferETH(params.referrer, referrerAmount);
                 }
-                platformFees = configuration.fees - referrerFees;
+                platformFees = feeShare - referrerFees;
             }
 
             uint256 feesAmount = (price * platformFees) / 10000;
             if (feesAmount > 0) {
-                SafeTransferLib.safeTransferETH(configManager.getAddress("treasury"), feesAmount);
+                SafeTransferLib.safeTransferETH(configManager.contracts("treasury"), feesAmount);
             }
 
             uint256 creatorAmount = price - feesAmount;
@@ -469,7 +475,7 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
             }
 
             if (params.createTicket == true) {
-                IMintTicket(configManager.getAddress("mint_tickets")).mint(recipient, price);
+                IMintTicket(configManager.contracts("mint_tickets")).mint(recipient, price);
             } else {
                 issuer.iterationsCount += 1;
                 genTk.mint(
@@ -480,7 +486,7 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
                         receiver: issuer.royaltiesSplit.receiver == address(genTk)
                             ? recipient
                             : issuer.royaltiesSplit.receiver,
-                        metadata: configuration.voidMetadata
+                        metadata: defaultMetadata
                     })
                 );
                 allGenTkTokens++;
