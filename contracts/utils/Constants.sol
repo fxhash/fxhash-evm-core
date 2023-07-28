@@ -18,6 +18,16 @@ bytes32 constant USER_MODERATIONS = keccak256("USER_MODERATION");
 uint256 constant TOKEN_AUTH = 20;
 uint256 constant USER_AUTH = 20;
 
-// States
-uint256 constant MALICIOUS = 3;
+// Token States
+uint256 constant NONE = 0;
+uint256 constant CLEAN = 1;
+uint256 constant REPORTED = 2;
+uint256 constant AUTO_DETECT_COPY = 3;
+uint256 constant MALICIOUS_TOKEN = 4;
+uint256 constant HIDDEN = 5;
+
+// User States
+uint256 constant REVIEW = 1;
+uint256 constant SUSPICIOUS = 2;
+uint256 constant MALICIOUS_USER = 3;
 uint256 constant VERIFIED = 10;
