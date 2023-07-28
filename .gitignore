@@ -13,3 +13,5 @@ cache
 artifacts
 # Foundry files
 broadcast
+# for yarn users to be silent on the repo
+yarn.lock
