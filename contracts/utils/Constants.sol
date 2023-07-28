@@ -8,11 +8,11 @@ bytes32 constant CODEX = keccak256("CODER");
 bytes32 constant FX_HASH_FACTORY = keccak256("FX_HASH_FACTORY");
 bytes32 constant MINT_TICKETS = keccak256("MINT_TICKETS");
 bytes32 constant MODERATION_TEAM = keccak256("MODERATION_TEAM");
+bytes32 constant MODERATION_USER = keccak256("MODERATION_USER");
 bytes32 constant PRICE_MANAGER = keccak256("PRICE_MANAGER");
 bytes32 constant RANDOMIZER = keccak256("RANDOMIZER");
 bytes32 constant RESERVE_MANAGER = keccak256("RESERVE_MANAGER");
 bytes32 constant TREASURY = keccak256("TREASURY");
-bytes32 constant USER_MODERATIONS = keccak256("USER_MODERATION");
 
 // Authorizations
 uint256 constant TOKEN_AUTH = 20;
