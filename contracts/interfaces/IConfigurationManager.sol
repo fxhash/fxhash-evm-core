@@ -17,8 +17,8 @@ interface IConfigurationManager {
 
     /// @notice Error thrown when contract is zero address
     error InvalidContract();
-    /// @notice Error thrown when names and contracts arrays are not equal length
-    error InvalidLength();
+    /// @notice Error thrown when array lengths do not match
+    error LengthMismatch();
 
     /// @notice Sets the platform configuration
     /// @param _config Struct of config info

@@ -25,7 +25,7 @@ contract ConfigurationManager is Ownable, IConfigurationManager {
         address contractAddr;
         uint256 length = _names.length;
         // Reverts if array lengths are not equal
-        if (length != _contracts.length) revert InvalidLength();
+        if (length != _contracts.length) revert LengthMismatch();
         for (uint256 i; i < length; ) {
             contractAddr = _contracts[i];
             // Reverts if contract is zero address
