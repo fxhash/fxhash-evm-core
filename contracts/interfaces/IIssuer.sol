@@ -52,10 +52,31 @@ interface IIssuer {
 
     function initialize(address _configManager, address _owner, address _genTk) external;
 
+    /**
+     * Publish a new project (issuer) to the contract
+     * @param params describes the Issuer to be minted
+     * 
+     * TODO this needs to be removed in favor of factory instanciation
+     */
     function mintIssuer(MintIssuerInput calldata params) external;
 
+    /**
+     * Mint a new iteration from the project. This is a generic EP which acts as
+     * a main entry to minting, regardless of the cases in which the mint as to
+     * occur.
+     * Supports:
+     * - reserve/non-reserve
+     * - params: 
+     *   - generates a ticket
+     *   - mint directly
+     * @param params information related to the mint, eventually input data
+     */
     function mint(MintInput calldata params) external payable;
 
+    /**
+     * Can be used to exchange a mint ticket for an iteration of the project.
+     * @param params information related to the mint & the ticket
+     */
     function mintWithTicket(MintWithTicketInput calldata params) external;
 
     function royaltyInfo(
@@ -67,6 +88,16 @@ interface IIssuer {
         uint256 salePrice
     ) external view returns (address receiver, uint256 royaltyAmount);
 
+    /**
+     * Updates the codex ID associated with the project, effectively updating
+     * the code behind the project.
+     * @param codexId identifier in the codex contract
+     * 
+     * TODO:
+     *  - the codex has updateIssuerCodexRequest & updateIssuerCodexRequest, 
+     *    which serve the same purpose (or should)
+     *  - the update mechanism should support request & approval pattern
+     */
     function setCodex(uint256 codexId) external;
 
     function supportsInterface(bytes4 interfaceId) external view returns (bool);

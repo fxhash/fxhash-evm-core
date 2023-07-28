@@ -7,3 +7,5 @@
 - `contracts/interfaces/ICodex.sol` > `codexLockEntry`: same as above
 - `contracts/interfaces/ICodex.sol` > `codexUpdateEntry`: same as above
 - `contracts/interfaces/ICodex.sol` > `updateIssuerCodexRequest`: this should be moved to the issuer, we are updating the codex pointer of an issuer, not directly a codex entry. codex entries are immutable once locked.
+- `contracts/interfaces/IIssuer.sol` > `mintIssuer`: needs to be removed in favor of Factory instanciation
+- `contracts/interfaces/IIssuer.sol` > `setCodex`: see `updateIssuerCodexRequest` above (we need to change the mechanism of updating the codex to match the request/approve pattern)
