@@ -8,6 +8,13 @@ import "contracts/libs/LibIssuer.sol";
 import "contracts/libs/LibPricing.sol";
 import "contracts/libs/LibRoyalty.sol";
 
+/**
+ * @title Issuer interface
+ * @author fxhash
+ * @notice The issuer contract is the main contract used to generate the NFT
+ * assets. Issuer contracts are factory-instanciated for every project, and 
+ * specify the details of a project, as defined by its author(s).
+ */
 interface IIssuer {
     struct UpdateIssuerInput {
         LibRoyalty.RoyaltyData primarySplit;

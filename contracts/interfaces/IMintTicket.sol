@@ -3,6 +3,16 @@ pragma solidity ^0.8.18;
 
 import "contracts/interfaces/IIssuer.sol";
 
+/**
+ * @title Mint Ticket interface
+ * @author fxhash
+ * @notice The Mint Ticket contract is used to instanciate tickets for projects
+ * which accept bytes as inputs (as they required time-consuming configuration).
+ * Mint Tickets are subject to harberger tax variant, meaning that they can 
+ * always be claimed at a price defined by the owner, except during its gracing
+ * period (which is configured by the author(s) of the project associated with
+ * the ticket).
+ */
 interface IMintTicket {
     struct TokenData {
         address issuer;
