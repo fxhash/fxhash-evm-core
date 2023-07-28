@@ -11,8 +11,9 @@ interface IAllowMint {
     /// @param _moderationContract Address of new moderation contract
     function updateIssuerModerationContract(address _moderationContract) external;
 
-    /// @notice Gets current state of token moderation contract
+    /// @notice Returns true of false depending on the availability to mint an
+    /// iteration given rules defined by the implementation.
     /// @param _tokenContract Address of moderation contract
-    /// @return moderation state of token contract
+    /// @return allowed is the mint allowed
     function isAllowed(address _tokenContract) external view returns (bool);
 }
