@@ -1,13 +1,14 @@
 import { log } from "@graphprotocol/graph-ts";
 import {
   Codex,
+  IssuerBurnedEvent,
   IssuerMintedEvent,
   OnChainScript,
   Pricing,
   Reserve,
   Split,
 } from "../types/schema";
-import { IssuerMinted } from "../types/templates/Issuer/Issuer";
+import { IssuerBurned, IssuerMinted } from "../types/templates/Issuer/Issuer";
 
 export function handleIssuerMinted(event: IssuerMinted): void {
   let issuerMintedEvent = new IssuerMintedEvent(
@@ -100,4 +101,14 @@ export function handleIssuerMinted(event: IssuerMinted): void {
   issuerMintedEvent.timestamp = event.block.timestamp;
   issuerMintedEvent.level = event.block.number;
   issuerMintedEvent.save();
+}
+
+export function handleIssuerBurned(event: IssuerBurned): void {
+  let issuerBurnedEvent = new IssuerBurnedEvent(
+    event.transaction.hash.toHexString(),
+  );
+  issuerBurnedEvent.issuer = event.address;
+  issuerBurnedEvent.timestamp = event.block.timestamp;
+  issuerBurnedEvent.level = event.block.number;
+  issuerBurnedEvent.save();
 }

@@ -201,3 +201,16 @@ type OnChainScript @entity {
   "Optional script content"
   scriptContent: Bytes
 }
+
+type IssuerBurnedEvent @entity {
+  "The id of the script, equal to its name"
+  id: ID!
+
+  issuer: Bytes!
+
+  "The timestamp of the block the event is in"
+  timestamp: BigInt!
+
+  "The block level of the transaction"
+  level: BigInt!
+}

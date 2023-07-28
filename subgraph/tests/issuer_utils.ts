@@ -7,7 +7,10 @@ import {
 } from "@graphprotocol/graph-ts";
 
 import { newMockEvent, log } from "matchstick-as";
-import { IssuerMinted } from "../src/types/templates/Issuer/Issuer";
+import {
+  IssuerBurned,
+  IssuerMinted,
+} from "../src/types/templates/Issuer/Issuer";
 
 export function newCodex(
   inputType: BigInt,
@@ -132,4 +135,8 @@ export function createIssuerMintedEvent(
     ),
   ];
   return issuerMintedEvent;
+}
+
+export function createIssuerBurnedEvent(): IssuerBurned {
+  return changetype<IssuerBurned>(newMockEvent());
 }

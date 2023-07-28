@@ -6,6 +6,7 @@ import {
   afterEach,
 } from "matchstick-as/assembly/index";
 import {
+  createIssuerBurnedEvent,
   createIssuerMintedEvent,
   newCodex,
   newMintTicketSettings,
@@ -16,7 +17,7 @@ import {
   newSplit,
 } from "./issuer_utils";
 import { Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
-import { handleIssuerMinted } from "../src/mappings/issuer";
+import { handleIssuerBurned, handleIssuerMinted } from "../src/mappings/issuer";
 
 describe("Issuer Handlers", () => {
   beforeEach(() => {});
@@ -25,7 +26,7 @@ describe("Issuer Handlers", () => {
     clearStore();
   });
 
-  test("handleTransfer correctly processes the IssuerMinted event", () => {
+  test("handleIssuerMinted correctly processes the IssuerMinted event", () => {
     let event = createIssuerMintedEvent(
       newCodex(
         BigInt.fromI32(1),
@@ -84,5 +85,10 @@ describe("Issuer Handlers", () => {
     );
 
     handleIssuerMinted(event);
+  });
+
+  test("handleIssuerBurned correctly processes the IssuerBurned event", () => {
+    let event = createIssuerBurnedEvent();
+    handleIssuerBurned(event);
   });
 });
