@@ -25,6 +25,11 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 import {SafeTransferLib} from "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
 import {SignedMath} from "@openzeppelin/contracts/utils/math/SignedMath.sol";
 
+/**
+ * @title Issuer
+ * @author fxhash
+ * @notice see IIssuer doc
+ */
 contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
     IConfigurationManager private configManager;
     LibIssuer.IssuerData private issuer;
@@ -57,6 +62,7 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
         _;
     }
 
+    /// @inheritdoc IIssuer
     function mintIssuer(MintIssuerInput calldata params) external {
         require(IAllowMintIssuer(configManager.getAddress("al_mi")).isAllowed(msg.sender), "403");
         uint256 codexId = ICodex(configManager.getAddress("codex")).insertOrUpdateCodex(
@@ -173,6 +179,7 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
         emit IssuerMinted(params);
     }
 
+    /// @inheritdoc IIssuer
     function mint(MintInput memory params) external payable {
         require(issuer.supply > 0, "Token undefined");
         require(address(genTk) != address(0), "GENTK_NOT_SET");
@@ -267,6 +274,7 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
         emit TokenMinted(params);
     }
 
+    /// @inheritdoc IIssuer
     function mintWithTicket(MintWithTicketInput memory params) external {
         require(params.inputBytes.length == issuer.info.inputBytesSize, "WRONG_INPUT_BYTES");
         require(address(genTk) != address(0), "GENTK_NOT_SET");
@@ -298,7 +306,8 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
 
         emit TokenMintedWithTicket(params);
     }
-
+    
+    /// @inheritdoc IIssuer
     function updateIssuer(UpdateIssuerInput calldata params) external onlyOwner {
         LibIssuer.verifyIssuerUpdateable(issuer);
 
@@ -318,6 +327,7 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
         emit IssuerUpdated(params);
     }
 
+    /// @inheritdoc IIssuer
     function updatePrice(LibPricing.PricingData calldata pricingData) external onlyOwner {
         LibIssuer.verifyIssuerUpdateable(issuer);
         IPricingManager(configManager.getAddress("priceMag")).verifyPricingMethod(
@@ -333,6 +343,7 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
         emit PriceUpdated(pricingData);
     }
 
+    /// @inheritdoc IIssuer
     function updateReserve(LibReserve.ReserveData[] calldata reserves) external onlyOwner {
         LibIssuer.verifyIssuerUpdateable(issuer);
         require(issuer.info.enabled, "TOK_DISABLED");
@@ -353,12 +364,14 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
         emit ReserveUpdated(reserves);
     }
 
+    /// @inheritdoc IIssuer
     function burn() external onlyOwner {
         require(issuer.balance == issuer.supply, "CONSUMED_1");
         burnToken();
         emit IssuerBurned();
     }
 
+    /// @inheritdoc IIssuer
     function burnSupply(uint256 amount) external onlyOwner {
         require(amount > 0, "TOO_LOW");
         require(issuer.openEditions.closingTime == 0, "OES");
@@ -371,6 +384,7 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
         emit SupplyBurned(amount);
     }
 
+    /// @inheritdoc IIssuer
     function updateIssuerMod(uint256[] calldata tags) external {
         require(
             IModeration(configManager.getAddress("mod_team")).isAuthorized(msg.sender, 10),

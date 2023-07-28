@@ -7,6 +7,11 @@ import "contracts/interfaces/ICodex.sol";
 import "contracts/libs/LibIssuer.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+/**
+ * @title Codex
+ * @author fxhash
+ * @notice see ICodex doc
+ */
 contract Codex is ICodex, Ownable {
     uint256 private codexEntriesCount;
     address private moderation;
@@ -26,10 +31,15 @@ contract Codex is ICodex, Ownable {
         codexEntriesCount = 0;
     }
 
+    /**
+     * Set the address of the main moderation contract.
+     * @param _moderation moderation contract address
+     */
     function setModeration(address _moderation) external onlyOwner {
         moderation = _moderation;
     }
 
+    /// @inheritdoc ICodex
     function insertOrUpdateCodex(
         address author,
         LibCodex.CodexInput memory input
@@ -51,10 +61,12 @@ contract Codex is ICodex, Ownable {
         return codexIdValue;
     }
 
+    /// @inheritdoc ICodex
     function codexAddEntry(uint256 entryType, address issuer, bytes[] calldata value) external {
         codexInsert(entryType, msg.sender, true, issuer, value);
     }
 
+    /// @inheritdoc ICodex
     function codexLockEntry(uint256 entryId) external {
         LibCodex.CodexData storage entry = codexEntries[entryId];
         require(entry.author == msg.sender, "403");
@@ -64,6 +76,7 @@ contract Codex is ICodex, Ownable {
         emit CodexLocked(entryId);
     }
 
+    /// @inheritdoc ICodex
     function codexUpdateEntry(uint256 entryId, bool pushEnd, bytes memory value) external {
         LibCodex.CodexData storage entry = codexEntries[entryId];
         require(entry.author == msg.sender, "403");
@@ -78,6 +91,7 @@ contract Codex is ICodex, Ownable {
         emit CodexUpdated(entryId, pushEnd, value);
     }
 
+    /// @inheritdoc ICodex
     function updateIssuerCodexRequest(LibCodex.CodexInput calldata input) external {
         require(input.issuer != address(0), "NO_ISSUER");
         require(IIssuer(input.issuer).owner() == msg.sender, "403");
@@ -87,6 +101,7 @@ contract Codex is ICodex, Ownable {
         emit UpdateIssuerCodexRequested(input.issuer, input.codexId, input);
     }
 
+    /// @inheritdoc ICodex
     function updateIssuerCodexApprove(address _issuer, uint256 _codexId) external {
         require(_issuer != address(0), "NO_ISSUER");
         uint256 issuerCodexId = issuerCodexUpdates[_codexId];
@@ -98,6 +113,14 @@ contract Codex is ICodex, Ownable {
         emit UpdateIssuerCodexApproved(_issuer, _codexId);
     }
 
+    /**
+     * Low level utility function to insert an entry into the codex.
+     * @param entryType the type of entry to insert (0=IPFS, 1=SCRIPTY, ...)
+     * @param author the wallet who authored the entry
+     * @param locked whether the entry is locked or not
+     * @param issuer the contract address of the issuer associated with codex
+     * @param value actual data representing the codex entry
+     */
     function codexInsert(
         uint256 entryType,
         address author,

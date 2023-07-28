@@ -86,6 +86,53 @@ interface IIssuer {
      */
     function mintWithTicket(MintWithTicketInput calldata params) external;
 
+    /**
+     * Generic entry point to update the details of a project. Canonly be called
+     * by the author(s) of the project.
+     * @param params update details
+     */
+    function updateIssuer(UpdateIssuerInput calldata params) external;
+
+    /**
+     * Author(s) can update the pricing of their projects.
+     * @param pricingData new pricing data (method, details)
+     */
+    function updatePrice(LibPricing.PricingData calldata pricingData) external;
+
+    /**
+     * Author(s) can update the reserves of their projects. The full reservers
+     * are replaced by the new ones provided.
+     * To avoid race-condition issues, the issuer must be disabled for the
+     * reserves to be updated.
+     * @param reserves the whole new reserve details
+     */
+    function updateReserve(LibReserve.ReserveData[] calldata reserves) external;
+
+    /**
+     * Author(s) can burn an issuer completely, as long as not iteration have
+     * been minted at the time of burn. Everything related to the issuer should
+     * be deleted when burnt.
+     */
+    function burn() external;
+
+    /**
+     * Author(s) can burn a given number of editions from the supply, as long as
+     * those editions are still available to be minted. Once burnt, the supply 
+     * cannot be increased.
+     * Open-edition projects cannot have their supply burnt.
+     * @param amount number of editions to be burnt from the supply
+     */
+    function burnSupply(uint256 amount) external;
+
+    /**
+     * Moderators can update a list of tags associated to a project, to better
+     * classify the body of work on the platform using fxhash internal 
+     * classification system.
+     * @param tags a list of identifier mapping to the labels to assciate with 
+     * the project
+     */
+    function updateIssuerMod(uint256[] calldata tags) external;
+
     function royaltyInfo(
         uint256 tokenId,
         uint256 salePrice

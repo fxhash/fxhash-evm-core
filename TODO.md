@@ -13,6 +13,7 @@
 - [IMintTicket](contracts/interfaces/IMintTicket.sol) > `consume`: (see point above) once we migrate to the factory pattern for the mint ticket contract, the issuer will not be required in the field (as inferred by having 1 ticket contract per issuer)
 - `Randomizer`: better implementation of how numbers are randomized
 - [IReserve](contracts/interfaces/IReserve.sol): Need to update the implementation, as this current one only supports 1 source of data for tracking a reserve (which is going to change with the merkle implementation for access lists)
+- [Codex](contracts/issuer/Codex.sol) > `codexInsert`: (_not sure if it's already been discussed during refacto of structs_) the codex should be agnostic of the issuer, it's simply a registry of code entries which can be used by the issuers. Basically we could just have a codex entry / issuer. **Maybe simply better ?**
 
 # Questions
 
