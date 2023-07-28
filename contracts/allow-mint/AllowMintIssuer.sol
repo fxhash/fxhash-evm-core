@@ -4,8 +4,10 @@ pragma solidity ^0.8.18;
 import {ModerationUser, IAllowMintIssuer} from "contracts/interfaces/IAllowMintIssuer.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-/// @title AllowMintIssuer
-/// @notice See the documentation in {IAllowMintIssuer}
+/**
+ * @title AllowMintIssuer
+ * @notice See the documentation in {IAllowMintIssuer}
+ */
 contract AllowMintIssuer is IAllowMintIssuer, Ownable {
     /// @inheritdoc IAllowMintIssuer
     ModerationUser public userModerationContract;

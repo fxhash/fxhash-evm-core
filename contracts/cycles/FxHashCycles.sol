@@ -5,8 +5,10 @@ import {AuthorizedCaller} from "contracts/admin/AuthorizedCaller.sol";
 import {IFxHashCycles} from "contracts/interfaces/IFxHashCycles.sol";
 import {SignedMath} from "@openzeppelin/contracts/utils/math/SignedMath.sol";
 
-/// @title FxHashCycles
-/// @notice See the documentation in {IFxHashCycles}
+/**
+ * @title FxHashCycles
+ * @notice See the documentation in {IFxHashCycles}
+ */
 contract FxHashCycles is IFxHashCycles, AuthorizedCaller {
     /// @dev Current counter of cycle IDs
     uint256 private cyclesCount;

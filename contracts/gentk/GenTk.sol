@@ -68,10 +68,12 @@ contract GenTk is ERC721URIStorageUpgradeable, OwnableUpgradeable, IERC2981Upgra
         _;
     }
 
-    /// @notice The issuer calls this entrypoint to issue a NFT within the
-    /// project. This function is agnostic of any checks, which are happening at
-    /// the Issuer level; it simply registers a new NFT in the contract.
-    /// @param _params mint parameters
+    /**
+     * @notice The issuer calls this entrypoint to issue a NFT within the
+     * project. This function is agnostic of any checks, which are happening at
+     * the Issuer level; it simply registers a new NFT in the contract.
+     * @param _params mint parameters 
+     */
     function mint(TokenParams calldata _params) external onlyIssuer {
         _mint(_params.receiver, _params.tokenId);
         _setTokenURI(_params.tokenId, _params.metadata);
@@ -95,10 +97,12 @@ contract GenTk is ERC721URIStorageUpgradeable, OwnableUpgradeable, IERC2981Upgra
         emit OnChainTokenMetadataAssigned(_params);
     }
 
-    /// @notice The signer generates the metadata of every NFT off-chain (takes
-    /// a capture, extract features, etc...) and injects the generated metadata
-    /// on chain through this function. 
-    /// @param _params an array of the token metadata to be revealed
+    /**
+     * @notice The signer generates the metadata of every NFT off-chain (takes
+     * a capture, extract features, etc...) and injects the generated metadata
+     * on chain through this function. 
+     * @param _params an array of the token metadata to be revealed
+     */
     function assignMetadata(TokenMetadata[] calldata _params) external onlySigner {
         // for every reveal, saves the associated metadata 
         for (uint256 i = 0; i < _params.length; i++) {
@@ -109,9 +113,11 @@ contract GenTk is ERC721URIStorageUpgradeable, OwnableUpgradeable, IERC2981Upgra
         emit TokenMetadataAssigned(_params);
     }
 
-    /// @notice Get the royalty info associated with a NFT
-    /// @param tokenId the ID of the token
-    /// @param salePrice price of the sale for which royalty info is requested
+    /**
+     * @notice Get the royalty info associated with a NFT
+     * @param tokenId the ID of the token
+     * @param salePrice price of the sale for which royalty info is requested
+     */
     function royaltyInfo(
         uint256 tokenId,
         uint256 salePrice
@@ -119,10 +125,12 @@ contract GenTk is ERC721URIStorageUpgradeable, OwnableUpgradeable, IERC2981Upgra
         return issuer.royaltyInfo(tokenId, salePrice);
     }
 
-    /// @notice Get the URI of a token, where the metadata is either constructed i
-    /// on-the-fly if on-chain, or where a pointer to the metadata is simply
-    /// returned if off-chain
-    /// @param tokenId token ID to fetch
+    /**
+     * @notice Get the URI of a token, where the metadata is either constructed i
+     * on-the-fly if on-chain, or where a pointer to the metadata is simply
+     * returned if off-chain
+     * @param tokenId token ID to fetch
+     */
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
         _requireMinted(tokenId);
         string memory _tokenURI = super.tokenURI(tokenId);

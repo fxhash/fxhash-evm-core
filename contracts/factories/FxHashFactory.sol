@@ -8,8 +8,10 @@ import {IIssuer} from "contracts/interfaces/IIssuer.sol";
 import {IIssuerFactory} from "contracts/interfaces/IIssuerFactory.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-/// @title FxHashFactory
-/// @dev See the documentation in {IFxHashFactory}
+/**
+ * @title FxHashFactory
+ * @dev See the documentation in {IFxHashFactory}
+ */
 contract FxHashFactory is IFxHashFactory, Ownable {
     address private genTkFactory;
     address private issuerFactory;

@@ -4,8 +4,10 @@ pragma solidity ^0.8.18;
 import {IFactory} from "contracts/interfaces/IFactory.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-/// @title Factory
-/// @dev See the documentation in {IFactory}
+/**
+ * @title Factory
+ * @dev See the documentation in {IFactory}
+ */
 contract Factory is IFactory, Ownable {
     /// @dev address of the main factory that will be authorized to call the `create` functions of the factory implementing this interface
     address public fxhashFactory;

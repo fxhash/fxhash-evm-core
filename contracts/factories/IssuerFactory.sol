@@ -6,8 +6,10 @@ import {Factory} from "contracts/factories/Factory.sol";
 import {IIssuerFactory} from "contracts/interfaces/IIssuerFactory.sol";
 import {Issuer} from "contracts/issuer/Issuer.sol";
 
-/// @title IssuerFactory
-/// @dev See the documentation in {IFactory} and {IIssuerFactory}
+/**
+ * @title IssuerFactory
+ * @dev See the documentation in {IFactory} and {IIssuerFactory}
+ */
 contract IssuerFactory is Factory, IIssuerFactory {
     constructor(
         address _fxhashFactory,

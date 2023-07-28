@@ -6,8 +6,10 @@ import {Factory} from "contracts/factories/Factory.sol";
 import {GenTk} from "contracts/gentk/GenTk.sol";
 import {IGenTkFactory} from "contracts/interfaces/IGenTkFactory.sol";
 
-/// @title GenTkFactory
-/// @dev See the documentation in {IFactory} and {IGenTkFactory}
+/**
+ * @title GenTkFactory
+ * @dev See the documentation in {IFactory} and {IGenTkFactory}
+ */
 contract GenTkFactory is Factory, IGenTkFactory {
     constructor(
         address _fxhashFactory,

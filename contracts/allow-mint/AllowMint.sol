@@ -5,8 +5,10 @@ import {IAllowMint} from "contracts/interfaces/IAllowMint.sol";
 import {IModerationIssuer} from "contracts/interfaces/IModerationIssuer.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-/// @title AllowMint
-/// @dev See the documentation in {IAllowMint}
+/**
+ * @title AllowMint
+ * @dev See the documentation in {IAllowMint}
+ */
 contract AllowMint is IAllowMint, Ownable {
     /// @dev Address of Issuer Moderation contract
     address private issuerMod;
