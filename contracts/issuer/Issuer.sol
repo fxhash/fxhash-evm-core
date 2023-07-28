@@ -366,7 +366,7 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
 
     /// @inheritdoc IIssuer
     function burn() external onlyOwner {
-        require(issuer.balance == issuer.supply, "CONSUMED_1");
+        require(issuer.balance == 0, "CONSUMED_1");
         burnToken();
         emit IssuerBurned();
     }
