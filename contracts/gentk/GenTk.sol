@@ -42,7 +42,7 @@ contract GenTk is ERC721URIStorageUpgradeable, OwnableUpgradeable, RoyaltyManage
     event OnChainTokenMetadataAssigned(OnChainTokenMetadata[] _params);
 
     modifier onlySigner() {
-        require(msg.sender == configManager.getAddress("signer"), "Caller is not signer");
+        require(msg.sender == configManager.contracts("signer"), "Caller is not signer");
         _;
     }
 
@@ -52,7 +52,7 @@ contract GenTk is ERC721URIStorageUpgradeable, OwnableUpgradeable, RoyaltyManage
     }
 
     modifier onlyFxHashAdmin() {
-        require(msg.sender == configManager.getAddress("admin"), "Caller is not FXHASH admin");
+        require(msg.sender == configManager.contracts("admin"), "Caller is not FXHASH admin");
         _;
     }
 
@@ -115,7 +115,7 @@ contract GenTk is ERC721URIStorageUpgradeable, OwnableUpgradeable, RoyaltyManage
         require(_tokenData.minter != address(0), "TOKEN_UNDEFINED");
         if (issuerData.onChainData.length > 0) {
             string memory onChainURI = IOnChainTokenMetadataManager(
-                configManager.getAddress("onChainMetaManager")
+                configManager.contracts("onChainMetaManager")
             ).getOnChainURI(bytes(_tokenURI), issuerData.onChainData);
             return onChainURI;
         } else {
