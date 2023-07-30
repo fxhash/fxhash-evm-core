@@ -52,8 +52,8 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         uint256 _tokenId,
         uint256 _salePrice
     ) external view virtual returns (address receiver, uint256 amount) {
-        RoyaltyInfo[] memory tokenRoyalties = royaltyTokenInfo[_tokenId];
-        RoyaltyInfo[] memory royalties_ = royalties;
+        RoyaltyInfo[] storage tokenRoyalties = royaltyTokenInfo[_tokenId];
+        RoyaltyInfo[] storage royalties_ = royalties;
 
         if (tokenRoyalties.length + royalties.length > 1) revert MoreThanOneRoyaltyReceiver();
         /// return early
@@ -78,8 +78,8 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         view
         returns (address payable[] memory allReceivers, uint256[] memory allBasisPoints)
     {
-        RoyaltyInfo[] memory tokenRoyalties = royaltyTokenInfo[_tokenId];
-        RoyaltyInfo[] memory royalties_ = royalties;
+        RoyaltyInfo[] storage tokenRoyalties = royaltyTokenInfo[_tokenId];
+        RoyaltyInfo[] storage royalties_ = royalties;
         uint256 baseLength = royalties_.length;
         uint256 tokenLength = tokenRoyalties.length;
         uint256 length = baseLength + tokenLength;
