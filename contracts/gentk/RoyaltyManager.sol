@@ -13,43 +13,43 @@ abstract contract RoyaltyManager is IRoyaltyManager {
     mapping(uint256 => RoyaltyInfo[]) private royaltyTokenInfo;
 
     /**
-     * @dev Sets the base royalties for the contract
-     * @param receivers The addresses that will receive royalties.
-     * @param basisPoints The basis points to calculate royalty payments (1/100th of a percent) for each receiver.
+     * @notice Sets the base royalties for the contract
+     * @param _receivers The addresses that will receive royalties.
+     * @param _basisPoints The basis points to calculate royalty payments (1/100th of a percent) for each receiver.
      */
     function setBaseRoyalties(
-        address payable[] memory receivers,
-        uint96[] memory basisPoints
+        address payable[] memory _receivers,
+        uint96[] memory _basisPoints
     ) external virtual {
-        _setBaseRoyalties(receivers, basisPoints);
-        emit TokenRoyaltiesUpdated(receivers, basisPoints);
+        _setBaseRoyalties(_receivers, _basisPoints);
+        emit TokenRoyaltiesUpdated(_receivers, _basisPoints);
     }
 
     /**
-     * @dev Sets the token-specific royalties for a given token ID
+     * @notice Sets the token-specific royalties for a given token ID
      * @param _tokenId The token ID for which the royalties are being set.
-     * @param receivers The addresses that will receive royalties.
-     * @param basisPoints The basis points to calculate royalty payments (1/100th of a percent) for each receiver.
+     * @param _receivers The addresses that will receive royalties.
+     * @param _basisPoints The basis points to calculate royalty payments (1/100th of a percent) for each receiver.
      */
     function setTokenRoyalties(
         uint256 _tokenId,
-        address payable[] memory receivers,
-        uint96[] memory basisPoints
+        address payable[] memory _receivers,
+        uint96[] memory _basisPoints
     ) external virtual {
-        _setTokenRoyalties(_tokenId, receivers, basisPoints);
-        emit TokenIdRoyaltiesUpdated(_tokenId, receivers, basisPoints);
+        _setTokenRoyalties(_tokenId, _receivers, _basisPoints);
+        emit TokenIdRoyaltiesUpdated(_tokenId, _receivers, _basisPoints);
     }
 
     /**
      * @dev Gets the royalty information for a given token ID and sale price
      * @param _tokenId The token ID for which the royalty information is being retrieved.
-     * @param salePrice The sale price of the token.
-     * @return receiver The address that will receive the royalty payment.
+     * @param _salePrice The sale price of the token.
+     * @return _receiver The address that will receive the royalty payment.
      * @return amount The amount of royalty payment in wei.
      */
     function royaltyInfo(
         uint256 _tokenId,
-        uint256 salePrice
+        uint256 _salePrice
     ) external view virtual returns (address, uint256) {
         RoyaltyInfo[] storage tokenRoyalties = royaltyTokenInfo[_tokenId];
         RoyaltyInfo[] memory royalties_ = royalties;
@@ -60,7 +60,7 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         (address receiver, uint96 basisPoints) = tokenRoyalties.length > 0
             ? (tokenRoyalties[0].receiver, tokenRoyalties[0].basisPoints)
             : (royalties_[0].receiver, royalties_[0].basisPoints);
-        uint256 amount = (salePrice * basisPoints) / _feeDenominator();
+        uint256 amount = (_salePrice * basisPoints) / _feeDenominator();
         return (receiver, amount);
     }
 
@@ -97,54 +97,54 @@ abstract contract RoyaltyManager is IRoyaltyManager {
     /**
      * @dev Sets the token-specific royalties for a given token ID
      * @param _tokenId The token ID for which the royalties are being set.
-     * @param receivers The addresses that will receive royalties.
-     * @param basisPoints The basis points to calculate royalty payments (1/100th of a percent) for each receiver.
+     * @param _receivers The addresses that will receive royalties.
+     * @param _basisPoints The basis points to calculate royalty payments (1/100th of a percent) for each receiver.
      */
     function _setTokenRoyalties(
         uint256 _tokenId,
-        address payable[] memory receivers,
-        uint96[] memory basisPoints
+        address payable[] memory _receivers,
+        uint96[] memory _basisPoints
     ) internal virtual {
         if (!_exists(_tokenId)) revert NonExistentToken();
-        if (receivers.length != basisPoints.length) revert LengthMismatch();
+        if (_receivers.length != _basisPoints.length) revert LengthMismatch();
         /// Deleting first, so this could be used to reset royalties to a new config
         delete royaltyTokenInfo[_tokenId];
         RoyaltyInfo[] storage tokenRoyalties = royaltyTokenInfo[_tokenId];
         RoyaltyInfo[] memory royalties_ = royalties;
         uint256 baseLength = royalties.length;
-        uint256 tokenLength = basisPoints.length;
-        uint96[] memory totalBasisPoints = new uint96[](baseLength + basisPoints.length);
+        uint256 tokenLength = _basisPoints.length;
+        uint96[] memory totalBasisPoints = new uint96[](baseLength + _basisPoints.length);
         for (uint256 i; i < baseLength; i++) {
             totalBasisPoints[i] = royalties_[i].basisPoints;
         }
 
         for (uint256 i; i < tokenLength; i++) {
-            totalBasisPoints[i + baseLength] = basisPoints[i];
+            totalBasisPoints[i + baseLength] = _basisPoints[i];
         }
 
         _checkRoyalties(totalBasisPoints);
 
-        for (uint256 i; i < basisPoints.length; i++) {
-            tokenRoyalties.push(RoyaltyInfo(receivers[i], basisPoints[i]));
+        for (uint256 i; i < _basisPoints.length; i++) {
+            tokenRoyalties.push(RoyaltyInfo(_receivers[i], _basisPoints[i]));
         }
     }
 
     /**
      * @dev Sets the base royalties for the contract
-     * @param receivers The addresses that will receive royalties.
-     * @param basisPoints The basis points to calculate royalty payments (1/100th of a percent) for each receiver.
+     * @param _receivers The addresses that will receive royalties.
+     * @param _basisPoints The basis points to calculate royalty payments (1/100th of a percent) for each receiver.
      */
     function _setBaseRoyalties(
-        address payable[] memory receivers,
-        uint96[] memory basisPoints
+        address payable[] memory _receivers,
+        uint96[] memory _basisPoints
     ) internal {
         delete royalties;
-        if (receivers.length != basisPoints.length) revert LengthMismatch();
-        _checkRoyalties(basisPoints);
-        for (uint256 i; i < basisPoints.length; i++) {
-            royalties.push(RoyaltyInfo(receivers[i], basisPoints[i]));
+        if (_receivers.length != _basisPoints.length) revert LengthMismatch();
+        _checkRoyalties(_basisPoints);
+        for (uint256 i; i < _basisPoints.length; i++) {
+            royalties.push(RoyaltyInfo(_receivers[i], _basisPoints[i]));
         }
-        emit TokenRoyaltiesUpdated(receivers, basisPoints);
+        emit TokenRoyaltiesUpdated(_receivers, _basisPoints);
     }
 
     function _exists(uint256) internal virtual returns (bool);
@@ -160,11 +160,11 @@ abstract contract RoyaltyManager is IRoyaltyManager {
     /**
      * @dev Checks that the total basis points for the royalties do not exceed 10000 (100%)
      */
-    function _checkRoyalties(uint96[] memory basisPoints) internal pure {
+    function _checkRoyalties(uint96[] memory _basisPoints) internal pure {
         uint256 totalBasisPoints;
-        for (uint256 i; i < basisPoints.length; i++) {
-            if (basisPoints[i] > 2500) revert OverMaxBasisPointAllowed();
-            totalBasisPoints += basisPoints[i];
+        for (uint256 i; i < _basisPoints.length; i++) {
+            if (_basisPoints[i] > 2500) revert OverMaxBasisPointAllowed();
+            totalBasisPoints += _basisPoints[i];
         }
         if (totalBasisPoints >= _feeDenominator()) revert InvalidRoyaltyConfig();
     }
