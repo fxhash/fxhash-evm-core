@@ -6,6 +6,7 @@ import {IRoyaltyManager} from "contracts/interfaces/IRoyaltyManager.sol";
 /// @title RoyaltyManager
 /// @notice A contract for managing royalties
 abstract contract RoyaltyManager is IRoyaltyManager {
+    uint256 public constant MAX_ROYALTY = 2500;
     /// @notice A struct containing basisPoints and receiver address for a royalty
     RoyaltyInfo[] private royalties;
 
@@ -163,7 +164,7 @@ abstract contract RoyaltyManager is IRoyaltyManager {
     function _checkRoyalties(uint96[] memory _basisPoints) internal pure {
         uint256 totalBasisPoints;
         for (uint256 i; i < _basisPoints.length; i++) {
-            if (_basisPoints[i] > 2500) revert OverMaxBasisPointAllowed();
+            if (_basisPoints[i] > MAX_ROYALTY) revert OverMaxBasisPointAllowed();
             totalBasisPoints += _basisPoints[i];
         }
         if (totalBasisPoints >= _feeDenominator()) revert InvalidRoyaltyConfig();
