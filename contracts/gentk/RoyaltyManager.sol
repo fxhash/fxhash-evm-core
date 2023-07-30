@@ -8,7 +8,7 @@ import {IRoyaltyManager} from "contracts/interfaces/IRoyaltyManager.sol";
 abstract contract RoyaltyManager is IRoyaltyManager {
     uint256 public constant MAX_ROYALTY = 2500;
     /// @notice A struct containing basisPoints and receiver address for a royalty
-    RoyaltyInfo[] private royalties;
+    RoyaltyInfo[] public royalties;
 
     /// @dev Mapping of token IDs to token-specific royalties
     mapping(uint256 => RoyaltyInfo[]) private royaltyTokenInfo;
