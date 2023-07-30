@@ -11,7 +11,7 @@ abstract contract RoyaltyManager is IRoyaltyManager {
     RoyaltyInfo[] public royalties;
 
     /// @dev Mapping of token IDs to token-specific royalties
-    mapping(uint256 => RoyaltyInfo[]) private royaltyTokenInfo;
+    mapping(uint256 => RoyaltyInfo[]) public royaltyTokenInfo;
 
     /**
      * @notice Sets the base royalties for the contract
