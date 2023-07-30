@@ -57,8 +57,8 @@ contract GenTk is ERC721URIStorageUpgradeable, OwnableUpgradeable, RoyaltyManage
     }
 
     function initialize(
-        address payable[] memory _receivers,
-        uint96[] memory _basisPoints,
+        address payable[] calldata _receivers,
+        uint96[] calldata _basisPoints,
         address _configManager,
         address _issuer,
         address _owner

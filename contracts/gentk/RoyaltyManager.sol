@@ -18,8 +18,8 @@ abstract contract RoyaltyManager is IRoyaltyManager {
      * @param _basisPoints The basis points to calculate royalty payments (1/100th of a percent) for each receiver.
      */
     function setBaseRoyalties(
-        address payable[] memory _receivers,
-        uint96[] memory _basisPoints
+        address payable[] calldata _receivers,
+        uint96[] calldata _basisPoints
     ) external virtual {
         _setBaseRoyalties(_receivers, _basisPoints);
         emit TokenRoyaltiesUpdated(_receivers, _basisPoints);
@@ -33,8 +33,8 @@ abstract contract RoyaltyManager is IRoyaltyManager {
      */
     function setTokenRoyalties(
         uint256 _tokenId,
-        address payable[] memory _receivers,
-        uint96[] memory _basisPoints
+        address payable[] calldata _receivers,
+        uint96[] calldata _basisPoints
     ) external virtual {
         _setTokenRoyalties(_tokenId, _receivers, _basisPoints);
         emit TokenIdRoyaltiesUpdated(_tokenId, _receivers, _basisPoints);
@@ -102,8 +102,8 @@ abstract contract RoyaltyManager is IRoyaltyManager {
      */
     function _setTokenRoyalties(
         uint256 _tokenId,
-        address payable[] memory _receivers,
-        uint96[] memory _basisPoints
+        address payable[] calldata _receivers,
+        uint96[] calldata _basisPoints
     ) internal virtual {
         if (!_exists(_tokenId)) revert NonExistentToken();
         if (_receivers.length != _basisPoints.length) revert LengthMismatch();
@@ -135,8 +135,8 @@ abstract contract RoyaltyManager is IRoyaltyManager {
      * @param _basisPoints The basis points to calculate royalty payments (1/100th of a percent) for each receiver.
      */
     function _setBaseRoyalties(
-        address payable[] memory _receivers,
-        uint96[] memory _basisPoints
+        address payable[] calldata _receivers,
+        uint96[] calldata _basisPoints
     ) internal {
         delete royalties;
         if (_receivers.length != _basisPoints.length) revert LengthMismatch();
