@@ -68,29 +68,32 @@ abstract contract RoyaltyManager is IRoyaltyManager {
     /**
      * @dev Gets the royalty information for a given token ID
      * @param _tokenId The token ID for which the royalty information is being retrieved.
-     * @return receivers The addresses that will receive royalties.
-     * @return basisPoints The basis points to calculate royalty payments (1/100th of a percent) for each receiver.
+     * @return _allReceivers The addresses that will receive royalties.
+     * @return _allBasisPoints The basis points to calculate royalty payments (1/100th of a percent) for each receiver.
      */
     function getRoyalties(
         uint256 _tokenId
-    ) external view returns (address payable[] memory, uint256[] memory) {
-        RoyaltyInfo[] storage tokenRoyalties = royaltyTokenInfo[_tokenId];
+    )
+        external
+        view
+        returns (address payable[] memory _allReceivers, uint256[] memory _allBasisPoints)
+    {
+        RoyaltyInfo[] memory tokenRoyalties = royaltyTokenInfo[_tokenId];
         RoyaltyInfo[] memory royalties_ = royalties;
         uint256 baseLength = royalties_.length;
         uint256 tokenLength = tokenRoyalties.length;
         uint256 length = baseLength + tokenLength;
-        address payable[] memory allReceivers = new address payable[](length);
-        uint256[] memory allBasisPoints = new uint256[](length);
+        _allReceivers = new address payable[](length);
+        _allBasisPoints = new uint256[](length);
         for (uint256 i; i < baseLength; i++) {
-            allReceivers[i] = royalties_[i].receiver;
-            allBasisPoints[i] = royalties_[i].basisPoints;
+            _allReceivers[i] = royalties_[i].receiver;
+            _allBasisPoints[i] = royalties_[i].basisPoints;
         }
 
         for (uint256 i; i < tokenLength; i++) {
-            allReceivers[i + baseLength] = tokenRoyalties[i].receiver;
-            allBasisPoints[i + baseLength] = tokenRoyalties[i].basisPoints;
+            _allReceivers[i + baseLength] = tokenRoyalties[i].receiver;
+            _allBasisPoints[i + baseLength] = tokenRoyalties[i].basisPoints;
         }
-        return (allReceivers, allBasisPoints);
     }
 
     function supportsInterface(bytes4 interfaceId) public view virtual returns (bool);
