@@ -42,7 +42,7 @@ abstract contract RoyaltyManager is IRoyaltyManager {
     }
 
     /**
-     * @dev Gets the royalty information for a given token ID and sale price
+     * @notice Gets the royalty information for a given token ID and sale price
      * @param _tokenId The token ID for which the royalty information is being retrieved.
      * @param _salePrice The sale price of the token.
      * @return _receiver The address that will receive the royalty payment.
@@ -66,7 +66,7 @@ abstract contract RoyaltyManager is IRoyaltyManager {
     }
 
     /**
-     * @dev Gets the royalty information for a given token ID
+     * @notice Gets the royalty information for a given token ID
      * @param _tokenId The token ID for which the royalty information is being retrieved.
      * @return _allReceivers The addresses that will receive royalties.
      * @return _allBasisPoints The basis points to calculate royalty payments (1/100th of a percent) for each receiver.
