@@ -46,23 +46,23 @@ abstract contract RoyaltyManager is IRoyaltyManager {
      * @param _tokenId The token ID for which the royalty information is being retrieved.
      * @param _salePrice The sale price of the token.
      * @return _receiver The address that will receive the royalty payment.
-     * @return amount The amount of royalty payment in wei.
+     * @return _amount The amount of royalty payment in wei.
      */
     function royaltyInfo(
         uint256 _tokenId,
         uint256 _salePrice
-    ) external view virtual returns (address, uint256) {
-        RoyaltyInfo[] storage tokenRoyalties = royaltyTokenInfo[_tokenId];
+    ) external view virtual returns (address _receiver, uint256 _amount) {
+        RoyaltyInfo[] memory tokenRoyalties = royaltyTokenInfo[_tokenId];
         RoyaltyInfo[] memory royalties_ = royalties;
 
         if (tokenRoyalties.length + royalties.length > 1) revert MoreThanOneRoyaltyReceiver();
         /// return early
         if (tokenRoyalties.length + royalties.length == 0) return (address(0), 0);
-        (address receiver, uint96 basisPoints) = tokenRoyalties.length > 0
+        uint96 basisPoints;
+        (_receiver, basisPoints) = tokenRoyalties.length > 0
             ? (tokenRoyalties[0].receiver, tokenRoyalties[0].basisPoints)
             : (royalties_[0].receiver, royalties_[0].basisPoints);
-        uint256 amount = (_salePrice * basisPoints) / _feeDenominator();
-        return (receiver, amount);
+        _amount = (_salePrice * basisPoints) / _feeDenominator();
     }
 
     /**
