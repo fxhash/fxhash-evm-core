@@ -7,7 +7,7 @@
 - **Reserves**: define a subset of iterations which can be minted under particular access
 - **Pricing**: define how much needs to be spent to move forward in the minting process
 
-### 1. Generic pattern for Reserves & Pricing
+### Generic pattern for Reserves & Pricing
 
 When looking at Reserves & Pricing in an abstract way, we can identify core differences:
 
@@ -31,7 +31,7 @@ classDiagram
   }
 ```
 
-#### 2. Gates composed as a Graph
+### 1. Gates composed as a Graph
 
 By abstracting the concept of Gates, we can now define a system in which any Gate can be chained to another, following particular constraints:
 
@@ -130,7 +130,7 @@ This achitecture, while allowing full versatility on what projects can implement
 
 It should be noted, however, in most cases Gates won't require any input and will just compute a price and lock the funds. So in essence most of the time it will just pass the whole input down in the chain.
 
-### 3. Decoupling of Reserves & Pricing 
+### 2. Decoupling of Reserves & Pricing 
 
 While the generic pattern for Reserves & Pricing is elegant, it's input requirements make it paricularly tricky to work with, especially on the front end. It is possible to greatly simplify the proposed pattern by typing Reserves & Pricing separately and by constraining the flow in which they are executed.
 
@@ -243,7 +243,7 @@ It should be noted that although the `reserve_input` parameter was speficied as 
 - **Cons**
   - slight loss in composability, as it's not possible to chain multiple Reserves for instance (which is not a common pattern)
 
-### Feature compression with composability
+### 3. Feature compression with composability
 
 We can observe that, with the above solutions, in any case based on the entry point picked by the user at mint time, the execution will always go the same path. If for instance we take the 3 paths we studied in the first design:
 
