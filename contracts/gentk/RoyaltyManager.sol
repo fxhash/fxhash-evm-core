@@ -45,54 +45,54 @@ abstract contract RoyaltyManager is IRoyaltyManager {
      * @notice Gets the royalty information for a given token ID and sale price
      * @param _tokenId The token ID for which the royalty information is being retrieved.
      * @param _salePrice The sale price of the token.
-     * @return _receiver The address that will receive the royalty payment.
-     * @return _amount The amount of royalty payment in wei.
+     * @return receiver The address that will receive the royalty payment.
+     * @return amount The amount of royalty payment in wei.
      */
     function royaltyInfo(
         uint256 _tokenId,
         uint256 _salePrice
-    ) external view virtual returns (address _receiver, uint256 _amount) {
+    ) external view virtual returns (address receiver, uint256 amount) {
         RoyaltyInfo[] memory tokenRoyalties = royaltyTokenInfo[_tokenId];
         RoyaltyInfo[] memory royalties_ = royalties;
 
         if (tokenRoyalties.length + royalties.length > 1) revert MoreThanOneRoyaltyReceiver();
         /// return early
-        if (tokenRoyalties.length + royalties.length == 0) return (address(0), 0);
+        if (tokenRoyalties.length + royalties.length == 0) return (receiver, amount);
         uint96 basisPoints;
-        (_receiver, basisPoints) = tokenRoyalties.length > 0
+        (receiver, basisPoints) = tokenRoyalties.length > 0
             ? (tokenRoyalties[0].receiver, tokenRoyalties[0].basisPoints)
             : (royalties_[0].receiver, royalties_[0].basisPoints);
-        _amount = (_salePrice * basisPoints) / _feeDenominator();
+        amount = (_salePrice * basisPoints) / _feeDenominator();
     }
 
     /**
      * @notice Gets the royalty information for a given token ID
      * @param _tokenId The token ID for which the royalty information is being retrieved.
-     * @return _allReceivers The addresses that will receive royalties.
-     * @return _allBasisPoints The basis points to calculate royalty payments (1/100th of a percent) for each receiver.
+     * @return allReceivers The addresses that will receive royalties.
+     * @return allBasisPoints The basis points to calculate royalty payments (1/100th of a percent) for each receiver.
      */
     function getRoyalties(
         uint256 _tokenId
     )
         external
         view
-        returns (address payable[] memory _allReceivers, uint256[] memory _allBasisPoints)
+        returns (address payable[] memory allReceivers, uint256[] memory allBasisPoints)
     {
         RoyaltyInfo[] memory tokenRoyalties = royaltyTokenInfo[_tokenId];
         RoyaltyInfo[] memory royalties_ = royalties;
         uint256 baseLength = royalties_.length;
         uint256 tokenLength = tokenRoyalties.length;
         uint256 length = baseLength + tokenLength;
-        _allReceivers = new address payable[](length);
-        _allBasisPoints = new uint256[](length);
+        allReceivers = new address payable[](length);
+        allBasisPoints = new uint256[](length);
         for (uint256 i; i < baseLength; i++) {
-            _allReceivers[i] = royalties_[i].receiver;
-            _allBasisPoints[i] = royalties_[i].basisPoints;
+            allReceivers[i] = royalties_[i].receiver;
+            allBasisPoints[i] = royalties_[i].basisPoints;
         }
 
         for (uint256 i; i < tokenLength; i++) {
-            _allReceivers[i + baseLength] = tokenRoyalties[i].receiver;
-            _allBasisPoints[i + baseLength] = tokenRoyalties[i].basisPoints;
+            allReceivers[i + baseLength] = tokenRoyalties[i].receiver;
+            allBasisPoints[i + baseLength] = tokenRoyalties[i].basisPoints;
         }
     }
 
