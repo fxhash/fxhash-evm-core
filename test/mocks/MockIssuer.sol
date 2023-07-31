@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
+
 import "contracts/interfaces/IMintTicket.sol";
 import "contracts/interfaces/IGenTk.sol";
+import {IssuerData} from "contracts/interfaces/IIssuer.sol";
 
 contract MockIssuer {
     IMintTicket ticket;
     IGenTk gentk;
-    LibIssuer.IssuerData private issuer;
+    IssuerData private issuer;
 
     constructor() {}
 
@@ -36,7 +38,7 @@ contract MockIssuer {
         ticket.createProject(gracingPeriod, metadata);
     }
 
-    function getIssuer() external view returns (LibIssuer.IssuerData memory) {
+    function getIssuer() external view returns (IssuerData memory) {
         return issuer;
     }
 

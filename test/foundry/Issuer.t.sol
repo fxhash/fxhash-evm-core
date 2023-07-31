@@ -8,8 +8,7 @@ import {CodexInput} from "contracts/interfaces/ICodex.sol";
 import {PricingData} from "contracts/interfaces/IPricing.sol";
 import {ReserveData} from "contracts/interfaces/IReserve.sol";
 import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
-import {Issuer, IIssuer} from "contracts/issuer/Issuer.sol";
-import {LibIssuer} from "contracts/libs/LibIssuer.sol";
+import {Issuer, IIssuer, OpenEditions} from "contracts/issuer/Issuer.sol";
 import {GenTk} from "contracts/gentk/GenTk.sol";
 
 contract IssuerTest is Test, Deploy {
@@ -30,7 +29,7 @@ contract IssuerTest is Test, Deploy {
     bytes public metadata;
     uint256 public metadataBytesSize;
     uint256 public amount;
-    LibIssuer.OpenEditions public oe;
+    OpenEditions public oe;
     IIssuer.MintTicketSettings public mintTicketSettings;
     ReserveData[] public reserveData;
     PricingData public pricing;
@@ -50,7 +49,7 @@ contract IssuerTest is Test, Deploy {
         metadata = "metdata";
         metadataBytesSize = 256;
         amount = 1000;
-        oe = LibIssuer.OpenEditions(0, "");
+        oe = OpenEditions(0, "");
         mintTicketSettings = IIssuer.MintTicketSettings(0, "");
         for (uint256 i; i < whitelistFixed.length; i++) {
             whitelist.push(whitelistFixed[i]);

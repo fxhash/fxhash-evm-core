@@ -28,7 +28,6 @@ describe("Issuer", () => {
   let receiver: Signer;
   let signer: Signer;
   let treasury: Signer;
-  let libIssuer: Contract;
   let scriptyStorageContract: Contract;
   let scriptyBuilderContract: Contract;
   let scriptyContentContract: Contract;
@@ -61,10 +60,6 @@ describe("Issuer", () => {
 
     [admin, receiver, signer, treasury, addr1, addr2, addr3] =
       await ethers.getSigners();
-
-    const LibIssuer = await ethers.getContractFactory("LibIssuer");
-    libIssuer = await LibIssuer.deploy();
-    await libIssuer.deployed();
 
     const ReserveWhitelistFactory = await ethers.getContractFactory(
       "ReserveWhitelist"
@@ -131,12 +126,7 @@ describe("Issuer", () => {
       "Randomizer"
     );
     const IssuerFactory: ContractFactory = await ethers.getContractFactory(
-      "Issuer",
-      {
-        libraries: {
-          "contracts/libs/LibIssuer.sol:LibIssuer": libIssuer.address,
-        },
-      }
+      "Issuer"
     );
     const MintTicket: ContractFactory = await ethers.getContractFactory(
       "MintTicket"

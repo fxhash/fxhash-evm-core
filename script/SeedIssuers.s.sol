@@ -6,11 +6,10 @@ import {Deploy} from "./Deploy.s.sol";
 import {ReserveWhitelist} from "contracts/reserve/ReserveWhitelist.sol";
 import {PricingFixed} from "contracts/pricing/PricingFixed.sol";
 import {PricingDutchAuction} from "contracts/pricing/PricingDutchAuction.sol";
-import {IIssuer} from "contracts/interfaces/IIssuer.sol";
+import {IIssuer, OpenEditions} from "contracts/interfaces/IIssuer.sol";
 import {PricingData} from "contracts/interfaces/IPricing.sol";
 import {ReserveData} from "contracts/interfaces/IReserve.sol";
 import {RoyaltyData} from "contracts/interfaces/ISplitsMain.sol";
-import {LibIssuer} from "contracts/libs/LibIssuer.sol";
 import {CodexData, CodexInput} from "contracts/interfaces/ICodex.sol";
 import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
 import {Issuer} from "contracts/issuer/Issuer.sol";
@@ -197,7 +196,7 @@ contract SeedIssuers is Deploy {
     ) public view returns (IIssuer.MintIssuerInput memory) {
         ReserveData[] memory reserveData;
         PricingData memory pricingData;
-        LibIssuer.OpenEditions memory openEditionsData;
+        OpenEditions memory openEditionsData;
         IIssuer.MintTicketSettings memory mintTicketData;
         WrappedScriptRequest[] memory onChainData;
 
@@ -264,12 +263,12 @@ contract SeedIssuers is Deploy {
         return IIssuer.MintTicketSettings({gracingPeriod: 1000, metadata: "ipfs://1234"});
     }
 
-    function _getOpenEditionParam() public view returns (LibIssuer.OpenEditions memory) {
-        return LibIssuer.OpenEditions({closingTime: block.timestamp + 200000000, extra: bytes("")});
+    function _getOpenEditionParam() public view returns (OpenEditions memory) {
+        return OpenEditions({closingTime: block.timestamp + 200000000, extra: bytes("")});
     }
 
-    function _getEmptyOpenEditionParam() public pure returns (LibIssuer.OpenEditions memory) {
-        return LibIssuer.OpenEditions({closingTime: 0, extra: bytes("")});
+    function _getEmptyOpenEditionParam() public pure returns (OpenEditions memory) {
+        return OpenEditions({closingTime: 0, extra: bytes("")});
     }
 
     function _getEmptyReserveParam() public pure returns (ReserveData[] memory) {

@@ -7,9 +7,8 @@ import {IERC165Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces
 import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC721Upgradeable.sol";
 import {IFactory} from "contracts/interfaces/IFactory.sol";
 import {IGenTk} from "contracts/interfaces/IGenTk.sol";
-import {IIssuer} from "contracts/interfaces/IIssuer.sol";
+import {IIssuer, IssuerData} from "contracts/interfaces/IIssuer.sol";
 import {IOnChainTokenMetadataManager} from "contracts/interfaces/IOnChainTokenMetadataManager.sol";
-import {LibIssuer} from "contracts/libs/LibIssuer.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {RoyaltyManager} from "contracts/gentk/RoyaltyManager.sol";
 
@@ -110,7 +109,7 @@ contract GenTk is ERC721URIStorageUpgradeable, OwnableUpgradeable, RoyaltyManage
         _requireMinted(tokenId);
         string memory _tokenURI = super.tokenURI(tokenId);
         TokenData memory _tokenData = tokenData[tokenId];
-        LibIssuer.IssuerData memory issuerData = issuer.getIssuer();
+        IssuerData memory issuerData = issuer.getIssuer();
         require(_tokenData.minter != address(0), "TOKEN_UNDEFINED");
         if (issuerData.onChainData.length > 0) {
             string memory onChainURI = IOnChainTokenMetadataManager(

@@ -17,7 +17,7 @@ import {IPricing} from "contracts/interfaces/IPricing.sol";
 import {IPricingManager} from "contracts/interfaces/IPricingManager.sol";
 import {IReserve} from "contracts/interfaces/IReserve.sol";
 import {IReserveManager} from "contracts/interfaces/IReserveManager.sol";
-import {LibIssuer} from "contracts/libs/LibIssuer.sol";
+import {IssuerData, IssuerInfo, OpenEditions} from "contracts/interfaces/IIssuer.sol";
 import {PricingData} from "contracts/interfaces/IPricing.sol";
 import {ReserveData, ReserveInput, ReserveMethod} from "contracts/interfaces/IReserve.sol";
 import {RoyaltyData} from "contracts/interfaces/ISplitsMain.sol";
@@ -27,7 +27,7 @@ import {SignedMath} from "@openzeppelin/contracts/utils/math/SignedMath.sol";
 
 contract Issuer is IIssuer, OwnableUpgradeable {
     IConfigurationManager private configManager;
-    LibIssuer.IssuerData private issuer;
+    IssuerData private issuer;
     IGenTk private genTk;
     uint256 private allGenTkTokens;
 
@@ -140,7 +140,7 @@ contract Issuer is IIssuer, OwnableUpgradeable {
             require(reserveTotal <= params.amount, "RSRV_BIG");
         }
 
-        issuer = LibIssuer.IssuerData({
+        issuer = IssuerData({
             metadata: params.metadata,
             balance: params.amount,
             iterationsCount: 0,
@@ -149,7 +149,7 @@ contract Issuer is IIssuer, OwnableUpgradeable {
             reserves: abi.encode(params.reserves),
             primarySplit: params.primarySplit,
             onChainData: abi.encode(params.onChainScripts),
-            info: LibIssuer.IssuerInfo({
+            info: IssuerInfo({
                 tags: params.tags,
                 enabled: params.enabled,
                 lockedSeconds: _lockTime,
@@ -193,7 +193,7 @@ contract Issuer is IIssuer, OwnableUpgradeable {
 
         bool isOe = issuer.openEditions.closingTime > 0;
         if (isOe) {
-            LibIssuer.OpenEditions memory oe = issuer.openEditions;
+            OpenEditions memory oe = issuer.openEditions;
             if (oe.closingTime != 0) {
                 require(block.timestamp < oe.closingTime, "OE_CLOSE");
             }
@@ -287,7 +287,7 @@ contract Issuer is IIssuer, OwnableUpgradeable {
     }
 
     function updateIssuer(UpdateIssuerInput calldata params) external onlyOwner {
-        LibIssuer.verifyIssuerUpdateable(issuer);
+        _verifyIssuerUpdateable(issuer);
 
         require(
             ((params.primarySplit.percent >= 1000) && (params.primarySplit.percent <= 2500)),
@@ -300,7 +300,7 @@ contract Issuer is IIssuer, OwnableUpgradeable {
     }
 
     function updatePrice(PricingData calldata pricingData) external onlyOwner {
-        LibIssuer.verifyIssuerUpdateable(issuer);
+        _verifyIssuerUpdateable(issuer);
         IPricingManager(configManager.contracts("priceMag")).verifyPricingMethod(
             pricingData.pricingId
         );
@@ -315,7 +315,7 @@ contract Issuer is IIssuer, OwnableUpgradeable {
     }
 
     function updateReserve(ReserveData[] calldata reserves) external onlyOwner {
-        LibIssuer.verifyIssuerUpdateable(issuer);
+        _verifyIssuerUpdateable(issuer);
         require(issuer.info.enabled, "TOK_DISABLED");
         for (uint256 i = 0; i < reserves.length; i++) {
             ReserveMethod memory reserve = IReserveManager(configManager.contracts("resMag"))
@@ -368,7 +368,7 @@ contract Issuer is IIssuer, OwnableUpgradeable {
         configManager = IConfigurationManager(_configManager);
     }
 
-    function getIssuer() external view returns (LibIssuer.IssuerData memory) {
+    function getIssuer() external view returns (IssuerData memory) {
         return issuer;
     }
 
@@ -450,6 +450,14 @@ contract Issuer is IIssuer, OwnableUpgradeable {
                 );
                 allGenTkTokens++;
             }
+        }
+    }
+
+    function _verifyIssuerUpdateable(IssuerData memory issuerToken) internal view {
+        if (issuerToken.openEditions.closingTime > 0) {
+            require(block.timestamp < issuerToken.openEditions.closingTime, "OE_CLOSE");
+        } else {
+            require(issuerToken.balance > 0, "NO_BLNC");
         }
     }
 }

@@ -3,7 +3,6 @@ pragma solidity ^0.8.18;
 
 import "contracts/interfaces/IOnChainTokenMetadataManager.sol";
 import {IScriptyBuilder, WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
-import "contracts/libs/LibIssuer.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 
 contract OnChainTokenMetadataManager is IOnChainTokenMetadataManager {

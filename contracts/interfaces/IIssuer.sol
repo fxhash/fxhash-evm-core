@@ -1,13 +1,40 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "contracts/libs/LibIssuer.sol";
-
 import {CodexInput} from "contracts/interfaces/ICodex.sol";
 import {PricingData} from "contracts/interfaces/IPricing.sol";
 import {ReserveData} from "contracts/interfaces/IReserve.sol";
 import {RoyaltyData} from "contracts/interfaces/ISplitsMain.sol";
 import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
+
+struct OpenEditions {
+    uint256 closingTime;
+    bytes extra;
+}
+
+struct IssuerData {
+    uint256 balance;
+    uint256 iterationsCount;
+    bytes metadata;
+    uint256 supply;
+    OpenEditions openEditions;
+    bytes reserves;
+    RoyaltyData primarySplit;
+    IssuerInfo info;
+    bytes onChainData;
+}
+
+struct IssuerInfo {
+    uint256[] tags;
+    bool enabled;
+    uint256 lockedSeconds;
+    uint256 timestampMinted;
+    bool lockPriceForReserves;
+    bool hasTickets;
+    uint256 pricingId;
+    uint256 codexId;
+    uint256 inputBytesSize;
+}
 
 interface IIssuer {
     struct UpdateIssuerInput {
@@ -25,7 +52,7 @@ interface IIssuer {
         bytes metadata;
         uint256 inputBytesSize;
         uint256 amount;
-        LibIssuer.OpenEditions openEditions;
+        OpenEditions openEditions;
         MintTicketSettings mintTicketSettings;
         ReserveData[] reserves;
         PricingData pricing;
@@ -65,7 +92,7 @@ interface IIssuer {
 
     function supportsInterface(bytes4 interfaceId) external view returns (bool);
 
-    function getIssuer() external view returns (LibIssuer.IssuerData memory);
+    function getIssuer() external view returns (IssuerData memory);
 
     function owner() external view returns (address);
 }

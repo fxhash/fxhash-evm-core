@@ -3,7 +3,6 @@ pragma solidity ^0.8.18;
 
 import "contracts/interfaces/IModerationTeam.sol";
 import "contracts/interfaces/IIssuer.sol";
-import "contracts/libs/LibIssuer.sol";
 import {ICodex, CodexData, CodexInput} from "contracts/interfaces/ICodex.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
