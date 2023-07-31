@@ -25,7 +25,7 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 import {SafeTransferLib} from "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
 import {SignedMath} from "@openzeppelin/contracts/utils/math/SignedMath.sol";
 
-contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
+contract Issuer is IIssuer, OwnableUpgradeable {
     IConfigurationManager private configManager;
     LibIssuer.IssuerData private issuer;
     IGenTk private genTk;
@@ -64,11 +64,6 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
             params.codex
         );
         (, , uint128 _lockTime, ) = configManager.config();
-        require(
-            ((params.royaltiesSplit.percent >= 1000) && (params.royaltiesSplit.percent <= 2500)) ||
-                ((!params.enabled) && (params.royaltiesSplit.percent <= 2500)),
-            "WRG_ROY"
-        );
         require(
             ((params.primarySplit.percent >= 1000) && (params.primarySplit.percent <= 2500)),
             "WRG_PRIM_SPLIT"
@@ -153,7 +148,6 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
             openEditions: params.openEditions,
             reserves: abi.encode(params.reserves),
             primarySplit: params.primarySplit,
-            royaltiesSplit: params.royaltiesSplit,
             onChainData: abi.encode(params.onChainScripts),
             info: LibIssuer.IssuerInfo({
                 tags: params.tags,
@@ -266,10 +260,8 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
         require(params.inputBytes.length == issuer.info.inputBytesSize, "WRONG_INPUT_BYTES");
         require(address(genTk) != address(0), "GENTK_NOT_SET");
 
-        address recipient = msg.sender;
-        if (params.recipient != address(0)) {
-            recipient = params.recipient;
-        }
+        if (params.recipient == address(0)) params.recipient = msg.sender;
+
         IMintTicket(configManager.contracts("mint_tickets")).consume(
             msg.sender,
             params.ticketId,
@@ -284,9 +276,7 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
                 tokenId: allGenTkTokens,
                 iteration: issuer.iterationsCount,
                 inputBytes: params.inputBytes,
-                receiver: issuer.royaltiesSplit.receiver == address(genTk)
-                    ? recipient
-                    : issuer.royaltiesSplit.receiver,
+                receiver: params.recipient,
                 metadata: defaultMetadata
             })
         );
@@ -300,17 +290,11 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
         LibIssuer.verifyIssuerUpdateable(issuer);
 
         require(
-            ((params.royaltiesSplit.percent >= 1000) && (params.royaltiesSplit.percent <= 2500)) ||
-                ((!params.enabled) && (params.royaltiesSplit.percent <= 2500)),
-            "WRG_ROY"
-        );
-        require(
             ((params.primarySplit.percent >= 1000) && (params.primarySplit.percent <= 2500)),
             "WRG_PRIM_SPLIT"
         );
 
         issuer.primarySplit = params.primarySplit;
-        issuer.royaltiesSplit = params.royaltiesSplit;
         issuer.info.enabled = params.enabled;
         emit IssuerUpdated(params);
     }
@@ -388,20 +372,6 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
         return issuer;
     }
 
-    function royaltyInfo(
-        uint256,
-        uint256 salePrice
-    )
-        public
-        view
-        override(IERC2981Upgradeable, IIssuer)
-        returns (address receiver, uint256 royaltyAmount)
-    {
-        RoyaltyData memory royalty = issuer.royaltiesSplit;
-        uint256 amount = (salePrice * royalty.percent) / 10000;
-        return (royalty.receiver, amount);
-    }
-
     function primarySplitInfo(
         uint256 salePrice
     ) public view returns (address receiver, uint256 royaltyAmount) {
@@ -410,12 +380,8 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
         return (royalty.receiver, amount);
     }
 
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public pure override(IERC165Upgradeable, IIssuer) returns (bool) {
-        return
-            interfaceId == type(IIssuer).interfaceId ||
-            interfaceId == type(IERC2981Upgradeable).interfaceId;
+    function supportsInterface(bytes4 interfaceId) public pure returns (bool) {
+        return interfaceId == type(IIssuer).interfaceId;
     }
 
     function burnToken() private {
@@ -478,9 +444,7 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
                         tokenId: tokenId,
                         iteration: issuer.iterationsCount,
                         inputBytes: params.inputBytes,
-                        receiver: issuer.royaltiesSplit.receiver == address(genTk)
-                            ? recipient
-                            : issuer.royaltiesSplit.receiver,
+                        receiver: recipient,
                         metadata: defaultMetadata
                     })
                 );
