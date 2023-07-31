@@ -15,19 +15,19 @@ bytes32 constant RESERVE_MANAGER = keccak256("RESERVE_MANAGER");
 bytes32 constant TREASURY = keccak256("TREASURY");
 
 // Authorizations
-uint256 constant TOKEN_AUTH = 20;
-uint256 constant USER_AUTH = 20;
+uint16 constant TOKEN_AUTH = 20;
+uint16 constant USER_AUTH = 20;
 
 // Token States
-uint256 constant NONE = 0;
-uint256 constant CLEAN = 1;
-uint256 constant REPORTED = 2;
-uint256 constant AUTO_DETECT_COPY = 3;
-uint256 constant MALICIOUS_TOKEN = 4;
-uint256 constant HIDDEN = 5;
+uint128 constant NONE = 0;
+uint128 constant CLEAN = 1;
+uint128 constant REPORTED = 2;
+uint128 constant AUTO_DETECT_COPY = 3;
+uint128 constant MALICIOUS_TOKEN = 4;
+uint128 constant HIDDEN = 5;
 
 // User States
-uint256 constant REVIEW = 1;
-uint256 constant SUSPICIOUS = 2;
-uint256 constant MALICIOUS_USER = 3;
-uint256 constant VERIFIED = 10;
+uint128 constant REVIEW = 1;
+uint128 constant SUSPICIOUS = 2;
+uint128 constant MALICIOUS_USER = 3;
+uint128 constant VERIFIED = 10;

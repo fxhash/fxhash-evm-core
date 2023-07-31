@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 import {BaseModeration} from "contracts/admin/moderation/BaseModeration.sol";
 import {ModerationTeam} from "contracts/admin/moderation/ModerationTeam.sol";
+
 import {IModerationIssuer, IssuerModInfo} from "contracts/interfaces/IModerationIssuer.sol";
+import {TOKEN_AUTH} from "contracts/utils/Constants.sol";
 
 contract ModerationIssuer is BaseModeration, IModerationIssuer {
-    uint16 public constant TOKEN_AUTH = 10;
     mapping(address => IssuerModInfo) public issuers;
     mapping(bytes32 => uint256) public reports;
 
