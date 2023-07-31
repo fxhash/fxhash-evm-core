@@ -3,7 +3,8 @@ pragma solidity ^0.8.18;
 
 import "forge-std/Test.sol";
 import {Deploy} from "script/Deploy.s.sol";
-import {IIssuer, LibIssuer, LibReserve, LibRoyalty, LibPricing, LibCodex} from "contracts/interfaces/IIssuer.sol";
+import {RoyaltyData} from "contracts/interfaces/ISplitsMain.sol";
+import {IIssuer, LibIssuer, LibReserve, LibPricing, LibCodex} from "contracts/interfaces/IIssuer.sol";
 import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
 import {Issuer} from "contracts/issuer/Issuer.sol";
 import {GenTk} from "contracts/gentk/GenTk.sol";
@@ -30,8 +31,8 @@ contract IssuerTest is Test, Deploy {
     IIssuer.MintTicketSettings public mintTicketSettings;
     LibReserve.ReserveData[] public reserveData;
     LibPricing.PricingData public pricing;
-    LibRoyalty.RoyaltyData public primary;
-    LibRoyalty.RoyaltyData public royalty;
+    RoyaltyData public primary;
+    RoyaltyData public royalty;
     bool public enabled;
     uint256[] public tags;
     WrappedScriptRequest[] public onchainScripts;
@@ -50,8 +51,8 @@ contract IssuerTest is Test, Deploy {
         for (uint256 i; i < allocationsFixed.length; i++) allocations.push(allocationsFixed[i]);
         reserveData.push(LibReserve.ReserveData(1, 1, abi.encode(whitelist, allocations)));
         pricing = LibPricing.PricingData(1, abi.encode(price, timestamp - 1), true);
-        primary = LibRoyalty.RoyaltyData(1500, alice);
-        royalty = LibRoyalty.RoyaltyData(1000, alice);
+        primary = RoyaltyData(1500, alice);
+        royalty = RoyaltyData(1000, alice);
         enabled = true;
         for (uint256 i; i < tagsFixed.length; i++) tags.push(tagsFixed[i]);
         /// onchain scripts remains uninitialized

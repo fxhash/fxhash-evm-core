@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 import "contracts/libs/LibReserve.sol";
-import "contracts/libs/LibRoyalty.sol";
+import {RoyaltyData} from "contracts/interfaces/ISplitsMain.sol";
 
 library LibIssuer {
     struct OpenEditions {
@@ -17,8 +17,8 @@ library LibIssuer {
         uint256 supply;
         OpenEditions openEditions;
         bytes reserves;
-        LibRoyalty.RoyaltyData primarySplit;
-        LibRoyalty.RoyaltyData royaltiesSplit;
+        RoyaltyData primarySplit;
+        RoyaltyData royaltiesSplit;
         IssuerInfo info;
         bytes onChainData;
     }

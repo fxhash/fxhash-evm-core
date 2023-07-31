@@ -20,7 +20,7 @@ import {IReserveManager} from "contracts/interfaces/IReserveManager.sol";
 import {LibIssuer} from "contracts/libs/LibIssuer.sol";
 import {LibPricing} from "contracts/libs/LibPricing.sol";
 import {LibReserve} from "contracts/libs/LibReserve.sol";
-import {LibRoyalty} from "contracts/libs/LibRoyalty.sol";
+import {RoyaltyData} from "contracts/interfaces/ISplitsMain.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {SafeTransferLib} from "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
 import {SignedMath} from "@openzeppelin/contracts/utils/math/SignedMath.sol";
@@ -402,7 +402,7 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
         override(IERC2981Upgradeable, IIssuer)
         returns (address receiver, uint256 royaltyAmount)
     {
-        LibRoyalty.RoyaltyData memory royalty = issuer.royaltiesSplit;
+        RoyaltyData memory royalty = issuer.royaltiesSplit;
         uint256 amount = (salePrice * royalty.percent) / 10000;
         return (royalty.receiver, amount);
     }
@@ -410,7 +410,7 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
     function primarySplitInfo(
         uint256 salePrice
     ) public view returns (address receiver, uint256 royaltyAmount) {
-        LibRoyalty.RoyaltyData memory royalty = issuer.primarySplit;
+        RoyaltyData memory royalty = issuer.primarySplit;
         uint256 amount = (salePrice * royalty.percent) / 10000;
         return (royalty.receiver, amount);
     }

@@ -6,12 +6,12 @@ import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilde
 import "contracts/libs/LibCodex.sol";
 import "contracts/libs/LibIssuer.sol";
 import "contracts/libs/LibPricing.sol";
-import "contracts/libs/LibRoyalty.sol";
+import {RoyaltyData} from "contracts/interfaces/ISplitsMain.sol";
 
 interface IIssuer {
     struct UpdateIssuerInput {
-        LibRoyalty.RoyaltyData primarySplit;
-        LibRoyalty.RoyaltyData royaltiesSplit;
+        RoyaltyData primarySplit;
+        RoyaltyData royaltiesSplit;
         bool enabled;
     }
 
@@ -29,8 +29,8 @@ interface IIssuer {
         MintTicketSettings mintTicketSettings;
         LibReserve.ReserveData[] reserves;
         LibPricing.PricingData pricing;
-        LibRoyalty.RoyaltyData primarySplit;
-        LibRoyalty.RoyaltyData royaltiesSplit;
+        RoyaltyData primarySplit;
+        RoyaltyData royaltiesSplit;
         bool enabled;
         uint256[] tags;
         WrappedScriptRequest[] onChainScripts;
