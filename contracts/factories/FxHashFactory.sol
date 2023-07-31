@@ -7,6 +7,7 @@ import {IGenTkFactory} from "contracts/interfaces/IGenTkFactory.sol";
 import {IIssuer} from "contracts/interfaces/IIssuer.sol";
 import {IIssuerFactory} from "contracts/interfaces/IIssuerFactory.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {LibRoyalty} from "contracts/libs/LibRoyalty.sol";
 
 /// @title FxHashFactory
 /// @dev See the documentation in {IFxHashFactory}
@@ -20,11 +21,15 @@ contract FxHashFactory is IFxHashFactory, Ownable {
     }
 
     /// @inheritdoc IFxHashFactory
-    function createProject(address _owner) external returns (address issuer, address gentk) {
+    function createProject(
+        address payable[] calldata _receivers,
+        uint96[] calldata _basisPoints,
+        address _owner
+    ) external returns (address issuer, address gentk) {
         issuer = IIssuerFactory(issuerFactory).createIssuer(_owner, configManager);
         gentk = IGenTkFactory(genTkFactory).createGenTk(_owner, issuer, configManager);
         IIssuer(issuer).initialize(configManager, gentk, _owner);
-        IGenTk(gentk).initialize(configManager, issuer, _owner);
+        IGenTk(gentk).initialize(_receivers, _basisPoints, configManager, issuer, _owner);
         emit FxHashProjectCreated(_owner, issuer, gentk, configManager);
     }
 
