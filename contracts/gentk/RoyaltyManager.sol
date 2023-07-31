@@ -8,10 +8,10 @@ import {IRoyaltyManager} from "contracts/interfaces/IRoyaltyManager.sol";
 abstract contract RoyaltyManager is IRoyaltyManager {
     uint256 public constant MAX_ROYALTY = 2500;
     /// @notice A struct containing basisPoints and receiver address for a royalty
-    RoyaltyInfo[] public royalties;
+    RoyaltyInfo[] public baseRoyalties;
 
     /// @dev Mapping of token IDs to token-specific royalties
-    mapping(uint256 => RoyaltyInfo[]) public royaltyTokenInfo;
+    mapping(uint256 => RoyaltyInfo[]) public tokenRoyalties;
 
     /**
      * @notice Sets the base royalties for the contract
@@ -52,16 +52,16 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         uint256 _tokenId,
         uint256 _salePrice
     ) external view virtual returns (address receiver, uint256 amount) {
-        RoyaltyInfo[] storage tokenRoyalties = royaltyTokenInfo[_tokenId];
-        RoyaltyInfo[] storage royalties_ = royalties;
+        RoyaltyInfo[] storage tokenRoyalties_ = tokenRoyalties[_tokenId];
+        RoyaltyInfo[] storage baseRoyalties_ = baseRoyalties;
 
-        if (tokenRoyalties.length + royalties.length > 1) revert MoreThanOneRoyaltyReceiver();
+        if (tokenRoyalties_.length + baseRoyalties.length > 1) revert MoreThanOneRoyaltyReceiver();
         /// return early
-        if (tokenRoyalties.length + royalties.length == 0) return (receiver, amount);
+        if (tokenRoyalties_.length + baseRoyalties.length == 0) return (receiver, amount);
         uint96 basisPoints;
-        (receiver, basisPoints) = tokenRoyalties.length > 0
-            ? (tokenRoyalties[0].receiver, tokenRoyalties[0].basisPoints)
-            : (royalties_[0].receiver, royalties_[0].basisPoints);
+        (receiver, basisPoints) = tokenRoyalties_.length > 0
+            ? (tokenRoyalties_[0].receiver, tokenRoyalties_[0].basisPoints)
+            : (baseRoyalties_[0].receiver, baseRoyalties_[0].basisPoints);
         amount = (_salePrice * basisPoints) / _feeDenominator();
     }
 
@@ -78,10 +78,10 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         view
         returns (address payable[] memory allReceivers, uint256[] memory allBasisPoints)
     {
-        RoyaltyInfo[] storage tokenRoyalties = royaltyTokenInfo[_tokenId];
-        RoyaltyInfo[] storage royalties_ = royalties;
+        RoyaltyInfo[] storage tokenRoyalties_ = tokenRoyalties[_tokenId];
+        RoyaltyInfo[] storage royalties_ = baseRoyalties;
         uint256 baseLength = royalties_.length;
-        uint256 tokenLength = tokenRoyalties.length;
+        uint256 tokenLength = tokenRoyalties_.length;
         uint256 length = baseLength + tokenLength;
         allReceivers = new address payable[](length);
         allBasisPoints = new uint256[](length);
@@ -91,8 +91,8 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         }
 
         for (uint256 i; i < tokenLength; i++) {
-            allReceivers[i + baseLength] = tokenRoyalties[i].receiver;
-            allBasisPoints[i + baseLength] = tokenRoyalties[i].basisPoints;
+            allReceivers[i + baseLength] = tokenRoyalties_[i].receiver;
+            allBasisPoints[i + baseLength] = tokenRoyalties_[i].basisPoints;
         }
     }
 
@@ -112,10 +112,10 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         if (!_exists(_tokenId)) revert NonExistentToken();
         if (_receivers.length != _basisPoints.length) revert LengthMismatch();
         /// Deleting first, so this could be used to reset royalties to a new config
-        delete royaltyTokenInfo[_tokenId];
-        RoyaltyInfo[] storage tokenRoyalties = royaltyTokenInfo[_tokenId];
-        RoyaltyInfo[] memory royalties_ = royalties;
-        uint256 baseLength = royalties.length;
+        delete tokenRoyalties[_tokenId];
+        RoyaltyInfo[] storage tokenRoyalties_ = tokenRoyalties[_tokenId];
+        RoyaltyInfo[] memory royalties_ = baseRoyalties;
+        uint256 baseLength = baseRoyalties.length;
         uint256 tokenLength = _basisPoints.length;
         uint96[] memory totalBasisPoints = new uint96[](baseLength + _basisPoints.length);
         for (uint256 i; i < baseLength; i++) {
@@ -129,7 +129,7 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         _checkRoyalties(totalBasisPoints);
 
         for (uint256 i; i < _basisPoints.length; i++) {
-            tokenRoyalties.push(RoyaltyInfo(_receivers[i], _basisPoints[i]));
+            tokenRoyalties_.push(RoyaltyInfo(_receivers[i], _basisPoints[i]));
         }
     }
 
@@ -142,11 +142,11 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         address payable[] calldata _receivers,
         uint96[] calldata _basisPoints
     ) internal {
-        delete royalties;
+        delete baseRoyalties;
         if (_receivers.length != _basisPoints.length) revert LengthMismatch();
         _checkRoyalties(_basisPoints);
         for (uint256 i; i < _basisPoints.length; i++) {
-            royalties.push(RoyaltyInfo(_receivers[i], _basisPoints[i]));
+            baseRoyalties.push(RoyaltyInfo(_receivers[i], _basisPoints[i]));
         }
         emit TokenRoyaltiesUpdated(_receivers, _basisPoints);
     }
