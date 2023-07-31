@@ -13,7 +13,6 @@ import {LibReserve} from "contracts/libs/LibReserve.sol";
 import {LibPricing} from "contracts/libs/LibPricing.sol";
 import {RoyaltyData} from "contracts/interfaces/ISplitsMain.sol";
 import {LibIssuer} from "contracts/libs/LibIssuer.sol";
-import {LibCodex} from "contracts/libs/LibCodex.sol";
 import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
 import {GenTk} from "contracts/gentk/GenTk.sol";
 import {MintPassGroup} from "contracts/mint-pass-group/MintPassGroup.sol";

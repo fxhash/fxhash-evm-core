@@ -3,9 +3,9 @@ pragma solidity ^0.8.18;
 
 import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
 
-import "contracts/libs/LibCodex.sol";
 import "contracts/libs/LibIssuer.sol";
 import "contracts/libs/LibPricing.sol";
+import {CodexInput} from "contracts/interfaces/ICodex.sol";
 import {RoyaltyData} from "contracts/interfaces/ISplitsMain.sol";
 
 interface IIssuer {
@@ -21,7 +21,7 @@ interface IIssuer {
     }
 
     struct MintIssuerInput {
-        LibCodex.CodexInput codex;
+        CodexInput codex;
         bytes metadata;
         uint256 inputBytesSize;
         uint256 amount;

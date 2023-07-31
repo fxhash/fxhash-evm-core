@@ -3,22 +3,22 @@ pragma solidity ^0.8.18;
 
 import "contracts/interfaces/IModerationTeam.sol";
 import "contracts/interfaces/IIssuer.sol";
-import "contracts/interfaces/ICodex.sol";
 import "contracts/libs/LibIssuer.sol";
+import {ICodex, CodexData, CodexInput} from "contracts/interfaces/ICodex.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract Codex is ICodex, Ownable {
     uint256 private codexEntriesCount;
     address private moderation;
 
-    mapping(uint256 => LibCodex.CodexData) public codexEntries;
+    mapping(uint256 => CodexData) public codexEntries;
     mapping(uint256 => uint256) public issuerCodexUpdates;
 
     event CodexInserted(uint256 entryType, address author, bool locked, bytes[] value);
     event CodexLocked(uint256 entryId);
     event CodexUpdated(uint256 entryId, bool pushEnd, bytes value);
-    event CodexReplaced(address author, LibCodex.CodexInput input);
-    event UpdateIssuerCodexRequested(address issuer, uint256 codexId, LibCodex.CodexInput input);
+    event CodexReplaced(address author, CodexInput input);
+    event UpdateIssuerCodexRequested(address issuer, uint256 codexId, CodexInput input);
     event UpdateIssuerCodexApproved(address issuer, uint256 _codexId);
 
     constructor(address _moderation) {
@@ -30,13 +30,10 @@ contract Codex is ICodex, Ownable {
         moderation = _moderation;
     }
 
-    function insertOrUpdateCodex(
-        address author,
-        LibCodex.CodexInput memory input
-    ) public returns (uint256) {
+    function insertOrUpdateCodex(address author, CodexInput memory input) public returns (uint256) {
         uint256 codexIdValue = 0;
         if (input.codexId > 0) {
-            LibCodex.CodexData storage codexEntry = codexEntries[input.codexId];
+            CodexData storage codexEntry = codexEntries[input.codexId];
             require(codexEntry.author == msg.sender, "403");
             require(codexEntry.locked, "CDX_NOT_LOCK");
             codexIdValue = input.codexId;
@@ -56,7 +53,7 @@ contract Codex is ICodex, Ownable {
     }
 
     function codexLockEntry(uint256 entryId) external {
-        LibCodex.CodexData storage entry = codexEntries[entryId];
+        CodexData storage entry = codexEntries[entryId];
         require(entry.author == msg.sender, "403");
         require(!entry.locked, "CDX_LOCK");
         require(entry.value.length > 0, "CDX_EMP");
@@ -65,7 +62,7 @@ contract Codex is ICodex, Ownable {
     }
 
     function codexUpdateEntry(uint256 entryId, bool pushEnd, bytes memory value) external {
-        LibCodex.CodexData storage entry = codexEntries[entryId];
+        CodexData storage entry = codexEntries[entryId];
         require(entry.author == msg.sender, "403");
         require(!entry.locked, "CDX_LOCK");
         if (pushEnd) {
@@ -78,7 +75,7 @@ contract Codex is ICodex, Ownable {
         emit CodexUpdated(entryId, pushEnd, value);
     }
 
-    function updateIssuerCodexRequest(LibCodex.CodexInput calldata input) external {
+    function updateIssuerCodexRequest(CodexInput calldata input) external {
         require(input.issuer != address(0), "NO_ISSUER");
         require(IIssuer(input.issuer).owner() == msg.sender, "403");
         uint256 codexId = insertOrUpdateCodex(msg.sender, input);
@@ -105,13 +102,7 @@ contract Codex is ICodex, Ownable {
         address issuer,
         bytes[] memory value
     ) private {
-        codexEntries[codexEntriesCount] = LibCodex.CodexData(
-            entryType,
-            author,
-            locked,
-            issuer,
-            value
-        );
+        codexEntries[codexEntriesCount] = CodexData(entryType, author, locked, issuer, value);
         codexEntriesCount++;
         emit CodexInserted(entryType, author, locked, value);
     }

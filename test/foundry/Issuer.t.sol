@@ -4,7 +4,8 @@ pragma solidity ^0.8.18;
 import "forge-std/Test.sol";
 import {Deploy} from "script/Deploy.s.sol";
 import {RoyaltyData} from "contracts/interfaces/ISplitsMain.sol";
-import {IIssuer, LibIssuer, LibReserve, LibPricing, LibCodex} from "contracts/interfaces/IIssuer.sol";
+import {CodexInput} from "contracts/interfaces/ICodex.sol";
+import {IIssuer, LibIssuer, LibReserve, LibPricing} from "contracts/interfaces/IIssuer.sol";
 import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
 import {Issuer} from "contracts/issuer/Issuer.sol";
 import {GenTk} from "contracts/gentk/GenTk.sol";
@@ -23,7 +24,7 @@ contract IssuerTest is Test, Deploy {
     address[] public whitelist;
     uint256[] public allocations;
 
-    LibCodex.CodexInput public codexInput;
+    CodexInput public codexInput;
     bytes public metadata;
     uint256 public metadataBytesSize;
     uint256 public amount;
@@ -57,7 +58,7 @@ contract IssuerTest is Test, Deploy {
         for (uint256 i; i < tagsFixed.length; i++) tags.push(tagsFixed[i]);
         /// onchain scripts remains uninitialized
         (scriptIssuer, scriptGentk) = fxHashFactory.createProject(alice);
-        codexInput = LibCodex.CodexInput(1, "Test", 0, scriptIssuer);
+        codexInput = CodexInput(1, "Test", 0, scriptIssuer);
     }
 }
 
