@@ -18,7 +18,6 @@ library LibIssuer {
         OpenEditions openEditions;
         bytes reserves;
         LibRoyalty.RoyaltyData primarySplit;
-        LibRoyalty.RoyaltyData royaltiesSplit;
         IssuerInfo info;
         bytes onChainData;
     }

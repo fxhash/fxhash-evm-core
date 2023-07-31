@@ -1,31 +1,35 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
-import "@openzeppelin/contracts/interfaces/IERC2981.sol";
 
-import "contracts/interfaces/IMintTicket.sol";
-import "contracts/interfaces/IReserveManager.sol";
-import "contracts/interfaces/IPricingManager.sol";
-import "contracts/interfaces/IAllowMintIssuer.sol";
-import "contracts/interfaces/IAllowMint.sol";
-import "contracts/interfaces/IModeration.sol";
-import "contracts/interfaces/IModerationUser.sol";
-import "contracts/interfaces/IGenTk.sol";
-import "contracts/interfaces/ICodex.sol";
-import "contracts/interfaces/IIssuer.sol";
-import "contracts/interfaces/IOnChainTokenMetadataManager.sol";
-import "contracts/interfaces/IConfigurationManager.sol";
+import {IAllowMint} from "contracts/interfaces/IAllowMint.sol";
+import {IAllowMintIssuer} from "contracts/interfaces/IAllowMintIssuer.sol";
+import {ICodex} from "contracts/interfaces/ICodex.sol";
+import {IConfigurationManager} from "contracts/interfaces/IConfigurationManager.sol";
+import {IERC165Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC165Upgradeable.sol";
+import {IERC2981Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol";
+import {IGenTk} from "contracts/interfaces/IGenTk.sol";
+import {IIssuer} from "contracts/interfaces/IIssuer.sol";
+import {IMintTicket} from "contracts/interfaces/IMintTicket.sol";
+import {IModeration} from "contracts/interfaces/IModeration.sol";
+import {IModerationUser} from "contracts/interfaces/IModerationUser.sol";
+import {IOnChainTokenMetadataManager} from "contracts/interfaces/IOnChainTokenMetadataManager.sol";
+import {IPricing} from "contracts/interfaces/IPricing.sol";
+import {IPricingManager} from "contracts/interfaces/IPricingManager.sol";
+import {IReserve} from "contracts/interfaces/IReserve.sol";
+import {IReserveManager} from "contracts/interfaces/IReserveManager.sol";
+import {LibIssuer} from "contracts/libs/LibIssuer.sol";
+import {LibPricing} from "contracts/libs/LibPricing.sol";
+import {LibReserve} from "contracts/libs/LibReserve.sol";
+import {LibRoyalty} from "contracts/libs/LibRoyalty.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {SafeTransferLib} from "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
+import {SignedMath} from "@openzeppelin/contracts/utils/math/SignedMath.sol";
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/math/SignedMath.sol";
-import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
-
-import "contracts/libs/LibIssuer.sol";
-import "contracts/libs/LibReserve.sol";
-
-contract Issuer is IIssuer, IERC2981, Ownable {
-    uint256 private allGenTkTokens;
+contract Issuer is IIssuer, OwnableUpgradeable {
     IConfigurationManager private configManager;
     LibIssuer.IssuerData private issuer;
+    IGenTk private genTk;
+    uint256 private allGenTkTokens;
 
     event IssuerMinted(MintIssuerInput params);
     event IssuerBurned();
@@ -37,29 +41,29 @@ contract Issuer is IIssuer, IERC2981, Ownable {
     event ReserveUpdated(LibReserve.ReserveData[] reserves);
     event SupplyBurned(uint256 amount);
 
-    constructor(address _configManager, address _owner) {
+    function initialize(
+        address _configManager,
+        address _genTk,
+        address _owner
+    ) external initializer {
+        __Ownable_init();
         configManager = IConfigurationManager(_configManager);
-        allGenTkTokens = 0;
+        genTk = IGenTk(_genTk);
         transferOwnership(_owner);
     }
 
     modifier onlyCodex() {
-        require(msg.sender == configManager.getAddress("codex"), "Caller is not Codex");
+        require(msg.sender == configManager.contracts("codex"), "Caller is not Codex");
         _;
     }
 
     function mintIssuer(MintIssuerInput calldata params) external {
-        require(IAllowMintIssuer(configManager.getAddress("al_mi")).isAllowed(msg.sender), "403");
-        uint256 codexId = ICodex(configManager.getAddress("codex")).insertOrUpdateCodex(
+        require(IAllowMintIssuer(configManager.contracts("al_mi")).isAllowed(msg.sender), "403");
+        uint256 codexId = ICodex(configManager.contracts("codex")).insertOrUpdateCodex(
             msg.sender,
             params.codex
         );
-        uint256 _lockTime = configManager.getConfig().lockTime;
-        require(
-            ((params.royaltiesSplit.percent >= 1000) && (params.royaltiesSplit.percent <= 2500)) ||
-                ((!params.enabled) && (params.royaltiesSplit.percent <= 2500)),
-            "WRG_ROY"
-        );
+        (, , uint128 _lockTime, ) = configManager.config();
         require(
             ((params.primarySplit.percent >= 1000) && (params.primarySplit.percent <= 2500)),
             "WRG_PRIM_SPLIT"
@@ -67,19 +71,19 @@ contract Issuer is IIssuer, IERC2981, Ownable {
 
         require(issuer.supply == 0, "409");
 
-        IPricingManager(configManager.getAddress("priceMag")).verifyPricingMethod(
+        IPricingManager(configManager.contracts("priceMag")).verifyPricingMethod(
             params.pricing.pricingId
         );
 
         IPricing(
-            IPricingManager(configManager.getAddress("priceMag"))
+            IPricingManager(configManager.contracts("priceMag"))
                 .getPricingContract(params.pricing.pricingId)
                 .pricingContract
         ).setPrice(params.pricing.details);
 
         bool hasTickets = params.mintTicketSettings.gracingPeriod > 0;
         if (hasTickets) {
-            IMintTicket(configManager.getAddress("mint_tickets")).createProject(
+            IMintTicket(configManager.contracts("mint_tickets")).createProject(
                 params.mintTicketSettings.gracingPeriod,
                 params.mintTicketSettings.metadata
             );
@@ -107,7 +111,7 @@ contract Issuer is IIssuer, IERC2981, Ownable {
         //     }
         // } else {
 
-        if (IModerationUser(configManager.getAddress("user_mod")).userState(msg.sender) == 10) {
+        if (IModerationUser(configManager.contracts("user_mod")).userState(msg.sender) == 10) {
             _lockTime = 0;
         }
         //}
@@ -121,14 +125,15 @@ contract Issuer is IIssuer, IERC2981, Ownable {
         uint256 reserveTotal = 0;
         for (uint256 i = 0; i < params.reserves.length; i++) {
             LibReserve.ReserveMethod memory reserveMethod = IReserveManager(
-                configManager.getAddress("resMag")
+                configManager.contracts("resMag")
             ).getReserveMethod(params.reserves[i].methodId);
             require(reserveMethod.reserveContract != IReserve(address(0)), "NO_RESERVE_METHOD");
             require(reserveMethod.enabled, "RESERVE_METHOD_DISABLED");
             reserveTotal += params.reserves[i].amount;
             require(
-                IReserveManager(configManager.getAddress("resMag")).isReserveValid(
-                    params.reserves[i]
+                IReserveManager(configManager.contracts("resMag")).isReserveValid(
+                    params.reserves[i],
+                    msg.sender
                 ),
                 "WRG_RSRV"
             );
@@ -145,7 +150,6 @@ contract Issuer is IIssuer, IERC2981, Ownable {
             openEditions: params.openEditions,
             reserves: abi.encode(params.reserves),
             primarySplit: params.primarySplit,
-            royaltiesSplit: params.royaltiesSplit,
             onChainData: abi.encode(params.onChainScripts),
             info: LibIssuer.IssuerInfo({
                 tags: params.tags,
@@ -165,8 +169,9 @@ contract Issuer is IIssuer, IERC2981, Ownable {
 
     function mint(MintInput memory params) external payable {
         require(issuer.supply > 0, "Token undefined");
+        require(address(genTk) != address(0), "GENTK_NOT_SET");
 
-        require(IAllowMint(configManager.getAddress("al_m")).isAllowed(address(this)), "403");
+        require(IAllowMint(configManager.contracts("al_m")).isAllowed(address(this)), "403");
 
         uint256 tokenId = allGenTkTokens;
 
@@ -206,7 +211,7 @@ contract Issuer is IIssuer, IERC2981, Ownable {
         }
 
         IPricing pricingContract = IPricing(
-            IPricingManager(configManager.getAddress("priceMag"))
+            IPricingManager(configManager.contracts("priceMag"))
                 .getPricingContract(issuer.info.pricingId)
                 .pricingContract
         );
@@ -222,7 +227,7 @@ contract Issuer is IIssuer, IERC2981, Ownable {
                 reserveTotal += decodedReserves[i].amount;
                 if (reserveInput.methodId == decodedReserves[i].methodId && !reserveApplied) {
                     (bool applied, bytes memory applyData) = IReserveManager(
-                        configManager.getAddress("resMag")
+                        configManager.contracts("resMag")
                     ).applyReserve(decodedReserves[i], reserveInput.input, msg.sender);
                     if (applied) {
                         reserveApplied = true;
@@ -258,28 +263,26 @@ contract Issuer is IIssuer, IERC2981, Ownable {
 
     function mintWithTicket(MintWithTicketInput memory params) external {
         require(params.inputBytes.length == issuer.info.inputBytesSize, "WRONG_INPUT_BYTES");
+        require(address(genTk) != address(0), "GENTK_NOT_SET");
 
-        address recipient = msg.sender;
-        if (params.recipient != address(0)) {
-            recipient = params.recipient;
-        }
-        IMintTicket(configManager.getAddress("mint_tickets")).consume(
+        if (params.recipient == address(0)) params.recipient = msg.sender;
+
+        IMintTicket(configManager.contracts("mint_tickets")).consume(
             msg.sender,
             params.ticketId,
             address(this)
         );
 
+        (, , , string memory defaultMetadata) = configManager.config();
+
         issuer.iterationsCount += 1;
-        address gentkContract = configManager.getAddress("gentk");
-        IGenTk(gentkContract).mint(
+        genTk.mint(
             IGenTk.TokenParams({
                 tokenId: allGenTkTokens,
                 iteration: issuer.iterationsCount,
                 inputBytes: params.inputBytes,
-                receiver: issuer.royaltiesSplit.receiver == gentkContract
-                    ? recipient
-                    : issuer.royaltiesSplit.receiver,
-                metadata: configManager.getConfig().voidMetadata
+                receiver: params.recipient,
+                metadata: defaultMetadata
             })
         );
 
@@ -292,30 +295,24 @@ contract Issuer is IIssuer, IERC2981, Ownable {
         LibIssuer.verifyIssuerUpdateable(issuer);
 
         require(
-            ((params.royaltiesSplit.percent >= 1000) && (params.royaltiesSplit.percent <= 2500)) ||
-                ((!params.enabled) && (params.royaltiesSplit.percent <= 2500)),
-            "WRG_ROY"
-        );
-        require(
             ((params.primarySplit.percent >= 1000) && (params.primarySplit.percent <= 2500)),
             "WRG_PRIM_SPLIT"
         );
 
         issuer.primarySplit = params.primarySplit;
-        issuer.royaltiesSplit = params.royaltiesSplit;
         issuer.info.enabled = params.enabled;
         emit IssuerUpdated(params);
     }
 
     function updatePrice(LibPricing.PricingData calldata pricingData) external onlyOwner {
         LibIssuer.verifyIssuerUpdateable(issuer);
-        IPricingManager(configManager.getAddress("priceMag")).verifyPricingMethod(
+        IPricingManager(configManager.contracts("priceMag")).verifyPricingMethod(
             pricingData.pricingId
         );
         issuer.info.pricingId = pricingData.pricingId;
         issuer.info.lockPriceForReserves = pricingData.lockForReserves;
         IPricing(
-            IPricingManager(configManager.getAddress("priceMag"))
+            IPricingManager(configManager.contracts("priceMag"))
                 .getPricingContract(pricingData.pricingId)
                 .pricingContract
         ).setPrice(pricingData.details);
@@ -327,12 +324,15 @@ contract Issuer is IIssuer, IERC2981, Ownable {
         require(issuer.info.enabled, "TOK_DISABLED");
         for (uint256 i = 0; i < reserves.length; i++) {
             LibReserve.ReserveMethod memory reserve = IReserveManager(
-                configManager.getAddress("resMag")
+                configManager.contracts("resMag")
             ).getReserveMethod(reserves[i].methodId);
             require(reserve.reserveContract != IReserve(address(0)), "RSRV_404");
             require(reserve.enabled, "RSRV_DIS");
             require(
-                IReserveManager(configManager.getAddress("resMag")).isReserveValid(reserves[i])
+                IReserveManager(configManager.contracts("resMag")).isReserveValid(
+                    reserves[i],
+                    msg.sender
+                )
             );
         }
         issuer.reserves = abi.encode(reserves);
@@ -359,7 +359,7 @@ contract Issuer is IIssuer, IERC2981, Ownable {
 
     function updateIssuerMod(uint256[] calldata tags) external {
         require(
-            IModeration(configManager.getAddress("mod_team")).isAuthorized(msg.sender, 10),
+            IModeration(configManager.contracts("mod_team")).isAuthorized(msg.sender, 10),
             "403"
         );
         issuer.info.tags = tags;
@@ -378,15 +378,6 @@ contract Issuer is IIssuer, IERC2981, Ownable {
         return issuer;
     }
 
-    function royaltyInfo(
-        uint256,
-        uint256 salePrice
-    ) public view override(IERC2981, IIssuer) returns (address receiver, uint256 royaltyAmount) {
-        LibRoyalty.RoyaltyData memory royalty = issuer.royaltiesSplit;
-        uint256 amount = (salePrice * royalty.percent) / 10000;
-        return (royalty.receiver, amount);
-    }
-
     function primarySplitInfo(
         uint256 salePrice
     ) public view returns (address receiver, uint256 royaltyAmount) {
@@ -395,18 +386,15 @@ contract Issuer is IIssuer, IERC2981, Ownable {
         return (royalty.receiver, amount);
     }
 
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public pure override(IERC165, IIssuer) returns (bool) {
-        return
-            interfaceId == type(IIssuer).interfaceId || interfaceId == type(IERC2981).interfaceId;
+    function supportsInterface(bytes4 interfaceId) public pure returns (bool) {
+        return interfaceId == type(IIssuer).interfaceId;
     }
 
     function burnToken() private {
         delete issuer;
     }
 
-    function owner() public view override(IIssuer, Ownable) returns (address) {
+    function owner() public view override(IIssuer, OwnableUpgradeable) returns (address) {
         return super.owner();
     }
 
@@ -418,25 +406,29 @@ contract Issuer is IIssuer, IERC2981, Ownable {
     ) private {
         {
             uint256 price = pricingContract.getPrice(block.timestamp);
-            require(msg.value >= price, "INVALID_PRICE");
-
-            uint256 platformFees = configManager.getConfig().fees;
+            require(msg.value >= price && price > 0, "INVALID_PRICE");
+            (
+                uint64 feeShare,
+                uint64 referrerShare,
+                uint128 lockTime,
+                string memory defaultMetadata
+            ) = configManager.config();
+            uint256 platformFees = feeShare;
             if (params.referrer != address(0) && params.referrer != msg.sender) {
-                uint256 referrerFees = (configManager.getConfig().fees *
-                    configManager.getConfig().referrerFeesShare) / 10000;
+                uint256 referrerFees = (feeShare * referrerShare) / 10000;
                 uint256 referrerAmount = (price * referrerFees) / 10000;
                 if (referrerAmount > 0) {
                     SafeTransferLib.safeTransferETH(params.referrer, referrerAmount);
                 }
-                platformFees = configManager.getConfig().fees - referrerFees;
+                platformFees = feeShare - referrerFees;
             }
 
             uint256 feesAmount = (price * platformFees) / 10000;
             if (feesAmount > 0) {
-                SafeTransferLib.safeTransferETH(configManager.getAddress("treasury"), feesAmount);
+                SafeTransferLib.safeTransferETH(configManager.contracts("treasury"), feesAmount);
             }
 
-            uint256 creatorAmount = price - (msg.value - feesAmount);
+            uint256 creatorAmount = price - feesAmount;
             uint256 splitAmount = (creatorAmount * issuer.primarySplit.percent) / 10000;
             if (splitAmount > 0) {
                 SafeTransferLib.safeTransferETH(issuer.primarySplit.receiver, splitAmount);
@@ -450,19 +442,16 @@ contract Issuer is IIssuer, IERC2981, Ownable {
             }
 
             if (params.createTicket == true) {
-                IMintTicket(configManager.getAddress("mint_tickets")).mint(recipient, price);
+                IMintTicket(configManager.contracts("mint_tickets")).mint(recipient, price);
             } else {
                 issuer.iterationsCount += 1;
-                address gentkContract = configManager.getAddress("gentk");
-                IGenTk(gentkContract).mint(
+                genTk.mint(
                     IGenTk.TokenParams({
                         tokenId: tokenId,
                         iteration: issuer.iterationsCount,
                         inputBytes: params.inputBytes,
-                        receiver: issuer.royaltiesSplit.receiver == gentkContract
-                            ? recipient
-                            : issuer.royaltiesSplit.receiver,
-                        metadata: configManager.getConfig().voidMetadata
+                        receiver: recipient,
+                        metadata: defaultMetadata
                     })
                 );
                 allGenTkTokens++;

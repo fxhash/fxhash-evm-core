@@ -11,7 +11,6 @@ import "contracts/libs/LibRoyalty.sol";
 interface IIssuer {
     struct UpdateIssuerInput {
         LibRoyalty.RoyaltyData primarySplit;
-        LibRoyalty.RoyaltyData royaltiesSplit;
         bool enabled;
     }
 
@@ -30,7 +29,6 @@ interface IIssuer {
         LibReserve.ReserveData[] reserves;
         LibPricing.PricingData pricing;
         LibRoyalty.RoyaltyData primarySplit;
-        LibRoyalty.RoyaltyData royaltiesSplit;
         bool enabled;
         uint256[] tags;
         WrappedScriptRequest[] onChainScripts;
@@ -50,16 +48,13 @@ interface IIssuer {
         address recipient;
     }
 
+    function initialize(address _configManager, address _owner, address _genTk) external;
+
     function mintIssuer(MintIssuerInput calldata params) external;
 
     function mint(MintInput calldata params) external payable;
 
     function mintWithTicket(MintWithTicketInput calldata params) external;
-
-    function royaltyInfo(
-        uint256 tokenId,
-        uint256 salePrice
-    ) external view returns (address receiver, uint256 royaltyAmount);
 
     function primarySplitInfo(
         uint256 salePrice

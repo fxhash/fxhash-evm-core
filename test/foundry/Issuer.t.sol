@@ -5,8 +5,13 @@ import "forge-std/Test.sol";
 import {Deploy} from "script/Deploy.s.sol";
 import {IIssuer, LibIssuer, LibReserve, LibRoyalty, LibPricing, LibCodex} from "contracts/interfaces/IIssuer.sol";
 import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
+import {Issuer} from "contracts/issuer/Issuer.sol";
+import {GenTk} from "contracts/gentk/GenTk.sol";
 
 contract IssuerTest is Test, Deploy {
+    address public scriptIssuer;
+    address public scriptGentk;
+
     uint256 internal timestamp = 1000;
     uint256 internal price = 1000;
 
@@ -30,32 +35,47 @@ contract IssuerTest is Test, Deploy {
     bool public enabled;
     uint256[] public tags;
     WrappedScriptRequest[] public onchainScripts;
+    address payable[] public royaltyReceivers;
+    uint96[] public royaltyBasisPoints;
 
     function setUp() public virtual override {
         vm.warp(timestamp);
         createAccounts();
+        Deploy.setUp();
         Deploy.run();
-        codexInput = LibCodex.CodexInput(1, "Test", 0, address(issuer));
         metadata = "metdata";
         metadataBytesSize = 256;
         amount = 1000;
         oe = LibIssuer.OpenEditions(0, "");
         mintTicketSettings = IIssuer.MintTicketSettings(0, "");
-        for (uint256 i; i < whitelistFixed.length; i++) whitelist.push(whitelistFixed[i]);
-        for (uint256 i; i < allocationsFixed.length; i++) allocations.push(allocationsFixed[i]);
+        for (uint256 i; i < whitelistFixed.length; i++) {
+            whitelist.push(whitelistFixed[i]);
+        }
+        for (uint256 i; i < allocationsFixed.length; i++) {
+            allocations.push(allocationsFixed[i]);
+        }
         reserveData.push(LibReserve.ReserveData(1, 1, abi.encode(whitelist, allocations)));
         pricing = LibPricing.PricingData(1, abi.encode(price, timestamp - 1), true);
         primary = LibRoyalty.RoyaltyData(1500, alice);
-        royalty = LibRoyalty.RoyaltyData(1000, alice);
+        royaltyReceivers.push(payable(address(4)));
+        royaltyBasisPoints.push(1000);
         enabled = true;
-        for (uint256 i; i < tagsFixed.length; i++) tags.push(tagsFixed[i]);
+        for (uint256 i; i < tagsFixed.length; i++) {
+            tags.push(tagsFixed[i]);
+        }
         /// onchain scripts remains uninitialized
+        (scriptIssuer, scriptGentk) = fxHashFactory.createProject(
+            royaltyReceivers,
+            royaltyBasisPoints,
+            alice
+        );
+        codexInput = LibCodex.CodexInput(1, "Test", 0, scriptIssuer);
     }
 }
 
 contract MintIssuer is IssuerTest {
     function test_MintIssuer() public {
-        issuer.mintIssuer(
+        IIssuer(scriptIssuer).mintIssuer(
             IIssuer.MintIssuerInput(
                 codexInput,
                 metadata,
@@ -66,7 +86,6 @@ contract MintIssuer is IssuerTest {
                 reserveData,
                 pricing,
                 primary,
-                royalty,
                 enabled,
                 tags,
                 onchainScripts
@@ -80,10 +99,9 @@ contract Mint is IssuerTest {
 
     function setUp() public virtual override {
         super.setUp();
-
         metadataBytesSize = 0;
-        mintInput = IIssuer.MintInput("", address(0), "", false, alice);
-        issuer.mintIssuer(
+        mintInput = IIssuer.MintInput("", alice, "", false, alice);
+        IIssuer(scriptIssuer).mintIssuer(
             IIssuer.MintIssuerInput(
                 codexInput,
                 metadata,
@@ -94,7 +112,6 @@ contract Mint is IssuerTest {
                 reserveData,
                 pricing,
                 primary,
-                royalty,
                 enabled,
                 tags,
                 onchainScripts
@@ -105,8 +122,8 @@ contract Mint is IssuerTest {
     }
 
     function test_Mint() public {
-        vm.prank(alice);
-        issuer.mint{value: 1000}(mintInput);
+        vm.prank(bob);
+        IIssuer(scriptIssuer).mint{value: 1000}(mintInput);
     }
 }
 
@@ -120,7 +137,7 @@ contract MintWithTicket is IssuerTest {
         mintTicketSettings.gracingPeriod = 1000;
         metadataBytesSize = 0;
         mintInput = IIssuer.MintInput("", address(0), "", true, alice);
-        issuer.mintIssuer(
+        IIssuer(scriptIssuer).mintIssuer(
             IIssuer.MintIssuerInput(
                 codexInput,
                 metadata,
@@ -131,7 +148,6 @@ contract MintWithTicket is IssuerTest {
                 reserveData,
                 pricing,
                 primary,
-                royalty,
                 enabled,
                 tags,
                 onchainScripts
@@ -142,11 +158,11 @@ contract MintWithTicket is IssuerTest {
 
         ticketInput = IIssuer.MintWithTicketInput(0, "", address(0));
         vm.prank(alice);
-        issuer.mint{value: 1000}(mintInput);
+        IIssuer(scriptIssuer).mint{value: 1000}(mintInput);
     }
 
     function test_MintWithTicket() public {
         vm.prank(alice);
-        issuer.mintWithTicket(ticketInput);
+        IIssuer(scriptIssuer).mintWithTicket(ticketInput);
     }
 }
