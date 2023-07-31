@@ -223,6 +223,18 @@ classDiagram
   }
 ```
 
+### Sequence diagrams
+
+TODO
+
+#### Mint
+
+#### Mint a ticket
+
+#### Exchange a ticket
+
+#### ...
+
 ### Notes
 
 - supply & balance sit on the issuer
@@ -234,4 +246,81 @@ classDiagram
 
 ## Instanciate a new project: Factory pattern
 
-TODO
+New projects are instanciated on-chain using a Factory contract, which is responsible for spawing a suite of contracts required
+
+### Class diagram
+
+```mermaid
+classDiagram
+  ProjectFactory --> Issuer_instance : instanciate
+  ProjectFactory --> GenTk_instance : instanciate
+  ProjectFactory --> IssuerTickets_instance : instanciate
+  Issuer_instance --> GenTk_instance
+  Issuer_instance ..|> Issuer_Implementation : DELEGATE_CALL
+  GenTk_instance ..|> GenTk_Implementation : DELEGATE_CALL
+  Issuer_instance --> IssuerTickets_instance
+  IssuerTickets_instance ..|> IssuerTickets_Implementation : DELEGATE_CALL
+
+  class ProjectFactory {
+    + address issuer_implementation
+    + address gentk_implementation
+    + instanciate(TBD project_details, TBD gate_details)
+  }
+
+  class Issuer_Implementation {
+    + mint()
+    + ...()
+  }
+
+  class Issuer_instance {
+    - address implementation
+    - storage issuer_storage
+  }
+
+  class GenTk_Implementation {
+    + mint()
+    + ...()
+  }
+
+  class GenTk_instance {
+    - address implementation
+    - storage gentk_storage
+  }
+
+  class IssuerTickets_implementation {
+    + mint()
+    + pay_tax()
+    + claim()
+    + ...()
+  }
+
+  class IssuerTickets_instance {
+    - address implementaion
+    - storage issuertickets_storage
+  }
+```
+
+To optimize origination costs for the artists, a proxy pattern is used for the Issuer, GenTk and IssuerTickets contracts. Some inputs are provided to the Factory to determine which kind of project should be originated, the Factory will have internal logic to spawn the necessary contracts in a proper way.
+
+### Sequence diagrams
+
+#### Create a new project
+
+```mermaid
+sequenceDiagram
+  actor User
+  participant Factory
+
+  User->>Factory: Create project
+  create participant Carl
+  Factory->>Issuer: Instanciate
+  create participant GenTk
+  Factory->>GenTk: Instanciate
+```
+
+### Notes
+
+- there are some circular dependencies (issuer<->gentk, gates<->issuer, etc...), how exactly can this be implemented onchain ?
+- it's worth to examine whether we instanciate a new gate per project, or if we use an ID-reference in a central Gate contract, where a new entry is created instead. Need to see what's more optimized
+- optimization angle:
+  - the mint() entry points could be fully instanciated, to avoid having a DELEGATE_CALL to the implementation; this would shift the costs of all the mints() towards the authors of a project which would pay to store the mint() functions entirely
