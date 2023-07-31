@@ -6,9 +6,10 @@ import {Deploy} from "script/Deploy.s.sol";
 import {RoyaltyData} from "contracts/interfaces/ISplitsMain.sol";
 import {CodexInput} from "contracts/interfaces/ICodex.sol";
 import {PricingData} from "contracts/interfaces/IPricing.sol";
-import {IIssuer, LibIssuer, LibReserve} from "contracts/interfaces/IIssuer.sol";
+import {ReserveData} from "contracts/interfaces/IReserve.sol";
 import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
-import {Issuer} from "contracts/issuer/Issuer.sol";
+import {Issuer, IIssuer} from "contracts/issuer/Issuer.sol";
+import {LibIssuer} from "contracts/libs/LibIssuer.sol";
 import {GenTk} from "contracts/gentk/GenTk.sol";
 
 contract IssuerTest is Test, Deploy {
@@ -31,7 +32,7 @@ contract IssuerTest is Test, Deploy {
     uint256 public amount;
     LibIssuer.OpenEditions public oe;
     IIssuer.MintTicketSettings public mintTicketSettings;
-    LibReserve.ReserveData[] public reserveData;
+    ReserveData[] public reserveData;
     PricingData public pricing;
     RoyaltyData public primary;
     RoyaltyData public royalty;
@@ -51,7 +52,7 @@ contract IssuerTest is Test, Deploy {
         mintTicketSettings = IIssuer.MintTicketSettings(0, "");
         for (uint256 i; i < whitelistFixed.length; i++) whitelist.push(whitelistFixed[i]);
         for (uint256 i; i < allocationsFixed.length; i++) allocations.push(allocationsFixed[i]);
-        reserveData.push(LibReserve.ReserveData(1, 1, abi.encode(whitelist, allocations)));
+        reserveData.push(ReserveData(1, 1, abi.encode(whitelist, allocations)));
         pricing = PricingData(1, abi.encode(price, timestamp - 1), true);
         primary = RoyaltyData(1500, alice);
         royalty = RoyaltyData(1000, alice);

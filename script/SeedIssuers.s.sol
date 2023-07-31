@@ -7,8 +7,8 @@ import {ReserveWhitelist} from "contracts/reserve/ReserveWhitelist.sol";
 import {PricingFixed} from "contracts/pricing/PricingFixed.sol";
 import {PricingDutchAuction} from "contracts/pricing/PricingDutchAuction.sol";
 import {IIssuer} from "contracts/interfaces/IIssuer.sol";
-import {LibReserve} from "contracts/libs/LibReserve.sol";
 import {PricingData} from "contracts/interfaces/IPricing.sol";
+import {ReserveData} from "contracts/interfaces/IReserve.sol";
 import {RoyaltyData} from "contracts/interfaces/ISplitsMain.sol";
 import {LibIssuer} from "contracts/libs/LibIssuer.sol";
 import {CodexData, CodexInput} from "contracts/interfaces/ICodex.sol";
@@ -187,7 +187,7 @@ contract SeedIssuers is Deploy {
     function _getMintIssuerInput(
         MintIssuerInput memory mintIssuerInput
     ) public view returns (IIssuer.MintIssuerInput memory) {
-        LibReserve.ReserveData[] memory reserveData;
+        ReserveData[] memory reserveData;
         PricingData memory pricingData;
         LibIssuer.OpenEditions memory openEditionsData;
         IIssuer.MintTicketSettings memory mintTicketData;
@@ -265,12 +265,12 @@ contract SeedIssuers is Deploy {
         return LibIssuer.OpenEditions({closingTime: 0, extra: bytes("")});
     }
 
-    function _getEmptyReserveParam() public pure returns (LibReserve.ReserveData[] memory) {
-        return new LibReserve.ReserveData[](0);
+    function _getEmptyReserveParam() public pure returns (ReserveData[] memory) {
+        return new ReserveData[](0);
     }
 
-    function _getWhitelistParam() public view returns (LibReserve.ReserveData[] memory) {
-        LibReserve.ReserveData[] memory reserves = new LibReserve.ReserveData[](1);
+    function _getWhitelistParam() public view returns (ReserveData[] memory) {
+        ReserveData[] memory reserves = new ReserveData[](1);
         ReserveWhitelist.WhitelistEntry[]
             memory whitelistEntries = new ReserveWhitelist.WhitelistEntry[](3);
 
@@ -278,19 +278,13 @@ contract SeedIssuers is Deploy {
         whitelistEntries[1] = ReserveWhitelist.WhitelistEntry({whitelisted: eve, amount: 1});
         whitelistEntries[2] = ReserveWhitelist.WhitelistEntry({whitelisted: susan, amount: 1});
 
-        reserves[0] = LibReserve.ReserveData({
-            methodId: 1,
-            amount: 4,
-            data: abi.encode(whitelistEntries)
-        });
+        reserves[0] = ReserveData({methodId: 1, amount: 4, data: abi.encode(whitelistEntries)});
         return reserves;
     }
 
-    function _getMintPassParam(
-        address mintPassGroup
-    ) public pure returns (LibReserve.ReserveData[] memory) {
-        LibReserve.ReserveData[] memory reserves = new LibReserve.ReserveData[](1);
-        reserves[0] = LibReserve.ReserveData({
+    function _getMintPassParam(address mintPassGroup) public pure returns (ReserveData[] memory) {
+        ReserveData[] memory reserves = new ReserveData[](1);
+        reserves[0] = ReserveData({
             methodId: 2,
             amount: 4,
             data: abi.encode(address(mintPassGroup))
@@ -300,8 +294,8 @@ contract SeedIssuers is Deploy {
 
     function _getWhitelistAndMintPassParam(
         address mintPassGroup
-    ) public view returns (LibReserve.ReserveData[] memory) {
-        LibReserve.ReserveData[] memory reserves = new LibReserve.ReserveData[](2);
+    ) public view returns (ReserveData[] memory) {
+        ReserveData[] memory reserves = new ReserveData[](2);
         ReserveWhitelist.WhitelistEntry[]
             memory whitelistEntries = new ReserveWhitelist.WhitelistEntry[](3);
 
@@ -309,16 +303,8 @@ contract SeedIssuers is Deploy {
         whitelistEntries[1] = ReserveWhitelist.WhitelistEntry({whitelisted: eve, amount: 1});
         whitelistEntries[2] = ReserveWhitelist.WhitelistEntry({whitelisted: susan, amount: 1});
 
-        reserves[0] = LibReserve.ReserveData({
-            methodId: 1,
-            amount: 4,
-            data: abi.encode(whitelistEntries)
-        });
-        reserves[1] = LibReserve.ReserveData({
-            methodId: 2,
-            amount: 4,
-            data: abi.encode(mintPassGroup)
-        });
+        reserves[0] = ReserveData({methodId: 1, amount: 4, data: abi.encode(whitelistEntries)});
+        reserves[1] = ReserveData({methodId: 2, amount: 4, data: abi.encode(mintPassGroup)});
         return reserves;
     }
 

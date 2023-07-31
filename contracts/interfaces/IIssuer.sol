@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
-
 import "contracts/libs/LibIssuer.sol";
+
 import {CodexInput} from "contracts/interfaces/ICodex.sol";
 import {PricingData} from "contracts/interfaces/IPricing.sol";
+import {ReserveData} from "contracts/interfaces/IReserve.sol";
 import {RoyaltyData} from "contracts/interfaces/ISplitsMain.sol";
+import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
 
 interface IIssuer {
     struct UpdateIssuerInput {
@@ -27,7 +28,7 @@ interface IIssuer {
         uint256 amount;
         LibIssuer.OpenEditions openEditions;
         MintTicketSettings mintTicketSettings;
-        LibReserve.ReserveData[] reserves;
+        ReserveData[] reserves;
         PricingData pricing;
         RoyaltyData primarySplit;
         RoyaltyData royaltiesSplit;

@@ -9,7 +9,7 @@ import {PricingFixed} from "contracts/pricing/PricingFixed.sol";
 import {PricingDutchAuction} from "contracts/pricing/PricingDutchAuction.sol";
 import {IIssuer} from "contracts/interfaces/IIssuer.sol";
 import {MintTicket} from "contracts/mint-ticket/MintTicket.sol";
-import {LibReserve} from "contracts/libs/LibReserve.sol";
+import {ReserveData, ReserveInput} from "contracts/interfaces/IReserve.sol";
 import {PricingContract} from "contracts/interfaces/IPricing.sol";
 import {RoyaltyData} from "contracts/interfaces/ISplitsMain.sol";
 import {LibIssuer} from "contracts/libs/LibIssuer.sol";
@@ -90,7 +90,7 @@ contract SeedTokens is Script {
         bytes memory reserveInput;
         bool createTicket = false;
         if (mintInput.reserveOption == SeedIssuers.ReserveOptions.Whitelist) {
-            LibReserve.ReserveData[] memory reserves = new LibReserve.ReserveData[](1);
+            ReserveData[] memory reserves = new ReserveData[](1);
             ReserveWhitelist.WhitelistEntry[]
                 memory whitelistEntries = new ReserveWhitelist.WhitelistEntry[](1);
 
@@ -99,23 +99,17 @@ contract SeedTokens is Script {
                 amount: 2
             });
 
-            reserves[0] = LibReserve.ReserveData({
-                methodId: 1,
-                amount: 1,
-                data: abi.encode(whitelistEntries)
-            });
-            reserveInput = abi.encode(
-                LibReserve.ReserveInput({methodId: 1, input: abi.encode(reserves)})
-            );
+            reserves[0] = ReserveData({methodId: 1, amount: 1, data: abi.encode(whitelistEntries)});
+            reserveInput = abi.encode(ReserveInput({methodId: 1, input: abi.encode(reserves)}));
         } else if (mintInput.reserveOption == SeedIssuers.ReserveOptions.MintPass) {
-            LibReserve.ReserveData[] memory reserves = new LibReserve.ReserveData[](1);
-            reserves[0] = LibReserve.ReserveData({
+            ReserveData[] memory reserves = new ReserveData[](1);
+            reserves[0] = ReserveData({
                 methodId: 2,
                 amount: 1,
                 data: abi.encode(mintInput.mintPassGroup)
             });
             reserveInput = abi.encode(
-                LibReserve.ReserveInput({
+                ReserveInput({
                     methodId: 2,
                     input: getMintPassGroupPayload(
                         mintInput.issuer,
@@ -125,7 +119,7 @@ contract SeedTokens is Script {
                 })
             );
         } else if (mintInput.reserveOption == SeedIssuers.ReserveOptions.WhitelistAndMintPass) {
-            LibReserve.ReserveData[] memory reserves = new LibReserve.ReserveData[](1);
+            ReserveData[] memory reserves = new ReserveData[](1);
             ReserveWhitelist.WhitelistEntry[]
                 memory whitelistEntries = new ReserveWhitelist.WhitelistEntry[](1);
 
@@ -134,14 +128,8 @@ contract SeedTokens is Script {
                 amount: 2
             });
 
-            reserves[0] = LibReserve.ReserveData({
-                methodId: 1,
-                amount: 1,
-                data: abi.encode(whitelistEntries)
-            });
-            reserveInput = abi.encode(
-                LibReserve.ReserveInput({methodId: 1, input: abi.encode(reserves)})
-            );
+            reserves[0] = ReserveData({methodId: 1, amount: 1, data: abi.encode(whitelistEntries)});
+            reserveInput = abi.encode(ReserveInput({methodId: 1, input: abi.encode(reserves)}));
         }
 
         if (mintInput.mintTicketOption == SeedIssuers.MintTicketOptions.Enabled) {

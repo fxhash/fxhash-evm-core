@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "contracts/interfaces/IReserve.sol";
-import "contracts/libs/LibReserve.sol";
+import {IReserve, ApplyParams, InputParams} from "contracts/interfaces/IReserve.sol";
 import "contracts/mint-pass-group/MintPassGroup.sol";
 
 contract ReserveMintPass is IReserve {
@@ -17,7 +16,7 @@ contract ReserveMintPass is IReserve {
         _;
     }
 
-    function isInputValid(LibReserve.InputParams calldata params) external pure returns (bool) {
+    function isInputValid(InputParams calldata params) external pure returns (bool) {
         require(params.data.length > 0, "INVALID_DATA");
         address unpackedData = abi.decode(params.data, (address));
         require(unpackedData != address(0), "INVALID_RESERVE");
@@ -25,7 +24,7 @@ contract ReserveMintPass is IReserve {
     }
 
     function applyReserve(
-        LibReserve.ApplyParams calldata params
+        ApplyParams calldata params
     ) external onlyReserveManager returns (bool, bytes memory) {
         bool applied = false;
         require(params.userInput.length > 0, "INVALID_userInput");

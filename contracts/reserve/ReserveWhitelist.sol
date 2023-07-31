@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "contracts/libs/LibReserve.sol";
+import {ApplyParams, InputParams} from "contracts/interfaces/IReserve.sol";
 import "contracts/interfaces/IReserve.sol";
 
 contract ReserveWhitelist is IReserve {
@@ -10,7 +10,7 @@ contract ReserveWhitelist is IReserve {
         uint256 amount;
     }
 
-    function isInputValid(LibReserve.InputParams calldata params) external pure returns (bool) {
+    function isInputValid(InputParams calldata params) external pure returns (bool) {
         WhitelistEntry[] memory whitelist = abi.decode(params.data, (WhitelistEntry[]));
 
         uint256 sumAmounts = 0;
@@ -21,9 +21,7 @@ contract ReserveWhitelist is IReserve {
         return sumAmounts >= params.amount;
     }
 
-    function applyReserve(
-        LibReserve.ApplyParams calldata params
-    ) external pure returns (bool, bytes memory) {
+    function applyReserve(ApplyParams calldata params) external pure returns (bool, bytes memory) {
         WhitelistEntry[] memory whitelist = abi.decode(params.currentData, (WhitelistEntry[]));
 
         bool applied = false;

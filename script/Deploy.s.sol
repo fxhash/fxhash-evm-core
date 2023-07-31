@@ -12,7 +12,7 @@ import {GenTk} from "contracts/gentk/GenTk.sol";
 import {GenTkFactory} from "contracts/factories/GenTkFactory.sol";
 import {IssuerFactory} from "contracts/factories/IssuerFactory.sol";
 import {Issuer} from "contracts/issuer/Issuer.sol";
-import {LibReserve} from "contracts/libs/LibReserve.sol";
+import {IReserve, ReserveMethod} from "contracts/interfaces/IReserve.sol";
 import {MintPassGroup} from "contracts/mint-pass-group/MintPassGroup.sol";
 import {MintTicket} from "contracts/mint-ticket/MintTicket.sol";
 import {ModerationIssuer} from "contracts/admin/moderation/ModerationIssuer.sol";
@@ -23,7 +23,7 @@ import {PricingDutchAuction} from "contracts/pricing/PricingDutchAuction.sol";
 import {PricingFixed} from "contracts/pricing/PricingFixed.sol";
 import {PricingManager} from "contracts/issuer/PricingManager.sol";
 import {Randomizer} from "contracts/randomizer/Randomizer.sol";
-import {ReserveManager, IReserve} from "contracts/issuer/ReserveManager.sol";
+import {ReserveManager} from "contracts/issuer/ReserveManager.sol";
 import {ReserveMintPass} from "contracts/reserve/ReserveMintPass.sol";
 import {ReserveWhitelist} from "contracts/reserve/ReserveWhitelist.sol";
 import {ScriptyBuilder} from "scripty.sol/contracts/scripty/ScriptyBuilder.sol";
@@ -171,11 +171,11 @@ contract Deploy is Script, Accounts {
         // Set reserve methods
         reserveManager.setReserveMethod(
             1,
-            LibReserve.ReserveMethod({reserveContract: IReserve(reserveWhitelist), enabled: true})
+            ReserveMethod({reserveContract: IReserve(reserveWhitelist), enabled: true})
         );
         reserveManager.setReserveMethod(
             2,
-            LibReserve.ReserveMethod({reserveContract: IReserve(reserveMintPass), enabled: true})
+            ReserveMethod({reserveContract: IReserve(reserveMintPass), enabled: true})
         );
 
         configurationManager.setContracts(names, contracts);

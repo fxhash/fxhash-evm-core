@@ -19,7 +19,7 @@ import {IReserve} from "contracts/interfaces/IReserve.sol";
 import {IReserveManager} from "contracts/interfaces/IReserveManager.sol";
 import {LibIssuer} from "contracts/libs/LibIssuer.sol";
 import {PricingData} from "contracts/interfaces/IPricing.sol";
-import {LibReserve} from "contracts/libs/LibReserve.sol";
+import {ReserveData, ReserveInput, ReserveMethod} from "contracts/interfaces/IReserve.sol";
 import {RoyaltyData} from "contracts/interfaces/ISplitsMain.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {SafeTransferLib} from "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
@@ -38,7 +38,7 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
     event TokenMinted(MintInput params);
     event TokenMintedWithTicket(MintWithTicketInput params);
     event PriceUpdated(PricingData params);
-    event ReserveUpdated(LibReserve.ReserveData[] reserves);
+    event ReserveUpdated(ReserveData[] reserves);
     event SupplyBurned(uint256 amount);
 
     function initialize(
@@ -128,9 +128,8 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
 
         uint256 reserveTotal = 0;
         for (uint256 i = 0; i < params.reserves.length; i++) {
-            LibReserve.ReserveMethod memory reserveMethod = IReserveManager(
-                configManager.contracts("resMag")
-            ).getReserveMethod(params.reserves[i].methodId);
+            ReserveMethod memory reserveMethod = IReserveManager(configManager.contracts("resMag"))
+                .getReserveMethod(params.reserves[i].methodId);
             require(reserveMethod.reserveContract != IReserve(address(0)), "NO_RESERVE_METHOD");
             require(reserveMethod.enabled, "RESERVE_METHOD_DISABLED");
             reserveTotal += params.reserves[i].amount;
@@ -210,9 +209,9 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
             issuer.balance -= 1;
         }
 
-        LibReserve.ReserveInput memory reserveInput;
+        ReserveInput memory reserveInput;
         if (params.reserveInput.length > 0) {
-            reserveInput = abi.decode(params.reserveInput, (LibReserve.ReserveInput));
+            reserveInput = abi.decode(params.reserveInput, (ReserveInput));
         }
 
         IPricing pricingContract = IPricing(
@@ -224,10 +223,7 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
         bool reserveApplied = false;
         uint256 reserveTotal = 0;
         {
-            LibReserve.ReserveData[] memory decodedReserves = abi.decode(
-                issuer.reserves,
-                (LibReserve.ReserveData[])
-            );
+            ReserveData[] memory decodedReserves = abi.decode(issuer.reserves, (ReserveData[]));
             for (uint256 i = 0; i < decodedReserves.length; i++) {
                 reserveTotal += decodedReserves[i].amount;
                 if (reserveInput.methodId == decodedReserves[i].methodId && !reserveApplied) {
@@ -334,13 +330,12 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
         emit PriceUpdated(pricingData);
     }
 
-    function updateReserve(LibReserve.ReserveData[] calldata reserves) external onlyOwner {
+    function updateReserve(ReserveData[] calldata reserves) external onlyOwner {
         LibIssuer.verifyIssuerUpdateable(issuer);
         require(issuer.info.enabled, "TOK_DISABLED");
         for (uint256 i = 0; i < reserves.length; i++) {
-            LibReserve.ReserveMethod memory reserve = IReserveManager(
-                configManager.contracts("resMag")
-            ).getReserveMethod(reserves[i].methodId);
+            ReserveMethod memory reserve = IReserveManager(configManager.contracts("resMag"))
+                .getReserveMethod(reserves[i].methodId);
             require(reserve.reserveContract != IReserve(address(0)), "RSRV_404");
             require(reserve.enabled, "RSRV_DIS");
             require(

@@ -25,7 +25,6 @@ describe("Issuer", () => {
   let receiver: Signer;
   let signer: Signer;
   let treasury: Signer;
-  let libReserve: Contract;
   let libIssuer: Contract;
   let scriptyStorageContract: Contract;
   let scriptyBuilderContract: Contract;
@@ -60,11 +59,8 @@ describe("Issuer", () => {
       await ethers.getSigners();
 
     const LibIssuer = await ethers.getContractFactory("LibIssuer");
-    const LibReserve = await ethers.getContractFactory("LibReserve");
     libIssuer = await LibIssuer.deploy();
-    libReserve = await LibReserve.deploy();
     await libIssuer.deployed();
-    await libReserve.deployed();
 
     const ReserveWhitelistFactory = await ethers.getContractFactory(
       "ReserveWhitelist"
