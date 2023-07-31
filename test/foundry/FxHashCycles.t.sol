@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 import {Test} from "forge-std/Test.sol";
-import {FxHashCycles, IFxHashCycles, CycleParams} from "contracts/admin/FxHashCycles.sol";
+import {FxHashCycles, IFxHashCycles, CycleParams} from "contracts/admin/config/FxHashCycles.sol";
 
 contract CyclesTest is Test {
     address public admin = address(1);

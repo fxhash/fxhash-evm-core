@@ -5,7 +5,7 @@ import {Accounts} from "script/utils/Accounts.s.sol";
 import {AllowMint} from "contracts/reserves/AllowMint.sol";
 import {AllowMintIssuer} from "contracts/reserves/AllowMintIssuer.sol";
 import {Codex} from "contracts/metadata/Codex.sol";
-import {ConfigurationManager, IConfigurationManager, ConfigInfo} from "contracts/admin/ConfigurationManager.sol";
+import {ConfigurationManager, IConfigurationManager, ConfigInfo} from "contracts/admin/config/ConfigurationManager.sol";
 import {ContentStore} from "scripty.sol/contracts/scripty/dependencies/ethfs/ContentStore.sol";
 import {FxHashFactory} from "contracts/factories/FxHashFactory.sol";
 import {GenTk} from "contracts/issuer/GenTk.sol";
