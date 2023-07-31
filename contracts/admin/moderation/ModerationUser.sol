@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import {BaseModeration} from "contracts/moderation/BaseModeration.sol";
-import {ModerationTeam} from "contracts/moderation/ModerationTeam.sol";
+import {BaseModeration} from "contracts/admin/moderation/BaseModeration.sol";
+import {ModerationTeam} from "contracts/admin/moderation/ModerationTeam.sol";
 import {IModerationUser, UserModInfo} from "contracts/interfaces/IModerationUser.sol";
 
 contract ModerationUser is BaseModeration, IModerationUser {

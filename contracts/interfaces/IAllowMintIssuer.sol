@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import {ModerationUser} from "contracts/moderation/ModerationUser.sol";
+import {ModerationUser} from "contracts/admin/moderation/ModerationUser.sol";
 
 /// @title IAllowMintIssuer
 /// @notice Checks allowance state of user moderation
