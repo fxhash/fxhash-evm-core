@@ -1,20 +1,20 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
+/// @param feeShare Share fee out of 10000 basis points
+/// @param referrerShare Referrer fee share out of 10000 basis points
+/// @param lockTime Time duration of locked
+/// @param defaultMetadata Default URI of metadata
+struct ConfigInfo {
+    uint64 feeShare;
+    uint64 referrerShare;
+    uint128 lockTime;
+    string defaultMetadata;
+}
+
 /// @title IConfigurationManager
 /// @notice Manages configuration of platform and contract information
 interface IConfigurationManager {
-    /// @param feeShare Share fee out of 10000 basis points
-    /// @param referrerShare Referrer fee share out of 10000 basis points
-    /// @param lockTime Time duration of locked
-    /// @param defaultMetadata Default URI of metadata
-    struct ConfigInfo {
-        uint64 feeShare;
-        uint64 referrerShare;
-        uint128 lockTime;
-        string defaultMetadata;
-    }
-
     /// @notice Error thrown when contract is zero address
     error InvalidContract();
     /// @notice Error thrown when array lengths do not match

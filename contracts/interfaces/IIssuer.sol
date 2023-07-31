@@ -36,46 +36,46 @@ struct IssuerInfo {
     uint256 inputBytesSize;
 }
 
+struct UpdateIssuerInput {
+    RoyaltyData primarySplit;
+    bool enabled;
+}
+
+struct MintTicketSettings {
+    uint256 gracingPeriod; //in days
+    string metadata;
+}
+
+struct MintIssuerInput {
+    CodexInput codex;
+    bytes metadata;
+    uint256 inputBytesSize;
+    uint256 amount;
+    OpenEditions openEditions;
+    MintTicketSettings mintTicketSettings;
+    ReserveData[] reserves;
+    PricingData pricing;
+    RoyaltyData primarySplit;
+    bool enabled;
+    uint256[] tags;
+    WrappedScriptRequest[] onChainScripts;
+}
+
+struct MintInput {
+    bytes inputBytes;
+    address referrer;
+    bytes reserveInput;
+    bool createTicket;
+    address recipient;
+}
+
+struct MintWithTicketInput {
+    uint256 ticketId;
+    bytes inputBytes;
+    address recipient;
+}
+
 interface IIssuer {
-    struct UpdateIssuerInput {
-        RoyaltyData primarySplit;
-        bool enabled;
-    }
-
-    struct MintTicketSettings {
-        uint256 gracingPeriod; //in days
-        string metadata;
-    }
-
-    struct MintIssuerInput {
-        CodexInput codex;
-        bytes metadata;
-        uint256 inputBytesSize;
-        uint256 amount;
-        OpenEditions openEditions;
-        MintTicketSettings mintTicketSettings;
-        ReserveData[] reserves;
-        PricingData pricing;
-        RoyaltyData primarySplit;
-        bool enabled;
-        uint256[] tags;
-        WrappedScriptRequest[] onChainScripts;
-    }
-
-    struct MintInput {
-        bytes inputBytes;
-        address referrer;
-        bytes reserveInput;
-        bool createTicket;
-        address recipient;
-    }
-
-    struct MintWithTicketInput {
-        uint256 ticketId;
-        bytes inputBytes;
-        address recipient;
-    }
-
     function initialize(address _configManager, address _owner, address _genTk) external;
 
     function mintIssuer(MintIssuerInput calldata params) external;

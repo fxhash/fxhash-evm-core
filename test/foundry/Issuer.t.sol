@@ -5,7 +5,8 @@ import {Test} from "forge-std/Test.sol";
 import {CodexInput} from "contracts/interfaces/ICodex.sol";
 import {Deploy} from "script/Deploy.s.sol";
 import {GenTk} from "contracts/issuer/GenTk.sol";
-import {Issuer, IIssuer, OpenEditions} from "contracts/issuer/Issuer.sol";
+import {Issuer} from "contracts/issuer/Issuer.sol";
+import {IIssuer, MintInput, MintIssuerInput, MintTicketSettings, MintWithTicketInput, OpenEditions} from "contracts/interfaces/IIssuer.sol";
 import {PricingData} from "contracts/interfaces/IPricing.sol";
 import {ReserveData} from "contracts/interfaces/IReserve.sol";
 import {RoyaltyData} from "contracts/interfaces/IRoyalties.sol";
@@ -30,7 +31,7 @@ contract IssuerTest is Test, Deploy {
     uint256 public metadataBytesSize;
     uint256 public amount;
     OpenEditions public oe;
-    IIssuer.MintTicketSettings public mintTicketSettings;
+    MintTicketSettings public mintTicketSettings;
     ReserveData[] public reserveData;
     PricingData public pricing;
     RoyaltyData public primary;
@@ -50,7 +51,7 @@ contract IssuerTest is Test, Deploy {
         metadataBytesSize = 256;
         amount = 1000;
         oe = OpenEditions(0, "");
-        mintTicketSettings = IIssuer.MintTicketSettings(0, "");
+        mintTicketSettings = MintTicketSettings(0, "");
         for (uint256 i; i < whitelistFixed.length; i++) {
             whitelist.push(whitelistFixed[i]);
         }
@@ -79,7 +80,7 @@ contract IssuerTest is Test, Deploy {
 contract MintIssuer is IssuerTest {
     function test_MintIssuer() public {
         IIssuer(scriptIssuer).mintIssuer(
-            IIssuer.MintIssuerInput(
+            MintIssuerInput(
                 codexInput,
                 metadata,
                 metadataBytesSize,
@@ -98,14 +99,14 @@ contract MintIssuer is IssuerTest {
 }
 
 contract Mint is IssuerTest {
-    IIssuer.MintInput public mintInput;
+    MintInput public mintInput;
 
     function setUp() public virtual override {
         super.setUp();
         metadataBytesSize = 0;
-        mintInput = IIssuer.MintInput("", alice, "", false, alice);
+        mintInput = MintInput("", alice, "", false, alice);
         IIssuer(scriptIssuer).mintIssuer(
-            IIssuer.MintIssuerInput(
+            MintIssuerInput(
                 codexInput,
                 metadata,
                 metadataBytesSize,
@@ -131,17 +132,17 @@ contract Mint is IssuerTest {
 }
 
 contract MintWithTicket is IssuerTest {
-    IIssuer.MintInput public mintInput;
-    IIssuer.MintWithTicketInput public ticketInput;
+    MintInput public mintInput;
+    MintWithTicketInput public ticketInput;
 
     function setUp() public virtual override {
         super.setUp();
 
         mintTicketSettings.gracingPeriod = 1000;
         metadataBytesSize = 0;
-        mintInput = IIssuer.MintInput("", address(0), "", true, alice);
+        mintInput = MintInput("", address(0), "", true, alice);
         IIssuer(scriptIssuer).mintIssuer(
-            IIssuer.MintIssuerInput(
+            MintIssuerInput(
                 codexInput,
                 metadata,
                 metadataBytesSize,
@@ -159,7 +160,7 @@ contract MintWithTicket is IssuerTest {
 
         vm.warp(block.timestamp + 1001);
 
-        ticketInput = IIssuer.MintWithTicketInput(0, "", address(0));
+        ticketInput = MintWithTicketInput(0, "", address(0));
         vm.prank(alice);
         IIssuer(scriptIssuer).mint{value: 1000}(mintInput);
     }

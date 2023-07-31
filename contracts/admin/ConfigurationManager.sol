@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import {IConfigurationManager} from "contracts/interfaces/IConfigurationManager.sol";
+import {IConfigurationManager, ConfigInfo} from "contracts/interfaces/IConfigurationManager.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 /// @title ConfigurationManager

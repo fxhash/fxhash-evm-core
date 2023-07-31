@@ -4,7 +4,7 @@ pragma solidity ^0.8.18;
 import {Deploy} from "script/Deploy.s.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import {GenTk} from "contracts/issuer/GenTk.sol";
-import {IIssuer} from "contracts/interfaces/IIssuer.sol";
+import {IIssuer, MintInput} from "contracts/interfaces/IIssuer.sol";
 import {MintPassGroup} from "contracts/reserves/MintPassGroup.sol";
 import {MintTicket} from "contracts/reserves/MintTicket.sol";
 import {PricingContract} from "contracts/interfaces/IPricing.sol";
@@ -82,8 +82,8 @@ contract SeedTokens is Script {
     }
 
     function _getMintInput(
-        SeedIssuers.MintInput memory mintInput
-    ) public view returns (IIssuer.MintInput memory) {
+        SeedIssuers.MintInputStruct memory mintInput
+    ) public view returns (MintInput memory) {
         bytes memory inputBytes;
         bytes memory reserveInput;
         bool createTicket = false;
@@ -135,7 +135,7 @@ contract SeedTokens is Script {
         }
 
         return
-            IIssuer.MintInput({
+            MintInput({
                 inputBytes: inputBytes,
                 referrer: mintInput.referrer,
                 reserveInput: reserveInput,
@@ -144,13 +144,13 @@ contract SeedTokens is Script {
             });
     }
 
-    function loadIssuersJSON() public returns (SeedIssuers.MintInput[] memory) {
+    function loadIssuersJSON() public returns (SeedIssuers.MintInputStruct[] memory) {
         bytes memory data = vm.parseJsonBytes(vm.readFile("script/issuers.json"), ".issuersData");
-        return abi.decode(data, (SeedIssuers.MintInput[]));
+        return abi.decode(data, (SeedIssuers.MintInputStruct[]));
     }
 
     function mintAllTokens() public {
-        SeedIssuers.MintInput[] memory mintQueue = loadIssuersJSON();
+        SeedIssuers.MintInputStruct[] memory mintQueue = loadIssuersJSON();
         vm.startBroadcast(bob);
         for (uint i = 0; i < mintQueue.length; i++) {
             IIssuer(mintQueue[i].issuer).mint{value: 1000}(_getMintInput(mintQueue[i]));

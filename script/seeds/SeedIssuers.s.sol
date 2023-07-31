@@ -4,7 +4,8 @@ pragma solidity ^0.8.18;
 import {CodexData, CodexInput} from "contracts/interfaces/ICodex.sol";
 import {Deploy} from "script/Deploy.s.sol";
 import {GenTk} from "contracts/issuer/GenTk.sol";
-import {Issuer, IIssuer, OpenEditions} from "contracts/issuer/Issuer.sol";
+import {Issuer} from "contracts/issuer/Issuer.sol";
+import {IIssuer, MintInput, MintIssuerInput, MintTicketSettings, OpenEditions} from "contracts/interfaces/IIssuer.sol";
 import {MintPassGroup} from "contracts/reserves/MintPassGroup.sol";
 import {PricingData} from "contracts/interfaces/IPricing.sol";
 import {PricingFixed} from "contracts/pricing/PricingFixed.sol";
@@ -41,7 +42,7 @@ contract SeedIssuers is Deploy {
         Disabled
     }
 
-    struct MintIssuerInput {
+    struct MintIssuerInputStruct {
         address issuer;
         address mintPassGroup;
         ReserveOptions reserveOption;
@@ -51,7 +52,7 @@ contract SeedIssuers is Deploy {
         OnChainOptions onChainOption;
     }
 
-    struct MintInput {
+    struct MintInputStruct {
         address issuer;
         address mintPassGroup;
         address recipient;
@@ -111,7 +112,7 @@ contract SeedIssuers is Deploy {
     }
 
     function mintAllGetIssuerCombinations() public {
-        MintInput[] memory mintQueue = new MintInput[](getTotalCombinations());
+        MintInputStruct[] memory mintQueue = new MintInputStruct[](getTotalCombinations());
         vm.startBroadcast(alice);
         for (uint256 i = 0; i < uint256(ReserveOptions.WhitelistAndMintPass) + 1; i++) {
             for (uint256 j = 0; j < uint256(PricingOptions.DutchAuction) + 1; j++) {
@@ -119,7 +120,7 @@ contract SeedIssuers is Deploy {
                     for (uint256 l = 0; l < uint256(MintTicketOptions.Disabled) + 1; l++) {
                         for (uint256 m = 0; m < uint256(OnChainOptions.Disabled) + 1; m++) {
                             MintPassGroup _mintPassGroup;
-                            (address _issuer, address _genTk) = fxHashFactory.createProject(
+                            (address _issuer, ) = fxHashFactory.createProject(
                                 royaltyReceivers,
                                 royaltyBasisPoints,
                                 alice
@@ -140,7 +141,7 @@ contract SeedIssuers is Deploy {
 
                             IIssuer(_issuer).mintIssuer(
                                 _getMintIssuerInput(
-                                    MintIssuerInput({
+                                    MintIssuerInputStruct({
                                         issuer: _issuer,
                                         mintPassGroup: address(_mintPassGroup),
                                         reserveOption: ReserveOptions(i),
@@ -152,7 +153,7 @@ contract SeedIssuers is Deploy {
                                 )
                             );
 
-                            mintQueue[mintNb] = MintInput({
+                            mintQueue[mintNb] = MintInputStruct({
                                 issuer: _issuer,
                                 mintPassGroup: address(_mintPassGroup),
                                 recipient: bob,
@@ -192,12 +193,12 @@ contract SeedIssuers is Deploy {
     //  - Pricing (Fixed price/Dutch Auction)
     //  - On chain / off chain
     function _getMintIssuerInput(
-        MintIssuerInput memory mintIssuerInput
-    ) public view returns (IIssuer.MintIssuerInput memory) {
+        MintIssuerInputStruct memory mintIssuerInput
+    ) public view returns (MintIssuerInput memory) {
         ReserveData[] memory reserveData;
         PricingData memory pricingData;
         OpenEditions memory openEditionsData;
-        IIssuer.MintTicketSettings memory mintTicketData;
+        MintTicketSettings memory mintTicketData;
         WrappedScriptRequest[] memory onChainData;
 
         if (mintIssuerInput.reserveOption == ReserveOptions.None) {
@@ -234,7 +235,7 @@ contract SeedIssuers is Deploy {
             onChainData = _getEmptyOnChainScripts();
         }
         return
-            IIssuer.MintIssuerInput({
+            MintIssuerInput({
                 codex: CodexInput({
                     inputType: 0,
                     value: bytes(""),
@@ -255,12 +256,12 @@ contract SeedIssuers is Deploy {
             });
     }
 
-    function _getEmptyMintTicketParam() public pure returns (IIssuer.MintTicketSettings memory) {
-        return IIssuer.MintTicketSettings({gracingPeriod: 0, metadata: ""});
+    function _getEmptyMintTicketParam() public pure returns (MintTicketSettings memory) {
+        return MintTicketSettings({gracingPeriod: 0, metadata: ""});
     }
 
-    function _getMintTicketParam() public pure returns (IIssuer.MintTicketSettings memory) {
-        return IIssuer.MintTicketSettings({gracingPeriod: 1000, metadata: "ipfs://1234"});
+    function _getMintTicketParam() public pure returns (MintTicketSettings memory) {
+        return MintTicketSettings({gracingPeriod: 1000, metadata: "ipfs://1234"});
     }
 
     function _getOpenEditionParam() public view returns (OpenEditions memory) {

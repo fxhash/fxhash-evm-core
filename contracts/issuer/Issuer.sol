@@ -12,8 +12,8 @@ import {ICodex} from "contracts/interfaces/ICodex.sol";
 import {IConfigurationManager} from "contracts/interfaces/IConfigurationManager.sol";
 import {IERC165Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC165Upgradeable.sol";
 import {IERC2981Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol";
-import {IGenTk} from "contracts/interfaces/IGenTk.sol";
-import {IIssuer, IssuerData, IssuerInfo, OpenEditions} from "contracts/interfaces/IIssuer.sol";
+import {IGenTk, TokenParams} from "contracts/interfaces/IGenTk.sol";
+import {IIssuer, IssuerData, IssuerInfo, MintInput, MintIssuerInput, MintWithTicketInput, OpenEditions, UpdateIssuerInput} from "contracts/interfaces/IIssuer.sol";
 import {IMintTicket} from "contracts/interfaces/IMintTicket.sol";
 import {IModerationTeam} from "contracts/interfaces/IModerationTeam.sol";
 import {IModerationUser} from "contracts/interfaces/IModerationUser.sol";
@@ -270,7 +270,7 @@ contract Issuer is IIssuer, OwnableUpgradeable {
 
         issuer.iterationsCount += 1;
         genTk.mint(
-            IGenTk.TokenParams({
+            TokenParams({
                 tokenId: allGenTkTokens,
                 iteration: issuer.iterationsCount,
                 inputBytes: params.inputBytes,
@@ -399,12 +399,8 @@ contract Issuer is IIssuer, OwnableUpgradeable {
         {
             uint256 price = pricingContract.getPrice(block.timestamp);
             require(msg.value >= price && price > 0, "INVALID_PRICE");
-            (
-                uint64 feeShare,
-                uint64 referrerShare,
-                uint128 lockTime,
-                string memory defaultMetadata
-            ) = configManager.config();
+            (uint64 feeShare, uint64 referrerShare, , string memory defaultMetadata) = configManager
+                .config();
             uint256 platformFees = feeShare;
             if (params.referrer != address(0) && params.referrer != msg.sender) {
                 uint256 referrerFees = (feeShare * referrerShare) / 10000;
@@ -438,7 +434,7 @@ contract Issuer is IIssuer, OwnableUpgradeable {
             } else {
                 issuer.iterationsCount += 1;
                 genTk.mint(
-                    IGenTk.TokenParams({
+                    TokenParams({
                         tokenId: tokenId,
                         iteration: issuer.iterationsCount,
                         inputBytes: params.inputBytes,

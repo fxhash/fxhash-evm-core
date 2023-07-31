@@ -2,14 +2,14 @@
 pragma solidity ^0.8.18;
 
 import {Test} from "forge-std/Test.sol";
-import {FxHashCycles, IFxHashCycles} from "contracts/admin/FxHashCycles.sol";
+import {FxHashCycles, IFxHashCycles, CycleParams} from "contracts/admin/FxHashCycles.sol";
 
 contract CyclesTest is Test {
     address public admin = address(1);
     address public fxHashAdmin = address(2);
     address public addr1 = address(3);
     bytes32 public AUTHORIZED_CALLER = keccak256("AUTHORIZED_CALLER");
-    FxHashCycles.CycleParams public params;
+    CycleParams public params;
     FxHashCycles public cycles;
 
     function setUp() public virtual {
@@ -21,7 +21,7 @@ contract CyclesTest is Test {
 contract AddCycle is CyclesTest {
     function setUp() public virtual override {
         super.setUp();
-        params = IFxHashCycles.CycleParams(100, 50, 100);
+        params = CycleParams(100, 50, 100);
     }
 
     function test_addCycle() public {
@@ -36,7 +36,7 @@ contract AddCycle is CyclesTest {
 contract RemoveCycle is CyclesTest {
     function setUp() public virtual override {
         super.setUp();
-        params = IFxHashCycles.CycleParams(100, 50, 100);
+        params = CycleParams(100, 50, 100);
         cycles.addCycle(params);
     }
 
@@ -48,14 +48,9 @@ contract RemoveCycle is CyclesTest {
 contract AreCyclesOpen is CyclesTest {
     function setUp() public virtual override {
         super.setUp();
-        params = IFxHashCycles.CycleParams(100, 50, 100);
+        params = CycleParams(100, 50, 100);
         cycles.addCycle(params);
     }
 
-    function test_areCyclesOpen() public {
-        uint256[][] memory cycleIds = new uint256[][](1);
-        // cycleIds[0][0] = 0;
-        // assertTrue(cycles.areCyclesOpen(cycleIds, block.timestamp));
-        /// TODO
-    }
+    // function test_areCyclesOpen() public {}
 }

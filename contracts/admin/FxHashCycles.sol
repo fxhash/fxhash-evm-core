@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 import {AuthorizedCaller} from "contracts/admin/AuthorizedCaller.sol";
-import {IFxHashCycles} from "contracts/interfaces/IFxHashCycles.sol";
+import {IFxHashCycles, CycleParams} from "contracts/interfaces/IFxHashCycles.sol";
 import {SignedMath} from "@openzeppelin/contracts/utils/math/SignedMath.sol";
 
 /// @title FxHashCycles
