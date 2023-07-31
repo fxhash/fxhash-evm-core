@@ -3,7 +3,7 @@ pragma solidity ^0.8.18;
 
 import {Script} from "forge-std/Script.sol";
 import {Deploy} from "./Deploy.s.sol";
-import {ReserveWhitelist} from "contracts/reserve/ReserveWhitelist.sol";
+import {ReserveWhitelist} from "contracts/reserves/ReserveWhitelist.sol";
 import {PricingFixed} from "contracts/pricing/PricingFixed.sol";
 import {PricingDutchAuction} from "contracts/pricing/PricingDutchAuction.sol";
 import {IIssuer, OpenEditions} from "contracts/interfaces/IIssuer.sol";
@@ -13,8 +13,8 @@ import {RoyaltyData} from "contracts/interfaces/ISplitsMain.sol";
 import {CodexData, CodexInput} from "contracts/interfaces/ICodex.sol";
 import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
 import {Issuer} from "contracts/issuer/Issuer.sol";
-import {GenTk} from "contracts/gentk/GenTk.sol";
-import {MintPassGroup} from "contracts/mint-pass-group/MintPassGroup.sol";
+import {GenTk} from "contracts/issuer/GenTk.sol";
+import {MintPassGroup} from "contracts/reserves/MintPassGroup.sol";
 import {Constants} from "script/Constants.sol";
 
 contract SeedIssuers is Deploy {

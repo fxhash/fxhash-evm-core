@@ -3,7 +3,7 @@ pragma solidity ^0.8.18;
 
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 import {Factory} from "contracts/factories/Factory.sol";
-import {GenTk} from "contracts/gentk/GenTk.sol";
+import {GenTk} from "contracts/issuer/GenTk.sol";
 import {IGenTkFactory} from "contracts/interfaces/IGenTkFactory.sol";
 
 /// @title GenTkFactory

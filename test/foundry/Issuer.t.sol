@@ -9,7 +9,7 @@ import {PricingData} from "contracts/interfaces/IPricing.sol";
 import {ReserveData} from "contracts/interfaces/IReserve.sol";
 import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
 import {Issuer, IIssuer, OpenEditions} from "contracts/issuer/Issuer.sol";
-import {GenTk} from "contracts/gentk/GenTk.sol";
+import {GenTk} from "contracts/issuer/GenTk.sol";
 
 contract IssuerTest is Test, Deploy {
     address public scriptIssuer;
