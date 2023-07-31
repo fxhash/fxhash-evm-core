@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {RoyaltyData} from "contracts/interfaces/IRoyalties.sol";
+import {SafeTransferLib} from "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
+import {SignedMath} from "@openzeppelin/contracts/utils/math/SignedMath.sol";
+
 import {IAllowMint} from "contracts/interfaces/IAllowMint.sol";
 import {IAllowMintIssuer} from "contracts/interfaces/IAllowMintIssuer.sol";
 import {ICodex} from "contracts/interfaces/ICodex.sol";
@@ -8,22 +13,15 @@ import {IConfigurationManager} from "contracts/interfaces/IConfigurationManager.
 import {IERC165Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC165Upgradeable.sol";
 import {IERC2981Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol";
 import {IGenTk} from "contracts/interfaces/IGenTk.sol";
-import {IIssuer} from "contracts/interfaces/IIssuer.sol";
+import {IIssuer, IssuerData, IssuerInfo, OpenEditions} from "contracts/interfaces/IIssuer.sol";
 import {IMintTicket} from "contracts/interfaces/IMintTicket.sol";
 import {IModerationTeam} from "contracts/interfaces/IModerationTeam.sol";
 import {IModerationUser} from "contracts/interfaces/IModerationUser.sol";
 import {IOnChainTokenMetadataManager} from "contracts/interfaces/IOnChainTokenMetadataManager.sol";
-import {IPricing} from "contracts/interfaces/IPricing.sol";
+import {IPricing, PricingData} from "contracts/interfaces/IPricing.sol";
 import {IPricingManager} from "contracts/interfaces/IPricingManager.sol";
-import {IReserve} from "contracts/interfaces/IReserve.sol";
+import {IReserve, ReserveData, ReserveInput, ReserveMethod} from "contracts/interfaces/IReserve.sol";
 import {IReserveManager} from "contracts/interfaces/IReserveManager.sol";
-import {IssuerData, IssuerInfo, OpenEditions} from "contracts/interfaces/IIssuer.sol";
-import {PricingData} from "contracts/interfaces/IPricing.sol";
-import {ReserveData, ReserveInput, ReserveMethod} from "contracts/interfaces/IReserve.sol";
-import {RoyaltyData} from "contracts/interfaces/ISplitsMain.sol";
-import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {SafeTransferLib} from "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
-import {SignedMath} from "@openzeppelin/contracts/utils/math/SignedMath.sol";
 
 contract Issuer is IIssuer, OwnableUpgradeable {
     IConfigurationManager private configManager;

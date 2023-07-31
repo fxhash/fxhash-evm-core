@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "contracts/interfaces/IModerationTeam.sol";
-import "contracts/interfaces/IIssuer.sol";
 import {ICodex, CodexData, CodexInput} from "contracts/interfaces/ICodex.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import {IIssuer} from "contracts/interfaces/IIssuer.sol";
+import {IModerationTeam} from "contracts/interfaces/IModerationTeam.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract Codex is ICodex, Ownable {
     uint256 private codexEntriesCount;

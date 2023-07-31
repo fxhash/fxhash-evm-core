@@ -2,10 +2,9 @@
 pragma solidity ^0.8.18;
 
 import {BaseModeration} from "contracts/admin/moderation/BaseModeration.sol";
-import {ModerationTeam} from "contracts/admin/moderation/ModerationTeam.sol";
-
 import {IModerationUser, UserModInfo} from "contracts/interfaces/IModerationUser.sol";
 import {MALICIOUS_USER, USER_AUTH, VERIFIED} from "contracts/utils/Constants.sol";
+import {ModerationTeam} from "contracts/admin/moderation/ModerationTeam.sol";
 
 contract ModerationUser is BaseModeration, IModerationUser {
     mapping(address => UserModInfo) public users;

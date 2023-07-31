@@ -1,16 +1,17 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import {ERC721URIStorageUpgradeable, ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
+import {ERC721Upgradeable, IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
+import {ERC721URIStorageUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {RoyaltyManager} from "contracts/royalties/RoyaltyManager.sol";
+
 import {IConfigurationManager} from "contracts/interfaces/IConfigurationManager.sol";
 import {IERC165Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC165Upgradeable.sol";
-import {IERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC721Upgradeable.sol";
 import {IFactory} from "contracts/interfaces/IFactory.sol";
 import {IGenTk} from "contracts/interfaces/IGenTk.sol";
 import {IIssuer, IssuerData} from "contracts/interfaces/IIssuer.sol";
 import {IOnChainTokenMetadataManager} from "contracts/interfaces/IOnChainTokenMetadataManager.sol";
-import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {RoyaltyManager} from "contracts/royalties/RoyaltyManager.sol";
 
 contract GenTk is ERC721URIStorageUpgradeable, OwnableUpgradeable, RoyaltyManager, IGenTk {
     struct TokenMetadata {

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 import {ApplyParams, InputParams} from "contracts/interfaces/IReserve.sol";
-import "contracts/interfaces/IReserve.sol";
+import {IReserve} from "contracts/interfaces/IReserve.sol";
 
 contract ReserveWhitelist is IReserve {
     struct WhitelistEntry {

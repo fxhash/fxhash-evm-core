@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import "contracts/interfaces/IIssuer.sol";
-
 interface IMintTicket {
     struct TokenData {
         address issuer;

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 import {IReserve, ApplyParams, InputParams} from "contracts/interfaces/IReserve.sol";
-import "contracts/reserves/MintPassGroup.sol";
+import {MintPassGroup} from "contracts/reserves/MintPassGroup.sol";
 
 contract ReserveMintPass is IReserve {
     address private reservemanager;

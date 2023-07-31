@@ -3,10 +3,9 @@ pragma solidity ^0.8.18;
 
 import {AuthorizedCaller} from "contracts/admin/AuthorizedCaller.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+import {IModerationTeam, TeamModInfo} from "contracts/interfaces/IModerationTeam.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {SafeTransferLib} from "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
-
-import {IModerationTeam, TeamModInfo} from "contracts/interfaces/IModerationTeam.sol";
 
 contract ModerationTeam is Ownable, IModerationTeam {
     using EnumerableSet for EnumerableSet.AddressSet;

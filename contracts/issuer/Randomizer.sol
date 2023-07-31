@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "contracts/admin/AuthorizedCaller.sol";
+import {AuthorizedCaller} from "contracts/admin/AuthorizedCaller.sol";
 
 contract Randomizer is AuthorizedCaller {
     struct TokenKey {

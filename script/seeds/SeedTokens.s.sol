@@ -1,22 +1,21 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import {Script} from "forge-std/Script.sol";
-import {Deploy} from "./Deploy.s.sol";
-import {SeedIssuers} from "./SeedIssuers.s.sol";
-import {ReserveWhitelist} from "contracts/reserves/ReserveWhitelist.sol";
+import {Deploy} from "script/Deploy.s.sol";
+import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
+import {GenTk} from "contracts/issuer/GenTk.sol";
+import {IIssuer} from "contracts/interfaces/IIssuer.sol";
+import {MintPassGroup} from "contracts/reserves/MintPassGroup.sol";
+import {MintTicket} from "contracts/reserves/MintTicket.sol";
+import {PricingContract} from "contracts/interfaces/IPricing.sol";
 import {PricingFixed} from "contracts/pricing/PricingFixed.sol";
 import {PricingDutchAuction} from "contracts/pricing/PricingDutchAuction.sol";
-import {IIssuer} from "contracts/interfaces/IIssuer.sol";
-import {MintTicket} from "contracts/reserves/MintTicket.sol";
 import {ReserveData, ReserveInput} from "contracts/interfaces/IReserve.sol";
-import {PricingContract} from "contracts/interfaces/IPricing.sol";
-import {RoyaltyData} from "contracts/interfaces/ISplitsMain.sol";
+import {ReserveWhitelist} from "contracts/reserves/ReserveWhitelist.sol";
+import {RoyaltyData} from "contracts/interfaces/IRoyalties.sol";
+import {Script} from "forge-std/Script.sol";
+import {SeedIssuers} from "script/seeds/SeedIssuers.s.sol";
 import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
-import {GenTk} from "contracts/issuer/GenTk.sol";
-import {MintPassGroup} from "contracts/reserves/MintPassGroup.sol";
-import {Constants} from "script/Constants.sol";
-import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 
 contract SeedTokens is Script {
     address public bob;

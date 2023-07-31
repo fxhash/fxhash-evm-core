@@ -2,8 +2,8 @@
 pragma solidity ^0.8.18;
 
 import {Test} from "forge-std/Test.sol";
-import {MockRoyaltyManager} from "test/mocks/MockRoyaltyManager.sol";
 import {IRoyaltyManager} from "contracts/interfaces/IRoyaltyManager.sol";
+import {MockRoyaltyManager} from "test/mocks/MockRoyaltyManager.sol";
 
 contract RoyaltyManagerTest is Test {
     uint256 tokenId;

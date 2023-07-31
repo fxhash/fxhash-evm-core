@@ -2,9 +2,8 @@
 pragma solidity ^0.8.18;
 
 import {BaseModeration} from "contracts/admin/moderation/BaseModeration.sol";
-import {ModerationTeam} from "contracts/admin/moderation/ModerationTeam.sol";
-
 import {IModerationIssuer, IssuerModInfo} from "contracts/interfaces/IModerationIssuer.sol";
+import {ModerationTeam} from "contracts/admin/moderation/ModerationTeam.sol";
 import {TOKEN_AUTH} from "contracts/utils/Constants.sol";
 
 contract ModerationIssuer is BaseModeration, IModerationIssuer {

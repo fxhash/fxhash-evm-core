@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import {Script} from "forge-std/Script.sol";
-import {Deploy} from "./Deploy.s.sol";
-import {ReserveWhitelist} from "contracts/reserves/ReserveWhitelist.sol";
+import {CodexData, CodexInput} from "contracts/interfaces/ICodex.sol";
+import {Deploy} from "script/Deploy.s.sol";
+import {GenTk} from "contracts/issuer/GenTk.sol";
+import {Issuer, IIssuer, OpenEditions} from "contracts/issuer/Issuer.sol";
+import {MintPassGroup} from "contracts/reserves/MintPassGroup.sol";
+import {PricingData} from "contracts/interfaces/IPricing.sol";
 import {PricingFixed} from "contracts/pricing/PricingFixed.sol";
 import {PricingDutchAuction} from "contracts/pricing/PricingDutchAuction.sol";
-import {IIssuer, OpenEditions} from "contracts/interfaces/IIssuer.sol";
-import {PricingData} from "contracts/interfaces/IPricing.sol";
 import {ReserveData} from "contracts/interfaces/IReserve.sol";
-import {RoyaltyData} from "contracts/interfaces/ISplitsMain.sol";
-import {CodexData, CodexInput} from "contracts/interfaces/ICodex.sol";
+import {ReserveWhitelist} from "contracts/reserves/ReserveWhitelist.sol";
+import {RoyaltyData} from "contracts/interfaces/IRoyalties.sol";
+import {Script} from "forge-std/Script.sol";
 import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
-import {Issuer} from "contracts/issuer/Issuer.sol";
-import {GenTk} from "contracts/issuer/GenTk.sol";
-import {MintPassGroup} from "contracts/reserves/MintPassGroup.sol";
-import {Constants} from "script/Constants.sol";
+
+import "script/utils/Constants.sol";
 
 contract SeedIssuers is Deploy {
     enum ReserveOptions {
@@ -130,8 +130,8 @@ contract SeedIssuers is Deploy {
                                 i == uint256(ReserveOptions.WhitelistAndMintPass)
                             ) {
                                 _mintPassGroup = new MintPassGroup(
-                                    Constants.MAX_PER_TOKEN,
-                                    Constants.MAX_PER_TOKEN_PER_PROJECT,
+                                    MAX_PER_TOKEN,
+                                    MAX_PER_TOKEN_PER_PROJECT,
                                     vm.addr(vm.envUint("SIGNER_PRIVATE_KEY")),
                                     address(reserveMintPass),
                                     new address[](0)
@@ -181,7 +181,7 @@ contract SeedIssuers is Deploy {
         // Build ffi command string
         runJsInputs[0] = "node";
         runJsInputs[1] = "script/sleep.js";
-        runJsInputs[2] = vm.toString((Constants.OPEN_DELAY + 10) * 1000);
+        runJsInputs[2] = vm.toString((OPEN_DELAY + 10) * 1000);
         vm.ffi(runJsInputs);
     }
 
@@ -319,10 +319,7 @@ contract SeedIssuers is Deploy {
             PricingData({
                 pricingId: 1,
                 details: abi.encode(
-                    PricingFixed.PriceDetails({
-                        price: Constants.PRICE,
-                        opensAt: block.timestamp + Constants.OPEN_DELAY
-                    })
+                    PricingFixed.PriceDetails({price: PRICE, opensAt: block.timestamp + OPEN_DELAY})
                 ),
                 lockForReserves: false
             });
@@ -330,16 +327,16 @@ contract SeedIssuers is Deploy {
 
     function _getDutchAuctionParam() public view returns (PricingData memory) {
         uint256[] memory levels = new uint256[](4);
-        levels[0] = Constants.PRICE;
-        levels[1] = Constants.PRICE / 2;
-        levels[2] = Constants.PRICE / 3;
-        levels[3] = Constants.PRICE / 4;
+        levels[0] = PRICE;
+        levels[1] = PRICE / 2;
+        levels[2] = PRICE / 3;
+        levels[3] = PRICE / 4;
         return
             PricingData({
                 pricingId: 2,
                 details: abi.encode(
                     PricingDutchAuction.PriceDetails({
-                        opensAt: block.timestamp + Constants.OPEN_DELAY,
+                        opensAt: block.timestamp + OPEN_DELAY,
                         decrementDuration: 600,
                         lockedPrice: 0,
                         levels: levels

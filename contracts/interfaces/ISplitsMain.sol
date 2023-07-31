@@ -1,11 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-struct RoyaltyData {
-    uint256 percent;
-    address receiver;
-}
-
 interface ISplitsMain {
     function distributeETH(
         address split,

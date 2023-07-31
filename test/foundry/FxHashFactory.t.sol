@@ -1,16 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "forge-std/Test.sol";
-import {IFxHashFactory} from "contracts/interfaces/IFxHashFactory.sol";
-import {IGenTkFactory} from "contracts/interfaces/IGenTkFactory.sol";
-import {IIssuerFactory} from "contracts/interfaces/IIssuerFactory.sol";
-
-import {FxHashFactory} from "contracts/factories/FxHashFactory.sol";
-import {GenTkFactory} from "contracts/factories/GenTkFactory.sol";
-import {IssuerFactory} from "contracts/factories/IssuerFactory.sol";
-
+import {Test} from "forge-std/Test.sol";
 import {Deploy} from "script/Deploy.s.sol";
+import {FxHashFactory, IFxHashFactory} from "contracts/factories/FxHashFactory.sol";
+import {GenTkFactory, IGenTkFactory} from "contracts/factories/GenTkFactory.sol";
+import {IssuerFactory, IIssuerFactory} from "contracts/factories/IssuerFactory.sol";
 
 contract FxHashFactoryTest is Test, Deploy {
     event IssuerCreated(address indexed _owner, address _configManager, address indexed issuer);

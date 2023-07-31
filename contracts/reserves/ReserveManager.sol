@@ -2,8 +2,8 @@
 pragma solidity ^0.8.18;
 
 import {ApplyParams, InputParams, ReserveData, ReserveMethod} from "contracts/interfaces/IReserve.sol";
-import "contracts/interfaces/IReserveManager.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import {IReserveManager} from "contracts/interfaces/IReserveManager.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract ReserveManager is Ownable, IReserveManager {
     mapping(uint256 => ReserveMethod) private reserveMethods;

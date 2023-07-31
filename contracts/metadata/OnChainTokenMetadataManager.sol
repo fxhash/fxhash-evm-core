@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "contracts/interfaces/IOnChainTokenMetadataManager.sol";
+import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
+import {IOnChainTokenMetadataManager} from "contracts/interfaces/IOnChainTokenMetadataManager.sol";
 import {IScriptyBuilder, WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
-import "@openzeppelin/contracts/utils/Base64.sol";
 
 contract OnChainTokenMetadataManager is IOnChainTokenMetadataManager {
     IScriptyBuilder private scriptyAddress;

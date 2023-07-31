@@ -1,12 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "forge-std/Test.sol";
-
+import {Test} from "forge-std/Test.sol";
+import {Deploy} from "script/Deploy.s.sol";
 import {Lib0xSplits} from "contracts/libs/Lib0xSplits.sol";
 import {ISplitsMain} from "contracts/interfaces/ISplitsMain.sol";
-
-import {Deploy} from "script/Deploy.s.sol";
 
 contract SplitTest is Test, Deploy {
     address[] public accounts;

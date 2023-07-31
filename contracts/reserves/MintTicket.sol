@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "contracts/interfaces/IIssuer.sol";
-import "contracts/interfaces/IRandomizer.sol";
-import "contracts/interfaces/IMintTicket.sol";
+import {ERC721URIStorage, ERC721, IERC721} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {SafeTransferLib} from "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
 
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
+import {IIssuer} from "contracts/interfaces/IIssuer.sol";
+import {IRandomizer} from "contracts/interfaces/IRandomizer.sol";
+import {IMintTicket} from "contracts/interfaces/IMintTicket.sol";
 
 contract MintTicket is ERC721URIStorage, Ownable, IMintTicket {
     mapping(uint256 => TokenData) public tokenData;

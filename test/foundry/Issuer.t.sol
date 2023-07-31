@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "forge-std/Test.sol";
-import {Deploy} from "script/Deploy.s.sol";
-import {RoyaltyData} from "contracts/interfaces/ISplitsMain.sol";
+import {Test} from "forge-std/Test.sol";
 import {CodexInput} from "contracts/interfaces/ICodex.sol";
+import {Deploy} from "script/Deploy.s.sol";
+import {GenTk} from "contracts/issuer/GenTk.sol";
+import {Issuer, IIssuer, OpenEditions} from "contracts/issuer/Issuer.sol";
 import {PricingData} from "contracts/interfaces/IPricing.sol";
 import {ReserveData} from "contracts/interfaces/IReserve.sol";
+import {RoyaltyData} from "contracts/interfaces/IRoyalties.sol";
 import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
-import {Issuer, IIssuer, OpenEditions} from "contracts/issuer/Issuer.sol";
-import {GenTk} from "contracts/issuer/GenTk.sol";
 
 contract IssuerTest is Test, Deploy {
     address public scriptIssuer;

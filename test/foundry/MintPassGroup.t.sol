@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 import {MintPassGroup} from "contracts/reserves/MintPassGroup.sol";
 
 contract MintPassGroupTest is Test {
