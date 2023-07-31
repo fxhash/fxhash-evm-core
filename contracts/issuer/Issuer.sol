@@ -18,7 +18,7 @@ import {IPricingManager} from "contracts/interfaces/IPricingManager.sol";
 import {IReserve} from "contracts/interfaces/IReserve.sol";
 import {IReserveManager} from "contracts/interfaces/IReserveManager.sol";
 import {LibIssuer} from "contracts/libs/LibIssuer.sol";
-import {LibPricing} from "contracts/libs/LibPricing.sol";
+import {PricingData} from "contracts/interfaces/IPricing.sol";
 import {LibReserve} from "contracts/libs/LibReserve.sol";
 import {RoyaltyData} from "contracts/interfaces/ISplitsMain.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
@@ -37,7 +37,7 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
     event IssuerModUpdated(uint256[] tags);
     event TokenMinted(MintInput params);
     event TokenMintedWithTicket(MintWithTicketInput params);
-    event PriceUpdated(LibPricing.PricingData params);
+    event PriceUpdated(PricingData params);
     event ReserveUpdated(LibReserve.ReserveData[] reserves);
     event SupplyBurned(uint256 amount);
 
@@ -319,7 +319,7 @@ contract Issuer is IIssuer, IERC2981Upgradeable, OwnableUpgradeable {
         emit IssuerUpdated(params);
     }
 
-    function updatePrice(LibPricing.PricingData calldata pricingData) external onlyOwner {
+    function updatePrice(PricingData calldata pricingData) external onlyOwner {
         LibIssuer.verifyIssuerUpdateable(issuer);
         IPricingManager(configManager.contracts("priceMag")).verifyPricingMethod(
             pricingData.pricingId

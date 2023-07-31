@@ -4,8 +4,8 @@ pragma solidity ^0.8.18;
 import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
 
 import "contracts/libs/LibIssuer.sol";
-import "contracts/libs/LibPricing.sol";
 import {CodexInput} from "contracts/interfaces/ICodex.sol";
+import {PricingData} from "contracts/interfaces/IPricing.sol";
 import {RoyaltyData} from "contracts/interfaces/ISplitsMain.sol";
 
 interface IIssuer {
@@ -28,7 +28,7 @@ interface IIssuer {
         LibIssuer.OpenEditions openEditions;
         MintTicketSettings mintTicketSettings;
         LibReserve.ReserveData[] reserves;
-        LibPricing.PricingData pricing;
+        PricingData pricing;
         RoyaltyData primarySplit;
         RoyaltyData royaltiesSplit;
         bool enabled;

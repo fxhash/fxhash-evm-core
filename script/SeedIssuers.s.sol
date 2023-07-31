@@ -8,7 +8,7 @@ import {PricingFixed} from "contracts/pricing/PricingFixed.sol";
 import {PricingDutchAuction} from "contracts/pricing/PricingDutchAuction.sol";
 import {IIssuer} from "contracts/interfaces/IIssuer.sol";
 import {LibReserve} from "contracts/libs/LibReserve.sol";
-import {LibPricing} from "contracts/libs/LibPricing.sol";
+import {PricingData} from "contracts/interfaces/IPricing.sol";
 import {RoyaltyData} from "contracts/interfaces/ISplitsMain.sol";
 import {LibIssuer} from "contracts/libs/LibIssuer.sol";
 import {CodexData, CodexInput} from "contracts/interfaces/ICodex.sol";
@@ -188,7 +188,7 @@ contract SeedIssuers is Deploy {
         MintIssuerInput memory mintIssuerInput
     ) public view returns (IIssuer.MintIssuerInput memory) {
         LibReserve.ReserveData[] memory reserveData;
-        LibPricing.PricingData memory pricingData;
+        PricingData memory pricingData;
         LibIssuer.OpenEditions memory openEditionsData;
         IIssuer.MintTicketSettings memory mintTicketData;
         WrappedScriptRequest[] memory onChainData;
@@ -322,9 +322,9 @@ contract SeedIssuers is Deploy {
         return reserves;
     }
 
-    function _getFixedPriceParam() public view returns (LibPricing.PricingData memory) {
+    function _getFixedPriceParam() public view returns (PricingData memory) {
         return
-            LibPricing.PricingData({
+            PricingData({
                 pricingId: 1,
                 details: abi.encode(
                     PricingFixed.PriceDetails({
@@ -336,14 +336,14 @@ contract SeedIssuers is Deploy {
             });
     }
 
-    function _getDutchAuctionParam() public view returns (LibPricing.PricingData memory) {
+    function _getDutchAuctionParam() public view returns (PricingData memory) {
         uint256[] memory levels = new uint256[](4);
         levels[0] = Constants.PRICE;
         levels[1] = Constants.PRICE / 2;
         levels[2] = Constants.PRICE / 3;
         levels[3] = Constants.PRICE / 4;
         return
-            LibPricing.PricingData({
+            PricingData({
                 pricingId: 2,
                 details: abi.encode(
                     PricingDutchAuction.PriceDetails({

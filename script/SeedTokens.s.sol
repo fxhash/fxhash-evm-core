@@ -10,7 +10,7 @@ import {PricingDutchAuction} from "contracts/pricing/PricingDutchAuction.sol";
 import {IIssuer} from "contracts/interfaces/IIssuer.sol";
 import {MintTicket} from "contracts/mint-ticket/MintTicket.sol";
 import {LibReserve} from "contracts/libs/LibReserve.sol";
-import {LibPricing} from "contracts/libs/LibPricing.sol";
+import {PricingContract} from "contracts/interfaces/IPricing.sol";
 import {RoyaltyData} from "contracts/interfaces/ISplitsMain.sol";
 import {LibIssuer} from "contracts/libs/LibIssuer.sol";
 import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
