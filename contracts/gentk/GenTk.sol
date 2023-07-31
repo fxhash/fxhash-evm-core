@@ -10,7 +10,7 @@ import {IGenTk} from "contracts/interfaces/IGenTk.sol";
 import {IIssuer, IssuerData} from "contracts/interfaces/IIssuer.sol";
 import {IOnChainTokenMetadataManager} from "contracts/interfaces/IOnChainTokenMetadataManager.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {RoyaltyManager} from "contracts/gentk/RoyaltyManager.sol";
+import {RoyaltyManager} from "contracts/gentk/royalties/RoyaltyManager.sol";
 
 contract GenTk is ERC721URIStorageUpgradeable, OwnableUpgradeable, RoyaltyManager, IGenTk {
     struct TokenMetadata {

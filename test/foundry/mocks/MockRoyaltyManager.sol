@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import {RoyaltyManager} from "contracts/gentk/RoyaltyManager.sol";
+import {RoyaltyManager} from "contracts/gentk/royalties/RoyaltyManager.sol";
 
 contract MockRoyaltyManager is RoyaltyManager {
     mapping(uint256 => bool) public tokens;
