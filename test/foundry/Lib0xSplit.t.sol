@@ -3,10 +3,10 @@ pragma solidity ^0.8.18;
 
 import {Test} from "forge-std/Test.sol";
 import {Deploy} from "script/Deploy.s.sol";
-import {Lib0xSplits} from "contracts/libs/Lib0xSplits.sol";
 import {ISplitsMain} from "contracts/interfaces/ISplitsMain.sol";
+import {Lib0xSplits} from "contracts/lib/Lib0xSplits.sol";
 
-contract SplitTest is Test, Deploy {
+contract Lib0xSplitTest is Test, Deploy {
     address[] public accounts;
     uint32[] public allocations;
 
