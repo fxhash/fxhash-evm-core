@@ -7,7 +7,7 @@ import {SafeTransferLib} from "@rari-capital/solmate/src/utils/SafeTransferLib.s
 
 import {IIssuer} from "contracts/interfaces/IIssuer.sol";
 import {IRandomizer} from "contracts/interfaces/IRandomizer.sol";
-import {IMintTicket} from "contracts/interfaces/IMintTicket.sol";
+import {IMintTicket, ProjectData, TokenData} from "contracts/interfaces/IMintTicket.sol";
 
 contract MintTicket is ERC721URIStorage, Ownable, IMintTicket {
     mapping(uint256 => TokenData) public tokenData;

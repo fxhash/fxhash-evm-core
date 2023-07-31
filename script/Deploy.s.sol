@@ -18,7 +18,7 @@ import {MintTicket} from "contracts/reserves/MintTicket.sol";
 import {ModerationIssuer} from "contracts/admin/moderation/ModerationIssuer.sol";
 import {ModerationTeam} from "contracts/admin/moderation/ModerationTeam.sol";
 import {ModerationUser} from "contracts/admin/moderation/ModerationUser.sol";
-import {OnChainTokenMetadataManager} from "contracts/metadata/OnChainTokenMetadataManager.sol";
+import {OnChainMetadataManager} from "contracts/metadata/OnChainMetadataManager.sol";
 import {PricingDutchAuction} from "contracts/pricing/PricingDutchAuction.sol";
 import {PricingFixed} from "contracts/pricing/PricingFixed.sol";
 import {PricingManager} from "contracts/pricing/PricingManager.sol";
@@ -49,7 +49,7 @@ contract Deploy is Script, Accounts {
     ModerationIssuer public moderationIssuer;
     ModerationTeam public moderationTeam;
     ModerationUser public moderationUser;
-    OnChainTokenMetadataManager public onchainMetadataManager;
+    OnChainMetadataManager public onchainMetadataManager;
     PricingDutchAuction public pricingDA;
     PricingFixed public pricingFixed;
     PricingManager public pricingManager;
@@ -92,7 +92,7 @@ contract Deploy is Script, Accounts {
         scriptyStorage = new ScriptyStorage(address(contentStore));
 
         // Metadata
-        onchainMetadataManager = new OnChainTokenMetadataManager(address(scriptyBuilder));
+        onchainMetadataManager = new OnChainMetadataManager(address(scriptyBuilder));
 
         // Moderation
         moderationIssuer = new ModerationIssuer(address(configurationManager));

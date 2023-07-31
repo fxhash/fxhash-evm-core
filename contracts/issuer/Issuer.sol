@@ -17,7 +17,7 @@ import {IIssuer, IssuerData, IssuerInfo, MintInput, MintIssuerInput, MintWithTic
 import {IMintTicket} from "contracts/interfaces/IMintTicket.sol";
 import {IModerationTeam} from "contracts/interfaces/IModerationTeam.sol";
 import {IModerationUser} from "contracts/interfaces/IModerationUser.sol";
-import {IOnChainTokenMetadataManager} from "contracts/interfaces/IOnChainTokenMetadataManager.sol";
+import {IOnChainMetadataManager} from "contracts/interfaces/IOnChainMetadataManager.sol";
 import {IPricing, PricingData} from "contracts/interfaces/IPricing.sol";
 import {IPricingManager} from "contracts/interfaces/IPricingManager.sol";
 import {IReserve, ReserveData, ReserveInput, ReserveMethod} from "contracts/interfaces/IReserve.sol";

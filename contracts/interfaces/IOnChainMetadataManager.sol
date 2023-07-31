@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-interface IOnChainTokenMetadataManager {
-    struct TokenAttribute {
-        string key;
-        string value;
-    }
+struct TokenAttribute {
+    string key;
+    string value;
+}
 
+interface IOnChainMetadataManager {
     function getOnChainURI(
         bytes calldata _metadata,
         bytes calldata _onChainScripts

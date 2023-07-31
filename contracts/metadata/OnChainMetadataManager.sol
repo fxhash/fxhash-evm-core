@@ -2,10 +2,10 @@
 pragma solidity ^0.8.18;
 
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
-import {IOnChainTokenMetadataManager} from "contracts/interfaces/IOnChainTokenMetadataManager.sol";
+import {IOnChainMetadataManager, TokenAttribute} from "contracts/interfaces/IOnChainMetadataManager.sol";
 import {IScriptyBuilder, WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
 
-contract OnChainTokenMetadataManager is IOnChainTokenMetadataManager {
+contract OnChainMetadataManager is IOnChainMetadataManager {
     IScriptyBuilder private scriptyAddress;
 
     constructor(address _scriptyAddress) {

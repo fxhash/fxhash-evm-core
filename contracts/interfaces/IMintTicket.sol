@@ -1,20 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-interface IMintTicket {
-    struct TokenData {
-        address issuer;
-        address minter;
-        uint256 createdAt;
-        uint256 taxationLocked;
-        uint256 taxationStart;
-        uint256 price;
-    }
-    struct ProjectData {
-        uint256 gracingPeriod; //in days
-        string metadata;
-    }
+struct ProjectData {
+    uint256 gracingPeriod;
+    string metadata;
+}
 
+struct TokenData {
+    address issuer;
+    address minter;
+    uint256 createdAt;
+    uint256 taxationLocked;
+    uint256 taxationStart;
+    uint256 price;
+}
+
+interface IMintTicket {
     function supportsInterface(bytes4 interfaceId) external view returns (bool);
 
     function transferFrom(address from, address to, uint256 tokenId) external;
