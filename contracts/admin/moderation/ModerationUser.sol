@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "contracts/libs/LibModeration.sol";
-import "contracts/moderation/ModerationTeam.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "contracts/libs/LibModeration.sol";
+import "contracts/admin/moderation/ModerationTeam.sol";
 import "contracts/admin/BaseModeration.sol";
 import "contracts/interfaces/IModerationUser.sol";
 
