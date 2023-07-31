@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 import {Test} from "forge-std/Test.sol";
-import {FxHashCycles, IFxHashCycles, CycleParams} from "contracts/admin/config/FxHashCycles.sol";
+import {Cycles, ICycles, CycleParams} from "contracts/admin/config/Cycles.sol";
 
 contract CyclesTest is Test {
     address public admin = address(1);
@@ -10,10 +10,10 @@ contract CyclesTest is Test {
     address public addr1 = address(3);
     bytes32 public AUTHORIZED_CALLER = keccak256("AUTHORIZED_CALLER");
     CycleParams public params;
-    FxHashCycles public cycles;
+    Cycles public cycles;
 
     function setUp() public virtual {
-        cycles = new FxHashCycles();
+        cycles = new Cycles();
         cycles.grantAuthorizedCallerRole(fxHashAdmin);
     }
 }

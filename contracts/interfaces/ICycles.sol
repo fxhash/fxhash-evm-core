@@ -10,9 +10,9 @@ struct CycleParams {
     uint64 closingDuration;
 }
 
-/// @title IFxHashCycles
+/// @title ICycles
 /// @notice Tracks the opening and closing cycles of the platform
-interface IFxHashCycles {
+interface ICycles {
     /// notice Thrown when closing duration is less than opening duration
     error InvalidDurationRange();
 
