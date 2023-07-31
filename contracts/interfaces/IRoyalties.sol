@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 /*
- * @dev Royalty interface for compataility with Manifold
+ * @dev Royalty interface for compatability with Manifold
  */
 
 interface IRoyalties {
