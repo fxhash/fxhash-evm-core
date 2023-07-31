@@ -22,7 +22,7 @@ import {OnChainTokenMetadataManager} from "contracts/metadata/OnChainTokenMetada
 import {PricingDutchAuction} from "contracts/pricing/PricingDutchAuction.sol";
 import {PricingFixed} from "contracts/pricing/PricingFixed.sol";
 import {PricingManager} from "contracts/pricing/PricingManager.sol";
-import {Randomizer} from "contracts/randomizer/Randomizer.sol";
+import {Randomizer} from "contracts/issuer/Randomizer.sol";
 import {ReserveManager} from "contracts/reserves/ReserveManager.sol";
 import {ReserveMintPass} from "contracts/reserves/ReserveMintPass.sol";
 import {ReserveWhitelist} from "contracts/reserves/ReserveWhitelist.sol";

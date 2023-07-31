@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 import "forge-std/Test.sol";
-import {Randomizer} from "contracts/randomizer/Randomizer.sol";
+import {Randomizer} from "contracts/issuer/Randomizer.sol";
 
 contract RandomizerTest is Test {
     address public admin = address(1);

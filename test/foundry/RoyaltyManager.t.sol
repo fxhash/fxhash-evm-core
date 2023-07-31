@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 import {Test} from "forge-std/Test.sol";
-import {MockRoyaltyManager} from "test/foundry/mocks/MockRoyaltyManager.sol";
+import {MockRoyaltyManager} from "test/mocks/MockRoyaltyManager.sol";
 import {IRoyaltyManager} from "contracts/interfaces/IRoyaltyManager.sol";
 
 contract RoyaltyManagerTest is Test {
