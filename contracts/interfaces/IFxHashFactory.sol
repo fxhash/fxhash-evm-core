@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
+import {LibRoyalty} from "contracts/libs/LibRoyalty.sol";
+
 /// @title FxHashFactory interface for generating and configuring new instances of the Gentk/Issuer contract pair
 /// @notice Contains the events emitted by the factory, and the methods to manage the factory configuration: set the GenTk and Issuer Factory contracts
 interface IFxHashFactory {
@@ -19,7 +21,11 @@ interface IFxHashFactory {
     /// @notice Create and configure new instances of the GenTk and Issuer contracts by calling their corresponding factories
     /// @param _owner The account for which the contracts will be deployed. After the deployment, this account will be admin of the deployed contracts.
     /// @return Returns the addresses of the newly deployed contracts in the following order: (issuer, gentk)
-    function createProject(address _owner) external returns (address, address);
+    function createProject(
+        address payable[] calldata _receivers,
+        uint96[] calldata _basisPoints,
+        address _owner
+    ) external returns (address, address);
 
     /// @notice Set the Gentk factory contract used to deploy new instances of the GenTk contract. Only callable by the owner
     /// @param _genTkFactory address of the Gentk Factory that will be deploying the GenTk contracts

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import {ModerationTeam} from "contracts/moderation/ModerationTeam.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {ModerationTeam} from "contracts/admin/moderation/ModerationTeam.sol";
 
 /// @title BaseModeration
 /// @notice Configures moderation settings

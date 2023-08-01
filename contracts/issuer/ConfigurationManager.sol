@@ -1,29 +1,39 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "contracts/interfaces/IConfigurationManager.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import {IConfigurationManager} from "contracts/interfaces/IConfigurationManager.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-contract ConfigurationManager is IConfigurationManager, Ownable {
-    Config private config;
-    mapping(string => address) addresses;
+/// @title ConfigurationManager
+/// @notice See the documentation in {IConfigurationManager}
+contract ConfigurationManager is Ownable, IConfigurationManager {
+    /// @inheritdoc IConfigurationManager
+    ConfigInfo public config;
+    /// @inheritdoc IConfigurationManager
+    mapping(string => address) public contracts;
 
-    function setConfig(Config calldata _config) external onlyOwner {
+    /// @inheritdoc IConfigurationManager
+    function setConfig(ConfigInfo calldata _config) external onlyOwner {
         config = _config;
     }
 
-    function getConfig() external view returns (Config memory) {
-        return config;
-    }
-
-    function setAddresses(ContractEntry[] calldata _addresses) external onlyOwner {
-        for (uint256 i = 0; i < _addresses.length; i++) {
-            require(_addresses[i].value != address(0), "Address is null");
-            addresses[_addresses[i].key] = _addresses[i].value;
+    /// @inheritdoc IConfigurationManager
+    function setContracts(
+        string[] calldata _names,
+        address[] calldata _contracts
+    ) external onlyOwner {
+        address contractAddr;
+        uint256 length = _names.length;
+        // Reverts if array lengths are not equal
+        if (length != _contracts.length) revert LengthMismatch();
+        for (uint256 i; i < length; ) {
+            contractAddr = _contracts[i];
+            // Reverts if contract is zero address
+            if (contractAddr == address(0)) revert InvalidContract();
+            contracts[_names[i]] = contractAddr;
+            unchecked {
+                ++i;
+            }
         }
-    }
-
-    function getAddress(string calldata _name) external view returns (address) {
-        return addresses[_name];
     }
 }
