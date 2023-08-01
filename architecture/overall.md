@@ -98,6 +98,24 @@ classDiagram
   }
 ```
 
+Each issuer can have multiple gates connected to it, each gate having its own set of features and constraints.
+
+```mermaid
+classDiagram
+  ReservePublic_PricingFixed --> Issuer
+  ReservePublic_PricingDutchAuction --> Issuer
+  ReserveMintPass_PricingDutchAuction --> Issuer
+
+  class ReservePublic_PricingFixed {
+  }
+  class ReservePublic_PricingDutchAuction {
+  }
+  class ReserveMintPass_PricingDutchAuction {
+  }
+  class Issuer {
+  }
+```
+
 ## Seed generation: Randomizer
 
 To each GenTk will be associated a Randomizer implementation which will be responsible for handling the generation & reveal of the seed.
@@ -175,12 +193,14 @@ classDiagram
     <<inferface>>
     - uint supply
     - uint balance
+    - uint mod_state
     - address[] gates
     - primary_splits
     + mint(address recipient)
     + update_gates(address[] gates)
     + update_splits(Split[] splits)
     + burn_supply(uint amount)
+    + mod_update_state(uint state, uint reason)
   }
 
   class IssuerBase {
@@ -199,7 +219,6 @@ classDiagram
     - TBD code_pointer
     - Split[] royalty_splits
     - uint[] labels
-    - uint state
     - uint iteration_count
     + mint(address recipient, bytes input_bytes)
     + update_details(TBD)
@@ -207,7 +226,6 @@ classDiagram
     + setSeed(tokenId, seed)
     + reveal(tokenId, metadata)
     + mod_update_labels(uint[] labels)
-    + mod_update_state(uint state, uint reason)
   }
 
   class Issuer_Tickets {
@@ -219,7 +237,7 @@ classDiagram
 
   class Randomizer {
     <<interface>>
-    +generate(host, tokenId, minter)
+    + generate(host, tokenId, minter)
   }
 ```
 
@@ -228,6 +246,41 @@ classDiagram
 TODO
 
 #### Mint
+
+```mermaid
+sequenceDiagram
+  actor User
+  participant Gate
+  participant Issuer
+  participant GenTk
+  participant Randomizer
+
+  User->>Gate: mint(gate_inputs, mint_inputs)
+  Gate->>Gate: check gate conditions (slot amounts, price, reserve, opening time)
+  opt if gate conditions aren't met
+    Gate-xUser: failure
+  end
+  Gate->>Gate: update Gate (slots--, reserve)
+  opt if overpaid
+    Gate->>User: refund difference
+  end
+  Gate->>Issuer: mint(mint_inputs, lock_prices)
+  opt if lock_prices is true
+    Issuer->>Gate: lock prices (for instance locks DA to current tier)
+  end
+  opt if supply = 0
+    Issuer-xUser: failure
+  end
+  Issuer->>Issuer: decrement supply
+  Issuer->>GenTk: mint()
+  GenTk->>Randomizer: generate()
+```
+
+Points of interest
+
+- **Locking prices**
+  - When creating a Gate, users can specify if the Gate should lock other Gates when they are fully consumed (when their slots reaches 0)
+  - This allows to have a public Dutch Auction locking the price of the Dutch Auction for the people in the Access List for instance
 
 #### Mint a ticket
 
@@ -324,3 +377,7 @@ sequenceDiagram
 - it's worth to examine whether we instanciate a new gate per project, or if we use an ID-reference in a central Gate contract, where a new entry is created instead. Need to see what's more optimized
 - optimization angle:
   - the mint() entry points could be fully instanciated, to avoid having a DELEGATE_CALL to the implementation; this would shift the costs of all the mints() towards the authors of a project which would pay to store the mint() functions entirely
+
+# TODO
+
+- [ ] gates are single contracts, as opposed to project-instances (no need to instanciate a new contract, we can provide some logic to initialize a new entry in a Gate instead)
