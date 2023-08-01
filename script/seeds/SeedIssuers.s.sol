@@ -120,7 +120,7 @@ contract SeedIssuers is Deploy {
                     for (uint256 l = 0; l < uint256(MintTicketOptions.Disabled) + 1; l++) {
                         for (uint256 m = 0; m < uint256(OnChainOptions.Disabled) + 1; m++) {
                             MintPassGroup _mintPassGroup;
-                            (address _issuer, ) = fxHashFactory.createProject(
+                            (address _issuer, ) = projectFactory.createProject(
                                 royaltyReceivers,
                                 royaltyBasisPoints,
                                 alice

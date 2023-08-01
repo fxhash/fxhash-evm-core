@@ -3,19 +3,19 @@ pragma solidity ^0.8.18;
 
 import {Test} from "forge-std/Test.sol";
 import {Deploy} from "script/Deploy.s.sol";
-import {FxHashFactory, IFxHashFactory} from "contracts/factories/FxHashFactory.sol";
+import {ProjectFactory, IProjectFactory} from "contracts/factories/ProjectFactory.sol";
 import {GenTkFactory, IGenTkFactory} from "contracts/factories/GenTkFactory.sol";
 import {IssuerFactory, IIssuerFactory} from "contracts/factories/IssuerFactory.sol";
 
-contract FxHashFactoryTest is Test, Deploy {
-    event IssuerCreated(address indexed _owner, address _configManager, address indexed issuer);
-    event GenTkCreated(
+contract ProjectFactoryTest is Test, Deploy {
+    event NewIssuerCreated(address indexed _owner, address _configManager, address indexed issuer);
+    event NewGenTkCreated(
         address indexed _owner,
         address indexed _issuer,
         address _configManager,
         address indexed genTk
     );
-    event FxHashProjectCreated(
+    event NewProjectCreated(
         address indexed _owner,
         address indexed _issuer,
         address indexed genTk,
@@ -23,7 +23,7 @@ contract FxHashFactoryTest is Test, Deploy {
     );
 }
 
-contract CreateProject is FxHashFactoryTest {
+contract CreateProject is ProjectFactoryTest {
     address payable[] public royaltyReceivers;
     uint96[] public royaltyBasisPoints;
 
@@ -36,12 +36,12 @@ contract CreateProject is FxHashFactoryTest {
 
     function test_createProject() public {
         vm.expectEmit(true, false, false, false, address(issuerFactory));
-        emit IssuerCreated(alice, address(configurationManager), address(0));
+        emit NewIssuerCreated(alice, address(configurationManager), address(0));
         vm.expectEmit(true, false, false, false, address(genTkFactory));
-        emit GenTkCreated(alice, address(0), address(configurationManager), address(0));
-        vm.expectEmit(true, false, false, false, address(fxHashFactory));
-        emit FxHashProjectCreated(alice, address(0), address(0), address(configurationManager));
-        (address issuer, address gentk) = fxHashFactory.createProject(
+        emit NewGenTkCreated(alice, address(0), address(configurationManager), address(0));
+        vm.expectEmit(true, false, false, false, address(projectFactory));
+        emit NewProjectCreated(alice, address(0), address(0), address(configurationManager));
+        (address issuer, address gentk) = projectFactory.createProject(
             royaltyReceivers,
             royaltyBasisPoints,
             alice

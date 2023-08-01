@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-/// @title FxHashFactory interface for generating and configuring new instances of the Gentk/Issuer contract pair
-/// @notice Contains the events emitted by the factory, and the methods to manage the factory configuration: set the GenTk and Issuer Factory contracts
-interface IFxHashFactory {
+/// @title IProjectFactory
+/// @notice Manages newly deployed Issuer and GenTk contracts
+interface IProjectFactory {
     /// @notice Event emitted when a new project is created (meaning when a new GenTk and Issuer has been deployed via `#createProject`)
     /// @param _owner The account for which the contracts has been deployed.
     /// @param _issuer Address of the Issuer contract newly deployed
     /// @param _genTk Address of the Gentk contract newly deployed
     /// @param _configManager Address of the ConfigurationManager contract that will be used by the Issuer and GenTk contracts
-    event FxHashProjectCreated(
+    event NewProjectCreated(
         address indexed _owner,
         address indexed _issuer,
         address indexed _genTk,

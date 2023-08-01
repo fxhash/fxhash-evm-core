@@ -8,7 +8,7 @@ import {RoyaltyManager} from "contracts/royalties/RoyaltyManager.sol";
 
 import {IConfigurationManager} from "contracts/interfaces/IConfigurationManager.sol";
 import {IERC165Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC165Upgradeable.sol";
-import {IFactory} from "contracts/interfaces/IFactory.sol";
+import {IProjectFactory} from "contracts/interfaces/IProjectFactory.sol";
 import {IGenTk, TokenParams} from "contracts/interfaces/IGenTk.sol";
 import {IIssuer, IssuerData} from "contracts/interfaces/IIssuer.sol";
 import {IOnChainMetadataManager} from "contracts/interfaces/IOnChainMetadataManager.sol";

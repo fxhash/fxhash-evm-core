@@ -9,7 +9,7 @@ interface IGenTkFactory {
     /// @param _issuer Address of the Issuer contract newly deployed
     /// @param _configManager Address of the ConfigurationManager contract that will be used by the GenTk contract
     /// @param _genTk Address of the Gentk contract newly deployed
-    event GenTkCreated(
+    event NewGenTkCreated(
         address indexed _owner,
         address indexed _issuer,
         address _configManager,

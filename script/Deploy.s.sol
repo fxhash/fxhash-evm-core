@@ -7,7 +7,6 @@ import {AllowMintIssuer} from "contracts/reserves/AllowMintIssuer.sol";
 import {Codex} from "contracts/metadata/Codex.sol";
 import {ConfigurationManager, IConfigurationManager, ConfigInfo} from "contracts/admin/config/ConfigurationManager.sol";
 import {ContentStore} from "scripty.sol/contracts/scripty/dependencies/ethfs/ContentStore.sol";
-import {FxHashFactory} from "contracts/factories/FxHashFactory.sol";
 import {GenTk} from "contracts/issuer/GenTk.sol";
 import {GenTkFactory} from "contracts/factories/GenTkFactory.sol";
 import {IssuerFactory} from "contracts/factories/IssuerFactory.sol";
@@ -22,6 +21,7 @@ import {OnChainMetadataManager} from "contracts/metadata/OnChainMetadataManager.
 import {PricingDutchAuction} from "contracts/pricing/PricingDutchAuction.sol";
 import {PricingFixed} from "contracts/pricing/PricingFixed.sol";
 import {PricingManager} from "contracts/pricing/PricingManager.sol";
+import {ProjectFactory} from "contracts/factories/ProjectFactory.sol";
 import {Randomizer} from "contracts/issuer/Randomizer.sol";
 import {ReserveManager} from "contracts/reserves/ReserveManager.sol";
 import {ReserveMintPass} from "contracts/reserves/ReserveMintPass.sol";
@@ -36,12 +36,12 @@ contract Deploy is Script, Accounts {
     // Contracts
     AllowMint public allowMint;
     AllowMintIssuer public allowMintIssuer;
+    ProjectFactory public projectFactory;
     Codex public codex;
     ConfigurationManager public configurationManager;
     ContentStore public contentStore;
     GenTk public genTk;
     Issuer public issuer;
-    FxHashFactory public fxHashFactory;
     GenTkFactory public genTkFactory;
     IssuerFactory public issuerFactory;
     MintPassGroup public mintPassGroup;
@@ -128,9 +128,9 @@ contract Deploy is Script, Accounts {
         // Token
         genTk = new GenTk();
 
-        fxHashFactory = new FxHashFactory(address(configurationManager));
-        genTkFactory = new GenTkFactory(address(fxHashFactory), address(genTk));
-        issuerFactory = new IssuerFactory(address(fxHashFactory), address(issuer));
+        projectFactory = new ProjectFactory(address(configurationManager));
+        genTkFactory = new GenTkFactory(address(projectFactory), address(genTk));
+        issuerFactory = new IssuerFactory(address(projectFactory), address(issuer));
     }
 
     function configureContracts() public {
@@ -157,8 +157,8 @@ contract Deploy is Script, Accounts {
         contracts[8] = address(pricingManager);
         names[9] = "resMag";
         contracts[9] = address(reserveManager);
-        names[10] = "fxHashFactory";
-        contracts[10] = address(fxHashFactory);
+        names[10] = "projectFactory";
+        contracts[10] = address(projectFactory);
 
         // Authorize signer on Randomizer
         randomizer.grantAuthorizedCallerRole(vm.addr(vm.envUint("SIGNER_PRIVATE_KEY")));
@@ -188,8 +188,8 @@ contract Deploy is Script, Accounts {
             })
         );
 
-        fxHashFactory.setGenTkFactory(address(genTkFactory));
-        fxHashFactory.setIssuerFactory(address(issuerFactory));
+        projectFactory.setGenTkFactory(address(genTkFactory));
+        projectFactory.setIssuerFactory(address(issuerFactory));
     }
 
     function mock0xSplits() internal {

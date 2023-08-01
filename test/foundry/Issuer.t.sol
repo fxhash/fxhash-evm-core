@@ -68,7 +68,7 @@ contract IssuerTest is Test, Deploy {
             tags.push(tagsFixed[i]);
         }
         /// onchain scripts remains uninitialized
-        (scriptIssuer, scriptGentk) = fxHashFactory.createProject(
+        (scriptIssuer, scriptGentk) = projectFactory.createProject(
             royaltyReceivers,
             royaltyBasisPoints,
             alice
