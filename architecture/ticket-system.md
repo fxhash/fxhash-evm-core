@@ -302,6 +302,129 @@ sequenceDiagram
 
 ### 4. Gate_Ticket, Ticket_IERC5679Ext721_Harberger, Gate_IERC5679Ext721_Burner
 
+This proposal revolves around a complete separation of concerns of the various building blocks:
+
+- a ticket Gate, responsible for requesting tickets and manipulating the indexer
+- a NFT contract, holding the tickets
+- a ticket burner Gate, which is solely responsible for providing minting features on the issuer
+
+**Note:** this system only works by having the Gate_Ticket as the last Gate in the Gates flow, otherwise we would have to implement too many variations of the gates.
+
+The diagram highlights how the Gates would be chained to provide a support for tickets on the whole minting pipeline.
+
+```mermaid
+classDiagram
+  User --> Gate_Pricing_1
+  User --> Gate_Pricing_2
+  Gate_Pricing_1 --> Gate_Ticket
+  Gate_Pricing_2 --> Gate_Ticket
+  Gate_Ticket --> Issuer
+  Gate_Ticket --> Ticket_IERC5679Ext721_Harberger
+  Gate_IERC5679Ext721_Burner --> Ticket_IERC5679Ext721_Harberger
+  Gate_IERC5679Ext721_Burner --> Issuer
+
+  class User {
+  }
+
+  class Gate_Pricing_1 {
+  }
+
+  class Gate_Pricing_2 {
+  }
+
+  class Gate_Ticket {
+    + mint_ticket()
+    + mint_iteration()
+  }
+
+  class Ticket_IERC5679Ext721_Harberger {
+    + mint()
+    + burn()
+  }
+
+  class Gate_IERC5679Ext721_Burner {
+    - address ticket_contract
+  }
+
+  class Issuer {
+    + address[] gates
+    * address[] permanent_gates
+    + mint_iteration()
+    + decrement_supply()
+    + safe_mint_iteration()
+  }
+```
+
+**!Problem!**: I'm havign issues getting the Gate_Ticket system working with the rest of the Gate system, because it implements a stricly different interface than the other reserves, so we have to provide some mechanisms at the reserve level to support the different cases of the Gate ticket, one way or the other. There's probably a polymorphic way to handle that, but it requires further inspection.
+
+#### Mint iteration
+
+```mermaid
+sequenceDiagram
+  actor User
+  participant Gate_Pricing_1
+  participant Gate_Ticket
+  participant Issuer
+  participant GenTk
+
+  User->>Gate_Pricing_1: Request mint iteration
+  opt conditions aren't met
+    Gate_Pricing_1-xUser: error
+  end
+  Gate_Pricing_1->>Gate_Ticket: mint_iteration
+  Gate_Ticket->>Issuer: [safe_mint_iteration]
+  Issuer->>Issuer: supply--
+  Issuer->>Gentk: mint
+```
+
+#### Mint ticket
+
+```mermaid
+sequenceDiagram
+  actor User
+  participant Gate_Pricing_1
+  participant Gate_Ticket
+  participant Ticket_IERC5679Ext721_Harberger
+
+  User->>Gate_Pricing_1: Request mint ticket
+  opt conditions aren't met
+    Gate_Pricing_1-xUser: error
+  end
+  Gate_Pricing_1->>Gate_Ticket: mint_ticket
+  Gate_Ticket->>Issuer: [descrease_supply]
+  opt supply = 0
+    Issuer-xUser: error
+  end
+  Issuer->>Issuer: supply--
+  Gate_Ticket->>Ticket_IERC5679Ext721_Harberger: mint ticket
+```
+
+#### Mint iteration with ticket
+
+```mermaid
+sequenceDiagram
+  actor User
+  participant Gate_IERC5679Ext721_Burner
+  participant Ticket_IERC5679Ext721_Harberger
+  participant Issuer
+  participant GenTk
+
+  User->>Gate_IERC5679Ext721_Burner: pass(_ticketId)
+  Gate_IERC5679Ext721_Burner->>Ticket_IERC5679Ext721_Harberger: burn(_ticketId)
+  opt can't burn _ticketId
+    Ticket_IERC5679Ext721_Harberger-xUser: error
+  end
+  Ticket_IERC5679Ext721_Harberger->>Ticket_IERC5679Ext721_Harberger: burn ticket
+  Gate_IERC5679Ext721_Burner->>Issuer: [mint_iteration]
+  Issuer->>GenTk: mint()
+```
+
+#### Notes
+
+This flow really requires the Gate_Tickets to be at the end of the Gate chain, because tickets should be minteable by any consumer regardless of the gate strategy they decide to opt for. Because of that, it begs the question: is it sensible to have a Gate_Tickets as its behavior is really different from the behavior of all the other Gates.
+
+The `Gate_IERC5679Ext721_Burner` must be set as a permanent Gate, because we need to ensure that a ticket can be exhanged for an iteration regardless of what's happening on the project.
+
 ---
 
 # Notes TODO
