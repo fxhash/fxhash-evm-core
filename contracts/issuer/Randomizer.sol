@@ -2,99 +2,90 @@
 pragma solidity ^0.8.18;
 
 import {AuthorizedCaller} from "contracts/admin/AuthorizedCaller.sol";
+import {IRandomizer} from "contracts/interfaces/IRandomizer.sol";
 
-contract Randomizer is AuthorizedCaller {
-    struct TokenKey {
-        address issuer;
-        uint256 tokenId;
-    }
-
-    struct Seed {
-        bytes32 chainSeed;
-        uint256 serialId;
-        bytes32 revealed;
-    }
-
-    struct Commitment {
-        bytes32 seed;
-        bytes32 salt;
-    }
-
-    Commitment private commitment;
+/// @title Randomizer
+/// @notice See documentation in {IRandomizer}
+contract Randomizer is AuthorizedCaller, IRandomizer {
+    /// @dev Commitment hashes of seed and salt values
+    IRandomizer.Commitment private commitment;
+    /// @dev Current counter of requested seeds
     uint256 private countRequested;
+    /// @dev Current counter of revealed seeds
     uint256 private countRevealed;
-    mapping(bytes32 => Seed) private seeds;
+    /// @dev Mapping of token key to randomizer seed struct
+    mapping(bytes32 => IRandomizer.Seed) private seeds;
 
-    event RandomizerGenerate(uint256 token_id, Seed seed);
-    event RandomizerReveal(uint256 id, bytes32 seed);
-
+    /// @dev Initializes commitment values and sets up user roles
     constructor(bytes32 _seed, bytes32 _salt) {
         commitment.seed = _seed;
         commitment.salt = _salt;
-        countRequested = 0;
-        countRevealed = 0;
-        _setupRole(DEFAULT_ADMIN_ROLE, address(bytes20(msg.sender)));
-        _setupRole(AUTHORIZED_CALLER, address(bytes20(msg.sender)));
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _setupRole(AUTHORIZED_CALLER, msg.sender);
     }
 
-    function updateCommitment(bytes32 oracleSeed) private {
-        commitment.seed = oracleSeed;
+    /// @inheritdoc IRandomizer
+    function generate(uint256 _tokenId) external {
+        bytes32 hashedKey = getTokenKey(msg.sender, _tokenId);
+        IRandomizer.Seed storage storedSeed = seeds[hashedKey];
+        if (storedSeed.revealed != bytes32(0)) revert AlreadySeeded();
+
+        storedSeed.chainSeed = keccak256(abi.encode(block.timestamp, hashedKey));
+        storedSeed.serialId = ++countRequested;
+
+        emit RandomizerGenerate(_tokenId, storedSeed);
     }
 
-    function generate(uint256 tokenId) external {
-        bytes32 hashedKey = getTokenKey(msg.sender, tokenId);
-        Seed storage storedSeed = seeds[hashedKey];
-        require(storedSeed.revealed == 0x00, "ALREADY_SEEDED");
-        bytes memory base = abi.encode(block.timestamp, hashedKey);
-        bytes32 seed = keccak256(base);
-        countRequested += 1;
-        storedSeed.chainSeed = seed;
-        storedSeed.serialId = countRequested;
-        emit RandomizerGenerate(tokenId, storedSeed);
-    }
-
+    /// @inheritdoc IRandomizer
     function reveal(
-        TokenKey[] memory tokenList,
-        bytes32 seed
+        TokenKey[] memory _tokenList,
+        bytes32 _seed
     ) external onlyRole(AUTHORIZED_CALLER) {
-        uint256 lastSerial = setTokenSeedAndReturnSerial(tokenList[0], seed);
-        uint256 expectedSerialId = lastSerial;
-        bytes32 oracleSeed = iterateOracleSeed(seed);
-        for (uint256 i = 1; i < tokenList.length; i++) {
-            expectedSerialId -= 1;
-            uint256 serialId = setTokenSeedAndReturnSerial(tokenList[i], oracleSeed);
-            require(expectedSerialId == serialId, "OOR");
-            oracleSeed = iterateOracleSeed(oracleSeed);
-            emit RandomizerReveal(tokenList[i].tokenId, oracleSeed);
+        uint256 expectedSerialId = setTokenSeed(_tokenList[0], _seed);
+        bytes32 oracleSeed = iterateOracleSeed(_seed);
+        uint256 length = _tokenList.length;
+        unchecked {
+            for (uint256 i = 1; i < length; ++i) {
+                expectedSerialId--;
+                uint256 serialId = setTokenSeed(_tokenList[i], oracleSeed);
+                if (expectedSerialId != serialId) revert OutOfRange();
+                oracleSeed = iterateOracleSeed(oracleSeed);
+
+                emit RandomizerReveal(_tokenList[i].tokenId, oracleSeed);
+            }
         }
 
-        require(countRevealed + 1 == expectedSerialId, "OOR");
-        countRevealed += tokenList.length;
-        require(oracleSeed == commitment.seed, "OOR");
-        updateCommitment(seed);
+        if (countRevealed + 1 != expectedSerialId) revert OutOfRange();
+        countRevealed += length;
+
+        if (oracleSeed != commitment.seed) revert OutOfRange();
+        commitment.seed = _seed;
     }
 
-    function commit(bytes32 seed, bytes32 salt) external onlyRole(AUTHORIZED_CALLER) {
-        commitment.seed = seed;
-        commitment.salt = salt;
+    /// @inheritdoc IRandomizer
+    function commit(bytes32 _seed, bytes32 _salt) external onlyRole(AUTHORIZED_CALLER) {
+        commitment.seed = _seed;
+        commitment.salt = _salt;
     }
 
-    function getTokenKey(address issuer, uint256 id) public pure returns (bytes32) {
-        return keccak256(abi.encodePacked(issuer, id));
+    /// @inheritdoc IRandomizer
+    function getTokenKey(address _issuer, uint256 _tokenId) public pure returns (bytes32) {
+        return keccak256(abi.encodePacked(_issuer, _tokenId));
     }
 
-    function setTokenSeedAndReturnSerial(
-        TokenKey memory tokenKey,
-        bytes32 oracleSeed
+    /// @dev Sets the token seed and returns the serial ID
+    function setTokenSeed(
+        IRandomizer.TokenKey memory _tokenKey,
+        bytes32 _oracleSeed
     ) private returns (uint256) {
-        Seed storage seed = seeds[getTokenKey(tokenKey.issuer, tokenKey.tokenId)];
-        require(seed.chainSeed != 0x00, "NO_REQ");
-        bytes32 tokenSeed = keccak256(abi.encode(oracleSeed, seed.chainSeed));
-        seed.revealed = tokenSeed;
+        Seed storage seed = seeds[getTokenKey(_tokenKey.issuer, _tokenKey.tokenId)];
+        if (seed.chainSeed == bytes32(0)) revert NoReq();
+        seed.revealed = keccak256(abi.encode(_oracleSeed, seed.chainSeed));
         return seed.serialId;
     }
 
-    function iterateOracleSeed(bytes32 oracleSeed) private view returns (bytes32) {
-        return keccak256(abi.encode(commitment.salt, oracleSeed));
+    /// @dev Generates hash of committment salt and oracle seed
+    function iterateOracleSeed(bytes32 _oracleSeed) private view returns (bytes32) {
+        return keccak256(abi.encode(commitment.salt, _oracleSeed));
     }
 }
