@@ -9,7 +9,7 @@ struct RoyaltyData {
 /*
  * @dev Royalty interface for compatability with Manifold
  */
-interface IRoyalties {
+interface IBaseRoyalties {
     /**
      * @dev Get royalites of a token.  Returns list of receivers and basisPoints
      */

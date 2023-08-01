@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {RoyaltyData} from "contracts/interfaces/IRoyalties.sol";
+import {RoyaltyData} from "contracts/interfaces/IBaseRoyalties.sol";
 import {SafeTransferLib} from "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
 import {SignedMath} from "@openzeppelin/contracts/utils/math/SignedMath.sol";
 

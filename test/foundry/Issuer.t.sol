@@ -9,7 +9,7 @@ import {Issuer} from "contracts/issuer/Issuer.sol";
 import {IIssuer, MintInput, MintIssuerInput, MintTicketSettings, MintWithTicketInput, OpenEditions} from "contracts/interfaces/IIssuer.sol";
 import {PricingData} from "contracts/interfaces/IBasePricing.sol";
 import {ReserveData} from "contracts/interfaces/IBaseReserve.sol";
-import {RoyaltyData} from "contracts/interfaces/IRoyalties.sol";
+import {RoyaltyData} from "contracts/interfaces/IBaseRoyalties.sol";
 import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
 
 contract IssuerTest is Test, Deploy {

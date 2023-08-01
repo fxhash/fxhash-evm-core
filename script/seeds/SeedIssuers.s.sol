@@ -9,7 +9,7 @@ import {PricingData} from "contracts/interfaces/IBasePricing.sol";
 import {PriceDetails as DutchAuctionDetails} from "contracts/pricing/DutchAuction.sol";
 import {PriceDetails as FixedPriceDetails} from "contracts/pricing/FixedPrice.sol";
 import {ReserveData} from "contracts/interfaces/IBaseReserve.sol";
-import {RoyaltyData} from "contracts/interfaces/IRoyalties.sol";
+import {RoyaltyData} from "contracts/interfaces/IBaseRoyalties.sol";
 import {Script} from "forge-std/Script.sol";
 import {WhitelistEntry} from "contracts/reserves/ReserveWhitelist.sol";
 import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";

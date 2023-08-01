@@ -4,7 +4,7 @@ pragma solidity ^0.8.18;
 import {CodexInput} from "contracts/interfaces/ICodex.sol";
 import {PricingData} from "contracts/interfaces/IBasePricing.sol";
 import {ReserveData} from "contracts/interfaces/IBaseReserve.sol";
-import {RoyaltyData} from "contracts/interfaces/IRoyalties.sol";
+import {RoyaltyData} from "contracts/interfaces/IBaseRoyalties.sol";
 import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
 
 struct OpenEditions {
