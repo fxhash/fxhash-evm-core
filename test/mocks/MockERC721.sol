@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/interfaces/IERC2981.sol";
+
+import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {IERC2981} from "@openzeppelin/contracts/interfaces/IERC2981.sol";
 
 contract MockERC721 is ERC721, IERC2981 {
     address royaltyReceiver;
@@ -15,7 +16,7 @@ contract MockERC721 is ERC721, IERC2981 {
     }
 
     function royaltyInfo(
-        uint256 tokenId,
+        uint256 /* tokenId */,
         uint256 salePrice
     ) external view override returns (address receiver, uint256 royaltyAmount) {
         return (royaltyReceiver, (salePrice * 1000) / 10000);
