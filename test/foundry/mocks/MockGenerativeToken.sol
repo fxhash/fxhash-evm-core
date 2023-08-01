@@ -2,6 +2,8 @@
 pragma solidity ^0.8.18;
 
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+import {wadExp, wadLn, wadMul, unsafeWadMul, toWadUnsafe} from "solmate/src/utils/SignedWadMath.sol";
 
 /// implemented by minters
 interface IMinter {
@@ -27,6 +29,8 @@ abstract contract Minted {
     }
 
     function mint(uint256, address) external virtual;
+
+    function mint(uint256, bytes calldata, address) external virtual;
 }
 
 contract MockGenerativeToken is Minted {
@@ -42,6 +46,8 @@ contract MockGenerativeToken is Minted {
     }
 
     function mint(uint256, address) external override {}
+
+    function mint(uint256, bytes calldata, address) external override {}
 }
 
 contract MintPass is IMinter {
@@ -68,15 +74,16 @@ contract MintPass is IMinter {
     function mint(
         address _token,
         address _redeemer,
-        bytes32 _mintCode,
+        uint256 _index,
+        bytes calldata _mintCode,
         bytes calldata sig,
         address _to
     ) external {
         if (isClaimed(_token, _index)) revert AlreadyClaimed();
-        bytes32 hash = keccak256(abi.encodePacked(_token, _redeemer, msg.sender, mintCode));
+        bytes32 hash = keccak256(abi.encodePacked(_token, msg.sender, _index, _mintCode));
         if (hash.toEthSignedMessageHash().recover(sig) != FXHASH_AUTHORITY) revert InvalidSig();
         _setClaimed(_token, _index);
-        IMinted(_token).mint(1, _to);
+        Minted(_token).mint(1, _mintCode, _to);
     }
 
     function _setClaimed(address _token, uint256 _index) private {
@@ -119,7 +126,7 @@ contract MerkleMint is IMinter {
         _setClaimed(_token, _index);
         // Mark it claimed and override send the token.
 
-        IMinted(_token).mint(1, _to);
+        Minted(_token).mint(1, _to);
     }
 
     function isClaimed(address _token, uint256 _index) public view returns (bool) {
@@ -145,17 +152,17 @@ contract FixedPriceMint is IMinter {
     function setMintDetails(uint256, uint256, uint256, bytes calldata) external {}
 
     function mint(address _token, address _to) external {
-        IMinted(_token).mint(1, _to);
+        Minted(_token).mint(1, _to);
     }
 }
 
 contract DutchAuctionMint is IMinter {
-    mapping(address => uint256) public startTime;
-    mapping(address => uint256) public decayRates;
-    mapping(address => uint256) public initialPrices;
+    mapping(address => uint256) public startTimes;
+    mapping(address => int256) public decayRates;
+    mapping(address => int256) public initialPrices;
 
     /// @return The price of a token according to DA, scaled by 1e18.
-    function getPrice(address _token) public view virtual override returns (uint256) {
+    function getPrice(address _token) public view virtual returns (uint256) {
         int256 timeSinceStart = int256(block.timestamp - startTimes[_token]);
         return uint256(initialPrices[_token] - unsafeWadMul(decayRates[_token], timeSinceStart));
     }
@@ -168,18 +175,17 @@ contract DutchAuctionMint is IMinter {
 
     function mint(address _token, address _to) external {
         uint256 price = getPrice(_token);
-        IMinted(_token).mint(1, _to);
+        Minted(_token).mint(1, _to);
     }
 }
 
 /// Should refactor the merkle mint first into abstract and inherit
 contract DutchAuctionMerkleMint is IMinter {
-    mapping(address => uint256) public startTime;
-    mapping(address => uint256) public decayRates;
-    mapping(address => uint256) public initialPrices;
+    mapping(address => uint256) public startTimes;
+    mapping(address => int256) public decayRates;
+    mapping(address => int256) public initialPrices;
 
-    /// @return The price of a token according to DA, scaled by 1e18.
-    function getPrice(address _token) public view virtual override returns (uint256) {
+    function getPrice(address _token) public view virtual returns (uint256) {
         int256 timeSinceStart = int256(block.timestamp - startTimes[_token]);
         return uint256(initialPrices[_token] - unsafeWadMul(decayRates[_token], timeSinceStart));
     }
@@ -192,6 +198,6 @@ contract DutchAuctionMerkleMint is IMinter {
 
     function mint(address _token, address _to) external {
         uint256 price = getPrice(_token);
-        IMinted(_token).mint(1, _to);
+        Minted(_token).mint(1, _to);
     }
 }

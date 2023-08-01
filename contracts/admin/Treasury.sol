@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 import {AuthorizedCaller} from "contracts/admin/AuthorizedCaller.sol";
-import {SafeTransferLib} from "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
+import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 
 /// @title Treasury
 /// @notice Configures treasury settings

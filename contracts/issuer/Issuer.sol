@@ -22,7 +22,7 @@ import {LibPricing} from "contracts/libs/LibPricing.sol";
 import {LibReserve} from "contracts/libs/LibReserve.sol";
 import {LibRoyalty} from "contracts/libs/LibRoyalty.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {SafeTransferLib} from "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
+import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 import {SignedMath} from "@openzeppelin/contracts/utils/math/SignedMath.sol";
 
 contract Issuer is IIssuer, OwnableUpgradeable {
