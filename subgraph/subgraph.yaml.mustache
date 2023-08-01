@@ -1,26 +1,83 @@
-specVersion: 0.0.3
+specVersion: 0.0.4
 description: >-
-  genTk subgraph
+  GenTk/Issuer subgraph
 schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: RoyaltyToken
+    name: FxhashFactory
     network: {{network}}
     source:
-      address: '{{token.address}}'
-      abi: RoyaltyToken
-      startBlock: {{token.startBlock}}
+      address: "{{factory.address}}"
+      abi: FxHashFactory
+      startBlock: {{factory.startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
       language: wasm/assemblyscript
-      file: ./src/genTk-erc721.ts
+      file: ./src/mappings/fxhashFactory.ts
       entities:
-        - TransferEvent
+        - Directory
       abis:
-        - name: RoyaltyToken
-          file: ./abi/genTk.json
+        - name: FxHashFactory
+          file: ./abis/FxHashFactory.json
       eventHandlers:
+        - event: FxHashProjectCreated(indexed address,indexed address,indexed address,address)
+          handler: handleNewProject
+templates:
+  - name: GenTk
+    kind: ethereum/contract
+    network: {{network}}
+    source:
+      abi: GenTk
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      file: ./src/mappings/gentk.ts
+      entities:
+        - GenTk
+      abis:
+        - name: GenTk
+          file: ./abis/GenTk.json
+      eventHandlers:
+        - event: TokenMetadataAssigned((uint256,string)[])
+          handler: handleTokenMetadataAssigned
+        - event: OnChainTokenMetadataAssigned((uint256,bytes)[])
+          handler: handleOnChainTokenMetadataAssigned
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
+  - name: Issuer
+    kind: ethereum/contract
+    network: {{network}}
+    source:
+      abi: Issuer
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      file: ./src/mappings/issuer.ts
+      entities:
+        - Issuer
+      abis:
+        - name: Issuer
+          file: ./abis/Issuer.json
+      eventHandlers:
+        - event: IssuerBurned()
+          handler: handleIssuerBurned
+        - event: IssuerMinted(((uint256,bytes,uint256,address),bytes,uint256,uint256,(uint256,bytes),(uint256,string),(uint256,uint256,bytes)[],(uint256,bytes,bool),(uint256,address),(uint256,address),bool,uint256[],(string,address,bytes,uint8,bytes,bytes,bytes)[]))
+          handler: handleIssuerMinted
+        - event: IssuerModUpdated(uint256[])
+          handler: handleModUpdated
+        - event: IssuerUpdated(((uint256,address),(uint256,address),bool))
+          handler: handleIssuerUpdated
+        - event: PriceUpdated((uint256,bytes,bool))
+          handler: handlePriceUpdated
+        - event: ReserveUpdated((uint256,uint256,bytes)[])
+          handler: handleReserveUpdated
+        - event: SupplyBurned(uint256)
+          handler: handleSupplyBurned
+        - event: TokenMinted((bytes,address,bytes,bool,address))
+          handler: handleTokenMinted
+        - event: TokenMintedWithTicket((uint256,bytes,address))
+          handler: handleTokenMintedWithTicket
