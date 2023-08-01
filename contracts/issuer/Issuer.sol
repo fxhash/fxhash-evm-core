@@ -1,33 +1,31 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {RoyaltyData} from "contracts/interfaces/IBaseRoyalties.sol";
+import {SafeTransferLib} from "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
+import {SignedMath} from "@openzeppelin/contracts/utils/math/SignedMath.sol";
+
 import {IAllowMint} from "contracts/interfaces/IAllowMint.sol";
 import {IAllowMintIssuer} from "contracts/interfaces/IAllowMintIssuer.sol";
 import {ICodex} from "contracts/interfaces/ICodex.sol";
 import {IConfigurationManager} from "contracts/interfaces/IConfigurationManager.sol";
 import {IERC165Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC165Upgradeable.sol";
 import {IERC2981Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol";
-import {IGenTk} from "contracts/interfaces/IGenTk.sol";
-import {IIssuer} from "contracts/interfaces/IIssuer.sol";
+import {IGenTk, TokenParams} from "contracts/interfaces/IGenTk.sol";
+import {IIssuer, IssuerData, IssuerInfo, MintInput, MintIssuerInput, MintWithTicketInput, OpenEditions, UpdateIssuerInput} from "contracts/interfaces/IIssuer.sol";
 import {IMintTicket} from "contracts/interfaces/IMintTicket.sol";
-import {IModeration} from "contracts/interfaces/IModeration.sol";
+import {IModerationTeam} from "contracts/interfaces/IModerationTeam.sol";
 import {IModerationUser} from "contracts/interfaces/IModerationUser.sol";
-import {IOnChainTokenMetadataManager} from "contracts/interfaces/IOnChainTokenMetadataManager.sol";
-import {IPricing} from "contracts/interfaces/IPricing.sol";
+import {IOnChainMetadataManager} from "contracts/interfaces/IOnChainMetadataManager.sol";
+import {IBasePricing, PricingData} from "contracts/interfaces/IBasePricing.sol";
 import {IPricingManager} from "contracts/interfaces/IPricingManager.sol";
-import {IReserve} from "contracts/interfaces/IReserve.sol";
+import {IBaseReserve, ReserveData, ReserveInput, ReserveMethod} from "contracts/interfaces/IBaseReserve.sol";
 import {IReserveManager} from "contracts/interfaces/IReserveManager.sol";
-import {LibIssuer} from "contracts/libs/LibIssuer.sol";
-import {LibPricing} from "contracts/libs/LibPricing.sol";
-import {LibReserve} from "contracts/libs/LibReserve.sol";
-import {LibRoyalty} from "contracts/libs/LibRoyalty.sol";
-import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {SafeTransferLib} from "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
-import {SignedMath} from "@openzeppelin/contracts/utils/math/SignedMath.sol";
 
 contract Issuer is IIssuer, OwnableUpgradeable {
     IConfigurationManager private configManager;
-    LibIssuer.IssuerData private issuer;
+    IssuerData private issuer;
     IGenTk private genTk;
     uint256 private allGenTkTokens;
 
@@ -37,8 +35,8 @@ contract Issuer is IIssuer, OwnableUpgradeable {
     event IssuerModUpdated(uint256[] tags);
     event TokenMinted(MintInput params);
     event TokenMintedWithTicket(MintWithTicketInput params);
-    event PriceUpdated(LibPricing.PricingData params);
-    event ReserveUpdated(LibReserve.ReserveData[] reserves);
+    event PriceUpdated(PricingData params);
+    event ReserveUpdated(ReserveData[] reserves);
     event SupplyBurned(uint256 amount);
 
     function initialize(
@@ -75,7 +73,7 @@ contract Issuer is IIssuer, OwnableUpgradeable {
             params.pricing.pricingId
         );
 
-        IPricing(
+        IBasePricing(
             IPricingManager(configManager.contracts("priceMag"))
                 .getPricingContract(params.pricing.pricingId)
                 .pricingContract
@@ -111,10 +109,9 @@ contract Issuer is IIssuer, OwnableUpgradeable {
         //     }
         // } else {
 
-        if (IModerationUser(configManager.contracts("user_mod")).userState(msg.sender) == 10) {
-            _lockTime = 0;
-        }
-        //}
+        (uint128 state, ) = IModerationUser(configManager.contracts("user_mod")).users(msg.sender);
+        if (state == 10) _lockTime = 0;
+
         bool isOpenEd = params.openEditions.closingTime > 0;
         if (isOpenEd) {
             require(block.timestamp + _lockTime < params.openEditions.closingTime, "OES_CLOSING");
@@ -124,10 +121,9 @@ contract Issuer is IIssuer, OwnableUpgradeable {
 
         uint256 reserveTotal = 0;
         for (uint256 i = 0; i < params.reserves.length; i++) {
-            LibReserve.ReserveMethod memory reserveMethod = IReserveManager(
-                configManager.contracts("resMag")
-            ).getReserveMethod(params.reserves[i].methodId);
-            require(reserveMethod.reserveContract != IReserve(address(0)), "NO_RESERVE_METHOD");
+            ReserveMethod memory reserveMethod = IReserveManager(configManager.contracts("resMag"))
+                .getReserveMethod(params.reserves[i].methodId);
+            require(reserveMethod.reserveContract != IBaseReserve(address(0)), "NO_RESERVE_METHOD");
             require(reserveMethod.enabled, "RESERVE_METHOD_DISABLED");
             reserveTotal += params.reserves[i].amount;
             require(
@@ -142,7 +138,7 @@ contract Issuer is IIssuer, OwnableUpgradeable {
             require(reserveTotal <= params.amount, "RSRV_BIG");
         }
 
-        issuer = LibIssuer.IssuerData({
+        issuer = IssuerData({
             metadata: params.metadata,
             balance: params.amount,
             iterationsCount: 0,
@@ -151,7 +147,7 @@ contract Issuer is IIssuer, OwnableUpgradeable {
             reserves: abi.encode(params.reserves),
             primarySplit: params.primarySplit,
             onChainData: abi.encode(params.onChainScripts),
-            info: LibIssuer.IssuerInfo({
+            info: IssuerInfo({
                 tags: params.tags,
                 enabled: params.enabled,
                 lockedSeconds: _lockTime,
@@ -195,7 +191,7 @@ contract Issuer is IIssuer, OwnableUpgradeable {
 
         bool isOe = issuer.openEditions.closingTime > 0;
         if (isOe) {
-            LibIssuer.OpenEditions memory oe = issuer.openEditions;
+            OpenEditions memory oe = issuer.openEditions;
             if (oe.closingTime != 0) {
                 require(block.timestamp < oe.closingTime, "OE_CLOSE");
             }
@@ -205,12 +201,12 @@ contract Issuer is IIssuer, OwnableUpgradeable {
             issuer.balance -= 1;
         }
 
-        LibReserve.ReserveInput memory reserveInput;
+        ReserveInput memory reserveInput;
         if (params.reserveInput.length > 0) {
-            reserveInput = abi.decode(params.reserveInput, (LibReserve.ReserveInput));
+            reserveInput = abi.decode(params.reserveInput, (ReserveInput));
         }
 
-        IPricing pricingContract = IPricing(
+        IBasePricing pricingContract = IBasePricing(
             IPricingManager(configManager.contracts("priceMag"))
                 .getPricingContract(issuer.info.pricingId)
                 .pricingContract
@@ -219,10 +215,7 @@ contract Issuer is IIssuer, OwnableUpgradeable {
         bool reserveApplied = false;
         uint256 reserveTotal = 0;
         {
-            LibReserve.ReserveData[] memory decodedReserves = abi.decode(
-                issuer.reserves,
-                (LibReserve.ReserveData[])
-            );
+            ReserveData[] memory decodedReserves = abi.decode(issuer.reserves, (ReserveData[]));
             for (uint256 i = 0; i < decodedReserves.length; i++) {
                 reserveTotal += decodedReserves[i].amount;
                 if (reserveInput.methodId == decodedReserves[i].methodId && !reserveApplied) {
@@ -277,7 +270,7 @@ contract Issuer is IIssuer, OwnableUpgradeable {
 
         issuer.iterationsCount += 1;
         genTk.mint(
-            IGenTk.TokenParams({
+            TokenParams({
                 tokenId: allGenTkTokens,
                 iteration: issuer.iterationsCount,
                 inputBytes: params.inputBytes,
@@ -292,7 +285,7 @@ contract Issuer is IIssuer, OwnableUpgradeable {
     }
 
     function updateIssuer(UpdateIssuerInput calldata params) external onlyOwner {
-        LibIssuer.verifyIssuerUpdateable(issuer);
+        _verifyIssuerUpdateable(issuer);
 
         require(
             ((params.primarySplit.percent >= 1000) && (params.primarySplit.percent <= 2500)),
@@ -304,14 +297,14 @@ contract Issuer is IIssuer, OwnableUpgradeable {
         emit IssuerUpdated(params);
     }
 
-    function updatePrice(LibPricing.PricingData calldata pricingData) external onlyOwner {
-        LibIssuer.verifyIssuerUpdateable(issuer);
+    function updatePrice(PricingData calldata pricingData) external onlyOwner {
+        _verifyIssuerUpdateable(issuer);
         IPricingManager(configManager.contracts("priceMag")).verifyPricingMethod(
             pricingData.pricingId
         );
         issuer.info.pricingId = pricingData.pricingId;
         issuer.info.lockPriceForReserves = pricingData.lockForReserves;
-        IPricing(
+        IBasePricing(
             IPricingManager(configManager.contracts("priceMag"))
                 .getPricingContract(pricingData.pricingId)
                 .pricingContract
@@ -319,14 +312,13 @@ contract Issuer is IIssuer, OwnableUpgradeable {
         emit PriceUpdated(pricingData);
     }
 
-    function updateReserve(LibReserve.ReserveData[] calldata reserves) external onlyOwner {
-        LibIssuer.verifyIssuerUpdateable(issuer);
+    function updateReserve(ReserveData[] calldata reserves) external onlyOwner {
+        _verifyIssuerUpdateable(issuer);
         require(issuer.info.enabled, "TOK_DISABLED");
         for (uint256 i = 0; i < reserves.length; i++) {
-            LibReserve.ReserveMethod memory reserve = IReserveManager(
-                configManager.contracts("resMag")
-            ).getReserveMethod(reserves[i].methodId);
-            require(reserve.reserveContract != IReserve(address(0)), "RSRV_404");
+            ReserveMethod memory reserve = IReserveManager(configManager.contracts("resMag"))
+                .getReserveMethod(reserves[i].methodId);
+            require(reserve.reserveContract != IBaseReserve(address(0)), "RSRV_404");
             require(reserve.enabled, "RSRV_DIS");
             require(
                 IReserveManager(configManager.contracts("resMag")).isReserveValid(
@@ -359,7 +351,7 @@ contract Issuer is IIssuer, OwnableUpgradeable {
 
     function updateIssuerMod(uint256[] calldata tags) external {
         require(
-            IModeration(configManager.contracts("mod_team")).isAuthorized(msg.sender, 10),
+            IModerationTeam(configManager.contracts("mod_team")).isAuthorized(msg.sender, 10),
             "403"
         );
         issuer.info.tags = tags;
@@ -374,14 +366,14 @@ contract Issuer is IIssuer, OwnableUpgradeable {
         configManager = IConfigurationManager(_configManager);
     }
 
-    function getIssuer() external view returns (LibIssuer.IssuerData memory) {
+    function getIssuer() external view returns (IssuerData memory) {
         return issuer;
     }
 
     function primarySplitInfo(
         uint256 salePrice
     ) public view returns (address receiver, uint256 royaltyAmount) {
-        LibRoyalty.RoyaltyData memory royalty = issuer.primarySplit;
+        RoyaltyData memory royalty = issuer.primarySplit;
         uint256 amount = (salePrice * royalty.percent) / 10000;
         return (royalty.receiver, amount);
     }
@@ -399,7 +391,7 @@ contract Issuer is IIssuer, OwnableUpgradeable {
     }
 
     function processTransfers(
-        IPricing pricingContract,
+        IBasePricing pricingContract,
         MintInput memory params,
         uint256 tokenId,
         address recipient
@@ -407,12 +399,8 @@ contract Issuer is IIssuer, OwnableUpgradeable {
         {
             uint256 price = pricingContract.getPrice(block.timestamp);
             require(msg.value >= price && price > 0, "INVALID_PRICE");
-            (
-                uint64 feeShare,
-                uint64 referrerShare,
-                uint128 lockTime,
-                string memory defaultMetadata
-            ) = configManager.config();
+            (uint64 feeShare, uint64 referrerShare, , string memory defaultMetadata) = configManager
+                .config();
             uint256 platformFees = feeShare;
             if (params.referrer != address(0) && params.referrer != msg.sender) {
                 uint256 referrerFees = (feeShare * referrerShare) / 10000;
@@ -446,7 +434,7 @@ contract Issuer is IIssuer, OwnableUpgradeable {
             } else {
                 issuer.iterationsCount += 1;
                 genTk.mint(
-                    IGenTk.TokenParams({
+                    TokenParams({
                         tokenId: tokenId,
                         iteration: issuer.iterationsCount,
                         inputBytes: params.inputBytes,
@@ -456,6 +444,14 @@ contract Issuer is IIssuer, OwnableUpgradeable {
                 );
                 allGenTkTokens++;
             }
+        }
+    }
+
+    function _verifyIssuerUpdateable(IssuerData memory issuerToken) internal view {
+        if (issuerToken.openEditions.closingTime > 0) {
+            require(block.timestamp < issuerToken.openEditions.closingTime, "OE_CLOSE");
+        } else {
+            require(issuerToken.balance > 0, "NO_BLNC");
         }
     }
 }

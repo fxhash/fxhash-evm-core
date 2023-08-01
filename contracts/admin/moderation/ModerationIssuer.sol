@@ -1,50 +1,36 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
-import "contracts/libs/LibModeration.sol";
-import "contracts/admin/BaseModeration.sol";
-import "contracts/libs/LibModeration.sol";
-import "contracts/interfaces/IModerationIssuer.sol";
+import {BaseModeration} from "contracts/admin/moderation/BaseModeration.sol";
+import {IModerationIssuer, IssuerModInfo} from "contracts/interfaces/IModerationIssuer.sol";
+import {ModerationTeam} from "contracts/admin/moderation/ModerationTeam.sol";
+import {TOKEN_AUTH} from "contracts/utils/Constants.sol";
 
 contract ModerationIssuer is BaseModeration, IModerationIssuer {
-    mapping(address => LibModeration.ModerationState) public issuers;
+    mapping(address => IssuerModInfo) public issuers;
     mapping(bytes32 => uint256) public reports;
-
-    event IssuerModerated(address issuer, uint256 state, uint256 reason);
-    event IssuerReported(address reporter, address issuer, uint256 reason);
 
     constructor(address _moderation) BaseModeration(_moderation) {}
 
-    function moderateIssuer(
-        address issuerContract,
-        uint256 state,
-        uint256 reason
-    ) external onlyModerator {
-        require(bytes(reasons[reason]).length > 0, "REASON_DOESNT_EXISTS");
-        issuers[issuerContract] = LibModeration.ModerationState(state, reason);
-        emit IssuerModerated(issuerContract, state, reason);
+    function moderate(address _issuer, uint128 _state, uint128 _reasonId) external onlyModerator {
+        if (bytes(reasons[_reasonId]).length == 0) revert InvalidReason();
+        issuers[_issuer] = IssuerModInfo(_state, _reasonId);
+
+        emit IssuerModerated(_issuer, _state, _reasonId);
     }
 
-    function report(address issuerContract, uint256 reason) external onlyModerator {
-        require(bytes(reasons[reason]).length > 0, "REASON_DOESNT_EXISTS");
-        reports[getHashedKey(msg.sender, issuerContract)] = reason;
-        emit IssuerReported(msg.sender, issuerContract, reason);
+    function report(address _issuer, uint128 _reasonId) external onlyModerator {
+        if (bytes(reasons[_reasonId]).length == 0) revert InvalidReason();
+        reports[getReportKey(msg.sender, _issuer)] = _reasonId;
+
+        emit IssuerReported(msg.sender, _issuer, _reasonId);
     }
 
-    function issuerState(address issuerContract) external view returns (uint256) {
-        LibModeration.ModerationState memory moderationState = issuers[issuerContract];
-        if (moderationState.state == 0 && moderationState.reason == 0) {
-            return 0;
-        } else {
-            return moderationState.state;
-        }
+    function isModerator(address _account) public view override returns (bool) {
+        return ModerationTeam(moderation).isAuthorized(_account, TOKEN_AUTH);
     }
 
-    function getHashedKey(address reporter, address issuer) public pure returns (bytes32) {
-        return keccak256(abi.encodePacked(reporter, issuer));
-    }
-
-    function isModerator(address user) public view override returns (bool) {
-        return ModerationTeam(moderation).isAuthorized(user, 10);
+    function getReportKey(address _reporter, address _issuer) public pure returns (bytes32) {
+        return keccak256(abi.encodePacked(_reporter, _issuer));
     }
 }

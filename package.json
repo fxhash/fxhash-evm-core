@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "deploy": "./script/deploy.sh",
-    "seed": "./script/seed.sh",
-    "test": "./test/test.sh",
+    "deploy": "./script/bash/deploy.sh",
+    "seed": "./script/bash/seed.sh",
+    "test": "./test/bash/test.sh",
     "prettier": "prettier --write 'contracts/**/*.sol' 'script/**/*.sol' 'test/**/*.sol'",
     "prettier:check": "prettier --check 'contracts/**/*.sol'"
   },

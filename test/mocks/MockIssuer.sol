@@ -1,25 +1,27 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
-import "contracts/interfaces/IMintTicket.sol";
-import "contracts/interfaces/IGenTk.sol";
+
+import {IGenTk, TokenParams} from "contracts/interfaces/IGenTk.sol";
+import {IMintTicket} from "contracts/interfaces/IMintTicket.sol";
+import {IssuerData} from "contracts/interfaces/IIssuer.sol";
 
 contract MockIssuer {
     IMintTicket ticket;
     IGenTk gentk;
-    LibIssuer.IssuerData private issuer;
+    IssuerData private issuer;
 
     constructor() {}
 
     function getTokenPrimarySplit(
-        uint256 projectId,
-        uint256 amount
+        uint256 /* projectId */,
+        uint256 /* amount */
     ) external pure returns (address receiver, uint256 royaltyAmount) {
         return (address(0), 1000);
     }
 
     //TODO: remove this placeholder (used for tests)
-    function consume(address owner, uint256 tokenId, address issuer) external payable {
-        ticket.consume(owner, tokenId, issuer);
+    function consume(address owner, uint256 tokenId, address _issuer) external payable {
+        ticket.consume(owner, tokenId, _issuer);
     }
 
     //TODO: remove this placeholder (used for tests)
@@ -27,7 +29,7 @@ contract MockIssuer {
         ticket.mint(minter, price);
     }
 
-    function mint(IGenTk.TokenParams calldata _params) external {
+    function mint(TokenParams calldata _params) external {
         gentk.mint(_params);
     }
 
@@ -36,7 +38,7 @@ contract MockIssuer {
         ticket.createProject(gracingPeriod, metadata);
     }
 
-    function getIssuer() external view returns (LibIssuer.IssuerData memory) {
+    function getIssuer() external view returns (IssuerData memory) {
         return issuer;
     }
 

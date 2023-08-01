@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "forge-std/Test.sol";
-import {MintPassGroup} from "contracts/mint-pass-group/MintPassGroup.sol";
+import {Test} from "forge-std/Test.sol";
+import {MintPassGroup, Pass, Payload} from "contracts/reserves/MintPassGroup.sol";
 
 contract MintPassGroupTest is Test {
     address public admin =
@@ -41,8 +41,8 @@ contract GetProjectHash is MintPassGroupTest {
 
 contract IsValidPass is MintPassGroupTest {
     function test_RevertsWhenSignatureInvalid() public {
-        bytes memory payload = abi.encode(MintPassGroup.Payload(token, project, addr));
-        bytes memory pass = abi.encode(MintPassGroup.Pass(payload, ""));
+        bytes memory payload = abi.encode(Payload(token, project, addr));
+        bytes memory pass = abi.encode(Pass(payload, ""));
         vm.expectRevert("PASS_INVALID_SIGNATURE");
         mintPassGroup.isPassValid(pass, addr);
     }
@@ -50,8 +50,8 @@ contract IsValidPass is MintPassGroupTest {
 
 contract ConsumePass is MintPassGroupTest {
     function test_RevertsWhenSignatureInvalid() public {
-        bytes memory payload = abi.encode(MintPassGroup.Payload(token, project, addr));
-        bytes memory pass = abi.encode(MintPassGroup.Pass(payload, ""));
+        bytes memory payload = abi.encode(Payload(token, project, addr));
+        bytes memory pass = abi.encode(Pass(payload, ""));
         /// this is the 2nd Admin (mintPass)
         vm.prank(fxHashAdmin);
         vm.expectRevert("PASS_INVALID_SIGNATURE");
