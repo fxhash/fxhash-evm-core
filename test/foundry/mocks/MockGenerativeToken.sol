@@ -3,6 +3,7 @@ pragma solidity ^0.8.18;
 
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
+/// implemented by minters
 interface IMinter {
     function setMintDetails(
         uint256 _allocation,
@@ -11,6 +12,8 @@ interface IMinter {
         bytes calldata _minterData
     ) external;
 }
+
+/// implemented by GenTk
 
 abstract contract Minted {
     function _registerMinter(
