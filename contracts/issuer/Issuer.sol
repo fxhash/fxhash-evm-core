@@ -18,9 +18,9 @@ import {IMintTicket} from "contracts/interfaces/IMintTicket.sol";
 import {IModerationTeam} from "contracts/interfaces/IModerationTeam.sol";
 import {IModerationUser} from "contracts/interfaces/IModerationUser.sol";
 import {IOnChainMetadataManager} from "contracts/interfaces/IOnChainMetadataManager.sol";
-import {IPricing, PricingData} from "contracts/interfaces/IPricing.sol";
+import {IBasePricing, PricingData} from "contracts/interfaces/IBasePricing.sol";
 import {IPricingManager} from "contracts/interfaces/IPricingManager.sol";
-import {IReserve, ReserveData, ReserveInput, ReserveMethod} from "contracts/interfaces/IReserve.sol";
+import {IBaseReserve, ReserveData, ReserveInput, ReserveMethod} from "contracts/interfaces/IBaseReserve.sol";
 import {IReserveManager} from "contracts/interfaces/IReserveManager.sol";
 
 contract Issuer is IIssuer, OwnableUpgradeable {
@@ -73,7 +73,7 @@ contract Issuer is IIssuer, OwnableUpgradeable {
             params.pricing.pricingId
         );
 
-        IPricing(
+        IBasePricing(
             IPricingManager(configManager.contracts("priceMag"))
                 .getPricingContract(params.pricing.pricingId)
                 .pricingContract
@@ -123,7 +123,7 @@ contract Issuer is IIssuer, OwnableUpgradeable {
         for (uint256 i = 0; i < params.reserves.length; i++) {
             ReserveMethod memory reserveMethod = IReserveManager(configManager.contracts("resMag"))
                 .getReserveMethod(params.reserves[i].methodId);
-            require(reserveMethod.reserveContract != IReserve(address(0)), "NO_RESERVE_METHOD");
+            require(reserveMethod.reserveContract != IBaseReserve(address(0)), "NO_RESERVE_METHOD");
             require(reserveMethod.enabled, "RESERVE_METHOD_DISABLED");
             reserveTotal += params.reserves[i].amount;
             require(
@@ -206,7 +206,7 @@ contract Issuer is IIssuer, OwnableUpgradeable {
             reserveInput = abi.decode(params.reserveInput, (ReserveInput));
         }
 
-        IPricing pricingContract = IPricing(
+        IBasePricing pricingContract = IBasePricing(
             IPricingManager(configManager.contracts("priceMag"))
                 .getPricingContract(issuer.info.pricingId)
                 .pricingContract
@@ -304,7 +304,7 @@ contract Issuer is IIssuer, OwnableUpgradeable {
         );
         issuer.info.pricingId = pricingData.pricingId;
         issuer.info.lockPriceForReserves = pricingData.lockForReserves;
-        IPricing(
+        IBasePricing(
             IPricingManager(configManager.contracts("priceMag"))
                 .getPricingContract(pricingData.pricingId)
                 .pricingContract
@@ -318,7 +318,7 @@ contract Issuer is IIssuer, OwnableUpgradeable {
         for (uint256 i = 0; i < reserves.length; i++) {
             ReserveMethod memory reserve = IReserveManager(configManager.contracts("resMag"))
                 .getReserveMethod(reserves[i].methodId);
-            require(reserve.reserveContract != IReserve(address(0)), "RSRV_404");
+            require(reserve.reserveContract != IBaseReserve(address(0)), "RSRV_404");
             require(reserve.enabled, "RSRV_DIS");
             require(
                 IReserveManager(configManager.contracts("resMag")).isReserveValid(
@@ -391,7 +391,7 @@ contract Issuer is IIssuer, OwnableUpgradeable {
     }
 
     function processTransfers(
-        IPricing pricingContract,
+        IBasePricing pricingContract,
         MintInput memory params,
         uint256 tokenId,
         address recipient

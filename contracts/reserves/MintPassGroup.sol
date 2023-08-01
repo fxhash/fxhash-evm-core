@@ -4,30 +4,14 @@ pragma solidity ^0.8.18;
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+import {IMintPassGroup, Pass, Payload, TokenRecord} from "contracts/interfaces/IMintPassGroup.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract MintPassGroup is Ownable, EIP712 {
-    bytes32 public constant PAYLOAD_TYPE_HASH =
-        keccak256("Payload(string token,address project,address addr)");
-
     using EnumerableSet for EnumerableSet.AddressSet;
 
-    struct TokenRecord {
-        uint256 minted;
-        uint256 levelConsumed;
-        address consumer;
-    }
-
-    struct Pass {
-        bytes payload;
-        bytes signature;
-    }
-
-    struct Payload {
-        string token;
-        address project;
-        address addr;
-    }
+    bytes32 public constant PAYLOAD_TYPE_HASH =
+        keccak256("Payload(string token,address project,address addr)");
 
     uint256 private maxPerToken;
     uint256 private maxPerTokenPerProject;

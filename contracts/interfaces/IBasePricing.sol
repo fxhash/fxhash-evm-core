@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 struct PricingContract {
-    IPricing pricingContract;
+    IBasePricing pricingContract;
     bool enabled;
 }
 
@@ -12,7 +12,7 @@ struct PricingData {
     bool lockForReserves;
 }
 
-interface IPricing {
+interface IBasePricing {
     function setPrice(bytes memory details) external;
 
     function getPrice(uint256 timestamp) external view returns (uint256);

@@ -1,19 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "contracts/interfaces/IPricing.sol";
+import {IBasePricing} from "contracts/interfaces/IBasePricing.sol";
+import {IFixedPrice, PriceDetails} from "contracts/interfaces/IFixedPrice.sol";
 
-contract PricingFixed is IPricing {
-    struct PriceDetails {
-        uint256 price;
-        uint256 opensAt;
-    }
-
-    event FixedPriceSet(address issuer, PriceDetails details);
-
+contract FixedPrice is IBasePricing, IFixedPrice {
     mapping(address => PriceDetails) pricings;
-
-    constructor() {}
 
     function setPrice(bytes memory details) external {
         PriceDetails memory pricingDetails = abi.decode(details, (PriceDetails));

@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import {IReserve, ApplyParams, InputParams} from "contracts/interfaces/IReserve.sol";
+import {IBaseReserve, ApplyParams, InputParams} from "contracts/interfaces/IBaseReserve.sol";
 import {MintPassGroup} from "contracts/reserves/MintPassGroup.sol";
 
-contract ReserveMintPass is IReserve {
+contract ReserveMintPass is IBaseReserve {
     address private reservemanager;
 
     constructor(address _reserveManager) {

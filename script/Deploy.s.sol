@@ -5,21 +5,21 @@ import {Accounts} from "script/utils/Accounts.s.sol";
 import {AllowMint} from "contracts/reserves/AllowMint.sol";
 import {AllowMintIssuer} from "contracts/reserves/AllowMintIssuer.sol";
 import {Codex} from "contracts/metadata/Codex.sol";
-import {ConfigurationManager, IConfigurationManager, ConfigInfo} from "contracts/admin/config/ConfigurationManager.sol";
+import {ConfigurationManager, ConfigInfo} from "contracts/admin/config/ConfigurationManager.sol";
 import {ContentStore} from "scripty.sol/contracts/scripty/dependencies/ethfs/ContentStore.sol";
+import {DutchAuction} from "contracts/pricing/DutchAuction.sol";
+import {FixedPrice} from "contracts/pricing/FixedPrice.sol";
 import {GenTk} from "contracts/issuer/GenTk.sol";
 import {GenTkFactory} from "contracts/factories/GenTkFactory.sol";
-import {IssuerFactory} from "contracts/factories/IssuerFactory.sol";
+import {IBaseReserve, ReserveMethod} from "contracts/interfaces/IBaseReserve.sol";
 import {Issuer} from "contracts/issuer/Issuer.sol";
-import {IReserve, ReserveMethod} from "contracts/interfaces/IReserve.sol";
+import {IssuerFactory} from "contracts/factories/IssuerFactory.sol";
 import {MintPassGroup} from "contracts/reserves/MintPassGroup.sol";
 import {MintTicket} from "contracts/reserves/MintTicket.sol";
 import {ModerationIssuer} from "contracts/admin/moderation/ModerationIssuer.sol";
 import {ModerationTeam} from "contracts/admin/moderation/ModerationTeam.sol";
 import {ModerationUser} from "contracts/admin/moderation/ModerationUser.sol";
 import {OnChainMetadataManager} from "contracts/metadata/OnChainMetadataManager.sol";
-import {PricingDutchAuction} from "contracts/pricing/PricingDutchAuction.sol";
-import {PricingFixed} from "contracts/pricing/PricingFixed.sol";
 import {PricingManager} from "contracts/pricing/PricingManager.sol";
 import {ProjectFactory} from "contracts/factories/ProjectFactory.sol";
 import {Randomizer} from "contracts/issuer/Randomizer.sol";
@@ -40,9 +40,11 @@ contract Deploy is Script, Accounts {
     Codex public codex;
     ConfigurationManager public configurationManager;
     ContentStore public contentStore;
+    DutchAuction public dutchAuction;
+    FixedPrice public fixedPrice;
     GenTk public genTk;
-    Issuer public issuer;
     GenTkFactory public genTkFactory;
+    Issuer public issuer;
     IssuerFactory public issuerFactory;
     MintPassGroup public mintPassGroup;
     MintTicket public mintTicket;
@@ -50,8 +52,6 @@ contract Deploy is Script, Accounts {
     ModerationTeam public moderationTeam;
     ModerationUser public moderationUser;
     OnChainMetadataManager public onchainMetadataManager;
-    PricingDutchAuction public pricingDA;
-    PricingFixed public pricingFixed;
     PricingManager public pricingManager;
     Randomizer public randomizer;
     ReserveManager public reserveManager;
@@ -86,25 +86,25 @@ contract Deploy is Script, Accounts {
         // Configuration
         configurationManager = new ConfigurationManager();
 
-        // Scripty
-        contentStore = new ContentStore();
-        scriptyBuilder = new ScriptyBuilder();
-        scriptyStorage = new ScriptyStorage(address(contentStore));
-
-        // Metadata
-        onchainMetadataManager = new OnChainMetadataManager(address(scriptyBuilder));
-
         // Moderation
         moderationIssuer = new ModerationIssuer(address(configurationManager));
         moderationUser = new ModerationUser(address(configurationManager));
         moderationTeam = new ModerationTeam();
 
-        // Allowlist
-        allowMint = new AllowMint(address(moderationIssuer));
-        allowMintIssuer = new AllowMintIssuer(address(moderationUser));
+        // Scripty
+        contentStore = new ContentStore();
+        scriptyBuilder = new ScriptyBuilder();
+        scriptyStorage = new ScriptyStorage(address(contentStore));
 
         // Codex
         codex = new Codex(address(moderationTeam));
+
+        // Metadata
+        onchainMetadataManager = new OnChainMetadataManager(address(scriptyBuilder));
+
+        // Allowlist
+        allowMint = new AllowMint(address(moderationIssuer));
+        allowMintIssuer = new AllowMintIssuer(address(moderationUser));
 
         // Reserve
         reserveManager = new ReserveManager();
@@ -113,8 +113,8 @@ contract Deploy is Script, Accounts {
 
         // Pricing
         pricingManager = new PricingManager();
-        pricingDA = new PricingDutchAuction();
-        pricingFixed = new PricingFixed();
+        dutchAuction = new DutchAuction();
+        fixedPrice = new FixedPrice();
 
         // Randomizer
         randomizer = new Randomizer(SEED, SALT);
@@ -128,6 +128,7 @@ contract Deploy is Script, Accounts {
         // Token
         genTk = new GenTk();
 
+        // Factories
         projectFactory = new ProjectFactory(address(configurationManager));
         genTkFactory = new GenTkFactory(address(projectFactory), address(genTk));
         issuerFactory = new IssuerFactory(address(projectFactory), address(issuer));
@@ -164,17 +165,17 @@ contract Deploy is Script, Accounts {
         randomizer.grantAuthorizedCallerRole(vm.addr(vm.envUint("SIGNER_PRIVATE_KEY")));
 
         // Set pricing methods
-        pricingManager.setPricingContract(1, address(pricingFixed), true);
-        pricingManager.setPricingContract(2, address(pricingDA), true);
+        pricingManager.setPricingContract(1, address(fixedPrice), true);
+        pricingManager.setPricingContract(2, address(dutchAuction), true);
 
         // Set reserve methods
         reserveManager.setReserveMethod(
             1,
-            ReserveMethod({reserveContract: IReserve(reserveWhitelist), enabled: true})
+            ReserveMethod({reserveContract: IBaseReserve(reserveWhitelist), enabled: true})
         );
         reserveManager.setReserveMethod(
             2,
-            ReserveMethod({reserveContract: IReserve(reserveMintPass), enabled: true})
+            ReserveMethod({reserveContract: IBaseReserve(reserveMintPass), enabled: true})
         );
 
         configurationManager.setContracts(names, contracts);

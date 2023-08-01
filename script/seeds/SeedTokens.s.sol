@@ -3,23 +3,16 @@ pragma solidity ^0.8.18;
 
 import {Deploy} from "script/Deploy.s.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
-import {GenTk} from "contracts/issuer/GenTk.sol";
 import {IIssuer, MintInput} from "contracts/interfaces/IIssuer.sol";
-import {MintPassGroup} from "contracts/reserves/MintPassGroup.sol";
 import {MintTicket} from "contracts/reserves/MintTicket.sol";
-import {PricingContract} from "contracts/interfaces/IPricing.sol";
-import {PricingFixed} from "contracts/pricing/PricingFixed.sol";
-import {PricingDutchAuction} from "contracts/pricing/PricingDutchAuction.sol";
-import {ReserveData, ReserveInput} from "contracts/interfaces/IReserve.sol";
-import {ReserveWhitelist} from "contracts/reserves/ReserveWhitelist.sol";
-import {RoyaltyData} from "contracts/interfaces/IRoyalties.sol";
+import {Pass, Payload} from "contracts/reserves/MintPassGroup.sol";
+import {ReserveData, ReserveInput} from "contracts/interfaces/IBaseReserve.sol";
 import {Script} from "forge-std/Script.sol";
 import {SeedIssuers} from "script/seeds/SeedIssuers.s.sol";
-import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
+import {WhitelistEntry} from "contracts/reserves/ReserveWhitelist.sol";
 
 contract SeedTokens is Script {
     address public bob;
-
     string public MNEMONIC = vm.envString("MNEMONIC");
 
     function setUp() public {
@@ -52,11 +45,7 @@ contract SeedTokens is Script {
         address recipient,
         address mintPassGroup
     ) public view returns (bytes memory) {
-        MintPassGroup.Payload memory payload = MintPassGroup.Payload({
-            token: "token",
-            project: issuer,
-            addr: recipient
-        });
+        Payload memory payload = Payload({token: "token", project: issuer, addr: recipient});
 
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(
             vm.envUint("SIGNER_PRIVATE_KEY"),
@@ -73,12 +62,7 @@ contract SeedTokens is Script {
             )
         );
         return
-            abi.encode(
-                MintPassGroup.Pass({
-                    payload: abi.encode(payload),
-                    signature: abi.encodePacked(r, s, v)
-                })
-            );
+            abi.encode(Pass({payload: abi.encode(payload), signature: abi.encodePacked(r, s, v)}));
     }
 
     function _getMintInput(
@@ -89,13 +73,9 @@ contract SeedTokens is Script {
         bool createTicket = false;
         if (mintInput.reserveOption == SeedIssuers.ReserveOptions.Whitelist) {
             ReserveData[] memory reserves = new ReserveData[](1);
-            ReserveWhitelist.WhitelistEntry[]
-                memory whitelistEntries = new ReserveWhitelist.WhitelistEntry[](1);
+            WhitelistEntry[] memory whitelistEntries = new WhitelistEntry[](1);
 
-            whitelistEntries[0] = ReserveWhitelist.WhitelistEntry({
-                whitelisted: mintInput.recipient,
-                amount: 2
-            });
+            whitelistEntries[0] = WhitelistEntry({whitelisted: mintInput.recipient, amount: 2});
 
             reserves[0] = ReserveData({methodId: 1, amount: 1, data: abi.encode(whitelistEntries)});
             reserveInput = abi.encode(ReserveInput({methodId: 1, input: abi.encode(reserves)}));
@@ -118,13 +98,8 @@ contract SeedTokens is Script {
             );
         } else if (mintInput.reserveOption == SeedIssuers.ReserveOptions.WhitelistAndMintPass) {
             ReserveData[] memory reserves = new ReserveData[](1);
-            ReserveWhitelist.WhitelistEntry[]
-                memory whitelistEntries = new ReserveWhitelist.WhitelistEntry[](1);
-
-            whitelistEntries[0] = ReserveWhitelist.WhitelistEntry({
-                whitelisted: mintInput.recipient,
-                amount: 2
-            });
+            WhitelistEntry[] memory whitelistEntries = new WhitelistEntry[](1);
+            whitelistEntries[0] = WhitelistEntry({whitelisted: mintInput.recipient, amount: 2});
 
             reserves[0] = ReserveData({methodId: 1, amount: 1, data: abi.encode(whitelistEntries)});
             reserveInput = abi.encode(ReserveInput({methodId: 1, input: abi.encode(reserves)}));

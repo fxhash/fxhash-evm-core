@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import {ApplyParams, InputParams, ReserveData, ReserveMethod} from "contracts/interfaces/IReserve.sol";
+import {ApplyParams, InputParams, ReserveData, ReserveMethod} from "contracts/interfaces/IBaseReserve.sol";
 import {IReserveManager} from "contracts/interfaces/IReserveManager.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 

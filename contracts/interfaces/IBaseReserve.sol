@@ -26,11 +26,11 @@ struct ReserveInput {
 }
 
 struct ReserveMethod {
-    IReserve reserveContract;
+    IBaseReserve reserveContract;
     bool enabled;
 }
 
-interface IReserve {
+interface IBaseReserve {
     event MethodApplied(bool applied, bytes data);
 
     function isInputValid(InputParams calldata params) external pure returns (bool);

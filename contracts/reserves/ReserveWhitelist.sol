@@ -1,15 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import {ApplyParams, InputParams} from "contracts/interfaces/IReserve.sol";
-import {IReserve} from "contracts/interfaces/IReserve.sol";
+import {IBaseReserve, ApplyParams, InputParams} from "contracts/interfaces/IBaseReserve.sol";
+import {IReserveWhitelist, WhitelistEntry} from "contracts/interfaces/IReserveWhitelist.sol";
 
-contract ReserveWhitelist is IReserve {
-    struct WhitelistEntry {
-        address whitelisted;
-        uint256 amount;
-    }
-
+contract ReserveWhitelist is IBaseReserve, IReserveWhitelist {
     function isInputValid(InputParams calldata params) external pure returns (bool) {
         WhitelistEntry[] memory whitelist = abi.decode(params.data, (WhitelistEntry[]));
 

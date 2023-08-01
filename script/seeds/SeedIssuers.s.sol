@@ -1,19 +1,17 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import {CodexData, CodexInput} from "contracts/interfaces/ICodex.sol";
+import {CodexInput} from "contracts/interfaces/ICodex.sol";
 import {Deploy} from "script/Deploy.s.sol";
-import {GenTk} from "contracts/issuer/GenTk.sol";
-import {Issuer} from "contracts/issuer/Issuer.sol";
 import {IIssuer, MintInput, MintIssuerInput, MintTicketSettings, OpenEditions} from "contracts/interfaces/IIssuer.sol";
 import {MintPassGroup} from "contracts/reserves/MintPassGroup.sol";
-import {PricingData} from "contracts/interfaces/IPricing.sol";
-import {PricingFixed} from "contracts/pricing/PricingFixed.sol";
-import {PricingDutchAuction} from "contracts/pricing/PricingDutchAuction.sol";
-import {ReserveData} from "contracts/interfaces/IReserve.sol";
-import {ReserveWhitelist} from "contracts/reserves/ReserveWhitelist.sol";
+import {PricingData} from "contracts/interfaces/IBasePricing.sol";
+import {PriceDetails as DutchAuctionDetails} from "contracts/pricing/DutchAuction.sol";
+import {PriceDetails as FixedPriceDetails} from "contracts/pricing/FixedPrice.sol";
+import {ReserveData} from "contracts/interfaces/IBaseReserve.sol";
 import {RoyaltyData} from "contracts/interfaces/IRoyalties.sol";
 import {Script} from "forge-std/Script.sol";
+import {WhitelistEntry} from "contracts/reserves/ReserveWhitelist.sol";
 import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
 
 import "script/utils/Constants.sol";
@@ -278,12 +276,11 @@ contract SeedIssuers is Deploy {
 
     function _getWhitelistParam() public view returns (ReserveData[] memory) {
         ReserveData[] memory reserves = new ReserveData[](1);
-        ReserveWhitelist.WhitelistEntry[]
-            memory whitelistEntries = new ReserveWhitelist.WhitelistEntry[](3);
+        WhitelistEntry[] memory whitelistEntries = new WhitelistEntry[](3);
 
-        whitelistEntries[0] = ReserveWhitelist.WhitelistEntry({whitelisted: bob, amount: 2});
-        whitelistEntries[1] = ReserveWhitelist.WhitelistEntry({whitelisted: eve, amount: 1});
-        whitelistEntries[2] = ReserveWhitelist.WhitelistEntry({whitelisted: susan, amount: 1});
+        whitelistEntries[0] = WhitelistEntry({whitelisted: bob, amount: 2});
+        whitelistEntries[1] = WhitelistEntry({whitelisted: eve, amount: 1});
+        whitelistEntries[2] = WhitelistEntry({whitelisted: susan, amount: 1});
 
         reserves[0] = ReserveData({methodId: 1, amount: 4, data: abi.encode(whitelistEntries)});
         return reserves;
@@ -303,12 +300,11 @@ contract SeedIssuers is Deploy {
         address mintPassGroup
     ) public view returns (ReserveData[] memory) {
         ReserveData[] memory reserves = new ReserveData[](2);
-        ReserveWhitelist.WhitelistEntry[]
-            memory whitelistEntries = new ReserveWhitelist.WhitelistEntry[](3);
+        WhitelistEntry[] memory whitelistEntries = new WhitelistEntry[](3);
 
-        whitelistEntries[0] = ReserveWhitelist.WhitelistEntry({whitelisted: bob, amount: 2});
-        whitelistEntries[1] = ReserveWhitelist.WhitelistEntry({whitelisted: eve, amount: 1});
-        whitelistEntries[2] = ReserveWhitelist.WhitelistEntry({whitelisted: susan, amount: 1});
+        whitelistEntries[0] = WhitelistEntry({whitelisted: bob, amount: 2});
+        whitelistEntries[1] = WhitelistEntry({whitelisted: eve, amount: 1});
+        whitelistEntries[2] = WhitelistEntry({whitelisted: susan, amount: 1});
 
         reserves[0] = ReserveData({methodId: 1, amount: 4, data: abi.encode(whitelistEntries)});
         reserves[1] = ReserveData({methodId: 2, amount: 4, data: abi.encode(mintPassGroup)});
@@ -320,7 +316,7 @@ contract SeedIssuers is Deploy {
             PricingData({
                 pricingId: 1,
                 details: abi.encode(
-                    PricingFixed.PriceDetails({price: PRICE, opensAt: block.timestamp + OPEN_DELAY})
+                    FixedPriceDetails({price: PRICE, opensAt: block.timestamp + OPEN_DELAY})
                 ),
                 lockForReserves: false
             });
@@ -336,7 +332,7 @@ contract SeedIssuers is Deploy {
             PricingData({
                 pricingId: 2,
                 details: abi.encode(
-                    PricingDutchAuction.PriceDetails({
+                    DutchAuctionDetails({
                         opensAt: block.timestamp + OPEN_DELAY,
                         decrementDuration: 600,
                         lockedPrice: 0,

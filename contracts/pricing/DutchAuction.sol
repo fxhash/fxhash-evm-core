@@ -1,32 +1,17 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import {IPricing} from "contracts/interfaces/IPricing.sol";
+import {IBasePricing} from "contracts/interfaces/IBasePricing.sol";
+import {IDutchAuction, PriceDetails, Level} from "contracts/interfaces/IDutchAuction.sol";
 import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-contract PricingDutchAuction is IPricing, Ownable {
-    struct PriceDetails {
-        uint256 opensAt;
-        uint256 decrementDuration;
-        uint256 lockedPrice;
-        uint256[] levels;
-    }
-
-    struct Level {
-        uint256 index;
-        uint256 price;
-    }
-
-    event DutchPriceSet(address issuer, PriceDetails details);
-    event DutchPriceLocked(address issuer, uint256 lockedPrice);
-
+contract DutchAuction is IBasePricing, IDutchAuction, Ownable {
+    uint256 public minDecrementDuration;
     mapping(address => PriceDetails) public pricings;
 
-    uint256 public minDecrementDuration;
-
     constructor() {
-        minDecrementDuration = 60; // Default value, can be updated
+        minDecrementDuration = 60;
     }
 
     function updateMinDecrementDuration(uint256 _minDecrement) external onlyOwner {

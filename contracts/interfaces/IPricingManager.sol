@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import {PricingContract} from "contracts/interfaces/IPricing.sol";
+import {PricingContract} from "contracts/interfaces/IBasePricing.sol";
 
 interface IPricingManager {
     function setPricingContract(uint256 id, address contractAddress, bool enabled) external;

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import {IPricing, PricingContract} from "contracts/interfaces/IPricing.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import {IBasePricing, PricingContract} from "contracts/interfaces/IBasePricing.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract PricingManager is Ownable {
     mapping(uint256 => PricingContract) private pricingContracts;
@@ -13,7 +13,7 @@ contract PricingManager is Ownable {
         bool enabled
     ) external onlyOwner {
         pricingContracts[id] = PricingContract({
-            pricingContract: IPricing(contractAddress),
+            pricingContract: IBasePricing(contractAddress),
             enabled: enabled
         });
     }

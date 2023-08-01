@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import {ReserveData, ReserveMethod} from "contracts/interfaces/IReserve.sol";
+import {ReserveData, ReserveMethod} from "contracts/interfaces/IBaseReserve.sol";
 
 interface IReserveManager {
     function isReserveValid(
