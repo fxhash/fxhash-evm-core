@@ -21,7 +21,7 @@ contract ModerationIssuer is BaseModeration, IModerationIssuer {
 
     function report(address _issuer, uint128 _reasonId) external onlyModerator {
         if (bytes(reasons[_reasonId]).length == 0) revert InvalidReason();
-        reports[getReporterKey(msg.sender, _issuer)] = _reasonId;
+        reports[getReportKey(msg.sender, _issuer)] = _reasonId;
 
         emit IssuerReported(msg.sender, _issuer, _reasonId);
     }
@@ -30,7 +30,7 @@ contract ModerationIssuer is BaseModeration, IModerationIssuer {
         return ModerationTeam(moderation).isAuthorized(_account, TOKEN_AUTH);
     }
 
-    function getReporterKey(address _reporter, address _issuer) public pure returns (bytes32) {
+    function getReportKey(address _reporter, address _issuer) public pure returns (bytes32) {
         return keccak256(abi.encodePacked(_reporter, _issuer));
     }
 }

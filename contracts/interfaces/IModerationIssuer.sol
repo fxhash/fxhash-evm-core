@@ -16,5 +16,5 @@ interface IModerationIssuer {
 
     function issuers(address) external view returns (uint128, uint128);
 
-    function getReporterKey(address _reporter, address _issuer) external pure returns (bytes32);
+    function getReportKey(address _reporter, address _issuer) external pure returns (bytes32);
 }
