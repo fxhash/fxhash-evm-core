@@ -6,8 +6,8 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {SafeTransferLib} from "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
 
 import {IIssuer} from "contracts/interfaces/IIssuer.sol";
-import {IRandomizer} from "contracts/interfaces/IRandomizer.sol";
 import {IMintTicket, ProjectData, TokenData} from "contracts/interfaces/IMintTicket.sol";
+import {IRandomizer} from "contracts/interfaces/IRandomizer.sol";
 
 contract MintTicket is ERC721URIStorage, Ownable, IMintTicket {
     mapping(uint256 => TokenData) public tokenData;

@@ -7,7 +7,6 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 import {RoyaltyManager} from "contracts/royalties/RoyaltyManager.sol";
 
 import {IConfigurationManager} from "contracts/interfaces/IConfigurationManager.sol";
-import {IERC165Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC165Upgradeable.sol";
 import {IProjectFactory} from "contracts/interfaces/IProjectFactory.sol";
 import {IGenTk, TokenParams} from "contracts/interfaces/IGenTk.sol";
 import {IIssuer, IssuerData} from "contracts/interfaces/IIssuer.sol";

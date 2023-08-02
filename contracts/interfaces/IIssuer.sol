@@ -76,6 +76,16 @@ struct MintWithTicketInput {
 }
 
 interface IIssuer {
+    event IssuerMinted(MintIssuerInput params);
+    event IssuerBurned();
+    event IssuerUpdated(UpdateIssuerInput params);
+    event IssuerModUpdated(uint256[] tags);
+    event TokenMinted(MintInput params);
+    event TokenMintedWithTicket(MintWithTicketInput params);
+    event PriceUpdated(PricingData params);
+    event ReserveUpdated(ReserveData[] reserves);
+    event SupplyBurned(uint256 amount);
+
     function initialize(address _configManager, address _owner, address _genTk) external;
 
     function mintIssuer(MintIssuerInput calldata params) external;

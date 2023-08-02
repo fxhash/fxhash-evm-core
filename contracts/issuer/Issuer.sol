@@ -10,8 +10,6 @@ import {IAllowMint} from "contracts/interfaces/IAllowMint.sol";
 import {IAllowMintIssuer} from "contracts/interfaces/IAllowMintIssuer.sol";
 import {ICodex} from "contracts/interfaces/ICodex.sol";
 import {IConfigurationManager} from "contracts/interfaces/IConfigurationManager.sol";
-import {IERC165Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC165Upgradeable.sol";
-import {IERC2981Upgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC2981Upgradeable.sol";
 import {IGenTk, TokenParams} from "contracts/interfaces/IGenTk.sol";
 import {IIssuer, IssuerData, IssuerInfo, MintInput, MintIssuerInput, MintWithTicketInput, OpenEditions, UpdateIssuerInput} from "contracts/interfaces/IIssuer.sol";
 import {IMintTicket} from "contracts/interfaces/IMintTicket.sol";
@@ -24,20 +22,10 @@ import {IBaseReserve, ReserveData, ReserveInput, ReserveMethod} from "contracts/
 import {IReserveManager} from "contracts/interfaces/IReserveManager.sol";
 
 contract Issuer is IIssuer, OwnableUpgradeable {
-    IConfigurationManager private configManager;
-    IssuerData private issuer;
-    IGenTk private genTk;
-    uint256 private allGenTkTokens;
-
-    event IssuerMinted(MintIssuerInput params);
-    event IssuerBurned();
-    event IssuerUpdated(UpdateIssuerInput params);
-    event IssuerModUpdated(uint256[] tags);
-    event TokenMinted(MintInput params);
-    event TokenMintedWithTicket(MintWithTicketInput params);
-    event PriceUpdated(PricingData params);
-    event ReserveUpdated(ReserveData[] reserves);
-    event SupplyBurned(uint256 amount);
+    IConfigurationManager public configManager;
+    IssuerData public issuer;
+    IGenTk public genTk;
+    uint256 public allGenTkTokens;
 
     function initialize(
         address _configManager,

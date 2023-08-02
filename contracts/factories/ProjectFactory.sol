@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import {IProjectFactory} from "contracts/interfaces/IProjectFactory.sol";
 import {IGenTk} from "contracts/interfaces/IGenTk.sol";
 import {IGenTkFactory} from "contracts/interfaces/IGenTkFactory.sol";
 import {IIssuer} from "contracts/interfaces/IIssuer.sol";
 import {IIssuerFactory} from "contracts/interfaces/IIssuerFactory.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {IProjectFactory} from "contracts/interfaces/IProjectFactory.sol";
 
 /// @title ProjectFactory
 /// @dev See the documentation in {IProjectFactory}
@@ -27,9 +27,16 @@ contract ProjectFactory is IProjectFactory, Ownable {
     ) external returns (address issuer, address gentk) {
         issuer = IIssuerFactory(issuerFactory).createIssuer(_owner, configManager);
         gentk = IGenTkFactory(genTkFactory).createGenTk(_owner, issuer, configManager);
+
         IIssuer(issuer).initialize(configManager, gentk, _owner);
         IGenTk(gentk).initialize(_receivers, _basisPoints, configManager, issuer, _owner);
+
         emit NewProjectCreated(_owner, issuer, gentk, configManager);
+    }
+
+    /// @inheritdoc IProjectFactory
+    function setConfigManager(address _configManager) external onlyOwner {
+        configManager = _configManager;
     }
 
     /// @inheritdoc IProjectFactory

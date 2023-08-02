@@ -25,6 +25,10 @@ interface IProjectFactory {
         address _owner
     ) external returns (address, address);
 
+    /// @notice Sets the config manager
+    /// @param _genTkFactory address of the Gentk Factory that will be deploying the GenTk contracts
+    function setConfigManager(address _genTkFactory) external;
+
     /// @notice Set the Gentk factory contract used to deploy new instances of the GenTk contract. Only callable by the owner
     /// @param _genTkFactory address of the Gentk Factory that will be deploying the GenTk contracts
     function setGenTkFactory(address _genTkFactory) external;
