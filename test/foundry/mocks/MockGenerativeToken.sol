@@ -74,6 +74,7 @@ contract MintPass is IMinter {
     function mint(
         address _token,
         address _redeemer,
+        /// this should be msg.sender or vault
         uint256 _index,
         bytes calldata _mintCode,
         bytes calldata sig,
@@ -199,5 +200,38 @@ contract DutchAuctionMerkleMint is IMinter {
     function mint(address _token, address _to) external {
         uint256 price = getPrice(_token);
         Minted(_token).mint(1, _to);
+    }
+}
+
+contract LastPriceDutchAuctionMint is DutchAuctionMint {
+    /// add up the persons cumulative mint cost to calculate refunds
+    mapping(address => mapping(address => uint256)) public cumulativeMints;
+    mapping(address => mapping(address => uint256)) public cumulativeMintCost;
+    mapping(address => uint256) public lastPrice;
+
+    /// override mint and if it's the last mint then record the price;
+
+    function refund(address _token, address _who) external {
+        uint256 userCost = cumulativeMintCost[_token][_who];
+        uint256 numMinted = cumulativeMints[_token][_who];
+        delete cumulativeMintCost[_token][_who];
+        delete cumulativeMints[_token][_who];
+        uint256 refund = userCost - numMinted * lastPrice[_token];
+        /// transfer refund
+    }
+}
+
+interface IMintTicket {
+    function burn(uint256) external;
+}
+
+contract MintTicket is IMinter {
+    mapping(address => address) public mintTicketContracts;
+
+    function setMintDetails(uint256, uint256, uint256, bytes calldata) external {}
+
+    function mint(address _token, uint256 _id, bytes calldata _mintParams, address _to) external {
+        IMintTicket(mintTicketContracts[_token]).burn(_id);
+        Minted(_token).mint(1, _mintParams, _to);
     }
 }
