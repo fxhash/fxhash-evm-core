@@ -9,7 +9,7 @@ import {RoyaltyInfo} from "contracts/interfaces/IRoyaltyManager.sol";
 /// @param minters Mapping of minter contract to enabled status
 struct IssuerInfo {
     ProjectInfo projectInfo;
-    RoyaltyInfo primarySplit;
+    RoyaltyInfo primarySplits;
     mapping(address => bool) minters;
 }
 
@@ -47,14 +47,27 @@ struct MetadataInfo {
 interface IFxGenArt721 {
     error UnauthorizedCaller();
 
+    event ProjectInitialized(
+        ProjectInfo _projectInfo,
+        RoyaltyInfo _primarySplits,
+        address[] _minters,
+        address payable[] _receivers,
+        uint96[] _basisPoints
+    );
+
     function initialize(
         address _owner,
-        address _issuer,
+        address _configManager,
+        ProjectInfo calldata _projectInfo,
+        RoyaltyInfo calldata _primarySplits,
+        address[] calldata _minters,
         address payable[] calldata _receivers,
         uint96[] calldata _basisPoints
     ) external;
 
     function config() external view returns (address);
 
-    function genArtInfo(uint256 _tokenId) external view returns (TokenInfo memory);
+    function genArtInfo(uint96 _tokenId) external view returns (TokenInfo memory);
+
+    function tokenId() external view returns (uint96);
 }

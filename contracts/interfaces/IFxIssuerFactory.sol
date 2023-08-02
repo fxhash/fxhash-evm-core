@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
+import {ProjectInfo} from "contracts/interfaces/IFxGenArt721.sol";
+import {RoyaltyInfo} from "contracts/interfaces/IRoyaltyManager.sol";
+
 /// @title IFxIssuerFactory
 /// @notice Manages newly deployed FxGenArt721 token contracts
 interface IFxIssuerFactory {
@@ -16,6 +19,9 @@ interface IFxIssuerFactory {
     /// @notice Deploys and initializes new generative art project
     function createProject(
         address _owner,
+        ProjectInfo calldata _projectInfo,
+        RoyaltyInfo calldata _primarySplits,
+        address[] calldata _minters,
         address payable[] calldata _receivers,
         uint96[] calldata _basisPoints
     ) external returns (address);

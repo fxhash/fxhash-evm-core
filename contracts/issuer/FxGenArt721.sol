@@ -3,7 +3,7 @@ pragma solidity ^0.8.18;
 
 import {ERC721URIStorageUpgradeable, ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
 import {IConfigManager} from "contracts/interfaces/IConfigManager.sol";
-import {IFxGenArt721, TokenInfo} from "contracts/interfaces/IFxGenArt721.sol";
+import {IFxGenArt721, IssuerInfo, ProjectInfo, RoyaltyInfo, TokenInfo} from "contracts/interfaces/IFxGenArt721.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {RoyaltyManager} from "contracts/royalties/RoyaltyManager.sol";
 
@@ -16,8 +16,9 @@ contract FxGenArt721 is
     RoyaltyManager
 {
     address public config;
-    address public issuer;
-    mapping(uint256 => TokenInfo) internal _genArtInfo;
+    uint96 public tokenId;
+    IssuerInfo public issuerInfo;
+    mapping(uint96 => TokenInfo) internal _genArtInfo;
 
     modifier onlyContract(bytes32 _name) {
         if (msg.sender != IConfigManager(config).contracts(_name)) revert UnauthorizedCaller();
@@ -27,6 +28,9 @@ contract FxGenArt721 is
     function initialize(
         address _owner,
         address _config,
+        ProjectInfo calldata _projectInfo,
+        RoyaltyInfo calldata _primarySplits,
+        address[] calldata _minters,
         address payable[] calldata _receivers,
         uint96[] calldata _basisPoints
     ) external {
@@ -34,11 +38,18 @@ contract FxGenArt721 is
         __ERC721URIStorage_init();
         __Ownable_init();
         config = _config;
+        issuerInfo.projectInfo = _projectInfo;
+        issuerInfo.primarySplits = _primarySplits;
+        for (uint256 i; i < _minters.length; ++i) {
+            issuerInfo.minters[_minters[i]] = true;
+        }
         _setBaseRoyalties(_receivers, _basisPoints);
         transferOwnership(_owner);
+
+        emit ProjectInitialized(_projectInfo, _primarySplits, _minters, _receivers, _basisPoints);
     }
 
-    function genArtInfo(uint256 _tokenId) external view returns (TokenInfo memory) {
+    function genArtInfo(uint96 _tokenId) external view returns (TokenInfo memory) {
         return _genArtInfo[_tokenId];
     }
 
