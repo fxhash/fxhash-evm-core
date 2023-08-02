@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import {ProjectInfo} from "contracts/interfaces/IFxGenArt721.sol";
+import {PaymentInfo, ProjectInfo} from "contracts/interfaces/IFxGenArt721.sol";
 import {RoyaltyInfo} from "contracts/interfaces/IRoyaltyManager.sol";
 
 /// @title IFxIssuerFactory
@@ -20,23 +20,26 @@ interface IFxIssuerFactory {
     function createProject(
         address _owner,
         ProjectInfo calldata _projectInfo,
-        RoyaltyInfo calldata _primarySplits,
-        address[] calldata _minters,
-        address payable[] calldata _receivers,
-        uint96[] calldata _basisPoints
+        PaymentInfo calldata _primarySplit,
+        RoyaltyInfo[] calldata _secondarySplit,
+        address[] calldata _minters
     ) external returns (address);
 
-    /// @notice Sets new config manager
+    /// @notice Sets new ConfigManager contract
     function setConfigManager(address _configManager) external;
 
-    /// @notice Sets new implementation contract
+    /// @notice Sets new FxGenArt721 implementation contract
     function setImplementation(address _implementation) external;
 
+    /// @notice Returns address of ConfigManager contract
     function configManager() external view returns (address);
 
+    /// @notice Returns address of FxGenArt721 implementation contract
     function implementation() external view returns (address);
 
+    /// @notice Returns counter of current project ID
     function projectId() external view returns (uint96);
 
+    /// @notice Mapping of project ID to address of project proxy
     function projects(uint96) external view returns (address);
 }
