@@ -25,7 +25,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
         address _owner,
         ProjectInfo calldata _projectInfo,
         PaymentInfo calldata _primarySplit,
-        RoyaltyInfo[] calldata _secondarySplit,
+        RoyaltyInfo[] calldata _secondarySplits,
         address[] calldata _minters
     ) external returns (address genArtToken) {
         if (_owner == address(0)) revert InvalidOwner();
@@ -37,7 +37,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
             configManager,
             _projectInfo,
             _primarySplit,
-            _secondarySplit,
+            _secondarySplits,
             _minters
         );
 

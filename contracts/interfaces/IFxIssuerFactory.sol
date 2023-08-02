@@ -21,7 +21,7 @@ interface IFxIssuerFactory {
         address _owner,
         ProjectInfo calldata _projectInfo,
         PaymentInfo calldata _primarySplit,
-        RoyaltyInfo[] calldata _secondarySplit,
+        RoyaltyInfo[] calldata _secondarySplits,
         address[] calldata _minters
     ) external returns (address);
 

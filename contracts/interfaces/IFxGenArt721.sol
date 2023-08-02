@@ -55,7 +55,7 @@ interface IFxGenArt721 {
     event ProjectInitialized(
         ProjectInfo indexed _projectInfo,
         PaymentInfo indexed _primarySplit,
-        RoyaltyInfo[] indexed _secondarySplit,
+        RoyaltyInfo[] indexed _secondarySplits,
         address[] _minters
     );
 
@@ -64,7 +64,7 @@ interface IFxGenArt721 {
         address _configManager,
         ProjectInfo calldata _projectInfo,
         PaymentInfo calldata _primarySplit,
-        RoyaltyInfo[] calldata _secondarySplit,
+        RoyaltyInfo[] calldata _secondarySplits,
         address[] calldata _minters
     ) external;
 

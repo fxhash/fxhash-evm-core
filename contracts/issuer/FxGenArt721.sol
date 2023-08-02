@@ -31,7 +31,7 @@ contract FxGenArt721 is
         address _configManager,
         ProjectInfo calldata _projectInfo,
         PaymentInfo calldata _primarySplit,
-        RoyaltyInfo[] calldata _secondarySplit,
+        RoyaltyInfo[] calldata _secondarySplits,
         address[] calldata _minters
     ) external {
         __ERC721_init("FxGenArt721", "FXHASH");
@@ -43,10 +43,14 @@ contract FxGenArt721 is
         for (uint256 i; i < _minters.length; ++i) issuerInfo.minters[_minters[i]] = true;
         address payable[] memory receivers;
         uint96[] memory basisPoints;
+        for (uint256 i; i < _secondarySplits.length; ++i) {
+            receivers[i] = _secondarySplits[i].receiver;
+            basisPoints[i] = _secondarySplits[i].basisPoints;
+        }
         _setBaseRoyalties(receivers, basisPoints);
         transferOwnership(_owner);
 
-        emit ProjectInitialized(_projectInfo, _primarySplit, _secondarySplit, _minters);
+        emit ProjectInitialized(_projectInfo, _primarySplit, _secondarySplits, _minters);
     }
 
     function genArtInfo(uint96 _tokenId) external view returns (TokenInfo memory) {
