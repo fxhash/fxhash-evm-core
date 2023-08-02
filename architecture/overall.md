@@ -1,5 +1,7 @@
 # Overall architecture diagram
 
+> This document describes the overall architecture of the fxhash Smart Contracts.
+
 ## Gates (Reserves & Pricings)
 
 > The Gates are used as entry points to the Issuer, they act as a filter for accessing a mint. In the next architecture diagrams, Gates will be referred to as Gates; the concept englobes all the Pricing & Reserve mechanism which are abstracted from the rest of the application.
@@ -155,7 +157,7 @@ sequenceDiagram
   GenTk->>Randomizer: generate(): request for seed generation
   activate Randomizer
   Randomizer-)Randomizer: internal process for generating seed
-  Randomizer--)GenTk: setSeed()
+  Randomizer--)GenTk: set_seed()
   deactivate Randomizer
 ```
 
@@ -168,17 +170,15 @@ The implementation is agnostic of the synchronicity process of the reveal mechan
 ```mermaid
 classDiagram
   %% inheritance
-  Issuer <|-- IssuerBase : inherits
-  Issuer <|-- IssuerParams : inherits
   ERC721 <|-- GenTk : implements
   ERC721 <|-- Issuer_Tickets : implements
+  IERC5679Ext721 <|-- Issuer_Tickets : implements
   %% comms
   User "1" --> "*" Gate
   Gate "*" --> "1" Issuer
   Issuer --> GenTk
   GenTk --> Randomizer
   Randomizer --> GenTk
-  IssuerParams --> Issuer_Tickets
 
   class User {
   }
@@ -192,24 +192,17 @@ classDiagram
   class Issuer {
     <<inferface>>
     - uint supply
-    - uint balance
     - uint mod_state
+    - address author
     - address[] gates
-    - primary_splits
-    + mint(address recipient)
+    - Split[] primary_splits
+    + decrease_supply() (onlyGate)
+    + mint_iteration_safe(address _to) (onlyGate)
+    + mint_iteration(address _to) (onlyGate)
     + update_gates(address[] gates)
     + update_splits(Split[] splits)
     + burn_supply(uint amount)
     + mod_update_state(uint state, uint reason)
-  }
-
-  class IssuerBase {
-  }
-
-  class IssuerParams {
-    + mint(address recipient, bytes inputBytes)
-    + mint_ticket(address recipient)
-    + exchange_ticket()
   }
 
   class GenTk {
@@ -223,9 +216,15 @@ classDiagram
     + mint(address recipient, bytes input_bytes)
     + update_details(TBD)
     + update_royalty_splits(Split[] splits)
-    + setSeed(tokenId, seed)
-    + reveal(tokenId, metadata)
+    + set_seed(uint tokenId, bytes32 seed)
+    + reveal(uint tokenId, bytes metadata)
     + mod_update_labels(uint[] labels)
+  }
+
+  class IERC5679Ext721 {
+    <<interface>>
+    + safeMint(address _to, uint256 _id, bytes calldata _data)
+    + burn(address _from, uint256 _id, bytes calldata _data)
   }
 
   class Issuer_Tickets {
