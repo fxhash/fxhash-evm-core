@@ -2,12 +2,8 @@
 pragma solidity ^0.8.18;
 
 import {AuthorizedCaller} from "contracts/admin/AuthorizedCaller.sol";
-<<<<<<< HEAD
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
-=======
 import {ITreasury} from "contracts/interfaces/ITreasury.sol";
-import {SafeTransferLib} from "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
->>>>>>> main
 
 /// @title Treasury
 /// @notice See documentation in {ITreasury}

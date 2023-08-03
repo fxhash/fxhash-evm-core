@@ -3,7 +3,7 @@ pragma solidity ^0.8.18;
 
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {RoyaltyData} from "contracts/interfaces/IBaseRoyalties.sol";
-import {SafeTransferLib} from "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
+import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 import {SignedMath} from "@openzeppelin/contracts/utils/math/SignedMath.sol";
 
 import {IAllowMint} from "contracts/interfaces/IAllowMint.sol";
@@ -22,16 +22,9 @@ import {IBasePricing, PricingData} from "contracts/interfaces/IBasePricing.sol";
 import {IPricingManager} from "contracts/interfaces/IPricingManager.sol";
 import {IBaseReserve, ReserveData, ReserveInput, ReserveMethod} from "contracts/interfaces/IBaseReserve.sol";
 import {IReserveManager} from "contracts/interfaces/IReserveManager.sol";
-<<<<<<< HEAD
-import {LibIssuer} from "contracts/libs/LibIssuer.sol";
-import {LibPricing} from "contracts/libs/LibPricing.sol";
-import {LibReserve} from "contracts/libs/LibReserve.sol";
-import {LibRoyalty} from "contracts/libs/LibRoyalty.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 import {SignedMath} from "@openzeppelin/contracts/utils/math/SignedMath.sol";
-=======
->>>>>>> main
 
 contract Issuer is IIssuer, OwnableUpgradeable {
     IConfigurationManager private configManager;

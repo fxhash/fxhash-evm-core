@@ -1,68 +1,18 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-<<<<<<< HEAD
-import "contracts/admin/AuthorizedCaller.sol";
-import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "solmate/src/utils/SafeTransferLib.sol";
-=======
 import {AuthorizedCaller} from "contracts/admin/AuthorizedCaller.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import {IModerationTeam, TeamModInfo} from "contracts/interfaces/IModerationTeam.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {SafeTransferLib} from "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
->>>>>>> main
+import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 
 contract ModerationTeam is Ownable, IModerationTeam {
     using EnumerableSet for EnumerableSet.AddressSet;
-<<<<<<< HEAD
 
-    event Received(address sender, uint256 amount);
-
-    /*
-    TYPES DEFINITION
-    */
-    struct ModeratorData {
-        uint256[] authorizations;
-        uint256 share;
-    }
-
-    struct UpdateModeratorParam {
-        address moderator;
-        uint256[] authorizations;
-    }
-
-    struct UpdateShareParam {
-        address moderator;
-        uint256 share;
-    }
-
-    /*
-    STORAGE
-    */
-    uint256 sharesTotal;
-    mapping(address => ModeratorData) public moderators;
-    EnumerableSet.AddressSet private moderatorAddresses;
-
-    event ModeratorsUpdated(UpdateModeratorParam[] params);
-    event SharesUpdated(UpdateShareParam[] params);
-
-    /*
-    INITIALIZATION
-    */
-    constructor() {
-        sharesTotal = 0;
-    }
-
-    /*
-    MODIFIERS
-    */
-=======
     EnumerableSet.AddressSet private modSet;
     uint256 public totalShares;
     mapping(address => TeamModInfo) public moderators;
->>>>>>> main
 
     modifier onlyModerator() {
         if (!isModerator(msg.sender)) revert NotModerator();
