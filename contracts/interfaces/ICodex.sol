@@ -1,12 +1,25 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "contracts/libs/LibCodex.sol";
+struct CodexData {
+    uint256 entryType;
+    address author;
+    bool locked;
+    address issuer;
+    bytes[] value;
+}
+
+struct CodexInput {
+    uint256 inputType;
+    bytes value;
+    uint256 codexId;
+    address issuer;
+}
 
 interface ICodex {
     function insertOrUpdateCodex(
         address author,
-        LibCodex.CodexInput memory input
+        CodexInput memory input
     ) external returns (uint256);
 
     function codexAddEntry(uint256 entryType, address issuer, bytes[] calldata value) external;
@@ -15,7 +28,7 @@ interface ICodex {
 
     function codexUpdateEntry(uint256 entryId, bool pushEnd, bytes memory value) external;
 
-    function updateIssuerCodexRequest(LibCodex.CodexInput calldata input) external;
+    function updateIssuerCodexRequest(CodexInput calldata input) external;
 
     function updateIssuerCodexApprove(address _issuer, uint256 _codexId) external;
 }

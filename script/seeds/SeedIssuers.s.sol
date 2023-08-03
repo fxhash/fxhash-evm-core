@@ -1,0 +1,399 @@
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.18;
+
+import {CodexInput} from "contracts/interfaces/ICodex.sol";
+import {Deploy} from "script/Deploy.s.sol";
+import {IIssuer, MintInput, MintIssuerInput, MintTicketSettings, OpenEditions} from "contracts/interfaces/IIssuer.sol";
+import {MintPassGroup} from "contracts/reserves/MintPassGroup.sol";
+import {PricingData} from "contracts/interfaces/IBasePricing.sol";
+import {PriceDetails as DutchAuctionDetails} from "contracts/pricing/DutchAuction.sol";
+import {PriceDetails as FixedPriceDetails} from "contracts/pricing/FixedPrice.sol";
+import {ReserveData} from "contracts/interfaces/IBaseReserve.sol";
+import {RoyaltyData} from "contracts/interfaces/IBaseRoyalties.sol";
+import {Script} from "forge-std/Script.sol";
+import {WhitelistEntry} from "contracts/reserves/ReserveWhitelist.sol";
+import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
+
+import "script/utils/Constants.sol";
+
+contract SeedIssuers is Deploy {
+    enum ReserveOptions {
+        None,
+        Whitelist,
+        MintPass,
+        WhitelistAndMintPass
+    }
+    enum PricingOptions {
+        Fixed,
+        DutchAuction
+    }
+    enum OpenEditionsOptions {
+        Enabled,
+        Disabled
+    }
+    enum MintTicketOptions {
+        Enabled,
+        Disabled
+    }
+    enum OnChainOptions {
+        Enabled,
+        Disabled
+    }
+
+    struct MintIssuerInputStruct {
+        address issuer;
+        address mintPassGroup;
+        ReserveOptions reserveOption;
+        PricingOptions pricingOption;
+        OpenEditionsOptions openEditionsOption;
+        MintTicketOptions mintTicketOption;
+        OnChainOptions onChainOption;
+    }
+
+    struct MintInputStruct {
+        address issuer;
+        address mintPassGroup;
+        address recipient;
+        address referrer;
+        address mintTicket;
+        ReserveOptions reserveOption;
+        MintTicketOptions mintTicketOption;
+    }
+
+    uint256 public mintNb;
+    uint256 public time;
+    uint256 public lastMint;
+
+    string public MNEMONIC = vm.envString("MNEMONIC");
+    address payable[] public royaltyReceivers;
+    uint96[] public royaltyBasisPoints;
+
+    function setUp() public virtual override {
+        //vm.startBroadcast(deployer);
+        createAccounts();
+        royaltyReceivers.push(payable(alice));
+        royaltyBasisPoints.push(1500);
+        Deploy.setUp();
+        Deploy.run();
+        //vm.stopBroadcast();
+    }
+
+    function run() public virtual override {
+        mintAllGetIssuerCombinations();
+    }
+
+    function createAccounts() public override {
+        alice = vm.addr(vm.deriveKey(MNEMONIC, 0));
+        bob = vm.addr(vm.deriveKey(MNEMONIC, 1));
+        eve = vm.addr(vm.deriveKey(MNEMONIC, 2));
+        susan = vm.addr(vm.deriveKey(MNEMONIC, 3));
+
+        vm.rememberKey(vm.deriveKey(MNEMONIC, 0));
+        vm.rememberKey(vm.deriveKey(MNEMONIC, 1));
+        vm.rememberKey(vm.deriveKey(MNEMONIC, 2));
+        vm.rememberKey(vm.deriveKey(MNEMONIC, 3));
+    }
+
+    function getTotalCombinations() public pure returns (uint256) {
+        uint256 reserveOptionsCount = uint256(ReserveOptions.WhitelistAndMintPass) + 1;
+        uint256 pricingOptionsCount = uint256(PricingOptions.DutchAuction) + 1;
+        uint256 openEditionsOptionsCount = uint256(OpenEditionsOptions.Disabled) + 1;
+        uint256 mintTicketOptionsCount = uint256(MintTicketOptions.Disabled) + 1;
+        uint256 onChainOptionsCount = uint256(OnChainOptions.Disabled) + 1;
+
+        return
+            reserveOptionsCount *
+            pricingOptionsCount *
+            openEditionsOptionsCount *
+            mintTicketOptionsCount *
+            onChainOptionsCount;
+    }
+
+    function mintAllGetIssuerCombinations() public {
+        MintInputStruct[] memory mintQueue = new MintInputStruct[](getTotalCombinations());
+        vm.startBroadcast(alice);
+        for (uint256 i = 0; i < uint256(ReserveOptions.WhitelistAndMintPass) + 1; i++) {
+            for (uint256 j = 0; j < uint256(PricingOptions.DutchAuction) + 1; j++) {
+                for (uint256 k = 0; k < uint256(OpenEditionsOptions.Disabled) + 1; k++) {
+                    for (uint256 l = 0; l < uint256(MintTicketOptions.Disabled) + 1; l++) {
+                        for (uint256 m = 0; m < uint256(OnChainOptions.Disabled) + 1; m++) {
+                            MintPassGroup _mintPassGroup;
+                            (address _issuer, ) = projectFactory.createProject(
+                                royaltyReceivers,
+                                royaltyBasisPoints,
+                                alice
+                            );
+
+                            if (
+                                i == uint256(ReserveOptions.MintPass) ||
+                                i == uint256(ReserveOptions.WhitelistAndMintPass)
+                            ) {
+                                _mintPassGroup = new MintPassGroup(
+                                    MAX_PER_TOKEN,
+                                    MAX_PER_TOKEN_PER_PROJECT,
+                                    vm.addr(vm.envUint("SIGNER_PRIVATE_KEY")),
+                                    address(reserveMintPass),
+                                    new address[](0)
+                                );
+                            }
+
+                            IIssuer(_issuer).mintIssuer(
+                                _getMintIssuerInput(
+                                    MintIssuerInputStruct({
+                                        issuer: _issuer,
+                                        mintPassGroup: address(_mintPassGroup),
+                                        reserveOption: ReserveOptions(i),
+                                        pricingOption: PricingOptions(j),
+                                        openEditionsOption: OpenEditionsOptions(k),
+                                        mintTicketOption: MintTicketOptions(l),
+                                        onChainOption: OnChainOptions(m)
+                                    })
+                                )
+                            );
+
+                            mintQueue[mintNb] = MintInputStruct({
+                                issuer: _issuer,
+                                mintPassGroup: address(_mintPassGroup),
+                                recipient: bob,
+                                referrer: eve,
+                                mintTicket: address(mintTicket),
+                                reserveOption: ReserveOptions(i),
+                                mintTicketOption: MintTicketOptions(l)
+                            });
+                            mintNb++;
+                            lastMint = block.timestamp;
+                        }
+                    }
+                }
+            }
+        }
+        vm.stopBroadcast();
+        vm.writeJson(
+            vm.serializeBytes("issuers", "issuersData", abi.encode(mintQueue)),
+            "script/issuers.json"
+        );
+    }
+
+    function sleep() public {
+        string[] memory runJsInputs = new string[](3);
+
+        // Build ffi command string
+        runJsInputs[0] = "node";
+        runJsInputs[1] = "script/sleep.js";
+        runJsInputs[2] = vm.toString((OPEN_DELAY + 10) * 1000);
+        vm.ffi(runJsInputs);
+    }
+
+    // Issuer features
+    //  - Mint Ticket (True/False)
+    //  - Open Editions (True/False)
+    //  - Reserves (None/Whitelist/Mint Pass)
+    //  - Pricing (Fixed price/Dutch Auction)
+    //  - On chain / off chain
+    function _getMintIssuerInput(
+        MintIssuerInputStruct memory mintIssuerInput
+    ) public view returns (MintIssuerInput memory) {
+        ReserveData[] memory reserveData;
+        PricingData memory pricingData;
+        OpenEditions memory openEditionsData;
+        MintTicketSettings memory mintTicketData;
+        WrappedScriptRequest[] memory onChainData;
+
+        if (mintIssuerInput.reserveOption == ReserveOptions.None) {
+            reserveData = _getEmptyReserveParam();
+        } else if (mintIssuerInput.reserveOption == ReserveOptions.Whitelist) {
+            reserveData = _getWhitelistParam();
+        } else if (mintIssuerInput.reserveOption == ReserveOptions.MintPass) {
+            reserveData = _getMintPassParam(mintIssuerInput.mintPassGroup);
+        } else if (mintIssuerInput.reserveOption == ReserveOptions.WhitelistAndMintPass) {
+            reserveData = _getWhitelistAndMintPassParam(mintIssuerInput.mintPassGroup);
+        }
+
+        if (mintIssuerInput.pricingOption == PricingOptions.Fixed) {
+            pricingData = _getFixedPriceParam();
+        } else {
+            pricingData = _getDutchAuctionParam();
+        }
+
+        if (mintIssuerInput.openEditionsOption == OpenEditionsOptions.Enabled) {
+            openEditionsData = _getOpenEditionParam();
+        } else {
+            openEditionsData = _getEmptyOpenEditionParam();
+        }
+
+        if (mintIssuerInput.mintTicketOption == MintTicketOptions.Enabled) {
+            mintTicketData = _getMintTicketParam();
+        } else {
+            mintTicketData = _getEmptyMintTicketParam();
+        }
+
+        if (mintIssuerInput.onChainOption == OnChainOptions.Enabled) {
+            onChainData = _getOnChainScripts();
+        } else {
+            onChainData = _getEmptyOnChainScripts();
+        }
+        return
+            MintIssuerInput({
+                codex: CodexInput({
+                    inputType: 0,
+                    value: bytes(""),
+                    codexId: 0,
+                    issuer: mintIssuerInput.issuer
+                }),
+                metadata: bytes(""),
+                inputBytesSize: 0,
+                amount: 10,
+                openEditions: openEditionsData,
+                mintTicketSettings: mintTicketData,
+                reserves: reserveData,
+                pricing: pricingData,
+                primarySplit: _getSplit(),
+                enabled: true,
+                tags: new uint256[](0),
+                onChainScripts: onChainData
+            });
+    }
+
+    function _getEmptyMintTicketParam() public pure returns (MintTicketSettings memory) {
+        return MintTicketSettings({gracingPeriod: 0, metadata: ""});
+    }
+
+    function _getMintTicketParam() public pure returns (MintTicketSettings memory) {
+        return MintTicketSettings({gracingPeriod: 1000, metadata: "ipfs://1234"});
+    }
+
+    function _getOpenEditionParam() public view returns (OpenEditions memory) {
+        return OpenEditions({closingTime: block.timestamp + 200000000, extra: bytes("")});
+    }
+
+    function _getEmptyOpenEditionParam() public pure returns (OpenEditions memory) {
+        return OpenEditions({closingTime: 0, extra: bytes("")});
+    }
+
+    function _getEmptyReserveParam() public pure returns (ReserveData[] memory) {
+        return new ReserveData[](0);
+    }
+
+    function _getWhitelistParam() public view returns (ReserveData[] memory) {
+        ReserveData[] memory reserves = new ReserveData[](1);
+        WhitelistEntry[] memory whitelistEntries = new WhitelistEntry[](3);
+
+        whitelistEntries[0] = WhitelistEntry({whitelisted: bob, amount: 2});
+        whitelistEntries[1] = WhitelistEntry({whitelisted: eve, amount: 1});
+        whitelistEntries[2] = WhitelistEntry({whitelisted: susan, amount: 1});
+
+        reserves[0] = ReserveData({methodId: 1, amount: 4, data: abi.encode(whitelistEntries)});
+        return reserves;
+    }
+
+    function _getMintPassParam(address mintPassGroup) public pure returns (ReserveData[] memory) {
+        ReserveData[] memory reserves = new ReserveData[](1);
+        reserves[0] = ReserveData({
+            methodId: 2,
+            amount: 4,
+            data: abi.encode(address(mintPassGroup))
+        });
+        return reserves;
+    }
+
+    function _getWhitelistAndMintPassParam(
+        address mintPassGroup
+    ) public view returns (ReserveData[] memory) {
+        ReserveData[] memory reserves = new ReserveData[](2);
+        WhitelistEntry[] memory whitelistEntries = new WhitelistEntry[](3);
+
+        whitelistEntries[0] = WhitelistEntry({whitelisted: bob, amount: 2});
+        whitelistEntries[1] = WhitelistEntry({whitelisted: eve, amount: 1});
+        whitelistEntries[2] = WhitelistEntry({whitelisted: susan, amount: 1});
+
+        reserves[0] = ReserveData({methodId: 1, amount: 4, data: abi.encode(whitelistEntries)});
+        reserves[1] = ReserveData({methodId: 2, amount: 4, data: abi.encode(mintPassGroup)});
+        return reserves;
+    }
+
+    function _getFixedPriceParam() public view returns (PricingData memory) {
+        return
+            PricingData({
+                pricingId: 1,
+                details: abi.encode(
+                    FixedPriceDetails({price: PRICE, opensAt: block.timestamp + OPEN_DELAY})
+                ),
+                lockForReserves: false
+            });
+    }
+
+    function _getDutchAuctionParam() public view returns (PricingData memory) {
+        uint256[] memory levels = new uint256[](4);
+        levels[0] = PRICE;
+        levels[1] = PRICE / 2;
+        levels[2] = PRICE / 3;
+        levels[3] = PRICE / 4;
+        return
+            PricingData({
+                pricingId: 2,
+                details: abi.encode(
+                    DutchAuctionDetails({
+                        opensAt: block.timestamp + OPEN_DELAY,
+                        decrementDuration: 600,
+                        lockedPrice: 0,
+                        levels: levels
+                    })
+                ),
+                lockForReserves: false
+            });
+    }
+
+    function _getEmptyOnChainScripts() public pure returns (WrappedScriptRequest[] memory) {
+        return new WrappedScriptRequest[](0);
+    }
+
+    function _getOnChainScripts() public view returns (WrappedScriptRequest[] memory) {
+        WrappedScriptRequest[] memory scriptRequests = new WrappedScriptRequest[](4);
+        bytes memory emptyBytes = "";
+        scriptRequests[0] = WrappedScriptRequest({
+            name: "monad-1960-bundle.js",
+            contractAddress: address(scriptyStorage),
+            contractData: emptyBytes,
+            wrapType: 0,
+            wrapPrefix: emptyBytes,
+            wrapSuffix: emptyBytes,
+            scriptContent: emptyBytes
+        });
+
+        scriptRequests[1] = WrappedScriptRequest({
+            name: "gunzipScripts-0.0.1",
+            contractAddress: address(scriptyStorage),
+            contractData: emptyBytes,
+            wrapType: 0,
+            wrapPrefix: emptyBytes,
+            wrapSuffix: emptyBytes,
+            scriptContent: emptyBytes
+        });
+
+        scriptRequests[2] = WrappedScriptRequest({
+            name: "fxhash-snippet.js.gz",
+            contractAddress: address(scriptyStorage),
+            contractData: emptyBytes,
+            wrapType: 2,
+            wrapPrefix: emptyBytes,
+            wrapSuffix: emptyBytes,
+            scriptContent: emptyBytes
+        });
+
+        scriptRequests[3] = WrappedScriptRequest({
+            name: "monad-1960-js.js.gz",
+            contractAddress: address(scriptyStorage),
+            contractData: emptyBytes,
+            wrapType: 2,
+            wrapPrefix: emptyBytes,
+            wrapSuffix: emptyBytes,
+            scriptContent: emptyBytes
+        });
+
+        return scriptRequests;
+    }
+
+    function _getSplit() public view returns (RoyaltyData memory) {
+        return RoyaltyData({percent: 1000, receiver: msg.sender});
+    }
+}

@@ -8,11 +8,11 @@ interface IAllowMint {
     error TokenModerated();
 
     /// @notice Updates the Issuer Moderation contract
-    /// @param _moderationContract Address of new moderation contract
-    function updateIssuerModerationContract(address _moderationContract) external;
+    /// @param _moderation Address of new moderation contract
+    function updateIssuerModeration(address _moderation) external;
 
     /// @notice Gets current state of token moderation contract
-    /// @param _tokenContract Address of moderation contract
-    /// @return moderation state of token contract
-    function isAllowed(address _tokenContract) external view returns (bool);
+    /// @param _moderation Address of moderation contract
+    /// @return allowance state of token contract
+    function isAllowed(address _moderation) external view returns (bool);
 }

@@ -2,6 +2,7 @@
 src = "contracts"
 out = "artifacts"
 libs = ["lib", "node_modules"]
+ignored_error_codes = [5574, 6321]
 remappings = [
   "@ensdomains/=node_modules/@ensdomains/",
   "@ethereum-waffle/=node_modules/@ethereum-waffle/",

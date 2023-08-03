@@ -3,21 +3,20 @@ pragma solidity ^0.8.18;
 
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {AdminVerify} from "contracts/admin/AdminVerify.sol";
+import {IAuthorizedCaller} from "contracts/interfaces/IAuthorizedCaller.sol";
 
 /// @title AuthorizedCaller
 /// @notice Controls authorized caller privledges
-contract AuthorizedCaller is AdminVerify {
+contract AuthorizedCaller is AdminVerify, IAuthorizedCaller {
     /// @notice Role of Authorized Caller
     bytes32 public constant AUTHORIZED_CALLER = keccak256("AUTHORIZED_CALLER");
 
-    /// @notice Grants authorized caller to given account
-    /// @param _account Address of user account
+    /// @inheritdoc IAuthorizedCaller
     function grantAuthorizedCallerRole(address _account) external {
         grantRole(AUTHORIZED_CALLER, _account);
     }
 
-    /// @notice Revokes authorized caller role from given account
-    /// @param _account Address of user account
+    /// @inheritdoc IAuthorizedCaller
     function revokeAuthorizedCallerRole(address _account) external {
         revokeRole(AUTHORIZED_CALLER, _account);
     }
