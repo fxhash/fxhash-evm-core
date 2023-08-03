@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import {Deploy} from "script/Deploy.s.sol";
+import {Deploy} from "script/DeployScript.s.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import {IIssuer, MintInput} from "contracts/interfaces/IIssuer.sol";
 import {MintTicket} from "contracts/reserves/MintTicket.sol";

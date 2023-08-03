@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 import {CodexInput} from "contracts/interfaces/ICodex.sol";
-import {Deploy} from "script/Deploy.s.sol";
+import {Deploy} from "script/DeployScript.s.sol";
 import {IIssuer, MintInput, MintIssuerInput, MintTicketSettings, OpenEditions} from "contracts/interfaces/IIssuer.sol";
 import {MintPassGroup} from "contracts/reserves/MintPassGroup.sol";
 import {PricingData} from "contracts/interfaces/IBasePricing.sol";

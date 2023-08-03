@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 import {Test} from "forge-std/Test.sol";
-import {Deploy} from "script/Deploy.s.sol";
+import {Deploy} from "script/DeployScript.s.sol";
 import {ISplitsMain} from "contracts/interfaces/ISplitsMain.sol";
 import {Lib0xSplits} from "contracts/lib/Lib0xSplits.sol";
 

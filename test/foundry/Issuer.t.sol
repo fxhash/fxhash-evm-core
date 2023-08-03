@@ -3,7 +3,7 @@ pragma solidity ^0.8.18;
 
 import {Test} from "forge-std/Test.sol";
 import {CodexInput} from "contracts/interfaces/ICodex.sol";
-import {Deploy} from "script/Deploy.s.sol";
+import {Deploy} from "script/DeployScript.s.sol";
 import {GenTk} from "contracts/issuer/GenTk.sol";
 import {Issuer} from "contracts/issuer/Issuer.sol";
 import {IIssuer, MintInput, MintIssuerInput, MintTicketSettings, MintWithTicketInput, OpenEditions} from "contracts/interfaces/IIssuer.sol";

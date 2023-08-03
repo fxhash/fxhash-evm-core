@@ -4,6 +4,7 @@ pragma solidity ^0.8.18;
 uint64 constant ISSUER_FEES = 1000;
 uint64 constant ISSUER_REFERRAL_SHARE = 1000;
 uint128 constant ISSUER_LOCK_TIME = 0;
+uint256 constant BALANCE = 100 ether;
 uint256 constant MARKETPLACE_MAX_REFERRAL_SHARE = 1000;
 uint256 constant MARKETPLACE_PLATFORM_FEES = 1000;
 uint256 constant MARKETPLACE_REFERRAL_SHARE = 1000;
