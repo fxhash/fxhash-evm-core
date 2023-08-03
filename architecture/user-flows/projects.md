@@ -17,6 +17,15 @@ These are the various flow outlining various distribution settings artists can u
 - open editions, 50 access list which have to mint at a fixed price before the public can start minting, with a dutch auction
 - for all of the above, support of mint tickets
 
+Optionnaly, we also want to think about how we can grant another account the right to run Gate operations in our name. Ex:
+
+- 100eds, access list, fixed price
+- user A has an access list slot
+- user A want to pay with credit card
+  - our credit card solution involves having them make a blockchain transaction in the background with their wallet
+- user A grants credit card provider the right to consume their reserve slot
+- credit card provider mints on behalf of user A
+
 ## Project settings
 
 ### Onchain code
