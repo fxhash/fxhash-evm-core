@@ -5,7 +5,7 @@ import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {IAdminVerify} from "contracts/interfaces/IAdminVerify.sol";
 
 /// @title AdminVerify
-/// @notice See documentation
+/// @notice See documentation in {IAdminVerify}
 contract AdminVerify is AccessControl, IAdminVerify {
     /// @inheritdoc IAdminVerify
     function grantAdminRole(address _account) external {

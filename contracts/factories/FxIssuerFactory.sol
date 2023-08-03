@@ -7,12 +7,18 @@ import {IFxIssuerFactory} from "contracts/interfaces/IFxIssuerFactory.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {RoyaltyInfo} from "contracts/interfaces/IRoyaltyManager.sol";
 
-/// @title FxIssuerFactory
-/// @dev See the documentation in {IFxIssuerFactory}
+/**
+ * @title FxIssuerFactory
+ * @notice See the documentation in {IFxIssuerFactory}
+ */
 contract FxIssuerFactory is IFxIssuerFactory, Ownable {
+    /// @inheritdoc IFxIssuerFactory
     uint96 public projectId;
+    /// @inheritdoc IFxIssuerFactory
     address public configManager;
+    /// @inheritdoc IFxIssuerFactory
     address public implementation;
+    /// @inheritdoc IFxIssuerFactory
     mapping(uint96 => address) public projects;
 
     /// @dev Initializes implementaiton of FxGenArt721 token contract
@@ -25,7 +31,8 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
         address _owner,
         ProjectInfo calldata _projectInfo,
         PaymentInfo calldata _primarySplit,
-        RoyaltyInfo[] calldata _secondarySplits,
+        address payable[] calldata _receivers,
+        uint96[] calldata _basisPoints,
         address[] calldata _minters
     ) external returns (address genArtToken) {
         if (_owner == address(0)) revert InvalidOwner();
@@ -37,11 +44,12 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
             configManager,
             _projectInfo,
             _primarySplit,
-            _secondarySplits,
+            _receivers,
+            _basisPoints,
             _minters
         );
 
-        emit NewProjectCreated(projectId, _owner, genArtToken, configManager);
+        emit ProjectCreated(projectId, _owner, genArtToken, configManager);
     }
 
     /// @inheritdoc IFxIssuerFactory
