@@ -4,6 +4,7 @@ pragma solidity ^0.8.18;
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 import {IFxGenArt721, PaymentInfo, ProjectInfo} from "contracts/interfaces/IFxGenArt721.sol";
 import {IFxIssuerFactory} from "contracts/interfaces/IFxIssuerFactory.sol";
+import {IMetadataRenderer} from "contracts/interfaces/IMetadataRenderer.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {RoyaltyInfo} from "contracts/interfaces/IRoyaltyManager.sol";
 

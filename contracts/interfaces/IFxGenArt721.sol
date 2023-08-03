@@ -101,14 +101,25 @@ interface IFxGenArt721 {
     ) external;
 
     /**
+     * @notice Returns the current token ID counter
+     */
+    function currentId() external view returns (uint96);
+
+    /**
      * @notice Returns the address of the ConfigManager contract
      */
     function configManager() external view returns (address);
 
     /**
-     * @notice Returns the current token ID counter
+     * @notice Returns the address of the MetadataRenderer contract
      */
-    function currentId() external view returns (uint96);
+    function metadataRenderer() external view returns (address);
+
+    /**
+     * @notice Gets the IssuerInfo of the project
+     * @return ProjectInfo and PaymentInfo
+     */
+    function issuerInfo() external view returns (ProjectInfo memory, PaymentInfo memory);
 
     /**
      * @notice Gets the generative art information for a given token
@@ -118,10 +129,10 @@ interface IFxGenArt721 {
     function genArtInfo(uint96 _tokenId) external view returns (TokenInfo memory);
 
     /**
-     * @notice Gets the IssuerInfo of the project
-     * @return ProjectInfo and PaymentInfo
+     * @notice Sets the new MetadataRenderer contract used in tokenURI
+     * @param _renderer Address of the MetadataRenderer contract
      */
-    function issuerInfo() external view returns (ProjectInfo memory, PaymentInfo memory);
+    function setMetadataRenderer(address _renderer) external;
 
     /**
      * @notice Gets the authorization status for the given minter

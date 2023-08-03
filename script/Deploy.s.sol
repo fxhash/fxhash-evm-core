@@ -24,9 +24,7 @@ contract Deploy is Script {
     uint96[] public basisPoints;
     address[] public minters;
 
-    function setUp() public virtual {
-        run();
-    }
+    function setUp() public virtual {}
 
     function run() public virtual {
         vm.startBroadcast();

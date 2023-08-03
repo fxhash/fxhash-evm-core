@@ -4,6 +4,7 @@ pragma solidity ^0.8.18;
 import {ERC721URIStorageUpgradeable, ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
 import {IConfigManager} from "contracts/interfaces/IConfigManager.sol";
 import {IFxGenArt721, IssuerInfo, PaymentInfo, ProjectInfo, MetadataInfo, TokenInfo} from "contracts/interfaces/IFxGenArt721.sol";
+import {IMetadataRenderer} from "contracts/interfaces/IMetadataRenderer.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {RoyaltyManager} from "contracts/royalties/RoyaltyManager.sol";
 
@@ -23,6 +24,8 @@ contract FxGenArt721 is
     uint96 public currentId;
     /// @inheritdoc IFxGenArt721
     address public configManager;
+    /// @inheritdoc IFxGenArt721
+    address public metadataRenderer;
     /// @inheritdoc IFxGenArt721
     IssuerInfo public issuerInfo;
     /// @dev Internal mapping of token ID to TokenInfo
@@ -74,7 +77,7 @@ contract FxGenArt721 is
         address payable[] calldata _receivers,
         uint96[] calldata _basisPoints,
         address[] calldata _minters
-    ) external {
+    ) external initializer {
         __ERC721_init("FxGenArt721", "FXHASH");
         __ERC721URIStorage_init();
         __Ownable_init();
@@ -93,6 +96,10 @@ contract FxGenArt721 is
         emit ProjectInitialized(_projectInfo, _primarySplit, _minters);
     }
 
+    function setMetadataRenderer(address _renderer) external onlyOwner {
+        metadataRenderer = _renderer;
+    }
+
     /// @inheritdoc IFxGenArt721
     function genArtInfo(uint96 _tokenId) external view returns (TokenInfo memory) {
         return _genArtInfo[_tokenId];
@@ -101,6 +108,17 @@ contract FxGenArt721 is
     /// @inheritdoc IFxGenArt721
     function isMinter(address _minter) public view returns (bool) {
         return issuerInfo.minters[_minter];
+    }
+
+    /// @inheritdoc ERC721URIStorageUpgradeable
+    function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
+        _requireMinted(_tokenId);
+
+        if (bytes(_genArtInfo[uint96(_tokenId)].offChainPointer).length > 0) {
+            return IMetadataRenderer(metadataRenderer).renderOffchain(_tokenId);
+        } else {
+            return IMetadataRenderer(metadataRenderer).renderOnchain(_tokenId);
+        }
     }
 
     /// @inheritdoc ERC721URIStorageUpgradeable
