@@ -760,14 +760,59 @@ sequenceDiagram
   end
 ```
 
+## Explorations
+
+What if we defined the nodes
+
+```solidity
+// stores the entry points to the Gate tree
+bytes32[] entry_gates
+// stores the nodes in a hashmap
+mapping(bytes32 => Gate) gates
+
+// a mapping of Gate type -> implementation
+// tbd: how do we map to a fn_pointer where the gate is implemented
+mapping(uint => fn_pointer)
+
+struct Gate {
+  // parents of this gate
+  parents: bytes32[]
+  // output
+  output: bytes32
+  // the type of the gate; maps to its implementation
+  uint type
+  // the settings of the Gate, depends on its type
+  bytes settings
+  // storage of the Gate
+  // todo: how do we define the storage, encoded as bytes is inneficient is
+  // pretty limited (storing mappings into bytes :/)
+  bytes data
+}
+```
+
+With this kind of implementation, users could provide a tree of gates they want to use, and the "GateManager" would be responsible for parsing the tree and execute the right functions.
+
+There should also be a validator, which checks if all the potential paths are valid.
+
 # To be defined
 
 - how do gates inform the issuer an amount was paid, and needs to be distributed ? how do we pass this data
 - similarly, some gates can have some control over the next gates. For instance, the DA gates are lockable if
 - which gates do we compress ? (for instance supply can be implemented into many gates to simplify)
   - **!careful!**: compressing the Gates will result in an exponential number of implementation if not done properly
--
+- can we turn the atomic gate components into simple functions we parse using a tree stored in-memory of a core contract
 
 # Edge cases to explore
 
 - 2 reserves: public & access list; when the public is done minting, we want to lock the price of the dutch auction to the last price by the public (so that people in the access list must pay the same price, they don't have to wait until resting price to mint)
+
+# TODO
+
+- draft edge cases for Steven
+- give the input data
+
+- Access list 20
+- Public 100 - DA 100 -> 20
+  0 50
+
+- AccessList_Public_DA ->
