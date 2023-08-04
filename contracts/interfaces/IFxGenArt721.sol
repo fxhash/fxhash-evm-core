@@ -102,9 +102,9 @@ interface IFxGenArt721 {
     function configManager() external view returns (address);
 
     /**
-     * @notice Returns the address of the MetadataRenderer contract
+     * @notice Returns the address of the Metadata contract
      */
-    function metadataRenderer() external view returns (address);
+    function metadata() external view returns (address);
 
     /**
      * @notice Gets the IssuerInfo of the project
@@ -120,10 +120,10 @@ interface IFxGenArt721 {
     function genArtInfo(uint96 _tokenId) external view returns (TokenInfo memory);
 
     /**
-     * @notice Sets the new MetadataRenderer contract used in tokenURI
-     * @param _renderer Address of the MetadataRenderer contract
+     * @notice Sets the new Metadata contract for renderring tokenURI
+     * @param _metadata Address of the Metadata contract
      */
-    function setMetadataRenderer(address _renderer) external;
+    function setMetadata(address _metadata) external;
 
     /**
      * @notice Gets the authorization status for the given minter

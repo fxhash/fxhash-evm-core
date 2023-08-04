@@ -2,14 +2,14 @@
 pragma solidity ^0.8.18;
 
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
-import {IMetadataRenderer} from "contracts/interfaces/IMetadataRenderer.sol";
+import {IFxMetadata} from "contracts/interfaces/IFxMetadata.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
 /**
- * @title MetadataRenderer
- * @notice See the documentation in {IMetadataRenderer}
+ * @title FxMetadata
+ * @notice See the documentation in {IFxMetadata}
  */
-contract MetadataRenderer is IMetadataRenderer {
+contract FxMetadata is IFxMetadata {
     using Strings for uint256;
     address public immutable ethfsFileStorage;
     address public immutable scriptyStorage;
