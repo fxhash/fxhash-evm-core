@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import {PaymentInfo, ProjectInfo} from "contracts/interfaces/IFxGenArt721.sol";
+import {ProjectInfo} from "contracts/interfaces/IFxGenArt721.sol";
 
 /**
  * @title FxIssuerFactory
@@ -30,17 +30,17 @@ interface IFxIssuerFactory {
     /**
      * @notice Creates new Generative Art project
      * @param _owner Address of project owner
+     * @param _primaryReceiver Address of splitter contract receiving primary sales
      * @param _projectInfo Project information
-     * @param _primarySplit Payment split of primary sales
-     * @param _receivers List of royalty receivers
-     * @param _basisPoints List of royalty basis points
+     * @param _royaltyReceivers List of addresses receiving royalties
+     * @param _basisPoints List of basis points for calculating royalty shares
      * @param _minters List of authorized minter contracts
      */
     function createProject(
         address _owner,
+        address _primaryReceiver,
         ProjectInfo calldata _projectInfo,
-        PaymentInfo calldata _primarySplit,
-        address payable[] calldata _receivers,
+        address payable[] calldata _royaltyReceivers,
         uint96[] calldata _basisPoints,
         address[] calldata _minters
     ) external returns (address);

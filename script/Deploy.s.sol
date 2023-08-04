@@ -3,7 +3,7 @@ pragma solidity ^0.8.18;
 
 import {ConfigManager, ConfigInfo} from "contracts/admin/config/ConfigManager.sol";
 import {FxIssuerFactory} from "contracts/factories/FxIssuerFactory.sol";
-import {FxGenArt721, IssuerInfo, PaymentInfo, ProjectInfo, MetadataInfo, TokenInfo} from "contracts/tokens/FxGenArt721.sol";
+import {FxGenArt721, IssuerInfo, ProjectInfo} from "contracts/tokens/FxGenArt721.sol";
 import {Script} from "forge-std/Script.sol";
 
 import "contracts/utils/Constants.sol";
@@ -16,11 +16,9 @@ contract Deploy is Script {
 
     // Storage
     address public implementation;
+    address public primaryReceiver;
     ProjectInfo public projectInfo;
-    PaymentInfo public paymentInfo;
-    MetadataInfo public metadataInfo;
-    TokenInfo public tokenInfo;
-    address payable[] public receivers;
+    address payable[] public royaltyReceivers;
     uint96[] public basisPoints;
     address[] public minters;
 
@@ -43,9 +41,9 @@ contract Deploy is Script {
         fxIssuerFactory.setImplementation(address(fxGenArt721));
         implementation = fxIssuerFactory.createProject(
             msg.sender,
+            primaryReceiver,
             projectInfo,
-            paymentInfo,
-            receivers,
+            royaltyReceivers,
             basisPoints,
             minters
         );

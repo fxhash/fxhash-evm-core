@@ -3,12 +3,12 @@ pragma solidity ^0.8.18;
 
 /**
  * @param projectInfo Project information
- * @param primarySplit Payment split of primary sales
+ * @param primaryReceiver Address of splitter contract receiving primary sales
  * @param minters Mapping of minter contract to authorization status
  */
 struct IssuerInfo {
     ProjectInfo projectInfo;
-    PaymentInfo primarySplit;
+    address primaryReceiver;
     mapping(address => bool) minters;
 }
 
@@ -25,15 +25,6 @@ struct ProjectInfo {
     uint128 supply;
     bytes metadata;
     uint16[] labels;
-}
-
-/**
- * @param recevier Address of payment receiver
- * @param basisPoints Percentage points used to calculate payments
- */
-struct PaymentInfo {
-    address payable receiver;
-    uint96 basisPoints;
 }
 
 /**
@@ -71,12 +62,12 @@ interface IFxGenArt721 {
     /**
      * @notice Event emitted when new project is initialized
      * @param _projectInfo Project information
-     * @param _primarySplit Payment split of primary sales
+     * @param _primaryReceiver Address of splitter contract receiving primary sales
      * @param _minters List of authorized minter contracts
      */
     event ProjectInitialized(
         ProjectInfo indexed _projectInfo,
-        PaymentInfo indexed _primarySplit,
+        address indexed _primaryReceiver,
         address[] _minters
     );
 
@@ -84,18 +75,18 @@ interface IFxGenArt721 {
      * @notice Initializes new generative art project
      * @param _owner Address of contract owner
      * @param _configManager Address of ConfigManager contract
+     * @param _primaryReceiver Address of splitter contract receiving primary sales
      * @param _projectInfo Project information
-     * @param _primarySplit Payment split of primary sales
-     * @param _receivers List of royalty receivers
-     * @param _basisPoints List of royalty basis points
+     * @param _royaltyReceivers List of addresses receiving royalties
+     * @param _basisPoints List of basis points for calculating royalty shares
      * @param _minters List of authorized minter contracts
      */
     function initialize(
         address _owner,
         address _configManager,
+        address _primaryReceiver,
         ProjectInfo calldata _projectInfo,
-        PaymentInfo calldata _primarySplit,
-        address payable[] calldata _receivers,
+        address payable[] calldata _royaltyReceivers,
         uint96[] calldata _basisPoints,
         address[] calldata _minters
     ) external;
@@ -117,9 +108,9 @@ interface IFxGenArt721 {
 
     /**
      * @notice Gets the IssuerInfo of the project
-     * @return ProjectInfo and PaymentInfo
+     * @return ProjectInfo and splitter contract address
      */
-    function issuerInfo() external view returns (ProjectInfo memory, PaymentInfo memory);
+    function issuerInfo() external view returns (ProjectInfo memory, address);
 
     /**
      * @notice Gets the generative art information for a given token

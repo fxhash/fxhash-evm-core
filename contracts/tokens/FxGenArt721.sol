@@ -3,7 +3,7 @@ pragma solidity ^0.8.18;
 
 import {ERC721URIStorageUpgradeable, ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
 import {IConfigManager} from "contracts/interfaces/IConfigManager.sol";
-import {IFxGenArt721, IssuerInfo, PaymentInfo, ProjectInfo, MetadataInfo, TokenInfo} from "contracts/interfaces/IFxGenArt721.sol";
+import {IFxGenArt721, IssuerInfo, ProjectInfo, MetadataInfo, TokenInfo} from "contracts/interfaces/IFxGenArt721.sol";
 import {IMetadataRenderer} from "contracts/interfaces/IMetadataRenderer.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {RoyaltyManager} from "contracts/royalties/RoyaltyManager.sol";
@@ -70,22 +70,22 @@ contract FxGenArt721 is
 
     /// @inheritdoc IFxGenArt721
     function initialize(
-        address _owner,
         address _configManager,
+        address _owner,
+        address _primaryReceiver,
         ProjectInfo calldata _projectInfo,
-        PaymentInfo calldata _primarySplit,
-        address payable[] calldata _receivers,
+        address payable[] calldata _royaltyReceivers,
         uint96[] calldata _basisPoints,
         address[] calldata _minters
     ) external initializer {
         __ERC721_init("FxGenArt721", "FXHASH");
         __ERC721URIStorage_init();
         __Ownable_init();
-        _setBaseRoyalties(_receivers, _basisPoints);
+        _setBaseRoyalties(_royaltyReceivers, _basisPoints);
         transferOwnership(_owner);
         configManager = _configManager;
         issuerInfo.projectInfo = _projectInfo;
-        issuerInfo.primarySplit = _primarySplit;
+        issuerInfo.primaryReceiver = _primaryReceiver;
         for (uint256 i; i < _minters.length; ) {
             issuerInfo.minters[_minters[i]] = true;
             unchecked {
@@ -93,7 +93,7 @@ contract FxGenArt721 is
             }
         }
 
-        emit ProjectInitialized(_projectInfo, _primarySplit, _minters);
+        emit ProjectInitialized(_projectInfo, _primaryReceiver, _minters);
     }
 
     function setMetadataRenderer(address _renderer) external onlyOwner {
