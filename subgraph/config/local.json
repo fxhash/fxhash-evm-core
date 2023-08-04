@@ -1,7 +1,0 @@
-{
-  "network": "hardhat",
-  "factory": {
-    "address": "0xCA0E799A9248a2a05B7b728C970623A9f50E0e87",
-    "startBlock": 0
-  }
-}
