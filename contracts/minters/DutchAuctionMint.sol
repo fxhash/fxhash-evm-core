@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 import {wadExp, wadLn, wadMul, unsafeWadMul, toWadUnsafe} from "solmate/src/utils/SignedWadMath.sol";
-import {Minted} from "contracts/minters/Minted.sol";
+import {Minted} from "contracts/minters/base/Minted.sol";
 import {IMinter} from "contracts/interfaces/IMinter.sol";
 import {IMinter, Reserve} from "contracts/interfaces/IMinter.sol";
 

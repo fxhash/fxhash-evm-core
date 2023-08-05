@@ -5,7 +5,7 @@ import {console} from "forge-std/Test.sol";
 import {Base} from "test/foundry/Base.t.sol";
 import {FixedPriceMint} from "contracts/minters/FixedPriceMint.sol";
 import {IWETH} from "contracts/interfaces/IWETH.sol";
-import {Minted} from "contracts/minters/Minted.sol";
+import {Minted} from "contracts/minters/base/Minted.sol";
 import {MockGenerativeToken, Reserve} from "test/mocks/MockGenerativeToken.sol";
 import {IMinter} from "contracts/interfaces/IMinter.sol";
 

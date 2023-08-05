@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 import {IMinter} from "contracts/interfaces/IMinter.sol";
-import {Minted, Reserve} from "contracts/minters/Minted.sol";
+import {Minted, Reserve} from "contracts/minters/base/Minted.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 contract MintPass is IMinter {

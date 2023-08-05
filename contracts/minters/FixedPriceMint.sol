@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import {Minter, Reserve} from "contracts/minters/Minter.sol";
-import {Minted} from "contracts/minters/Minted.sol";
+import {Minter, Reserve} from "contracts/minters/base/Minter.sol";
+import {Minted} from "contracts/minters/base/Minted.sol";
 import {IWETH} from "contracts/interfaces/IWETH.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 
@@ -12,6 +12,7 @@ contract FixedPriceMint is Minter {
     bytes32 internal constant NULL_RESERVE = keccak256(abi.encode(Reserve(0, 0, 0)));
     mapping(address => uint256) public prices;
     mapping(address => Reserve) public reserves;
+    mapping(address => uint256) public saleProceeds;
 
     error InvalidToken();
     error NotStarted();
@@ -34,9 +35,15 @@ contract FixedPriceMint is Minter {
         if (_amount > reserve.allocation) revert TooMany();
         uint256 price = _amount * prices[_token];
         reserve.allocation -= _amount.safeCastTo160();
-
-        /// TODO: Come back after agreeing with sahil on this
-        IWETH(weth9).transferFrom(msg.sender, Minted(_token).feeReceiver(), price);
+        saleProceeds[_token] += price;
+        IWETH(weth9).transferFrom(msg.sender, address(this), price);
         Minted(_token).mint(_amount, _to);
+    }
+
+    function withdraw(address _token) external {
+        address saleReceiver = Minted(_token).feeReceiver();
+        uint256 proceeds = saleProceeds[_token];
+        saleProceeds[_token] = 1;
+        IWETH(weth9).transfer(saleReceiver, proceeds - 1);
     }
 }
