@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 import {IMinter} from "contracts/interfaces/IMinter.sol";
-import {Minted} from "contracts/minters/Minted.sol";
+import {Minted, Reserve} from "contracts/minters/Minted.sol";
 import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 contract MerkleMint is IMinter {
@@ -17,7 +17,7 @@ contract MerkleMint is IMinter {
 
     /// should integrate delegate cash
 
-    function setMintDetails(uint256, uint256, uint256, bytes calldata) external {}
+    function setMintDetails(Reserve calldata _reserve, bytes calldata) external {}
 
     function mint(
         address _token,

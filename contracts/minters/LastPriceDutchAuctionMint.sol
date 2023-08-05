@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
+import {IMinter, Reserve} from "contracts/interfaces/IMinter.sol";
 import {DutchAuctionMint} from "contracts/minters/DutchAuctionMint.sol";
 
 contract LastPriceDutchAuctionMint is DutchAuctionMint {

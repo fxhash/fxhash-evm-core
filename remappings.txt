@@ -8,4 +8,3 @@ hardhat/=node_modules/hardhat/
 scripty.sol/=node_modules/scripty.sol/
 solady/=node_modules/solady/
 solmate/=node_modules/solmate/
-lib/forge-std:ds-test/=lib/forge-std/lib/ds-test/src/

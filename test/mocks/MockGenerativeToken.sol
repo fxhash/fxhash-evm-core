@@ -1,21 +1,30 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import {Minted} from "contracts/minters/Minted.sol";
+import {Minted, Reserve} from "contracts/minters/Minted.sol";
 
 contract MockGenerativeToken is Minted {
-    /// harness function
-    function registerMinter(
-        address _minter,
-        uint256 _allocation,
-        uint256 _startTime,
-        uint256 _endTime,
-        bytes calldata _minterData
-    ) external {
-        _registerMinter(_minter, _allocation, _startTime, _endTime, _minterData);
+    mapping(address => uint256) public balanceOf;
+
+    function feeReceiver() external pure override returns (address) {
+        return address(420);
     }
 
-    function mint(uint256, address) external override {}
+    /// harness function
 
-    function mint(uint256, bytes calldata, address) external override {}
+    function registerMinter(
+        address _minter,
+        Reserve calldata _reserve,
+        bytes calldata _minterData
+    ) external {
+        _registerMinter(_minter, _reserve, _minterData);
+    }
+
+    function mint(uint256 amount, address to) external override {
+        balanceOf[to] += amount;
+    }
+
+    function mint(uint256 amount, bytes calldata, address to) external override {
+        balanceOf[to] += amount;
+    }
 }
