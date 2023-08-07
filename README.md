@@ -54,10 +54,7 @@ npm run deploy
 ```
 
 8. Seed contracts
+
 ```
 npm run seed
 ```
-
-## Architecture
-
-<img src="images/architecture.svg">
