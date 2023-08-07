@@ -3,9 +3,8 @@ pragma solidity ^0.8.18;
 
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 import {IFxGenArt721, ProjectInfo} from "contracts/interfaces/IFxGenArt721.sol";
-import {IFxIssuerFactory} from "contracts/interfaces/IFxIssuerFactory.sol";
+import {IFxIssuerFactory, ConfigInfo} from "contracts/interfaces/IFxIssuerFactory.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {RoyaltyInfo} from "contracts/interfaces/IRoyaltyManager.sol";
 
 /**
  * @title FxIssuerFactory
@@ -15,14 +14,20 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     /// @inheritdoc IFxIssuerFactory
     uint96 public projectId;
     /// @inheritdoc IFxIssuerFactory
-    address public configManager;
+    address public contractRegistry;
+    /// @inheritdoc IFxIssuerFactory
+    address public roleRegistry;
     /// @inheritdoc IFxIssuerFactory
     address public implementation;
     /// @inheritdoc IFxIssuerFactory
+    ConfigInfo public configInfo;
+    /// @inheritdoc IFxIssuerFactory
     mapping(uint96 => address) public projects;
 
-    /// @dev Initializes implementaiton of FxGenArt721 token contract
-    constructor(address _implementation) {
+    /// @dev Initializes registries and implementation contracts
+    constructor(address _contractRegistry, address _roleRegistry, address _implementation) {
+        contractRegistry = _contractRegistry;
+        roleRegistry = _roleRegistry;
         implementation = _implementation;
     }
 
@@ -40,8 +45,9 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
         projects[++projectId] = genArtToken;
 
         IFxGenArt721(genArtToken).initialize(
-            configManager,
             _owner,
+            contractRegistry,
+            roleRegistry,
             _primaryReceiver,
             _projectInfo,
             _royaltyReceivers,
@@ -49,12 +55,12 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
             _minters
         );
 
-        emit ProjectCreated(projectId, _owner, genArtToken, configManager);
+        emit ProjectCreated(projectId, _owner, genArtToken);
     }
 
     /// @inheritdoc IFxIssuerFactory
-    function setConfigManager(address _configManager) external onlyOwner {
-        configManager = _configManager;
+    function setConfig(ConfigInfo calldata _configInfo) external onlyOwner {
+        configInfo = _configInfo;
     }
 
     /// @inheritdoc IFxIssuerFactory

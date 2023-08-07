@@ -1,20 +1,22 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import {ConfigManager, ConfigInfo} from "contracts/admin/config/ConfigManager.sol";
-import {FxIssuerFactory} from "contracts/factories/FxIssuerFactory.sol";
+import {ContractRegistry} from "contracts/registries/ContractRegistry.sol";
 import {FxGenArt721, IssuerInfo, ProjectInfo} from "contracts/tokens/FxGenArt721.sol";
+import {FxIssuerFactory} from "contracts/factories/FxIssuerFactory.sol";
 import {FxMetadata} from "contracts/metadata/FxMetadata.sol";
+import {RoleRegistry} from "contracts/registries/RoleRegistry.sol";
 import {Script} from "forge-std/Script.sol";
 
 import "contracts/utils/Constants.sol";
 
 contract Deploy is Script {
     // Contracts
-    ConfigManager public configManager;
+    ContractRegistry public contractRegistry;
     FxIssuerFactory public fxIssuerFactory;
     FxGenArt721 public fxGenArt721;
     FxMetadata public fxMetadata;
+    RoleRegistry public roleRegistry;
 
     // Storage
     address public fxGenArtProxy;
@@ -39,14 +41,18 @@ contract Deploy is Script {
     }
 
     function deploy() public {
-        configManager = new ConfigManager();
-        fxIssuerFactory = new FxIssuerFactory(address(configManager));
+        contractRegistry = new ContractRegistry();
+        roleRegistry = new RoleRegistry();
         fxGenArt721 = new FxGenArt721();
+        fxIssuerFactory = new FxIssuerFactory(
+            address(contractRegistry),
+            address(roleRegistry),
+            address(fxGenArt721)
+        );
         fxMetadata = new FxMetadata(ETHFS_FILE_STORAGE, SCRIPTY_STORAGE_V2, SCRIPTY_BUILDER_V2);
     }
 
     function configure() public {
-        fxIssuerFactory.setImplementation(address(fxGenArt721));
         fxGenArtProxy = fxIssuerFactory.createProject(
             msg.sender,
             primaryReceiver,

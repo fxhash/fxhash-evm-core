@@ -1,23 +1,16 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import {IConfigManager, ConfigInfo} from "contracts/interfaces/IConfigManager.sol";
+import {IContractRegistry} from "contracts/interfaces/IContractRegistry.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-/// @title ConfigManager
-/// @notice See the documentation in {IConfigManager}
-contract ConfigManager is Ownable, IConfigManager {
-    /// @inheritdoc IConfigManager
-    ConfigInfo public configInfo;
-    /// @inheritdoc IConfigManager
+/// @title ContractRegistry
+/// @notice See the documentation in {IContractRegistry}
+contract ContractRegistry is Ownable, IContractRegistry {
+    /// @inheritdoc IContractRegistry
     mapping(bytes32 => address) public contracts;
 
-    /// @inheritdoc IConfigManager
-    function setConfig(ConfigInfo calldata _configInfo) external onlyOwner {
-        configInfo = _configInfo;
-    }
-
-    /// @inheritdoc IConfigManager
+    /// @inheritdoc IContractRegistry
     function setContracts(
         string[] calldata _names,
         address[] calldata _contracts

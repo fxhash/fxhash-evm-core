@@ -74,7 +74,8 @@ interface IFxGenArt721 {
     /**
      * @notice Initializes new generative art project
      * @param _owner Address of contract owner
-     * @param _configManager Address of ConfigManager contract
+     * @param _contractRegistry Address of ContractRegistry contract
+     * @param _roleRegistry Address of RoleRegistry contract
      * @param _primaryReceiver Address of splitter contract receiving primary sales
      * @param _projectInfo Project information
      * @param _royaltyReceivers List of addresses receiving royalties
@@ -83,7 +84,8 @@ interface IFxGenArt721 {
      */
     function initialize(
         address _owner,
-        address _configManager,
+        address _contractRegistry,
+        address _roleRegistry,
         address _primaryReceiver,
         ProjectInfo calldata _projectInfo,
         address payable[] calldata _royaltyReceivers,
@@ -97,9 +99,14 @@ interface IFxGenArt721 {
     function currentId() external view returns (uint96);
 
     /**
-     * @notice Returns the address of the ConfigManager contract
+     * @notice Returns the address of the ContractRegistry contract
      */
-    function configManager() external view returns (address);
+    function contractRegistry() external view returns (address);
+
+    /**
+     * @notice Returns address of the RoleRegistry contract
+     */
+    function roleRegistry() external view returns (address);
 
     /**
      * @notice Returns the address of the Metadata contract

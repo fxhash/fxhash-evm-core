@@ -2,9 +2,10 @@
 pragma solidity ^0.8.18;
 
 import {ERC721URIStorageUpgradeable, ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
-import {IConfigManager} from "contracts/interfaces/IConfigManager.sol";
+import {IContractRegistry} from "contracts/interfaces/IContractRegistry.sol";
 import {IFxGenArt721, IssuerInfo, ProjectInfo, MetadataInfo, TokenInfo} from "contracts/interfaces/IFxGenArt721.sol";
 import {IFxMetadata} from "contracts/interfaces/IFxMetadata.sol";
+import {IRoleRegistry} from "contracts/interfaces/IRoleRegistry.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {RoyaltyManager} from "contracts/royalties/RoyaltyManager.sol";
 
@@ -23,7 +24,9 @@ contract FxGenArt721 is
     /// @inheritdoc IFxGenArt721
     uint96 public currentId;
     /// @inheritdoc IFxGenArt721
-    address public configManager;
+    address public contractRegistry;
+    /// @inheritdoc IFxGenArt721
+    address public roleRegistry;
     /// @inheritdoc IFxGenArt721
     address public metadata;
     /// @inheritdoc IFxGenArt721
@@ -61,15 +64,16 @@ contract FxGenArt721 is
 
     /// @dev Modifier for restricting calls to only authorized contracts
     modifier onlyContract(bytes32 _name) {
-        if (msg.sender != IConfigManager(configManager).contracts(_name))
+        if (msg.sender != IContractRegistry(contractRegistry).contracts(_name))
             revert UnauthorizedCaller();
         _;
     }
 
     /// @inheritdoc IFxGenArt721
     function initialize(
-        address _configManager,
         address _owner,
+        address _contractRegistry,
+        address _roleRegistry,
         address _primaryReceiver,
         ProjectInfo calldata _projectInfo,
         address payable[] calldata _royaltyReceivers,
@@ -81,7 +85,8 @@ contract FxGenArt721 is
         __Ownable_init();
         transferOwnership(_owner);
         _setBaseRoyalties(_royaltyReceivers, _basisPoints);
-        configManager = _configManager;
+        contractRegistry = _contractRegistry;
+        roleRegistry = _roleRegistry;
         issuerInfo.projectInfo = _projectInfo;
         issuerInfo.primaryReceiver = _primaryReceiver;
         for (uint256 i; i < _minters.length; ) {

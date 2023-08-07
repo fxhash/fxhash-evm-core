@@ -4,6 +4,19 @@ pragma solidity ^0.8.18;
 import {ProjectInfo} from "contracts/interfaces/IFxGenArt721.sol";
 
 /**
+ * @param feeShare Share fee out of 10000 basis points
+ * @param referrerShare Referrer fee share out of 10000 basis points
+ * @param lockTime Time duration of locked
+ * @param defaultMetadata Default URI of metadata
+ */
+struct ConfigInfo {
+    uint64 feeShare;
+    uint64 referrerShare;
+    uint128 lockTime;
+    string defaultMetadata;
+}
+
+/**
  * @title FxIssuerFactory
  * @notice Manages newly deployed FxGenArt721 token contracts
  */
@@ -18,13 +31,11 @@ interface IFxIssuerFactory {
      * @param _projectId ID of the project
      * @param _owner Address of project owner
      * @param _genArtToken Address of newly deployed FxGenArt721 token contract
-     * @param _configManager Address of ConfigManager contract
      */
     event ProjectCreated(
         uint96 indexed _projectId,
         address indexed _owner,
-        address indexed _genArtToken,
-        address _configManager
+        address indexed _genArtToken
     );
 
     /**
@@ -46,10 +57,10 @@ interface IFxIssuerFactory {
     ) external returns (address);
 
     /**
-     * @notice Sets new ConfigManager contract
-     * @param _configManager Address of the ConfigManager contract
+     * @notice Sets the platform configuration
+     * @param _config Struct of config info
      */
-    function setConfigManager(address _configManager) external;
+    function setConfig(ConfigInfo calldata _config) external;
 
     /**
      * @notice Sets new FxGenArt721 implementation contract
@@ -58,9 +69,19 @@ interface IFxIssuerFactory {
     function setImplementation(address _implementation) external;
 
     /**
-     * @notice Returns address of current ConfigManager contract
+     * @notice Returns the configuration values (feeShare, referrerShare, lockTime, defaultMetadata)
      */
-    function configManager() external view returns (address);
+    function configInfo() external view returns (uint64, uint64, uint128, string memory);
+
+    /**
+     * @notice Returns address of the ContractRegistry contract
+     */
+    function contractRegistry() external view returns (address);
+
+    /**
+     * @notice Returns address of the RoleRegistry contract
+     */
+    function roleRegistry() external view returns (address);
 
     /**
      * @notice Returns address of current FxGenArt721 implementation contract
