@@ -63,10 +63,17 @@ contract FxGenArt721 is
     // |░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░|
     // |-------------------------------------------------------------------------------------------|
 
-    /// @dev Modifier for restricting calls to only authorized contracts
+    /// @dev Modifier for restricting calls to only registered contracts
     modifier onlyContract(bytes32 _name) {
         if (msg.sender != IContractRegistry(contractRegistry).contracts(_name))
             revert UnauthorizedContract();
+        _;
+    }
+
+    /// @dev Modifier for restricting calls to only authorized minters
+    modifier onlyMinter() {
+        if (!RoleRegistry(roleRegistry).hasRole(MINTER_ROLE, msg.sender) || !isMinter(msg.sender))
+            revert UnauthorizedMinter();
         _;
     }
 
@@ -95,6 +102,20 @@ contract FxGenArt721 is
         _setBaseRoyalties(_royaltyReceivers, _basisPoints);
 
         emit ProjectInitialized(_projectInfo, _mintInfo, _primaryReceiver);
+    }
+
+    function publicMint(address _to) external onlyMinter {
+        if (!issuerInfo.projectInfo.enabled) revert MintInactive();
+        _mint(_to, ++totalSupply);
+    }
+
+    function ownerMint(address _to) external onlyOwner {
+        if (issuerInfo.projectInfo.enabled) revert MintActive();
+        _mint(_to, ++totalSupply);
+    }
+
+    function toggleMint() external onlyOwner {
+        issuerInfo.projectInfo.enabled = !issuerInfo.projectInfo.enabled;
     }
 
     /// @inheritdoc IFxGenArt721

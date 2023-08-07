@@ -85,6 +85,16 @@ interface IFxGenArt721 {
     error InvalidReserveTime();
 
     /**
+     * @notice Error thrown minting is active
+     */
+    error MintActive();
+
+    /**
+     * @notice Error thrown when minting is inactive
+     */
+    error MintInactive();
+
+    /**
      * @notice Error thrown when caller is not an authorized contract
      */
     error UnauthorizedContract();
