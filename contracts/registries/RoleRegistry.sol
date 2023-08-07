@@ -4,14 +4,11 @@ pragma solidity ^0.8.18;
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {IRoleRegistry} from "contracts/interfaces/IRoleRegistry.sol";
 
+import {ADMIN_ROLE, CREATOR_ROLE, MINTER_ROLE, MODERATOR_ROLE} from "contracts/utils/Constants.sol";
+
 /// @title RoleRegistry
 /// @notice See the documentation in {IRoleRegistry}
 contract RoleRegistry is AccessControl, IRoleRegistry {
-    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
-    bytes32 public constant CREATOR_ROLE = keccak256("CREATOR_ROLE");
-    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
-    bytes32 public constant MODERATOR_ROLE = keccak256("MODERATOR_ROLE");
-
     constructor() {
         _setRoleAdmin(ADMIN_ROLE, ADMIN_ROLE);
         _setRoleAdmin(CREATOR_ROLE, ADMIN_ROLE);
@@ -20,5 +17,9 @@ contract RoleRegistry is AccessControl, IRoleRegistry {
 
         _grantRole(ADMIN_ROLE, msg.sender);
         _grantRole(MODERATOR_ROLE, msg.sender);
+    }
+
+    function setRoleAdmin(bytes32 _role) external onlyRole(ADMIN_ROLE) {
+        _setRoleAdmin(_role, ADMIN_ROLE);
     }
 }

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import {ProjectInfo} from "contracts/interfaces/IFxGenArt721.sol";
+import {MintInfo, ProjectInfo} from "contracts/interfaces/IFxGenArt721.sol";
 
 /**
  * @param feeShare Share fee out of 10000 basis points
@@ -43,17 +43,17 @@ interface IFxIssuerFactory {
      * @param _owner Address of project owner
      * @param _primaryReceiver Address of splitter contract receiving primary sales
      * @param _projectInfo Project information
+     * @param _mintInfo List of authorized minter contracts and their reserves
      * @param _royaltyReceivers List of addresses receiving royalties
      * @param _basisPoints List of basis points for calculating royalty shares
-     * @param _minters List of authorized minter contracts
      */
     function createProject(
         address _owner,
         address _primaryReceiver,
         ProjectInfo calldata _projectInfo,
+        MintInfo[] calldata _mintInfo,
         address payable[] calldata _royaltyReceivers,
-        uint96[] calldata _basisPoints,
-        address[] calldata _minters
+        uint96[] calldata _basisPoints
     ) external returns (address);
 
     /**
@@ -72,16 +72,6 @@ interface IFxIssuerFactory {
      * @notice Returns the configuration values (feeShare, referrerShare, lockTime, defaultMetadata)
      */
     function configInfo() external view returns (uint64, uint64, uint128, string memory);
-
-    /**
-     * @notice Returns address of the ContractRegistry contract
-     */
-    function contractRegistry() external view returns (address);
-
-    /**
-     * @notice Returns address of the RoleRegistry contract
-     */
-    function roleRegistry() external view returns (address);
 
     /**
      * @notice Returns address of current FxGenArt721 implementation contract

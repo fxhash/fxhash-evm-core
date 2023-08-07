@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 import {ContractRegistry} from "contracts/registries/ContractRegistry.sol";
-import {FxGenArt721, IssuerInfo, ProjectInfo} from "contracts/tokens/FxGenArt721.sol";
+import {FxGenArt721, IssuerInfo, MintInfo, ProjectInfo, ReserveInfo} from "contracts/tokens/FxGenArt721.sol";
 import {FxIssuerFactory} from "contracts/factories/FxIssuerFactory.sol";
 import {FxMetadata} from "contracts/metadata/FxMetadata.sol";
 import {RoleRegistry} from "contracts/registries/RoleRegistry.sol";
@@ -22,9 +22,9 @@ contract Deploy is Script {
     address public fxGenArtProxy;
     address public primaryReceiver;
     ProjectInfo public projectInfo;
+    MintInfo[] public mintInfo;
     address payable[] public royaltyReceivers;
     uint96[] public basisPoints;
-    address[] public minters;
 
     // Goerli
     address public constant ETHFS_FILE_STORAGE = 0x70a78d91A434C1073D47b2deBe31C184aA8CA9Fa;
@@ -43,12 +43,8 @@ contract Deploy is Script {
     function deploy() public {
         contractRegistry = new ContractRegistry();
         roleRegistry = new RoleRegistry();
-        fxGenArt721 = new FxGenArt721();
-        fxIssuerFactory = new FxIssuerFactory(
-            address(contractRegistry),
-            address(roleRegistry),
-            address(fxGenArt721)
-        );
+        fxGenArt721 = new FxGenArt721(address(contractRegistry), address(roleRegistry));
+        fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721));
         fxMetadata = new FxMetadata(ETHFS_FILE_STORAGE, SCRIPTY_STORAGE_V2, SCRIPTY_BUILDER_V2);
     }
 
@@ -57,9 +53,9 @@ contract Deploy is Script {
             msg.sender,
             primaryReceiver,
             projectInfo,
+            mintInfo,
             royaltyReceivers,
-            basisPoints,
-            minters
+            basisPoints
         );
         FxGenArt721(fxGenArtProxy).setMetadata(address(fxMetadata));
     }

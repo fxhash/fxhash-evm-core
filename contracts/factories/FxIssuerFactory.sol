@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
-import {IFxGenArt721, ProjectInfo} from "contracts/interfaces/IFxGenArt721.sol";
+import {IFxGenArt721, MintInfo, ProjectInfo} from "contracts/interfaces/IFxGenArt721.sol";
 import {IFxIssuerFactory, ConfigInfo} from "contracts/interfaces/IFxIssuerFactory.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
@@ -14,10 +14,6 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     /// @inheritdoc IFxIssuerFactory
     uint96 public projectId;
     /// @inheritdoc IFxIssuerFactory
-    address public contractRegistry;
-    /// @inheritdoc IFxIssuerFactory
-    address public roleRegistry;
-    /// @inheritdoc IFxIssuerFactory
     address public implementation;
     /// @inheritdoc IFxIssuerFactory
     ConfigInfo public configInfo;
@@ -25,9 +21,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     mapping(uint96 => address) public projects;
 
     /// @dev Initializes registries and implementation contracts
-    constructor(address _contractRegistry, address _roleRegistry, address _implementation) {
-        contractRegistry = _contractRegistry;
-        roleRegistry = _roleRegistry;
+    constructor(address _implementation) {
         implementation = _implementation;
     }
 
@@ -36,9 +30,9 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
         address _owner,
         address _primaryReceiver,
         ProjectInfo calldata _projectInfo,
+        MintInfo[] calldata _mintInfo,
         address payable[] calldata _royaltyReceivers,
-        uint96[] calldata _basisPoints,
-        address[] calldata _minters
+        uint96[] calldata _basisPoints
     ) external returns (address genArtToken) {
         if (_owner == address(0)) revert InvalidOwner();
         genArtToken = Clones.clone(implementation);
@@ -46,13 +40,11 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
 
         IFxGenArt721(genArtToken).initialize(
             _owner,
-            contractRegistry,
-            roleRegistry,
             _primaryReceiver,
             _projectInfo,
+            _mintInfo,
             _royaltyReceivers,
-            _basisPoints,
-            _minters
+            _basisPoints
         );
 
         emit ProjectCreated(projectId, _owner, genArtToken);

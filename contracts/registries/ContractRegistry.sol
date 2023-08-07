@@ -16,14 +16,18 @@ contract ContractRegistry is Ownable, IContractRegistry {
         address[] calldata _contracts
     ) external onlyOwner {
         address contractAddr;
+        bytes32 contractName;
         uint256 length = _names.length;
         // Reverts if array lengths are not equal
         if (length != _contracts.length) revert LengthMismatch();
         for (uint256 i; i < length; ) {
             contractAddr = _contracts[i];
+            contractName = keccak256(abi.encode(_names[i]));
+            // Reverts if contract is already set
+            if (contracts[contractName] != address(0)) revert ContractAlreadySet();
             // Reverts if contract is zero address
             if (contractAddr == address(0)) revert InvalidContract();
-            contracts[keccak256(abi.encode(_names[i]))] = contractAddr;
+            contracts[contractName] = contractAddr;
             unchecked {
                 ++i;
             }

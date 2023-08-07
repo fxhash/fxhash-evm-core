@@ -28,6 +28,26 @@ struct ProjectInfo {
 }
 
 /**
+ * @param minter Address of the minter contract
+ * @param reserveInfo Reserve information
+ */
+struct MintInfo {
+    address minter;
+    ReserveInfo reserveInfo;
+}
+
+/**
+ * @param startTime Start timestamp of minter
+ * @param endTime End timestamp of minter
+ * @param allocation Allocation amount for minter
+ */
+struct ReserveInfo {
+    uint64 startTime;
+    uint64 endTime;
+    uint128 allocation;
+}
+
+/**
  * @param fxParams Randon sequence of string bytes in fixed length
  * @param seed Hash of revealed seed
  * @param offChainPointer URI of offchain metadata pointer
@@ -55,48 +75,59 @@ struct MetadataInfo {
  */
 interface IFxGenArt721 {
     /**
+     * @notice Error thrown when total minter allocation exceeds maximum supply
+     */
+    error AllocationExceeded();
+
+    /**
+     * @notice Error thrown when reserve start time is greater than or equal to end time
+     */
+    error InvalidReserveTime();
+
+    /**
      * @notice Error thrown when caller is not an authorized contract
      */
-    error UnauthorizedCaller();
+    error UnauthorizedContract();
+
+    /**
+     * @notice Error thrown when minter is not an authorized contract
+     */
+    error UnauthorizedMinter();
 
     /**
      * @notice Event emitted when new project is initialized
      * @param _projectInfo Project information
+     * @param _mintInfo List of authorized minter contracts and their reserves
      * @param _primaryReceiver Address of splitter contract receiving primary sales
-     * @param _minters List of authorized minter contracts
      */
     event ProjectInitialized(
         ProjectInfo indexed _projectInfo,
-        address indexed _primaryReceiver,
-        address[] _minters
+        MintInfo[] indexed _mintInfo,
+        address indexed _primaryReceiver
     );
 
     /**
      * @notice Initializes new generative art project
      * @param _owner Address of contract owner
-     * @param _contractRegistry Address of ContractRegistry contract
-     * @param _roleRegistry Address of RoleRegistry contract
      * @param _primaryReceiver Address of splitter contract receiving primary sales
      * @param _projectInfo Project information
+     * @param _mintInfo List of authorized minter contracts and their reserves
      * @param _royaltyReceivers List of addresses receiving royalties
      * @param _basisPoints List of basis points for calculating royalty shares
-     * @param _minters List of authorized minter contracts
      */
     function initialize(
         address _owner,
-        address _contractRegistry,
-        address _roleRegistry,
         address _primaryReceiver,
         ProjectInfo calldata _projectInfo,
+        MintInfo[] calldata _mintInfo,
         address payable[] calldata _royaltyReceivers,
-        uint96[] calldata _basisPoints,
-        address[] calldata _minters
+        uint96[] calldata _basisPoints
     ) external;
 
     /**
-     * @notice Returns the current token ID counter
+     * @notice Returns the current total supply of tokens
      */
-    function currentId() external view returns (uint96);
+    function totalSupply() external view returns (uint96);
 
     /**
      * @notice Returns the address of the ContractRegistry contract
