@@ -54,7 +54,3 @@ npm run deploy
 ```
 npm run seed
 ```
-
-## Architecture
-
-<img src="images/architecture.svg">
