@@ -25,10 +25,13 @@ contract DutchAuctionMint is Minter {
     error TooMany();
     error InvalidStep();
 
+    constructor() payable {}
+
     /*
      * Record the starting price of a token scaled by 1e18.
      * That will be sold along a DA at a fixed linear decay rate starting at some start time
      */
+
     function setMintDetails(Reserve calldata _reserve, bytes calldata _mintData) external {
         DAInfo memory daInfo = abi.decode(_mintData, (DAInfo));
         require(
