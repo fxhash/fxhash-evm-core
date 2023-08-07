@@ -15,6 +15,34 @@ These are the various flow outlining various distribution settings artists can u
 - opens editions, dutch auction for everyone
 - 100eds, dutch auction for everyone, 20eds reserved with access list; when the 80 public eds are minted, price of the dutch auction is locked to its current amount
 - open editions, 50 access list which have to mint at a fixed price before the public can start minting, with a dutch auction
+- complexe release:
+  - reserves:
+    - access list A, 2 slots:
+      - 1 to address A
+      - 2 to address B
+    - access list B, 20 slots:
+      - 20 to address C
+      - 1 to address A
+    - we want to make sure that:
+      - if access list A fully consumed:
+        - address B cannot mint
+        - address A can mint (but from access list B)
+      - if access A fully consumed, and address B has still 1 slot in the access list (but they didnt use it)
+        - address B cannot mint anymore
+  - pricings: same fixed
+- complexe release 2:
+  - access list A: fixed price
+  - access list B: dutch auction
+  - access list C: different fixed price
+- complexe release 3:
+  - fixed price 20e
+    - access list A
+    - mint pass
+  - fixed price 10e
+    - access list B
+  - dutch auction
+    - access list C
+    - mint pass B
 - for all of the above, support of mint tickets
 
 Optionnaly, we also want to think about how we can grant another account the right to run Gate operations in our name. Ex:
