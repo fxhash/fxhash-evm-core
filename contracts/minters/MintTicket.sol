@@ -8,10 +8,6 @@ import {IMinter} from "contracts/interfaces/IMinter.sol";
 contract MintTicket is Minted, IMintTicket, IMinter {
     mapping(address => address) public mintTicketContracts;
 
-    function feeReceiver() external pure override returns (address) {
-        return address(420);
-    }
-
     function setMintDetails(uint256, uint256, uint256, bytes calldata) external {}
 
     function mint(address _token, uint256 _id, bytes calldata _mintParams, address _to) external {
@@ -27,5 +23,9 @@ contract MintTicket is Minted, IMintTicket, IMinter {
 
     function setMintDetails(Reserve calldata _reserve, bytes calldata _minterData) external {
         _registerMinter(msg.sender, _reserve, _minterData);
+    }
+
+    function feeReceiver() external pure override returns (address) {
+        return address(420);
     }
 }
