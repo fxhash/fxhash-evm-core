@@ -12,12 +12,17 @@ contract DutchAuctionMint is Minter {
     struct DAInfo {
         uint256[] prices;
         uint256 stepLength;
+        bool refunded;
     }
 
     bytes32 internal constant NULL_RESERVE = keccak256(abi.encode(Reserve(0, 0, 0)));
     mapping(address => DAInfo) public auctionInfo;
     mapping(address => Reserve) public reserves;
     mapping(address => uint256) public saleProceeds;
+    /// Refund related info
+    mapping(address => mapping(address => uint256)) public cumulativeMints;
+    mapping(address => mapping(address => uint256)) public cumulativeMintCost;
+    mapping(address => uint256) public lastPrice;
 
     error InvalidToken();
     error NotStarted();
@@ -26,11 +31,6 @@ contract DutchAuctionMint is Minter {
     error InvalidStep();
 
     constructor() payable {}
-
-    /*
-     * Record the starting price of a token scaled by 1e18.
-     * That will be sold along a DA at a fixed linear decay rate starting at some start time
-     */
 
     function setMintDetails(Reserve calldata _reserve, bytes calldata _mintData) external {
         DAInfo memory daInfo = abi.decode(_mintData, (DAInfo));
@@ -57,6 +57,22 @@ contract DutchAuctionMint is Minter {
         saleProceeds[_token] += price * _amount;
         IWETH(weth9).transferFrom(msg.sender, address(this), price);
         Minted(_token).mint(_amount, _to);
+    }
+
+    function refund(address _token, address _who) external {
+        uint256 userCost = cumulativeMintCost[_token][_who];
+        uint256 numMinted = cumulativeMints[_token][_who];
+        delete cumulativeMintCost[_token][_who];
+        delete cumulativeMints[_token][_who];
+        uint256 refund = userCost - numMinted * lastPrice[_token];
+        /// transfer refund
+    }
+
+    function withdraw(address _token) external {
+        address saleReceiver = Minted(_token).feeReceiver();
+        uint256 proceeds = saleProceeds[_token];
+        saleProceeds[_token] = 1;
+        IWETH(weth9).transfer(saleReceiver, proceeds - 1);
     }
 
     function getPrice(address _token) public view virtual returns (uint256 step, uint256 price) {
