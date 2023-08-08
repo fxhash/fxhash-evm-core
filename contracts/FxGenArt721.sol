@@ -70,9 +70,9 @@ contract FxGenArt721 is
         _;
     }
 
-    /// @dev Modifier for restricting calls to only authorized minters
+    /// @dev Modifier for restricting calls to only registered minters
     modifier onlyMinter() {
-        if (!isMinter(msg.sender)) revert UnauthorizedMinter();
+        if (!isMinter(msg.sender)) revert UnregisteredMinter();
         _;
     }
 
@@ -152,10 +152,10 @@ contract FxGenArt721 is
     function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
         _requireMinted(_tokenId);
 
-        if (bytes(_genArtInfo[uint96(_tokenId)].offChainPointer).length > 0) {
-            return IFxMetadata(metadata).renderOffchain(_tokenId);
-        } else {
+        if (issuerInfo.projectInfo.codexId == SCRIPTY) {
             return IFxMetadata(metadata).renderOnchain(_tokenId);
+        } else {
+            return IFxMetadata(metadata).renderOffchain(_tokenId);
         }
     }
 

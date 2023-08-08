@@ -100,9 +100,14 @@ interface IFxGenArt721 {
     error UnauthorizedContract();
 
     /**
-     * @notice Error thrown when minter is not an authorized contract
+     * @notice Error thrown when caller does not have minter role
      */
     error UnauthorizedMinter();
+
+    /**
+     * @notice Error thrown when minter is not registered on token contract
+     */
+    error UnregisteredMinter();
 
     /**
      * @notice Event emitted when new project is initialized
