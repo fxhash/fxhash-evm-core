@@ -27,6 +27,11 @@ interface IFxIssuerFactory {
     error InvalidOwner();
 
     /**
+     * @notice Error thrown when primary receiver is zero address
+     */
+    error InvalidReceiver();
+
+    /**
      * @notice Event emitted when new Generative Art project is created
      * @param _projectId ID of the project
      * @param _owner Address of project owner

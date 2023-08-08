@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 import {ContractRegistry} from "contracts/registries/ContractRegistry.sol";
-import {FxGenArt721, IssuerInfo, MintInfo, ProjectInfo, ReserveInfo} from "contracts/tokens/FxGenArt721.sol";
+import {FxGenArt721, IssuerInfo, MintInfo, ProjectInfo, ReserveInfo} from "contracts/FxGenArt721.sol";
 import {FxIssuerFactory} from "contracts/factories/FxIssuerFactory.sol";
 import {FxMetadata} from "contracts/metadata/FxMetadata.sol";
 import {RoleRegistry} from "contracts/registries/RoleRegistry.sol";

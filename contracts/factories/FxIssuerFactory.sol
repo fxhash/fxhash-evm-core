@@ -35,6 +35,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
         uint96[] calldata _basisPoints
     ) external returns (address genArtToken) {
         if (_owner == address(0)) revert InvalidOwner();
+        if (_primaryReceiver == address(0)) revert InvalidReceiver();
         genArtToken = Clones.clone(implementation);
         projects[++projectId] = genArtToken;
 
