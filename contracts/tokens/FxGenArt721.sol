@@ -77,6 +77,7 @@ contract FxGenArt721 is
         _;
     }
 
+    /// @dev Initializes registry contracts
     constructor(address _contractRegistry, address _roleRegistry) {
         contractRegistry = _contractRegistry;
         roleRegistry = _roleRegistry;
@@ -104,16 +105,24 @@ contract FxGenArt721 is
         emit ProjectInitialized(_projectInfo, _mintInfo, _primaryReceiver);
     }
 
-    function publicMint(address _to) external onlyMinter {
+    /// @inheritdoc IFxGenArt721
+    function publicMint(address _to, uint256 _amount) external onlyMinter {
         if (!issuerInfo.projectInfo.enabled) revert MintInactive();
-        _mint(_to, ++totalSupply);
+        for (uint256 i; i < _amount; ) {
+            _mint(_to, ++totalSupply);
+            unchecked {
+                ++i;
+            }
+        }
     }
 
+    /// @inheritdoc IFxGenArt721
     function ownerMint(address _to) external onlyOwner {
         if (issuerInfo.projectInfo.enabled) revert MintActive();
         _mint(_to, ++totalSupply);
     }
 
+    /// @inheritdoc IFxGenArt721
     function toggleMint() external onlyOwner {
         issuerInfo.projectInfo.enabled = !issuerInfo.projectInfo.enabled;
     }
@@ -151,6 +160,8 @@ contract FxGenArt721 is
         return super.supportsInterface(_interfaceId);
     }
 
+    /// @dev Registers arbitrary number of minter contracts
+    /// @param _mintInfo List minter contracts and their reserves
     function _registerMinter(MintInfo[] calldata _mintInfo) internal {
         address minter;
         uint128 totalAllocation;
