@@ -99,10 +99,16 @@ contract FxGenArt721 is
 
         issuerInfo.projectInfo = _projectInfo;
         issuerInfo.primaryReceiver = _primaryReceiver;
-        _registerMinter(_mintInfo);
+        _registerMinters(_mintInfo);
         _setBaseRoyalties(_royaltyReceivers, _basisPoints);
 
         emit ProjectInitialized(_projectInfo, _mintInfo, _primaryReceiver);
+    }
+
+    /// @inheritdoc IFxGenArt721
+    function ownerMint(address _to) external onlyOwner {
+        if (issuerInfo.projectInfo.enabled) revert MintActive();
+        _mint(_to, ++totalSupply);
     }
 
     /// @inheritdoc IFxGenArt721
@@ -117,19 +123,13 @@ contract FxGenArt721 is
     }
 
     /// @inheritdoc IFxGenArt721
-    function ownerMint(address _to) external onlyOwner {
-        if (issuerInfo.projectInfo.enabled) revert MintActive();
-        _mint(_to, ++totalSupply);
+    function setMetadata(address _metadata) external onlyOwner {
+        metadata = _metadata;
     }
 
     /// @inheritdoc IFxGenArt721
     function toggleMint() external onlyOwner {
         issuerInfo.projectInfo.enabled = !issuerInfo.projectInfo.enabled;
-    }
-
-    /// @inheritdoc IFxGenArt721
-    function setMetadata(address _metadata) external onlyOwner {
-        metadata = _metadata;
     }
 
     /// @inheritdoc IFxGenArt721
@@ -143,6 +143,13 @@ contract FxGenArt721 is
     }
 
     /// @inheritdoc ERC721URIStorageUpgradeable
+    function supportsInterface(
+        bytes4 _interfaceId
+    ) public view override(ERC721URIStorageUpgradeable, RoyaltyManager) returns (bool) {
+        return super.supportsInterface(_interfaceId);
+    }
+
+    /// @inheritdoc ERC721URIStorageUpgradeable
     function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
         _requireMinted(_tokenId);
 
@@ -153,16 +160,9 @@ contract FxGenArt721 is
         }
     }
 
-    /// @inheritdoc ERC721URIStorageUpgradeable
-    function supportsInterface(
-        bytes4 _interfaceId
-    ) public view override(ERC721URIStorageUpgradeable, RoyaltyManager) returns (bool) {
-        return super.supportsInterface(_interfaceId);
-    }
-
     /// @dev Registers arbitrary number of minter contracts
     /// @param _mintInfo List minter contracts and their reserves
-    function _registerMinter(MintInfo[] calldata _mintInfo) internal {
+    function _registerMinters(MintInfo[] calldata _mintInfo) internal {
         address minter;
         uint128 totalAllocation;
         ReserveInfo memory reserveInfo;

@@ -135,13 +135,6 @@ interface IFxGenArt721 {
     ) external;
 
     /**
-     * @notice Allows any minter contract to mint an arbitrary amount of tokens to a given account
-     * @param _to Address being minted to
-     * @param _amount Amount of tokens being minted
-     */
-    function publicMint(address _to, uint256 _amount) external;
-
-    /**
      * @notice Allows owner to mint tokens to given account
      * @dev Public mint must be disabled
      * @param _to Address being minted to
@@ -149,35 +142,27 @@ interface IFxGenArt721 {
     function ownerMint(address _to) external;
 
     /**
+     * @notice Allows any minter contract to mint an arbitrary amount of tokens to a given account
+     * @param _to Address being minted to
+     * @param _amount Amount of tokens being minted
+     */
+    function publicMint(address _to, uint256 _amount) external;
+
+    /**
+     * @notice Sets the new Metadata contract for renderring tokenURI
+     * @param _metadata Address of the Metadata contract
+     */
+    function setMetadata(address _metadata) external;
+
+    /**
      * @notice Enables and disables the public mint
      */
     function toggleMint() external;
 
     /**
-     * @notice Returns the current total supply of tokens
-     */
-    function totalSupply() external view returns (uint96);
-
-    /**
      * @notice Returns the address of the ContractRegistry contract
      */
     function contractRegistry() external view returns (address);
-
-    /**
-     * @notice Returns address of the RoleRegistry contract
-     */
-    function roleRegistry() external view returns (address);
-
-    /**
-     * @notice Returns the address of the Metadata contract
-     */
-    function metadata() external view returns (address);
-
-    /**
-     * @notice Gets the IssuerInfo of the project
-     * @return ProjectInfo and splitter contract address
-     */
-    function issuerInfo() external view returns (ProjectInfo memory, address);
 
     /**
      * @notice Gets the generative art information for a given token
@@ -187,15 +172,30 @@ interface IFxGenArt721 {
     function genArtInfo(uint96 _tokenId) external view returns (TokenInfo memory);
 
     /**
-     * @notice Sets the new Metadata contract for renderring tokenURI
-     * @param _metadata Address of the Metadata contract
-     */
-    function setMetadata(address _metadata) external;
-
-    /**
      * @notice Gets the authorization status for the given minter
      * @param _minter Address of the minter contract
      * @return Bool authorization status
      */
     function isMinter(address _minter) external view returns (bool);
+
+    /**
+     * @notice Gets the IssuerInfo of the project
+     * @return ProjectInfo and splitter contract address
+     */
+    function issuerInfo() external view returns (ProjectInfo memory, address);
+
+    /**
+     * @notice Returns the address of the Metadata contract
+     */
+    function metadata() external view returns (address);
+
+    /**
+     * @notice Returns address of the RoleRegistry contract
+     */
+    function roleRegistry() external view returns (address);
+
+    /**
+     * @notice Returns the current total supply of tokens
+     */
+    function totalSupply() external view returns (uint96);
 }
