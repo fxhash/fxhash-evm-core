@@ -1,6 +1,9 @@
-import {IDelegateCashLike} from "src/interfaces/IDelegateCashLike.sol";
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.18;
 
-contract DelegateRegistryLike is IDelegateCashLike {
+import {IDelegateCash} from "contracts/interfaces/IDelegateCash.sol";
+
+contract DelegateRegistryLike is IDelegateCash {
     mapping(address => mapping(address => bool)) public delegates;
 
     function setDelegateForAll(address delegate, bool approved) public {
