@@ -72,8 +72,7 @@ contract FxGenArt721 is
 
     /// @dev Modifier for restricting calls to only authorized minters
     modifier onlyMinter() {
-        if (!RoleRegistry(roleRegistry).hasRole(MINTER_ROLE, msg.sender) || !isMinter(msg.sender))
-            revert UnauthorizedMinter();
+        if (!isMinter(msg.sender)) revert UnauthorizedMinter();
         _;
     }
 
