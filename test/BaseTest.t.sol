@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 import {ContractRegistry} from "contracts/registries/ContractRegistry.sol";
-import {FxGenArt721, IssuerInfo, MintInfo, ProjectInfo, ReserveInfo, TokenInfo} from "contracts/FxGenArt721.sol";
+import {FxGenArt721, IssuerInfo, GenArtInfo, MintInfo, ProjectInfo, ReserveInfo} from "contracts/FxGenArt721.sol";
 import {FxIssuerFactory} from "contracts/FxIssuerFactory.sol";
 import {FxMetadata} from "contracts/FxMetadata.sol";
 import {RoleRegistry} from "contracts/registries/RoleRegistry.sol";
@@ -34,7 +34,7 @@ contract BaseTest is Test {
     ProjectInfo public projectInfo;
     MintInfo[] public mintInfo;
     ReserveInfo[] public reserveInfo;
-    TokenInfo public tokenInfo;
+    GenArtInfo public genArtInfo;
 
     // State
     address public fxGenArtProxy;
