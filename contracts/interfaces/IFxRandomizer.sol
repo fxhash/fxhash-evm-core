@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-/// @title IRandomizer
+/// @title IFxRandomizer
 /// @notice Generates and reveals randomizer seeds
-interface IRandomizer {
+interface IFxRandomizer {
     /// @param issuer Address of Issuer contract
     /// @param tokenId ID of the token
     struct TokenKey {

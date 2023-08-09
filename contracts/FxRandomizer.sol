@@ -2,11 +2,11 @@
 pragma solidity ^0.8.18;
 
 import {AuthorizedCaller} from "contracts/admin/AuthorizedCaller.sol";
-import {IRandomizer} from "contracts/interfaces/IRandomizer.sol";
+import {IFxRandomizer} from "contracts/interfaces/IFxRandomizer.sol";
 
-/// @title Randomizer
-/// @notice See documentation in {IRandomizer}
-contract Randomizer is AuthorizedCaller, IRandomizer {
+/// @title FxRandomizer
+/// @notice See documentation in {IFxRandomizer}
+contract FxRandomizer is AuthorizedCaller, IFxRandomizer {
     /// @dev Commitment hashes of seed and salt values
     IRandomizer.Commitment private commitment;
     /// @dev Current counter of requested seeds
@@ -24,7 +24,7 @@ contract Randomizer is AuthorizedCaller, IRandomizer {
         _setupRole(AUTHORIZED_CALLER, msg.sender);
     }
 
-    /// @inheritdoc IRandomizer
+    /// @inheritdoc IFxRandomizer
     function generate(uint256 _tokenId) external {
         bytes32 hashedKey = getTokenKey(msg.sender, _tokenId);
         IRandomizer.Seed storage storedSeed = seeds[hashedKey];
@@ -36,7 +36,7 @@ contract Randomizer is AuthorizedCaller, IRandomizer {
         emit RandomizerGenerate(_tokenId, storedSeed);
     }
 
-    /// @inheritdoc IRandomizer
+    /// @inheritdoc IFxRandomizer
     function reveal(
         TokenKey[] memory _tokenList,
         bytes32 _seed
@@ -62,13 +62,13 @@ contract Randomizer is AuthorizedCaller, IRandomizer {
         commitment.seed = _seed;
     }
 
-    /// @inheritdoc IRandomizer
+    /// @inheritdoc IFxRandomizer
     function commit(bytes32 _seed, bytes32 _salt) external onlyRole(AUTHORIZED_CALLER) {
         commitment.seed = _seed;
         commitment.salt = _salt;
     }
 
-    /// @inheritdoc IRandomizer
+    /// @inheritdoc IFxRandomizer
     function getTokenKey(address _issuer, uint256 _tokenId) public pure returns (bytes32) {
         return keccak256(abi.encodePacked(_issuer, _tokenId));
     }

@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import {ERC721URIStorageUpgradeable, ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
+import {ERC721URIStorageUpgradeable, ERC721Upgradeable} from "@openzeppelin-upgradeable/contracts/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
 import {IContractRegistry} from "contracts/interfaces/IContractRegistry.sol";
 import {IFxGenArt721, IssuerInfo, ProjectInfo, MetadataInfo, MintInfo, ReserveInfo, TokenInfo} from "contracts/interfaces/IFxGenArt721.sol";
 import {IFxMetadata} from "contracts/interfaces/IFxMetadata.sol";
-import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {OwnableUpgradeable} from "@openzeppelin-upgradeable/contracts/access/OwnableUpgradeable.sol";
 import {RoleRegistry} from "contracts/registries/RoleRegistry.sol";
 import {RoyaltyManager} from "contracts/royalties/RoyaltyManager.sol";
 
