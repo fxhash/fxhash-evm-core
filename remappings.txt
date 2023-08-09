@@ -2,10 +2,10 @@
 @ethereum-waffle/=node_modules/@ethereum-waffle/
 eth-gas-reporter/=node_modules/eth-gas-reporter/
 hardhat/=node_modules/hardhat/
-scripty.sol/=node_modules/scripty.sol/
+scripty.sol/=lib/scripty.sol/
 
 forge-std/=lib/forge-std/src/
-@openzeppelin/=lib/@openzeppelin-contracts/
-@openzeppelin-upgradeable/=lib/@openzeppelin-contracts-upgradeable/
+@openzeppelin/=lib/openzeppelin-contracts/
+@openzeppelin-upgradeable/=lib/openzeppelin-contracts-upgradeable/
 solady/=lib/solady/
 solmate/=lib/solmate/
