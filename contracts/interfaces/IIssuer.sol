@@ -5,7 +5,7 @@ import {CodexInput} from "contracts/interfaces/ICodex.sol";
 import {PricingData} from "contracts/interfaces/IBasePricing.sol";
 import {ReserveData} from "contracts/interfaces/IBaseReserve.sol";
 import {RoyaltyData} from "contracts/interfaces/IBaseRoyalties.sol";
-import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
+import {HTMLRequest} from "scripty.sol/contracts/scripty/interfaces/IScriptyBuilderV2.sol";
 
 struct OpenEditions {
     uint256 closingTime;
@@ -58,7 +58,7 @@ struct MintIssuerInput {
     RoyaltyData primarySplit;
     bool enabled;
     uint256[] tags;
-    WrappedScriptRequest[] onChainScripts;
+    HTMLRequest[] onChainScripts;
 }
 
 struct MintInput {
