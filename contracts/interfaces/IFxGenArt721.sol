@@ -17,14 +17,18 @@ struct IssuerInfo {
  * @param codexId ID of codex info
  * @param supply Maximum supply of tokens
  * @param metadata Bytes-encoded metadata of project
- * @param labels List of project descriptiom labels
+ * @param baseURI Base URI of metadata pointer
+ * @param labels List of offchain project description labels
+ * @param attributes List of key value mappings of token attributes
  */
 struct ProjectInfo {
     bool enabled;
     uint120 codexId;
     uint128 supply;
     bytes metadata;
+    string baseURI;
     uint16[] labels;
+    MetadataInfo[] attributes;
 }
 
 /**
@@ -50,14 +54,12 @@ struct ReserveInfo {
 /**
  * @param fxParams Randon sequence of string bytes in fixed length
  * @param seed Hash of revealed seed
- * @param offChainPointer URI of offchain metadata pointer
- * @param onChainAttributes List of key value mappings of onchain metadata storage
+ * @param htmlRequest List of HTML head and body tags for building onchain scripts
  */
-struct TokenInfo {
+struct GenArtInfo {
     bytes fxParams;
     bytes32 seed;
-    string offChainPointer;
-    MetadataInfo[] onChainAttributes;
+    HTMLRequest htmlRequest;
 }
 
 /**
@@ -174,7 +176,7 @@ interface IFxGenArt721 {
      * @param _tokenId ID of the token
      * @return TokenInfo
      */
-    function genArtInfo(uint96 _tokenId) external view returns (TokenInfo memory);
+    function genArtInfo(uint96 _tokenId) external view returns (GenArtInfo memory);
 
     /**
      * @notice Gets the authorization status for the given minter

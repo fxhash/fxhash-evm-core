@@ -3,7 +3,7 @@ pragma solidity ^0.8.18;
 
 import {ERC721URIStorageUpgradeable, ERC721Upgradeable} from "@openzeppelin-upgradeable/contracts/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
 import {IContractRegistry} from "contracts/interfaces/IContractRegistry.sol";
-import {IFxGenArt721, IssuerInfo, ProjectInfo, MetadataInfo, MintInfo, ReserveInfo, TokenInfo} from "contracts/interfaces/IFxGenArt721.sol";
+import {IFxGenArt721, IssuerInfo, ProjectInfo, MetadataInfo, MintInfo, ReserveInfo, GenArtInfo} from "contracts/interfaces/IFxGenArt721.sol";
 import {IFxMetadata} from "contracts/interfaces/IFxMetadata.sol";
 import {OwnableUpgradeable} from "@openzeppelin-upgradeable/contracts/access/OwnableUpgradeable.sol";
 import {RoleRegistry} from "contracts/registries/RoleRegistry.sol";
@@ -31,8 +31,8 @@ contract FxGenArt721 is
     address public metadata;
     /// @inheritdoc IFxGenArt721
     IssuerInfo public issuerInfo;
-    /// @dev Internal mapping of token ID to TokenInfo
-    mapping(uint96 => TokenInfo) internal _genArtInfo;
+    /// @dev Internal mapping of token ID to GenArtInfo
+    mapping(uint96 => GenArtInfo) internal _genArtInfo;
 
     // |-------------------------------------------------------------------------------------------|
     // |░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  STORAGE LAYOUT  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░|
@@ -59,7 +59,7 @@ contract FxGenArt721 is
     // | totalSupply        | uint96                                       | 253  | 0      | 12    |
     // | metadata           | address                                      | 253  | 12     | 20    |
     // | issuerInfo         | struct IssuerInfo                            | 254  | 0      | 160   |
-    // | _genArtInfo        | mapping(uint96 => struct TokenInfo)          | 259  | 0      | 32    |
+    // | _genArtInfo        | mapping(uint96 => struct GenArtInfo)         | 259  | 0      | 32    |
     // |░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░|
     // |-------------------------------------------------------------------------------------------|
 
