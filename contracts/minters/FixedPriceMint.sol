@@ -19,8 +19,6 @@ contract FixedPriceMint is Minter {
     error Ended();
     error TooMany();
 
-    constructor() payable {}
-
     function setMintDetails(Reserve calldata _reserve, bytes calldata _mintDetails) external {
         uint256 price = abi.decode(_mintDetails, (uint256));
         prices[msg.sender] = price;
@@ -43,7 +41,7 @@ contract FixedPriceMint is Minter {
     function withdraw(address _token) external {
         address saleReceiver = Minted(_token).feeReceiver();
         uint256 proceeds = saleProceeds[_token];
-        saleProceeds[_token] = 1;
-        IWETH(weth9).transfer(saleReceiver, proceeds - 1);
+        delete saleProceeds[_token];
+        IWETH(weth9).transfer(saleReceiver, proceeds);
     }
 }

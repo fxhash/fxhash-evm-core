@@ -30,8 +30,6 @@ contract DutchAuctionMint is Minter {
     error TooMany();
     error InvalidStep();
 
-    constructor() payable {}
-
     function setMintDetails(Reserve calldata _reserve, bytes calldata _mintData) external {
         DAInfo memory daInfo = abi.decode(_mintData, (DAInfo));
         require(

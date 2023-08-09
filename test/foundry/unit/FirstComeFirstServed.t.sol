@@ -22,7 +22,7 @@ contract FirstComeFirstServeTest is Base {
         super.setUp();
         mockToken = new MockGenerativeToken();
         vm.deal(address(this), 100 ether);
-        sale = new FixedPriceMint{value: 1}();
+        sale = new FixedPriceMint();
         IWETH(payable(weth9)).deposit{value: 1 ether}();
         IWETH(payable(weth9)).approve(address(sale), type(uint256).max);
     }

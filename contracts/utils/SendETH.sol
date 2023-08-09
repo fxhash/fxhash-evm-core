@@ -9,12 +9,6 @@ abstract contract WETHHandler {
 
     address payable internal constant weth9 = payable(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
 
-    constructor() payable {
-        /// Dust implementers with an amount that will be outside the internal accounting
-        require(msg.value == 1, "No dust");
-        IWETH(weth9).deposit{value: 1}();
-    }
-
     function _withdrawWETH(uint256 _amount, address _to) internal {
         IWETH(weth9).transfer(_to, _amount);
     }
