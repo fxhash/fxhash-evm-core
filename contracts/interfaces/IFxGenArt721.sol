@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
+import {HTMLRequest} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
+
 /**
  * @param projectInfo Project information
  * @param primaryReceiver Address of splitter contract receiving primary sales
@@ -17,18 +19,27 @@ struct IssuerInfo {
  * @param codexId ID of codex info
  * @param supply Maximum supply of tokens
  * @param metadata Bytes-encoded metadata of project
- * @param baseURI Base URI of metadata pointer
  * @param labels List of offchain project description labels
- * @param attributes List of key value mappings of token attributes
+ * @param tokenInfo Token information
  */
 struct ProjectInfo {
     bool enabled;
     uint120 codexId;
     uint128 supply;
     bytes metadata;
-    string baseURI;
     uint16[] labels;
-    MetadataInfo[] attributes;
+    TokenInfo tokenInfo;
+}
+
+/**
+ * @param baseURI Base URI of metadata pointer
+ * @param attributes List of key value pairs for token attributes
+ * @param htmlRequest List of HTML head and body tags for building onchain scripts
+ */
+struct TokenInfo {
+    string baseURI;
+    MetadataInfo attributes;
+    HTMLRequest htmlRequest;
 }
 
 /**
@@ -54,21 +65,19 @@ struct ReserveInfo {
 /**
  * @param fxParams Randon sequence of string bytes in fixed length
  * @param seed Hash of revealed seed
- * @param htmlRequest List of HTML head and body tags for building onchain scripts
  */
 struct GenArtInfo {
     bytes fxParams;
     bytes32 seed;
-    HTMLRequest htmlRequest;
 }
 
 /**
- * @param key Attribute key of JSON field
- * @param value Attribute value of JSON field
+ * @param key List of JSON attribute keys
+ * @param value List of JSON attribute values
  */
 struct MetadataInfo {
-    string key;
-    string value;
+    string[] key;
+    string[] value;
 }
 
 /**

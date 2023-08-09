@@ -8,13 +8,13 @@ import {IFxRandomizer} from "contracts/interfaces/IFxRandomizer.sol";
 /// @notice See documentation in {IFxRandomizer}
 contract FxRandomizer is AuthorizedCaller, IFxRandomizer {
     /// @dev Commitment hashes of seed and salt values
-    IRandomizer.Commitment private commitment;
+    IFxRandomizer.Commitment private commitment;
     /// @dev Current counter of requested seeds
     uint256 private countRequested;
     /// @dev Current counter of revealed seeds
     uint256 private countRevealed;
     /// @dev Mapping of token key to randomizer seed struct
-    mapping(bytes32 => IRandomizer.Seed) private seeds;
+    mapping(bytes32 => IFxRandomizer.Seed) private seeds;
 
     /// @dev Initializes commitment values and sets up user roles
     constructor(bytes32 _seed, bytes32 _salt) {
@@ -27,7 +27,7 @@ contract FxRandomizer is AuthorizedCaller, IFxRandomizer {
     /// @inheritdoc IFxRandomizer
     function generate(uint256 _tokenId) external {
         bytes32 hashedKey = getTokenKey(msg.sender, _tokenId);
-        IRandomizer.Seed storage storedSeed = seeds[hashedKey];
+        IFxRandomizer.Seed storage storedSeed = seeds[hashedKey];
         if (storedSeed.revealed != bytes32(0)) revert AlreadySeeded();
 
         storedSeed.chainSeed = keccak256(abi.encode(block.timestamp, hashedKey));
@@ -75,7 +75,7 @@ contract FxRandomizer is AuthorizedCaller, IFxRandomizer {
 
     /// @dev Sets the token seed and returns the serial ID
     function setTokenSeed(
-        IRandomizer.TokenKey memory _tokenKey,
+        IFxRandomizer.TokenKey memory _tokenKey,
         bytes32 _oracleSeed
     ) private returns (uint256) {
         Seed storage seed = seeds[getTokenKey(_tokenKey.issuer, _tokenKey.tokenId)];

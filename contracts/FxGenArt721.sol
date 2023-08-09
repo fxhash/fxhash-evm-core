@@ -132,7 +132,7 @@ contract FxGenArt721 is
     }
 
     /// @inheritdoc IFxGenArt721
-    function genArtInfo(uint96 _tokenId) external view returns (TokenInfo memory) {
+    function genArtInfo(uint96 _tokenId) external view returns (GenArtInfo memory) {
         return _genArtInfo[_tokenId];
     }
 

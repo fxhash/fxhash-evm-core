@@ -7,7 +7,7 @@ import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 
 import {IIssuer} from "contracts/interfaces/IIssuer.sol";
 import {IMintTicket, ProjectData, TokenData} from "contracts/interfaces/IMintTicket.sol";
-import {IRandomizer} from "contracts/interfaces/IRandomizer.sol";
+import {IFxRandomizer} from "contracts/interfaces/IFxRandomizer.sol";
 
 contract MintTicket is ERC721URIStorage, Ownable, IMintTicket {
     mapping(uint256 => TokenData) public tokenData;
@@ -16,7 +16,7 @@ contract MintTicket is ERC721URIStorage, Ownable, IMintTicket {
     uint256 public fees;
     uint256 public availableBalance;
     uint256 public minPrice;
-    IRandomizer public randomizer;
+    IFxRandomizer public randomizer;
 
     event ProjectCreated(address issuer, uint256 gracingPeriod, string metadata);
     event TicketMinted(address issuer, address minter, uint256 price);
@@ -26,7 +26,7 @@ contract MintTicket is ERC721URIStorage, Ownable, IMintTicket {
     event TicketConsumed(address owner, uint256 tokenId, address issuer);
 
     constructor(address _randomizer) ERC721("MintTicket", "MTK") {
-        randomizer = IRandomizer(_randomizer);
+        randomizer = IFxRandomizer(_randomizer);
         lastTokenId = 0;
         fees = 0;
         availableBalance = 0;
@@ -44,7 +44,7 @@ contract MintTicket is ERC721URIStorage, Ownable, IMintTicket {
     }
 
     function setRandomizer(address _randomizer) external onlyOwner {
-        randomizer = IRandomizer(_randomizer);
+        randomizer = IFxRandomizer(_randomizer);
     }
 
     receive() external payable {
