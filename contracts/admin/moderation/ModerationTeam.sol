@@ -5,7 +5,7 @@ import {AuthorizedCaller} from "contracts/admin/AuthorizedCaller.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import {IModerationTeam, TeamModInfo} from "contracts/interfaces/IModerationTeam.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {SafeTransferLib} from "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
+import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 
 contract ModerationTeam is Ownable, IModerationTeam {
     using EnumerableSet for EnumerableSet.AddressSet;

@@ -7,14 +7,12 @@ remappings = [
     "@ensdomains/=node_modules/@ensdomains/",
     "@ethereum-waffle/=node_modules/@ethereum-waffle/",
     "@openzeppelin/=node_modules/@openzeppelin/",
-    "@rari-capital/=node_modules/@rari-capital/",
     "eth-gas-reporter/=node_modules/eth-gas-reporter/",
     "forge-std/=lib/forge-std/src/",
     "hardhat/=node_modules/hardhat/",
     "scripty.sol/=node_modules/scripty.sol/",
     "solady/=node_modules/solady/",
+    "solmate/=node_modules/solmate/",
 ]
-fs_permissions = [
-    { access = "read-write", path = "script/issuers.json"}
-]
+fs_permissions = [{ access = "read-write", path = "script/issuers.json"}]
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config

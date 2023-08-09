@@ -15,6 +15,8 @@
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
     "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "@openzeppelin/contracts": "^4.9.3",
+    "@openzeppelin/contracts-upgradeable": "^4.9.3",
     "chai": "^4.3.7",
     "ethereum-waffle": "^4.0.10",
     "ethers": "^5.7.2",
@@ -24,14 +26,11 @@
     "prettier": "^2.5.1",
     "prettier-plugin-solidity": "^1.0.0-beta.19",
     "scripty.sol": "^2.0.0",
-    "solhint": "^3.3.6"
+    "solady": "^0.0.112",
+    "solhint": "^3.3.6",
+    "solmate": "^6.2.0"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.9.1",
-    "@openzeppelin/contracts-upgradeable": "^4.9.3",
-    "@rari-capital/solmate": "^6.4.0",
-    "dotenv": "^16.3.1",
-    "solady": "^0.0.107",
-    "solidity-docgen": "^0.6.0-beta.35"
+    "dotenv": "^16.3.1"
   }
 }

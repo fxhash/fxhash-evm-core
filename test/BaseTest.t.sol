@@ -2,9 +2,9 @@
 pragma solidity ^0.8.18;
 
 import {ContractRegistry} from "contracts/registries/ContractRegistry.sol";
-import {FxGenArt721, IssuerInfo, MintInfo, ProjectInfo, ReserveInfo} from "contracts/FxGenArt721.sol";
-import {FxIssuerFactory} from "contracts/factories/FxIssuerFactory.sol";
-import {FxMetadata} from "contracts/metadata/FxMetadata.sol";
+import {FxGenArt721, IssuerInfo, MintInfo, ProjectInfo, ReserveInfo, TokenInfo} from "contracts/FxGenArt721.sol";
+import {FxIssuerFactory} from "contracts/FxIssuerFactory.sol";
+import {FxMetadata} from "contracts/FxMetadata.sol";
 import {RoleRegistry} from "contracts/registries/RoleRegistry.sol";
 import {Test} from "forge-std/Test.sol";
 
@@ -29,13 +29,16 @@ contract BaseTest is Test {
     address public eve;
     address public susan;
 
-    // State
-    address public fxGenArtProxy;
-    address public primaryReceiver;
+    // Structs
     IssuerInfo public isserInfo;
     ProjectInfo public projectInfo;
     MintInfo[] public mintInfo;
     ReserveInfo[] public reserveInfo;
+    TokenInfo public tokenInfo;
+
+    // State
+    address public fxGenArtProxy;
+    address public primaryReceiver;
     address payable[] public royaltyReceivers;
     uint96[] public basisPoints;
 
