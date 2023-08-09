@@ -6,18 +6,28 @@ import {FxGenArt721, IssuerInfo, MintInfo, ProjectInfo, ReserveInfo} from "contr
 import {FxIssuerFactory} from "contracts/factories/FxIssuerFactory.sol";
 import {FxMetadata} from "contracts/metadata/FxMetadata.sol";
 import {RoleRegistry} from "contracts/registries/RoleRegistry.sol";
-import {Script} from "forge-std/Script.sol";
+import {Test} from "forge-std/Test.sol";
 
 import "contracts/utils/Constants.sol";
 import "script/utils/Constants.sol";
+import "test/utils/Constants.sol";
 
-contract Deploy is Script {
+contract BaseTest is Test {
     // Contracts
     ContractRegistry public contractRegistry;
     FxIssuerFactory public fxIssuerFactory;
     FxGenArt721 public fxGenArt721;
     FxMetadata public fxMetadata;
     RoleRegistry public roleRegistry;
+
+    // Users
+    address public admin;
+    address public moderator;
+    address public creator;
+    address public alice;
+    address public bob;
+    address public eve;
+    address public susan;
 
     // State
     address public fxGenArtProxy;
@@ -29,24 +39,45 @@ contract Deploy is Script {
     address payable[] public royaltyReceivers;
     uint96[] public basisPoints;
 
-    function setUp() public virtual {}
-
-    function run() public virtual {
-        vm.startBroadcast();
-        deployContracts();
-        configureSettings();
-        vm.stopBroadcast();
+    // Modifiers
+    modifier prank(address _caller) {
+        vm.startPrank(_caller);
+        _;
+        vm.stopPrank();
     }
 
-    function deployContracts() public {
+    function setUp() public virtual {
+        createAccounts();
+        deployContracts();
+        configureSettings();
+    }
+
+    function createAccounts() public virtual {
+        admin = _createUser("admin");
+        moderator = _createUser("moderator");
+        creator = _createUser("creator");
+        alice = _createUser("alice");
+        bob = _createUser("bob");
+        eve = _createUser("eve");
+        susan = _createUser("susan");
+    }
+
+    function deployContracts() public virtual {
         contractRegistry = new ContractRegistry();
         roleRegistry = new RoleRegistry();
         fxGenArt721 = new FxGenArt721(address(contractRegistry), address(roleRegistry));
         fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721));
         fxMetadata = new FxMetadata(ETHFS_FILE_STORAGE, SCRIPTY_STORAGE_V2, SCRIPTY_BUILDER_V2);
+
+        vm.label(address(this), "BaseTest");
+        vm.label(address(contractRegistry), "ContractRegistry");
+        vm.label(address(roleRegistry), "RoleRegistry");
+        vm.label(address(fxGenArt721), "FxGenArt721");
+        vm.label(address(fxIssuerFactory), "FxIssuerFactory");
+        vm.label(address(fxMetadata), "FxMetadata");
     }
 
-    function configureSettings() public {
+    function configureSettings() public virtual {
         fxGenArtProxy = fxIssuerFactory.createProject(
             msg.sender,
             primaryReceiver,
@@ -56,5 +87,13 @@ contract Deploy is Script {
             basisPoints
         );
         FxGenArt721(fxGenArtProxy).setMetadata(address(fxMetadata));
+
+        vm.label(address(fxGenArtProxy), "FxGenArtProxy");
+    }
+
+    function _createUser(string memory _name) internal returns (address user) {
+        user = address(uint160(uint256(keccak256(abi.encodePacked(_name)))));
+        vm.deal(user, INITIAL_BALANCE);
+        vm.label(user, _name);
     }
 }
