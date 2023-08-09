@@ -10,8 +10,8 @@ contract FixedPriceMint is Minter {
     using SafeCastLib for uint256;
 
     bytes32 internal constant NULL_RESERVE = keccak256(abi.encode(Reserve(0, 0, 0)));
-    mapping(address => uint256) public prices;
-    mapping(address => Reserve) public reserves;
+    mapping(address => uint256[]) public prices;
+    mapping(address => Reserve[]) public reserves;
     mapping(address => uint256) public saleProceeds;
 
     error InvalidToken();
@@ -21,17 +21,17 @@ contract FixedPriceMint is Minter {
 
     function setMintDetails(Reserve calldata _reserve, bytes calldata _mintDetails) external {
         uint256 price = abi.decode(_mintDetails, (uint256));
-        prices[msg.sender] = price;
-        reserves[msg.sender] = _reserve;
+        prices[msg.sender].push(price);
+        reserves[msg.sender].push(_reserve);
     }
 
-    function buyTokens(address _token, uint256 _amount, address _to) external {
-        Reserve storage reserve = reserves[_token];
+    function buyTokens(address _token, uint256 _mintId, uint256 _amount, address _to) external {
+        Reserve storage reserve = reserves[_token][_mintId];
         if (NULL_RESERVE == keccak256(abi.encode(reserve))) revert InvalidToken();
         if (block.timestamp < reserve.startTime) revert NotStarted();
         if (block.timestamp > reserve.endTime) revert Ended();
         if (_amount > reserve.allocation) revert TooMany();
-        uint256 price = _amount * prices[_token];
+        uint256 price = _amount * prices[_token][_mintId];
         reserve.allocation -= _amount.safeCastTo160();
         saleProceeds[_token] += price;
         IWETH(weth9).transferFrom(msg.sender, address(this), price);

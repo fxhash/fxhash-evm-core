@@ -37,7 +37,7 @@ contract BuyTokens is OpenEditionTest {
             abi.encode(price)
         );
         vm.warp(block.timestamp + 1);
-        sale.buyTokens(address(mockToken), 1, address(this));
+        sale.buyTokens(address(mockToken), 0, 1, address(this));
         assertEq(mockToken.balanceOf(address(this)), 1);
     }
 
@@ -68,9 +68,9 @@ contract SetMintDetails is OpenEditionTest {
         uint40 start = uint40(block.timestamp + 10);
         uint40 end = uint40(block.timestamp + 100);
         sale.setMintDetails(Reserve(allocation, start, end), abi.encode(price));
-        assertEq(sale.prices(address(this)), price, "price incorrectly set");
-        (uint160 allocation_, uint40 startTime, uint40 endTime) = sale.reserves(address(this));
-        assertEq(sale.prices(address(this)), price, "price incorrectly set");
+        assertEq(sale.prices(address(this), 0), price, "price incorrectly set");
+        (uint160 allocation_, uint40 startTime, uint40 endTime) = sale.reserves(address(this), 0);
+        assertEq(sale.prices(address(this), 0), price, "price incorrectly set");
         assertEq(startTime, start, "startTime incorrectly set");
         assertEq(endTime, end, "endTime incorrectly set");
         assertEq(allocation_, allocation, "allocation incorrectly set");
