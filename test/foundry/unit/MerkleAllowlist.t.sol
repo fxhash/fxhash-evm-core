@@ -30,6 +30,28 @@ contract MerkleAllowlistTest is Base {
     }
 }
 
+contract SetRoot is MerkleAllowlistTest {
+    function test_setRoot() public {}
+
+    function test_RevertsIf_IsZero() public {}
+}
+
 contract Claim is MerkleAllowlistTest {
     function test_Claim() public {}
+
+    function test_WhenDelegated_AsDelegate() public {}
+
+    function test_RevertsWhenNotDelegated_AsDelegate() public {}
+
+    function test_RevertsWhenAlreadyClaimed() public {}
+}
+
+contract IsClaimed is MerkleAllowlistTest {
+    function test_IsClaimed() public {}
+
+    function test_WhenClaimed_ReturnsTrue() public {}
+
+    function test_WhenUnclaimed_ReturnsFalse() public {}
+
+    function test_RevertsWhen_RootNotSet() public {}
 }
