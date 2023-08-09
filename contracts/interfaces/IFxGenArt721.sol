@@ -43,6 +43,24 @@ struct TokenInfo {
 }
 
 /**
+ * @param key List of JSON attribute keys
+ * @param value List of JSON attribute values
+ */
+struct MetadataInfo {
+    string[] key;
+    string[] value;
+}
+
+/**
+ * @param fxParams Randon sequence of string bytes in fixed length
+ * @param seed Hash of revealed seed
+ */
+struct GenArtInfo {
+    bytes fxParams;
+    bytes32 seed;
+}
+
+/**
  * @param minter Address of the minter contract
  * @param reserveInfo Reserve information
  */
@@ -60,24 +78,6 @@ struct ReserveInfo {
     uint64 startTime;
     uint64 endTime;
     uint128 allocation;
-}
-
-/**
- * @param fxParams Randon sequence of string bytes in fixed length
- * @param seed Hash of revealed seed
- */
-struct GenArtInfo {
-    bytes fxParams;
-    bytes32 seed;
-}
-
-/**
- * @param key List of JSON attribute keys
- * @param value List of JSON attribute values
- */
-struct MetadataInfo {
-    string[] key;
-    string[] value;
 }
 
 /**
