@@ -26,12 +26,8 @@ contract FxSplitsFactory is IFxSplitsFactory {
      * @param allocations The array of allocations for each account.
      */
     function createSplit(address[] memory accounts, uint32[] memory allocations) external {
-        address split = ISplitsMain(Lib0xSplits.SPLITS_MAIN).createSplit(
-            accounts,
-            allocations,
-            0,
-            address(0)
-        );
+        address split =
+            ISplitsMain(Lib0xSplits.SPLITS_MAIN).createSplit(accounts, allocations, 0, address(0));
         emit SplitsInfo(split, accounts, allocations, address(0), 0);
     }
 }

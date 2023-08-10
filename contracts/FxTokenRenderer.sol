@@ -2,16 +2,22 @@
 pragma solidity ^0.8.18;
 
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
-import {IFxRenderer} from "contracts/interfaces/IFxRenderer.sol";
-import {IScriptyBuilderV2, HTMLRequest, HTMLTagType, HTMLTag} from "scripty.sol/contracts/scripty/interfaces/IScriptyBuilderV2.sol";
+import {IFxTokenRenderer} from "contracts/interfaces/IFxTokenRenderer.sol";
+import {
+    IScriptyBuilderV2,
+    HTMLRequest,
+    HTMLTagType,
+    HTMLTag
+} from "scripty.sol/contracts/scripty/interfaces/IScriptyBuilderV2.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
 /**
- * @title FxRenderer
- * @notice See the documentation in {IFxRenderer}
+ * @title FxTokenRenderer
+ * @notice See the documentation in {IFxTokenRenderer}
  */
-contract FxRenderer is IFxRenderer {
+contract FxTokenRenderer is IFxTokenRenderer {
     using Strings for uint256;
+
     address public immutable ethfsFileStorage;
     address public immutable scriptyStorage;
     address public immutable scriptyBuilder;
@@ -39,11 +45,13 @@ contract FxRenderer is IFxRenderer {
 
         HTMLTag[] memory bodyTags = new HTMLTag[](3);
         bodyTags[0].name = "p5-v1.5.0.min.js.gz";
-        bodyTags[0].tagType = HTMLTagType.scriptGZIPBase64DataURI; // <script type="text/javascript+gzip" src="data:text/javascript;base64,[script]"></script>
+        bodyTags[0].tagType = HTMLTagType.scriptGZIPBase64DataURI; // <script
+            // type="text/javascript+gzip" src="data:text/javascript;base64,[script]"></script>
         bodyTags[0].contractAddress = ethfsFileStorage;
 
         bodyTags[1].name = "gunzipScripts-0.0.1.js";
-        bodyTags[1].tagType = HTMLTagType.scriptBase64DataURI; // <script src="data:text/javascript;base64,[script]"></script>
+        bodyTags[1].tagType = HTMLTagType.scriptBase64DataURI; // <script
+            // src="data:text/javascript;base64,[script]"></script>
         bodyTags[1].contractAddress = ethfsFileStorage;
 
         bodyTags[2].name = "pointsAndLines";
@@ -56,9 +64,8 @@ contract FxRenderer is IFxRenderer {
 
         string memory name;
         string memory description;
-        bytes memory base64EncodedHTMLDataURI = IScriptyBuilderV2(scriptyBuilder).getEncodedHTML(
-            htmlRequest
-        );
+        bytes memory base64EncodedHTMLDataURI =
+            IScriptyBuilderV2(scriptyBuilder).getEncodedHTML(htmlRequest);
 
         bytes memory metadata = abi.encodePacked(
             '{"name":"',

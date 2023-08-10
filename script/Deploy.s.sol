@@ -2,10 +2,12 @@
 pragma solidity ^0.8.18;
 
 import {FxContractRegistry} from "contracts/registries/FxContractRegistry.sol";
-import {FxGenArt721, IssuerInfo, MintInfo, ProjectInfo, ReserveInfo} from "contracts/FxGenArt721.sol";
+import {
+    FxGenArt721, IssuerInfo, MintInfo, ProjectInfo, ReserveInfo
+} from "contracts/FxGenArt721.sol";
 import {FxIssuerFactory} from "contracts/factories/FxIssuerFactory.sol";
-import {FxRenderer} from "contracts/FxRenderer.sol";
 import {FxRoleRegistry} from "contracts/registries/FxRoleRegistry.sol";
+import {FxTokenRenderer} from "contracts/FxTokenRenderer.sol";
 import {Script} from "forge-std/Script.sol";
 
 import "contracts/utils/Constants.sol";
@@ -16,8 +18,8 @@ contract Deploy is Script {
     FxContractRegistry public fxContractRegistry;
     FxIssuerFactory public fxIssuerFactory;
     FxGenArt721 public fxGenArt721;
-    FxRenderer public fxRenderer;
     FxRoleRegistry public fxRoleRegistry;
+    FxTokenRenderer public fxTokenRenderer;
 
     // State
     address public fxGenArtProxy;
@@ -43,18 +45,14 @@ contract Deploy is Script {
         fxRoleRegistry = new FxRoleRegistry();
         fxGenArt721 = new FxGenArt721(address(fxContractRegistry), address(fxRoleRegistry));
         fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721));
-        fxRenderer = new FxRenderer(ETHFS_FILE_STORAGE, SCRIPTY_STORAGE_V2, SCRIPTY_BUILDER_V2);
+        fxTokenRenderer =
+            new FxTokenRenderer(ETHFS_FILE_STORAGE, SCRIPTY_STORAGE_V2, SCRIPTY_BUILDER_V2);
     }
 
     function configureSettings() public {
         fxGenArtProxy = fxIssuerFactory.createProject(
-            msg.sender,
-            primaryReceiver,
-            projectInfo,
-            mintInfo,
-            royaltyReceivers,
-            basisPoints
+            msg.sender, primaryReceiver, projectInfo, mintInfo, royaltyReceivers, basisPoints
         );
-        FxGenArt721(fxGenArtProxy).setRenderer(address(fxRenderer));
+        FxGenArt721(fxGenArtProxy).setRenderer(address(fxTokenRenderer));
     }
 }

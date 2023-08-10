@@ -5,6 +5,4 @@ import {IFxRandomizer} from "contracts/interfaces/IFxRandomizer.sol";
 
 /// @title FxRandomizer
 /// @notice See documentation in {IFxRandomizer}
-contract FxRandomizer is IFxRandomizer {
-
-}
+contract FxRandomizer is IFxRandomizer {}

@@ -40,12 +40,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
         projects[++projectId] = genArtToken;
 
         IFxGenArt721(genArtToken).initialize(
-            _owner,
-            _primaryReceiver,
-            _projectInfo,
-            _mintInfo,
-            _royaltyReceivers,
-            _basisPoints
+            _owner, _primaryReceiver, _projectInfo, _mintInfo, _royaltyReceivers, _basisPoints
         );
 
         emit ProjectCreated(projectId, _owner, genArtToken);

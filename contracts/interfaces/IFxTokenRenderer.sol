@@ -4,10 +4,10 @@ pragma solidity 0.8.20;
 import {HTMLRequest} from "scripty.sol/contracts/scripty/interfaces/IScriptyBuilderV2.sol";
 
 /**
- * @title IFxRenderer
- * @notice Renders metadata of onchain scripts for Generative Art tokens
+ * @title IFxTokenRenderer
+ * @notice Renders token metadata using onchain generative scripts
  */
-interface IFxRenderer {
+interface IFxTokenRenderer {
     function renderMetadata(
         uint256 _tokenId,
         bytes32 _seed,

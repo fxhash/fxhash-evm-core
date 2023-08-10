@@ -16,12 +16,13 @@ abstract contract FxRoyaltyManager is IFxRoyaltyManager {
     /**
      * @notice Sets the base royalties for the contract
      * @param _receivers The addresses that will receive royalties.
-     * @param _basisPoints The basis points to calculate royalty payments (1/100th of a percent) for each receiver.
+     * @param _basisPoints The basis points to calculate royalty payments (1/100th of a percent) for
+     * each receiver.
      */
-    function setBaseRoyalties(
-        address payable[] calldata _receivers,
-        uint96[] calldata _basisPoints
-    ) external virtual {
+    function setBaseRoyalties(address payable[] calldata _receivers, uint96[] calldata _basisPoints)
+        external
+        virtual
+    {
         _setBaseRoyalties(_receivers, _basisPoints);
         emit TokenRoyaltiesUpdated(_receivers, _basisPoints);
     }
@@ -30,7 +31,8 @@ abstract contract FxRoyaltyManager is IFxRoyaltyManager {
      * @notice Sets the token-specific royalties for a given token ID
      * @param _tokenId The token ID for which the royalties are being set.
      * @param _receivers The addresses that will receive royalties.
-     * @param _basisPoints The basis points to calculate royalty payments (1/100th of a percent) for each receiver.
+     * @param _basisPoints The basis points to calculate royalty payments (1/100th of a percent) for
+     * each receiver.
      */
     function setTokenRoyalties(
         uint256 _tokenId,
@@ -48,10 +50,12 @@ abstract contract FxRoyaltyManager is IFxRoyaltyManager {
      * @return receiver The address that will receive the royalty payment.
      * @return amount The amount of royalty payment in wei.
      */
-    function royaltyInfo(
-        uint256 _tokenId,
-        uint256 _salePrice
-    ) external view virtual returns (address receiver, uint256 amount) {
+    function royaltyInfo(uint256 _tokenId, uint256 _salePrice)
+        external
+        view
+        virtual
+        returns (address receiver, uint256 amount)
+    {
         RoyaltyInfo[] storage tokenRoyalties_ = tokenRoyalties[_tokenId];
         RoyaltyInfo[] storage baseRoyalties_ = baseRoyalties;
 
@@ -69,11 +73,10 @@ abstract contract FxRoyaltyManager is IFxRoyaltyManager {
      * @notice Gets the royalty information for a given token ID
      * @param _tokenId The token ID for which the royalty information is being retrieved.
      * @return allReceivers The addresses that will receive royalties.
-     * @return allBasisPoints The basis points to calculate royalty payments (1/100th of a percent) for each receiver.
+     * @return allBasisPoints The basis points to calculate royalty payments (1/100th of a percent)
+     * for each receiver.
      */
-    function getRoyalties(
-        uint256 _tokenId
-    )
+    function getRoyalties(uint256 _tokenId)
         external
         view
         returns (address payable[] memory allReceivers, uint256[] memory allBasisPoints)
@@ -102,7 +105,8 @@ abstract contract FxRoyaltyManager is IFxRoyaltyManager {
      * @dev Sets the token-specific royalties for a given token ID
      * @param _tokenId The token ID for which the royalties are being set.
      * @param _receivers The addresses that will receive royalties.
-     * @param _basisPoints The basis points to calculate royalty payments (1/100th of a percent) for each receiver.
+     * @param _basisPoints The basis points to calculate royalty payments (1/100th of a percent) for
+     * each receiver.
      */
     function _setTokenRoyalties(
         uint256 _tokenId,
@@ -136,7 +140,8 @@ abstract contract FxRoyaltyManager is IFxRoyaltyManager {
     /**
      * @dev Sets the base royalties for the contract
      * @param _receivers The addresses that will receive royalties.
-     * @param _basisPoints The basis points to calculate royalty payments (1/100th of a percent) for each receiver.
+     * @param _basisPoints The basis points to calculate royalty payments (1/100th of a percent) for
+     * each receiver.
      */
     function _setBaseRoyalties(
         address payable[] calldata _receivers,
@@ -158,7 +163,7 @@ abstract contract FxRoyaltyManager is IFxRoyaltyManager {
      * @return The fee denominator.
      */
     function _feeDenominator() internal pure virtual returns (uint96) {
-        return 10000;
+        return 10_000;
     }
 
     /**

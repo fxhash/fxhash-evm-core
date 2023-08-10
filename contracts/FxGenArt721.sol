@@ -1,10 +1,20 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import {ERC721URIStorageUpgradeable, ERC721Upgradeable} from "@openzeppelin-upgradeable/contracts/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
+import {
+    ERC721URIStorageUpgradeable,
+    ERC721Upgradeable
+} from "@openzeppelin-upgradeable/contracts/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
 import {IFxContractRegistry} from "contracts/interfaces/IFxContractRegistry.sol";
-import {IFxGenArt721, IssuerInfo, GenArtInfo, ProjectInfo, MintInfo, ReserveInfo} from "contracts/interfaces/IFxGenArt721.sol";
-import {IFxRenderer} from "contracts/interfaces/IFxRenderer.sol";
+import {
+    IFxGenArt721,
+    IssuerInfo,
+    GenArtInfo,
+    ProjectInfo,
+    MintInfo,
+    ReserveInfo
+} from "contracts/interfaces/IFxGenArt721.sol";
+import {IFxTokenRenderer} from "contracts/interfaces/IFxTokenRenderer.sol";
 import {FxRoleRegistry} from "contracts/registries/FxRoleRegistry.sol";
 import {FxRoyaltyManager} from "contracts/FxRoyaltyManager.sol";
 import {OwnableUpgradeable} from "@openzeppelin-upgradeable/contracts/access/OwnableUpgradeable.sol";
@@ -65,8 +75,9 @@ contract FxGenArt721 is
 
     /// @dev Modifier for restricting calls to only registered contracts
     modifier onlyContract(bytes32 _name) {
-        if (msg.sender != IFxContractRegistry(contractRegistry).contracts(_name))
+        if (msg.sender != IFxContractRegistry(contractRegistry).contracts(_name)) {
             revert UnauthorizedContract();
+        }
         _;
     }
 
@@ -113,7 +124,7 @@ contract FxGenArt721 is
     /// @inheritdoc IFxGenArt721
     function publicMint(address _to, uint256 _amount) external onlyMinter {
         if (!issuerInfo.projectInfo.enabled) revert MintInactive();
-        for (uint256 i; i < _amount; ) {
+        for (uint256 i; i < _amount;) {
             _mint(_to, ++totalSupply);
             unchecked {
                 ++i;
@@ -152,9 +163,12 @@ contract FxGenArt721 is
     }
 
     /// @inheritdoc ERC721URIStorageUpgradeable
-    function supportsInterface(
-        bytes4 _interfaceId
-    ) public view override(ERC721URIStorageUpgradeable, FxRoyaltyManager) returns (bool) {
+    function supportsInterface(bytes4 _interfaceId)
+        public
+        view
+        override(ERC721URIStorageUpgradeable, FxRoyaltyManager)
+        returns (bool)
+    {
         return super.supportsInterface(_interfaceId);
     }
 
@@ -167,8 +181,9 @@ contract FxGenArt721 is
         for (uint256 i; i < _mintInfo.length; ++i) {
             minter = _mintInfo[i].minter;
             reserveInfo = _mintInfo[i].reserveInfo;
-            if (!FxRoleRegistry(roleRegistry).hasRole(MINTER_ROLE, minter))
+            if (!FxRoleRegistry(roleRegistry).hasRole(MINTER_ROLE, minter)) {
                 revert UnauthorizedMinter();
+            }
             if (reserveInfo.startTime >= reserveInfo.endTime) revert InvalidReserveTime();
             issuerInfo.minters[minter] = true;
             totalAllocation += reserveInfo.allocation;
@@ -178,9 +193,12 @@ contract FxGenArt721 is
     }
 
     /// @inheritdoc ERC721Upgradeable
-    function _exists(
-        uint256 _tokenId
-    ) internal view override(ERC721Upgradeable, FxRoyaltyManager) returns (bool) {
+    function _exists(uint256 _tokenId)
+        internal
+        view
+        override(ERC721Upgradeable, FxRoyaltyManager)
+        returns (bool)
+    {
         return super._exists(_tokenId);
     }
 }

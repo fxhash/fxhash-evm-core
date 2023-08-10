@@ -38,9 +38,7 @@ interface IFxIssuerFactory {
      * @param _genArtToken Address of newly deployed FxGenArt721 token contract
      */
     event ProjectCreated(
-        uint96 indexed _projectId,
-        address indexed _owner,
-        address indexed _genArtToken
+        uint96 indexed _projectId, address indexed _owner, address indexed _genArtToken
     );
 
     /**
