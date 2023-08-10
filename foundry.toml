@@ -1,6 +1,7 @@
 [profile.default]
-src = "contracts"
-out = "artifacts"
+src = "src"
+out = "out"
+lib = "lib"
 ignored_error_codes = [5574, 6321]
 
 [fmt]
