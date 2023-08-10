@@ -1,21 +1,7 @@
 [profile.default]
 src = "contracts"
 out = "artifacts"
-libs = ["lib", "node_modules"]
 ignored_error_codes = [5574, 6321]
-remappings = [
-  "@ensdomains/=node_modules/@ensdomains/",
-  "@ethereum-waffle/=node_modules/@ethereum-waffle/",
-  "@openzeppelin/=node_modules/@openzeppelin/",
-  "@rari-capital/=node_modules/@rari-capital/",
-  "eth-gas-reporter/=node_modules/eth-gas-reporter/",
-  "forge-std/=lib/forge-std/src/",
-  "hardhat/=node_modules/hardhat/",
-  "scripty.sol/=node_modules/scripty.sol/",
-  "solady/=node_modules/solady/",
-]
-
-fs_permissions = [{ access = "read-write", path = "script/issuers.json" }]
 
 [fmt]
 bracket_spacing = false
@@ -27,5 +13,3 @@ quote_style = "double"
 single_line_statement_blocks = "single"
 tab_width = 4
 wrap_comments = true
-
-# See more config options https://github.com/foundry-rs/foundry/tree/master/config

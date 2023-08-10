@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.18;
+pragma solidity 0.8.20;
 
 import {FxContractRegistry} from "contracts/registries/FxContractRegistry.sol";
 import {
@@ -23,6 +23,7 @@ contract Deploy is Script {
 
     // State
     address public fxGenArtProxy;
+    address public owner;
     address public primaryReceiver;
     IssuerInfo public isserInfo;
     ProjectInfo public projectInfo;
@@ -50,8 +51,10 @@ contract Deploy is Script {
     }
 
     function configureSettings() public {
+        owner = msg.sender;
+        primaryReceiver = msg.sender;
         fxGenArtProxy = fxIssuerFactory.createProject(
-            msg.sender, primaryReceiver, projectInfo, mintInfo, royaltyReceivers, basisPoints
+            owner, primaryReceiver, projectInfo, mintInfo, royaltyReceivers, basisPoints
         );
         FxGenArt721(fxGenArtProxy).setRenderer(address(fxTokenRenderer));
     }
