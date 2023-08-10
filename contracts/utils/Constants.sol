@@ -2,16 +2,14 @@
 pragma solidity ^0.8.18;
 
 // Contracts
-bytes32 constant CONTRACT_REGISTRY = keccak256("CONTRACT_REGISTRY");
-bytes32 constant DUTCH_AUCTION = keccak256("DUTCH_AUCTION");
-bytes32 constant FIXED_PRICE = keccak256("FIXED_PRICE");
+bytes32 constant FX_CONTRACT_REGISTRY = keccak256("FX_CONTRACT_REGISTRY");
 bytes32 constant FX_GEN_ART_721 = keccak256("FX_GEN_ART_721");
 bytes32 constant FX_ISSUER_FACTORY = keccak256("FX_ISSUER_FACTORY");
-bytes32 constant FX_METADATA = keccak256("FX_METADATA");
-bytes32 constant RANDOMIZER = keccak256("RANDOMIZER");
-bytes32 constant ROLE_REGISTRY = keccak256("ROLE_REGISTRY");
-bytes32 constant ROYALTY_MANAGER = keccak256("ROYALTY_MANAGER");
-bytes32 constant SPLITS_FACTORY = keccak256("SPLITS_FACTORY");
+bytes32 constant FX_RANDOMIZER = keccak256("FX_RANDOMIZER");
+bytes32 constant FX_ROLE_REGISTRY = keccak256("FX_ROLE_REGISTRY");
+bytes32 constant FX_ROYALTY_MANAGER = keccak256("FX_ROYALTY_MANAGER");
+bytes32 constant FX_SPLITS_FACTORY = keccak256("FX_SPLITS_FACTORY");
+bytes32 constant FX_TOKEN_RENDERER = keccak256("FX_TOKEN_RENDERER");
 
 // Roles
 bytes32 constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
