@@ -2,12 +2,12 @@
 pragma solidity ^0.8.18;
 
 import {ERC721URIStorageUpgradeable, ERC721Upgradeable} from "@openzeppelin-upgradeable/contracts/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
-import {IContractRegistry} from "contracts/interfaces/IContractRegistry.sol";
-import {IFxGenArt721, IssuerInfo, ProjectInfo, MetadataInfo, MintInfo, ReserveInfo, GenArtInfo} from "contracts/interfaces/IFxGenArt721.sol";
+import {IFxContractRegistry} from "contracts/interfaces/IFxContractRegistry.sol";
+import {IFxGenArt721, IssuerInfo, GenArtInfo, ProjectInfo, MintInfo, ReserveInfo} from "contracts/interfaces/IFxGenArt721.sol";
 import {IFxRenderer} from "contracts/interfaces/IFxRenderer.sol";
+import {FxRoleRegistry} from "contracts/registries/FxRoleRegistry.sol";
+import {FxRoyaltyManager} from "contracts/FxRoyaltyManager.sol";
 import {OwnableUpgradeable} from "@openzeppelin-upgradeable/contracts/access/OwnableUpgradeable.sol";
-import {RoleRegistry} from "contracts/registries/RoleRegistry.sol";
-import {RoyaltyManager} from "contracts/royalties/RoyaltyManager.sol";
 
 import "contracts/utils/Constants.sol";
 
@@ -19,7 +19,7 @@ contract FxGenArt721 is
     IFxGenArt721,
     ERC721URIStorageUpgradeable,
     OwnableUpgradeable,
-    RoyaltyManager
+    FxRoyaltyManager
 {
     /// @inheritdoc IFxGenArt721
     address public immutable contractRegistry;
@@ -57,7 +57,7 @@ contract FxGenArt721 is
     // | baseRoyalties      | struct RoyaltyInfo[]                         | 251  | 0      | 32    |
     // | tokenRoyalties     | mapping(uint256 => struct RoyaltyInfo[])     | 252  | 0      | 32    |
     // | totalSupply        | uint96                                       | 253  | 0      | 12    |
-    // | metadata           | address                                      | 253  | 12     | 20    |
+    // | renderer           | address                                      | 253  | 12     | 20    |
     // | issuerInfo         | struct IssuerInfo                            | 254  | 0      | 160   |
     // | _genArtInfo        | mapping(uint96 => struct GenArtInfo)         | 259  | 0      | 32    |
     // |░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░|
@@ -65,7 +65,7 @@ contract FxGenArt721 is
 
     /// @dev Modifier for restricting calls to only registered contracts
     modifier onlyContract(bytes32 _name) {
-        if (msg.sender != IContractRegistry(contractRegistry).contracts(_name))
+        if (msg.sender != IFxContractRegistry(contractRegistry).contracts(_name))
             revert UnauthorizedContract();
         _;
     }
@@ -154,7 +154,7 @@ contract FxGenArt721 is
     /// @inheritdoc ERC721URIStorageUpgradeable
     function supportsInterface(
         bytes4 _interfaceId
-    ) public view override(ERC721URIStorageUpgradeable, RoyaltyManager) returns (bool) {
+    ) public view override(ERC721URIStorageUpgradeable, FxRoyaltyManager) returns (bool) {
         return super.supportsInterface(_interfaceId);
     }
 
@@ -167,7 +167,7 @@ contract FxGenArt721 is
         for (uint256 i; i < _mintInfo.length; ++i) {
             minter = _mintInfo[i].minter;
             reserveInfo = _mintInfo[i].reserveInfo;
-            if (!RoleRegistry(roleRegistry).hasRole(MINTER_ROLE, minter))
+            if (!FxRoleRegistry(roleRegistry).hasRole(MINTER_ROLE, minter))
                 revert UnauthorizedMinter();
             if (reserveInfo.startTime >= reserveInfo.endTime) revert InvalidReserveTime();
             issuerInfo.minters[minter] = true;
@@ -180,7 +180,7 @@ contract FxGenArt721 is
     /// @inheritdoc ERC721Upgradeable
     function _exists(
         uint256 _tokenId
-    ) internal view override(ERC721Upgradeable, RoyaltyManager) returns (bool) {
+    ) internal view override(ERC721Upgradeable, FxRoyaltyManager) returns (bool) {
         return super._exists(_tokenId);
     }
 }

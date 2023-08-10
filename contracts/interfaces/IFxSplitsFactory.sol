@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-interface ISplitsFactory {
+interface IFxSplitsFactory {
     /**
      * @dev Emitted to indicate a split was created or where it will be deployed to.
      * @param split The address the split contract will be deployed to.

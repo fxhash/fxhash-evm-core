@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import {IRoyaltyManager, RoyaltyInfo} from "contracts/interfaces/IRoyaltyManager.sol";
+import {IFxRoyaltyManager, RoyaltyInfo} from "contracts/interfaces/IFxRoyaltyManager.sol";
 
-/// @title RoyaltyManager
+/// @title FxRoyaltyManager
 /// @notice A contract for managing royalties
-abstract contract RoyaltyManager is IRoyaltyManager {
+abstract contract FxRoyaltyManager is IFxRoyaltyManager {
     uint256 public constant MAX_ROYALTY = 2500;
     /// @notice A struct containing basisPoints and receiver address for a royalty
     RoyaltyInfo[] public baseRoyalties;

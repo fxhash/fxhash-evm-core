@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-/// @title IContractRegistry
+/// @title IFxContractRegistry
 /// @notice Registry of FxHash Smart Contracts
-interface IContractRegistry {
+interface IFxContractRegistry {
     /// @notice Error thrown when contract has already been set
     error ContractAlreadySet();
     /// @notice Error thrown when contract is zero address

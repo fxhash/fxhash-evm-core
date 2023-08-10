@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import {ISplitsFactory} from "contracts/interfaces/ISplitsFactory.sol";
+import {IFxSplitsFactory} from "contracts/interfaces/IFxSplitsFactory.sol";
 import {ISplitsMain} from "contracts/interfaces/ISplitsMain.sol";
 import {Lib0xSplits} from "contracts/lib/Lib0xSplits.sol";
 
@@ -9,7 +9,7 @@ import {Lib0xSplits} from "contracts/lib/Lib0xSplits.sol";
  * @title SplitsFactory
  * @dev A factory contract for creating split wallets and easier event tracking.
  */
-contract SplitsFactory is ISplitsFactory {
+contract FxSplitsFactory is IFxSplitsFactory {
     /**
      * @dev Emits an event for the deterministic deployment address of a split.
      * @param accounts The array of addresses that participate in the split.
