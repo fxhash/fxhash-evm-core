@@ -4,7 +4,7 @@ pragma solidity ^0.8.18;
 import {ContractRegistry} from "contracts/registries/ContractRegistry.sol";
 import {FxGenArt721, IssuerInfo, MintInfo, ProjectInfo, ReserveInfo} from "contracts/FxGenArt721.sol";
 import {FxIssuerFactory} from "contracts/FxIssuerFactory.sol";
-import {FxMetadata} from "contracts/FxMetadata.sol";
+import {FxRenderer} from "contracts/FxRenderer.sol";
 import {RoleRegistry} from "contracts/registries/RoleRegistry.sol";
 import {Script} from "forge-std/Script.sol";
 
@@ -16,7 +16,7 @@ contract Deploy is Script {
     ContractRegistry public contractRegistry;
     FxIssuerFactory public fxIssuerFactory;
     FxGenArt721 public fxGenArt721;
-    FxMetadata public fxMetadata;
+    FxRenderer public fxRenderer;
     RoleRegistry public roleRegistry;
 
     // State
@@ -43,7 +43,7 @@ contract Deploy is Script {
         roleRegistry = new RoleRegistry();
         fxGenArt721 = new FxGenArt721(address(contractRegistry), address(roleRegistry));
         fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721));
-        fxMetadata = new FxMetadata(ETHFS_FILE_STORAGE, SCRIPTY_STORAGE_V2, SCRIPTY_BUILDER_V2);
+        fxRenderer = new FxRenderer(ETHFS_FILE_STORAGE, SCRIPTY_STORAGE_V2, SCRIPTY_BUILDER_V2);
     }
 
     function configureSettings() public {
@@ -55,6 +55,6 @@ contract Deploy is Script {
             royaltyReceivers,
             basisPoints
         );
-        FxGenArt721(fxGenArtProxy).setMetadata(address(fxMetadata));
+        FxGenArt721(fxGenArtProxy).setRenderer(address(fxRenderer));
     }
 }

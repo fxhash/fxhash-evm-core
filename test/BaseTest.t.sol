@@ -4,7 +4,7 @@ pragma solidity ^0.8.18;
 import {ContractRegistry} from "contracts/registries/ContractRegistry.sol";
 import {FxGenArt721, IssuerInfo, GenArtInfo, MintInfo, ProjectInfo, ReserveInfo} from "contracts/FxGenArt721.sol";
 import {FxIssuerFactory} from "contracts/FxIssuerFactory.sol";
-import {FxMetadata} from "contracts/FxMetadata.sol";
+import {FxRenderer} from "contracts/FxRenderer.sol";
 import {RoleRegistry} from "contracts/registries/RoleRegistry.sol";
 import {Test} from "forge-std/Test.sol";
 
@@ -17,7 +17,7 @@ contract BaseTest is Test {
     ContractRegistry public contractRegistry;
     FxIssuerFactory public fxIssuerFactory;
     FxGenArt721 public fxGenArt721;
-    FxMetadata public fxMetadata;
+    FxRenderer public fxRenderer;
     RoleRegistry public roleRegistry;
 
     // Users
@@ -70,14 +70,14 @@ contract BaseTest is Test {
         roleRegistry = new RoleRegistry();
         fxGenArt721 = new FxGenArt721(address(contractRegistry), address(roleRegistry));
         fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721));
-        fxMetadata = new FxMetadata(ETHFS_FILE_STORAGE, SCRIPTY_STORAGE_V2, SCRIPTY_BUILDER_V2);
+        fxRenderer = new FxRenderer(ETHFS_FILE_STORAGE, SCRIPTY_STORAGE_V2, SCRIPTY_BUILDER_V2);
 
         vm.label(address(this), "BaseTest");
         vm.label(address(contractRegistry), "ContractRegistry");
         vm.label(address(roleRegistry), "RoleRegistry");
         vm.label(address(fxGenArt721), "FxGenArt721");
         vm.label(address(fxIssuerFactory), "FxIssuerFactory");
-        vm.label(address(fxMetadata), "FxMetadata");
+        vm.label(address(fxRenderer), "FxRenderer");
     }
 
     function configureSettings() public virtual {
@@ -89,7 +89,7 @@ contract BaseTest is Test {
             royaltyReceivers,
             basisPoints
         );
-        FxGenArt721(fxGenArtProxy).setMetadata(address(fxMetadata));
+        FxGenArt721(fxGenArtProxy).setRenderer(address(fxRenderer));
 
         vm.label(address(fxGenArtProxy), "FxGenArtProxy");
     }

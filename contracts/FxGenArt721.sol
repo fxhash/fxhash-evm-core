@@ -4,7 +4,7 @@ pragma solidity ^0.8.18;
 import {ERC721URIStorageUpgradeable, ERC721Upgradeable} from "@openzeppelin-upgradeable/contracts/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
 import {IContractRegistry} from "contracts/interfaces/IContractRegistry.sol";
 import {IFxGenArt721, IssuerInfo, ProjectInfo, MetadataInfo, MintInfo, ReserveInfo, GenArtInfo} from "contracts/interfaces/IFxGenArt721.sol";
-import {IFxMetadata} from "contracts/interfaces/IFxMetadata.sol";
+import {IFxRenderer} from "contracts/interfaces/IFxRenderer.sol";
 import {OwnableUpgradeable} from "@openzeppelin-upgradeable/contracts/access/OwnableUpgradeable.sol";
 import {RoleRegistry} from "contracts/registries/RoleRegistry.sol";
 import {RoyaltyManager} from "contracts/royalties/RoyaltyManager.sol";
@@ -28,7 +28,7 @@ contract FxGenArt721 is
     /// @inheritdoc IFxGenArt721
     uint96 public totalSupply;
     /// @inheritdoc IFxGenArt721
-    address public metadata;
+    address public renderer;
     /// @inheritdoc IFxGenArt721
     IssuerInfo public issuerInfo;
     /// @dev Internal mapping of token ID to GenArtInfo
@@ -122,8 +122,8 @@ contract FxGenArt721 is
     }
 
     /// @inheritdoc IFxGenArt721
-    function setMetadata(address _metadata) external onlyOwner {
-        metadata = _metadata;
+    function setRenderer(address _renderer) external onlyOwner {
+        renderer = _renderer;
     }
 
     /// @inheritdoc IFxGenArt721
@@ -141,22 +141,21 @@ contract FxGenArt721 is
         return issuerInfo.minters[_minter];
     }
 
-    /// @inheritdoc ERC721URIStorageUpgradeable
-    function supportsInterface(
-        bytes4 _interfaceId
-    ) public view override(ERC721URIStorageUpgradeable, RoyaltyManager) returns (bool) {
-        return super.supportsInterface(_interfaceId);
+    /// @inheritdoc IFxGenArt721
+    function contractURI() public view returns (string memory) {
+        return "";
     }
 
     /// @inheritdoc ERC721URIStorageUpgradeable
     function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
         _requireMinted(_tokenId);
+    }
 
-        if (issuerInfo.projectInfo.codexId == SCRIPTY) {
-            return IFxMetadata(metadata).renderOnchain(_tokenId);
-        } else {
-            return IFxMetadata(metadata).renderOffchain(_tokenId);
-        }
+    /// @inheritdoc ERC721URIStorageUpgradeable
+    function supportsInterface(
+        bytes4 _interfaceId
+    ) public view override(ERC721URIStorageUpgradeable, RoyaltyManager) returns (bool) {
+        return super.supportsInterface(_interfaceId);
     }
 
     /// @dev Registers arbitrary number of minter contracts

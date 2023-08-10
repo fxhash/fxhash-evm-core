@@ -2,15 +2,15 @@
 pragma solidity ^0.8.18;
 
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
-import {IFxMetadata} from "contracts/interfaces/IFxMetadata.sol";
+import {IFxRenderer} from "contracts/interfaces/IFxRenderer.sol";
 import {IScriptyBuilderV2, HTMLRequest, HTMLTagType, HTMLTag} from "scripty.sol/contracts/scripty/interfaces/IScriptyBuilderV2.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
 /**
- * @title FxMetadata
- * @notice See the documentation in {IFxMetadata}
+ * @title FxRenderer
+ * @notice See the documentation in {IFxRenderer}
  */
-contract FxMetadata is IFxMetadata {
+contract FxRenderer is IFxRenderer {
     using Strings for uint256;
     address public immutable ethfsFileStorage;
     address public immutable scriptyStorage;
@@ -22,7 +22,13 @@ contract FxMetadata is IFxMetadata {
         scriptyBuilder = _scriptyBuilder;
     }
 
-    function renderOnchain(uint256 _tokenId) public view returns (string memory) {
+    function renderMetadata(
+        uint256 _tokenId,
+        bytes32 _seed,
+        bytes calldata _fxParams,
+        HTMLRequest calldata _animationURL,
+        HTMLRequest calldata _attributes
+    ) public view returns (string memory) {
         HTMLTag[] memory headTags = new HTMLTag[](1);
 
         // <link rel="stylesheet" href="data:text/css;base64,[fullSizeCanvas.css, base64 encoded]">
@@ -65,9 +71,5 @@ contract FxMetadata is IFxMetadata {
         );
 
         return string(abi.encodePacked("data:application/json;base64,", Base64.encode(metadata)));
-    }
-
-    function renderOffchain(uint256 _tokenId) public pure returns (string memory) {
-        return _tokenId.toString();
     }
 }
