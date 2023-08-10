@@ -14,6 +14,7 @@ remappings = [
   "scripty.sol/=node_modules/scripty.sol/",
   "solady/=node_modules/solady/",
 ]
+
 fs_permissions = [{ access = "read-write", path = "script/issuers.json" }]
 
 [fmt]
@@ -26,4 +27,5 @@ quote_style = "double"
 single_line_statement_blocks = "single"
 tab_width = 4
 wrap_comments = true
+
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config
