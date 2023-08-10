@@ -6,9 +6,7 @@
   "scripts": {
     "deploy": "./script/bash/deploy.sh",
     "seed": "./script/bash/seed.sh",
-    "test": "./test/bash/test.sh",
-    "prettier": "prettier --write 'contracts/**/*.sol' 'script/**/*.sol' 'test/**/*.sol'",
-    "prettier:check": "prettier --check 'contracts/**/*.sol'"
+    "test": "./test/bash/test.sh"
   },
   "author": "",
   "license": "ISC",
