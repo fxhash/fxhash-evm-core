@@ -18,37 +18,26 @@ struct IssuerInfo {
  * @param enabled Active status of project
  * @param codexId ID of codex info
  * @param supply Maximum supply of tokens
- * @param metadata Bytes-encoded metadata of project
- * @param labels List of offchain project description labels
- * @param tokenInfo Token information
+ * @param contractMetadata Contract metadata of project
+ * @param tokenMetadata Token metadata information
  */
 struct ProjectInfo {
     bool enabled;
     uint120 codexId;
     uint128 supply;
-    bytes metadata;
-    uint16[] labels;
-    TokenInfo tokenInfo;
+    MetadataInfo contractMetadata;
+    MetadataInfo tokenMetadata;
 }
 
 /**
  * @param baseURI Base URI of metadata pointer
+ * @param animation List of HTML head and body tags for building onchain scripts
  * @param attributes List of key value pairs for token attributes
- * @param htmlRequest List of HTML head and body tags for building onchain scripts
- */
-struct TokenInfo {
-    string baseURI;
-    MetadataInfo attributes;
-    HTMLRequest htmlRequest;
-}
-
-/**
- * @param key List of JSON attribute keys
- * @param value List of JSON attribute values
  */
 struct MetadataInfo {
-    string[] key;
-    string[] value;
+    string baseURI;
+    HTMLRequest animationURL;
+    HTMLRequest attributes;
 }
 
 /**
@@ -165,10 +154,10 @@ interface IFxGenArt721 {
     function publicMint(address _to, uint256 _amount) external;
 
     /**
-     * @notice Sets the new Metadata contract for renderring tokenURI
-     * @param _metadata Address of the Metadata contract
+     * @notice Sets the new Renderer contract
+     * @param _renderer Address of the Renderer contract
      */
-    function setMetadata(address _metadata) external;
+    function setRenderer(address _renderer) external;
 
     /**
      * @notice Enables and disables the public mint
@@ -179,6 +168,11 @@ interface IFxGenArt721 {
      * @notice Returns the address of the ContractRegistry contract
      */
     function contractRegistry() external view returns (address);
+
+    /**
+     * @notice Returns contract-level metadata for storefront marketplaces
+     */
+    function contractURI() external view returns (string memory);
 
     /**
      * @notice Gets the generative art information for a given token
@@ -201,9 +195,9 @@ interface IFxGenArt721 {
     function issuerInfo() external view returns (ProjectInfo memory, address);
 
     /**
-     * @notice Returns the address of the Metadata contract
+     * @notice Returns the address of the Renderer contract
      */
-    function metadata() external view returns (address);
+    function renderer() external view returns (address);
 
     /**
      * @notice Returns address of the RoleRegistry contract
