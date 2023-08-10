@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import {ContractRegistry} from "contracts/registries/ContractRegistry.sol";
+import {FxContractRegistry} from "contracts/registries/FxContractRegistry.sol";
 import {FxGenArt721, IssuerInfo, MintInfo, ProjectInfo, ReserveInfo} from "contracts/FxGenArt721.sol";
-import {FxIssuerFactory} from "contracts/FxIssuerFactory.sol";
+import {FxIssuerFactory} from "contracts/factories/FxIssuerFactory.sol";
 import {FxRenderer} from "contracts/FxRenderer.sol";
-import {RoleRegistry} from "contracts/registries/RoleRegistry.sol";
+import {FxRoleRegistry} from "contracts/registries/FxRoleRegistry.sol";
 import {Script} from "forge-std/Script.sol";
 
 import "contracts/utils/Constants.sol";
@@ -13,11 +13,11 @@ import "script/utils/Constants.sol";
 
 contract Deploy is Script {
     // Contracts
-    ContractRegistry public contractRegistry;
+    FxContractRegistry public fxContractRegistry;
     FxIssuerFactory public fxIssuerFactory;
     FxGenArt721 public fxGenArt721;
     FxRenderer public fxRenderer;
-    RoleRegistry public roleRegistry;
+    FxRoleRegistry public fxRoleRegistry;
 
     // State
     address public fxGenArtProxy;
@@ -39,9 +39,9 @@ contract Deploy is Script {
     }
 
     function deployContracts() public {
-        contractRegistry = new ContractRegistry();
-        roleRegistry = new RoleRegistry();
-        fxGenArt721 = new FxGenArt721(address(contractRegistry), address(roleRegistry));
+        fxContractRegistry = new FxContractRegistry();
+        fxRoleRegistry = new FxRoleRegistry();
+        fxGenArt721 = new FxGenArt721(address(fxContractRegistry), address(fxRoleRegistry));
         fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721));
         fxRenderer = new FxRenderer(ETHFS_FILE_STORAGE, SCRIPTY_STORAGE_V2, SCRIPTY_BUILDER_V2);
     }

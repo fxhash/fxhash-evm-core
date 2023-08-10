@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.18;
+pragma solidity 0.8.20;
 
 struct RoyaltyInfo {
     address payable receiver;
     uint96 basisPoints;
 }
 
-interface IRoyaltyManager {
+interface IFxRoyaltyManager {
     /// @notice Emitted when the royalties for a set of receivers have been updated.
     /// @param receivers the addressaddress that will receive royalties.
     /// @param basisPoints the basis points to calculate royalty payments(1/100th of a percent) for

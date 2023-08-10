@@ -1,16 +1,16 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import {IContractRegistry} from "contracts/interfaces/IContractRegistry.sol";
+import {IFxContractRegistry} from "contracts/interfaces/IFxContractRegistry.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-/// @title ContractRegistry
-/// @notice See the documentation in {IContractRegistry}
-contract ContractRegistry is Ownable, IContractRegistry {
-    /// @inheritdoc IContractRegistry
+/// @title FxContractRegistry
+/// @notice See the documentation in {IFxContractRegistry}
+contract FxContractRegistry is Ownable, IFxContractRegistry {
+    /// @inheritdoc IFxContractRegistry
     mapping(bytes32 => address) public contracts;
 
-    /// @inheritdoc IContractRegistry
+    /// @inheritdoc IFxContractRegistry
     function setContracts(
         string[] calldata _names,
         address[] calldata _contracts

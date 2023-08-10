@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import {ContractRegistry} from "contracts/registries/ContractRegistry.sol";
+import {FxContractRegistry} from "contracts/registries/FxContractRegistry.sol";
 import {FxGenArt721, IssuerInfo, GenArtInfo, MintInfo, ProjectInfo, ReserveInfo} from "contracts/FxGenArt721.sol";
-import {FxIssuerFactory} from "contracts/FxIssuerFactory.sol";
+import {FxIssuerFactory} from "contracts/factories/FxIssuerFactory.sol";
 import {FxRenderer} from "contracts/FxRenderer.sol";
-import {RoleRegistry} from "contracts/registries/RoleRegistry.sol";
+import {FxRoleRegistry} from "contracts/registries/FxRoleRegistry.sol";
 import {Test} from "forge-std/Test.sol";
 
 import "contracts/utils/Constants.sol";
@@ -14,11 +14,11 @@ import "test/utils/Constants.sol";
 
 contract BaseTest is Test {
     // Contracts
-    ContractRegistry public contractRegistry;
+    FxContractRegistry public fxContractRegistry;
     FxIssuerFactory public fxIssuerFactory;
     FxGenArt721 public fxGenArt721;
     FxRenderer public fxRenderer;
-    RoleRegistry public roleRegistry;
+    FxRoleRegistry public fxRoleRegistry;
 
     // Users
     address public admin;
@@ -66,15 +66,15 @@ contract BaseTest is Test {
     }
 
     function deployContracts() public virtual {
-        contractRegistry = new ContractRegistry();
-        roleRegistry = new RoleRegistry();
-        fxGenArt721 = new FxGenArt721(address(contractRegistry), address(roleRegistry));
+        fxContractRegistry = new FxContractRegistry();
+        fxRoleRegistry = new FxRoleRegistry();
+        fxGenArt721 = new FxGenArt721(address(fxContractRegistry), address(fxRoleRegistry));
         fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721));
         fxRenderer = new FxRenderer(ETHFS_FILE_STORAGE, SCRIPTY_STORAGE_V2, SCRIPTY_BUILDER_V2);
 
         vm.label(address(this), "BaseTest");
-        vm.label(address(contractRegistry), "ContractRegistry");
-        vm.label(address(roleRegistry), "RoleRegistry");
+        vm.label(address(fxContractRegistry), "FxContractRegistry");
+        vm.label(address(fxRoleRegistry), "FxRoleRegistry");
         vm.label(address(fxGenArt721), "FxGenArt721");
         vm.label(address(fxIssuerFactory), "FxIssuerFactory");
         vm.label(address(fxRenderer), "FxRenderer");
