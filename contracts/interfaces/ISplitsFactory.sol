@@ -1,0 +1,24 @@
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.20;
+
+interface ISplitsFactory {
+    /**
+     * @dev Emitted to indicate a split was created or where it will be deployed to.
+     * @param split The address the split contract will be deployed to.
+     * @param accounts The array of addresses that participate in the split.
+     * @param allocations The array of allocations for each account.
+     * @param controller The address of the controller contract. (address(0) for immutable splits)
+     * @param distributorFee The distributor fee percentage. (Currently not used)
+     */
+    event SplitsInfo(
+        address indexed split,
+        address[] accounts,
+        uint32[] allocations,
+        address controller,
+        uint32 distributorFee
+    );
+
+    function createSplit(address[] memory accounts, uint32[] memory allocations) external;
+
+    function createVirtualSplit(address[] memory accounts, uint32[] memory allocations) external;
+}

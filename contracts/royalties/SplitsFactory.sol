@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
+import {ISplitsFactory} from "contracts/interfaces/ISplitsFactory.sol";
 import {ISplitsMain} from "contracts/interfaces/ISplitsMain.sol";
 import {Lib0xSplits} from "contracts/lib/Lib0xSplits.sol";
 
@@ -8,23 +9,7 @@ import {Lib0xSplits} from "contracts/lib/Lib0xSplits.sol";
  * @title SplitsFactory
  * @dev A factory contract for creating split wallets and easier event tracking.
  */
-contract SplitsFactory {
-    /**
-     * @dev Emitted to indicate a split was created or where it will be deployed to.
-     * @param split The address the split contract will be deployed to.
-     * @param accounts The array of addresses that participate in the split.
-     * @param allocations The array of allocations for each account.
-     * @param controller The address of the controller contract. (address(0) for immutable splits)
-     * @param distributorFee The distributor fee percentage. (Currently not used)
-     */
-    event SplitsInfo(
-        address indexed split,
-        address[] accounts,
-        uint32[] allocations,
-        address controller,
-        uint32 distributorFee
-    );
-
+contract SplitsFactory is ISplitsFactory {
     /**
      * @dev Emits an event for the deterministic deployment address of a split.
      * @param accounts The array of addresses that participate in the split.
