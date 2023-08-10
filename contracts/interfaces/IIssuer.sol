@@ -5,7 +5,7 @@ import {CodexInput} from "contracts/interfaces/ICodex.sol";
 import {PricingData} from "contracts/interfaces/IBasePricing.sol";
 import {ReserveData} from "contracts/interfaces/IBaseReserve.sol";
 import {RoyaltyData} from "contracts/interfaces/IBaseRoyalties.sol";
-import {WrappedScriptRequest} from "scripty.sol/contracts/scripty/IScriptyBuilder.sol";
+import {HTMLRequest} from "scripty.sol/contracts/scripty/interfaces/IScriptyBuilderV2.sol";
 
 struct OpenEditions {
     uint256 closingTime;
@@ -58,7 +58,7 @@ struct MintIssuerInput {
     RoyaltyData primarySplit;
     bool enabled;
     uint256[] tags;
-    WrappedScriptRequest[] onChainScripts;
+    HTMLRequest[] onChainScripts;
 }
 
 struct MintInput {
@@ -76,6 +76,16 @@ struct MintWithTicketInput {
 }
 
 interface IIssuer {
+    event IssuerMinted(MintIssuerInput params);
+    event IssuerBurned();
+    event IssuerUpdated(UpdateIssuerInput params);
+    event IssuerModUpdated(uint256[] tags);
+    event TokenMinted(MintInput params);
+    event TokenMintedWithTicket(MintWithTicketInput params);
+    event PriceUpdated(PricingData params);
+    event ReserveUpdated(ReserveData[] reserves);
+    event SupplyBurned(uint256 amount);
+
     function initialize(address _configManager, address _owner, address _genTk) external;
 
     function mintIssuer(MintIssuerInput calldata params) external;

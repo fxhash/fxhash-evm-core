@@ -13,13 +13,9 @@ git clone git@github.com:fxhash/fxhash-evm-contracts.git
 ```
 COIN_MARKET_CAP_API_KEY=
 DEPLOYER_PRIVATE_KEY=
-SIGNER_PRIVATE_KEY=
-MNEMONIC=
-ALICE_ADDRESS=
-BOB_ADDRESS=
-TREASURY_ADDRESS=
 ETHERSCAN_API_KEY=
-RPC_URL=
+GOERLI_RPC_URL=
+MAINNET_RPC_URL=
 ```
 
 3. Install dependencies
