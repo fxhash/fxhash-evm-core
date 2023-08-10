@@ -34,11 +34,11 @@ contract Merkle {
     /// @param _proof Merkle proof
     /// @param _valueToProve Leaf node being proven
     /// @return Status of proof verification
-    function verifyProof(
-        bytes32 _root,
-        bytes32[] memory _proof,
-        bytes32 _valueToProve
-    ) public pure returns (bool) {
+    function verifyProof(bytes32 _root, bytes32[] memory _proof, bytes32 _valueToProve)
+        public
+        pure
+        returns (bool)
+    {
         // proof length must be less than max array size
         bytes32 rollingHash = _valueToProve;
         unchecked {
@@ -62,10 +62,11 @@ contract Merkle {
     /// @param _data Leaf nodes of the merkle tree
     /// @param _node Index of the node in the tree
     /// @return proof Merkle proof
-    function getProof(
-        bytes32[] memory _data,
-        uint256 _node
-    ) public pure returns (bytes32[] memory proof) {
+    function getProof(bytes32[] memory _data, uint256 _node)
+        public
+        pure
+        returns (bytes32[] memory proof)
+    {
         require(_data.length > 1, "wont generate proof for single leaf");
         // The size of the proof is equal to the ceiling of log2(numLeaves)
         uint256 size = log2ceil_naive(_data.length);

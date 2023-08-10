@@ -36,7 +36,6 @@ contract MintPass {
         uint256 claimedWordIndex = _index / 256;
         uint256 claimedBitIndex = _index % 256;
         redeemedBitMaps[_token][claimedWordIndex] =
-            redeemedBitMaps[_token][claimedWordIndex] |
-            (1 << claimedBitIndex);
+            redeemedBitMaps[_token][claimedWordIndex] | (1 << claimedBitIndex);
     }
 }

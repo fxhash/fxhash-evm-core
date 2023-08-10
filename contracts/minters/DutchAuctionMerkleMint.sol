@@ -7,6 +7,4 @@ import {DutchAuctionMint} from "contracts/minters/DutchAuctionMint.sol";
 
 /// Should refactor the merkle mint first into abstract and inherit
 
-contract DutchAuctionMerkleMint is DutchAuctionMint {
-
-}
+contract DutchAuctionMerkleMint is DutchAuctionMint {}

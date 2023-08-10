@@ -32,9 +32,7 @@ contract OpenEditionTest is Base {
 contract BuyTokens is OpenEditionTest {
     function testbuyTokens() public {
         mockToken.registerMinter(
-            address(sale),
-            Reserve(uint160(supply), startTime, endTime),
-            abi.encode(price)
+            address(sale), Reserve(uint160(supply), startTime, endTime), abi.encode(price)
         );
         vm.warp(block.timestamp + 1);
         sale.buyTokens(address(mockToken), 0, 1, address(this));

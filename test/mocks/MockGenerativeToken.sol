@@ -12,11 +12,9 @@ contract MockGenerativeToken is Minted {
 
     /// harness function
 
-    function registerMinter(
-        address _minter,
-        Reserve calldata _reserve,
-        bytes calldata _minterData
-    ) external {
+    function registerMinter(address _minter, Reserve calldata _reserve, bytes calldata _minterData)
+        external
+    {
         _registerMinter(_minter, _reserve, _minterData);
     }
 

@@ -11,11 +11,9 @@ abstract contract Minted {
 
     function mint(uint256, bytes calldata, address) external virtual;
 
-    function _registerMinter(
-        address _minter,
-        Reserve calldata _reserve,
-        bytes calldata _minterData
-    ) internal {
+    function _registerMinter(address _minter, Reserve calldata _reserve, bytes calldata _minterData)
+        internal
+    {
         IMinter(_minter).setMintDetails(_reserve, _minterData);
     }
 }
