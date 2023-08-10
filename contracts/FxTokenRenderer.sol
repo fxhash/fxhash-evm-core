@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
-import {IFxRenderer} from "contracts/interfaces/IFxRenderer.sol";
+import {IFxTokenRenderer} from "contracts/interfaces/IFxTokenRenderer.sol";
 import {
     IScriptyBuilderV2,
     HTMLRequest,
@@ -12,10 +12,10 @@ import {
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
 /**
- * @title FxRenderer
- * @notice See the documentation in {IFxRenderer}
+ * @title FxTokenRenderer
+ * @notice See the documentation in {IFxTokenRenderer}
  */
-contract FxRenderer is IFxRenderer {
+contract FxTokenRenderer is IFxTokenRenderer {
     using Strings for uint256;
 
     address public immutable ethfsFileStorage;

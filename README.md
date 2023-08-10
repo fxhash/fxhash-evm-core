@@ -1,4 +1,4 @@
-# FXHASH EVM Contracts
+# FxHash EVM Contracts
 
 ## Setup
 
@@ -25,32 +25,20 @@ npm ci
 forge install
 ```
 
-4. Run prettier
+4. Run formatter
 
 ```
-npm run prettier
+forge fmt
 ```
 
-5. Run hardhat tests
-
-```
-npm run test
-```
-
-6. Run foundry tests
+5. Run foundry tests
 
 ```
 forge test
 ```
 
-7. Deploy contracts
+6. Deploy contracts
 
 ```
 npm run deploy
-```
-
-8. Seed contracts
-
-```
-npm run seed
 ```

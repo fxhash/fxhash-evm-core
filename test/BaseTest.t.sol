@@ -11,7 +11,7 @@ import {
     ReserveInfo
 } from "contracts/FxGenArt721.sol";
 import {FxIssuerFactory} from "contracts/factories/FxIssuerFactory.sol";
-import {FxRenderer} from "contracts/FxRenderer.sol";
+import {FxTokenRenderer} from "contracts/FxTokenRenderer.sol";
 import {FxRoleRegistry} from "contracts/registries/FxRoleRegistry.sol";
 import {Test} from "forge-std/Test.sol";
 
@@ -24,8 +24,8 @@ contract BaseTest is Test {
     FxContractRegistry public fxContractRegistry;
     FxIssuerFactory public fxIssuerFactory;
     FxGenArt721 public fxGenArt721;
-    FxRenderer public fxRenderer;
     FxRoleRegistry public fxRoleRegistry;
+    FxTokenRenderer public fxTokenRenderer;
 
     // Users
     address public admin;
@@ -77,21 +77,22 @@ contract BaseTest is Test {
         fxRoleRegistry = new FxRoleRegistry();
         fxGenArt721 = new FxGenArt721(address(fxContractRegistry), address(fxRoleRegistry));
         fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721));
-        fxRenderer = new FxRenderer(ETHFS_FILE_STORAGE, SCRIPTY_STORAGE_V2, SCRIPTY_BUILDER_V2);
+        fxTokenRenderer =
+            new FxTokenRenderer(ETHFS_FILE_STORAGE, SCRIPTY_STORAGE_V2, SCRIPTY_BUILDER_V2);
 
         vm.label(address(this), "BaseTest");
         vm.label(address(fxContractRegistry), "FxContractRegistry");
         vm.label(address(fxRoleRegistry), "FxRoleRegistry");
         vm.label(address(fxGenArt721), "FxGenArt721");
         vm.label(address(fxIssuerFactory), "FxIssuerFactory");
-        vm.label(address(fxRenderer), "FxRenderer");
+        vm.label(address(fxTokenRenderer), "FxTokenRenderer");
     }
 
     function configureSettings() public virtual {
         fxGenArtProxy = fxIssuerFactory.createProject(
             msg.sender, primaryReceiver, projectInfo, mintInfo, royaltyReceivers, basisPoints
         );
-        FxGenArt721(fxGenArtProxy).setRenderer(address(fxRenderer));
+        FxGenArt721(fxGenArtProxy).setRenderer(address(fxTokenRenderer));
 
         vm.label(address(fxGenArtProxy), "FxGenArtProxy");
     }

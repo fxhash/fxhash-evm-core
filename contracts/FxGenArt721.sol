@@ -14,7 +14,7 @@ import {
     MintInfo,
     ReserveInfo
 } from "contracts/interfaces/IFxGenArt721.sol";
-import {IFxRenderer} from "contracts/interfaces/IFxRenderer.sol";
+import {IFxTokenRenderer} from "contracts/interfaces/IFxTokenRenderer.sol";
 import {FxRoleRegistry} from "contracts/registries/FxRoleRegistry.sol";
 import {FxRoyaltyManager} from "contracts/FxRoyaltyManager.sol";
 import {OwnableUpgradeable} from "@openzeppelin-upgradeable/contracts/access/OwnableUpgradeable.sol";
