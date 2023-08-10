@@ -41,7 +41,7 @@ contract FxTokenRenderer is IFxTokenRenderer {
         HTMLTag[] memory animationBodyTags = new HTMLTag[](_animationURL.bodyTags.length);
         HTMLTag[] memory attributesHeadTags = new HTMLTag[](_attributes.headTags.length);
         HTMLTag[] memory attributesBodyTags = new HTMLTag[](_attributes.bodyTags.length);
-       
+
         HTMLTag[] memory headTags = new HTMLTag[](1);
         // <link rel="stylesheet" href="data:text/css;base64,[fullSizeCanvas.css, base64 encoded]">
         headTags[0].name = "fullSizeCanvas.css";
