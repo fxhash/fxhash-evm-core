@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {ISplitsMain} from "contracts/interfaces/ISplitsMain.sol";
+import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
 
 /// @notice Library for computing the Create2 deterministic address of a clone
 /// https://github.com/0xSplits/splits-contracts/blob/c7b741926ec9746182d0d1e2c4c2046102e5d337/contracts/libraries/Clones.sol#L22

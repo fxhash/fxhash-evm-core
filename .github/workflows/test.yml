@@ -25,10 +25,6 @@ jobs:
         with:
           submodules: recursive
 
-      - uses: actions/setup-node@v2
-      - name: Install dev dependencies
-        run: npm ci
-
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
@@ -42,17 +38,6 @@ jobs:
           forge --version
           forge build --sizes
         id: build
-
-      - name: 'Create env file'
-        run: |
-          echo "${{ secrets.ENV_SECRET }}" > .env
-
-      - name: Load .env file
-        uses: aarcangeli/load-dotenv@v1.0.0
-        with:
-          filenames: |
-            .env
-          quiet: false
 
       - name: Run tests
         shell: bash

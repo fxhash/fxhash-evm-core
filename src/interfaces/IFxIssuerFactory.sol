@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {MintInfo, ProjectInfo} from "contracts/interfaces/IFxGenArt721.sol";
+import {MintInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
 
 /**
  * @param feeShare Share fee out of 10000 basis points

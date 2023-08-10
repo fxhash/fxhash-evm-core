@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {IFxSplitsFactory} from "contracts/interfaces/IFxSplitsFactory.sol";
-import {ISplitsMain} from "contracts/interfaces/ISplitsMain.sol";
-import {Lib0xSplits} from "contracts/lib/Lib0xSplits.sol";
+import {IFxSplitsFactory} from "src/interfaces/IFxSplitsFactory.sol";
+import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
+import {Lib0xSplits} from "src/lib/Lib0xSplits.sol";
 
 /**
  * @title SplitsFactory
