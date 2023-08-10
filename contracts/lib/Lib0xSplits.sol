@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.18;
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.20;
 
 import {ISplitsMain} from "contracts/interfaces/ISplitsMain.sol";
 
@@ -20,7 +20,8 @@ library Lib0xSplits {
     /// @notice Invalid number of accounts `accountsLength`, must have at least 2
     /// @param accountsLength Length of accounts array
     error TooFewAccounts(uint256 accountsLength);
-    /// @notice Array lengths of accounts & percentAllocations don't match (`accountsLength` != `allocationsLength`)
+    /// @notice Array lengths of accounts & percentAllocations don't match (`accountsLength` !=
+    /// `allocationsLength`)
     /// @param accountsLength Length of accounts array
     /// @param allocationsLength Length of percentAllocations array
     error AccountsAndAllocationsMismatch(uint256 accountsLength, uint256 allocationsLength);
@@ -37,15 +38,17 @@ library Lib0xSplits {
     /// @param distributorFee Invalid distributorFee amount
     error InvalidDistributorFee(uint32 distributorFee);
 
-    function getImmutableSplitAddress(
-        address[] memory accounts,
-        uint32[] memory allocations
-    ) internal view returns (address) {
+    function getImmutableSplitAddress(address[] memory accounts, uint32[] memory allocations)
+        internal
+        view
+        returns (address)
+    {
         return ISplitsMain(SPLITS_MAIN).predictImmutableSplitAddress(accounts, allocations, 0);
     }
 
     /**
-     * @notice Reverts if the split with recipients represented by `accounts` and `percentAllocations` is malformed
+     * @notice Reverts if the split with recipients represented by `accounts` and
+     * `percentAllocations` is malformed
      *  @param accounts Ordered, unique list of addresses with ownership in the split
      *  @param percentAllocations Percent allocations associated with each address
      *  @param distributorFee Keeper fee paid by split to cover gas costs of distribution
@@ -97,8 +100,10 @@ library Lib0xSplits {
 
     /// How I think this will work is we pass the total royalty amount ie 10%
     /// and then pass accounts and respective splits that must total 100%
-    /// if accounts.length == 1 && percentAllocations[0] == 100% we just directly pass that to the royaltyInfo mapping
-    /// else we compute the salt for the split and do this validation and set this address and royalty amount in the mapping
+    /// if accounts.length == 1 && percentAllocations[0] == 100% we just directly pass that to the
+    /// royaltyInfo mapping
+    /// else we compute the salt for the split and do this validation and set this address and
+    /// royalty amount in the mapping
     function getSalt(
         address[] memory accounts,
         uint32[] memory percentAllocations,
@@ -120,17 +125,14 @@ library Lib0xSplits {
             let ptr := mload(0x40)
             mstore(ptr, 0x3d605d80600a3d3981f336603057343d52307f00000000000000000000000000)
             mstore(
-                add(ptr, 0x13),
-                0x830d2d700a97af574b186c80d40429385d24241565b08a7c559ba283a964d9b1
+                add(ptr, 0x13), 0x830d2d700a97af574b186c80d40429385d24241565b08a7c559ba283a964d9b1
             )
             mstore(
-                add(ptr, 0x33),
-                0x60203da23d3df35b3d3d3d3d363d3d37363d7300000000000000000000000000
+                add(ptr, 0x33), 0x60203da23d3df35b3d3d3d3d363d3d37363d7300000000000000000000000000
             )
             mstore(add(ptr, 0x46), shl(0x60, SPLITS_WALLET))
             mstore(
-                add(ptr, 0x5a),
-                0x5af43d3d93803e605b57fd5bf3ff000000000000000000000000000000000000
+                add(ptr, 0x5a), 0x5af43d3d93803e605b57fd5bf3ff000000000000000000000000000000000000
             )
             mstore(add(ptr, 0x68), shl(0x60, SPLITS_MAIN))
             mstore(add(ptr, 0x7c), salt)
@@ -147,7 +149,7 @@ library Lib0xSplits {
     function _getSum(uint32[] memory numbers) internal pure returns (uint32 sum) {
         // overflow should be impossible in for-loop index
         uint256 numbersLength = numbers.length;
-        for (uint256 i = 0; i < numbersLength; ) {
+        for (uint256 i = 0; i < numbersLength;) {
             sum += numbers[i];
             unchecked {
                 // overflow should be impossible in for-loop index

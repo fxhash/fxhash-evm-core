@@ -6,32 +6,12 @@
   "scripts": {
     "deploy": "./script/bash/deploy.sh",
     "seed": "./script/bash/seed.sh",
-    "test": "./test/bash/test.sh",
-    "prettier": "prettier --write 'contracts/**/*.sol' 'script/**/*.sol' 'test/**/*.sol'",
-    "prettier:check": "prettier --check 'contracts/**/*.sol'"
+    "test": "./test/bash/test.sh"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^2.0.2",
-    "@nomiclabs/hardhat-ethers": "^2.2.3",
-    "chai": "^4.3.7",
-    "ethereum-waffle": "^4.0.10",
-    "ethers": "^5.7.2",
-    "hardhat": "^2.14.0",
-    "hardhat-contract-sizer": "^2.10.0",
-    "hardhat-gas-reporter": "^1.0.9",
-    "prettier": "^2.5.1",
-    "prettier-plugin-solidity": "^1.0.0-beta.19",
-    "scripty.sol": "^1.0.2",
-    "solhint": "^3.3.6"
-  },
-  "dependencies": {
-    "@openzeppelin/contracts": "^4.9.1",
-    "@openzeppelin/contracts-upgradeable": "^4.9.1",
-    "dotenv": "^16.3.1",
-    "solady": "^0.0.107",
-    "solidity-docgen": "^0.6.0-beta.35",
-    "solmate": "^6.1.0"
+    "solhint": "^3.3.6",
+    "dotenv": "^16.3.1"
   }
 }
