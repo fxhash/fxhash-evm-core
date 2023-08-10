@@ -31,7 +31,7 @@ forge install
 forge fmt
 ```
 
-5. Run foundry tests
+5. Run tests
 
 ```
 forge test
