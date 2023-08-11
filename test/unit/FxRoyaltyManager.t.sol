@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import {Test} from "forge-std/Test.sol";
-import {MockRoyaltyManager} from "test/mocks/MockRoyaltyManager.sol";
+import {MockFxRoyaltyManager} from "test/mocks/MockFxRoyaltyManager.sol";
 import {IFxRoyaltyManager} from "src/interfaces/IFxRoyaltyManager.sol";
 
 contract FxRoyaltyManagerTest is Test {
@@ -12,7 +12,7 @@ contract FxRoyaltyManagerTest is Test {
     IFxRoyaltyManager public royaltyManager;
 
     function setUp() public virtual {
-        royaltyManager = IFxRoyaltyManager(new MockRoyaltyManager());
+        royaltyManager = IFxRoyaltyManager(new MockFxRoyaltyManager());
     }
 }
 
@@ -64,7 +64,7 @@ contract SetTokenRoyaltiesTest is FxRoyaltyManagerTest {
     function setUp() public override {
         super.setUp();
         tokenId = 1;
-        MockRoyaltyManager(address(royaltyManager)).setTokenExists(tokenId, true);
+        MockFxRoyaltyManager(address(royaltyManager)).setTokenExists(tokenId, true);
         accounts.push(payable(address(42)));
 
         basisPoints.push(2500);
