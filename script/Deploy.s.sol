@@ -1,16 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {FxContractRegistry} from "contracts/registries/FxContractRegistry.sol";
-import {
-    FxGenArt721, IssuerInfo, MintInfo, ProjectInfo, ReserveInfo
-} from "contracts/FxGenArt721.sol";
-import {FxIssuerFactory} from "contracts/factories/FxIssuerFactory.sol";
-import {FxRoleRegistry} from "contracts/registries/FxRoleRegistry.sol";
-import {FxTokenRenderer} from "contracts/FxTokenRenderer.sol";
+import {FxContractRegistry} from "src/registries/FxContractRegistry.sol";
+import {FxGenArt721, IssuerInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/FxGenArt721.sol";
+import {FxIssuerFactory} from "src/factories/FxIssuerFactory.sol";
+import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
+import {FxTokenRenderer} from "src/FxTokenRenderer.sol";
 import {Script} from "forge-std/Script.sol";
 
-import "contracts/utils/Constants.sol";
+import "src/utils/Constants.sol";
 import "script/utils/Constants.sol";
 
 contract Deploy is Script {

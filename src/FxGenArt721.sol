@@ -4,8 +4,8 @@ pragma solidity 0.8.20;
 import {
     ERC721URIStorageUpgradeable,
     ERC721Upgradeable
-} from "@openzeppelin-upgradeable/contracts/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
-import {IFxContractRegistry} from "contracts/interfaces/IFxContractRegistry.sol";
+} from "openzeppelin-upgradeable/contracts/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
+import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {
     IFxGenArt721,
     IssuerInfo,
@@ -13,13 +13,13 @@ import {
     ProjectInfo,
     MintInfo,
     ReserveInfo
-} from "contracts/interfaces/IFxGenArt721.sol";
-import {IFxTokenRenderer} from "contracts/interfaces/IFxTokenRenderer.sol";
-import {FxRoleRegistry} from "contracts/registries/FxRoleRegistry.sol";
-import {FxRoyaltyManager} from "contracts/FxRoyaltyManager.sol";
-import {OwnableUpgradeable} from "@openzeppelin-upgradeable/contracts/access/OwnableUpgradeable.sol";
+} from "src/interfaces/IFxGenArt721.sol";
+import {IFxTokenRenderer} from "src/interfaces/IFxTokenRenderer.sol";
+import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
+import {FxRoyaltyManager} from "src/FxRoyaltyManager.sol";
+import {OwnableUpgradeable} from "openzeppelin-upgradeable/contracts/access/OwnableUpgradeable.sol";
 
-import "contracts/utils/Constants.sol";
+import "src/utils/Constants.sol";
 
 /**
  * @title FxGenArt721

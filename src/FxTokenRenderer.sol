@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
-import {IFxTokenRenderer} from "contracts/interfaces/IFxTokenRenderer.sol";
+import {Base64} from "openzeppelin/contracts/utils/Base64.sol";
+import {IFxTokenRenderer} from "src/interfaces/IFxTokenRenderer.sol";
 import {
     IScriptyBuilderV2,
     HTMLRequest,
     HTMLTagType,
     HTMLTag
 } from "scripty.sol/contracts/scripty/interfaces/IScriptyBuilderV2.sol";
-import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
+import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
 /**
  * @title FxTokenRenderer

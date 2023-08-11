@@ -1,5 +1,5 @@
-@openzeppelin/=lib/openzeppelin-contracts/
-@openzeppelin-upgradeable/=lib/openzeppelin-contracts-upgradeable/
+openzeppelin/=lib/openzeppelin-contracts/
+openzeppelin-upgradeable/=lib/openzeppelin-contracts-upgradeable/
 forge-std/=lib/forge-std/src/
 scripty.sol/=lib/scripty.sol/
 solady/=lib/solady/
