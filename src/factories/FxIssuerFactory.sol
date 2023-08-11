@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
-import {IFxGenArt721, MintInfo, ProjectInfo} from "contracts/interfaces/IFxGenArt721.sol";
-import {IFxIssuerFactory, ConfigInfo} from "contracts/interfaces/IFxIssuerFactory.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {Clones} from "openzeppelin/contracts/proxy/Clones.sol";
+import {IFxGenArt721, MintInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
+import {IFxIssuerFactory, ConfigInfo} from "src/interfaces/IFxIssuerFactory.sol";
+import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @title FxIssuerFactory

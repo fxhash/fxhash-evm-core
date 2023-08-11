@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {IFxRoyaltyManager, RoyaltyInfo} from "contracts/interfaces/IFxRoyaltyManager.sol";
+import {IFxRoyaltyManager, RoyaltyInfo} from "src/interfaces/IFxRoyaltyManager.sol";
 
 /// @title FxRoyaltyManager
 /// @notice A contract for managing royalties
