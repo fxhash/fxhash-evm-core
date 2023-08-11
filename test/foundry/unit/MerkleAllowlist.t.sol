@@ -3,11 +3,11 @@ pragma solidity ^0.8.17;
 
 import {console} from "forge-std/Test.sol";
 import {Base} from "test/foundry/Base.t.sol";
-import {IWETH} from "contracts/interfaces/IWETH.sol";
-import {FixedPriceMint} from "contracts/minters/FixedPriceMint.sol";
-import {Minted} from "contracts/minters/base/Minted.sol";
+import {IWETH} from "src/interfaces/IWETH.sol";
+import {FixedPriceMint} from "src/minters/FixedPriceMint.sol";
+import {Minted} from "src/minters/base/Minted.sol";
 import {MockGenerativeToken, Reserve} from "test/mocks/MockGenerativeToken.sol";
-import {IMinter} from "contracts/interfaces/IMinter.sol";
+import {IMinter} from "src/interfaces/IMinter.sol";
 import {Merkle} from "test/foundry/utils/Merkle.sol";
 import {MockMerkleAllowlist} from "test/mocks/MockMerkleAllowlist.sol";
 

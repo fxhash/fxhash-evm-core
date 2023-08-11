@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
-import {IDelegateCash} from "contracts/interfaces/IDelegateCash.sol";
+import {MerkleProof} from "openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+import {IDelegateCash} from "src/interfaces/IDelegateCash.sol";
 
 contract MerkleAllowlist {
     address public constant delegateRegistry = 0x00000000000076A84feF008CDAbe6409d2FE638B;

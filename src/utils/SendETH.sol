@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
-import {IWETH} from "contracts/interfaces/IWETH.sol";
+import {IWETH} from "src/interfaces/IWETH.sol";
 
 abstract contract WETHHandler {
     using SafeTransferLib for address;

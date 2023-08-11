@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import {Minter, Reserve} from "contracts/minters/base/Minter.sol";
-import {Minted} from "contracts/minters/base/Minted.sol";
-import {IWETH} from "contracts/interfaces/IWETH.sol";
+import {Minter, Reserve} from "src/minters/base/Minter.sol";
+import {Minted} from "src/minters/base/Minted.sol";
+import {IWETH} from "src/interfaces/IWETH.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 
 contract FixedPriceMint is Minter {

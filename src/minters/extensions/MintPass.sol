@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {ECDSA} from "openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 contract MintPass {
     using ECDSA for bytes32;

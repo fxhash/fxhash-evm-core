@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import {IDelegateCash} from "contracts/interfaces/IDelegateCash.sol";
+import {IDelegateCash} from "src/interfaces/IDelegateCash.sol";
 
 contract DelegateRegistryLike is IDelegateCash {
     mapping(address => mapping(address => bool)) public delegates;

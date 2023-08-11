@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import {Minted, Reserve} from "contracts/minters/base/Minted.sol";
-import {IMintTicket} from "contracts/interfaces/IMintTicket2.sol";
-import {IMinter} from "contracts/interfaces/IMinter.sol";
+import {Minted, Reserve} from "src/minters/base/Minted.sol";
+import {IMintTicket} from "src/interfaces/IMintTicket.sol";
+import {IMinter} from "src/interfaces/IMinter.sol";
 
 contract MintTicket is Minted, IMintTicket, IMinter {
     mapping(address => address) public mintTicketContracts;
