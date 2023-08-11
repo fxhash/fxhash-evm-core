@@ -25,17 +25,13 @@ jobs:
         with:
           submodules: recursive
 
-      - uses: actions/setup-node@v2
-      - name: Install dev dependencies
-        run: npm install
-
-      - name: check formatting
-        run: npm run prettier:check
-
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
           version: nightly
+
+      - name: check formatting
+        run: forge fmt --check
 
       - name: Run Forge build
         run: |
@@ -43,19 +39,8 @@ jobs:
           forge build --sizes
         id: build
 
-      - name: 'Create env file'
-        run: |
-          echo "${{ secrets.ENV_SECRET }}" > .env
-
-      - name: Load .env file
-        uses: aarcangeli/load-dotenv@v1.0.0
-        with:
-          filenames: |
-            .env
-          quiet: false
-
       - name: Run tests
         shell: bash
         run: |
-          npm test
+          forge test
         id: test

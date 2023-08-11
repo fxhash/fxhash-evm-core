@@ -1,4 +1,4 @@
-# FXHASH EVM Contracts
+# FxHash EVM Contracts
 
 ## Setup
 
@@ -13,51 +13,31 @@ git clone git@github.com:fxhash/fxhash-evm-contracts.git
 ```
 COIN_MARKET_CAP_API_KEY=
 DEPLOYER_PRIVATE_KEY=
-SIGNER_PRIVATE_KEY=
-MNEMONIC=
-ALICE_ADDRESS=
-BOB_ADDRESS=
-TREASURY_ADDRESS=
 ETHERSCAN_API_KEY=
-RPC_URL=
+GOERLI_RPC_URL=
+MAINNET_RPC_URL=
 ```
 
 3. Install dependencies
 
 ```
-npm ci
 forge install
 ```
 
-4. Run prettier
-
-```
-npm run prettier
-```
-
-5. Run hardhat tests
-
-```
-npm run test
-```
-
-6. Run foundry tests
+4. Run tests
 
 ```
 forge test
 ```
 
-7. Deploy contracts
+5. Run formatter
 
 ```
-npm run deploy
+forge fmt
 ```
 
-8. Seed contracts
-```
-npm run seed
-```
+6. Deploy contracts
 
-## Architecture
-
-<img src="images/architecture.svg">
+```
+forge script script/Deploy.s.sol
+```
