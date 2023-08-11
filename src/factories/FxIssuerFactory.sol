@@ -14,15 +14,16 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     /// @inheritdoc IFxIssuerFactory
     uint96 public projectId;
     /// @inheritdoc IFxIssuerFactory
-    address public implementation;
+    address public tokenImplementation;
     /// @inheritdoc IFxIssuerFactory
     ConfigInfo public configInfo;
     /// @inheritdoc IFxIssuerFactory
     mapping(uint96 => address) public projects;
 
     /// @dev Initializes registries and implementation contracts
-    constructor(address _implementation) {
-        implementation = _implementation;
+    constructor(address _tokenImplementation) {
+        tokenImplementation = _tokenImplementation;
+        emit TokenImplementationUpdate(msg.sender, _tokenImplementation);
     }
 
     /// @inheritdoc IFxIssuerFactory
@@ -36,7 +37,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     ) external returns (address genArtToken) {
         if (_owner == address(0)) revert InvalidOwner();
         if (_primaryReceiver == address(0)) revert InvalidReceiver();
-        genArtToken = Clones.clone(implementation);
+        genArtToken = Clones.clone(tokenImplementation);
         projects[++projectId] = genArtToken;
 
         IFxGenArt721(genArtToken).initialize(
@@ -49,10 +50,12 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     /// @inheritdoc IFxIssuerFactory
     function setConfig(ConfigInfo calldata _configInfo) external onlyOwner {
         configInfo = _configInfo;
+        emit ConfigUpdate(msg.sender, _configInfo);
     }
 
     /// @inheritdoc IFxIssuerFactory
-    function setImplementation(address _implementation) external onlyOwner {
-        implementation = _implementation;
+    function setTokenImplementation(address _tokenImplementation) external onlyOwner {
+        tokenImplementation = _tokenImplementation;
+        emit TokenImplementationUpdate(msg.sender, _tokenImplementation);
     }
 }

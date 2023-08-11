@@ -41,6 +41,9 @@ interface IFxIssuerFactory {
         uint96 indexed _projectId, address indexed _owner, address indexed _genArtToken
     );
 
+    event ConfigUpdate(address indexed owner, ConfigInfo configInfo);
+    event TokenImplementationUpdate(address indexed owner, address indexed tokenImplementation);
+
     /**
      * @notice Creates new Generative Art project
      * @param _owner Address of project owner
@@ -67,9 +70,9 @@ interface IFxIssuerFactory {
 
     /**
      * @notice Sets new FxGenArt721 implementation contract
-     * @param _implementation Address of the FxGenArt721 contract
+     * @param _tokenImplementation Address of the FxGenArt721 contract
      */
-    function setImplementation(address _implementation) external;
+    function setTokenImplementation(address _tokenImplementation) external;
 
     /**
      * @notice Returns the configuration values (feeShare, referrerShare, lockTime, defaultMetadata)
@@ -79,7 +82,7 @@ interface IFxIssuerFactory {
     /**
      * @notice Returns address of current FxGenArt721 implementation contract
      */
-    function implementation() external view returns (address);
+    function tokenImplementation() external view returns (address);
 
     /**
      * @notice Returns counter of latest project ID
