@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import {IERC2981} from "@openzeppelin/contracts/interfaces/IERC2981.sol";
+import {ERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {IERC2981} from "openzeppelin/contracts/interfaces/IERC2981.sol";
 
 contract MockERC721 is ERC721, IERC2981 {
     address royaltyReceiver;

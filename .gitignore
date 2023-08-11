@@ -2,15 +2,11 @@ node_modules
 .env
 coverage
 coverage.json
-typechain
-typechain-types
-subgraph/src/types
-subgraph/tests/.bin
-subgraph/tests/.latest.json
 .deps
 # Hardhat files
 cache
 artifacts
 # Foundry files
 broadcast
+out
 data

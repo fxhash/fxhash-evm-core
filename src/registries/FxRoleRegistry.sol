@@ -1,12 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
-import {IFxRoleRegistry} from "contracts/interfaces/IFxRoleRegistry.sol";
+import {AccessControl} from "openzeppelin/contracts/access/AccessControl.sol";
+import {IFxRoleRegistry} from "src/interfaces/IFxRoleRegistry.sol";
 
-import {
-    ADMIN_ROLE, CREATOR_ROLE, MINTER_ROLE, MODERATOR_ROLE
-} from "contracts/utils/Constants.sol";
+import {ADMIN_ROLE, CREATOR_ROLE, MINTER_ROLE, MODERATOR_ROLE} from "src/utils/Constants.sol";
 
 /// @title FxRoleRegistry
 /// @notice See the documentation in {IFxRoleRegistry}

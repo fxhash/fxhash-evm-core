@@ -21,24 +21,23 @@ MAINNET_RPC_URL=
 3. Install dependencies
 
 ```
-npm ci
 forge install
 ```
 
-4. Run formatter
-
-```
-forge fmt
-```
-
-5. Run tests
+4. Run tests
 
 ```
 forge test
 ```
 
+5. Run formatter
+
+```
+forge fmt
+```
+
 6. Deploy contracts
 
 ```
-npm run deploy
+forge script script/Deploy.s.sol
 ```
