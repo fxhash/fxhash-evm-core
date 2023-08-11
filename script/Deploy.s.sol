@@ -56,4 +56,15 @@ contract Deploy is Script {
         );
         FxGenArt721(fxGenArtProxy).setRenderer(address(fxTokenRenderer));
     }
+
+    function mock0xSplits() internal {
+        bytes memory splitMainBytecode = abi.encodePacked(SPLITS_MAIN_CREATION_CODE, abi.encode());
+        address deployedAddress_;
+        // original deployer + original nonce used at deployment
+        vm.startPrank(0x9ebC8E61f87A301fF25a606d7C06150f856F24E2);
+        vm.setNonce(0x9ebC8E61f87A301fF25a606d7C06150f856F24E2, 0);
+        assembly {
+            deployedAddress_ := create(0, add(splitMainBytecode, 32), mload(splitMainBytecode))
+        }
+    }
 }
