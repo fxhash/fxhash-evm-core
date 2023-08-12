@@ -93,7 +93,7 @@ interface IFxIssuerFactory {
     /**
      * @notice Returns address of current FxGenArt721 implementation contract
      */
-    function tokenImplementation() external view returns (address);
+    function implementation() external view returns (address);
 
     /**
      * @notice Returns counter of latest project ID
