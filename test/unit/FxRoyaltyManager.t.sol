@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.20;
 
-import {Test} from "forge-std/Test.sol";
 import {MockFxRoyaltyManager} from "test/mocks/MockFxRoyaltyManager.sol";
-import {IFxRoyaltyManager} from "src/interfaces/IFxRoyaltyManager.sol";
-import "src/utils/Constants.sol";
 import {BaseTest} from "test/BaseTest.t.sol";
+import "src/utils/Constants.sol";
+import {IFxRoyaltyManager} from "src/interfaces/IFxRoyaltyManager.sol";
 
 contract FxRoyaltyManagerTest is BaseTest {
     uint256 tokenId;
