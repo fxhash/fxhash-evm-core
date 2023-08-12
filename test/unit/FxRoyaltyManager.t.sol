@@ -5,14 +5,13 @@ import {Test} from "forge-std/Test.sol";
 import {MockFxRoyaltyManager} from "test/mocks/MockFxRoyaltyManager.sol";
 import {IFxRoyaltyManager} from "src/interfaces/IFxRoyaltyManager.sol";
 import "src/utils/Constants.sol";
+import {BaseTest} from "test/BaseTest.t.sol";
 
-contract FxRoyaltyManagerTest is Test {
+contract FxRoyaltyManagerTest is BaseTest {
     uint256 tokenId;
-    address payable[] public accounts;
-    uint96[] public basisPoints;
     IFxRoyaltyManager public royaltyManager;
 
-    function setUp() public virtual {
+    function setUp() public virtual override {
         royaltyManager = IFxRoyaltyManager(new MockFxRoyaltyManager());
     }
 }
@@ -20,9 +19,9 @@ contract FxRoyaltyManagerTest is Test {
 contract SetBaseRoyaltiesTest is FxRoyaltyManagerTest {
     function setUp() public override {
         super.setUp();
-        accounts.push(payable(address(40)));
-        accounts.push(payable(address(20)));
-        accounts.push(payable(address(10)));
+        royaltyReceivers.push(payable(alice));
+        royaltyReceivers.push(payable(bob));
+        royaltyReceivers.push(payable(eve));
 
         basisPoints.push(MAX_ROYALTY_BASISPOINTS);
         basisPoints.push(MAX_ROYALTY_BASISPOINTS);
@@ -30,34 +29,34 @@ contract SetBaseRoyaltiesTest is FxRoyaltyManagerTest {
     }
 
     function test_SetBaseRoyalties() public {
-        royaltyManager.setBaseRoyalties(accounts, basisPoints);
+        royaltyManager.setBaseRoyalties(royaltyReceivers, basisPoints);
     }
 
     function test_RevertsWhen_SingleGt25() public {
         basisPoints[0] = MAX_ROYALTY_BASISPOINTS + 1;
         vm.expectRevert(abi.encodeWithSelector(IFxRoyaltyManager.OverMaxBasisPointAllowed.selector));
-        royaltyManager.setBaseRoyalties(accounts, basisPoints);
+        royaltyManager.setBaseRoyalties(royaltyReceivers, basisPoints);
     }
 
     function test_RevertsWhen_AllGt100() public {
         basisPoints.push(MAX_ROYALTY_BASISPOINTS);
-        accounts.push(payable(address(1)));
+        royaltyReceivers.push(payable(address(1)));
         basisPoints.push(1);
-        accounts.push(payable(address(0xBad)));
+        royaltyReceivers.push(payable(address(0xBad)));
         vm.expectRevert(abi.encodeWithSelector(IFxRoyaltyManager.InvalidRoyaltyConfig.selector));
-        royaltyManager.setBaseRoyalties(accounts, basisPoints);
+        royaltyManager.setBaseRoyalties(royaltyReceivers, basisPoints);
     }
 
-    function test_RevertsWhen_LengthMismatchAccounts() public {
-        accounts.pop();
+    function test_RevertsWhen_LengthMismatchroyaltyReceivers() public {
+        royaltyReceivers.pop();
         vm.expectRevert(abi.encodeWithSelector(IFxRoyaltyManager.LengthMismatch.selector));
-        royaltyManager.setBaseRoyalties(accounts, basisPoints);
+        royaltyManager.setBaseRoyalties(royaltyReceivers, basisPoints);
     }
 
     function test_RevertsWhen_LengthMismatchBasisPoints() public {
         basisPoints.pop();
         vm.expectRevert(abi.encodeWithSelector(IFxRoyaltyManager.LengthMismatch.selector));
-        royaltyManager.setBaseRoyalties(accounts, basisPoints);
+        royaltyManager.setBaseRoyalties(royaltyReceivers, basisPoints);
     }
 }
 
@@ -66,62 +65,62 @@ contract SetTokenRoyaltiesTest is FxRoyaltyManagerTest {
         super.setUp();
         tokenId = 1;
         MockFxRoyaltyManager(address(royaltyManager)).setTokenExists(tokenId, true);
-        accounts.push(payable(address(42)));
+        royaltyReceivers.push(payable(susan));
 
         basisPoints.push(MAX_ROYALTY_BASISPOINTS);
     }
 
     function test_SetTokenRoyalties() public {
-        royaltyManager.setTokenRoyalties(tokenId, accounts, basisPoints);
+        royaltyManager.setTokenRoyalties(tokenId, royaltyReceivers, basisPoints);
     }
 
     function test_RevertsWhen_TokenDoesntExist() public {
         tokenId = 2;
         vm.expectRevert(abi.encodeWithSelector(IFxRoyaltyManager.NonExistentToken.selector));
-        royaltyManager.setTokenRoyalties(tokenId, accounts, basisPoints);
+        royaltyManager.setTokenRoyalties(tokenId, royaltyReceivers, basisPoints);
     }
 
     function test_RevertsWhen_SingleGt25() public {
         basisPoints[0] = MAX_ROYALTY_BASISPOINTS + 1;
         vm.expectRevert(abi.encodeWithSelector(IFxRoyaltyManager.OverMaxBasisPointAllowed.selector));
-        royaltyManager.setTokenRoyalties(tokenId, accounts, basisPoints);
+        royaltyManager.setTokenRoyalties(tokenId, royaltyReceivers, basisPoints);
     }
 
     function test_RevertsWhen_TokenAndBaseGt100() public {
         /// Get royalty Config to 100 without being over on any individual one
-        accounts.push(payable(address(40)));
-        accounts.push(payable(address(20)));
-        accounts.push(payable(address(10)));
+        royaltyReceivers.push(payable(alice));
+        royaltyReceivers.push(payable(bob));
+        royaltyReceivers.push(payable(eve));
 
         basisPoints.push(MAX_ROYALTY_BASISPOINTS);
         basisPoints.push(MAX_ROYALTY_BASISPOINTS);
         basisPoints.push(MAX_ROYALTY_BASISPOINTS);
-        accounts.push(payable(address(0xbad)));
+        royaltyReceivers.push(payable(address(0xbad)));
         basisPoints.push(1);
 
         vm.expectRevert(abi.encodeWithSelector(IFxRoyaltyManager.InvalidRoyaltyConfig.selector));
-        royaltyManager.setTokenRoyalties(tokenId, accounts, basisPoints);
+        royaltyManager.setTokenRoyalties(tokenId, royaltyReceivers, basisPoints);
     }
 
-    function test_RevertsWhen_LengthMismatchAccounts() public {
-        accounts.push(payable(address(40)));
+    function test_RevertsWhen_LengthMismatchroyaltyReceivers() public {
+        royaltyReceivers.push(payable(alice));
         vm.expectRevert(abi.encodeWithSelector(IFxRoyaltyManager.LengthMismatch.selector));
-        royaltyManager.setTokenRoyalties(tokenId, accounts, basisPoints);
+        royaltyManager.setTokenRoyalties(tokenId, royaltyReceivers, basisPoints);
     }
 
     function test_RevertsWhen_LengthMismatchBasisPoints() public {
         basisPoints.push(MAX_ROYALTY_BASISPOINTS);
         vm.expectRevert(abi.encodeWithSelector(IFxRoyaltyManager.LengthMismatch.selector));
-        royaltyManager.setTokenRoyalties(tokenId, accounts, basisPoints);
+        royaltyManager.setTokenRoyalties(tokenId, royaltyReceivers, basisPoints);
     }
 }
 
 contract GetRoyalties is FxRoyaltyManagerTest {
     function setUp() public override {
         super.setUp();
-        accounts.push(payable(address(40)));
-        accounts.push(payable(address(20)));
-        accounts.push(payable(address(10)));
+        royaltyReceivers.push(payable(alice));
+        royaltyReceivers.push(payable(bob));
+        royaltyReceivers.push(payable(eve));
 
         basisPoints.push(MAX_ROYALTY_BASISPOINTS);
         basisPoints.push(MAX_ROYALTY_BASISPOINTS);
@@ -129,11 +128,11 @@ contract GetRoyalties is FxRoyaltyManagerTest {
     }
 
     function test_getRoyalties() public {
-        royaltyManager.setBaseRoyalties(accounts, basisPoints);
+        royaltyManager.setBaseRoyalties(royaltyReceivers, basisPoints);
         address payable[] memory receivers;
         uint256[] memory bps;
         (receivers, bps) = royaltyManager.getRoyalties(tokenId);
-        assertEq(receivers.length, accounts.length, "accounts mismatch");
+        assertEq(receivers.length, royaltyReceivers.length, "accounts mismatch");
         assertEq(basisPoints.length, bps.length, "Basispoint mismatch");
     }
 }
@@ -141,28 +140,28 @@ contract GetRoyalties is FxRoyaltyManagerTest {
 contract RoyaltyInfo is FxRoyaltyManagerTest {
     function setUp() public override {
         super.setUp();
-        accounts.push(payable(address(10)));
+        royaltyReceivers.push(payable(eve));
         basisPoints.push(MAX_ROYALTY_BASISPOINTS);
     }
 
     function test_WhenBaseLength1() public {
-        royaltyManager.setBaseRoyalties(accounts, basisPoints);
+        royaltyManager.setBaseRoyalties(royaltyReceivers, basisPoints);
         royaltyManager.royaltyInfo(tokenId, 100);
     }
 
     function test_WhenBaseLength0() public {
-        accounts.pop();
+        royaltyReceivers.pop();
         basisPoints.pop();
-        royaltyManager.setBaseRoyalties(accounts, basisPoints);
+        royaltyManager.setBaseRoyalties(royaltyReceivers, basisPoints);
         (address receiver, uint256 bps) = royaltyManager.royaltyInfo(tokenId, 100);
         assertEq(receiver, address(0));
         assertEq(bps, 0);
     }
 
     function test_RevertsWhenBaseLengthGt1() public {
-        accounts.push(payable(address(42)));
+        royaltyReceivers.push(payable(susan));
         basisPoints.push(1000);
-        royaltyManager.setBaseRoyalties(accounts, basisPoints);
+        royaltyManager.setBaseRoyalties(royaltyReceivers, basisPoints);
         vm.expectRevert(
             abi.encodeWithSelector(IFxRoyaltyManager.MoreThanOneRoyaltyReceiver.selector)
         );
