@@ -15,5 +15,13 @@ contract CreateVirtualSplit is FxSplitsFactoryTest {
         allocations.push(uint32(600_000));
     }
 
-    function test_createVirtualSplit() public {}
+    function test_createsVirtualSplit() public {
+        splitsFactory.createVirtualSplit(accounts, allocations);
+    }
+
+    function test_RevertsWhen_LengthMismatch() public {}
+
+    function test_RevertsWhen_AllocationsGt100() public {}
+
+    function test_RevertsWhen_AllocationsLt100() public {}
 }
