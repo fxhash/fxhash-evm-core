@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import {MockFxRoyaltyManager} from "test/mocks/MockFxRoyaltyManager.sol";
-import {FxRoyaltyManagerTest} from "test/unit/FxRoyaltyManager/FxRoyaltyManager.t.sol";
+import {FxRoyaltyManagerTest} from "test/unit/FxRoyaltyManager/FxRoyaltyManager.sol";
 import {MAX_ROYALTY_BASISPOINTS} from "src/utils/Constants.sol";
 import {IFxRoyaltyManager} from "src/interfaces/IFxRoyaltyManager.sol";
 
