@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import {Test} from "forge-std/Test.sol";
 import {MockFxRoyaltyManager} from "test/mocks/MockFxRoyaltyManager.sol";
 import {IFxRoyaltyManager} from "src/interfaces/IFxRoyaltyManager.sol";
+import "src/utils/Constants.sol";
 
 contract FxRoyaltyManagerTest is Test {
     uint256 tokenId;
@@ -23,9 +24,9 @@ contract SetBaseRoyaltiesTest is FxRoyaltyManagerTest {
         accounts.push(payable(address(20)));
         accounts.push(payable(address(10)));
 
-        basisPoints.push(2500);
-        basisPoints.push(2500);
-        basisPoints.push(2500);
+        basisPoints.push(MAX_ROYALTY_BASISPOINTS);
+        basisPoints.push(MAX_ROYALTY_BASISPOINTS);
+        basisPoints.push(MAX_ROYALTY_BASISPOINTS);
     }
 
     function test_SetBaseRoyalties() public {
@@ -33,13 +34,13 @@ contract SetBaseRoyaltiesTest is FxRoyaltyManagerTest {
     }
 
     function test_RevertsWhen_SingleGt25() public {
-        basisPoints[0] = 2501;
+        basisPoints[0] = MAX_ROYALTY_BASISPOINTS + 1;
         vm.expectRevert(abi.encodeWithSelector(IFxRoyaltyManager.OverMaxBasisPointAllowed.selector));
         royaltyManager.setBaseRoyalties(accounts, basisPoints);
     }
 
     function test_RevertsWhen_AllGt100() public {
-        basisPoints.push(2500);
+        basisPoints.push(MAX_ROYALTY_BASISPOINTS);
         accounts.push(payable(address(1)));
         basisPoints.push(1);
         accounts.push(payable(address(0xBad)));
@@ -67,7 +68,7 @@ contract SetTokenRoyaltiesTest is FxRoyaltyManagerTest {
         MockFxRoyaltyManager(address(royaltyManager)).setTokenExists(tokenId, true);
         accounts.push(payable(address(42)));
 
-        basisPoints.push(2500);
+        basisPoints.push(MAX_ROYALTY_BASISPOINTS);
     }
 
     function test_SetTokenRoyalties() public {
@@ -81,7 +82,7 @@ contract SetTokenRoyaltiesTest is FxRoyaltyManagerTest {
     }
 
     function test_RevertsWhen_SingleGt25() public {
-        basisPoints[0] = 2501;
+        basisPoints[0] = MAX_ROYALTY_BASISPOINTS + 1;
         vm.expectRevert(abi.encodeWithSelector(IFxRoyaltyManager.OverMaxBasisPointAllowed.selector));
         royaltyManager.setTokenRoyalties(tokenId, accounts, basisPoints);
     }
@@ -92,9 +93,9 @@ contract SetTokenRoyaltiesTest is FxRoyaltyManagerTest {
         accounts.push(payable(address(20)));
         accounts.push(payable(address(10)));
 
-        basisPoints.push(2500);
-        basisPoints.push(2500);
-        basisPoints.push(2500);
+        basisPoints.push(MAX_ROYALTY_BASISPOINTS);
+        basisPoints.push(MAX_ROYALTY_BASISPOINTS);
+        basisPoints.push(MAX_ROYALTY_BASISPOINTS);
         accounts.push(payable(address(0xbad)));
         basisPoints.push(1);
 
@@ -109,7 +110,7 @@ contract SetTokenRoyaltiesTest is FxRoyaltyManagerTest {
     }
 
     function test_RevertsWhen_LengthMismatchBasisPoints() public {
-        basisPoints.push(2500);
+        basisPoints.push(MAX_ROYALTY_BASISPOINTS);
         vm.expectRevert(abi.encodeWithSelector(IFxRoyaltyManager.LengthMismatch.selector));
         royaltyManager.setTokenRoyalties(tokenId, accounts, basisPoints);
     }
@@ -122,9 +123,9 @@ contract GetRoyalties is FxRoyaltyManagerTest {
         accounts.push(payable(address(20)));
         accounts.push(payable(address(10)));
 
-        basisPoints.push(2500);
-        basisPoints.push(2500);
-        basisPoints.push(2500);
+        basisPoints.push(MAX_ROYALTY_BASISPOINTS);
+        basisPoints.push(MAX_ROYALTY_BASISPOINTS);
+        basisPoints.push(MAX_ROYALTY_BASISPOINTS);
     }
 
     function test_getRoyalties() public {
@@ -141,7 +142,7 @@ contract RoyaltyInfo is FxRoyaltyManagerTest {
     function setUp() public override {
         super.setUp();
         accounts.push(payable(address(10)));
-        basisPoints.push(2500);
+        basisPoints.push(MAX_ROYALTY_BASISPOINTS);
     }
 
     function test_WhenBaseLength1() public {
