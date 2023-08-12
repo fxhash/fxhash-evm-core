@@ -57,7 +57,7 @@ contract Deploy is Script {
         FxGenArt721(fxGenArtProxy).setRenderer(address(fxTokenRenderer));
     }
 
-    function mock0xSplits() internal {
+    function _mock0xSplits() internal {
         bytes memory splitMainBytecode = abi.encodePacked(SPLITS_MAIN_CREATION_CODE, abi.encode());
         address deployedAddress_;
         // original deployer + original nonce used at deployment

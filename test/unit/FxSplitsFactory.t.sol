@@ -17,7 +17,7 @@ contract FxSplitsFactoryTest is Test, Deploy {
         accounts.push(address(3));
         allocations.push(uint32(400_000));
         allocations.push(uint32(600_000));
-        mock0xSplits();
+        _mock0xSplits();
     }
 
     function test_VerifyPredictAddress() public {
