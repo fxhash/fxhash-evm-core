@@ -1,31 +1,21 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "forge-std/Test.sol";
-
-import {Lib0xSplits} from "src/lib/Lib0xSplits.sol";
+import {FxSplitsFactoryTest} from "test/unit/FxSplitsFactory/FxSplitsFactoryTest.sol";
+import {SPLITS_MAIN} from "script/utils/Constants.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
+import {Lib0xSplits} from "src/lib/Lib0xSplits.sol";
 
-import {SPLITS_MAIN, Deploy} from "script/Deploy.s.sol";
-
-contract FxSplitsFactoryTest is Test, Deploy {
-    address[] public accounts;
-    uint32[] public allocations;
-
-    function setUp() public override {
+contract CreateSplit is FxSplitsFactoryTest {
+    function setUp() public virtual override {
+        super.setUp();
         accounts.push(address(2));
         accounts.push(address(3));
         allocations.push(uint32(400_000));
         allocations.push(uint32(600_000));
-        _mock0xSplits();
     }
 
-    function test_VerifyPredictAddress() public {
-        address libPredicted = Lib0xSplits.predictDeterministicAddress(accounts, allocations);
-        address computedAddress =
-            ISplitsMain(SPLITS_MAIN).predictImmutableSplitAddress(accounts, allocations, 0);
-        assertEq(libPredicted, computedAddress);
-    }
+    function test_createSplit() public {}
 
     function test_FirstWithdraw() public {
         address libPredicted = Lib0xSplits.predictDeterministicAddress(accounts, allocations);
