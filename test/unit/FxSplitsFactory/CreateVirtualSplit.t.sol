@@ -24,4 +24,8 @@ contract CreateVirtualSplit is FxSplitsFactoryTest {
     function test_RevertsWhen_AllocationsGt100() public {}
 
     function test_RevertsWhen_AllocationsLt100() public {}
+
+    function test_RevertsWhen_DuplicateAccountInAccounts() public {}
+
+    function test_RevertsWhen_AccountsNotSorted() public {}
 }
