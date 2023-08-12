@@ -34,12 +34,12 @@ contract Deploy is Script {
 
     function run() public virtual {
         vm.startBroadcast();
-        deployContracts();
-        configureSettings();
+        _deployContracts();
+        _configureSettings();
         vm.stopBroadcast();
     }
 
-    function deployContracts() public {
+    function _deployContracts() internal {
         fxContractRegistry = new FxContractRegistry();
         fxRoleRegistry = new FxRoleRegistry();
         fxGenArt721 = new FxGenArt721(address(fxContractRegistry), address(fxRoleRegistry));
@@ -48,7 +48,7 @@ contract Deploy is Script {
             new FxTokenRenderer(ETHFS_FILE_STORAGE, SCRIPTY_STORAGE_V2, SCRIPTY_BUILDER_V2);
     }
 
-    function configureSettings() public {
+    function _configureSettings() internal {
         owner = msg.sender;
         primaryReceiver = msg.sender;
         fxGenArtProxy = fxIssuerFactory.createProject(
