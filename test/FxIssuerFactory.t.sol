@@ -11,24 +11,21 @@ contract FxIssuerFactoryTest is BaseTest {
         deployContracts();
     }
 
-    function test_CreateProject() public {
-        address predicted = computeCreateAddress(address(fxIssuerFactory), 1);
-
+    function test_CheckPredicted() public {
         address owner = msg.sender;
         primaryReceiver = msg.sender;
         fxGenArtProxy = fxIssuerFactory.createProject(
             owner, primaryReceiver, projectInfo, mintInfo, royaltyReceivers, basisPoints
         );
-        console.log(predicted, "predicted");
-        console.log(fxGenArtProxy, "actual");
+
+        address predicted = computeCreateAddress(address(fxIssuerFactory), 1);
+        assertEq(predicted, fxGenArtProxy);
 
         fxGenArtProxy = fxIssuerFactory.createProject(
             owner, primaryReceiver, projectInfo, mintInfo, royaltyReceivers, basisPoints
         );
 
         predicted = computeCreateAddress(address(fxIssuerFactory), 2);
-
-        console.log(predicted, "predicted");
-        console.log(fxGenArtProxy, "actual");
+        assertEq(predicted, fxGenArtProxy);
     }
 }
