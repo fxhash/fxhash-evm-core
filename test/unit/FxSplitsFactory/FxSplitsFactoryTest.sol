@@ -7,6 +7,15 @@ import "src/utils/Constants.sol";
 import "script/utils/Constants.sol";
 
 contract FxSplitsFactoryTest is BaseTest {
+    error InvalidSplit__TooFewAccounts(uint256 accountsLength);
+    error InvalidSplit__AccountsAndAllocationsMismatch(
+        uint256 accountsLength, uint256 allocationsLength
+    );
+    error InvalidSplit__InvalidAllocationsSum(uint32 allocationsSum);
+    error InvalidSplit__AccountsOutOfOrder(uint256 index);
+    error InvalidSplit__AllocationMustBePositive(uint256 index);
+    error InvalidSplit__InvalidDistributorFee(uint32 distributorFee);
+
     FxSplitsFactory public splitsFactory;
     address[] public accounts;
     uint32[] public allocations;
