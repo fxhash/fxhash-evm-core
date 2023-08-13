@@ -52,7 +52,7 @@ contract CreateSplit is FxSplitsFactoryTest {
         accounts.pop();
 
         vm.expectRevert();
-        splitsFactory.createVirtualSplit(accounts, allocations);
+        splitsFactory.createSplit(accounts, allocations);
     }
 
     function test_RevertsWhen_AllocationsGt100() public {
@@ -60,14 +60,14 @@ contract CreateSplit is FxSplitsFactoryTest {
         allocations.push(1);
 
         vm.expectRevert();
-        splitsFactory.createVirtualSplit(accounts, allocations);
+        splitsFactory.createSplit(accounts, allocations);
     }
 
     function test_RevertsWhen_AllocationsLt100() public {
         allocations[0]--;
 
         vm.expectRevert();
-        splitsFactory.createVirtualSplit(accounts, allocations);
+        splitsFactory.createSplit(accounts, allocations);
     }
 
     function test_RevertsWhen_DuplicateAccountInAccounts() public {
@@ -76,13 +76,13 @@ contract CreateSplit is FxSplitsFactoryTest {
         allocations[0]--;
 
         vm.expectRevert();
-        splitsFactory.createVirtualSplit(accounts, allocations);
+        splitsFactory.createSplit(accounts, allocations);
     }
 
     function test_RevertsWhen_AccountsNotSorted() public {
         (accounts[0], accounts[1]) = (accounts[1], accounts[0]);
 
         vm.expectRevert();
-        splitsFactory.createVirtualSplit(accounts, allocations);
+        splitsFactory.createSplit(accounts, allocations);
     }
 }
