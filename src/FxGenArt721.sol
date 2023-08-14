@@ -149,7 +149,7 @@ contract FxGenArt721 is
 
     /// @inheritdoc IFxGenArt721
     function contractURI() public view returns (string memory) {
-        return issuerInfo.projectInfo.contractData;
+        return issuerInfo.projectInfo.contractURI;
     }
 
     /// @inheritdoc IFxGenArt721
@@ -161,13 +161,13 @@ contract FxGenArt721 is
     function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
         _requireMinted(_tokenId);
         if (issuerInfo.projectInfo.codexId != SCRIPTY) {
-            string memory baseURI = issuerInfo.projectInfo.tokenData.baseURI;
+            string memory baseURI = issuerInfo.projectInfo.tokenMetadata.baseURI;
             return string.concat(baseURI, _tokenId.toString());
         } else {
             bytes32 seed = genArtInfo[uint96(_tokenId)].seed;
             bytes memory fxParams = genArtInfo[uint96(_tokenId)].fxParams;
-            HTMLRequest memory animationURL = issuerInfo.projectInfo.tokenData.animation;
-            HTMLRequest memory attributes = issuerInfo.projectInfo.tokenData.attributes;
+            HTMLRequest memory animationURL = issuerInfo.projectInfo.tokenMetadata.animation;
+            HTMLRequest memory attributes = issuerInfo.projectInfo.tokenMetadata.attributes;
             bytes memory onchainData = IFxTokenRenderer(renderer).renderOnchain(
                 _tokenId, seed, fxParams, animationURL, attributes
             );
