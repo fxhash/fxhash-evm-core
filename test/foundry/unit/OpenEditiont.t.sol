@@ -83,3 +83,7 @@ contract SetMintDetails is OpenEditionTest {
     /// might want to store fee receiver here to save external call
     function test_RevertsIf_FeeReceiverAddress0() public {}
 }
+
+contract Withdraw is OpenEditionTest {
+    function test_withdraw() public {}
+}

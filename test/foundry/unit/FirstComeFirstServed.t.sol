@@ -82,3 +82,7 @@ contract SetMintDetails is FirstComeFirstServeTest {
     /// might want to store fee receiver here to save external call
     function test_RevertsIf_FeeReceiverAddress0() public {}
 }
+
+contract Withdraw is FirstComeFirstServeTest {
+    function test_withdraw() public {}
+}
