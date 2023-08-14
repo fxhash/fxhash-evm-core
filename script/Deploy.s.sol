@@ -34,12 +34,12 @@ contract Deploy is Script {
 
     function run() public virtual {
         vm.startBroadcast();
-        deployContracts();
-        configureSettings();
+        _deployContracts();
+        _configureSettings();
         vm.stopBroadcast();
     }
 
-    function deployContracts() public {
+    function _deployContracts() internal {
         fxContractRegistry = new FxContractRegistry();
         fxRoleRegistry = new FxRoleRegistry();
         fxGenArt721 = new FxGenArt721(address(fxContractRegistry), address(fxRoleRegistry));
@@ -48,12 +48,23 @@ contract Deploy is Script {
             new FxTokenRenderer(ETHFS_FILE_STORAGE, SCRIPTY_STORAGE_V2, SCRIPTY_BUILDER_V2);
     }
 
-    function configureSettings() public {
+    function _configureSettings() internal {
         owner = msg.sender;
         primaryReceiver = msg.sender;
         fxGenArtProxy = fxIssuerFactory.createProject(
             owner, primaryReceiver, projectInfo, mintInfo, royaltyReceivers, basisPoints
         );
         FxGenArt721(fxGenArtProxy).setRenderer(address(fxTokenRenderer));
+    }
+
+    function _mock0xSplits() internal {
+        bytes memory splitMainBytecode = abi.encodePacked(SPLITS_MAIN_CREATION_CODE, abi.encode());
+        address deployedAddress_;
+        // original deployer + original nonce used at deployment
+        vm.startPrank(SPLITS_DEPLOYER);
+        vm.setNonce(SPLITS_DEPLOYER, SPLITS_DEPLOYER_NONCE);
+        assembly {
+            deployedAddress_ := create(0, add(splitMainBytecode, 32), mload(splitMainBytecode))
+        }
     }
 }
