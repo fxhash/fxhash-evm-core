@@ -48,7 +48,6 @@ contract FxTokenRenderer is IFxTokenRenderer {
         bytes calldata _fxParams,
         HTMLRequest calldata _htmlRequest
     ) public view returns (bytes memory) {
-        HTMLRequest memory htmlRequest;
         HTMLTag[] memory headTags = new HTMLTag[](_htmlRequest.headTags.length);
         HTMLTag[] memory bodyTags = new HTMLTag[](
             _htmlRequest.bodyTags.length + 1
@@ -63,6 +62,8 @@ contract FxTokenRenderer is IFxTokenRenderer {
         for (uint256 i; i < _htmlRequest.bodyTags.length; ++i) {
             bodyTags[i].name = _htmlRequest.bodyTags[i].name;
             bodyTags[i].tagType = _htmlRequest.bodyTags[i].tagType;
+            bodyTags[i].tagOpen = _htmlRequest.bodyTags[i].tagOpen;
+            bodyTags[i].tagClose = _htmlRequest.bodyTags[i].tagClose;
             bodyTags[i].contractAddress = _htmlRequest.bodyTags[i].contractAddress;
         }
 
@@ -71,6 +72,7 @@ contract FxTokenRenderer is IFxTokenRenderer {
             ? _getSeedContent(_tokenId, _seed)
             : _getParamsContent(_tokenId, _fxParams);
 
+        HTMLRequest memory htmlRequest;
         htmlRequest.headTags = headTags;
         htmlRequest.bodyTags = bodyTags;
 
@@ -80,21 +82,21 @@ contract FxTokenRenderer is IFxTokenRenderer {
     function _getSeedContent(uint256 _tokenId, bytes32 _seed)
         internal
         pure
-        returns (bytes memory content)
+        returns (bytes memory)
     {
         string memory tokenId = _tokenId.toString();
         string memory seed = uint256(_seed).toHexString(32);
-        content =
+        return
             abi.encodePacked('let tokenData = {"tokenId": "', tokenId, '", "seed": "', seed, '"};');
     }
 
     function _getParamsContent(uint256 _tokenId, bytes calldata _fxParams)
         internal
         pure
-        returns (bytes memory content)
+        returns (bytes memory)
     {
         string memory tokenId = _tokenId.toString();
-        content = abi.encodePacked(
+        return abi.encodePacked(
             'let tokenData = {"tokenId": "', tokenId, '", "fxParams": "', _fxParams, '"};'
         );
     }
