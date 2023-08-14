@@ -2,11 +2,11 @@
 pragma solidity 0.8.20;
 
 import {IFxRoyaltyManager, RoyaltyInfo} from "src/interfaces/IFxRoyaltyManager.sol";
+import {MAX_ROYALTY_BASISPOINTS} from "src/utils/Constants.sol";
 
 /// @title FxRoyaltyManager
 /// @notice A contract for managing royalties
 abstract contract FxRoyaltyManager is IFxRoyaltyManager {
-    uint256 public constant MAX_ROYALTY = 2500;
     /// @notice A struct containing basisPoints and receiver address for a royalty
     RoyaltyInfo[] public baseRoyalties;
 
@@ -24,7 +24,6 @@ abstract contract FxRoyaltyManager is IFxRoyaltyManager {
         virtual
     {
         _setBaseRoyalties(_receivers, _basisPoints);
-        emit TokenRoyaltiesUpdated(_receivers, _basisPoints);
     }
 
     /**
@@ -40,7 +39,6 @@ abstract contract FxRoyaltyManager is IFxRoyaltyManager {
         uint96[] calldata _basisPoints
     ) external virtual {
         _setTokenRoyalties(_tokenId, _receivers, _basisPoints);
-        emit TokenIdRoyaltiesUpdated(_tokenId, _receivers, _basisPoints);
     }
 
     /**
@@ -135,6 +133,8 @@ abstract contract FxRoyaltyManager is IFxRoyaltyManager {
         for (uint256 i; i < _basisPoints.length; i++) {
             tokenRoyalties_.push(RoyaltyInfo(_receivers[i], _basisPoints[i]));
         }
+
+        emit TokenIdRoyaltiesUpdated(_tokenId, _receivers, _basisPoints);
     }
 
     /**
@@ -172,7 +172,7 @@ abstract contract FxRoyaltyManager is IFxRoyaltyManager {
     function _checkRoyalties(uint96[] memory _basisPoints) internal pure {
         uint256 totalBasisPoints;
         for (uint256 i; i < _basisPoints.length; i++) {
-            if (_basisPoints[i] > MAX_ROYALTY) revert OverMaxBasisPointAllowed();
+            if (_basisPoints[i] > MAX_ROYALTY_BASISPOINTS) revert OverMaxBasisPointAllowed();
             totalBasisPoints += _basisPoints[i];
         }
         if (totalBasisPoints >= _feeDenominator()) revert InvalidRoyaltyConfig();
