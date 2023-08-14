@@ -39,3 +39,6 @@ uint128 constant REVIEW = 1;
 uint128 constant SUSPICIOUS = 2;
 uint128 constant MALICIOUS_USER = 3;
 uint128 constant VERIFIED = 10;
+
+// Royalties
+uint96 constant MAX_ROYALTY_BASISPOINTS = 2500;
