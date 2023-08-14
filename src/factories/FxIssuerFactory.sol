@@ -23,7 +23,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     /// @dev Initializes registries and implementation contracts
     constructor(address _implementation) {
         implementation = _implementation;
-        emit TokenImplementationUpdate(msg.sender, _implementation);
+        emit ImplementationUpdate(msg.sender, _implementation);
     }
 
     /// @inheritdoc IFxIssuerFactory
@@ -54,8 +54,8 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     }
 
     /// @inheritdoc IFxIssuerFactory
-    function setTokenImplementation(address _implementation) external onlyOwner {
+    function setImplementation(address _implementation) external onlyOwner {
         implementation = _implementation;
-        emit TokenImplementationUpdate(msg.sender, _implementation);
+        emit ImplementationUpdate(msg.sender, _implementation);
     }
 }

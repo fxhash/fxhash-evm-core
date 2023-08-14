@@ -53,7 +53,7 @@ interface IFxIssuerFactory {
      * @param owner Address of the owner updating the implementation contract
      * @param tokenImplementation Address of the new FxGenArt721 implementation contract
      */
-    event TokenImplementationUpdate(address indexed owner, address indexed tokenImplementation);
+    event ImplementationUpdate(address indexed owner, address indexed tokenImplementation);
 
     /**
      * @notice Creates new Generative Art project
@@ -81,9 +81,9 @@ interface IFxIssuerFactory {
 
     /**
      * @notice Sets new FxGenArt721 implementation contract
-     * @param _tokenImplementation Address of the FxGenArt721 contract
+     * @param _implementation Address of the FxGenArt721 contract
      */
-    function setTokenImplementation(address _tokenImplementation) external;
+    function setImplementation(address _implementation) external;
 
     /**
      * @notice Returns the configuration values (feeShare, referrerShare, lockTime, defaultMetadata)
