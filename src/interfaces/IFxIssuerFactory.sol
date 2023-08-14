@@ -43,17 +43,17 @@ interface IFxIssuerFactory {
 
     /**
      * @notice Event emitted when the configuration is updated
-     * @param owner Address of the owner updating the configuration
-     * @param configInfo Updated configuration information
+     * @param _owner Address of the owner updating the configuration
+     * @param _configInfo Updated configuration information
      */
-    event ConfigUpdated(address indexed owner, ConfigInfo configInfo);
+    event ConfigUpdated(address indexed _owner, ConfigInfo _configInfo);
 
     /**
      * @notice Event emitted when the FxGenArt721 implementation contract is updated
-     * @param owner Address of the owner updating the implementation contract
-     * @param tokenImplementation Address of the new FxGenArt721 implementation contract
+     * @param _owner Address of the owner updating the implementation contract
+     * @param _implementation Address of the new FxGenArt721 implementation contract
      */
-    event ImplementationUpdated(address indexed owner, address indexed tokenImplementation);
+    event ImplementationUpdated(address indexed _owner, address indexed _implementation);
 
     /**
      * @notice Creates new Generative Art project
