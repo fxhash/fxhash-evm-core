@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+import {Base64} from "openzeppelin/contracts/utils/Base64.sol";
 import {
     ERC721URIStorageUpgradeable,
     ERC721Upgradeable
 } from "openzeppelin-upgradeable/contracts/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
+import {HTMLRequest} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {
     IFxGenArt721,
@@ -18,6 +20,7 @@ import {IFxTokenRenderer} from "src/interfaces/IFxTokenRenderer.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 import {FxRoyaltyManager} from "src/FxRoyaltyManager.sol";
 import {OwnableUpgradeable} from "openzeppelin-upgradeable/contracts/access/OwnableUpgradeable.sol";
+import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
 import "src/utils/Constants.sol";
 
@@ -31,7 +34,9 @@ contract FxGenArt721 is
     OwnableUpgradeable,
     FxRoyaltyManager
 {
+    using Strings for uint256;
     /// @inheritdoc IFxGenArt721
+
     address public immutable contractRegistry;
     /// @inheritdoc IFxGenArt721
     address public immutable roleRegistry;
@@ -41,8 +46,8 @@ contract FxGenArt721 is
     address public renderer;
     /// @inheritdoc IFxGenArt721
     IssuerInfo public issuerInfo;
-    /// @dev Internal mapping of token ID to GenArtInfo
-    mapping(uint96 => GenArtInfo) internal _genArtInfo;
+    /// @inheritdoc IFxGenArt721
+    mapping(uint96 => GenArtInfo) public genArtInfo;
 
     // |-------------------------------------------------------------------------------------------|
     // |░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  STORAGE LAYOUT  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░|
@@ -69,7 +74,7 @@ contract FxGenArt721 is
     // | totalSupply        | uint96                                       | 253  | 0      | 12    |
     // | renderer           | address                                      | 253  | 12     | 20    |
     // | issuerInfo         | struct IssuerInfo                            | 254  | 0      | 160   |
-    // | _genArtInfo        | mapping(uint96 => struct GenArtInfo)         | 259  | 0      | 32    |
+    // | genArtInfo         | mapping(uint96 => struct GenArtInfo)         | 259  | 0      | 32    |
     // |░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░|
     // |-------------------------------------------------------------------------------------------|
 
@@ -143,8 +148,8 @@ contract FxGenArt721 is
     }
 
     /// @inheritdoc IFxGenArt721
-    function genArtInfo(uint96 _tokenId) external view returns (GenArtInfo memory) {
-        return _genArtInfo[_tokenId];
+    function contractURI() public view returns (string memory) {
+        return issuerInfo.projectInfo.contractData;
     }
 
     /// @inheritdoc IFxGenArt721
@@ -152,14 +157,26 @@ contract FxGenArt721 is
         return issuerInfo.minters[_minter];
     }
 
-    /// @inheritdoc IFxGenArt721
-    function contractURI() public pure returns (string memory) {
-        return "";
-    }
-
     /// @inheritdoc ERC721URIStorageUpgradeable
     function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
         _requireMinted(_tokenId);
+        if (issuerInfo.projectInfo.codexId != SCRIPTY) {
+            string memory baseURI = issuerInfo.projectInfo.tokenData.baseURI;
+            return string.concat(baseURI, _tokenId.toString());
+        } else {
+            bytes32 seed = genArtInfo[uint96(_tokenId)].seed;
+            bytes memory fxParams = genArtInfo[uint96(_tokenId)].fxParams;
+            HTMLRequest memory animationURL = issuerInfo.projectInfo.tokenData.animationURL;
+            HTMLRequest memory attributes = issuerInfo.projectInfo.tokenData.attributes;
+
+            bytes memory onchainData = IFxTokenRenderer(renderer).renderOnchain(
+                _tokenId, seed, fxParams, animationURL, attributes
+            );
+
+            return string(
+                abi.encodePacked("data:application/json;base64,", Base64.encode(onchainData))
+            );
+        }
     }
 
     /// @inheritdoc ERC721URIStorageUpgradeable

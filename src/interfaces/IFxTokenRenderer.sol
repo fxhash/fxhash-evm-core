@@ -8,7 +8,7 @@ import {HTMLRequest} from "scripty.sol/contracts/scripty/interfaces/IScriptyBuil
  * @notice Renders token metadata using onchain generative scripts
  */
 interface IFxTokenRenderer {
-    function renderMetadata(
+    function renderOnchain(
         uint256 _tokenId,
         bytes32 _seed,
         bytes calldata _fxParams,

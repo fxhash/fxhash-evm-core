@@ -28,17 +28,17 @@ contract FxTokenRenderer is IFxTokenRenderer {
         scriptyBuilder = _scriptyBuilder;
     }
 
-    function renderMetadata(
+    function renderOnchain(
         uint256 _tokenId,
         bytes32 _seed,
         bytes calldata _fxParams,
         HTMLRequest calldata _animationURL,
         HTMLRequest calldata _attributes
-    ) public view returns (bytes memory metadata) {
+    ) public view returns (bytes memory) {
         bytes memory animationURL = getEncodedHTML(_tokenId, _seed, _fxParams, _animationURL);
         bytes memory attributes = getEncodedHTML(_tokenId, _seed, _fxParams, _attributes);
 
-        metadata =
+        return
             abi.encodePacked('"animation_url":"', animationURL, '","attributes":"', attributes, '"');
     }
 

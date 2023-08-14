@@ -18,15 +18,15 @@ struct IssuerInfo {
  * @param enabled Active status of project
  * @param codexId ID of codex info
  * @param supply Maximum supply of tokens
- * @param contractMetadata Contract metadata of project
- * @param tokenMetadata Token metadata information
+ * @param contractData Contract metadata of project
+ * @param tokenMetadata Token metadata scripts
  */
 struct ProjectInfo {
     bool enabled;
     uint120 codexId;
     uint128 supply;
-    MetadataInfo contractMetadata;
-    MetadataInfo tokenMetadata;
+    string contractData;
+    TokenData tokenData;
 }
 
 /**
@@ -34,7 +34,7 @@ struct ProjectInfo {
  * @param animation List of HTML head and body tags for building onchain scripts
  * @param attributes List of key value pairs for token attributes
  */
-struct MetadataInfo {
+struct TokenData {
     string baseURI;
     HTMLRequest animationURL;
     HTMLRequest attributes;
@@ -177,9 +177,9 @@ interface IFxGenArt721 {
     /**
      * @notice Gets the generative art information for a given token
      * @param _tokenId ID of the token
-     * @return TokenInfo
+     * @return FxParams and Seed
      */
-    function genArtInfo(uint96 _tokenId) external view returns (GenArtInfo memory);
+    function genArtInfo(uint96 _tokenId) external view returns (bytes memory, bytes32);
 
     /**
      * @notice Gets the authorization status for the given minter
