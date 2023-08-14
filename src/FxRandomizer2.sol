@@ -43,8 +43,9 @@ contract FxRandomizer is IFxRandomizer {
         uint256 revealBlock = request.revealBlock;
         if (block.number + 256 > revealBlock) {
             request.revealBlock = block.number + revealDelay;
-            requests[nextRequestIndex++] = request;
-            if (nextRequestIndex > 65_535) nextRequestIndex = 0;
+            uint256 index = nextRequestIndex % RING_BUFFER_SIZE;
+            requests[index] = request;
+            nextRequestIndex++;
             return;
         }
         bytes32 seed =
