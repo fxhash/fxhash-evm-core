@@ -168,7 +168,6 @@ contract FxGenArt721 is
             bytes memory fxParams = genArtInfo[uint96(_tokenId)].fxParams;
             HTMLRequest memory animationURL = issuerInfo.projectInfo.tokenData.animationURL;
             HTMLRequest memory attributes = issuerInfo.projectInfo.tokenData.attributes;
-
             bytes memory onchainData = IFxTokenRenderer(renderer).renderOnchain(
                 _tokenId, seed, fxParams, animationURL, attributes
             );
