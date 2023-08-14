@@ -13,6 +13,9 @@ contract FirstComeFirstServeTest is Base {
     FixedPriceAllowlistMint public sale;
     MockGenerativeToken public mockToken;
     bytes32 public merkleRoot;
+    bytes32[] public proof;
+    address public vault;
+    uint256 public index;
     uint256 public price = 1 ether;
     uint256 public quantity = 1;
     uint256 public supply = 100;
@@ -37,7 +40,7 @@ contract BuyTokens is FirstComeFirstServeTest {
             abi.encode(price, merkleRoot)
         );
         vm.warp(block.timestamp + 1);
-        sale.buyTokens(address(mockToken), 0, 1, address(this));
+        sale.buyTokens(address(mockToken), vault, index, proof, address(this));
         assertEq(mockToken.balanceOf(address(this)), 1);
     }
 
@@ -68,9 +71,9 @@ contract SetMintDetails is FirstComeFirstServeTest {
         uint40 start = uint40(block.timestamp + 10);
         uint40 end = type(uint40).max;
         sale.setMintDetails(Reserve(allocation, start, end), abi.encode(price));
-        assertEq(sale.prices(address(this), 0), price, "price incorrectly set");
-        (uint160 allocation_, uint40 startTime, uint40 endTime) = sale.reserves(address(this), 0);
-        assertEq(sale.prices(address(this), 0), price, "price incorrectly set");
+        assertEq(sale.prices(address(this)), price, "price incorrectly set");
+        (uint160 allocation_, uint40 startTime, uint40 endTime) = sale.reserves(address(this));
+        assertEq(sale.prices(address(this)), price, "price incorrectly set");
         assertEq(startTime, start, "startTime incorrectly set");
         assertEq(endTime, end, "endTime incorrectly set");
         assertEq(allocation_, allocation, "allocation incorrectly set");
