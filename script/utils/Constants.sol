@@ -5,6 +5,11 @@ pragma solidity 0.8.20;
 address constant ETHFS_FILE_STORAGE = 0x70a78d91A434C1073D47b2deBe31C184aA8CA9Fa;
 address constant SCRIPTY_STORAGE_V2 = 0x4e2f40eef8DFBF200f3f744a9733Afe2E9F83D28;
 address constant SCRIPTY_BUILDER_V2 = 0xccd7E419f1EEc86fa748c9079584e3a89312f11C;
+// mainnet + testnet deployment addresses
+address constant SPLITS_MAIN = 0x2ed6c4B5dA6378c7897AC67Ba9e43102Feb694EE;
+address constant SPLITS_WALLET = 0xD94c0CE4f8eEfA4Ebf44bf6665688EdEEf213B33;
+address constant SPLITS_DEPLOYER = 0x9ebC8E61f87A301fF25a606d7C06150f856F24E2;
+uint64 constant SPLITS_DEPLOYER_NONCE = 0;
 
 // Creation Code
 bytes constant SPLITS_MAIN_CREATION_CODE =
