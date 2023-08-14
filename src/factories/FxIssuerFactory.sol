@@ -23,7 +23,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     /// @dev Initializes registries and implementation contracts
     constructor(address _implementation) {
         implementation = _implementation;
-        emit ImplementationUpdate(msg.sender, _implementation);
+        emit ImplementationUpdated(msg.sender, _implementation);
     }
 
     /// @inheritdoc IFxIssuerFactory
@@ -50,12 +50,12 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     /// @inheritdoc IFxIssuerFactory
     function setConfig(ConfigInfo calldata _configInfo) external onlyOwner {
         configInfo = _configInfo;
-        emit ConfigUpdate(msg.sender, _configInfo);
+        emit ConfigUpdated(msg.sender, _configInfo);
     }
 
     /// @inheritdoc IFxIssuerFactory
     function setImplementation(address _implementation) external onlyOwner {
         implementation = _implementation;
-        emit ImplementationUpdate(msg.sender, _implementation);
+        emit ImplementationUpdated(msg.sender, _implementation);
     }
 }
