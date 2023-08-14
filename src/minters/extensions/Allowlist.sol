@@ -4,7 +4,7 @@ pragma solidity ^0.8.18;
 import {MerkleProof} from "openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import {IDelegateCash} from "src/interfaces/IDelegateCash.sol";
 
-contract MerkleAllowlist {
+contract Allowlist {
     address public constant delegateRegistry = 0x00000000000076A84feF008CDAbe6409d2FE638B;
     mapping(address => bytes32) public merkleRoots;
     mapping(address => mapping(uint256 => uint256)) public redeemedBitMaps;
