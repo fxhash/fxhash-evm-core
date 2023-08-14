@@ -16,31 +16,27 @@ contract FxRandomizer is IFxRandomizer {
         uint256 revealBlock;
     }
 
-    RandomnessRequest[65_535] public requests;
+    uint256 internal constant RING_BUFFER_SIZE = 65_535;
+    RandomnessRequest[RING_BUFFER_SIZE] public requests;
 
     uint256 internal nextRequestIndex;
     uint256 internal nextFulfillIndex;
     uint256 internal revealDelay;
-
-    uint256 internal tipAmount;
-    uint256 internal mevLoot;
 
     /**
      * @notice Requests a seed for a given token ID
      * @param _tokenId The ID of the token to request a seed for
      */
     function requestSeed(uint256 _tokenId) external {
-        uint256 balance;
-        require(balance - mevLoot > tipAmount, "not sufficient");
-        mevLoot = balance;
-        requests[nextRequestIndex++] =
-            RandomnessRequest(msg.sender, _tokenId, block.number + revealDelay);
-        if (nextRequestIndex > 65_535) nextRequestIndex = 0;
+        uint256 index = nextRequestIndex % RING_BUFFER_SIZE;
+        requests[index] = RandomnessRequest(msg.sender, _tokenId, block.number + revealDelay);
+        nextRequestIndex++;
     }
 
     function fulfillRandomness() external {
-        RandomnessRequest storage request = requests[nextFulfillIndex++];
-        if (nextFulfillIndex > 65_535) nextFulfillIndex = 0;
+        uint256 index = nextFulfillIndex % RING_BUFFER_SIZE;
+        RandomnessRequest storage request = requests[index];
+        nextFulfillIndex++;
         // Generate a pseudo-random seed using the block hash, sender address, and token ID
         address token = request.requester;
         uint256 tokenId = request.tokenId;
@@ -54,6 +50,5 @@ contract FxRandomizer is IFxRandomizer {
         bytes32 seed =
             keccak256(bytes.concat(keccak256(abi.encode(blockhash(revealBlock), token, tokenId))));
         ISeedConsumer(token).fulfillSeedRequest(tokenId, seed);
-        /// check tip and payout
     }
 }
