@@ -14,5 +14,5 @@ interface IFxTokenRenderer {
         bytes calldata _fxParams,
         HTMLRequest calldata _animationURL,
         HTMLRequest calldata _attributes
-    ) external view returns (string memory);
+    ) external view returns (bytes memory);
 }
