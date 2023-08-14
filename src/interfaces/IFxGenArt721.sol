@@ -31,12 +31,14 @@ struct ProjectInfo {
 
 /**
  * @param baseURI Base URI of metadata pointer
+ * @param imageURI Image URI of token pointer
  * @param animation List of HTML head and body tags for building onchain scripts
- * @param attributes List of key value pairs for token attributes
+ * @param attributes List of HTML head and body tags for building onchain attributes
  */
 struct TokenData {
     string baseURI;
-    HTMLRequest animationURL;
+    string imageURI;
+    HTMLRequest animation;
     HTMLRequest attributes;
 }
 

@@ -32,14 +32,14 @@ contract FxTokenRenderer is IFxTokenRenderer {
         uint256 _tokenId,
         bytes32 _seed,
         bytes calldata _fxParams,
-        HTMLRequest calldata _animationURL,
+        HTMLRequest calldata _animation,
         HTMLRequest calldata _attributes
     ) public view returns (bytes memory) {
-        bytes memory animationURL = getEncodedHTML(_tokenId, _seed, _fxParams, _animationURL);
+        bytes memory animation = getEncodedHTML(_tokenId, _seed, _fxParams, _animation);
         bytes memory attributes = getEncodedHTML(_tokenId, _seed, _fxParams, _attributes);
 
         return
-            abi.encodePacked('"animation_url":"', animationURL, '","attributes":"', attributes, '"');
+            abi.encodePacked('"animation_url":"', animation, '","attributes":"', attributes, '"}');
     }
 
     function getEncodedHTML(
