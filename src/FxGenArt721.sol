@@ -6,10 +6,10 @@ import {
     ERC721URIStorageUpgradeable,
     ERC721Upgradeable
 } from "openzeppelin-upgradeable/contracts/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
-import {HTMLRequest} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {
     IFxGenArt721,
+    HTMLRequest,
     IssuerInfo,
     GenArtInfo,
     ProjectInfo,
@@ -161,13 +161,13 @@ contract FxGenArt721 is
     function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
         _requireMinted(_tokenId);
         if (issuerInfo.projectInfo.codexId != SCRIPTY) {
-            string memory baseURI = issuerInfo.projectInfo.tokenMetadata.baseURI;
+            string memory baseURI = issuerInfo.projectInfo.metadataInfo.baseURI;
             return string.concat(baseURI, _tokenId.toString());
         } else {
             bytes32 seed = genArtInfo[uint96(_tokenId)].seed;
             bytes memory fxParams = genArtInfo[uint96(_tokenId)].fxParams;
-            HTMLRequest memory animationURL = issuerInfo.projectInfo.tokenMetadata.animation;
-            HTMLRequest memory attributes = issuerInfo.projectInfo.tokenMetadata.attributes;
+            HTMLRequest memory animationURL = issuerInfo.projectInfo.metadataInfo.animation;
+            HTMLRequest memory attributes = issuerInfo.projectInfo.metadataInfo.attributes;
             bytes memory onchainData = IFxTokenRenderer(renderer).renderOnchain(
                 _tokenId, seed, fxParams, animationURL, attributes
             );

@@ -19,23 +19,23 @@ struct IssuerInfo {
  * @param codexId ID of codex info
  * @param supply Maximum supply of tokens
  * @param contractURI Contract URI of project
- * @param tokenMetadata Token metadata information
+ * @param metadataInfo Metadata information of tokens
  */
 struct ProjectInfo {
     bool enabled;
     uint120 codexId;
     uint128 supply;
     string contractURI;
-    TokenMetadata tokenMetadata;
+    MetadataInfo metadataInfo;
 }
 
 /**
- * @param baseURI Base URI of metadata pointer
- * @param imageURI Image URI of token pointer
- * @param animation List of HTML head and body tags for building onchain scripts
- * @param attributes List of HTML head and body tags for building onchain attributes
+ * @param baseURI URI pointer of collection metadata
+ * @param imageURI URI pointer of collection images
+ * @param animation List of HTML script tags for building token animations onchain
+ * @param attributes List of HTML script tags for building token attributes ochain
  */
-struct TokenMetadata {
+struct MetadataInfo {
     string baseURI;
     string imageURI;
     HTMLRequest animation;
