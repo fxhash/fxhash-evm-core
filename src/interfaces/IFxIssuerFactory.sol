@@ -29,7 +29,7 @@ interface IFxIssuerFactory {
     /**
      * @notice Error thrown when primary receiver is zero address
      */
-    error InvalidReceiver();
+    error InvalidPrimaryReceiver();
 
     /**
      * @notice Event emitted when new Generative Art project is created

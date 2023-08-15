@@ -9,11 +9,11 @@ import {
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {
     IFxGenArt721,
+    GenArtInfo,
     HTMLRequest,
     IssuerInfo,
-    GenArtInfo,
-    ProjectInfo,
     MintInfo,
+    ProjectInfo,
     ReserveInfo
 } from "src/interfaces/IFxGenArt721.sol";
 import {IFxTokenRenderer} from "src/interfaces/IFxTokenRenderer.sol";
@@ -30,8 +30,8 @@ import "src/utils/Constants.sol";
  */
 contract FxGenArt721 is
     IFxGenArt721,
-    ERC721URIStorageUpgradeable,
     OwnableUpgradeable,
+    ERC721URIStorageUpgradeable,
     FxRoyaltyManager
 {
     using Strings for uint256;
@@ -71,14 +71,14 @@ contract FxGenArt721 is
     // |░░░░░░░░░░░░░░░░░░░░░  CONSTRUCTOR  ░░░░░░░░░░░░░░░░░░░░░░|
     // |----------------------------------------------------------|
 
-    /// @dev Initializes registry contracts
+    /// @dev Sets core registry contracts
     constructor(address _contractRegistry, address _roleRegistry) {
         contractRegistry = _contractRegistry;
         roleRegistry = _roleRegistry;
     }
 
     // |----------------------------------------------------------|
-    // |░░░░░░░░░░░░░░░░░░░░░  INITIALIZATE  ░░░░░░░░░░░░░░░░░░░░░|
+    // |░░░░░░░░░░░░░░░░░░░░  INITIALIZATION  ░░░░░░░░░░░░░░░░░░░░|
     // |----------------------------------------------------------|
 
     /// @inheritdoc IFxGenArt721

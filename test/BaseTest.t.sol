@@ -4,8 +4,8 @@ pragma solidity 0.8.20;
 import {FxContractRegistry} from "src/registries/FxContractRegistry.sol";
 import {
     FxGenArt721,
-    IssuerInfo,
     GenArtInfo,
+    IssuerInfo,
     MintInfo,
     ProjectInfo,
     ReserveInfo
@@ -15,8 +15,8 @@ import {FxTokenRenderer} from "src/FxTokenRenderer.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 import {Test} from "forge-std/Test.sol";
 
-import "src/utils/Constants.sol";
 import "script/utils/Constants.sol";
+import "src/utils/Constants.sol";
 import "test/utils/Constants.sol";
 
 contract BaseTest is Test {
@@ -45,9 +45,11 @@ contract BaseTest is Test {
 
     // State
     address public fxGenArtProxy;
+    address public owner;
     address public primaryReceiver;
     address payable[] public royaltyReceivers;
     uint96[] public basisPoints;
+    uint96 public projectId;
 
     // Modifiers
     modifier prank(address _caller) {
@@ -59,7 +61,6 @@ contract BaseTest is Test {
     function setUp() public virtual {
         createAccounts();
         deployContracts();
-        configureSettings();
     }
 
     function createAccounts() public virtual {
@@ -75,10 +76,16 @@ contract BaseTest is Test {
     function deployContracts() public virtual {
         fxContractRegistry = new FxContractRegistry();
         fxRoleRegistry = new FxRoleRegistry();
-        fxGenArt721 = new FxGenArt721(address(fxContractRegistry), address(fxRoleRegistry));
+        fxGenArt721 = new FxGenArt721(
+            address(fxContractRegistry),
+            address(fxRoleRegistry)
+        );
         fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721));
-        fxTokenRenderer =
-            new FxTokenRenderer(ETHFS_FILE_STORAGE, SCRIPTY_STORAGE_V2, SCRIPTY_BUILDER_V2);
+        fxTokenRenderer = new FxTokenRenderer(
+            ETHFS_FILE_STORAGE,
+            SCRIPTY_STORAGE_V2,
+            SCRIPTY_BUILDER_V2
+        );
 
         vm.label(address(this), "BaseTest");
         vm.label(address(fxContractRegistry), "FxContractRegistry");
@@ -86,15 +93,6 @@ contract BaseTest is Test {
         vm.label(address(fxGenArt721), "FxGenArt721");
         vm.label(address(fxIssuerFactory), "FxIssuerFactory");
         vm.label(address(fxTokenRenderer), "FxTokenRenderer");
-    }
-
-    function configureSettings() public virtual {
-        fxGenArtProxy = fxIssuerFactory.createProject(
-            msg.sender, primaryReceiver, projectInfo, mintInfo, royaltyReceivers, basisPoints
-        );
-        FxGenArt721(fxGenArtProxy).setRenderer(address(fxTokenRenderer));
-
-        vm.label(address(fxGenArtProxy), "FxGenArtProxy");
     }
 
     function _createUser(string memory _name) internal returns (address user) {

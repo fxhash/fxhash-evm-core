@@ -2,7 +2,7 @@
 pragma solidity 0.8.20;
 
 import {IFxRoyaltyManager, RoyaltyInfo} from "src/interfaces/IFxRoyaltyManager.sol";
-import {MAX_ROYALTY_BASISPOINTS} from "src/utils/Constants.sol";
+import {MAX_ROYALTY_BPS} from "src/utils/Constants.sol";
 
 /// @title FxRoyaltyManager
 /// @notice A contract for managing royalties
@@ -119,7 +119,9 @@ abstract contract FxRoyaltyManager is IFxRoyaltyManager {
         RoyaltyInfo[] memory royalties_ = baseRoyalties;
         uint256 baseLength = baseRoyalties.length;
         uint256 tokenLength = _basisPoints.length;
-        uint96[] memory totalBasisPoints = new uint96[](baseLength + _basisPoints.length);
+        uint96[] memory totalBasisPoints = new uint96[](
+            baseLength + _basisPoints.length
+        );
         for (uint256 i; i < baseLength; i++) {
             totalBasisPoints[i] = royalties_[i].basisPoints;
         }
@@ -172,7 +174,7 @@ abstract contract FxRoyaltyManager is IFxRoyaltyManager {
     function _checkRoyalties(uint96[] memory _basisPoints) internal pure {
         uint256 totalBasisPoints;
         for (uint256 i; i < _basisPoints.length; i++) {
-            if (_basisPoints[i] > MAX_ROYALTY_BASISPOINTS) revert OverMaxBasisPointAllowed();
+            if (_basisPoints[i] > MAX_ROYALTY_BPS) revert OverMaxBasisPointsAllowed();
             totalBasisPoints += _basisPoints[i];
         }
         if (totalBasisPoints >= _feeDenominator()) revert InvalidRoyaltyConfig();
