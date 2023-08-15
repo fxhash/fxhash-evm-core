@@ -156,6 +156,24 @@ interface IFxGenArt721 {
     function publicMint(address _to, uint256 _amount) external;
 
     /**
+     * @notice Sets the new URI of the token metadata
+     * @param _uri Pointer of the metadata
+     */
+    function setBaseURI(string calldata _uri) external;
+
+    /**
+     * @notice Sets the new URI of the contract metadata
+     * @param _uri Pointer of the metadata
+     */
+    function setContractURI(string calldata _uri) external;
+
+    /**
+     * @notice Sets the new URI of the image metadata
+     * @param _uri Pointer of the metadata
+     */
+    function setImageURI(string calldata _uri) external;
+
+    /**
      * @notice Sets the new Renderer contract
      * @param _renderer Address of the Renderer contract
      */

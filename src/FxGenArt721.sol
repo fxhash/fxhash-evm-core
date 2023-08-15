@@ -35,8 +35,8 @@ contract FxGenArt721 is
     FxRoyaltyManager
 {
     using Strings for uint256;
-    /// @inheritdoc IFxGenArt721
 
+    /// @inheritdoc IFxGenArt721
     address public immutable contractRegistry;
     /// @inheritdoc IFxGenArt721
     address public immutable roleRegistry;
@@ -49,34 +49,9 @@ contract FxGenArt721 is
     /// @inheritdoc IFxGenArt721
     mapping(uint96 => GenArtInfo) public genArtInfo;
 
-    // |-------------------------------------------------------------------------------------------|
-    // |░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  STORAGE LAYOUT  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░|
-    // |--------------------|----------------------------------------------|------|--------|-------|
-    // | Name               | Type                                         | Slot | Offset | Bytes |
-    // |--------------------|----------------------------------------------|------|--------|-------|
-    // | _initialized       | uint8                                        | 0    | 0      | 1     |
-    // | _initializing      | bool                                         | 0    | 1      | 1     |
-    // | __gap              | uint256[50]                                  | 1    | 0      | 1600  |
-    // | __gap              | uint256[50]                                  | 51   | 0      | 1600  |
-    // | _name              | string                                       | 101  | 0      | 32    |
-    // | _symbol            | string                                       | 102  | 0      | 32    |
-    // | _owners            | mapping(uint256 => address)                  | 103  | 0      | 32    |
-    // | _balances          | mapping(address => uint256)                  | 104  | 0      | 32    |
-    // | _tokenApprovals    | mapping(uint256 => address)                  | 105  | 0      | 32    |
-    // | _operatorApprovals | mapping(address => mapping(address => bool)) | 106  | 0      | 32    |
-    // | __gap              | uint256[44]                                  | 107  | 0      | 1408  |
-    // | _tokenURIs         | mapping(uint256 => string)                   | 151  | 0      | 32    |
-    // | __gap              | uint256[49]                                  | 152  | 0      | 1568  |
-    // | _owner             | address                                      | 201  | 0      | 20    |
-    // | __gap              | uint256[49]                                  | 202  | 0      | 1568  |
-    // | baseRoyalties      | struct RoyaltyInfo[]                         | 251  | 0      | 32    |
-    // | tokenRoyalties     | mapping(uint256 => struct RoyaltyInfo[])     | 252  | 0      | 32    |
-    // | totalSupply        | uint96                                       | 253  | 0      | 12    |
-    // | renderer           | address                                      | 253  | 12     | 20    |
-    // | issuerInfo         | struct IssuerInfo                            | 254  | 0      | 160   |
-    // | genArtInfo         | mapping(uint96 => struct GenArtInfo)         | 259  | 0      | 32    |
-    // |░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░|
-    // |-------------------------------------------------------------------------------------------|
+    // |----------------------------------------------------------|
+    // |░░░░░░░░░░░░░░░░░░░░░░░  MODIFIERS  ░░░░░░░░░░░░░░░░░░░░░░|
+    // |----------------------------------------------------------|
 
     /// @dev Modifier for restricting calls to only registered contracts
     modifier onlyContract(bytes32 _name) {
@@ -92,11 +67,19 @@ contract FxGenArt721 is
         _;
     }
 
+    // |----------------------------------------------------------|
+    // |░░░░░░░░░░░░░░░░░░░░░  CONSTRUCTOR  ░░░░░░░░░░░░░░░░░░░░░░|
+    // |----------------------------------------------------------|
+
     /// @dev Initializes registry contracts
     constructor(address _contractRegistry, address _roleRegistry) {
         contractRegistry = _contractRegistry;
         roleRegistry = _roleRegistry;
     }
+
+    // |----------------------------------------------------------|
+    // |░░░░░░░░░░░░░░░░░░░░░  INITIALIZATE  ░░░░░░░░░░░░░░░░░░░░░|
+    // |----------------------------------------------------------|
 
     /// @inheritdoc IFxGenArt721
     function initialize(
@@ -120,11 +103,9 @@ contract FxGenArt721 is
         emit ProjectInitialized(_projectInfo, _mintInfo, _primaryReceiver);
     }
 
-    /// @inheritdoc IFxGenArt721
-    function ownerMint(address _to) external onlyOwner {
-        if (issuerInfo.projectInfo.enabled) revert MintActive();
-        _mint(_to, ++totalSupply);
-    }
+    // |----------------------------------------------------------|
+    // |░░░░░░░░░░░░░░░░░░░  PUBLIC FUNCTIONS  ░░░░░░░░░░░░░░░░░░░|
+    // |----------------------------------------------------------|
 
     /// @inheritdoc IFxGenArt721
     function publicMint(address _to, uint256 _amount) external onlyMinter {
@@ -137,6 +118,31 @@ contract FxGenArt721 is
         }
     }
 
+    // |----------------------------------------------------------|
+    // |░░░░░░░░░░░░░░░░░░░░  OWNER FUNCTIONS  ░░░░░░░░░░░░░░░░░░░|
+    // |----------------------------------------------------------|
+
+    /// @inheritdoc IFxGenArt721
+    function ownerMint(address _to) external onlyOwner {
+        if (issuerInfo.projectInfo.enabled) revert MintActive();
+        _mint(_to, ++totalSupply);
+    }
+
+    /// @inheritdoc IFxGenArt721
+    function setBaseURI(string calldata _uri) external onlyOwner {
+        issuerInfo.projectInfo.metadataInfo.baseURI = _uri;
+    }
+
+    /// @inheritdoc IFxGenArt721
+    function setContractURI(string calldata _uri) external onlyOwner {
+        issuerInfo.projectInfo.contractURI = _uri;
+    }
+
+    /// @inheritdoc IFxGenArt721
+    function setImageURI(string calldata _uri) external onlyOwner {
+        issuerInfo.projectInfo.metadataInfo.imageURI = _uri;
+    }
+
     /// @inheritdoc IFxGenArt721
     function setRenderer(address _renderer) external onlyOwner {
         renderer = _renderer;
@@ -147,6 +153,10 @@ contract FxGenArt721 is
         issuerInfo.projectInfo.enabled = !issuerInfo.projectInfo.enabled;
     }
 
+    // |----------------------------------------------------------|
+    // |░░░░░░░░░░░░░░░░░░░░  READ FUNCTIONS  ░░░░░░░░░░░░░░░░░░░░|
+    // |----------------------------------------------------------|
+
     /// @inheritdoc IFxGenArt721
     function contractURI() public view returns (string memory) {
         return issuerInfo.projectInfo.contractURI;
@@ -155,6 +165,16 @@ contract FxGenArt721 is
     /// @inheritdoc IFxGenArt721
     function isMinter(address _minter) public view returns (bool) {
         return issuerInfo.minters[_minter];
+    }
+
+    /// @inheritdoc ERC721URIStorageUpgradeable
+    function supportsInterface(bytes4 _interfaceId)
+        public
+        view
+        override(ERC721URIStorageUpgradeable, FxRoyaltyManager)
+        returns (bool)
+    {
+        return super.supportsInterface(_interfaceId);
     }
 
     /// @inheritdoc ERC721URIStorageUpgradeable
@@ -178,18 +198,12 @@ contract FxGenArt721 is
         }
     }
 
-    /// @inheritdoc ERC721URIStorageUpgradeable
-    function supportsInterface(bytes4 _interfaceId)
-        public
-        view
-        override(ERC721URIStorageUpgradeable, FxRoyaltyManager)
-        returns (bool)
-    {
-        return super.supportsInterface(_interfaceId);
-    }
+    // |----------------------------------------------------------|
+    // |░░░░░░░░░░░░░░░░░░  INTERNAL FUNCTIONS  ░░░░░░░░░░░░░░░░░░|
+    // |----------------------------------------------------------|
 
     /// @dev Registers arbitrary number of minter contracts
-    /// @param _mintInfo List minter contracts and their reserves
+    /// @param _mintInfo List of minter contracts and their reserves
     function _registerMinters(MintInfo[] calldata _mintInfo) internal {
         address minter;
         uint128 totalAllocation;
@@ -218,3 +232,31 @@ contract FxGenArt721 is
         return super._exists(_tokenId);
     }
 }
+
+// |-------------------------------------------------------------------------------------------|
+// |░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  STORAGE LAYOUT  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░|
+// |--------------------|----------------------------------------------|------|--------|-------|
+// | Name               | Type                                         | Slot | Offset | Bytes |
+// | _initialized       | uint8                                        | 0    | 0      | 1     |
+// | _initializing      | bool                                         | 0    | 1      | 1     |
+// | __gap              | uint256[50]                                  | 1    | 0      | 1600  |
+// | __gap              | uint256[50]                                  | 51   | 0      | 1600  |
+// | _name              | string                                       | 101  | 0      | 32    |
+// | _symbol            | string                                       | 102  | 0      | 32    |
+// | _owners            | mapping(uint256 => address)                  | 103  | 0      | 32    |
+// | _balances          | mapping(address => uint256)                  | 104  | 0      | 32    |
+// | _tokenApprovals    | mapping(uint256 => address)                  | 105  | 0      | 32    |
+// | _operatorApprovals | mapping(address => mapping(address => bool)) | 106  | 0      | 32    |
+// | __gap              | uint256[44]                                  | 107  | 0      | 1408  |
+// | _tokenURIs         | mapping(uint256 => string)                   | 151  | 0      | 32    |
+// | __gap              | uint256[49]                                  | 152  | 0      | 1568  |
+// | _owner             | address                                      | 201  | 0      | 20    |
+// | __gap              | uint256[49]                                  | 202  | 0      | 1568  |
+// | baseRoyalties      | struct RoyaltyInfo[]                         | 251  | 0      | 32    |
+// | tokenRoyalties     | mapping(uint256 => struct RoyaltyInfo[])     | 252  | 0      | 32    |
+// | totalSupply        | uint96                                       | 253  | 0      | 12    |
+// | renderer           | address                                      | 253  | 12     | 20    |
+// | issuerInfo         | struct IssuerInfo                            | 254  | 0      | 320   |
+// | genArtInfo         | mapping(uint96 => struct GenArtInfo)         | 264  | 0      | 32    |
+// |░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░|
+// |-------------------------------------------------------------------------------------------|
