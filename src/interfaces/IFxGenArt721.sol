@@ -87,7 +87,7 @@ interface IFxGenArt721 {
     error InvalidReserveTime();
 
     /**
-     * @notice Error thrown minting is active
+     * @notice Error thrown when minting is active
      */
     error MintActive();
 
@@ -209,9 +209,7 @@ interface IFxGenArt721 {
      * @param _tokenId ID of the token
      * @return FxParams and Seed
      */
-    function genArtInfo(
-        uint256 _tokenId
-    ) external view returns (bytes memory, bytes32);
+    function genArtInfo(uint256 _tokenId) external view returns (bytes memory, bytes32);
 
     /**
      * @notice Gets the authorization status for the given minter
