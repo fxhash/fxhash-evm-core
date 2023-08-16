@@ -39,7 +39,7 @@ contract FxTokenRenderer is IFxTokenRenderer {
         bytes memory attributes = getEncodedHTML(_tokenId, _seed, _fxParams, _attributes);
 
         return
-            abi.encodePacked('"animation_url":"', animation, '","attributes":"', attributes, '"}');
+            abi.encodePacked('"animation_url":"', animation, '","attributes":["', attributes, '"]}');
     }
 
     function getEncodedHTML(

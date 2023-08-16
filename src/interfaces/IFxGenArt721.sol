@@ -107,6 +107,11 @@ interface IFxGenArt721 {
     error UnauthorizedMinter();
 
     /**
+     * @notice Error thrown when caller does not have given role
+     */
+    error UnauthorizedAccount();
+
+    /**
      * @notice Error thrown when minter is not registered on token contract
      */
     error UnregisteredMinter();
