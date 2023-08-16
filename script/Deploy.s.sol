@@ -30,7 +30,10 @@ contract Deploy is Script {
     address payable[] public royaltyReceivers;
     uint96[] public basisPoints;
 
-    function setUp() public virtual {}
+    function setUp() public virtual {
+        owner = msg.sender;
+        primaryReceiver = msg.sender;
+    }
 
     function run() public virtual {
         vm.startBroadcast();
@@ -42,15 +45,19 @@ contract Deploy is Script {
     function _deployContracts() internal {
         fxContractRegistry = new FxContractRegistry();
         fxRoleRegistry = new FxRoleRegistry();
-        fxGenArt721 = new FxGenArt721(address(fxContractRegistry), address(fxRoleRegistry));
+        fxGenArt721 = new FxGenArt721(
+            address(fxContractRegistry),
+            address(fxRoleRegistry)
+        );
         fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721));
-        fxTokenRenderer =
-            new FxTokenRenderer(ETHFS_FILE_STORAGE, SCRIPTY_STORAGE_V2, SCRIPTY_BUILDER_V2);
+        fxTokenRenderer = new FxTokenRenderer(
+            ETHFS_FILE_STORAGE,
+            SCRIPTY_STORAGE_V2,
+            SCRIPTY_BUILDER_V2
+        );
     }
 
     function _configureSettings() internal {
-        owner = msg.sender;
-        primaryReceiver = msg.sender;
         fxGenArtProxy = fxIssuerFactory.createProject(
             owner, primaryReceiver, projectInfo, mintInfo, royaltyReceivers, basisPoints
         );

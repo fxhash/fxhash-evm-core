@@ -17,11 +17,6 @@ bytes32 constant CREATOR_ROLE = keccak256("CREATOR_ROLE");
 bytes32 constant MINTER_ROLE = keccak256("MINTER_ROLE");
 bytes32 constant MODERATOR_ROLE = keccak256("MODERATOR_ROLE");
 
-// Codex
-uint120 constant IPFS = 1;
-uint120 constant ARWEAVE = 2;
-uint120 constant SCRIPTY = 3;
-
 // Authorizations
 uint16 constant TOKEN_AUTH = 10;
 uint16 constant USER_AUTH = 20;

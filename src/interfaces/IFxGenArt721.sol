@@ -16,22 +16,22 @@ struct IssuerInfo {
 
 /**
  * @param enabled Active status of project
- * @param codexId ID of codex info
+ * @param onchain Onchain status of project
  * @param supply Maximum supply of tokens
  * @param contractURI Contract URI of project
  * @param metadataInfo Metadata information of tokens
  */
 struct ProjectInfo {
     bool enabled;
-    uint120 codexId;
-    uint128 supply;
+    bool onchain;
+    uint240 supply;
     string contractURI;
     MetadataInfo metadataInfo;
 }
 
 /**
- * @param baseURI URI pointer of collection metadata
- * @param imageURI URI pointer of collection images
+ * @param baseURI CID hash of collection metadata
+ * @param imageURI CID hash of collection images
  * @param animation List of HTML script tags for building token animations onchain
  * @param attributes List of HTML script tags for building token attributes ochain
  */
@@ -43,7 +43,7 @@ struct MetadataInfo {
 }
 
 /**
- * @param fxParams Randon sequence of string bytes in fixed length
+ * @param fxParams Randon sequence of fixed-length bytes
  * @param seed Hash of revealed seed
  */
 struct GenArtInfo {
@@ -185,9 +185,14 @@ interface IFxGenArt721 {
     function setRenderer(address _renderer) external;
 
     /**
-     * @notice Enables and disables the public mint
+     * @notice Toggles public mint from enabled to disabled and vice versa
      */
     function toggleMint() external;
+
+    /**
+     * @notice Toggles token metadata from offchain to onchain and vice versa
+     */
+    function toggleOnchain() external;
 
     /**
      * @notice Returns the address of the ContractRegistry contract
@@ -204,7 +209,9 @@ interface IFxGenArt721 {
      * @param _tokenId ID of the token
      * @return FxParams and Seed
      */
-    function genArtInfo(uint96 _tokenId) external view returns (bytes memory, bytes32);
+    function genArtInfo(
+        uint256 _tokenId
+    ) external view returns (bytes memory, bytes32);
 
     /**
      * @notice Gets the authorization status for the given minter
@@ -218,6 +225,11 @@ interface IFxGenArt721 {
      * @return ProjectInfo and splitter contract address
      */
     function issuerInfo() external view returns (ProjectInfo memory, address);
+
+    /**
+     * @notice Returns the remaining supply of tokens left to mint
+     */
+    function remainingSupply() external view returns (uint256);
 
     /**
      * @notice Returns the address of the Renderer contract

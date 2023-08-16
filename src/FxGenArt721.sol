@@ -2,20 +2,9 @@
 pragma solidity 0.8.20;
 
 import {Base64} from "openzeppelin/contracts/utils/Base64.sol";
-import {
-    ERC721URIStorageUpgradeable,
-    ERC721Upgradeable
-} from "openzeppelin-upgradeable/contracts/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
+import {ERC721URIStorageUpgradeable, ERC721Upgradeable} from "openzeppelin-upgradeable/contracts/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
-import {
-    IFxGenArt721,
-    GenArtInfo,
-    HTMLRequest,
-    IssuerInfo,
-    MintInfo,
-    ProjectInfo,
-    ReserveInfo
-} from "src/interfaces/IFxGenArt721.sol";
+import {IFxGenArt721, GenArtInfo, HTMLRequest, IssuerInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxTokenRenderer} from "src/interfaces/IFxTokenRenderer.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 import {FxRoyaltyManager} from "src/FxRoyaltyManager.sol";
@@ -47,7 +36,7 @@ contract FxGenArt721 is
     /// @inheritdoc IFxGenArt721
     IssuerInfo public issuerInfo;
     /// @inheritdoc IFxGenArt721
-    mapping(uint96 => GenArtInfo) public genArtInfo;
+    mapping(uint256 => GenArtInfo) public genArtInfo;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   MODIFIERS
@@ -55,7 +44,9 @@ contract FxGenArt721 is
 
     /// @dev Modifier for restricting calls to only registered contracts
     modifier onlyContract(bytes32 _name) {
-        if (msg.sender != IFxContractRegistry(contractRegistry).contracts(_name)) {
+        if (
+            msg.sender != IFxContractRegistry(contractRegistry).contracts(_name)
+        ) {
             revert UnauthorizedContract();
         }
         _;
@@ -69,7 +60,8 @@ contract FxGenArt721 is
 
     /// @dev Modifier for restricting calls to only authorized accounts with given roles
     modifier onlyRole(bytes32 _role) {
-        if (!FxRoleRegistry(roleRegistry).hasRole(_role, msg.sender)) revert UnauthorizedAccount();
+        if (!FxRoleRegistry(roleRegistry).hasRole(_role, msg.sender))
+            revert UnauthorizedAccount();
         _;
     }
 
@@ -116,7 +108,7 @@ contract FxGenArt721 is
     /// @inheritdoc IFxGenArt721
     function publicMint(address _to, uint256 _amount) external onlyMinter {
         if (!issuerInfo.projectInfo.enabled) revert MintInactive();
-        for (uint256 i; i < _amount;) {
+        for (uint256 i; i < _amount; ) {
             _mint(_to, ++totalSupply);
             unchecked {
                 ++i;
@@ -134,7 +126,9 @@ contract FxGenArt721 is
     }
 
     /// @inheritdoc IFxGenArt721
-    function setContractURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
+    function setContractURI(
+        string calldata _uri
+    ) external onlyRole(ADMIN_ROLE) {
         issuerInfo.projectInfo.contractURI = _uri;
     }
 
@@ -163,13 +157,23 @@ contract FxGenArt721 is
         issuerInfo.projectInfo.enabled = !issuerInfo.projectInfo.enabled;
     }
 
+    /// @inheritdoc IFxGenArt721
+    function toggleOnchain() external onlyOwner {
+        issuerInfo.projectInfo.onchain = !issuerInfo.projectInfo.onchain;
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                 READ FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IFxGenArt721
-    function contractURI() public view returns (string memory) {
+    function contractURI() external view returns (string memory) {
         return issuerInfo.projectInfo.contractURI;
+    }
+
+    /// @inheritdoc IFxGenArt721
+    function remainingSupply() external view returns (uint256) {
+        return issuerInfo.projectInfo.supply - totalSupply;
     }
 
     /// @inheritdoc IFxGenArt721
@@ -178,7 +182,9 @@ contract FxGenArt721 is
     }
 
     /// @inheritdoc ERC721URIStorageUpgradeable
-    function supportsInterface(bytes4 _interfaceId)
+    function supportsInterface(
+        bytes4 _interfaceId
+    )
         public
         view
         override(ERC721URIStorageUpgradeable, FxRoyaltyManager)
@@ -188,23 +194,39 @@ contract FxGenArt721 is
     }
 
     /// @inheritdoc ERC721URIStorageUpgradeable
-    function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
+    function tokenURI(
+        uint256 _tokenId
+    ) public view virtual override returns (string memory) {
         _requireMinted(_tokenId);
-        if (issuerInfo.projectInfo.codexId != SCRIPTY) {
+        if (!issuerInfo.projectInfo.onchain) {
             string memory baseURI = issuerInfo.projectInfo.metadataInfo.baseURI;
             return string.concat(baseURI, _tokenId.toString());
         } else {
-            bytes32 seed = genArtInfo[uint96(_tokenId)].seed;
-            bytes memory fxParams = genArtInfo[uint96(_tokenId)].fxParams;
-            HTMLRequest memory animationURL = issuerInfo.projectInfo.metadataInfo.animation;
-            HTMLRequest memory attributes = issuerInfo.projectInfo.metadataInfo.attributes;
+            bytes32 seed = genArtInfo[_tokenId].seed;
+            bytes memory fxParams = genArtInfo[_tokenId].fxParams;
+            HTMLRequest memory animationURL = issuerInfo
+                .projectInfo
+                .metadataInfo
+                .animation;
+            HTMLRequest memory attributes = issuerInfo
+                .projectInfo
+                .metadataInfo
+                .attributes;
             bytes memory onchainData = IFxTokenRenderer(renderer).renderOnchain(
-                _tokenId, seed, fxParams, animationURL, attributes
+                _tokenId,
+                seed,
+                fxParams,
+                animationURL,
+                attributes
             );
 
-            return string(
-                abi.encodePacked("data:application/json;base64,", Base64.encode(onchainData))
-            );
+            return
+                string(
+                    abi.encodePacked(
+                        "data:application/json;base64,",
+                        Base64.encode(onchainData)
+                    )
+                );
         }
     }
 
@@ -224,16 +246,20 @@ contract FxGenArt721 is
             if (!FxRoleRegistry(roleRegistry).hasRole(MINTER_ROLE, minter)) {
                 revert UnauthorizedMinter();
             }
-            if (reserveInfo.startTime >= reserveInfo.endTime) revert InvalidReserveTime();
+            if (reserveInfo.startTime >= reserveInfo.endTime)
+                revert InvalidReserveTime();
             issuerInfo.minters[minter] = true;
             totalAllocation += reserveInfo.allocation;
         }
 
-        if (totalAllocation > issuerInfo.projectInfo.supply) revert AllocationExceeded();
+        if (totalAllocation > issuerInfo.projectInfo.supply)
+            revert AllocationExceeded();
     }
 
     /// @inheritdoc ERC721Upgradeable
-    function _exists(uint256 _tokenId)
+    function _exists(
+        uint256 _tokenId
+    )
         internal
         view
         override(ERC721Upgradeable, FxRoyaltyManager)
