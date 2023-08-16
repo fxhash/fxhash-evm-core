@@ -32,7 +32,7 @@ contract Deploy is Script {
 
     function setUp() public virtual {
         owner = msg.sender;
-        primaryReceiver = msg.sender;
+        _mock0xSplits();
     }
 
     function run() public virtual {
@@ -65,13 +65,13 @@ contract Deploy is Script {
     }
 
     function _mock0xSplits() internal {
-        bytes memory splitMainBytecode = abi.encodePacked(SPLITS_MAIN_CREATION_CODE, abi.encode());
+        bytes memory splitsMainBytecode = abi.encodePacked(SPLITS_MAIN_CREATION_CODE, abi.encode());
         address deployedAddress_;
-        // original deployer + original nonce used at deployment
-        vm.startPrank(SPLITS_DEPLOYER);
+        vm.prank(SPLITS_DEPLOYER);
         vm.setNonce(SPLITS_DEPLOYER, SPLITS_DEPLOYER_NONCE);
         assembly {
-            deployedAddress_ := create(0, add(splitMainBytecode, 32), mload(splitMainBytecode))
+            deployedAddress_ := create(0, add(splitsMainBytecode, 32), mload(splitsMainBytecode))
         }
+        primaryReceiver = deployedAddress_;
     }
 }

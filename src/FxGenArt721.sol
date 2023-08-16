@@ -206,10 +206,10 @@ contract FxGenArt721 is
         } else {
             bytes32 seed = genArtInfo[_tokenId].seed;
             bytes memory fxParams = genArtInfo[_tokenId].fxParams;
-            HTMLRequest memory animationURL = issuerInfo.projectInfo.metadataInfo.animation;
+            HTMLRequest memory animation = issuerInfo.projectInfo.metadataInfo.animation;
             HTMLRequest memory attributes = issuerInfo.projectInfo.metadataInfo.attributes;
             bytes memory onchainData = IFxTokenRenderer(renderer).renderOnchain(
-                _tokenId, seed, fxParams, animationURL, attributes
+                _tokenId, seed, fxParams, animation, attributes
             );
 
             return string(

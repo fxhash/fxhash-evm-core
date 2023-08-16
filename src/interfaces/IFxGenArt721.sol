@@ -15,7 +15,7 @@ struct IssuerInfo {
 }
 
 /**
- * @param enabled Active status of project
+ * @param enabled Minting status of project
  * @param onchain Onchain status of project
  * @param supply Maximum supply of tokens
  * @param contractURI Contract URI of project
