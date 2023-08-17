@@ -8,7 +8,6 @@ import {
 import {
     toDaysWadUnsafe, toWadUnsafe, fromDaysWadUnsafe
 } from "solmate/src/utils/SignedWadMath.sol";
-import {console} from "forge-std/Test.sol";
 
 contract CalculateExponentialDecay is ExponentialDecayMathTest {
     function setUp() public override {
@@ -19,7 +18,6 @@ contract CalculateExponentialDecay is ExponentialDecayMathTest {
 
     function test_calculateExponentialDecay() public {
         uint256 result = calculateExponentialDecay(initialPrice, percentDecay, timeSinceStart);
-        console.log(result);
         assertLt(result, uint256(initialPrice), "Price didnt decrease");
     }
 }
