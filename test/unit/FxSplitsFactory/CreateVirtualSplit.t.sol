@@ -4,7 +4,6 @@ pragma solidity ^0.8.18;
 import {FxSplitsFactoryTest} from "test/unit/FxSplitsFactory/FxSplitsFactoryTest.sol";
 import {SPLITS_MAIN} from "script/utils/Constants.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
-import {Lib0xSplits} from "src/lib/Lib0xSplits.sol";
 
 contract CreateVirtualSplit is FxSplitsFactoryTest {
     function setUp() public override {
