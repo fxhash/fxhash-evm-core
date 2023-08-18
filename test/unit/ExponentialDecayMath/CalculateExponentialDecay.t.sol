@@ -11,13 +11,13 @@ import {
 
 contract CalculateExponentialDecay is ExponentialDecayMathTest {
     function setUp() public override {
-        timeSinceStart = toDaysWadUnsafe(1);
-        initialPrice = 69.42e18; // initial price scaled by 1e18.
-        percentDecay = 0.31e18; // Price decay percent per Unit time scaled by 1e18.
+        timeSinceStart = toDaysWadUnsafe(1 days);
+        initialPrice = 100e18; // initial price scaled by 1e18.
+        percentDecay = 0.01e18; // Price decay percent per Unit time scaled by 1e18.
     }
 
     function test_calculateExponentialDecay() public {
         uint256 result = calculateExponentialDecay(initialPrice, percentDecay, timeSinceStart);
-        assertLt(result, uint256(initialPrice), "Price didnt decrease");
+        assertLt(result, uint256(initialPrice - initialPrice / 100), "Price didnt decrease");
     }
 }
