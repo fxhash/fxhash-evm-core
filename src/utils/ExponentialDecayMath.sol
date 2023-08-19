@@ -19,7 +19,7 @@ int256 constant ONE_WAD = 1e18;
  * @param startingPrice The starting price.
  * @param timeElapsed Time passed since the initial price began decaying.
  * @param wadDecayRate The percent price decays per unit of time (1 day), scaled by 1e18.
- * @return The price remaining after some amount of decay, scaled by 1e18.
+ * @return The price remaining at the amount of time elapsed.
  */
 function calculateExponentialDecay(uint256 startingPrice, uint256 timeElapsed, int256 wadDecayRate)
     pure
