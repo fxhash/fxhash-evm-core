@@ -10,21 +10,23 @@ import {
     toWadUnsafe
 } from "solmate/src/utils/SignedWadMath.sol";
 
-int256 constant WAD = 1e18;
-/// @notice Calculates the remaining price after an amount of exponential decay.
-/// @dev decayConstant must be non-negative
-/// @param initialPrice The starting price.
-/// @param perDayPercentDecay The percent price decays per unit of time, scaled by 1e18.
-/// @param timeSinceStart Time passed since the initial price began decaying.
-/// @return The price remaining after some amount of decay, scaled by 1e18.
+/// @dev Base unit for doing wad math
+int256 constant ONE_WAD = 1e18;
 
-function calculateExponentialDecay(
-    uint256 initialPrice,
-    int256 perDayPercentDecay,
-    uint256 timeSinceStart
-) pure returns (uint256) {
-    int256 decayConstant = wadLn(WAD - perDayPercentDecay);
-    int256 wadDays = toDaysWadUnsafe(timeSinceStart);
-    int256 wadPrice = toWadUnsafe(initialPrice);
-    return uint256(wadMul(wadPrice, wadExp(unsafeWadMul(decayConstant, wadDays))) / WAD);
+/**
+ * @notice Calculates the remaining amount based on a rate of exponential decay and duration.
+ * @dev decayConstant must be non-negative
+ * @param startingPrice The starting price.
+ * @param timeElapsed Time passed since the initial price began decaying.
+ * @param wadDecayRate The percent price decays per unit of time (1 day), scaled by 1e18.
+ * @return The price remaining after some amount of decay, scaled by 1e18.
+ */
+function calculateExponentialDecay(uint256 startingPrice, uint256 timeElapsed, int256 wadDecayRate)
+    pure
+    returns (uint256)
+{
+    int256 wadDecayConstant = wadLn(ONE_WAD - wadDecayRate);
+    int256 wadDays = toDaysWadUnsafe(timeElapsed);
+    int256 wadPrice = toWadUnsafe(startingPrice);
+    return uint256(wadMul(wadPrice, wadExp(unsafeWadMul(wadDecayConstant, wadDays))) / ONE_WAD);
 }

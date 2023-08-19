@@ -18,7 +18,7 @@ contract CalculateExponentialDecay is ExponentialDecayMathTest {
     }
 
     function test_calculateExponentialDecay() public {
-        uint256 result = calculateExponentialDecay(initialPrice, percentDecay, timeSinceStart);
+        uint256 result = calculateExponentialDecay(initialPrice, timeSinceStart, percentDecay);
         console.log(result);
         console.log(100 ether);
         assertLt(result, uint256(initialPrice - initialPrice / 100), "Price didnt decrease");
