@@ -11,12 +11,14 @@ contract SetRoleAdmin is FxRoleRegistryTest {
 
     function test_SetRoleAdmin() public {
         registry.setRoleAdmin(ADMIN_ROLE);
+        assertTrue(registry.hasRole(ADMIN_ROLE, address(this)));
     }
 
     function test_RevertsWhen_NotDefaultAdmin() public {
         vm.prank(address(420));
         vm.expectRevert();
         registry.setRoleAdmin(ADMIN_ROLE);
+        assertFalse(registry.hasRole(ADMIN_ROLE, address(420)));
     }
 
     function test_RevertsWhen_NotRoleAdmin() public {
@@ -24,5 +26,6 @@ contract SetRoleAdmin is FxRoleRegistryTest {
         vm.prank(address(420));
         vm.expectRevert();
         registry.setRoleAdmin(ADMIN_ROLE);
+        assertFalse(registry.hasRole(ADMIN_ROLE, address(420)));
     }
 }
