@@ -17,7 +17,8 @@ contract CreateSplit is FxSplitsFactoryTest {
     }
 
     function test_FirstWithdraw() public {
-        address libPredicted = Lib0xSplits.predictDeterministicAddress(accounts, allocations);
+        address libPredicted =
+            ISplitsMain(SPLITS_MAIN).predictImmutableSplitAddress(accounts, allocations, 0);
         vm.deal(libPredicted, 1 ether);
         ISplitsMain(SPLITS_MAIN).createSplit(accounts, allocations, 0, address(0));
         ISplitsMain(SPLITS_MAIN).distributeETH(libPredicted, accounts, allocations, 0, address(0));

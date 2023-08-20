@@ -5,7 +5,6 @@ import "test/BaseTest.t.sol";
 
 import {FxSplitsFactory} from "src/factories/FxSplitsFactory.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
-import {Lib0xSplits} from "src/lib/Lib0xSplits.sol";
 
 contract FxSplitsFactoryTest is BaseTest {
     error InvalidSplit__TooFewAccounts(uint256 accountsLength);
