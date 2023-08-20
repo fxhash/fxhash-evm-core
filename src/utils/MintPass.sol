@@ -2,20 +2,20 @@
 pragma solidity ^0.8.18;
 
 import {ECDSA} from "openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import {BitMaps, BitMap} from "openzeppelin/contracts/utils/structs/BitMaps.sol";
+import {BitMaps} from "openzeppelin/contracts/utils/structs/BitMaps.sol";
 
 contract MintPass {
     using ECDSA for bytes32;
-    using BitMaps for BitMap;
+    using BitMaps for BitMaps.BitMap;
 
-    address internal constant FXHASH_AUTHORITY;
-    mapping(address => BitMap) public redeemedBitMaps;
+    address internal FXHASH_AUTHORITY;
+    mapping(address => BitMaps.BitMap) internal redeemedBitMaps;
 
     error AlreadyClaimed();
     error InvalidSig();
 
     function isClaimed(address _token, uint256 _index) public view returns (bool) {
-        return reeemedBitMaps[_token].get(_index);
+        return redeemedBitMaps[_token].get(_index);
     }
 
     function _claimMintPass(
