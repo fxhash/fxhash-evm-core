@@ -38,7 +38,7 @@ contract MintPass is EIP712 {
     /**
      * @dev Checks if a token at a specific index has been claimed.
      * @param _token The address of the token contract.
-     * @param _index The index of the token.
+     * @param _index The index of the mint pass.
      * @return A boolean indicating whether the token has been claimed or not.
      */
     function isClaimed(address _token, uint256 _index) public view returns (bool) {
@@ -48,9 +48,9 @@ contract MintPass is EIP712 {
     /**
      * @dev Internal function to claim a mint pass.
      * @param _token The address of the token contract.
-     * @param _index The index of the token.
+     * @param _index The index of the mint pass.
      * @param _user The address of the user claiming the mint pass.
-     * @param _mintCode The mint code for verification.
+     * @param _mintCode The mint code which can have additional data for the mint.
      * @param _signature The signature of the mint pass claim.
      */
     function _claimMintPass(
@@ -70,9 +70,9 @@ contract MintPass is EIP712 {
 
     /**
      * @dev Internal function to generate the typed data hash.
-     * @param _index The index of the token.
+     * @param _index The index of the mint pass.
      * @param _user The address of the user claiming the mint pass.
-     * @param _mintCode The mint code for verification.
+     * @param _mintCode The mint code which can have additional data for the mint.
      * @return The typed data hash.
      */
     function _genTypedDataHash(uint256 _index, address _user, bytes calldata _mintCode)
