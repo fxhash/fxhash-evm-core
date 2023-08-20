@@ -91,9 +91,9 @@ contract BaseTest is Test {
 
     function configureSettings() public virtual {
         fxGenArtProxy = fxIssuerFactory.createProject(
-            msg.sender, primaryReceiver, projectInfo, mintInfo, royaltyReceivers, basisPoints
+            creator, primaryReceiver, projectInfo, mintInfo, royaltyReceivers, basisPoints
         );
-        vm.prank(msg.sender);
+        vm.prank(creator);
         FxGenArt721(fxGenArtProxy).setRenderer(address(fxTokenRenderer));
 
         vm.label(address(fxGenArtProxy), "FxGenArtProxy");
