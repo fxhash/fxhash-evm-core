@@ -70,6 +70,7 @@ contract BaseTest is Test {
         bob = _createUser("bob");
         eve = _createUser("eve");
         susan = _createUser("susan");
+        primaryReceiver = creator;
     }
 
     function deployContracts() public virtual {
@@ -92,6 +93,7 @@ contract BaseTest is Test {
         fxGenArtProxy = fxIssuerFactory.createProject(
             msg.sender, primaryReceiver, projectInfo, mintInfo, royaltyReceivers, basisPoints
         );
+        vm.prank(msg.sender);
         FxGenArt721(fxGenArtProxy).setRenderer(address(fxTokenRenderer));
 
         vm.label(address(fxGenArtProxy), "FxGenArtProxy");
