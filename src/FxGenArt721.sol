@@ -2,10 +2,8 @@
 pragma solidity 0.8.20;
 
 import {Base64} from "openzeppelin/contracts/utils/Base64.sol";
-import {
-    ERC721URIStorageUpgradeable,
-    ERC721Upgradeable
-} from "openzeppelin-upgradeable/contracts/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
+import {ERC721Upgradeable} from
+    "openzeppelin-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {
     IFxGenArt721,
@@ -28,12 +26,7 @@ import "src/utils/Constants.sol";
  * @title FxGenArt721
  * @notice See the documentation in {IFxGenArt721}
  */
-contract FxGenArt721 is
-    IFxGenArt721,
-    OwnableUpgradeable,
-    ERC721URIStorageUpgradeable,
-    FxRoyaltyManager
-{
+contract FxGenArt721 is IFxGenArt721, OwnableUpgradeable, ERC721Upgradeable, FxRoyaltyManager {
     using Strings for uint256;
 
     /// @inheritdoc IFxGenArt721
@@ -97,7 +90,6 @@ contract FxGenArt721 is
         uint96[] calldata _basisPoints
     ) external initializer {
         __ERC721_init("FxGenArt721", "FXHASH");
-        __ERC721URIStorage_init();
         __Ownable_init();
         transferOwnership(_owner);
 
@@ -131,21 +123,25 @@ contract FxGenArt721 is
     /// @inheritdoc IFxGenArt721
     function setBaseURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
         issuerInfo.projectInfo.metadataInfo.baseURI = _uri;
+        emit BaseURIUpdated(_uri);
     }
 
     /// @inheritdoc IFxGenArt721
     function setContractURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
         issuerInfo.projectInfo.contractURI = _uri;
+        emit ContractURIUpdated(_uri);
     }
 
     /// @inheritdoc IFxGenArt721
     function setImageURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
         issuerInfo.projectInfo.metadataInfo.imageURI = _uri;
+        emit ImageURIUpdated(_uri);
     }
 
     /// @inheritdoc IFxGenArt721
     function setRenderer(address _renderer) external onlyRole(ADMIN_ROLE) {
         renderer = _renderer;
+        emit RendererUpdated(_renderer);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -187,17 +183,17 @@ contract FxGenArt721 is
         return issuerInfo.minters[_minter];
     }
 
-    /// @inheritdoc ERC721URIStorageUpgradeable
+    /// @inheritdoc ERC721Upgradeable
     function supportsInterface(bytes4 _interfaceId)
         public
         view
-        override(ERC721URIStorageUpgradeable, FxRoyaltyManager)
+        override(ERC721Upgradeable, FxRoyaltyManager)
         returns (bool)
     {
         return super.supportsInterface(_interfaceId);
     }
 
-    /// @inheritdoc ERC721URIStorageUpgradeable
+    /// @inheritdoc ERC721Upgradeable
     function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
         _requireMinted(_tokenId);
         if (!issuerInfo.projectInfo.onchain) {
@@ -228,15 +224,17 @@ contract FxGenArt721 is
         address minter;
         uint128 totalAllocation;
         ReserveInfo memory reserveInfo;
-        for (uint256 i; i < _mintInfo.length; ++i) {
-            minter = _mintInfo[i].minter;
-            reserveInfo = _mintInfo[i].reserveInfo;
-            if (!FxRoleRegistry(roleRegistry).hasRole(MINTER_ROLE, minter)) {
-                revert UnauthorizedMinter();
+        unchecked {
+            for (uint256 i; i < _mintInfo.length; ++i) {
+                minter = _mintInfo[i].minter;
+                reserveInfo = _mintInfo[i].reserveInfo;
+                if (!FxRoleRegistry(roleRegistry).hasRole(MINTER_ROLE, minter)) {
+                    revert UnauthorizedMinter();
+                }
+                if (reserveInfo.startTime >= reserveInfo.endTime) revert InvalidReserveTime();
+                issuerInfo.minters[minter] = true;
+                totalAllocation += reserveInfo.allocation;
             }
-            if (reserveInfo.startTime >= reserveInfo.endTime) revert InvalidReserveTime();
-            issuerInfo.minters[minter] = true;
-            totalAllocation += reserveInfo.allocation;
         }
 
         if (totalAllocation > issuerInfo.projectInfo.supply) revert AllocationExceeded();

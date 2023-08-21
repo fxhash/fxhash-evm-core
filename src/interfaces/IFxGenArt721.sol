@@ -129,6 +129,30 @@ interface IFxGenArt721 {
     );
 
     /**
+     * @notice Event emitted when baseURI is updated
+     * @param _uri URI pointer of token metadata
+     */
+    event BaseURIUpdated(string indexed _uri);
+
+    /**
+     * @notice Event emitted when contractURI is updated
+     * @param _uri URI pointer of project metadata
+     */
+    event ContractURIUpdated(string indexed _uri);
+
+    /**
+     * @notice Event emitted when imageURI is updated
+     * @param _uri URI pointer of token images
+     */
+    event ImageURIUpdated(string indexed _uri);
+
+    /**
+     * @notice Event emitted when Renderer contract is updated
+     * @param _renderer Address of new Renderer contract
+     */
+    event RendererUpdated(address indexed _renderer);
+
+    /**
      * @notice Initializes new generative art project
      * @param _owner Address of contract owner
      * @param _primaryReceiver Address of splitter contract receiving primary sales
