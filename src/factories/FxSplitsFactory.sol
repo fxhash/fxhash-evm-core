@@ -3,7 +3,7 @@ pragma solidity 0.8.20;
 
 import {IFxSplitsFactory} from "src/interfaces/IFxSplitsFactory.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
-import {Lib0xSplits} from "src/lib/Lib0xSplits.sol";
+import {SPLITS_MAIN} from "script/utils/Constants.sol";
 
 /**
  * @title SplitsFactory
@@ -16,7 +16,8 @@ contract FxSplitsFactory is IFxSplitsFactory {
      * @param allocations The array of allocations for each account.
      */
     function createVirtualSplit(address[] memory accounts, uint32[] memory allocations) external {
-        address split = Lib0xSplits.predictDeterministicAddress(accounts, allocations);
+        address split =
+            ISplitsMain(SPLITS_MAIN).predictImmutableSplitAddress(accounts, allocations, 0);
         if (split.code.length == 0) emit SplitsInfo(split, accounts, allocations, address(0), 0);
     }
 
@@ -26,8 +27,7 @@ contract FxSplitsFactory is IFxSplitsFactory {
      * @param allocations The array of allocations for each account.
      */
     function createSplit(address[] memory accounts, uint32[] memory allocations) external {
-        address split =
-            ISplitsMain(Lib0xSplits.SPLITS_MAIN).createSplit(accounts, allocations, 0, address(0));
+        address split = ISplitsMain(SPLITS_MAIN).createSplit(accounts, allocations, 0, address(0));
         emit SplitsInfo(split, accounts, allocations, address(0), 0);
     }
 }
