@@ -1,10 +1,7 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.20;
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.20;
 
-import {MockFxRoyaltyManager} from "test/mocks/MockFxRoyaltyManager.sol";
-import {FxRoyaltyManagerTest} from "test/unit/FxRoyaltyManager/FxRoyaltyManager.sol";
-import {MAX_ROYALTY_BASISPOINTS} from "src/utils/Constants.sol";
-import {IFxRoyaltyManager} from "src/interfaces/IFxRoyaltyManager.sol";
+import "test/unit/FxRoyaltyManager/FxRoyaltyManagerTest.sol";
 
 contract SetTokenRoyaltiesTest is FxRoyaltyManagerTest {
     function setUp() public override {
@@ -13,7 +10,7 @@ contract SetTokenRoyaltiesTest is FxRoyaltyManagerTest {
         MockFxRoyaltyManager(address(royaltyManager)).setTokenExists(tokenId, true);
         royaltyReceivers.push(payable(susan));
 
-        basisPoints.push(MAX_ROYALTY_BASISPOINTS);
+        basisPoints.push(MAX_ROYALTY_BPS);
     }
 
     function test_SetTokenRoyalties() public {
@@ -22,41 +19,41 @@ contract SetTokenRoyaltiesTest is FxRoyaltyManagerTest {
 
     function test_RevertsWhen_TokenDoesntExist() public {
         tokenId = 2;
-        vm.expectRevert(abi.encodeWithSelector(IFxRoyaltyManager.NonExistentToken.selector));
+        vm.expectRevert(abi.encodeWithSelector(NON_EXISTENT_TOKEN_ERROR));
         royaltyManager.setTokenRoyalties(tokenId, royaltyReceivers, basisPoints);
     }
 
     function test_RevertsWhen_SingleGt25() public {
-        basisPoints[0] = MAX_ROYALTY_BASISPOINTS + 1;
-        vm.expectRevert(abi.encodeWithSelector(IFxRoyaltyManager.OverMaxBasisPointAllowed.selector));
+        basisPoints[0] = MAX_ROYALTY_BPS + 1;
+        vm.expectRevert(abi.encodeWithSelector(OVER_MAX_BASIS_POINTS_ALLOWED_ERROR));
         royaltyManager.setTokenRoyalties(tokenId, royaltyReceivers, basisPoints);
     }
 
-    function test_RevertsWhen_TokenAndBaseGt100() public {
+    function test_RevertsWhen_TokenAndBaseGreaterThan100() public {
         /// Get royalty Config to 100 without being over on any individual one
         royaltyReceivers.push(payable(alice));
         royaltyReceivers.push(payable(bob));
         royaltyReceivers.push(payable(eve));
 
-        basisPoints.push(MAX_ROYALTY_BASISPOINTS);
-        basisPoints.push(MAX_ROYALTY_BASISPOINTS);
-        basisPoints.push(MAX_ROYALTY_BASISPOINTS);
+        basisPoints.push(MAX_ROYALTY_BPS);
+        basisPoints.push(MAX_ROYALTY_BPS);
+        basisPoints.push(MAX_ROYALTY_BPS);
         royaltyReceivers.push(payable(address(0xbad)));
         basisPoints.push(1);
 
-        vm.expectRevert(abi.encodeWithSelector(IFxRoyaltyManager.InvalidRoyaltyConfig.selector));
+        vm.expectRevert(abi.encodeWithSelector(INVALID_ROYALTY_CONFIG_ERROR));
         royaltyManager.setTokenRoyalties(tokenId, royaltyReceivers, basisPoints);
     }
 
-    function test_RevertsWhen_LengthMismatchroyaltyReceivers() public {
+    function test_RevertsWhen_LengthMismatchRoyaltyReceivers() public {
         royaltyReceivers.push(payable(alice));
-        vm.expectRevert(abi.encodeWithSelector(IFxRoyaltyManager.LengthMismatch.selector));
+        vm.expectRevert(abi.encodeWithSelector(LENGTH_MISMATCH_ERROR));
         royaltyManager.setTokenRoyalties(tokenId, royaltyReceivers, basisPoints);
     }
 
     function test_RevertsWhen_LengthMismatchBasisPoints() public {
-        basisPoints.push(MAX_ROYALTY_BASISPOINTS);
-        vm.expectRevert(abi.encodeWithSelector(IFxRoyaltyManager.LengthMismatch.selector));
+        basisPoints.push(MAX_ROYALTY_BPS);
+        vm.expectRevert(abi.encodeWithSelector(LENGTH_MISMATCH_ERROR));
         royaltyManager.setTokenRoyalties(tokenId, royaltyReceivers, basisPoints);
     }
 }

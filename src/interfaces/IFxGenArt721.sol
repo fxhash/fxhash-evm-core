@@ -15,33 +15,35 @@ struct IssuerInfo {
 }
 
 /**
- * @param enabled Active status of project
- * @param codexId ID of codex info
+ * @param enabled Minting status of project
+ * @param onchain Onchain status of project
  * @param supply Maximum supply of tokens
- * @param contractMetadata Contract metadata of project
- * @param tokenMetadata Token metadata information
+ * @param contractURI Contract URI of project
+ * @param metadataInfo Metadata information of tokens
  */
 struct ProjectInfo {
     bool enabled;
-    uint120 codexId;
-    uint128 supply;
-    MetadataInfo contractMetadata;
-    MetadataInfo tokenMetadata;
+    bool onchain;
+    uint240 supply;
+    string contractURI;
+    MetadataInfo metadataInfo;
 }
 
 /**
- * @param baseURI Base URI of metadata pointer
- * @param animation List of HTML head and body tags for building onchain scripts
- * @param attributes List of key value pairs for token attributes
+ * @param baseURI CID hash of collection metadata
+ * @param imageURI CID hash of collection images
+ * @param animation List of HTML script tags for building token animations onchain
+ * @param attributes List of HTML script tags for building token attributes onchain
  */
 struct MetadataInfo {
     string baseURI;
-    HTMLRequest animationURL;
+    string imageURI;
+    HTMLRequest animation;
     HTMLRequest attributes;
 }
 
 /**
- * @param fxParams Randon sequence of string bytes in fixed length
+ * @param fxParams Randon sequence of fixed-length bytes
  * @param seed Hash of revealed seed
  */
 struct GenArtInfo {
@@ -85,7 +87,7 @@ interface IFxGenArt721 {
     error InvalidReserveTime();
 
     /**
-     * @notice Error thrown minting is active
+     * @notice Error thrown when minting is active
      */
     error MintActive();
 
@@ -105,6 +107,11 @@ interface IFxGenArt721 {
     error UnauthorizedMinter();
 
     /**
+     * @notice Error thrown when caller does not have given role
+     */
+    error UnauthorizedAccount();
+
+    /**
      * @notice Error thrown when minter is not registered on token contract
      */
     error UnregisteredMinter();
@@ -120,6 +127,30 @@ interface IFxGenArt721 {
         MintInfo[] indexed _mintInfo,
         address indexed _primaryReceiver
     );
+
+    /**
+     * @notice Event emitted when baseURI is updated
+     * @param _uri URI pointer of token metadata
+     */
+    event BaseURIUpdated(string indexed _uri);
+
+    /**
+     * @notice Event emitted when contractURI is updated
+     * @param _uri URI pointer of project metadata
+     */
+    event ContractURIUpdated(string indexed _uri);
+
+    /**
+     * @notice Event emitted when imageURI is updated
+     * @param _uri URI pointer of token images
+     */
+    event ImageURIUpdated(string indexed _uri);
+
+    /**
+     * @notice Event emitted when Renderer contract is updated
+     * @param _renderer Address of new Renderer contract
+     */
+    event RendererUpdated(address indexed _renderer);
 
     /**
      * @notice Initializes new generative art project
@@ -154,15 +185,38 @@ interface IFxGenArt721 {
     function publicMint(address _to, uint256 _amount) external;
 
     /**
+     * @notice Sets the new URI of the token metadata
+     * @param _uri Pointer of the metadata
+     */
+    function setBaseURI(string calldata _uri) external;
+
+    /**
+     * @notice Sets the new URI of the contract metadata
+     * @param _uri Pointer of the metadata
+     */
+    function setContractURI(string calldata _uri) external;
+
+    /**
+     * @notice Sets the new URI of the image metadata
+     * @param _uri Pointer of the metadata
+     */
+    function setImageURI(string calldata _uri) external;
+
+    /**
      * @notice Sets the new Renderer contract
      * @param _renderer Address of the Renderer contract
      */
     function setRenderer(address _renderer) external;
 
     /**
-     * @notice Enables and disables the public mint
+     * @notice Toggles public mint from enabled to disabled and vice versa
      */
     function toggleMint() external;
+
+    /**
+     * @notice Toggles token metadata from offchain to onchain and vice versa
+     */
+    function toggleOnchain() external;
 
     /**
      * @notice Returns the address of the ContractRegistry contract
@@ -177,9 +231,9 @@ interface IFxGenArt721 {
     /**
      * @notice Gets the generative art information for a given token
      * @param _tokenId ID of the token
-     * @return TokenInfo
+     * @return FxParams and Seed
      */
-    function genArtInfo(uint96 _tokenId) external view returns (GenArtInfo memory);
+    function genArtInfo(uint256 _tokenId) external view returns (bytes memory, bytes32);
 
     /**
      * @notice Gets the authorization status for the given minter
@@ -193,6 +247,11 @@ interface IFxGenArt721 {
      * @return ProjectInfo and splitter contract address
      */
     function issuerInfo() external view returns (ProjectInfo memory, address);
+
+    /**
+     * @notice Returns the remaining supply of tokens left to mint
+     */
+    function remainingSupply() external view returns (uint256);
 
     /**
      * @notice Returns the address of the Renderer contract

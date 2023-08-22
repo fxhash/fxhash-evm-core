@@ -1,23 +1,24 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {
-    ERC721URIStorageUpgradeable,
-    ERC721Upgradeable
-} from "openzeppelin-upgradeable/contracts/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
+import {Base64} from "openzeppelin/contracts/utils/Base64.sol";
+import {ERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {
     IFxGenArt721,
-    IssuerInfo,
     GenArtInfo,
-    ProjectInfo,
+    HTMLRequest,
+    IssuerInfo,
     MintInfo,
+    ProjectInfo,
     ReserveInfo
 } from "src/interfaces/IFxGenArt721.sol";
 import {IFxTokenRenderer} from "src/interfaces/IFxTokenRenderer.sol";
+import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 import {FxRoyaltyManager} from "src/FxRoyaltyManager.sol";
-import {OwnableUpgradeable} from "openzeppelin-upgradeable/contracts/access/OwnableUpgradeable.sol";
+import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
+import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
 import "src/utils/Constants.sol";
 
@@ -25,12 +26,9 @@ import "src/utils/Constants.sol";
  * @title FxGenArt721
  * @notice See the documentation in {IFxGenArt721}
  */
-contract FxGenArt721 is
-    IFxGenArt721,
-    ERC721URIStorageUpgradeable,
-    OwnableUpgradeable,
-    FxRoyaltyManager
-{
+contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyManager {
+    using Strings for uint256;
+
     /// @inheritdoc IFxGenArt721
     address public immutable contractRegistry;
     /// @inheritdoc IFxGenArt721
@@ -41,37 +39,12 @@ contract FxGenArt721 is
     address public renderer;
     /// @inheritdoc IFxGenArt721
     IssuerInfo public issuerInfo;
-    /// @dev Internal mapping of token ID to GenArtInfo
-    mapping(uint96 => GenArtInfo) internal _genArtInfo;
+    /// @inheritdoc IFxGenArt721
+    mapping(uint256 => GenArtInfo) public genArtInfo;
 
-    // |-------------------------------------------------------------------------------------------|
-    // |░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  STORAGE LAYOUT  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░|
-    // |--------------------|----------------------------------------------|------|--------|-------|
-    // | Name               | Type                                         | Slot | Offset | Bytes |
-    // |--------------------|----------------------------------------------|------|--------|-------|
-    // | _initialized       | uint8                                        | 0    | 0      | 1     |
-    // | _initializing      | bool                                         | 0    | 1      | 1     |
-    // | __gap              | uint256[50]                                  | 1    | 0      | 1600  |
-    // | __gap              | uint256[50]                                  | 51   | 0      | 1600  |
-    // | _name              | string                                       | 101  | 0      | 32    |
-    // | _symbol            | string                                       | 102  | 0      | 32    |
-    // | _owners            | mapping(uint256 => address)                  | 103  | 0      | 32    |
-    // | _balances          | mapping(address => uint256)                  | 104  | 0      | 32    |
-    // | _tokenApprovals    | mapping(uint256 => address)                  | 105  | 0      | 32    |
-    // | _operatorApprovals | mapping(address => mapping(address => bool)) | 106  | 0      | 32    |
-    // | __gap              | uint256[44]                                  | 107  | 0      | 1408  |
-    // | _tokenURIs         | mapping(uint256 => string)                   | 151  | 0      | 32    |
-    // | __gap              | uint256[49]                                  | 152  | 0      | 1568  |
-    // | _owner             | address                                      | 201  | 0      | 20    |
-    // | __gap              | uint256[49]                                  | 202  | 0      | 1568  |
-    // | baseRoyalties      | struct RoyaltyInfo[]                         | 251  | 0      | 32    |
-    // | tokenRoyalties     | mapping(uint256 => struct RoyaltyInfo[])     | 252  | 0      | 32    |
-    // | totalSupply        | uint96                                       | 253  | 0      | 12    |
-    // | renderer           | address                                      | 253  | 12     | 20    |
-    // | issuerInfo         | struct IssuerInfo                            | 254  | 0      | 160   |
-    // | _genArtInfo        | mapping(uint96 => struct GenArtInfo)         | 259  | 0      | 32    |
-    // |░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░|
-    // |-------------------------------------------------------------------------------------------|
+    /*//////////////////////////////////////////////////////////////////////////
+                                  MODIFIERS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Modifier for restricting calls to only registered contracts
     modifier onlyContract(bytes32 _name) {
@@ -87,11 +60,25 @@ contract FxGenArt721 is
         _;
     }
 
-    /// @dev Initializes registry contracts
-    constructor(address _contractRegistry, address _roleRegistry) {
+    /// @dev Modifier for restricting calls to only authorized accounts with given roles
+    modifier onlyRole(bytes32 _role) {
+        if (!FxRoleRegistry(roleRegistry).hasRole(_role, msg.sender)) revert UnauthorizedAccount();
+        _;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                  CONSTRUCTOR
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Sets core registry contracts
+    constructor(address _contractRegistry, address _roleRegistry) ERC721("FxGenArt721", "FXHASH") {
         contractRegistry = _contractRegistry;
         roleRegistry = _roleRegistry;
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                INITIALIZATION
+    //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IFxGenArt721
     function initialize(
@@ -102,24 +89,19 @@ contract FxGenArt721 is
         address payable[] calldata _royaltyReceivers,
         uint96[] calldata _basisPoints
     ) external initializer {
-        __ERC721_init("FxGenArt721", "FXHASH");
-        __ERC721URIStorage_init();
-        __Ownable_init();
-        transferOwnership(_owner);
+        _registerMinters(_mintInfo);
+        _setBaseRoyalties(_royaltyReceivers, _basisPoints);
+        _transferOwnership(_owner);
 
         issuerInfo.projectInfo = _projectInfo;
         issuerInfo.primaryReceiver = _primaryReceiver;
-        _registerMinters(_mintInfo);
-        _setBaseRoyalties(_royaltyReceivers, _basisPoints);
 
         emit ProjectInitialized(_projectInfo, _mintInfo, _primaryReceiver);
     }
 
-    /// @inheritdoc IFxGenArt721
-    function ownerMint(address _to) external onlyOwner {
-        if (issuerInfo.projectInfo.enabled) revert MintActive();
-        _mint(_to, ++totalSupply);
-    }
+    /*//////////////////////////////////////////////////////////////////////////
+                                PUBLIC FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IFxGenArt721
     function publicMint(address _to, uint256 _amount) external onlyMinter {
@@ -132,9 +114,42 @@ contract FxGenArt721 is
         }
     }
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                ADMIN FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
     /// @inheritdoc IFxGenArt721
-    function setRenderer(address _renderer) external onlyOwner {
+    function setBaseURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
+        issuerInfo.projectInfo.metadataInfo.baseURI = _uri;
+        emit BaseURIUpdated(_uri);
+    }
+
+    /// @inheritdoc IFxGenArt721
+    function setContractURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
+        issuerInfo.projectInfo.contractURI = _uri;
+        emit ContractURIUpdated(_uri);
+    }
+
+    /// @inheritdoc IFxGenArt721
+    function setImageURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
+        issuerInfo.projectInfo.metadataInfo.imageURI = _uri;
+        emit ImageURIUpdated(_uri);
+    }
+
+    /// @inheritdoc IFxGenArt721
+    function setRenderer(address _renderer) external onlyRole(ADMIN_ROLE) {
         renderer = _renderer;
+        emit RendererUpdated(_renderer);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                OWNER FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc IFxGenArt721
+    function ownerMint(address _to) external onlyOwner {
+        if (issuerInfo.projectInfo.enabled) revert MintActive();
+        _mint(_to, ++totalSupply);
     }
 
     /// @inheritdoc IFxGenArt721
@@ -143,8 +158,22 @@ contract FxGenArt721 is
     }
 
     /// @inheritdoc IFxGenArt721
-    function genArtInfo(uint96 _tokenId) external view returns (GenArtInfo memory) {
-        return _genArtInfo[_tokenId];
+    function toggleOnchain() external onlyOwner {
+        issuerInfo.projectInfo.onchain = !issuerInfo.projectInfo.onchain;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                READ FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc IFxGenArt721
+    function contractURI() external view returns (string memory) {
+        return issuerInfo.projectInfo.contractURI;
+    }
+
+    /// @inheritdoc IFxGenArt721
+    function remainingSupply() external view returns (uint256) {
+        return issuerInfo.projectInfo.supply - totalSupply;
     }
 
     /// @inheritdoc IFxGenArt721
@@ -152,51 +181,68 @@ contract FxGenArt721 is
         return issuerInfo.minters[_minter];
     }
 
-    /// @inheritdoc IFxGenArt721
-    function contractURI() public view returns (string memory) {
-        return "";
-    }
-
-    /// @inheritdoc ERC721URIStorageUpgradeable
-    function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
-        _requireMinted(_tokenId);
-    }
-
-    /// @inheritdoc ERC721URIStorageUpgradeable
+    /// @inheritdoc ERC721
     function supportsInterface(bytes4 _interfaceId)
         public
         view
-        override(ERC721URIStorageUpgradeable, FxRoyaltyManager)
+        override(ERC721, FxRoyaltyManager)
         returns (bool)
     {
         return super.supportsInterface(_interfaceId);
     }
 
+    /// @inheritdoc ERC721
+    function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
+        _requireMinted(_tokenId);
+        if (!issuerInfo.projectInfo.onchain) {
+            string memory baseURI = issuerInfo.projectInfo.metadataInfo.baseURI;
+            return string.concat(baseURI, _tokenId.toString());
+        } else {
+            bytes32 seed = genArtInfo[_tokenId].seed;
+            bytes memory fxParams = genArtInfo[_tokenId].fxParams;
+            HTMLRequest memory animation = issuerInfo.projectInfo.metadataInfo.animation;
+            HTMLRequest memory attributes = issuerInfo.projectInfo.metadataInfo.attributes;
+            bytes memory onchainData = IFxTokenRenderer(renderer).renderOnchain(
+                _tokenId, seed, fxParams, animation, attributes
+            );
+
+            return string(
+                abi.encodePacked("data:application/json;base64,", Base64.encode(onchainData))
+            );
+        }
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                INTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
     /// @dev Registers arbitrary number of minter contracts
-    /// @param _mintInfo List minter contracts and their reserves
+    /// @param _mintInfo List of minter contracts and their reserves
     function _registerMinters(MintInfo[] calldata _mintInfo) internal {
         address minter;
         uint128 totalAllocation;
         ReserveInfo memory reserveInfo;
-        for (uint256 i; i < _mintInfo.length; ++i) {
-            minter = _mintInfo[i].minter;
-            reserveInfo = _mintInfo[i].reserveInfo;
-            if (!FxRoleRegistry(roleRegistry).hasRole(MINTER_ROLE, minter)) {
-                revert UnauthorizedMinter();
+        unchecked {
+            for (uint256 i; i < _mintInfo.length; ++i) {
+                minter = _mintInfo[i].minter;
+                reserveInfo = _mintInfo[i].reserveInfo;
+                if (!FxRoleRegistry(roleRegistry).hasRole(MINTER_ROLE, minter)) {
+                    revert UnauthorizedMinter();
+                }
+                if (reserveInfo.startTime >= reserveInfo.endTime) revert InvalidReserveTime();
+                issuerInfo.minters[minter] = true;
+                totalAllocation += reserveInfo.allocation;
             }
-            if (reserveInfo.startTime >= reserveInfo.endTime) revert InvalidReserveTime();
-            issuerInfo.minters[minter] = true;
-            totalAllocation += reserveInfo.allocation;
         }
 
         if (totalAllocation > issuerInfo.projectInfo.supply) revert AllocationExceeded();
     }
 
-    /// @inheritdoc ERC721Upgradeable
+    /// @inheritdoc ERC721
     function _exists(uint256 _tokenId)
         internal
         view
-        override(ERC721Upgradeable, FxRoyaltyManager)
+        override(ERC721, FxRoyaltyManager)
         returns (bool)
     {
         return super._exists(_tokenId);
