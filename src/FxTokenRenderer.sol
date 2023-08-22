@@ -28,55 +28,76 @@ contract FxTokenRenderer is IFxTokenRenderer {
         scriptyBuilder = _scriptyBuilder;
     }
 
-    function renderMetadata(
+    function renderOnchain(
         uint256 _tokenId,
         bytes32 _seed,
         bytes calldata _fxParams,
-        HTMLRequest calldata _animationURL,
+        HTMLRequest calldata _animation,
         HTMLRequest calldata _attributes
-    ) public view returns (string memory) {
-        HTMLTag[] memory headTags = new HTMLTag[](1);
+    ) public view returns (bytes memory) {
+        bytes memory animation = getEncodedHTML(_tokenId, _seed, _fxParams, _animation);
+        bytes memory attributes = getEncodedHTML(_tokenId, _seed, _fxParams, _attributes);
 
-        // <link rel="stylesheet" href="data:text/css;base64,[fullSizeCanvas.css, base64 encoded]">
-        headTags[0].name = "fullSizeCanvas.css";
-        headTags[0].tagOpen = '<link rel="stylesheet" href="data:text/css;base64,';
-        headTags[0].tagClose = '">';
-        headTags[0].contractAddress = ethfsFileStorage;
+        return
+            abi.encodePacked('"animation_url":"', animation, '","attributes":["', attributes, '"]}');
+    }
 
-        HTMLTag[] memory bodyTags = new HTMLTag[](3);
-        bodyTags[0].name = "p5-v1.5.0.min.js.gz";
-        bodyTags[0].tagType = HTMLTagType.scriptGZIPBase64DataURI; // <script
-            // type="text/javascript+gzip" src="data:text/javascript;base64,[script]"></script>
-        bodyTags[0].contractAddress = ethfsFileStorage;
+    function getEncodedHTML(
+        uint256 _tokenId,
+        bytes32 _seed,
+        bytes calldata _fxParams,
+        HTMLRequest calldata _htmlRequest
+    ) public view returns (bytes memory) {
+        HTMLTag[] memory headTags = new HTMLTag[](_htmlRequest.headTags.length);
+        HTMLTag[] memory bodyTags = new HTMLTag[](
+            _htmlRequest.bodyTags.length + 1
+        );
 
-        bodyTags[1].name = "gunzipScripts-0.0.1.js";
-        bodyTags[1].tagType = HTMLTagType.scriptBase64DataURI; // <script
-            // src="data:text/javascript;base64,[script]"></script>
-        bodyTags[1].contractAddress = ethfsFileStorage;
+        for (uint256 i; i < _htmlRequest.headTags.length; ++i) {
+            headTags[i].tagOpen = _htmlRequest.headTags[i].tagOpen;
+            headTags[i].tagContent = _htmlRequest.headTags[i].tagContent;
+            headTags[i].tagClose = _htmlRequest.headTags[i].tagClose;
+        }
 
-        bodyTags[2].name = "pointsAndLines";
-        bodyTags[2].tagType = HTMLTagType.script; // <script>[script]</script>
-        bodyTags[2].contractAddress = scriptyStorage;
+        for (uint256 i; i < _htmlRequest.bodyTags.length; ++i) {
+            bodyTags[i].name = _htmlRequest.bodyTags[i].name;
+            bodyTags[i].tagType = _htmlRequest.bodyTags[i].tagType;
+            bodyTags[i].tagOpen = _htmlRequest.bodyTags[i].tagOpen;
+            bodyTags[i].tagClose = _htmlRequest.bodyTags[i].tagClose;
+            bodyTags[i].contractAddress = _htmlRequest.bodyTags[i].contractAddress;
+        }
+
+        bodyTags[bodyTags.length].tagType = HTMLTagType.script;
+        bodyTags[bodyTags.length].tagContent = _seed != bytes32(0)
+            ? _getSeedContent(_tokenId, _seed)
+            : _getParamsContent(_tokenId, _fxParams);
 
         HTMLRequest memory htmlRequest;
         htmlRequest.headTags = headTags;
         htmlRequest.bodyTags = bodyTags;
 
-        string memory name;
-        string memory description;
-        bytes memory base64EncodedHTMLDataURI =
-            IScriptyBuilderV2(scriptyBuilder).getEncodedHTML(htmlRequest);
+        return IScriptyBuilderV2(scriptyBuilder).getEncodedHTML(htmlRequest);
+    }
 
-        bytes memory metadata = abi.encodePacked(
-            '{"name":"',
-            name,
-            '","description":"',
-            description,
-            '","animation_url":"',
-            base64EncodedHTMLDataURI,
-            '"}'
+    function _getSeedContent(uint256 _tokenId, bytes32 _seed)
+        internal
+        pure
+        returns (bytes memory)
+    {
+        string memory tokenId = _tokenId.toString();
+        string memory seed = uint256(_seed).toHexString(32);
+        return
+            abi.encodePacked('let tokenData = {"tokenId": "', tokenId, '", "seed": "', seed, '"};');
+    }
+
+    function _getParamsContent(uint256 _tokenId, bytes calldata _fxParams)
+        internal
+        pure
+        returns (bytes memory)
+    {
+        string memory tokenId = _tokenId.toString();
+        return abi.encodePacked(
+            'let tokenData = {"tokenId": "', tokenId, '", "fxParams": "', _fxParams, '"};'
         );
-
-        return string(abi.encodePacked("data:application/json;base64,", Base64.encode(metadata)));
     }
 }

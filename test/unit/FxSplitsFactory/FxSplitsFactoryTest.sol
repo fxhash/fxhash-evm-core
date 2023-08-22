@@ -1,10 +1,10 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.18;
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.20;
+
+import "test/BaseTest.t.sol";
 
 import {FxSplitsFactory} from "src/factories/FxSplitsFactory.sol";
-import {BaseTest} from "test/BaseTest.t.sol";
-import "src/utils/Constants.sol";
-import "script/utils/Constants.sol";
+import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
 
 contract FxSplitsFactoryTest is BaseTest {
     error InvalidSplit__TooFewAccounts(uint256 accountsLength);

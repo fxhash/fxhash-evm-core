@@ -23,7 +23,6 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     /// @dev Initializes registries and implementation contracts
     constructor(address _implementation) {
         implementation = _implementation;
-        emit ImplementationUpdated(msg.sender, _implementation);
     }
 
     /// @inheritdoc IFxIssuerFactory
@@ -36,7 +35,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
         uint96[] calldata _basisPoints
     ) external returns (address genArtToken) {
         if (_owner == address(0)) revert InvalidOwner();
-        if (_primaryReceiver == address(0)) revert InvalidReceiver();
+        if (_primaryReceiver == address(0)) revert InvalidPrimaryReceiver();
         genArtToken = Clones.clone(implementation);
         projects[++projectId] = genArtToken;
 

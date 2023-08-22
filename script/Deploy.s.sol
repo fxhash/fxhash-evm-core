@@ -30,7 +30,10 @@ contract Deploy is Script {
     address payable[] public royaltyReceivers;
     uint96[] public basisPoints;
 
-    function setUp() public virtual {}
+    function setUp() public virtual {
+        owner = msg.sender;
+        _mock0xSplits();
+    }
 
     function run() public virtual {
         vm.startBroadcast();
@@ -42,15 +45,19 @@ contract Deploy is Script {
     function _deployContracts() internal {
         fxContractRegistry = new FxContractRegistry();
         fxRoleRegistry = new FxRoleRegistry();
-        fxGenArt721 = new FxGenArt721(address(fxContractRegistry), address(fxRoleRegistry));
+        fxGenArt721 = new FxGenArt721(
+            address(fxContractRegistry),
+            address(fxRoleRegistry)
+        );
         fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721));
-        fxTokenRenderer =
-            new FxTokenRenderer(ETHFS_FILE_STORAGE, SCRIPTY_STORAGE_V2, SCRIPTY_BUILDER_V2);
+        fxTokenRenderer = new FxTokenRenderer(
+            ETHFS_FILE_STORAGE,
+            SCRIPTY_STORAGE_V2,
+            SCRIPTY_BUILDER_V2
+        );
     }
 
     function _configureSettings() internal {
-        owner = msg.sender;
-        primaryReceiver = msg.sender;
         fxGenArtProxy = fxIssuerFactory.createProject(
             owner, primaryReceiver, projectInfo, mintInfo, royaltyReceivers, basisPoints
         );
@@ -58,13 +65,13 @@ contract Deploy is Script {
     }
 
     function _mock0xSplits() internal {
-        bytes memory splitMainBytecode = abi.encodePacked(SPLITS_MAIN_CREATION_CODE, abi.encode());
+        bytes memory splitsMainBytecode = abi.encodePacked(SPLITS_MAIN_CREATION_CODE, abi.encode());
         address deployedAddress_;
-        // original deployer + original nonce used at deployment
-        vm.startPrank(SPLITS_DEPLOYER);
+        vm.prank(SPLITS_DEPLOYER);
         vm.setNonce(SPLITS_DEPLOYER, SPLITS_DEPLOYER_NONCE);
         assembly {
-            deployedAddress_ := create(0, add(splitMainBytecode, 32), mload(splitMainBytecode))
+            deployedAddress_ := create(0, add(splitsMainBytecode, 32), mload(splitsMainBytecode))
         }
+        primaryReceiver = deployedAddress_;
     }
 }

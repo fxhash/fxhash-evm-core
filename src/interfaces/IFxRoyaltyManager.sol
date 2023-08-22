@@ -34,7 +34,7 @@ interface IFxRoyaltyManager {
     error TokenRoyaltiesNotSet();
 
     /// @dev Throws an error if the basis point value exceeds the maximum allowed value.
-    error OverMaxBasisPointAllowed();
+    error OverMaxBasisPointsAllowed();
 
     /// @dev Throws an error if there is a length mismatch between the receivers and basis points
     /// arrays.
