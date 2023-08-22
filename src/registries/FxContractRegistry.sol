@@ -20,6 +20,7 @@ contract FxContractRegistry is Ownable, IFxContractRegistry {
         uint256 length = _names.length;
         // Reverts if array lengths are not equal
         if (length != _contracts.length) revert LengthMismatch();
+        if (length == 0) revert InputEmpty();
         for (uint256 i; i < length;) {
             contractAddr = _contracts[i];
             contractName = keccak256(abi.encode(_names[i]));
