@@ -2,8 +2,7 @@
 pragma solidity 0.8.20;
 
 import {Base64} from "openzeppelin/contracts/utils/Base64.sol";
-import {ERC721Upgradeable} from
-    "openzeppelin-upgradeable/contracts/token/ERC721/ERC721Upgradeable.sol";
+import {ERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {
     IFxGenArt721,
@@ -15,9 +14,10 @@ import {
     ReserveInfo
 } from "src/interfaces/IFxGenArt721.sol";
 import {IFxTokenRenderer} from "src/interfaces/IFxTokenRenderer.sol";
+import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 import {FxRoyaltyManager} from "src/FxRoyaltyManager.sol";
-import {OwnableUpgradeable} from "openzeppelin-upgradeable/contracts/access/OwnableUpgradeable.sol";
+import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
 import "src/utils/Constants.sol";
@@ -26,7 +26,7 @@ import "src/utils/Constants.sol";
  * @title FxGenArt721
  * @notice See the documentation in {IFxGenArt721}
  */
-contract FxGenArt721 is IFxGenArt721, OwnableUpgradeable, ERC721Upgradeable, FxRoyaltyManager {
+contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyManager {
     using Strings for uint256;
 
     /// @inheritdoc IFxGenArt721
@@ -71,7 +71,7 @@ contract FxGenArt721 is IFxGenArt721, OwnableUpgradeable, ERC721Upgradeable, FxR
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Sets core registry contracts
-    constructor(address _contractRegistry, address _roleRegistry) {
+    constructor(address _contractRegistry, address _roleRegistry) ERC721("FxGenArt721", "FXHASH") {
         contractRegistry = _contractRegistry;
         roleRegistry = _roleRegistry;
     }
@@ -89,14 +89,11 @@ contract FxGenArt721 is IFxGenArt721, OwnableUpgradeable, ERC721Upgradeable, FxR
         address payable[] calldata _royaltyReceivers,
         uint96[] calldata _basisPoints
     ) external initializer {
-        __ERC721_init("FxGenArt721", "FXHASH");
-        __Ownable_init();
-        transferOwnership(_owner);
-
         issuerInfo.projectInfo = _projectInfo;
         issuerInfo.primaryReceiver = _primaryReceiver;
         _registerMinters(_mintInfo);
         _setBaseRoyalties(_royaltyReceivers, _basisPoints);
+        _transferOwnership(_owner);
 
         emit ProjectInitialized(_projectInfo, _mintInfo, _primaryReceiver);
     }
@@ -183,17 +180,17 @@ contract FxGenArt721 is IFxGenArt721, OwnableUpgradeable, ERC721Upgradeable, FxR
         return issuerInfo.minters[_minter];
     }
 
-    /// @inheritdoc ERC721Upgradeable
+    /// @inheritdoc ERC721
     function supportsInterface(bytes4 _interfaceId)
         public
         view
-        override(ERC721Upgradeable, FxRoyaltyManager)
+        override(ERC721, FxRoyaltyManager)
         returns (bool)
     {
         return super.supportsInterface(_interfaceId);
     }
 
-    /// @inheritdoc ERC721Upgradeable
+    /// @inheritdoc ERC721
     function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
         _requireMinted(_tokenId);
         if (!issuerInfo.projectInfo.onchain) {
@@ -240,11 +237,11 @@ contract FxGenArt721 is IFxGenArt721, OwnableUpgradeable, ERC721Upgradeable, FxR
         if (totalAllocation > issuerInfo.projectInfo.supply) revert AllocationExceeded();
     }
 
-    /// @inheritdoc ERC721Upgradeable
+    /// @inheritdoc ERC721
     function _exists(uint256 _tokenId)
         internal
         view
-        override(ERC721Upgradeable, FxRoyaltyManager)
+        override(ERC721, FxRoyaltyManager)
         returns (bool)
     {
         return super._exists(_tokenId);
