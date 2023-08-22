@@ -1,10 +1,7 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.18;
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.20;
 
-import {FxSplitsFactoryTest} from "test/unit/FxSplitsFactory/FxSplitsFactoryTest.sol";
-import {SPLITS_MAIN} from "script/utils/Constants.sol";
-import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
-import {Lib0xSplits} from "src/lib/Lib0xSplits.sol";
+import "test/unit/FxSplitsFactory/FxSplitsFactoryTest.sol";
 
 contract CreateSplit is FxSplitsFactoryTest {
     function setUp() public virtual override {
@@ -20,7 +17,8 @@ contract CreateSplit is FxSplitsFactoryTest {
     }
 
     function test_FirstWithdraw() public {
-        address libPredicted = Lib0xSplits.predictDeterministicAddress(accounts, allocations);
+        address libPredicted =
+            ISplitsMain(SPLITS_MAIN).predictImmutableSplitAddress(accounts, allocations, 0);
         vm.deal(libPredicted, 1 ether);
         ISplitsMain(SPLITS_MAIN).createSplit(accounts, allocations, 0, address(0));
         ISplitsMain(SPLITS_MAIN).distributeETH(libPredicted, accounts, allocations, 0, address(0));
