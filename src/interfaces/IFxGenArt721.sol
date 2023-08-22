@@ -33,7 +33,7 @@ struct ProjectInfo {
  * @param baseURI CID hash of collection metadata
  * @param imageURI CID hash of collection images
  * @param animation List of HTML script tags for building token animations onchain
- * @param attributes List of HTML script tags for building token attributes ochain
+ * @param attributes List of HTML script tags for building token attributes onchain
  */
 struct MetadataInfo {
     string baseURI;
