@@ -3,6 +3,7 @@ src = "src"
 out = "out"
 lib = "lib"
 ignored_error_codes = [5574, 6321]
+optimizer_runs=2
 
 [fmt]
 bracket_spacing = false
