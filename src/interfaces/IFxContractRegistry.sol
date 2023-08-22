@@ -10,6 +10,8 @@ interface IFxContractRegistry {
     error InvalidContract();
     /// @notice Error thrown when array lengths do not match
     error LengthMismatch();
+    /// @notice Error thrown when empty arrays passed
+    error InputEmpty();
 
     /// @notice Sets the contracts mapping of name to address
     /// @param _names List of contract names
