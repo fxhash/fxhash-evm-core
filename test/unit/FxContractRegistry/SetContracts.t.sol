@@ -2,6 +2,7 @@
 pragma solidity ^0.8.18;
 
 import {FxContractRegistryTest} from "test/unit/FxContractRegistry/FxContractRegistryTest.sol";
+import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 
 contract SetContracts is FxContractRegistryTest {
     string[] internal names;
@@ -9,8 +10,8 @@ contract SetContracts is FxContractRegistryTest {
 
     function setUp() public virtual override {
         super.setUp();
-        names.push("Test");
-        contracts.push(address(420));
+        names.push("RoleRegistry");
+        contracts.push(address(fxRoleRegistry));
     }
 
     function test_SetContracts() public {
@@ -21,29 +22,29 @@ contract SetContracts is FxContractRegistryTest {
         delete names;
         delete contracts;
 
-        vm.expectRevert();
+        vm.expectRevert(abi.encodeWithSelector(IFxContractRegistry.InputEmpty.selector));
         registry.setContracts(names, contracts);
     }
 
     function test_RevertsWhen_ArrayLengthMismatch() public {
-        names.push("Test_2");
+        names.push("GenArt721Token");
 
-        vm.expectRevert();
+        vm.expectRevert(abi.encodeWithSelector(IFxContractRegistry.LengthMismatch.selector));
         registry.setContracts(names, contracts);
     }
 
     function test_RevertsWhen_ContractAlreadySet() public {
-        names.push("Test");
-        contracts.push(address(69));
+        names.push("RoleRegistry");
+        contracts.push(address(fxTokenRenderer));
 
-        vm.expectRevert();
+        vm.expectRevert(abi.encodeWithSelector(IFxContractRegistry.ContractAlreadySet.selector));
         registry.setContracts(names, contracts);
     }
 
     function test_RevertsWhen_ContractAddress0() public {
         contracts[0] = address(0);
 
-        vm.expectRevert();
+        vm.expectRevert(abi.encodeWithSelector(IFxContractRegistry.InvalidContract.selector));
         registry.setContracts(names, contracts);
     }
 }

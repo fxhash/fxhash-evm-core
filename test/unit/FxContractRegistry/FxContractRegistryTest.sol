@@ -8,6 +8,7 @@ contract FxContractRegistryTest is BaseTest {
     FxContractRegistry public registry;
 
     function setUp() public virtual override {
+        super.setUp();
         registry = new FxContractRegistry();
     }
 }
