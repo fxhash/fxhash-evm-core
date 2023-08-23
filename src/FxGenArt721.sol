@@ -41,7 +41,9 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
                                   MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Modifier for restricting calls to only registered contracts
+    /**
+     * @dev Modifier for restricting calls to only registered contracts
+     */
     modifier onlyContract(bytes32 _name) {
         if (msg.sender != IFxContractRegistry(contractRegistry).contracts(_name)) {
             revert UnauthorizedContract();
@@ -49,13 +51,17 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
         _;
     }
 
-    /// @dev Modifier for restricting calls to only registered minters
+    /**
+     * @dev Modifier for restricting calls to only registered minters
+     */
     modifier onlyMinter() {
         if (!isMinter(msg.sender)) revert UnregisteredMinter();
         _;
     }
 
-    /// @dev Modifier for restricting calls to only authorized accounts with given roles
+    /**
+     * @dev Modifier for restricting calls to only authorized accounts with given roles
+     */
     modifier onlyRole(bytes32 _role) {
         if (!FxRoleRegistry(roleRegistry).hasRole(_role, msg.sender)) revert UnauthorizedAccount();
         _;
@@ -188,9 +194,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
         return issuerInfo.minters[_minter];
     }
 
-    /**
-     * @inheritdoc ERC721
-     */
+    /// @inheritdoc ERC721
     function supportsInterface(bytes4 _interfaceId)
         public
         view
@@ -200,9 +204,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
         return super.supportsInterface(_interfaceId);
     }
 
-    /**
-     * @inheritdoc ERC721
-     */
+    /// @inheritdoc ERC721
     function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
         _requireMinted(_tokenId);
 
@@ -239,9 +241,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
         if (totalAllocation > issuerInfo.projectInfo.supply) revert AllocationExceeded();
     }
 
-    /**
-     * @inheritdoc ERC721
-     */
+    /// @inheritdoc ERC721
     function _exists(uint256 _tokenId)
         internal
         view
