@@ -109,6 +109,39 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
         }
     }
 
+    /// @inheritdoc IFxGenArt721
+    function burn(uint256 _tokenId) external {
+        if (_ownerOf(_tokenId) != msg.sender) revert UnauthorizedTransaction();
+        _burn(_tokenId);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                OWNER FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc IFxGenArt721
+    function ownerMint(address _to) external onlyOwner {
+        _mint(_to, ++totalSupply);
+    }
+
+    /// @inheritdoc IFxGenArt721
+    function reduceSupply(uint240 _supply) external onlyOwner {
+        if (_supply >= issuerInfo.projectInfo.supply || _supply < totalSupply) {
+            revert InvalidSupply();
+        }
+        issuerInfo.projectInfo.supply = _supply;
+    }
+
+    /// @inheritdoc IFxGenArt721
+    function toggleMint() external onlyOwner {
+        issuerInfo.projectInfo.enabled = !issuerInfo.projectInfo.enabled;
+    }
+
+    /// @inheritdoc IFxGenArt721
+    function toggleOnchain() external onlyOwner {
+        issuerInfo.projectInfo.onchain = !issuerInfo.projectInfo.onchain;
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                 ADMIN FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -138,26 +171,6 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                OWNER FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @inheritdoc IFxGenArt721
-    function ownerMint(address _to) external onlyOwner {
-        if (issuerInfo.projectInfo.enabled) revert MintActive();
-        _mint(_to, ++totalSupply);
-    }
-
-    /// @inheritdoc IFxGenArt721
-    function toggleMint() external onlyOwner {
-        issuerInfo.projectInfo.enabled = !issuerInfo.projectInfo.enabled;
-    }
-
-    /// @inheritdoc IFxGenArt721
-    function toggleOnchain() external onlyOwner {
-        issuerInfo.projectInfo.onchain = !issuerInfo.projectInfo.onchain;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                                 READ FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -167,7 +180,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
     }
 
     /// @inheritdoc IFxGenArt721
-    function remainingSupply() external view returns (uint256) {
+    function remainingSupply() public view returns (uint256) {
         return issuerInfo.projectInfo.supply - totalSupply;
     }
 
