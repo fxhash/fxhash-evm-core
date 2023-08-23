@@ -2,6 +2,7 @@
 pragma solidity 0.8.20;
 
 import {Base64} from "openzeppelin/contracts/utils/Base64.sol";
+import {GenArtInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxTokenRenderer} from "src/interfaces/IFxTokenRenderer.sol";
 import {
     IScriptyBuilderV2,
@@ -28,12 +29,33 @@ contract FxTokenRenderer is IFxTokenRenderer {
         scriptyBuilder = _scriptyBuilder;
     }
 
+    function tokenURI(
+        uint256 _tokenId,
+        ProjectInfo memory _projectInfo,
+        GenArtInfo memory _genArtInfo
+    ) external view returns (string memory) {
+        if (!_projectInfo.onchain) {
+            string memory baseURI = _projectInfo.metadataInfo.baseURI;
+            return string.concat(baseURI, _tokenId.toString());
+        } else {
+            HTMLRequest memory animation = _projectInfo.metadataInfo.animation;
+            HTMLRequest memory attributes = _projectInfo.metadataInfo.attributes;
+            bytes memory onchainData = renderOnchain(
+                _tokenId, _genArtInfo.seed, _genArtInfo.fxParams, animation, attributes
+            );
+
+            return string(
+                abi.encodePacked("data:application/json;base64,", Base64.encode(onchainData))
+            );
+        }
+    }
+
     function renderOnchain(
         uint256 _tokenId,
         bytes32 _seed,
-        bytes calldata _fxParams,
-        HTMLRequest calldata _animation,
-        HTMLRequest calldata _attributes
+        bytes memory _fxParams,
+        HTMLRequest memory _animation,
+        HTMLRequest memory _attributes
     ) public view returns (bytes memory) {
         bytes memory animation = getEncodedHTML(_tokenId, _seed, _fxParams, _animation);
         bytes memory attributes = getEncodedHTML(_tokenId, _seed, _fxParams, _attributes);
@@ -45,8 +67,8 @@ contract FxTokenRenderer is IFxTokenRenderer {
     function getEncodedHTML(
         uint256 _tokenId,
         bytes32 _seed,
-        bytes calldata _fxParams,
-        HTMLRequest calldata _htmlRequest
+        bytes memory _fxParams,
+        HTMLRequest memory _htmlRequest
     ) public view returns (bytes memory) {
         HTMLTag[] memory headTags = new HTMLTag[](_htmlRequest.headTags.length);
         HTMLTag[] memory bodyTags = new HTMLTag[](
@@ -90,7 +112,7 @@ contract FxTokenRenderer is IFxTokenRenderer {
             abi.encodePacked('let tokenData = {"tokenId": "', tokenId, '", "seed": "', seed, '"};');
     }
 
-    function _getParamsContent(uint256 _tokenId, bytes calldata _fxParams)
+    function _getParamsContent(uint256 _tokenId, bytes memory _fxParams)
         internal
         pure
         returns (bytes memory)

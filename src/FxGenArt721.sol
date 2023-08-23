@@ -1,13 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {Base64} from "openzeppelin/contracts/utils/Base64.sol";
 import {ERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {
     IFxGenArt721,
     GenArtInfo,
-    HTMLRequest,
     IssuerInfo,
     MintInfo,
     ProjectInfo,
@@ -18,7 +16,6 @@ import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Init
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 import {FxRoyaltyManager} from "src/FxRoyaltyManager.sol";
 import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
-import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
 import "src/utils/Constants.sol";
 
@@ -27,8 +24,6 @@ import "src/utils/Constants.sol";
  * @notice See the documentation in {IFxGenArt721}
  */
 contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyManager {
-    using Strings for uint256;
-
     /// @inheritdoc IFxGenArt721
     address public immutable contractRegistry;
     /// @inheritdoc IFxGenArt721
@@ -194,22 +189,10 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
     /// @inheritdoc ERC721
     function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
         _requireMinted(_tokenId);
-        if (!issuerInfo.projectInfo.onchain) {
-            string memory baseURI = issuerInfo.projectInfo.metadataInfo.baseURI;
-            return string.concat(baseURI, _tokenId.toString());
-        } else {
-            bytes32 seed = genArtInfo[_tokenId].seed;
-            bytes memory fxParams = genArtInfo[_tokenId].fxParams;
-            HTMLRequest memory animation = issuerInfo.projectInfo.metadataInfo.animation;
-            HTMLRequest memory attributes = issuerInfo.projectInfo.metadataInfo.attributes;
-            bytes memory onchainData = IFxTokenRenderer(renderer).renderOnchain(
-                _tokenId, seed, fxParams, animation, attributes
-            );
 
-            return string(
-                abi.encodePacked("data:application/json;base64,", Base64.encode(onchainData))
-            );
-        }
+        return IFxTokenRenderer(renderer).tokenURI(
+            _tokenId, issuerInfo.projectInfo, genArtInfo[_tokenId]
+        );
     }
 
     /*//////////////////////////////////////////////////////////////////////////
