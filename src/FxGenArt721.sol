@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {Base64} from "openzeppelin/contracts/utils/Base64.sol";
 import {ERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {
     IFxGenArt721,
     GenArtInfo,
-    HTMLRequest,
     IssuerInfo,
     MintInfo,
     ProjectInfo,
@@ -15,10 +14,8 @@ import {
 } from "src/interfaces/IFxGenArt721.sol";
 import {IFxTokenRenderer} from "src/interfaces/IFxTokenRenderer.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
-import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 import {FxRoyaltyManager} from "src/FxRoyaltyManager.sol";
 import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
-import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
 import "src/utils/Constants.sol";
 
@@ -27,8 +24,6 @@ import "src/utils/Constants.sol";
  * @notice See the documentation in {IFxGenArt721}
  */
 contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyManager {
-    using Strings for uint256;
-
     /// @inheritdoc IFxGenArt721
     address public immutable contractRegistry;
     /// @inheritdoc IFxGenArt721
@@ -46,7 +41,9 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
                                   MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Modifier for restricting calls to only registered contracts
+    /**
+     * @dev Modifier for restricting calls to only registered contracts
+     */
     modifier onlyContract(bytes32 _name) {
         if (msg.sender != IFxContractRegistry(contractRegistry).contracts(_name)) {
             revert UnauthorizedContract();
@@ -54,15 +51,19 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
         _;
     }
 
-    /// @dev Modifier for restricting calls to only registered minters
+    /**
+     * @dev Modifier for restricting calls to only registered minters
+     */
     modifier onlyMinter() {
         if (!isMinter(msg.sender)) revert UnregisteredMinter();
         _;
     }
 
-    /// @dev Modifier for restricting calls to only authorized accounts with given roles
+    /**
+     * @dev Modifier for restricting calls to only authorized accounts with given roles
+     */
     modifier onlyRole(bytes32 _role) {
-        if (!FxRoleRegistry(roleRegistry).hasRole(_role, msg.sender)) revert UnauthorizedAccount();
+        if (!IAccessControl(roleRegistry).hasRole(_role, msg.sender)) revert UnauthorizedAccount();
         _;
     }
 
@@ -106,12 +107,44 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
     /// @inheritdoc IFxGenArt721
     function publicMint(address _to, uint256 _amount) external onlyMinter {
         if (!issuerInfo.projectInfo.enabled) revert MintInactive();
-        for (uint256 i; i < _amount;) {
-            _mint(_to, ++totalSupply);
-            unchecked {
-                ++i;
+        unchecked {
+            for (uint256 i; i < _amount; ++i) {
+                _mint(_to, ++totalSupply);
             }
         }
+    }
+
+    /// @inheritdoc IFxGenArt721
+    function burn(uint256 _tokenId) external {
+        if (!_isApprovedOrOwner(msg.sender, _tokenId)) revert NotAuthorized();
+        _burn(_tokenId);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                OWNER FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc IFxGenArt721
+    function ownerMint(address _to) external onlyOwner {
+        _mint(_to, ++totalSupply);
+    }
+
+    /// @inheritdoc IFxGenArt721
+    function reduceSupply(uint240 _supply) external onlyOwner {
+        if (_supply >= issuerInfo.projectInfo.supply || _supply < totalSupply) {
+            revert InvalidSupply();
+        }
+        issuerInfo.projectInfo.supply = _supply;
+    }
+
+    /// @inheritdoc IFxGenArt721
+    function toggleMint() external onlyOwner {
+        issuerInfo.projectInfo.enabled = !issuerInfo.projectInfo.enabled;
+    }
+
+    /// @inheritdoc IFxGenArt721
+    function toggleOnchain() external onlyOwner {
+        issuerInfo.projectInfo.onchain = !issuerInfo.projectInfo.onchain;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -140,26 +173,6 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
     function setRenderer(address _renderer) external onlyRole(ADMIN_ROLE) {
         renderer = _renderer;
         emit RendererUpdated(_renderer);
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                OWNER FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /// @inheritdoc IFxGenArt721
-    function ownerMint(address _to) external onlyOwner {
-        if (issuerInfo.projectInfo.enabled) revert MintActive();
-        _mint(_to, ++totalSupply);
-    }
-
-    /// @inheritdoc IFxGenArt721
-    function toggleMint() external onlyOwner {
-        issuerInfo.projectInfo.enabled = !issuerInfo.projectInfo.enabled;
-    }
-
-    /// @inheritdoc IFxGenArt721
-    function toggleOnchain() external onlyOwner {
-        issuerInfo.projectInfo.onchain = !issuerInfo.projectInfo.onchain;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -194,30 +207,20 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
     /// @inheritdoc ERC721
     function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
         _requireMinted(_tokenId);
-        if (!issuerInfo.projectInfo.onchain) {
-            string memory baseURI = issuerInfo.projectInfo.metadataInfo.baseURI;
-            return string.concat(baseURI, _tokenId.toString());
-        } else {
-            bytes32 seed = genArtInfo[_tokenId].seed;
-            bytes memory fxParams = genArtInfo[_tokenId].fxParams;
-            HTMLRequest memory animation = issuerInfo.projectInfo.metadataInfo.animation;
-            HTMLRequest memory attributes = issuerInfo.projectInfo.metadataInfo.attributes;
-            bytes memory onchainData = IFxTokenRenderer(renderer).renderOnchain(
-                _tokenId, seed, fxParams, animation, attributes
-            );
 
-            return string(
-                abi.encodePacked("data:application/json;base64,", Base64.encode(onchainData))
-            );
-        }
+        return IFxTokenRenderer(renderer).tokenURI(
+            _tokenId, issuerInfo.projectInfo, genArtInfo[_tokenId]
+        );
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                 INTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Registers arbitrary number of minter contracts
-    /// @param _mintInfo List of minter contracts and their reserves
+    /**
+     * @dev Registers arbitrary number of minter contracts
+     * @param _mintInfo List of minter contracts and their reserves
+     */
     function _registerMinters(MintInfo[] calldata _mintInfo) internal {
         address minter;
         uint128 totalAllocation;
@@ -226,7 +229,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
             for (uint256 i; i < _mintInfo.length; ++i) {
                 minter = _mintInfo[i].minter;
                 reserveInfo = _mintInfo[i].reserveInfo;
-                if (!FxRoleRegistry(roleRegistry).hasRole(MINTER_ROLE, minter)) {
+                if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) {
                     revert UnauthorizedMinter();
                 }
                 if (reserveInfo.startTime >= reserveInfo.endTime) revert InvalidReserveTime();
