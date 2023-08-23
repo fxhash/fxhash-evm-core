@@ -101,10 +101,9 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
     /// @inheritdoc IFxGenArt721
     function publicMint(address _to, uint256 _amount) external onlyMinter {
         if (!issuerInfo.projectInfo.enabled) revert MintInactive();
-        for (uint256 i; i < _amount;) {
-            _mint(_to, ++totalSupply);
-            unchecked {
-                ++i;
+        unchecked {
+            for (uint256 i; i < _amount; ++i) {
+                _mint(_to, ++totalSupply);
             }
         }
     }
