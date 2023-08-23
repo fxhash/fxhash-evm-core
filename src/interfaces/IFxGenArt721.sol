@@ -19,7 +19,7 @@ struct IssuerInfo {
  * @param onchain Onchain status of project
  * @param supply Maximum supply of tokens
  * @param contractURI Contract URI of project
- * @param metadataInfo Metadata information of tokens
+ * @param metadataInfo Metadata information of collection
  */
 struct ProjectInfo {
     bool enabled;
