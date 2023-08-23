@@ -13,6 +13,10 @@ import {
 /// @dev Base unit for doing wad math
 int256 constant ONE_WAD = 1e18;
 
+function fromWad(int256 wadValue) pure returns (uint256) {
+    return uint256(wadValue / ONE_WAD);
+}
+
 /**
  * @notice Calculates the remaining amount based on a rate of exponential decay and duration.
  * @dev decayConstant must be non-negative
@@ -26,7 +30,7 @@ function calculateExponentialDecay(uint256 startingPrice, uint256 timeElapsed, i
     returns (uint256)
 {
     int256 wadDecayConstant = wadLn(ONE_WAD - wadDecayRate);
-    int256 wadDays = toDaysWadUnsafe(timeElapsed);
-    int256 wadPrice = toWadUnsafe(startingPrice);
-    return uint256(wadMul(wadPrice, wadExp(unsafeWadMul(wadDecayConstant, wadDays))) / ONE_WAD);
+    int256 wadDaysElapsed = toDaysWadUnsafe(timeElapsed);
+    int256 wadStartingPrice = toWadUnsafe(startingPrice);
+    return fromWad(wadMul(wadStartingPrice, wadExp(unsafeWadMul(wadDecayConstant, wadDaysElapsed))));
 }
