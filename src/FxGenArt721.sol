@@ -56,7 +56,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
 
     /// @dev Modifier for restricting calls to only registered minters
     modifier onlyMinter() {
-        if (!isMinter(msg.sender) || msg.sender == owner()) revert UnregisteredMinter();
+        if (!isMinter(msg.sender)) revert UnregisteredMinter();
         _;
     }
 
@@ -114,6 +114,10 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
         }
     }
 
+    /// @inheritdoc IFxGenArt721
+    function ownerMint(address _to) external onlyOwner {
+        _mint(_to, ++totalSupply);
+    }
     /*//////////////////////////////////////////////////////////////////////////
                                 ADMIN FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/

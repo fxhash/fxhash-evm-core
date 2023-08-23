@@ -178,6 +178,13 @@ interface IFxGenArt721 {
     function mint(address _to, uint256 _amount) external;
 
     /**
+     * @notice Allows owner to mint tokens to given account
+     * @dev Owner can mint at anytime up to supply cap
+     * @param _to Address being minted to
+     */
+    function ownerMint(address _to) external;
+
+    /**
      * @notice Sets the new URI of the token metadata
      * @param _uri Pointer of the metadata
      */
