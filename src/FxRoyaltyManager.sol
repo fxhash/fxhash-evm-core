@@ -7,6 +7,8 @@ import {MAX_ROYALTY_BPS} from "src/utils/Constants.sol";
 /// @title FxRoyaltyManager
 /// @notice A contract for managing royalties
 abstract contract FxRoyaltyManager is IFxRoyaltyManager {
+    /// @dev Returns the fee denominator for calculating royalty amounts.
+    uint256 internal constant FEE_DENOMINATOR = 10_000;
     /// @notice A struct containing basisPoints and receiver address for a royalty
     RoyaltyInfo[] public baseRoyalties;
 
@@ -21,7 +23,6 @@ abstract contract FxRoyaltyManager is IFxRoyaltyManager {
      */
     function setBaseRoyalties(address payable[] calldata _receivers, uint96[] calldata _basisPoints)
         external
-        virtual
     {
         _setBaseRoyalties(_receivers, _basisPoints);
     }
@@ -37,7 +38,7 @@ abstract contract FxRoyaltyManager is IFxRoyaltyManager {
         uint256 _tokenId,
         address payable[] calldata _receivers,
         uint96[] calldata _basisPoints
-    ) external virtual {
+    ) external {
         _setTokenRoyalties(_tokenId, _receivers, _basisPoints);
     }
 
@@ -51,7 +52,6 @@ abstract contract FxRoyaltyManager is IFxRoyaltyManager {
     function royaltyInfo(uint256 _tokenId, uint256 _salePrice)
         external
         view
-        virtual
         returns (address receiver, uint256 amount)
     {
         RoyaltyInfo[] storage tokenRoyalties_ = tokenRoyalties[_tokenId];
@@ -64,7 +64,7 @@ abstract contract FxRoyaltyManager is IFxRoyaltyManager {
         (receiver, basisPoints) = tokenRoyalties_.length > 0
             ? (tokenRoyalties_[0].receiver, tokenRoyalties_[0].basisPoints)
             : (baseRoyalties_[0].receiver, baseRoyalties_[0].basisPoints);
-        amount = (_salePrice * basisPoints) / _feeDenominator();
+        amount = (_salePrice * basisPoints) / FEE_DENOMINATOR;
     }
 
     /**
@@ -110,7 +110,7 @@ abstract contract FxRoyaltyManager is IFxRoyaltyManager {
         uint256 _tokenId,
         address payable[] calldata _receivers,
         uint96[] calldata _basisPoints
-    ) internal virtual {
+    ) internal {
         if (!_exists(_tokenId)) revert NonExistentToken();
         if (_receivers.length != _basisPoints.length) revert LengthMismatch();
         /// Deleting first, so this could be used to reset royalties to a new config
@@ -161,14 +161,6 @@ abstract contract FxRoyaltyManager is IFxRoyaltyManager {
     function _exists(uint256) internal virtual returns (bool);
 
     /**
-     * @dev Returns the fee denominator for calculating royalty amounts.
-     * @return The fee denominator.
-     */
-    function _feeDenominator() internal pure virtual returns (uint96) {
-        return 10_000;
-    }
-
-    /**
      * @dev Checks that the total basis points for the royalties do not exceed 10000 (100%)
      */
     function _checkRoyalties(uint96[] memory _basisPoints) internal pure {
@@ -177,6 +169,6 @@ abstract contract FxRoyaltyManager is IFxRoyaltyManager {
             if (_basisPoints[i] > MAX_ROYALTY_BPS) revert OverMaxBasisPointsAllowed();
             totalBasisPoints += _basisPoints[i];
         }
-        if (totalBasisPoints >= _feeDenominator()) revert InvalidRoyaltyConfig();
+        if (totalBasisPoints >= FEE_DENOMINATOR) revert InvalidRoyaltyConfig();
     }
 }
