@@ -110,7 +110,11 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
 
     /// @inheritdoc IFxGenArt721
     function burn(uint256 _tokenId) external {
-        if (_ownerOf(_tokenId) != msg.sender) revert UnauthorizedTransaction();
+        address owner = _ownerOf(_tokenId);
+        if (
+            owner != msg.sender || getApproved(_tokenId) != msg.sender
+                || !isApprovedForAll(owner, msg.sender)
+        ) revert UnauthorizedTransaction();
         _burn(_tokenId);
     }
 
