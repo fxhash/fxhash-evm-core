@@ -97,6 +97,11 @@ interface IFxGenArt721 {
     error MintInactive();
 
     /**
+     * @notice Error thrown when caller is not authorized to execute transaction
+     */
+    error NotAuthorized();
+
+    /**
      * @notice Error thrown when caller does not have given role
      */
     error UnauthorizedAccount();
@@ -110,11 +115,6 @@ interface IFxGenArt721 {
      * @notice Error thrown when caller does not have minter role
      */
     error UnauthorizedMinter();
-
-    /**
-     * @notice Error thrown when caller is not authorized to execute transaction
-     */
-    error UnauthorizedTransaction();
 
     /**
      * @notice Error thrown when minter is not registered on token contract

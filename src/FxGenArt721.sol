@@ -110,11 +110,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
 
     /// @inheritdoc IFxGenArt721
     function burn(uint256 _tokenId) external {
-        address owner = _ownerOf(_tokenId);
-        if (
-            owner != msg.sender || getApproved(_tokenId) != msg.sender
-                || !isApprovedForAll(owner, msg.sender)
-        ) revert UnauthorizedTransaction();
+        if (!_isApprovedOrOwner(msg.sender, _tokenId)) revert NotAuthorized();
         _burn(_tokenId);
     }
 
@@ -183,7 +179,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
     }
 
     /// @inheritdoc IFxGenArt721
-    function remainingSupply() public view returns (uint256) {
+    function remainingSupply() external view returns (uint256) {
         return issuerInfo.projectInfo.supply - totalSupply;
     }
 
@@ -192,7 +188,9 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
         return issuerInfo.minters[_minter];
     }
 
-    /// @inheritdoc ERC721
+    /**
+     * @inheritdoc ERC721
+     */
     function supportsInterface(bytes4 _interfaceId)
         public
         view
@@ -202,7 +200,9 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
         return super.supportsInterface(_interfaceId);
     }
 
-    /// @inheritdoc ERC721
+    /**
+     * @inheritdoc ERC721
+     */
     function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
         _requireMinted(_tokenId);
 
@@ -215,8 +215,10 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
                                 INTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Registers arbitrary number of minter contracts
-    /// @param _mintInfo List of minter contracts and their reserves
+    /**
+     * @dev Registers arbitrary number of minter contracts
+     * @param _mintInfo List of minter contracts and their reserves
+     */
     function _registerMinters(MintInfo[] calldata _mintInfo) internal {
         address minter;
         uint128 totalAllocation;
@@ -237,7 +239,9 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
         if (totalAllocation > issuerInfo.projectInfo.supply) revert AllocationExceeded();
     }
 
-    /// @inheritdoc ERC721
+    /**
+     * @inheritdoc ERC721
+     */
     function _exists(uint256 _tokenId)
         internal
         view
