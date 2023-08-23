@@ -5,4 +5,11 @@ import "test/BaseTest.t.sol";
 
 import {IFxGenArt721} from "src/interfaces/IFxGenArt721.sol";
 
-contract FxGenArt721Test is BaseTest {}
+contract FxGenArt721Test is BaseTest {
+    function setUp() public virtual override {
+        super.setUp();
+        fxGenArtProxy = fxIssuerFactory.createProject(
+            creator, address(this), projectInfo, mintInfo, royaltyReceivers, basisPoints
+        );
+    }
+}

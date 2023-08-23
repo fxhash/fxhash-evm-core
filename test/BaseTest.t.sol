@@ -13,6 +13,7 @@ import {
 import {FxIssuerFactory} from "src/factories/FxIssuerFactory.sol";
 import {FxTokenRenderer} from "src/FxTokenRenderer.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
+import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 import {Test} from "forge-std/Test.sol";
 
 import "script/utils/Constants.sol";
@@ -21,35 +22,35 @@ import "test/utils/Constants.sol";
 
 contract BaseTest is Test {
     // Contracts
-    FxContractRegistry public fxContractRegistry;
-    FxIssuerFactory public fxIssuerFactory;
-    FxGenArt721 public fxGenArt721;
-    FxRoleRegistry public fxRoleRegistry;
-    FxTokenRenderer public fxTokenRenderer;
+    FxContractRegistry internal fxContractRegistry;
+    FxIssuerFactory internal fxIssuerFactory;
+    FxGenArt721 internal fxGenArt721;
+    FxRoleRegistry internal fxRoleRegistry;
+    FxTokenRenderer internal fxTokenRenderer;
 
     // Users
-    address public admin;
-    address public moderator;
-    address public creator;
-    address public alice;
-    address public bob;
-    address public eve;
-    address public susan;
+    address internal admin;
+    address internal moderator;
+    address internal creator;
+    address internal alice;
+    address internal bob;
+    address internal eve;
+    address internal susan;
 
     // Structs
-    IssuerInfo public isserInfo;
-    ProjectInfo public projectInfo;
-    MintInfo[] public mintInfo;
-    ReserveInfo[] public reserveInfo;
-    GenArtInfo public genArtInfo;
+    IssuerInfo internal isserInfo;
+    ProjectInfo internal projectInfo;
+    MintInfo[] internal mintInfo;
+    ReserveInfo[] internal reserveInfo;
+    GenArtInfo internal genArtInfo;
 
     // State
-    address public fxGenArtProxy;
-    address public owner;
-    address public primaryReceiver;
-    address payable[] public royaltyReceivers;
-    uint96[] public basisPoints;
-    uint96 public projectId;
+    address internal fxGenArtProxy;
+    address internal owner;
+    address internal primaryReceiver;
+    address payable[] internal royaltyReceivers;
+    uint96[] internal basisPoints;
+    uint96 internal projectId;
 
     // Modifiers
     modifier prank(address _caller) {
@@ -71,7 +72,6 @@ contract BaseTest is Test {
         bob = _createUser("bob");
         eve = _createUser("eve");
         susan = _createUser("susan");
-        primaryReceiver = creator;
     }
 
     function deployContracts() public virtual {

@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {IFxSeedConsumer} from "src/interfaces/IFxSeedConsumer.sol";
-import {FxRandomizerTest} from "test/unit/FxRandomizer/FxRandomizer.t.sol";
+import "test/unit/FxRandomizer/FxRandomizer.t.sol";
 
 contract RequestRandomness is IFxSeedConsumer, FxRandomizerTest {
     bytes32 internal seed;
 
-    function fulfillSeedRequest(uint256 _id, bytes32 _seed) external {
+    function fulfillSeedRequest(uint256, /* _id */ bytes32 _seed) external {
         seed = _seed;
     }
 

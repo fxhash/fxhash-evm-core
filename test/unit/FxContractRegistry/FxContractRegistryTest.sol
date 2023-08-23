@@ -1,11 +1,13 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.18;
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.20;
 
-import {BaseTest} from "test/BaseTest.t.sol";
+import "test/BaseTest.t.sol";
+
 import {FxContractRegistry} from "src/registries/FxContractRegistry.sol";
+import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 
 contract FxContractRegistryTest is BaseTest {
-    FxContractRegistry public registry;
+    FxContractRegistry internal registry;
 
     function setUp() public virtual override {
         super.setUp();

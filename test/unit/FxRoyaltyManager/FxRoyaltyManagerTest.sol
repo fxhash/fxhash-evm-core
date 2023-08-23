@@ -10,7 +10,7 @@ import {MockFxRoyaltyManager} from "test/mocks/MockFxRoyaltyManager.sol";
 contract FxRoyaltyManagerTest is BaseTest {
     // State
     uint256 internal tokenId;
-    FxRoyaltyManager public royaltyManager;
+    FxRoyaltyManager internal royaltyManager;
 
     // Custom Errors
     bytes4 INVALID_ROYALTY_CONFIG_ERROR = IFxRoyaltyManager.InvalidRoyaltyConfig.selector;

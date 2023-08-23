@@ -4,8 +4,8 @@ pragma solidity 0.8.20;
 import "test/unit/FxRoyaltyManager/FxRoyaltyManagerTest.sol";
 
 contract RoyaltyInfo is FxRoyaltyManagerTest {
-    address receiver;
-    uint256 bps;
+    address internal receiver;
+    uint256 internal bps;
 
     function setUp() public override {
         super.setUp();
