@@ -9,24 +9,49 @@ contract MintPass {
     using BitMaps for BitMaps.BitMap;
 
     address internal FXHASH_AUTHORITY;
-    mapping(address => BitMaps.BitMap) internal redeemedBitMaps;
 
+    /**
+     * @dev Thrown when a mint pass has already been claimed.
+     */
     error AlreadyClaimed();
+
+    /**
+     * @dev Thrown when the signature of the mint pass claim is invalid.
+     */
     error InvalidSig();
 
-    function isClaimed(address _token, uint256 _index) public view returns (bool) {
-        return redeemedBitMaps[_token].get(_index);
+    /**
+     * @dev Initializes the contract.
+     */
+    constructor(address _signer) {
+        FXHASH_AUTHORITY = _signer;
     }
 
+    function _isClaimed(BitMaps.BitMap storage _bitmap, uint256 _index)
+        internal
+        view
+        returns (bool)
+    {
+        return _bitmap.get(_index);
+    }
+
+    /*
+     * @dev Internal function to claim a mint pass.
+     * @param _bitmap The bitmap struct in stroage to write the claim to.
+     * @param _index The index of the mint pass.
+     * @param _user The address of the user claiming the mint pass.
+     * @param _mintCode The mint code which can have additional data for the mint.
+     * @param _signature The signature of the mint pass claim.
+     */
     function _claimMintPass(
-        address _token,
+        BitMaps.BitMap storage _bitmap,
         uint256 _index,
         bytes calldata _mintCode,
         bytes calldata _sig
     ) internal {
-        if (isClaimed(_token, _index)) revert AlreadyClaimed();
-        bytes32 hash = keccak256(abi.encodePacked(_token, msg.sender, _index, _mintCode));
+        if (_isClaimed(_bitmap, _index)) revert AlreadyClaimed();
+        bytes32 hash = keccak256(abi.encodePacked(address(this), msg.sender, _index, _mintCode));
         if (hash.toEthSignedMessageHash().recover(_sig) != FXHASH_AUTHORITY) revert InvalidSig();
-        redeemedBitMaps[_token].set(_index);
+        _bitmap.set(_index);
     }
 }
