@@ -19,7 +19,7 @@ struct IssuerInfo {
  * @param onchain Onchain status of project
  * @param supply Maximum supply of tokens
  * @param contractURI Contract URI of project
- * @param metadataInfo Metadata information of tokens
+ * @param metadataInfo Metadata information of collection
  */
 struct ProjectInfo {
     bool enabled;
@@ -82,19 +82,29 @@ interface IFxGenArt721 {
     error AllocationExceeded();
 
     /**
+     * @notice Error thrown when reducing max supply is invalid
+     */
+    error InvalidSupply();
+
+    /**
      * @notice Error thrown when reserve start time is greater than or equal to end time
      */
     error InvalidReserveTime();
 
     /**
-     * @notice Error thrown when minting is active
-     */
-    error MintActive();
-
-    /**
      * @notice Error thrown when minting is inactive
      */
     error MintInactive();
+
+    /**
+     * @notice Error thrown when caller is not authorized to execute transaction
+     */
+    error NotAuthorized();
+
+    /**
+     * @notice Error thrown when caller does not have given role
+     */
+    error UnauthorizedAccount();
 
     /**
      * @notice Error thrown when caller is not an authorized contract
@@ -105,11 +115,6 @@ interface IFxGenArt721 {
      * @notice Error thrown when caller does not have minter role
      */
     error UnauthorizedMinter();
-
-    /**
-     * @notice Error thrown when caller does not have given role
-     */
-    error UnauthorizedAccount();
 
     /**
      * @notice Error thrown when minter is not registered on token contract
@@ -153,6 +158,12 @@ interface IFxGenArt721 {
     event RendererUpdated(address indexed _renderer);
 
     /**
+     * @notice Burns token ID from the circulating supply
+     * @param _tokenId ID of the token
+     */
+    function burn(uint256 _tokenId) external;
+
+    /**
      * @notice Initializes new generative art project
      * @param _owner Address of contract owner
      * @param _primaryReceiver Address of splitter contract receiving primary sales
@@ -171,18 +182,24 @@ interface IFxGenArt721 {
     ) external;
 
     /**
+     * @notice Allows any minter contract to mint an arbitrary amount of tokens to a given account
+     * @param _to Address being minted to
+     * @param _amount Amount of tokens being minted
+     */
+    function mint(address _to, uint256 _amount) external;
+
+    /**
      * @notice Allows owner to mint tokens to given account
-     * @dev Public mint must be disabled
+     * @dev Owner can mint at anytime up to supply cap
      * @param _to Address being minted to
      */
     function ownerMint(address _to) external;
 
     /**
-     * @notice Allows any minter contract to mint an arbitrary amount of tokens to a given account
-     * @param _to Address being minted to
-     * @param _amount Amount of tokens being minted
+     * @notice Reduces max supply of collection
+     * @param _supply Max supply amount
      */
-    function publicMint(address _to, uint256 _amount) external;
+    function reduceSupply(uint240 _supply) external;
 
     /**
      * @notice Sets the new URI of the token metadata

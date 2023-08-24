@@ -37,3 +37,4 @@ uint128 constant VERIFIED = 10;
 
 // Basis Points
 uint96 constant MAX_ROYALTY_BPS = 2500;
+uint96 constant FEE_DENOMINATOR = 10_000;
