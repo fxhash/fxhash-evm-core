@@ -6,7 +6,7 @@ import {FxGenArt721, IssuerInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/F
 import {FxIssuerFactory} from "src/factories/FxIssuerFactory.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 import {FxTokenRenderer} from "src/FxTokenRenderer.sol";
-import {ISplitsMain} from "src/Interfaces/ISplitsMain.sol";
+import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
 import {Script} from "forge-std/Script.sol";
 
 import "src/utils/Constants.sol";
