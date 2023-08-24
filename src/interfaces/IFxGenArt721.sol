@@ -182,18 +182,18 @@ interface IFxGenArt721 {
     ) external;
 
     /**
-     * @notice Allows owner to mint tokens to given account
-     * @dev Public mint must be disabled
-     * @param _to Address being minted to
-     */
-    function ownerMint(address _to) external;
-
-    /**
      * @notice Allows any minter contract to mint an arbitrary amount of tokens to a given account
      * @param _to Address being minted to
      * @param _amount Amount of tokens being minted
      */
-    function publicMint(address _to, uint256 _amount) external;
+    function mint(address _to, uint256 _amount) external;
+
+    /**
+     * @notice Allows owner to mint tokens to given account
+     * @dev Owner can mint at anytime up to supply cap
+     * @param _to Address being minted to
+     */
+    function ownerMint(address _to) external;
 
     /**
      * @notice Reduces max supply of collection
