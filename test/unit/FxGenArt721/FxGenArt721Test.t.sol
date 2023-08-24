@@ -14,6 +14,7 @@ contract FxGenArt721Test is BaseTest {
         _configureRoyalties();
         _createSplit(creator);
         _createProject(creator);
+        _setRenderer(admin);
     }
 
     function test_Implementation() public {
@@ -28,8 +29,9 @@ contract FxGenArt721Test is BaseTest {
         assertEq(project.supply, MAX_SUPPLY);
         assertEq(project.contractURI, contractURI);
         assertEq(splits, primaryReceiver);
-        assertEq(FxGenArt721(fxGenArtProxy).isMinter(minter), true);
-        assertEq(FxGenArt721(fxGenArtProxy).owner(), creator);
+        assertEq(IFxGenArt721(fxGenArtProxy).isMinter(minter), true);
+        assertEq(IFxGenArt721(fxGenArtProxy).owner(), creator);
+        assertEq(IFxGenArt721(fxGenArtProxy).renderer(), address(fxTokenRenderer));
     }
 
     function _configureProject() internal {
@@ -79,5 +81,9 @@ contract FxGenArt721Test is BaseTest {
         fxGenArtProxy = fxIssuerFactory.createProject(
             creator, primaryReceiver, projectInfo, mintInfo, royaltyReceivers, basisPoints
         );
+    }
+
+    function _setRenderer(address _admin) internal prank(_admin) {
+        IFxGenArt721(fxGenArtProxy).setRenderer(address(fxTokenRenderer));
     }
 }

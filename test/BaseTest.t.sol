@@ -117,11 +117,10 @@ contract BaseTest is Test {
     function _mock0xSplits() internal {
         bytes memory splitMainBytecode = abi.encodePacked(SPLITS_MAIN_CREATION_CODE, abi.encode());
         address deployedAddress_;
-        vm.startPrank(SPLITS_DEPLOYER);
+        vm.prank(SPLITS_DEPLOYER);
         vm.setNonce(SPLITS_DEPLOYER, SPLITS_DEPLOYER_NONCE);
         assembly {
             deployedAddress_ := create(0, add(splitMainBytecode, 32), mload(splitMainBytecode))
         }
-        vm.stopPrank();
     }
 }

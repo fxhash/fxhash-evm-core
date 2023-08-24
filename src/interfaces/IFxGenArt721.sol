@@ -266,6 +266,11 @@ interface IFxGenArt721 {
     function issuerInfo() external view returns (ProjectInfo memory, address);
 
     /**
+     * @notice Returns the address of contract owner
+     */
+    function owner() external view returns (address);
+
+    /**
      * @notice Returns the remaining supply of tokens left to mint
      */
     function remainingSupply() external view returns (uint256);

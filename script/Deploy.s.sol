@@ -73,6 +73,5 @@ contract Deploy is Script {
             deployedAddress_ := create(0, add(splitsMainBytecode, 32), mload(splitsMainBytecode))
         }
         primaryReceiver = deployedAddress_;
-        vm.stopPrank();
     }
 }
