@@ -6,6 +6,7 @@ import {FxGenArt721, IssuerInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/F
 import {FxIssuerFactory} from "src/factories/FxIssuerFactory.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 import {FxTokenRenderer} from "src/FxTokenRenderer.sol";
+import {ISplitsMain} from "src/Interfaces/ISplitsMain.sol";
 import {Script} from "forge-std/Script.sol";
 
 import "src/utils/Constants.sol";
@@ -19,27 +20,44 @@ contract Deploy is Script {
     FxRoleRegistry internal fxRoleRegistry;
     FxTokenRenderer internal fxTokenRenderer;
 
-    // State
-    address internal fxGenArtProxy;
+    // Accounts
+    address internal admin;
     address internal creator;
-    address internal primaryReceiver;
+    address internal minter;
+
+    // Structs
     IssuerInfo internal isserInfo;
-    ProjectInfo internal projectInfo;
     MintInfo[] internal mintInfo;
-    ReserveInfo[] internal reserveInfo;
+    ProjectInfo internal projectInfo;
+    ReserveInfo internal reserveInfo;
+
+    // Project
+    address internal primaryReceiver;
+    address internal fxGenArtProxy;
+
+    // Royalties
     address payable[] internal royaltyReceivers;
     uint96[] internal basisPoints;
 
+    // Splits
+    address[] internal accounts;
+    uint32[] internal allocations;
+
     function setUp() public virtual {
-        creator = msg.sender;
-        _mock0xSplits();
+        _createAccounts();
     }
 
     function run() public virtual {
         vm.startBroadcast();
         _deployContracts();
+        _createSplit();
         _configureSettings();
         vm.stopBroadcast();
+    }
+
+    function _createAccounts() internal {
+        admin = msg.sender;
+        creator = address(uint160(uint256(keccak256(abi.encodePacked("creator")))));
     }
 
     function _deployContracts() internal {
@@ -57,21 +75,20 @@ contract Deploy is Script {
         );
     }
 
+    function _createSplit() internal {
+        accounts.push(admin);
+        accounts.push(creator);
+        allocations.push(SPLITS_ADMIN_ALLOCATION);
+        allocations.push(SPLITS_CREATOR_ALLOCATION);
+        primaryReceiver = ISplitsMain(SPLITS_MAIN).createSplit(
+            accounts, allocations, SPLITS_DISTRIBUTOR_FEE, SPLITS_CONTROLLER
+        );
+    }
+
     function _configureSettings() internal {
         fxGenArtProxy = fxIssuerFactory.createProject(
             creator, primaryReceiver, projectInfo, mintInfo, royaltyReceivers, basisPoints
         );
         FxGenArt721(fxGenArtProxy).setRenderer(address(fxTokenRenderer));
-    }
-
-    function _mock0xSplits() internal {
-        bytes memory splitsMainBytecode = abi.encodePacked(SPLITS_MAIN_CREATION_CODE, abi.encode());
-        address deployedAddress_;
-        vm.prank(SPLITS_DEPLOYER);
-        vm.setNonce(SPLITS_DEPLOYER, SPLITS_DEPLOYER_NONCE);
-        assembly {
-            deployedAddress_ := create(0, add(splitsMainBytecode, 32), mload(splitsMainBytecode))
-        }
-        primaryReceiver = deployedAddress_;
     }
 }
