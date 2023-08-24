@@ -82,9 +82,9 @@ interface IFxGenArt721 {
     error AllocationExceeded();
 
     /**
-     * @notice Error thrown when reducing max supply is invalid
+     * @notice Error thrown when max supply amount is invalid
      */
-    error InvalidSupply();
+    error InvalidAmount();
 
     /**
      * @notice Error thrown when reserve start time is greater than or equal to end time

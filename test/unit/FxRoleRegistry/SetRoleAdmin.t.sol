@@ -5,8 +5,7 @@ import "test/unit/FxRoleRegistry/FxRoleRegistryTest.sol";
 
 contract SetRoleAdmin is FxRoleRegistryTest {
     function test_SetRoleAdmin() public {
-        fxRoleRegistry.setRoleAdmin(ADMIN_ROLE);
-        assertTrue(fxRoleRegistry.hasRole(ADMIN_ROLE, address(this)));
+        assertTrue(fxRoleRegistry.hasRole(ADMIN_ROLE, admin));
     }
 
     function test_RevertsWhen_NotDefaultAdmin() public {

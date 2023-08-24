@@ -1,18 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
 import {FxContractRegistry} from "src/registries/FxContractRegistry.sol";
+import {FxGenArt721} from "src/FxGenArt721.sol";
+import {FxIssuerFactory} from "src/factories/FxIssuerFactory.sol";
+import {FxSplitsFactory} from "src/factories/FxSplitsFactory.sol";
+import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
+import {FxTokenRenderer} from "src/FxTokenRenderer.sol";
 import {
-    FxGenArt721,
     GenArtInfo,
     IssuerInfo,
+    MetadataInfo,
     MintInfo,
     ProjectInfo,
     ReserveInfo
-} from "src/FxGenArt721.sol";
-import {FxIssuerFactory} from "src/factories/FxIssuerFactory.sol";
-import {FxTokenRenderer} from "src/FxTokenRenderer.sol";
-import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
+} from "src/interfaces/IFxGenArt721.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 import {Test} from "forge-std/Test.sol";
 
@@ -26,10 +29,12 @@ contract BaseTest is Test {
     FxIssuerFactory internal fxIssuerFactory;
     FxGenArt721 internal fxGenArt721;
     FxRoleRegistry internal fxRoleRegistry;
+    FxSplitsFactory internal splitsFactory;
     FxTokenRenderer internal fxTokenRenderer;
 
     // Users
     address internal admin;
+    address internal minter;
     address internal moderator;
     address internal creator;
     address internal alice;
@@ -38,19 +43,25 @@ contract BaseTest is Test {
     address internal susan;
 
     // Structs
-    IssuerInfo internal isserInfo;
-    ProjectInfo internal projectInfo;
-    MintInfo[] internal mintInfo;
-    ReserveInfo[] internal reserveInfo;
+    IssuerInfo internal issuerInfo;
     GenArtInfo internal genArtInfo;
+    MetadataInfo internal metadataInfo;
+    MintInfo[] internal mintInfo;
+    ProjectInfo internal projectInfo;
+    ReserveInfo internal reserveInfo;
 
-    // State
+    // Project
     address internal fxGenArtProxy;
     address internal owner;
     address internal primaryReceiver;
     address payable[] internal royaltyReceivers;
     uint96[] internal basisPoints;
     uint96 internal projectId;
+    string contractURI;
+
+    // Splits
+    address[] internal accounts;
+    uint32[] internal allocations;
 
     // Modifiers
     modifier prank(address _caller) {
@@ -61,20 +72,21 @@ contract BaseTest is Test {
 
     function setUp() public virtual {
         createAccounts();
-        deployContracts();
+        deployContracts(admin);
     }
 
     function createAccounts() public virtual {
         admin = _createUser("admin");
-        moderator = _createUser("moderator");
         creator = _createUser("creator");
+        minter = _createUser("minter");
+        moderator = _createUser("moderator");
         alice = _createUser("alice");
         bob = _createUser("bob");
         eve = _createUser("eve");
         susan = _createUser("susan");
     }
 
-    function deployContracts() public virtual {
+    function deployContracts(address _admin) public virtual prank(_admin) {
         fxContractRegistry = new FxContractRegistry();
         fxRoleRegistry = new FxRoleRegistry();
         fxGenArt721 = new FxGenArt721(
@@ -90,9 +102,9 @@ contract BaseTest is Test {
 
         vm.label(address(this), "BaseTest");
         vm.label(address(fxContractRegistry), "FxContractRegistry");
-        vm.label(address(fxRoleRegistry), "FxRoleRegistry");
         vm.label(address(fxGenArt721), "FxGenArt721");
         vm.label(address(fxIssuerFactory), "FxIssuerFactory");
+        vm.label(address(fxRoleRegistry), "FxRoleRegistry");
         vm.label(address(fxTokenRenderer), "FxTokenRenderer");
     }
 
@@ -100,5 +112,16 @@ contract BaseTest is Test {
         user = address(uint160(uint256(keccak256(abi.encodePacked(_name)))));
         vm.deal(user, INITIAL_BALANCE);
         vm.label(user, _name);
+    }
+
+    function _mock0xSplits() internal {
+        bytes memory splitMainBytecode = abi.encodePacked(SPLITS_MAIN_CREATION_CODE, abi.encode());
+        address deployedAddress_;
+        vm.startPrank(SPLITS_DEPLOYER);
+        vm.setNonce(SPLITS_DEPLOYER, SPLITS_DEPLOYER_NONCE);
+        assembly {
+            deployedAddress_ := create(0, add(splitMainBytecode, 32), mload(splitMainBytecode))
+        }
+        vm.stopPrank();
     }
 }

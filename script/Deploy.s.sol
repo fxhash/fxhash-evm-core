@@ -13,25 +13,25 @@ import "script/utils/Constants.sol";
 
 contract Deploy is Script {
     // Contracts
-    FxContractRegistry public fxContractRegistry;
-    FxIssuerFactory public fxIssuerFactory;
-    FxGenArt721 public fxGenArt721;
-    FxRoleRegistry public fxRoleRegistry;
-    FxTokenRenderer public fxTokenRenderer;
+    FxContractRegistry internal fxContractRegistry;
+    FxIssuerFactory internal fxIssuerFactory;
+    FxGenArt721 internal fxGenArt721;
+    FxRoleRegistry internal fxRoleRegistry;
+    FxTokenRenderer internal fxTokenRenderer;
 
     // State
-    address public fxGenArtProxy;
-    address public owner;
-    address public primaryReceiver;
-    IssuerInfo public isserInfo;
-    ProjectInfo public projectInfo;
-    MintInfo[] public mintInfo;
-    ReserveInfo[] public reserveInfo;
-    address payable[] public royaltyReceivers;
-    uint96[] public basisPoints;
+    address internal fxGenArtProxy;
+    address internal creator;
+    address internal primaryReceiver;
+    IssuerInfo internal isserInfo;
+    ProjectInfo internal projectInfo;
+    MintInfo[] internal mintInfo;
+    ReserveInfo[] internal reserveInfo;
+    address payable[] internal royaltyReceivers;
+    uint96[] internal basisPoints;
 
     function setUp() public virtual {
-        owner = msg.sender;
+        creator = msg.sender;
         _mock0xSplits();
     }
 
@@ -59,7 +59,7 @@ contract Deploy is Script {
 
     function _configureSettings() internal {
         fxGenArtProxy = fxIssuerFactory.createProject(
-            owner, primaryReceiver, projectInfo, mintInfo, royaltyReceivers, basisPoints
+            creator, primaryReceiver, projectInfo, mintInfo, royaltyReceivers, basisPoints
         );
         FxGenArt721(fxGenArtProxy).setRenderer(address(fxTokenRenderer));
     }
@@ -73,5 +73,6 @@ contract Deploy is Script {
             deployedAddress_ := create(0, add(splitsMainBytecode, 32), mload(splitsMainBytecode))
         }
         primaryReceiver = deployedAddress_;
+        vm.stopPrank();
     }
 }

@@ -42,10 +42,12 @@ contract FxIssuerFactoryTest is BaseTest {
     }
 
     function testSetConfig() public {
+        vm.prank(admin);
         fxIssuerFactory.setConfig(configInfo);
     }
 
     function testSetImplementation() public {
+        vm.prank(admin);
         fxIssuerFactory.setImplementation(address(fxGenArt721));
         assertEq(fxIssuerFactory.implementation(), address(fxGenArt721));
     }

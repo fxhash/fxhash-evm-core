@@ -90,12 +90,12 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
         address payable[] calldata _royaltyReceivers,
         uint96[] calldata _basisPoints
     ) external initializer {
+        issuerInfo.projectInfo = _projectInfo;
+        issuerInfo.primaryReceiver = _primaryReceiver;
+
         _registerMinters(_mintInfo);
         _setBaseRoyalties(_royaltyReceivers, _basisPoints);
         _transferOwnership(_owner);
-
-        issuerInfo.projectInfo = _projectInfo;
-        issuerInfo.primaryReceiver = _primaryReceiver;
 
         emit ProjectInitialized(_projectInfo, _mintInfo, _primaryReceiver);
     }
@@ -132,7 +132,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
     /// @inheritdoc IFxGenArt721
     function reduceSupply(uint240 _supply) external onlyOwner {
         if (_supply >= issuerInfo.projectInfo.supply || _supply < totalSupply) {
-            revert InvalidSupply();
+            revert InvalidAmount();
         }
         issuerInfo.projectInfo.supply = _supply;
     }
