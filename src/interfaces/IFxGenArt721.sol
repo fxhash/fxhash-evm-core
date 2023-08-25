@@ -19,14 +19,12 @@ struct IssuerInfo {
  * @param onchain Onchain status of project
  * @param supply Maximum supply of tokens
  * @param contractURI Contract URI of project
- * @param metadataInfo Metadata information of collection
  */
 struct ProjectInfo {
     bool enabled;
     bool onchain;
     uint240 supply;
     string contractURI;
-    MetadataInfo metadataInfo;
 }
 
 /**
@@ -168,6 +166,7 @@ interface IFxGenArt721 {
      * @param _owner Address of contract owner
      * @param _primaryReceiver Address of splitter contract receiving primary sales
      * @param _projectInfo Project information
+     * @param _metadataInfo Metadata information
      * @param _mintInfo List of authorized minter contracts and their reserves
      * @param _royaltyReceivers List of addresses receiving royalties
      * @param _basisPoints List of basis points for calculating royalty shares
@@ -176,6 +175,7 @@ interface IFxGenArt721 {
         address _owner,
         address _primaryReceiver,
         ProjectInfo calldata _projectInfo,
+        MetadataInfo calldata _metadataInfo,
         MintInfo[] calldata _mintInfo,
         address payable[] calldata _royaltyReceivers,
         uint96[] calldata _basisPoints
@@ -264,6 +264,15 @@ interface IFxGenArt721 {
      * @return ProjectInfo and splitter contract address
      */
     function issuerInfo() external view returns (ProjectInfo memory, address);
+
+    /**
+     * @notice Gets the MetadataInfo of the project
+     * @return baseURI, imageURI, animation and attributes
+     */
+    function metadataInfo()
+        external
+        view
+        returns (string memory, string memory, HTMLRequest memory, HTMLRequest memory);
 
     /**
      * @notice Returns the address of contract owner

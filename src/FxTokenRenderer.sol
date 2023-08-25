@@ -2,7 +2,7 @@
 pragma solidity 0.8.20;
 
 import {Base64} from "openzeppelin/contracts/utils/Base64.sol";
-import {GenArtInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
+import {GenArtInfo, MetadataInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxTokenRenderer} from "src/interfaces/IFxTokenRenderer.sol";
 import {
     IScriptyBuilderV2,
@@ -32,14 +32,15 @@ contract FxTokenRenderer is IFxTokenRenderer {
     function tokenURI(
         uint256 _tokenId,
         ProjectInfo memory _projectInfo,
+        MetadataInfo memory _metadataInfo,
         GenArtInfo memory _genArtInfo
     ) external view returns (string memory) {
         if (!_projectInfo.onchain) {
-            string memory baseURI = _projectInfo.metadataInfo.baseURI;
+            string memory baseURI = _metadataInfo.baseURI;
             return string.concat(baseURI, _tokenId.toString());
         } else {
-            HTMLRequest memory animation = _projectInfo.metadataInfo.animation;
-            HTMLRequest memory attributes = _projectInfo.metadataInfo.attributes;
+            HTMLRequest memory animation = _metadataInfo.animation;
+            HTMLRequest memory attributes = _metadataInfo.attributes;
             bytes memory onchainData = renderOnchain(
                 _tokenId, _genArtInfo.seed, _genArtInfo.fxParams, animation, attributes
             );

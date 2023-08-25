@@ -2,7 +2,7 @@
 pragma solidity 0.8.20;
 
 import {Clones} from "openzeppelin/contracts/proxy/Clones.sol";
-import {IFxGenArt721, MintInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
+import {IFxGenArt721, MetadataInfo, MintInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxIssuerFactory, ConfigInfo} from "src/interfaces/IFxIssuerFactory.sol";
 import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
 
@@ -30,6 +30,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
         address _owner,
         address _primaryReceiver,
         ProjectInfo calldata _projectInfo,
+        MetadataInfo calldata _metadataInfo,
         MintInfo[] calldata _mintInfo,
         address payable[] calldata _royaltyReceivers,
         uint96[] calldata _basisPoints
@@ -40,7 +41,13 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
         projects[++projectId] = genArtToken;
 
         IFxGenArt721(genArtToken).initialize(
-            _owner, _primaryReceiver, _projectInfo, _mintInfo, _royaltyReceivers, _basisPoints
+            _owner,
+            _primaryReceiver,
+            _projectInfo,
+            _metadataInfo,
+            _mintInfo,
+            _royaltyReceivers,
+            _basisPoints
         );
 
         emit ProjectCreated(projectId, _owner, genArtToken);

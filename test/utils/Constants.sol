@@ -10,8 +10,8 @@ uint128 constant CONFIG_LOCK_TIME = 3600; // 1 hour
 string constant CONFIG_DEFAULT_METADATA = "ipfs://QmZZVBKapDg2wXzwpDxdmL9Ah665h9ZzeJ9gYdbTZ4GBzf";
 
 // Metadata
-string constant baseURI = "ipfs://";
-string constant imageURI = "ipfs://";
+string constant BASE_URI = "ipfs://";
+string constant IMAGE_URI = "ipfs://";
 
 // Project
 uint240 constant MAX_SUPPLY = 1000;

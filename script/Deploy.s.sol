@@ -2,7 +2,14 @@
 pragma solidity 0.8.20;
 
 import {FxContractRegistry} from "src/registries/FxContractRegistry.sol";
-import {FxGenArt721, IssuerInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/FxGenArt721.sol";
+import {
+    FxGenArt721,
+    IssuerInfo,
+    MetadataInfo,
+    MintInfo,
+    ProjectInfo,
+    ReserveInfo
+} from "src/FxGenArt721.sol";
 import {FxIssuerFactory} from "src/factories/FxIssuerFactory.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 import {FxTokenRenderer} from "src/FxTokenRenderer.sol";
@@ -29,13 +36,14 @@ contract Deploy is Script {
 
     // Structs
     IssuerInfo internal isserInfo;
+    MetadataInfo internal metadataInfo;
     MintInfo[] internal mintInfo;
     ProjectInfo internal projectInfo;
     ReserveInfo internal reserveInfo;
 
     // Project
-    address internal primaryReceiver;
     address internal fxGenArtProxy;
+    address internal primaryReceiver;
 
     // Royalties
     address payable[] internal royaltyReceivers;
@@ -60,6 +68,9 @@ contract Deploy is Script {
     function _createAccounts() internal {
         admin = msg.sender;
         creator = address(uint160(uint256(keccak256(abi.encodePacked("creator")))));
+        minter = address(uint160(uint256(keccak256(abi.encodePacked("minter")))));
+        tokenMod = address(uint160(uint256(keccak256(abi.encodePacked("tokenMod")))));
+        userMod = address(uint160(uint256(keccak256(abi.encodePacked("userMod")))));
     }
 
     function _deployContracts() internal {
@@ -89,7 +100,13 @@ contract Deploy is Script {
 
     function _configureSettings() internal {
         fxGenArtProxy = fxIssuerFactory.createProject(
-            creator, primaryReceiver, projectInfo, mintInfo, royaltyReceivers, basisPoints
+            creator,
+            primaryReceiver,
+            projectInfo,
+            metadataInfo,
+            mintInfo,
+            royaltyReceivers,
+            basisPoints
         );
         FxGenArt721(fxGenArtProxy).setRenderer(address(fxTokenRenderer));
     }

@@ -8,6 +8,7 @@ import {
     IFxGenArt721,
     GenArtInfo,
     IssuerInfo,
+    MetadataInfo,
     MintInfo,
     ProjectInfo,
     ReserveInfo
@@ -34,6 +35,8 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
     address public renderer;
     /// @inheritdoc IFxGenArt721
     IssuerInfo public issuerInfo;
+    /// @inheritdoc IFxGenArt721
+    MetadataInfo public metadataInfo;
     /// @inheritdoc IFxGenArt721
     mapping(uint256 => GenArtInfo) public genArtInfo;
 
@@ -86,12 +89,14 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
         address _owner,
         address _primaryReceiver,
         ProjectInfo calldata _projectInfo,
+        MetadataInfo calldata _metadataInfo,
         MintInfo[] calldata _mintInfo,
         address payable[] calldata _royaltyReceivers,
         uint96[] calldata _basisPoints
     ) external initializer {
         issuerInfo.projectInfo = _projectInfo;
         issuerInfo.primaryReceiver = _primaryReceiver;
+        metadataInfo = _metadataInfo;
 
         _registerMinters(_mintInfo);
         _setBaseRoyalties(_royaltyReceivers, _basisPoints);
@@ -153,7 +158,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
 
     /// @inheritdoc IFxGenArt721
     function setBaseURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
-        issuerInfo.projectInfo.metadataInfo.baseURI = _uri;
+        metadataInfo.baseURI = _uri;
         emit BaseURIUpdated(_uri);
     }
 
@@ -165,7 +170,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
 
     /// @inheritdoc IFxGenArt721
     function setImageURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
-        issuerInfo.projectInfo.metadataInfo.imageURI = _uri;
+        metadataInfo.imageURI = _uri;
         emit ImageURIUpdated(_uri);
     }
 
@@ -214,7 +219,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
         _requireMinted(_tokenId);
 
         return IFxTokenRenderer(renderer).tokenURI(
-            _tokenId, issuerInfo.projectInfo, genArtInfo[_tokenId]
+            _tokenId, issuerInfo.projectInfo, metadataInfo, genArtInfo[_tokenId]
         );
     }
 
