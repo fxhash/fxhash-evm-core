@@ -9,8 +9,8 @@ import {FxTokenRenderer} from "src/FxTokenRenderer.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
 import {Script} from "forge-std/Script.sol";
 
-import "src/utils/Constants.sol";
 import "script/utils/Constants.sol";
+import "src/utils/Constants.sol";
 
 contract Deploy is Script {
     // Contracts
@@ -24,6 +24,8 @@ contract Deploy is Script {
     address internal admin;
     address internal creator;
     address internal minter;
+    address internal tokenMod;
+    address internal userMod;
 
     // Structs
     IssuerInfo internal isserInfo;

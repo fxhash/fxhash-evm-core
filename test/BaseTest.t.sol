@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
 import {FxContractRegistry} from "src/registries/FxContractRegistry.sol";
 import {FxGenArt721} from "src/FxGenArt721.sol";
 import {FxIssuerFactory} from "src/factories/FxIssuerFactory.sol";
@@ -16,6 +15,7 @@ import {
     ProjectInfo,
     ReserveInfo
 } from "src/interfaces/IFxGenArt721.sol";
+import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 import {Test} from "forge-std/Test.sol";
 
@@ -32,11 +32,12 @@ contract BaseTest is Test {
     FxSplitsFactory internal splitsFactory;
     FxTokenRenderer internal fxTokenRenderer;
 
-    // Users
+    // Accounts
     address internal admin;
-    address internal minter;
-    address internal moderator;
     address internal creator;
+    address internal minter;
+    address internal tokenMod;
+    address internal userMod;
     address internal alice;
     address internal bob;
     address internal eve;
@@ -54,10 +55,12 @@ contract BaseTest is Test {
     address internal fxGenArtProxy;
     address internal owner;
     address internal primaryReceiver;
+    uint96 internal projectId;
+    string internal contractURI;
+
+    // Royalties
     address payable[] internal royaltyReceivers;
     uint96[] internal basisPoints;
-    uint96 internal projectId;
-    string contractURI;
 
     // Splits
     address[] internal accounts;
@@ -79,7 +82,8 @@ contract BaseTest is Test {
         admin = _createUser("admin");
         creator = _createUser("creator");
         minter = _createUser("minter");
-        moderator = _createUser("moderator");
+        tokenMod = _createUser("tokenMod");
+        userMod = _createUser("userMod");
         alice = _createUser("alice");
         bob = _createUser("bob");
         eve = _createUser("eve");

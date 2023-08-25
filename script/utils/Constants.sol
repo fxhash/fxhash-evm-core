@@ -11,12 +11,10 @@ address constant SPLITS_DEPLOYER = 0x9ebC8E61f87A301fF25a606d7C06150f856F24E2;
 address constant SPLITS_MAIN = 0x2ed6c4B5dA6378c7897AC67Ba9e43102Feb694EE;
 address constant SPLITS_WALLET = 0xD94c0CE4f8eEfA4Ebf44bf6665688EdEEf213B33;
 
-// Nonces
-uint64 constant SPLITS_DEPLOYER_NONCE = 0;
-
-// Splits
+// Splits Values
 uint32 constant SPLITS_ADMIN_ALLOCATION = 100_000;
 uint32 constant SPLITS_CREATOR_ALLOCATION = 900_000;
+uint64 constant SPLITS_DEPLOYER_NONCE = 0;
 uint32 constant SPLITS_DISTRIBUTOR_FEE = 0;
 address constant SPLITS_CONTROLLER = address(0);
 
