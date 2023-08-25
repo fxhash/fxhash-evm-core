@@ -15,6 +15,7 @@ import {
     ProjectInfo,
     ReserveInfo
 } from "src/interfaces/IFxGenArt721.sol";
+import {HTMLRequest} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 import {Test} from "forge-std/Test.sol";
@@ -57,6 +58,12 @@ contract BaseTest is Test {
     address internal primaryReceiver;
     uint96 internal projectId;
     string internal contractURI;
+
+    // Metadata
+    string internal baseURI;
+    string internal imageURI;
+    HTMLRequest internal animation;
+    HTMLRequest internal attributes;
 
     // Royalties
     address payable[] internal royaltyReceivers;

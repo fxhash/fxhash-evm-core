@@ -9,6 +9,7 @@ contract FxGenArt721Test is BaseTest {
     // State
     ProjectInfo internal project;
     address internal splits;
+    uint240 internal supply;
 
     // Custom Errors
     bytes4 ALLOCATION_EXCEEDED_ERROR = IFxGenArt721.AllocationExceeded.selector;
@@ -30,7 +31,6 @@ contract FxGenArt721Test is BaseTest {
         _configureRoyalties();
         _createSplit(creator);
         _createProject(creator);
-        _setRenderer(admin);
     }
 
     function test_Implementation() public {
@@ -42,31 +42,50 @@ contract FxGenArt721Test is BaseTest {
         assertEq(project.enabled, true);
         assertEq(project.onchain, false);
         assertEq(project.supply, MAX_SUPPLY);
-        assertEq(project.contractURI, contractURI);
+        assertEq(project.contractURI, CONTRACT_URI);
         assertEq(splits, primaryReceiver);
         assertEq(IFxGenArt721(fxGenArtProxy).isMinter(minter), true);
         assertEq(IFxGenArt721(fxGenArtProxy).owner(), creator);
+    }
+
+    function test_setBaseURI() public {
+        _setBaseURI(admin, BASE_URI);
+        assertEq(baseURI, BASE_URI);
+    }
+
+    function test_setContractURI() public {
+        _setContractURI(admin, CONTRACT_URI);
+        assertEq(project.contractURI, CONTRACT_URI);
+    }
+
+    function test_setImageURI() public {
+        _setImageURI(admin, IMAGE_URI);
+        assertEq(imageURI, IMAGE_URI);
+    }
+
+    function test_setRenderer() public {
+        _setRenderer(admin);
         assertEq(IFxGenArt721(fxGenArtProxy).renderer(), address(fxTokenRenderer));
     }
 
     function test_ReduceSupply() public {
-        uint240 newSupply = MAX_SUPPLY / 2;
-        _reduceSupply(creator, newSupply);
+        supply = MAX_SUPPLY / 2;
+        _reduceSupply(creator, supply);
         _setIssuerInfo();
-        assertEq(project.supply, newSupply);
+        assertEq(project.supply, supply);
     }
 
     function test_RevertsWhen_InvalidSupplyAmount() public {
-        uint240 newSupply = MAX_SUPPLY + 1;
+        supply = MAX_SUPPLY + 1;
         vm.expectRevert(INVALID_AMOUNT_ERROR);
-        _reduceSupply(creator, newSupply);
+        _reduceSupply(creator, supply);
     }
 
     function _configureProject() internal {
         projectInfo.enabled = true;
         projectInfo.onchain = false;
         projectInfo.supply = MAX_SUPPLY;
-        projectInfo.contractURI = contractURI;
+        projectInfo.contractURI = CONTRACT_URI;
     }
 
     function _configureMetdata() internal {
@@ -127,11 +146,30 @@ contract FxGenArt721Test is BaseTest {
         _setIssuerInfo();
     }
 
+    function _setBaseURI(address _admin, string memory _uri) internal prank(_admin) {
+        IFxGenArt721(fxGenArtProxy).setBaseURI(_uri);
+        _setMetadatInfo();
+    }
+
+    function _setContractURI(address _admin, string memory _uri) internal prank(_admin) {
+        IFxGenArt721(fxGenArtProxy).setContractURI(_uri);
+        _setIssuerInfo();
+    }
+
+    function _setImageURI(address _admin, string memory _uri) internal prank(_admin) {
+        IFxGenArt721(fxGenArtProxy).setImageURI(_uri);
+        _setMetadatInfo();
+    }
+
     function _setRenderer(address _admin) internal prank(_admin) {
         IFxGenArt721(fxGenArtProxy).setRenderer(address(fxTokenRenderer));
     }
 
     function _setIssuerInfo() internal {
         (project, splits) = IFxGenArt721(fxGenArtProxy).issuerInfo();
+    }
+
+    function _setMetadatInfo() internal {
+        (baseURI, imageURI,,) = IFxGenArt721(fxGenArtProxy).metadataInfo();
     }
 }

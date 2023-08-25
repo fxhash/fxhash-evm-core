@@ -14,6 +14,7 @@ string constant BASE_URI = "ipfs://";
 string constant IMAGE_URI = "ipfs://";
 
 // Project
+string constant CONTRACT_URI = "ipfs://";
 uint240 constant MAX_SUPPLY = 1000;
 
 // Reserves
