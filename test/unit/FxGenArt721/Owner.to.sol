@@ -1,0 +1,49 @@
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.20;
+
+import "test/unit/FxGenArt721/FxGenArt721Test.t.sol";
+
+contract OwnerTest is FxGenArt721Test {
+    function test_ownerMint() public {
+        _ownerMint(creator, alice);
+        assertEq(FxGenArt721(fxGenArtProxy).ownerOf(1), alice);
+        assertEq(IFxGenArt721(fxGenArtProxy).totalSupply(), 1);
+        assertEq(IFxGenArt721(fxGenArtProxy).remainingSupply(), MAX_SUPPLY - 1);
+    }
+
+    function test_ReduceSupply() public {
+        supply = MAX_SUPPLY / 2;
+        _reduceSupply(creator, supply);
+        assertEq(project.supply, supply);
+    }
+
+    function test_RevertsWhen_InvalidSupplyAmount() public {
+        supply = MAX_SUPPLY + 1;
+        vm.expectRevert(INVALID_AMOUNT_ERROR);
+        _reduceSupply(creator, supply);
+    }
+
+    function test_ToggleMint() public {
+        _toggleMint(creator);
+        assertEq(project.enabled, !enabled);
+    }
+
+    function test_ToggleOnchain() public {
+        _toggleOnchain(creator);
+        assertEq(project.onchain, !onchain);
+    }
+
+    function _ownerMint(address _creator, address _to) internal prank(_creator) {
+        IFxGenArt721(fxGenArtProxy).ownerMint(_to);
+    }
+
+    function _reduceSupply(address _creator, uint240 _amount) internal prank(_creator) {
+        IFxGenArt721(fxGenArtProxy).reduceSupply(_amount);
+        _setIssuerInfo();
+    }
+
+    function _toggleOnchain(address _creator) internal prank(_creator) {
+        IFxGenArt721(fxGenArtProxy).toggleOnchain();
+        _setIssuerInfo();
+    }
+}
