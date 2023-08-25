@@ -32,6 +32,26 @@ contract MintPass is EIP712 {
     }
 
     /**
+     * @dev Internal function to claim a mint pass.
+     * @param _index The index of the mint pass.
+     * @param _mintCode The mint code which can have additional data for the mint.
+     * @param _signature The signature of the mint pass claim.
+     */
+    function _claimMintPass(
+        BitMaps.BitMap storage _bitmap,
+        uint256 _index,
+        bytes calldata _mintCode,
+        bytes calldata _signature
+    ) internal {
+        if (_isClaimed(_bitmap, _index)) revert AlreadyClaimed();
+        bytes32 hash = _genTypedDataHash(_index, msg.sender, _mintCode);
+        (uint8 v, bytes32 r, bytes32 s) = abi.decode(_signature, (uint8, bytes32, bytes32));
+        address signer = ECDSA.recover(hash, v, r, s);
+        if (signer != FXHASH_AUTHORITY) revert InvalidSig();
+        _bitmap.set(_index);
+    }
+
+    /**
      * @dev Checks if a token at a specific index has been claimed.
      * @param _index The index of the mint pass.
      * @return A boolean indicating whether the token has been claimed or not.
@@ -42,28 +62,6 @@ contract MintPass is EIP712 {
         returns (bool)
     {
         return _bitmap.get(_index);
-    }
-
-    /**
-     * @dev Internal function to claim a mint pass.
-     * @param _index The index of the mint pass.
-     * @param _user The address of the user claiming the mint pass.
-     * @param _mintCode The mint code which can have additional data for the mint.
-     * @param _signature The signature of the mint pass claim.
-     */
-    function _claimMintPass(
-        BitMaps.BitMap storage _bitmap,
-        uint256 _index,
-        address _user,
-        bytes calldata _mintCode,
-        bytes calldata _signature
-    ) internal {
-        if (_isClaimed(_bitmap, _index)) revert AlreadyClaimed();
-        bytes32 hash = _genTypedDataHash(_index, _user, _mintCode);
-        (uint8 v, bytes32 r, bytes32 s) = abi.decode(_signature, (uint8, bytes32, bytes32));
-        address signer = ECDSA.recover(hash, v, r, s);
-        if (signer != FXHASH_AUTHORITY) revert InvalidSig();
-        _bitmap.set(_index);
     }
 
     /**
