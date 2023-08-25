@@ -199,11 +199,6 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
         return issuerInfo.minters[_minter];
     }
 
-    /// @inheritdoc Ownable
-    function owner() public view override(IFxGenArt721, Ownable) returns (address) {
-        return super.owner();
-    }
-
     /// @inheritdoc ERC721
     function supportsInterface(bytes4 _interfaceId)
         public

@@ -275,11 +275,6 @@ interface IFxGenArt721 {
         returns (string memory, string memory, HTMLRequest memory, HTMLRequest memory);
 
     /**
-     * @notice Returns the address of contract owner
-     */
-    function owner() external view returns (address);
-
-    /**
      * @notice Returns the remaining supply of tokens left to mint
      */
     function remainingSupply() external view returns (uint256);
