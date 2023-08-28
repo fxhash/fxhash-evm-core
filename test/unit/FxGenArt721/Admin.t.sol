@@ -4,6 +4,10 @@ pragma solidity 0.8.20;
 import "test/unit/FxGenArt721/FxGenArt721Test.t.sol";
 
 contract AdminTest is FxGenArt721Test {
+    /*//////////////////////////////////////////////////////////////////////////
+                                    BASE_URI
+    //////////////////////////////////////////////////////////////////////////*/
+
     function test_setBaseURI() public {
         _setBaseURI(admin, BASE_URI);
         assertEq(baseURI, BASE_URI);
@@ -14,6 +18,10 @@ contract AdminTest is FxGenArt721Test {
         _setBaseURI(creator, BASE_URI);
     }
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                    CONTRACT_URI
+    //////////////////////////////////////////////////////////////////////////*/
+
     function test_setContractURI() public {
         _setContractURI(admin, CONTRACT_URI);
         assertEq(project.contractURI, CONTRACT_URI);
@@ -23,6 +31,10 @@ contract AdminTest is FxGenArt721Test {
         vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
         _setContractURI(creator, CONTRACT_URI);
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    IMAGE_URI
+    //////////////////////////////////////////////////////////////////////////*/
 
     function test_setImageURI() public {
         _setImageURI(admin, IMAGE_URI);
@@ -43,6 +55,10 @@ contract AdminTest is FxGenArt721Test {
         vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
         _setRenderer(creator, address(fxTokenRenderer));
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    HELPERS
+    //////////////////////////////////////////////////////////////////////////*/
 
     function _setBaseURI(address _admin, string memory _uri) internal prank(_admin) {
         IFxGenArt721(fxGenArtProxy).setBaseURI(_uri);

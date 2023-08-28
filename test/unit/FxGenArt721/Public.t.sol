@@ -4,6 +4,10 @@ pragma solidity 0.8.20;
 import "test/unit/FxGenArt721/FxGenArt721Test.t.sol";
 
 contract PublicTest is FxGenArt721Test {
+    /*//////////////////////////////////////////////////////////////////////////
+                                    MINT
+    //////////////////////////////////////////////////////////////////////////*/
+
     function test_mint() public {
         amount = 3;
         _toggleMint(creator);
@@ -26,6 +30,10 @@ contract PublicTest is FxGenArt721Test {
         _mint(admin, alice, 1);
     }
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                    BURN
+    //////////////////////////////////////////////////////////////////////////*/
+
     function test_burn() public {
         test_mint();
         _burn(alice, 1);
@@ -37,6 +45,10 @@ contract PublicTest is FxGenArt721Test {
         vm.expectRevert(NOT_AUTHORIZED_ERROR);
         _burn(bob, 1);
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    HELPERS
+    //////////////////////////////////////////////////////////////////////////*/
 
     function _burn(address _owner, uint256 _tokenId) internal prank(_owner) {
         IFxGenArt721(fxGenArtProxy).burn(_tokenId);

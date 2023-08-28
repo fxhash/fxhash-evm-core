@@ -14,7 +14,7 @@ contract FxGenArt721Test is BaseTest {
     bool internal enabled;
     bool internal onchain;
 
-    // Custom Errors
+    // Errors
     bytes4 ALLOCATION_EXCEEDED_ERROR = IFxGenArt721.AllocationExceeded.selector;
     bytes4 INVALID_AMOUNT_ERROR = IFxGenArt721.InvalidAmount.selector;
     bytes4 INVALID_RESERVE_TIME_ERROR = IFxGenArt721.InvalidReserveTime.selector;
