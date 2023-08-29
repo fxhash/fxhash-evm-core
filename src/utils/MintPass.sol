@@ -4,15 +4,13 @@ pragma solidity ^0.8.18;
 import {ECDSA} from "openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {BitMaps} from "openzeppelin/contracts/utils/structs/BitMaps.sol";
 import {EIP712} from "openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
+import {CLAIM_TYPEHASH} from "src/utils/Constants.sol";
 
 contract MintPass is EIP712 {
     using ECDSA for bytes32;
     using BitMaps for BitMaps.BitMap;
 
     address internal immutable FXHASH_AUTHORITY;
-
-    bytes32 internal constant _CLAIM_TYPEHASH =
-        keccak256("Claim(uint256 index, address user, bytes mintCode)");
 
     /**
      * @dev Thrown when a mint pass has already been claimed.
@@ -76,7 +74,7 @@ contract MintPass is EIP712 {
         view
         returns (bytes32)
     {
-        bytes32 structHash = keccak256(abi.encode(_CLAIM_TYPEHASH, _index, _user, _mintCode));
+        bytes32 structHash = keccak256(abi.encode(CLAIM_TYPEHASH, _index, _user, _mintCode));
         return _hashTypedDataV4(structHash);
     }
 }

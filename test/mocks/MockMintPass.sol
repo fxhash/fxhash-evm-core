@@ -3,6 +3,7 @@ pragma solidity 0.8.20;
 
 import {MintPass} from "src/utils/MintPass.sol";
 import {BitMaps} from "openzeppelin/contracts/utils/structs/BitMaps.sol";
+import {CLAIM_TYPEHASH} from "src/utils/Constants.sol";
 
 contract MockMintPass is MintPass {
     BitMaps.BitMap internal _bitmap;
@@ -28,6 +29,6 @@ contract MockMintPass is MintPass {
     }
 
     function claimTypeHash() external pure returns (bytes32) {
-        return _CLAIM_TYPEHASH;
+        return CLAIM_TYPEHASH;
     }
 }
