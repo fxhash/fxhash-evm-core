@@ -17,6 +17,7 @@ import {
     ReserveInfo
 } from "src/interfaces/IFxGenArt721.sol";
 import {HTMLRequest} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
+import {IFxSeedConsumer} from "src/interfaces/IFxSeedConsumer.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 import {Test} from "forge-std/Test.sol";
@@ -59,8 +60,12 @@ contract BaseTest is Test {
     address internal owner;
     address internal primaryReceiver;
     uint96 internal projectId;
-    uint256 internal tokenId;
     string internal contractURI;
+
+    // Token
+    uint256 internal tokenId;
+    bytes32 internal seed;
+    bytes internal fxParams;
 
     // Metadata
     string internal baseURI;

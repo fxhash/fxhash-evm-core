@@ -52,6 +52,22 @@ contract PublicTest is FxGenArt721Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
+                                FULFILL SEED REQUEST
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function test_fulfillSeedRequest() public {
+        tokenId = 1;
+        genArtInfo.seed = keccak256("seed");
+        _fulfillSeedRequest(address(fxRandomizer), tokenId, genArtInfo.seed);
+        assertEq(genArtInfo.seed, seed);
+    }
+
+    function test_fulfillSeedRequest_RevertsWhen_NotAuthorized() public {
+        vm.expectRevert(NOT_AUTHORIZED_ERROR);
+        _fulfillSeedRequest(alice, tokenId, seed);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                                     HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -61,5 +77,14 @@ contract PublicTest is FxGenArt721Test {
 
     function _mint(address _minter, address _to, uint256 _amount) internal prank(_minter) {
         IFxGenArt721(fxGenArtProxy).mint(_to, _amount);
+    }
+
+    function _fulfillSeedRequest(address _caller, uint256 _tokenId, bytes32 _seed)
+        internal
+        prank(_caller)
+    {
+        IFxSeedConsumer(fxGenArtProxy).fulfillSeedRequest(_tokenId, _seed);
+        _setGenArtInfo(_tokenId);
+        genArtInfo.seed = _seed;
     }
 }

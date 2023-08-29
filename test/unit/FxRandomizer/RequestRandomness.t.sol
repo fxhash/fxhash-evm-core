@@ -10,10 +10,8 @@ contract RequestRandomness is IFxSeedConsumer, FxRandomizerTest {
 
     function test_requestRandomness() public {
         fxRandomizer.requestRandomness(tokenId);
-        bytes32 seed = keccak256(
-            abi.encodePacked(
-                tokenId, address(this), block.number, block.timestamp, blockhash(block.number - 1)
-            )
+        seed = fxRandomizer.generateSeed(
+            tokenId, address(this), block.number, block.timestamp, blockhash(block.number - 1)
         );
         assertEq(genArtInfo.seed, seed);
     }

@@ -115,6 +115,10 @@ contract FxGenArt721Test is BaseTest {
         fxRoleRegistry.grantRole(MINTER_ROLE, _minter);
     }
 
+    function _setGenArtInfo(uint256 _tokenId) internal {
+        (fxParams, seed) = IFxGenArt721(fxGenArtProxy).genArtInfo(_tokenId);
+    }
+
     function _setIssuerInfo() internal {
         (project, splits) = IFxGenArt721(fxGenArtProxy).issuerInfo();
     }
