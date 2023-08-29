@@ -11,22 +11,22 @@ abstract contract MintPass is EIP712 {
     using BitMaps for BitMaps.BitMap;
 
     /**
-     * @dev Thrown when a mint pass has already been claimed.
+     * @dev Error thrown when a mint pass has already been claimed.
      */
     error AlreadyClaimed();
 
     /**
-     * @dev Thrown when the signature of the mint pass claim is invalid.
+     * @dev Error thrown when the signature of the mint pass claim is invalid.
      */
     error InvalidSig();
 
     /**
-     * @dev Initializes the contract.
+     * @dev Initializes the EIP712 data for contract.
      */
     constructor() EIP712("MINT_PASS", "1") {}
 
     /**
-     * @dev Internal function to generate the typed data hash.
+     * @dev Generate the typed data hash for a mint pass claim.
      * @param _index The index of the mint pass.
      * @param _user The address of the user claiming the mint pass.
      * @param _mintCode The mint code which can have additional data for the mint.
@@ -42,7 +42,7 @@ abstract contract MintPass is EIP712 {
     }
 
     /**
-     * @dev Internal function to claim a mint pass.
+     * @dev Validates a mint pass claim.
      * @param _index The index of the mint pass.
      * @param _mintCode The mint code which can have additional data for the mint.
      * @param _signature The signature of the mint pass claim.
