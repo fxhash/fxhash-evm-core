@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {MintPass} from "src/utils/MintPass.sol";
+import {MintPass} from "src/minters/extensions/MintPass.sol";
 import {BitMaps} from "openzeppelin/contracts/utils/structs/BitMaps.sol";
 import {CLAIM_TYPEHASH} from "src/utils/Constants.sol";
 
