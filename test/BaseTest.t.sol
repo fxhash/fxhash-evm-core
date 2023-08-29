@@ -59,6 +59,7 @@ contract BaseTest is Test {
     address internal owner;
     address internal primaryReceiver;
     uint96 internal projectId;
+    uint256 internal tokenId;
     string internal contractURI;
 
     // Metadata

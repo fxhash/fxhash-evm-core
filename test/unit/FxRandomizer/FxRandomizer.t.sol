@@ -6,10 +6,8 @@ import "test/BaseTest.t.sol";
 import {IFxSeedConsumer} from "src/interfaces/IFxSeedConsumer.sol";
 
 contract FxRandomizerTest is BaseTest {
-    bytes32 internal seed;
-    uint256 internal tokenId;
-
     function setUp() public override {
-        tokenId = 123;
+        super.setUp();
+        tokenId = 1;
     }
 }

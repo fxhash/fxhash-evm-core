@@ -9,7 +9,6 @@ import {MockFxRoyaltyManager} from "test/mocks/MockFxRoyaltyManager.sol";
 
 contract FxRoyaltyManagerTest is BaseTest {
     // State
-    uint256 internal tokenId;
     FxRoyaltyManager internal royaltyManager;
 
     // Custom Errors
