@@ -23,14 +23,14 @@ contract ClaimMintPassTest is MintPass712Test {
         bytes32 digest = mintPass.genTypedDataHash(claimIndex, claimerAddress, "");
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerPk, digest);
         mintPass.claimMintPass(claimIndex, "", abi.encode(v, r, s));
-        assertTrue(mintPass.isClaimed(1), "Mint pass not claimed");
+        assertTrue(mintPass.isClaimed(claimIndex), "Mint pass not claimed");
     }
 
     function test_RevertsWhen_AlreadyClaimed_ClaimMintPass() public {
         bytes32 digest = mintPass.genTypedDataHash(claimIndex, claimerAddress, "");
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerPk, digest);
         mintPass.claimMintPass(claimIndex, "", abi.encode(v, r, s));
-        assertTrue(mintPass.isClaimed(1), "Mint pass not claimed");
+        assertTrue(mintPass.isClaimed(claimIndex), "Mint pass not claimed");
         vm.expectRevert();
         mintPass.claimMintPass(claimIndex, "", abi.encode(v, r, s));
     }
@@ -41,6 +41,6 @@ contract ClaimMintPassTest is MintPass712Test {
         vm.prank(address(bob));
         vm.expectRevert();
         mintPass.claimMintPass(claimIndex, "", abi.encode(v, r, s));
-        assertTrue(!mintPass.isClaimed(1), "Mint was claimed");
+        assertTrue(!mintPass.isClaimed(claimIndex), "Mint was claimed");
     }
 }
