@@ -69,7 +69,7 @@ contract MintPass is EIP712 {
      * @param _index The index of the mint pass.
      * @param _user The address of the user claiming the mint pass.
      * @param _mintCode The mint code which can have additional data for the mint.
-     * @return The typed data hash.
+     * @return The typed data hash digest.
      */
     function _genTypedDataHash(uint256 _index, address _user, bytes calldata _mintCode)
         internal
