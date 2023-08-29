@@ -1,21 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {BaseTest} from "test/BaseTest.t.sol";
 import {ECDSA} from "openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import {MockMintPass} from "test/mocks/MockMintPass-EIP712.sol";
+import {MintPass712Test} from "test/unit/utils/MintPass-EIP712/MintPass-EIP712.t.sol";
 
-contract MintPass712Test is BaseTest {
-    MockMintPass internal mintPass;
-    uint256 internal claimIndex = 1;
-    address internal claimerAddress = address(this);
-    uint256 internal signerPk = 1;
-    address internal signerAddress = vm.addr(signerPk);
-
-    function setUp() public override {
-        mintPass = new MockMintPass(signerAddress);
-    }
-
+contract ClaimMintPassTest is MintPass712Test {
     function test_SignMintPass() public {
         bytes32 digest = mintPass.genTypedDataHash(claimIndex, claimerAddress, "");
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerPk, digest);

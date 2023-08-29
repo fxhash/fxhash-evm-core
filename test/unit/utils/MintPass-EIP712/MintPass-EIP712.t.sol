@@ -6,8 +6,12 @@ import {BaseTest} from "test/BaseTest.t.sol";
 
 contract MintPass712Test is BaseTest {
     MockMintPass internal mintPass;
+    uint256 internal claimIndex = 1;
+    address internal claimerAddress = address(this);
+    uint256 internal signerPk = 1;
+    address internal signerAddress = vm.addr(signerPk);
 
     function setUp() public override {
-        mintPass = new MockMintPass(address(this));
+        mintPass = new MockMintPass(signerAddress);
     }
 }
