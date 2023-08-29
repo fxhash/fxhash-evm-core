@@ -6,11 +6,9 @@ import {BitMaps} from "openzeppelin/contracts/utils/structs/BitMaps.sol";
 import {EIP712} from "openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
 import {CLAIM_TYPEHASH} from "src/utils/Constants.sol";
 
-contract MintPass is EIP712 {
+abstract contract MintPass is EIP712 {
     using ECDSA for bytes32;
     using BitMaps for BitMaps.BitMap;
-
-    address internal immutable FXHASH_AUTHORITY;
 
     /**
      * @dev Thrown when a mint pass has already been claimed.
@@ -25,9 +23,7 @@ contract MintPass is EIP712 {
     /**
      * @dev Initializes the contract.
      */
-    constructor(address _signer) EIP712("FXHASH_AUTHORITY", "1") {
-        FXHASH_AUTHORITY = _signer;
-    }
+    constructor() EIP712("MINT_PASS", "1") {}
 
     /**
      * @dev Internal function to claim a mint pass.
@@ -45,9 +41,11 @@ contract MintPass is EIP712 {
         bytes32 hash = _genTypedDataHash(_index, msg.sender, _mintCode);
         (uint8 v, bytes32 r, bytes32 s) = abi.decode(_signature, (uint8, bytes32, bytes32));
         address signer = ECDSA.recover(hash, v, r, s);
-        if (signer != FXHASH_AUTHORITY) revert InvalidSig();
+        if (!_isSigningAuthority(signer)) revert InvalidSig();
         _bitmap.set(_index);
     }
+
+    function _isSigningAuthority(address _signer) internal view virtual returns (bool);
 
     /**
      * @dev Checks if a token at a specific index has been claimed.
