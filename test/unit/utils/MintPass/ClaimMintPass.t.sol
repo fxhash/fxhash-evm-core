@@ -2,10 +2,9 @@
 pragma solidity 0.8.20;
 
 import {ECDSA} from "openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import {MintPass712Test} from "test/unit/utils/MintPass-EIP712/MintPass-EIP712.t.sol";
-import {MintPass} from "src/utils/MintPass-EIP712.sol";
+import "test/unit/utils/MintPass/MintPass.t.sol";
 
-contract ClaimMintPassTest is MintPass712Test {
+contract ClaimMintPassTest is MintPassTest {
     function test_SignMintPass() public {
         bytes32 digest = mintPass.genTypedDataHash(claimIndex, claimerAddress, "");
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerPk, digest);
