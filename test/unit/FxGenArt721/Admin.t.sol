@@ -46,6 +46,24 @@ contract AdminTest is FxGenArt721Test {
         _setImageURI(creator, IMAGE_URI);
     }
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                    RANDOMIZER
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function test_setRandomizer() public {
+        _setRandomizer(admin, address(fxRandomizer));
+        assertEq(IFxGenArt721(fxGenArtProxy).randomizer(), address(fxRandomizer));
+    }
+
+    function test_setRandomizer_RevertsWhen_NotAuthorized() public {
+        vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
+        _setRenderer(creator, address(fxRandomizer));
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    RENDERER
+    //////////////////////////////////////////////////////////////////////////*/
+
     function test_setRenderer() public {
         _setRenderer(admin, address(fxTokenRenderer));
         assertEq(IFxGenArt721(fxGenArtProxy).renderer(), address(fxTokenRenderer));
@@ -73,9 +91,5 @@ contract AdminTest is FxGenArt721Test {
     function _setImageURI(address _admin, string memory _uri) internal prank(_admin) {
         IFxGenArt721(fxGenArtProxy).setImageURI(_uri);
         _setMetadatInfo();
-    }
-
-    function _setRenderer(address _admin, address _renderer) internal prank(_admin) {
-        IFxGenArt721(fxGenArtProxy).setRenderer(_renderer);
     }
 }

@@ -4,8 +4,10 @@ pragma solidity 0.8.20;
 import {IFxRoyaltyManager, RoyaltyInfo} from "src/interfaces/IFxRoyaltyManager.sol";
 import {MAX_ROYALTY_BPS, FEE_DENOMINATOR} from "src/utils/Constants.sol";
 
-/// @title FxRoyaltyManager
-/// @notice A contract for managing royalties
+/**
+ * @title FxRoyaltyManager
+ * @notice A contract for managing royalties
+ */
 abstract contract FxRoyaltyManager is IFxRoyaltyManager {
     /// @notice A struct containing basisPoints and receiver address for a royalty
     RoyaltyInfo[] public baseRoyalties;

@@ -6,6 +6,7 @@ import {FxGenArt721} from "src/FxGenArt721.sol";
 import {FxIssuerFactory} from "src/factories/FxIssuerFactory.sol";
 import {FxSplitsFactory} from "src/factories/FxSplitsFactory.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
+import {FxRandomizer} from "src/FxRandomizer.sol";
 import {FxTokenRenderer} from "src/FxTokenRenderer.sol";
 import {
     GenArtInfo,
@@ -29,6 +30,7 @@ contract BaseTest is Test {
     FxContractRegistry internal fxContractRegistry;
     FxIssuerFactory internal fxIssuerFactory;
     FxGenArt721 internal fxGenArt721;
+    FxRandomizer internal fxRandomizer;
     FxRoleRegistry internal fxRoleRegistry;
     FxSplitsFactory internal splitsFactory;
     FxTokenRenderer internal fxTokenRenderer;
@@ -57,6 +59,7 @@ contract BaseTest is Test {
     address internal owner;
     address internal primaryReceiver;
     uint96 internal projectId;
+    uint256 internal tokenId;
     string internal contractURI;
 
     // Metadata
@@ -105,6 +108,7 @@ contract BaseTest is Test {
             address(fxRoleRegistry)
         );
         fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721));
+        fxRandomizer = new FxRandomizer();
         fxTokenRenderer = new FxTokenRenderer(
             ETHFS_FILE_STORAGE,
             SCRIPTY_STORAGE_V2,
@@ -115,6 +119,7 @@ contract BaseTest is Test {
         vm.label(address(fxContractRegistry), "FxContractRegistry");
         vm.label(address(fxGenArt721), "FxGenArt721");
         vm.label(address(fxIssuerFactory), "FxIssuerFactory");
+        vm.label(address(fxRandomizer), "FxRandomizer");
         vm.label(address(fxRoleRegistry), "FxRoleRegistry");
         vm.label(address(fxTokenRenderer), "FxTokenRenderer");
     }
@@ -133,5 +138,13 @@ contract BaseTest is Test {
         assembly {
             deployedAddress_ := create(0, add(splitMainBytecode, 32), mload(splitMainBytecode))
         }
+    }
+
+    function _setRandomizer(address _admin, address _randomizer) internal prank(_admin) {
+        FxGenArt721(fxGenArtProxy).setRandomizer(_randomizer);
+    }
+
+    function _setRenderer(address _admin, address _renderer) internal prank(_admin) {
+        FxGenArt721(fxGenArtProxy).setRenderer(_renderer);
     }
 }

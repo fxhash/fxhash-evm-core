@@ -4,6 +4,11 @@ pragma solidity 0.8.20;
 import "test/unit/FxGenArt721/FxGenArt721Test.t.sol";
 
 contract PublicTest is FxGenArt721Test {
+    function setUp() public virtual override {
+        super.setUp();
+        _setRandomizer(admin, address(fxRandomizer));
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                     MINT
     //////////////////////////////////////////////////////////////////////////*/

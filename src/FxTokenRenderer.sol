@@ -109,8 +109,9 @@ contract FxTokenRenderer is IFxTokenRenderer {
     {
         string memory tokenId = _tokenId.toString();
         string memory seed = uint256(_seed).toHexString(32);
-        return
-            abi.encodePacked('let tokenData = {"tokenId": "', tokenId, '", "seed": "', seed, '"};');
+        return abi.encodePacked(
+            'let tokenData = {"tokenId": "', tokenId, '", "fxhash": "', seed, '"};'
+        );
     }
 
     function _getParamsContent(uint256 _tokenId, bytes memory _fxParams)
