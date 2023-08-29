@@ -14,6 +14,7 @@ import {
     ReserveInfo
 } from "src/interfaces/IFxGenArt721.sol";
 import {IFxTokenRenderer} from "src/interfaces/IFxTokenRenderer.sol";
+import {IFxSeedConsumer} from "src/interfaces/IFxSeedConsumer.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
 import {FxRoyaltyManager} from "src/FxRoyaltyManager.sol";
 import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
@@ -24,7 +25,14 @@ import "src/utils/Constants.sol";
  * @title FxGenArt721
  * @notice See the documentation in {IFxGenArt721}
  */
-contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyManager {
+contract FxGenArt721 is
+    IFxGenArt721,
+    IFxSeedConsumer,
+    Initializable,
+    Ownable,
+    ERC721,
+    FxRoyaltyManager
+{
     /// @inheritdoc IFxGenArt721
     address public immutable contractRegistry;
     /// @inheritdoc IFxGenArt721
@@ -33,6 +41,8 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
     uint96 public totalSupply;
     /// @inheritdoc IFxGenArt721
     address public renderer;
+    /// @inheritdoc IFxGenArt721
+    address public randomizer;
     /// @inheritdoc IFxGenArt721
     IssuerInfo public issuerInfo;
     /// @inheritdoc IFxGenArt721
@@ -125,6 +135,12 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
         _burn(_tokenId);
     }
 
+    /// @inheritdoc IFxSeedConsumer
+    function fulfillSeedRequest(uint256 _tokenId, bytes32 _seed) external {
+        if (msg.sender != randomizer) revert NotAuthorized();
+        genArtInfo[_tokenId].seed = _seed;
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                 OWNER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -172,6 +188,12 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
     function setImageURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
         metadataInfo.imageURI = _uri;
         emit ImageURIUpdated(_uri);
+    }
+
+    /// @inheritdoc IFxGenArt721
+    function setRandomizer(address _randomizer) external onlyRole(ADMIN_ROLE) {
+        randomizer = _randomizer;
+        emit RandomizerUpdated(_randomizer);
     }
 
     /// @inheritdoc IFxGenArt721

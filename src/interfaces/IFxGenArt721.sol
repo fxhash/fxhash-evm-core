@@ -150,6 +150,12 @@ interface IFxGenArt721 {
     event ImageURIUpdated(string indexed _uri);
 
     /**
+     * @notice Event emitted when Randomizer contract is updated
+     * @param _randomizer Address of new Randomizer contract
+     */
+    event RandomizerUpdated(address indexed _randomizer);
+
+    /**
      * @notice Event emitted when Renderer contract is updated
      * @param _renderer Address of new Renderer contract
      */
@@ -220,6 +226,12 @@ interface IFxGenArt721 {
     function setImageURI(string calldata _uri) external;
 
     /**
+     * @notice Sets the new Randomizer contract
+     * @param _randomizer Address of the Randomizer contract
+     */
+    function setRandomizer(address _randomizer) external;
+
+    /**
      * @notice Sets the new Renderer contract
      * @param _renderer Address of the Renderer contract
      */
@@ -278,6 +290,11 @@ interface IFxGenArt721 {
      * @notice Returns the remaining supply of tokens left to mint
      */
     function remainingSupply() external view returns (uint256);
+
+    /**
+     * @notice Returns the address of the Randomizer contract
+     */
+    function randomizer() external view returns (address);
 
     /**
      * @notice Returns the address of the Renderer contract
