@@ -2,6 +2,7 @@
 pragma solidity 0.8.20;
 
 import {ERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {FxRoyaltyManager} from "src/FxRoyaltyManager.sol";
 import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {
@@ -13,10 +14,10 @@ import {
     ProjectInfo,
     ReserveInfo
 } from "src/interfaces/IFxGenArt721.sol";
-import {IFxTokenRenderer} from "src/interfaces/IFxTokenRenderer.sol";
+import {IFxRandomizer} from "src/interfaces/IFxRandomizer.sol";
 import {IFxSeedConsumer} from "src/interfaces/IFxSeedConsumer.sol";
+import {IFxTokenRenderer} from "src/interfaces/IFxTokenRenderer.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
-import {FxRoyaltyManager} from "src/FxRoyaltyManager.sol";
 import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
 
 import "src/utils/Constants.sol";
@@ -40,9 +41,9 @@ contract FxGenArt721 is
     /// @inheritdoc IFxGenArt721
     uint96 public totalSupply;
     /// @inheritdoc IFxGenArt721
-    address public renderer;
-    /// @inheritdoc IFxGenArt721
     address public randomizer;
+    /// @inheritdoc IFxGenArt721
+    address public renderer;
     /// @inheritdoc IFxGenArt721
     IssuerInfo public issuerInfo;
     /// @inheritdoc IFxGenArt721
@@ -125,6 +126,7 @@ contract FxGenArt721 is
         unchecked {
             for (uint256 i; i < _amount; ++i) {
                 _mint(_to, ++totalSupply);
+                IFxRandomizer(randomizer).requestRandomness(totalSupply);
             }
         }
     }
@@ -148,6 +150,7 @@ contract FxGenArt721 is
     /// @inheritdoc IFxGenArt721
     function ownerMint(address _to) external onlyOwner {
         _mint(_to, ++totalSupply);
+        IFxRandomizer(randomizer).requestRandomness(totalSupply);
     }
 
     /// @inheritdoc IFxGenArt721

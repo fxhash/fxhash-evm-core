@@ -9,8 +9,7 @@ contract RequestRandomness is IFxSeedConsumer, FxRandomizerTest {
     }
 
     function test_requestRandomness() public {
-        randomizer.requestRandomness(tokenId);
-
+        fxRandomizer.requestRandomness(tokenId);
         bytes32 expectedSeed = keccak256(
             abi.encodePacked(
                 tokenId, address(this), block.number, block.timestamp, blockhash(block.number - 1)
