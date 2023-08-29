@@ -43,4 +43,13 @@ contract MintPass712Test is BaseTest {
         vm.expectRevert();
         mintPass.claimMintPass(1, "", abi.encode(v, r, s));
     }
+
+    function test_RevertsWhen_NotClaimer_ClaimMintPass() public {
+        bytes32 digest = mintPass.genTypedDataHash(1, address(this), "");
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerPk, digest);
+        vm.prank(address(bob));
+        vm.expectRevert();
+        mintPass.claimMintPass(1, "", abi.encode(v, r, s));
+        assertTrue(!mintPass.isClaimed(1), "Mint was claimed");
+    }
 }
