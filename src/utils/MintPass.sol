@@ -26,6 +26,22 @@ abstract contract MintPass is EIP712 {
     constructor() EIP712("MINT_PASS", "1") {}
 
     /**
+     * @dev Internal function to generate the typed data hash.
+     * @param _index The index of the mint pass.
+     * @param _user The address of the user claiming the mint pass.
+     * @param _mintCode The mint code which can have additional data for the mint.
+     * @return The typed data hash digest.
+     */
+    function generateTypedDataHash(uint256 _index, address _user, bytes calldata _mintCode)
+        public
+        view
+        returns (bytes32)
+    {
+        bytes32 structHash = keccak256(abi.encode(CLAIM_TYPEHASH, _index, _user, _mintCode));
+        return _hashTypedDataV4(structHash);
+    }
+
+    /**
      * @dev Internal function to claim a mint pass.
      * @param _index The index of the mint pass.
      * @param _mintCode The mint code which can have additional data for the mint.
@@ -38,7 +54,7 @@ abstract contract MintPass is EIP712 {
         bytes calldata _signature
     ) internal {
         if (_isClaimed(_bitmap, _index)) revert AlreadyClaimed();
-        bytes32 hash = _genTypedDataHash(_index, msg.sender, _mintCode);
+        bytes32 hash = generateTypedDataHash(_index, msg.sender, _mintCode);
         (uint8 v, bytes32 r, bytes32 s) = abi.decode(_signature, (uint8, bytes32, bytes32));
         address signer = ECDSA.recover(hash, v, r, s);
         if (!_isSigningAuthority(signer)) revert InvalidSig();
@@ -58,21 +74,5 @@ abstract contract MintPass is EIP712 {
         returns (bool)
     {
         return _bitmap.get(_index);
-    }
-
-    /**
-     * @dev Internal function to generate the typed data hash.
-     * @param _index The index of the mint pass.
-     * @param _user The address of the user claiming the mint pass.
-     * @param _mintCode The mint code which can have additional data for the mint.
-     * @return The typed data hash digest.
-     */
-    function _genTypedDataHash(uint256 _index, address _user, bytes calldata _mintCode)
-        internal
-        view
-        returns (bytes32)
-    {
-        bytes32 structHash = keccak256(abi.encode(CLAIM_TYPEHASH, _index, _user, _mintCode));
-        return _hashTypedDataV4(structHash);
     }
 }

@@ -23,14 +23,6 @@ contract MockMintPass is MintPass {
         return _isClaimed(_bitmap, _index);
     }
 
-    function genTypedDataHash(uint256 _index, address _user, bytes calldata _mintCode)
-        external
-        view
-        returns (bytes32)
-    {
-        return _genTypedDataHash(_index, _user, _mintCode);
-    }
-
     function claimTypeHash() external pure returns (bytes32) {
         return CLAIM_TYPEHASH;
     }
