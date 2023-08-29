@@ -3,6 +3,7 @@ pragma solidity 0.8.20;
 
 import {ECDSA} from "openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {MintPass712Test} from "test/unit/utils/MintPass-EIP712/MintPass-EIP712.t.sol";
+import {MintPass} from "src/utils/MintPass-EIP712.sol";
 
 contract ClaimMintPassTest is MintPass712Test {
     function test_SignMintPass() public {
@@ -31,7 +32,7 @@ contract ClaimMintPassTest is MintPass712Test {
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerPk, digest);
         mintPass.claimMintPass(claimIndex, "", abi.encode(v, r, s));
         assertTrue(mintPass.isClaimed(claimIndex), "Mint pass not claimed");
-        vm.expectRevert();
+        vm.expectRevert(abi.encodeWithSelector(MintPass.AlreadyClaimed.selector));
         mintPass.claimMintPass(claimIndex, "", abi.encode(v, r, s));
     }
 
@@ -39,7 +40,7 @@ contract ClaimMintPassTest is MintPass712Test {
         bytes32 digest = mintPass.genTypedDataHash(claimIndex, claimerAddress, "");
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerPk, digest);
         vm.prank(address(bob));
-        vm.expectRevert();
+        vm.expectRevert(abi.encodeWithSelector(MintPass.InvalidSig.selector));
         mintPass.claimMintPass(claimIndex, "", abi.encode(v, r, s));
         assertTrue(!mintPass.isClaimed(claimIndex), "Mint was claimed");
     }
