@@ -97,7 +97,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
         issuerInfo.projectInfo = _projectInfo;
         issuerInfo.primaryReceiver = _primaryReceiver;
 
-        emit ProjectInitialized(_projectInfo, _mintInfo, _primaryReceiver);
+        emit ProjectInitialized(_primaryReceiver, _projectInfo, _mintInfo);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
