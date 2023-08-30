@@ -238,7 +238,7 @@ interface IFxGenArt721 {
     /**
      * @notice Returns the address of the ContractRegistry contract
      */
-    function contractRegistry() external view returns (address);
+    function CONTRACT_REGISTRY() external view returns (address);
 
     /**
      * @notice Returns contract-level metadata for storefront marketplaces
@@ -278,7 +278,7 @@ interface IFxGenArt721 {
     /**
      * @notice Returns address of the RoleRegistry contract
      */
-    function roleRegistry() external view returns (address);
+    function ROLE_REGISTRY() external view returns (address);
 
     /**
      * @notice Returns the current total supply of tokens

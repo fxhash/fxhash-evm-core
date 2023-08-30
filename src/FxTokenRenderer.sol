@@ -19,14 +19,14 @@ import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 contract FxTokenRenderer is IFxTokenRenderer {
     using Strings for uint256;
 
-    address public immutable ethfsFileStorage;
-    address public immutable scriptyStorage;
-    address public immutable scriptyBuilder;
+    address public immutable ETHFS_FILE_STORAGE;
+    address public immutable SCRIPTY_STORAGE;
+    address public immutable SCRIPTY_BUILDER;
 
     constructor(address _ethfsFileStorage, address _scriptyStorage, address _scriptyBuilder) {
-        ethfsFileStorage = _ethfsFileStorage;
-        scriptyStorage = _scriptyStorage;
-        scriptyBuilder = _scriptyBuilder;
+        ETHFS_FILE_STORAGE = _ethfsFileStorage;
+        SCRIPTY_STORAGE = _scriptyStorage;
+        SCRIPTY_BUILDER = _scriptyBuilder;
     }
 
     function tokenURI(
@@ -98,7 +98,7 @@ contract FxTokenRenderer is IFxTokenRenderer {
         htmlRequest.headTags = headTags;
         htmlRequest.bodyTags = bodyTags;
 
-        return IScriptyBuilderV2(scriptyBuilder).getEncodedHTML(htmlRequest);
+        return IScriptyBuilderV2(SCRIPTY_BUILDER).getEncodedHTML(htmlRequest);
     }
 
     function _getSeedContent(uint256 _tokenId, bytes32 _seed)

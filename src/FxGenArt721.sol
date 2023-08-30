@@ -25,9 +25,9 @@ import "src/utils/Constants.sol" as CONSTANTS;
  */
 contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyManager {
     /// @inheritdoc IFxGenArt721
-    address public immutable contractRegistry;
+    address public immutable CONTRACT_REGISTRY;
     /// @inheritdoc IFxGenArt721
-    address public immutable roleRegistry;
+    address public immutable ROLE_REGISTRY;
     /// @inheritdoc IFxGenArt721
     uint96 public totalSupply;
     /// @inheritdoc IFxGenArt721
@@ -45,7 +45,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
      * @dev Modifier for restricting calls to only registered contracts
      */
     modifier onlyContract(bytes32 _name) {
-        if (msg.sender != IFxContractRegistry(contractRegistry).contracts(_name)) {
+        if (msg.sender != IFxContractRegistry(CONTRACT_REGISTRY).contracts(_name)) {
             revert UnauthorizedContract();
         }
         _;
@@ -63,7 +63,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
      * @dev Modifier for restricting calls to only authorized accounts with given roles
      */
     modifier onlyRole(bytes32 _role) {
-        if (!IAccessControl(roleRegistry).hasRole(_role, msg.sender)) revert UnauthorizedAccount();
+        if (!IAccessControl(ROLE_REGISTRY).hasRole(_role, msg.sender)) revert UnauthorizedAccount();
         _;
     }
 
@@ -73,8 +73,8 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
 
     /// @dev Sets core registry contracts
     constructor(address _contractRegistry, address _roleRegistry) ERC721("FxGenArt721", "FXHASH") {
-        contractRegistry = _contractRegistry;
-        roleRegistry = _roleRegistry;
+        CONTRACT_REGISTRY = _contractRegistry;
+        ROLE_REGISTRY = _roleRegistry;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -229,7 +229,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
             for (uint256 i; i < _mintInfo.length; ++i) {
                 minter = _mintInfo[i].minter;
                 reserveInfo = _mintInfo[i].reserveInfo;
-                if (!IAccessControl(roleRegistry).hasRole(CONSTANTS.MINTER_ROLE, minter)) {
+                if (!IAccessControl(ROLE_REGISTRY).hasRole(CONSTANTS.MINTER_ROLE, minter)) {
                     revert UnauthorizedMinter();
                 }
                 if (reserveInfo.startTime >= reserveInfo.endTime) revert InvalidReserveTime();
