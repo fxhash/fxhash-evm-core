@@ -11,23 +11,15 @@ import {IFxSeedConsumer} from "src/interfaces/IFxSeedConsumer.sol";
 contract FxRandomizer is IFxRandomizer {
     /// @inheritdoc IFxRandomizer
     function requestRandomness(uint256 _tokenId) external {
-        bytes32 seed = generateSeed(
-            _tokenId, msg.sender, block.number, block.timestamp, blockhash(block.number - 1)
-        );
+        bytes32 seed = generateSeed(_tokenId);
         IFxSeedConsumer(msg.sender).fulfillSeedRequest(_tokenId, seed);
     }
 
     /// @inheritdoc IFxRandomizer
-    function generateSeed(
-        uint256 _tokenId,
-        address _msgSender,
-        uint256 _blockNumber,
-        uint256 _blockTimestamp,
-        bytes32 _previousBlockHash
-    ) public pure returns (bytes32) {
+    function generateSeed(uint256 _tokenId) public view returns (bytes32) {
         return keccak256(
             abi.encodePacked(
-                _tokenId, _msgSender, _blockNumber, _blockTimestamp, _previousBlockHash
+                _tokenId, msg.sender, block.number, block.timestamp, blockhash(block.number - 1)
             )
         );
     }
