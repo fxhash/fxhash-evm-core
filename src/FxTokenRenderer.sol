@@ -43,10 +43,11 @@ contract FxTokenRenderer is IFxTokenRenderer {
             bytes memory onchainData = renderOnchain(
                 _tokenId, _genArtInfo.seed, _genArtInfo.fxParams, animation, attributes
             );
-
+            /* solhint-disable quotes*/
             return string(
                 abi.encodePacked("data:application/json;base64,", Base64.encode(onchainData))
             );
+            /* solhint-enable quotes*/
         }
     }
 
@@ -60,8 +61,10 @@ contract FxTokenRenderer is IFxTokenRenderer {
         bytes memory animation = getEncodedHTML(_tokenId, _seed, _fxParams, _animation);
         bytes memory attributes = getEncodedHTML(_tokenId, _seed, _fxParams, _attributes);
 
+        /* solhint-disable quotes*/
         return
             abi.encodePacked('"animation_url":"', animation, '","attributes":["', attributes, '"]}');
+        /* solhint-enable quotes*/
     }
 
     function getEncodedHTML(
@@ -108,8 +111,10 @@ contract FxTokenRenderer is IFxTokenRenderer {
     {
         string memory tokenId = _tokenId.toString();
         string memory seed = uint256(_seed).toHexString(32);
+        /* solhint-disable quotes*/
         return
             abi.encodePacked('let tokenData = {"tokenId": "', tokenId, '", "seed": "', seed, '"};');
+        /* solhint-enable quotes*/
     }
 
     function _getParamsContent(uint256 _tokenId, bytes memory _fxParams)
@@ -118,8 +123,10 @@ contract FxTokenRenderer is IFxTokenRenderer {
         returns (bytes memory)
     {
         string memory tokenId = _tokenId.toString();
+        /* solhint-disable quotes*/
         return abi.encodePacked(
             'let tokenData = {"tokenId": "', tokenId, '", "fxParams": "', _fxParams, '"};'
         );
+        /* solhint-enable quotes*/
     }
 }
