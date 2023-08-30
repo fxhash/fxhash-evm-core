@@ -17,11 +17,7 @@ interface ISplitsMain {
         address controller
     ) external returns (address);
 
-    function withdraw(
-        address account,
-        uint256 withdrawETH,
-        address[] /*this was type(ERC20)[]*/ calldata tokens
-    ) external;
+    function withdraw(address account, uint256 withdrawETH, address[] calldata tokens) external;
 
     function walletImplementation() external returns (address);
 

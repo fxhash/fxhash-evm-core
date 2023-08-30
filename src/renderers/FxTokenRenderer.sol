@@ -2,7 +2,7 @@
 pragma solidity 0.8.20;
 
 import {Base64} from "openzeppelin/contracts/utils/Base64.sol";
-import {GenArtInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
+import {GenArtInfo, MetadataInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxTokenRenderer} from "src/interfaces/IFxTokenRenderer.sol";
 import {
     IScriptyBuilderV2,
@@ -19,27 +19,33 @@ import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 contract FxTokenRenderer is IFxTokenRenderer {
     using Strings for uint256;
 
+    /// @inheritdoc IFxTokenRenderer
     address public immutable ethfsFileStorage;
+    /// @inheritdoc IFxTokenRenderer
     address public immutable scriptyStorage;
+    /// @inheritdoc IFxTokenRenderer
     address public immutable scriptyBuilder;
 
+    /// @dev Initializes ETHFS and Scripty contracts for storing and building scripts onchain
     constructor(address _ethfsFileStorage, address _scriptyStorage, address _scriptyBuilder) {
         ethfsFileStorage = _ethfsFileStorage;
         scriptyStorage = _scriptyStorage;
         scriptyBuilder = _scriptyBuilder;
     }
 
+    /// @inheritdoc IFxTokenRenderer
     function tokenURI(
         uint256 _tokenId,
         ProjectInfo memory _projectInfo,
+        MetadataInfo memory _metadataInfo,
         GenArtInfo memory _genArtInfo
     ) external view returns (string memory) {
         if (!_projectInfo.onchain) {
-            string memory baseURI = _projectInfo.metadataInfo.baseURI;
+            string memory baseURI = _metadataInfo.baseURI;
             return string.concat(baseURI, _tokenId.toString());
         } else {
-            HTMLRequest memory animation = _projectInfo.metadataInfo.animation;
-            HTMLRequest memory attributes = _projectInfo.metadataInfo.attributes;
+            HTMLRequest memory animation = _metadataInfo.animation;
+            HTMLRequest memory attributes = _metadataInfo.attributes;
             bytes memory onchainData = renderOnchain(
                 _tokenId, _genArtInfo.seed, _genArtInfo.fxParams, animation, attributes
             );
@@ -51,6 +57,7 @@ contract FxTokenRenderer is IFxTokenRenderer {
         }
     }
 
+    /// @inheritdoc IFxTokenRenderer
     function renderOnchain(
         uint256 _tokenId,
         bytes32 _seed,
@@ -67,6 +74,7 @@ contract FxTokenRenderer is IFxTokenRenderer {
         /* solhint-enable quotes*/
     }
 
+    /// @inheritdoc IFxTokenRenderer
     function getEncodedHTML(
         uint256 _tokenId,
         bytes32 _seed,
@@ -104,6 +112,7 @@ contract FxTokenRenderer is IFxTokenRenderer {
         return IScriptyBuilderV2(scriptyBuilder).getEncodedHTML(htmlRequest);
     }
 
+    /// @dev Returns the seed content for fxHash
     function _getSeedContent(uint256 _tokenId, bytes32 _seed)
         internal
         pure
@@ -111,22 +120,23 @@ contract FxTokenRenderer is IFxTokenRenderer {
     {
         string memory tokenId = _tokenId.toString();
         string memory seed = uint256(_seed).toHexString(32);
-        /* solhint-disable quotes*/
+        /* solhint-disable quotes */
         return
             abi.encodePacked('let tokenData = {"tokenId": "', tokenId, '", "seed": "', seed, '"};');
-        /* solhint-enable quotes*/
+        /* solhint-enable quotes */
     }
 
+    /// @dev Returns the params content for fxParams
     function _getParamsContent(uint256 _tokenId, bytes memory _fxParams)
         internal
         pure
         returns (bytes memory)
     {
         string memory tokenId = _tokenId.toString();
-        /* solhint-disable quotes*/
+        /* solhint-disable quotes */
         return abi.encodePacked(
             'let tokenData = {"tokenId": "', tokenId, '", "fxParams": "', _fxParams, '"};'
         );
-        /* solhint-enable quotes*/
+        /* solhint-enable quotes */
     }
 }
