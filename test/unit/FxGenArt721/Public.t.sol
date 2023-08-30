@@ -6,7 +6,7 @@ import "test/unit/FxGenArt721/FxGenArt721Test.t.sol";
 contract PublicTest is FxGenArt721Test {
     function setUp() public virtual override {
         super.setUp();
-        _setRandomizer(admin, address(fxRandomizer));
+        _setRandomizer(admin, address(fxPsuedoRandomizer));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -58,7 +58,7 @@ contract PublicTest is FxGenArt721Test {
     function test_fulfillSeedRequest() public {
         tokenId = 1;
         genArtInfo.seed = keccak256("seed");
-        _fulfillSeedRequest(address(fxRandomizer), tokenId, genArtInfo.seed);
+        _fulfillSeedRequest(address(fxPsuedoRandomizer), tokenId, genArtInfo.seed);
         assertEq(genArtInfo.seed, seed);
     }
 

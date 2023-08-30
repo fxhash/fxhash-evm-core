@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-/// @title IFxRandomizer
-/// @notice Generates random seeds and reveals tokens
-interface IFxRandomizer {
+/// @title IFxPsuedoRandomizer
+/// @notice Generates psuedo-random seeds for unrevealed tokens
+interface IFxPsuedoRandomizer {
     /**
      * @notice Requests a random seed for a given token ID
      * @param _tokenId ID of the token

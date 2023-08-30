@@ -51,13 +51,13 @@ contract AdminTest is FxGenArt721Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_setRandomizer() public {
-        _setRandomizer(admin, address(fxRandomizer));
-        assertEq(IFxGenArt721(fxGenArtProxy).randomizer(), address(fxRandomizer));
+        _setRandomizer(admin, address(fxPsuedoRandomizer));
+        assertEq(IFxGenArt721(fxGenArtProxy).randomizer(), address(fxPsuedoRandomizer));
     }
 
     function test_setRandomizer_RevertsWhen_NotAuthorized() public {
         vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
-        _setRenderer(creator, address(fxRandomizer));
+        _setRenderer(creator, address(fxPsuedoRandomizer));
     }
 
     /*//////////////////////////////////////////////////////////////////////////

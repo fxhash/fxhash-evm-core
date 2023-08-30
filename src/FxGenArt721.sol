@@ -14,7 +14,7 @@ import {
     ProjectInfo,
     ReserveInfo
 } from "src/interfaces/IFxGenArt721.sol";
-import {IFxRandomizer} from "src/interfaces/IFxRandomizer.sol";
+import {IFxPsuedoRandomizer} from "src/interfaces/IFxPsuedoRandomizer.sol";
 import {IFxSeedConsumer} from "src/interfaces/IFxSeedConsumer.sol";
 import {IFxTokenRenderer} from "src/interfaces/IFxTokenRenderer.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
@@ -129,7 +129,7 @@ contract FxGenArt721 is
         unchecked {
             for (uint256 i; i < _amount; ++i) {
                 _mint(_to, ++totalSupply);
-                IFxRandomizer(randomizer).requestRandomness(totalSupply);
+                IFxPsuedoRandomizer(randomizer).requestRandomness(totalSupply);
             }
         }
     }
@@ -153,7 +153,7 @@ contract FxGenArt721 is
     /// @inheritdoc IFxGenArt721
     function ownerMint(address _to) external onlyOwner {
         _mint(_to, ++totalSupply);
-        IFxRandomizer(randomizer).requestRandomness(totalSupply);
+        IFxPsuedoRandomizer(randomizer).requestRandomness(totalSupply);
     }
 
     /// @inheritdoc IFxGenArt721

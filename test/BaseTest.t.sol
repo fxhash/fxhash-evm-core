@@ -4,10 +4,10 @@ pragma solidity 0.8.20;
 import {FxContractRegistry} from "src/registries/FxContractRegistry.sol";
 import {FxGenArt721} from "src/FxGenArt721.sol";
 import {FxIssuerFactory, ConfigInfo} from "src/factories/FxIssuerFactory.sol";
+import {FxPsuedoRandomizer} from "src/randomizers/FxPsuedoRandomizer.sol";
 import {FxSplitsFactory} from "src/factories/FxSplitsFactory.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
-import {FxRandomizer} from "src/FxRandomizer.sol";
-import {FxTokenRenderer} from "src/FxTokenRenderer.sol";
+import {FxTokenRenderer} from "src/renderers/FxTokenRenderer.sol";
 import {
     GenArtInfo,
     IssuerInfo,
@@ -31,7 +31,7 @@ contract BaseTest is Test {
     FxContractRegistry internal fxContractRegistry;
     FxIssuerFactory internal fxIssuerFactory;
     FxGenArt721 internal fxGenArt721;
-    FxRandomizer internal fxRandomizer;
+    FxPsuedoRandomizer internal fxPsuedoRandomizer;
     FxRoleRegistry internal fxRoleRegistry;
     FxSplitsFactory internal splitsFactory;
     FxTokenRenderer internal fxTokenRenderer;
@@ -114,7 +114,7 @@ contract BaseTest is Test {
             address(fxRoleRegistry)
         );
         fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721), configInfo);
-        fxRandomizer = new FxRandomizer();
+        fxPsuedoRandomizer = new FxPsuedoRandomizer();
         fxTokenRenderer = new FxTokenRenderer(
             ETHFS_FILE_STORAGE,
             SCRIPTY_STORAGE_V2,
@@ -125,7 +125,7 @@ contract BaseTest is Test {
         vm.label(address(fxContractRegistry), "FxContractRegistry");
         vm.label(address(fxGenArt721), "FxGenArt721");
         vm.label(address(fxIssuerFactory), "FxIssuerFactory");
-        vm.label(address(fxRandomizer), "FxRandomizer");
+        vm.label(address(fxPsuedoRandomizer), "FxPsuedoRandomizer");
         vm.label(address(fxRoleRegistry), "FxRoleRegistry");
         vm.label(address(fxTokenRenderer), "FxTokenRenderer");
     }

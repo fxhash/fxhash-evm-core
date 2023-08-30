@@ -11,9 +11,10 @@ import {
     ReserveInfo
 } from "src/FxGenArt721.sol";
 import {FxIssuerFactory, ConfigInfo} from "src/factories/FxIssuerFactory.sol";
+import {FxPsuedoRandomizer} from "src/randomizers/FxPsuedoRandomizer.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 import {FxSplitsFactory} from "src/factories/FxSplitsFactory.sol";
-import {FxTokenRenderer} from "src/FxTokenRenderer.sol";
+import {FxTokenRenderer} from "src/renderers/FxTokenRenderer.sol";
 import {Script} from "forge-std/Script.sol";
 
 import "script/utils/Constants.sol";
@@ -24,6 +25,7 @@ contract Deploy is Script {
     FxContractRegistry internal fxContractRegistry;
     FxIssuerFactory internal fxIssuerFactory;
     FxGenArt721 internal fxGenArt721;
+    FxPsuedoRandomizer internal fxPseudoRandomizer;
     FxRoleRegistry internal fxRoleRegistry;
     FxSplitsFactory internal fxSplitsFactory;
     FxTokenRenderer internal fxTokenRenderer;
@@ -84,6 +86,7 @@ contract Deploy is Script {
         );
         fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721), configInfo);
         fxSplitsFactory = new FxSplitsFactory();
+        fxPseudoRandomizer = new FxPsuedoRandomizer();
         fxTokenRenderer = new FxTokenRenderer(
             ETHFS_FILE_STORAGE,
             SCRIPTY_STORAGE_V2,
