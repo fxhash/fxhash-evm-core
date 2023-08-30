@@ -17,7 +17,7 @@ import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Init
 import {FxRoyaltyManager} from "src/FxRoyaltyManager.sol";
 import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
 
-import "src/utils/Constants.sol";
+import "src/utils/Constants.sol" as CONSTANTS;
 
 /**
  * @title FxGenArt721
@@ -152,25 +152,25 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IFxGenArt721
-    function setBaseURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
+    function setBaseURI(string calldata _uri) external onlyRole(CONSTANTS.ADMIN_ROLE) {
         issuerInfo.projectInfo.metadataInfo.baseURI = _uri;
         emit BaseURIUpdated(_uri);
     }
 
     /// @inheritdoc IFxGenArt721
-    function setContractURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
+    function setContractURI(string calldata _uri) external onlyRole(CONSTANTS.ADMIN_ROLE) {
         issuerInfo.projectInfo.contractURI = _uri;
         emit ContractURIUpdated(_uri);
     }
 
     /// @inheritdoc IFxGenArt721
-    function setImageURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
+    function setImageURI(string calldata _uri) external onlyRole(CONSTANTS.ADMIN_ROLE) {
         issuerInfo.projectInfo.metadataInfo.imageURI = _uri;
         emit ImageURIUpdated(_uri);
     }
 
     /// @inheritdoc IFxGenArt721
-    function setRenderer(address _renderer) external onlyRole(ADMIN_ROLE) {
+    function setRenderer(address _renderer) external onlyRole(CONSTANTS.ADMIN_ROLE) {
         renderer = _renderer;
         emit RendererUpdated(_renderer);
     }
@@ -229,7 +229,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, FxRoyaltyM
             for (uint256 i; i < _mintInfo.length; ++i) {
                 minter = _mintInfo[i].minter;
                 reserveInfo = _mintInfo[i].reserveInfo;
-                if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) {
+                if (!IAccessControl(roleRegistry).hasRole(CONSTANTS.MINTER_ROLE, minter)) {
                     revert UnauthorizedMinter();
                 }
                 if (reserveInfo.startTime >= reserveInfo.endTime) revert InvalidReserveTime();
