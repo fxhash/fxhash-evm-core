@@ -17,7 +17,7 @@ import {
     ReserveInfo
 } from "src/interfaces/IFxGenArt721.sol";
 import {HTMLRequest} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
-import {IFxSeedConsumer} from "src/interfaces/IFxSeedConsumer.sol";
+import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 import {Test} from "forge-std/Test.sol";

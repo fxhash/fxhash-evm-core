@@ -14,9 +14,9 @@ import {
     ReserveInfo
 } from "src/interfaces/IFxGenArt721.sol";
 import {IFxPsuedoRandomizer} from "src/interfaces/IFxPsuedoRandomizer.sol";
-import {IFxSeedConsumer} from "src/interfaces/IFxSeedConsumer.sol";
 import {IFxTokenRenderer} from "src/interfaces/IFxTokenRenderer.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
+import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
 import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
 import {RoyaltyManager} from "src/tokens/extensions/RoyaltyManager.sol";
 
@@ -28,7 +28,7 @@ import "src/utils/Constants.sol";
  */
 contract FxGenArt721 is
     IFxGenArt721,
-    IFxSeedConsumer,
+    ISeedConsumer,
     Initializable,
     Ownable,
     ERC721,
@@ -140,7 +140,7 @@ contract FxGenArt721 is
         _burn(_tokenId);
     }
 
-    /// @inheritdoc IFxSeedConsumer
+    /// @inheritdoc ISeedConsumer
     function fulfillSeedRequest(uint256 _tokenId, bytes32 _seed) external {
         if (msg.sender != randomizer) revert NotAuthorized();
         genArtInfo[_tokenId].seed = _seed;

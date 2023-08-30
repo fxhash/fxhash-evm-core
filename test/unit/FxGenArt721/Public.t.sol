@@ -83,7 +83,7 @@ contract PublicTest is FxGenArt721Test {
         internal
         prank(_caller)
     {
-        IFxSeedConsumer(fxGenArtProxy).fulfillSeedRequest(_tokenId, _seed);
+        ISeedConsumer(fxGenArtProxy).fulfillSeedRequest(_tokenId, _seed);
         _setGenArtInfo(_tokenId);
         genArtInfo.seed = _seed;
     }

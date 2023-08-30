@@ -2,7 +2,7 @@
 pragma solidity 0.8.20;
 
 import {IFxPsuedoRandomizer} from "src/interfaces/IFxPsuedoRandomizer.sol";
-import {IFxSeedConsumer} from "src/interfaces/IFxSeedConsumer.sol";
+import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
 
 /**
  * @title FxPsuedoRandomizer
@@ -12,7 +12,7 @@ contract FxPsuedoRandomizer is IFxPsuedoRandomizer {
     /// @inheritdoc IFxPsuedoRandomizer
     function requestRandomness(uint256 _tokenId) external {
         bytes32 seed = generateSeed(_tokenId);
-        IFxSeedConsumer(msg.sender).fulfillSeedRequest(_tokenId, seed);
+        ISeedConsumer(msg.sender).fulfillSeedRequest(_tokenId, seed);
     }
 
     /// @inheritdoc IFxPsuedoRandomizer

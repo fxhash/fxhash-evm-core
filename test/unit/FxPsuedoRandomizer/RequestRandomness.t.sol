@@ -3,7 +3,7 @@ pragma solidity 0.8.20;
 
 import "test/unit/FxPsuedoRandomizer/FxPsuedoRandomizerTest.t.sol";
 
-contract RequestRandomness is IFxSeedConsumer, FxPsuedoRandomizerTest {
+contract RequestRandomness is ISeedConsumer, FxPsuedoRandomizerTest {
     function fulfillSeedRequest(
         uint256,
         /* _tokenId */
