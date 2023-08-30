@@ -4,20 +4,21 @@ pragma solidity 0.8.20;
 import {IFxRoyaltyManager, RoyaltyInfo} from "src/interfaces/IFxRoyaltyManager.sol";
 import {MAX_ROYALTY_BPS, FEE_DENOMINATOR} from "src/utils/Constants.sol";
 
-/// @title FxRoyaltyManager
-/// @notice A contract for managing royalties
+/**
+ * @title FxRoyaltyManager
+ * @notice Manages the royalty inforamtion for generative art collections
+ */
 abstract contract FxRoyaltyManager is IFxRoyaltyManager {
-    /// @notice A struct containing basisPoints and receiver address for a royalty
+    /// @notice List of basis points and receiver addresses for base royalty info
     RoyaltyInfo[] public baseRoyalties;
-
-    /// @dev Mapping of token IDs to token-specific royalties
+    /// @notice Mapping of token ID to token-specific royalty info
     mapping(uint256 => RoyaltyInfo[]) public tokenRoyalties;
 
     /**
      * @notice Sets the base royalties for the contract
-     * @param _receivers The addresses that will receive royalties.
+     * @param _receivers The addresses that will receive royalties
      * @param _basisPoints The basis points to calculate royalty payments (1/100th of a percent) for
-     * each receiver.
+     * each receiver
      */
     function setBaseRoyalties(address payable[] calldata _receivers, uint96[] calldata _basisPoints)
         external
@@ -27,10 +28,10 @@ abstract contract FxRoyaltyManager is IFxRoyaltyManager {
 
     /**
      * @notice Sets the token-specific royalties for a given token ID
-     * @param _tokenId The token ID for which the royalties are being set.
-     * @param _receivers The addresses that will receive royalties.
+     * @param _tokenId The token ID for which the royalties are being set
+     * @param _receivers The addresses that will receive royalties
      * @param _basisPoints The basis points to calculate royalty payments (1/100th of a percent) for
-     * each receiver.
+     * each receiver
      */
     function setTokenRoyalties(
         uint256 _tokenId,
@@ -42,10 +43,10 @@ abstract contract FxRoyaltyManager is IFxRoyaltyManager {
 
     /**
      * @notice Gets the royalty information for a given token ID and sale price
-     * @param _tokenId The token ID for which the royalty information is being retrieved.
-     * @param _salePrice The sale price of the token.
-     * @return receiver The address that will receive the royalty payment.
-     * @return amount The amount of royalty payment in wei.
+     * @param _tokenId The token ID for which the royalty information is being retrieved
+     * @param _salePrice The sale price of the token
+     * @return receiver The address that will receive the royalty payment
+     * @return amount The amount of royalty payment
      */
     function royaltyInfo(uint256 _tokenId, uint256 _salePrice)
         external
@@ -56,7 +57,6 @@ abstract contract FxRoyaltyManager is IFxRoyaltyManager {
         RoyaltyInfo[] storage baseRoyalties_ = baseRoyalties;
 
         if (tokenRoyalties_.length + baseRoyalties.length > 1) revert MoreThanOneRoyaltyReceiver();
-        /// return early
         if (tokenRoyalties_.length + baseRoyalties.length == 0) return (receiver, amount);
         uint96 basisPoints;
         (receiver, basisPoints) = tokenRoyalties_.length > 0
@@ -67,8 +67,8 @@ abstract contract FxRoyaltyManager is IFxRoyaltyManager {
 
     /**
      * @notice Gets the royalty information for a given token ID
-     * @param _tokenId The token ID for which the royalty information is being retrieved.
-     * @return allReceivers The addresses that will receive royalties.
+     * @param _tokenId The token ID for which the royalty information is being retrieved
+     * @return allReceivers The addresses that will receive royalties
      * @return allBasisPoints The basis points to calculate royalty payments (1/100th of a percent)
      * for each receiver.
      */
@@ -99,10 +99,10 @@ abstract contract FxRoyaltyManager is IFxRoyaltyManager {
 
     /**
      * @dev Sets the token-specific royalties for a given token ID
-     * @param _tokenId The token ID for which the royalties are being set.
-     * @param _receivers The addresses that will receive royalties.
+     * @param _tokenId The token ID for which the royalties are being set
+     * @param _receivers The addresses that will receive royalties
      * @param _basisPoints The basis points to calculate royalty payments (1/100th of a percent) for
-     * each receiver.
+     * each receiver
      */
     function _setTokenRoyalties(
         uint256 _tokenId,
@@ -137,12 +137,7 @@ abstract contract FxRoyaltyManager is IFxRoyaltyManager {
         emit TokenIdRoyaltiesUpdated(_tokenId, _receivers, _basisPoints);
     }
 
-    /**
-     * @dev Sets the base royalties for the contract
-     * @param _receivers The addresses that will receive royalties.
-     * @param _basisPoints The basis points to calculate royalty payments (1/100th of a percent) for
-     * each receiver.
-     */
+    /// @dev Sets the base royalties for the contract
     function _setBaseRoyalties(
         address payable[] calldata _receivers,
         uint96[] calldata _basisPoints
@@ -156,11 +151,10 @@ abstract contract FxRoyaltyManager is IFxRoyaltyManager {
         emit TokenRoyaltiesUpdated(_receivers, _basisPoints);
     }
 
-    function _exists(uint256) internal virtual returns (bool);
+    /// @dev Checks if the token ID exists
+    function _exists(uint256) internal view virtual returns (bool);
 
-    /**
-     * @dev Checks that the total basis points for the royalties do not exceed 10000 (100%)
-     */
+    /// @dev Checks that the total basis points for the royalties do not exceed 10000 (100%)
     function _checkRoyalties(uint96[] memory _basisPoints) internal pure {
         uint256 totalBasisPoints;
         for (uint256 i; i < _basisPoints.length; i++) {

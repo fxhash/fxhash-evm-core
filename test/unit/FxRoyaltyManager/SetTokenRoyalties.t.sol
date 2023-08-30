@@ -7,7 +7,7 @@ contract SetTokenRoyaltiesTest is FxRoyaltyManagerTest {
     function setUp() public override {
         super.setUp();
         tokenId = 1;
-        MockFxRoyaltyManager(address(royaltyManager)).setTokenExists(tokenId, true);
+        MockRoyaltyManager(address(royaltyManager)).setTokenExists(tokenId, true);
         royaltyReceivers.push(payable(susan));
 
         basisPoints.push(MAX_ROYALTY_BPS);

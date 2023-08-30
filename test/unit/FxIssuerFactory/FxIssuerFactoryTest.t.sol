@@ -5,6 +5,11 @@ import "test/BaseTest.t.sol";
 import {IFxIssuerFactory, ConfigInfo} from "src/interfaces/IFxIssuerFactory.sol";
 
 contract FxIssuerFactoryTest is BaseTest {
+    // State
+    uint128 internal feeShare;
+    uint128 internal lockTime;
+    string internal defaultMetadata;
+
     // Custom Errors
     bytes4 INVALID_OWNER_ERROR = IFxIssuerFactory.InvalidOwner.selector;
     bytes4 INVALID_PRIMARY_RECEIVER_ERROR = IFxIssuerFactory.InvalidPrimaryReceiver.selector;
@@ -16,7 +21,13 @@ contract FxIssuerFactoryTest is BaseTest {
 
     function test_createProject() public {
         fxGenArtProxy = fxIssuerFactory.createProject(
-            creator, address(this), projectInfo, mintInfo, royaltyReceivers, basisPoints
+            creator,
+            address(this),
+            projectInfo,
+            metadataInfo,
+            mintInfo,
+            royaltyReceivers,
+            basisPoints
         );
         (, primaryReceiver) = FxGenArt721(fxGenArtProxy).issuerInfo();
         assertEq(fxIssuerFactory.projects(projectId), fxGenArtProxy);
@@ -27,22 +38,37 @@ contract FxIssuerFactoryTest is BaseTest {
     function test_RevertsWhen_InvalidOwner() public {
         vm.expectRevert(INVALID_OWNER_ERROR);
         fxGenArtProxy = fxIssuerFactory.createProject(
-            address(0), address(this), projectInfo, mintInfo, royaltyReceivers, basisPoints
+            address(0),
+            address(this),
+            projectInfo,
+            metadataInfo,
+            mintInfo,
+            royaltyReceivers,
+            basisPoints
         );
     }
 
     function test_RevertsWhen_InvalidPrimaryReceiver() public {
         vm.expectRevert(INVALID_PRIMARY_RECEIVER_ERROR);
         fxGenArtProxy = fxIssuerFactory.createProject(
-            creator, address(0), projectInfo, mintInfo, royaltyReceivers, basisPoints
+            creator, address(0), projectInfo, metadataInfo, mintInfo, royaltyReceivers, basisPoints
         );
     }
 
     function testSetConfig() public {
+        configInfo.feeShare = CONFIG_FEE_SHARE;
+        configInfo.lockTime = CONFIG_LOCK_TIME;
+        configInfo.defaultMetadata = CONFIG_DEFAULT_METADATA;
+        vm.prank(admin);
         fxIssuerFactory.setConfig(configInfo);
+        (feeShare, lockTime, defaultMetadata) = fxIssuerFactory.configInfo();
+        assertEq(feeShare, configInfo.feeShare);
+        assertEq(lockTime, configInfo.lockTime);
+        assertEq(defaultMetadata, configInfo.defaultMetadata);
     }
 
     function testSetImplementation() public {
+        vm.prank(admin);
         fxIssuerFactory.setImplementation(address(fxGenArt721));
         assertEq(fxIssuerFactory.implementation(), address(fxGenArt721));
     }
