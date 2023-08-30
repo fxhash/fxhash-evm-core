@@ -10,7 +10,7 @@ import {
     ProjectInfo,
     ReserveInfo
 } from "src/FxGenArt721.sol";
-import {FxIssuerFactory} from "src/factories/FxIssuerFactory.sol";
+import {FxIssuerFactory, ConfigInfo} from "src/factories/FxIssuerFactory.sol";
 import {FxTokenRenderer} from "src/FxTokenRenderer.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 import {Test} from "forge-std/Test.sol";
@@ -42,6 +42,7 @@ contract BaseTest is Test {
     MintInfo[] public mintInfo;
     ReserveInfo[] public reserveInfo;
     GenArtInfo public genArtInfo;
+    ConfigInfo public configInfo;
 
     // State
     address public fxGenArtProxy;
@@ -81,7 +82,7 @@ contract BaseTest is Test {
             address(fxContractRegistry),
             address(fxRoleRegistry)
         );
-        fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721));
+        fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721), configInfo);
         fxTokenRenderer = new FxTokenRenderer(
             ETHFS_FILE_STORAGE,
             SCRIPTY_STORAGE_V2,
