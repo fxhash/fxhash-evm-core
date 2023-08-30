@@ -1,12 +1,4 @@
 {
-  "detectors_to_exclude": "naming-convention,reentrancy-events,solc-version,timestamp",
-  "filter_paths": "(lib|test|script)",
-  "solc_remaps": [
-    "openzeppelin/=lib/openzeppelin-contracts/",
-    "forge-std/=lib/forge-std/src/",
-    "openzeppelin-upgradeable/=lib/openzeppelin-contracts-upgradeable/",
-    "scripty.sol/=lib/scripty.sol/",
-    "solady/=lib/solady/",
-    "solmate/=lib/solmate/"
-  ]
+  "detectors_to_exclude": "naming-convention,solc-version,timestamp",
+  "filter_paths": "(lib|test|script)"
 }
