@@ -43,14 +43,10 @@ interface IFxIssuerFactory {
         uint96 indexed _projectId, address indexed _owner, address indexed _genArtToken
     );
 
-    /**
-     * @notice Error thrown when owner is zero address
-     */
+    /// @notice Error thrown when owner is zero address
     error InvalidOwner();
 
-    /**
-     * @notice Error thrown when primary receiver is zero address
-     */
+    /// @notice Error thrown when primary receiver is zero address
     error InvalidPrimaryReceiver();
 
     /**
@@ -85,23 +81,15 @@ interface IFxIssuerFactory {
      */
     function setImplementation(address _implementation) external;
 
-    /**
-     * @notice Returns the configuration values (feeShare, lockTime, defaultMetadata)
-     */
+    /// @notice Returns the configuration values (feeShare, lockTime, defaultMetadata)
     function configInfo() external view returns (uint128, uint128, string memory);
 
-    /**
-     * @notice Returns address of current FxGenArt721 implementation contract
-     */
+    /// @notice Returns address of current FxGenArt721 implementation contract
     function implementation() external view returns (address);
 
-    /**
-     * @notice Returns counter of latest project ID
-     */
+    /// @notice Returns counter of latest project ID
     function projectId() external view returns (uint96);
 
-    /**
-     * @notice Mapping of project ID to address of FxGenArt721 token contract
-     */
+    /// @notice Mapping of project ID to address of FxGenArt721 token contract
     function projects(uint96) external view returns (address);
 }
