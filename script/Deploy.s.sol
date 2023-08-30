@@ -2,18 +2,11 @@
 pragma solidity 0.8.20;
 
 import {FxContractRegistry} from "src/registries/FxContractRegistry.sol";
-import {
-    FxGenArt721,
-    IssuerInfo,
-    MetadataInfo,
-    MintInfo,
-    ProjectInfo,
-    ReserveInfo
-} from "src/FxGenArt721.sol";
+import {FxGenArt721, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/FxGenArt721.sol";
 import {FxIssuerFactory, ConfigInfo} from "src/factories/FxIssuerFactory.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
+import {FxSplitsFactory} from "src/factories/FxSplitsFactory.sol";
 import {FxTokenRenderer} from "src/FxTokenRenderer.sol";
-import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
 import {Script} from "forge-std/Script.sol";
 
 import "script/utils/Constants.sol";
@@ -25,6 +18,7 @@ contract Deploy is Script {
     FxIssuerFactory internal fxIssuerFactory;
     FxGenArt721 internal fxGenArt721;
     FxRoleRegistry internal fxRoleRegistry;
+    FxSplitsFactory internal fxSplitsFactory;
     FxTokenRenderer internal fxTokenRenderer;
 
     // Accounts
@@ -68,10 +62,18 @@ contract Deploy is Script {
 
     function _createAccounts() internal {
         admin = msg.sender;
-        creator = address(uint160(uint256(keccak256(abi.encodePacked("creator")))));
-        minter = address(uint160(uint256(keccak256(abi.encodePacked("minter")))));
-        tokenMod = address(uint160(uint256(keccak256(abi.encodePacked("tokenMod")))));
-        userMod = address(uint160(uint256(keccak256(abi.encodePacked("userMod")))));
+        creator = address(
+            uint160(uint256(keccak256(abi.encodePacked("creator"))))
+        );
+        minter = address(
+            uint160(uint256(keccak256(abi.encodePacked("minter"))))
+        );
+        tokenMod = address(
+            uint160(uint256(keccak256(abi.encodePacked("tokenMod"))))
+        );
+        userMod = address(
+            uint160(uint256(keccak256(abi.encodePacked("userMod"))))
+        );
     }
 
     function _deployContracts() internal {
@@ -82,6 +84,7 @@ contract Deploy is Script {
             address(fxRoleRegistry)
         );
         fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721), configInfo);
+        fxSplitsFactory = new FxSplitsFactory();
         fxTokenRenderer = new FxTokenRenderer(
             ETHFS_FILE_STORAGE,
             SCRIPTY_STORAGE_V2,
@@ -94,9 +97,7 @@ contract Deploy is Script {
         accounts.push(creator);
         allocations.push(SPLITS_ADMIN_ALLOCATION);
         allocations.push(SPLITS_CREATOR_ALLOCATION);
-        primaryReceiver = ISplitsMain(SPLITS_MAIN).createSplit(
-            accounts, allocations, SPLITS_DISTRIBUTOR_FEE, SPLITS_CONTROLLER
-        );
+        primaryReceiver = fxSplitsFactory.createSplit(accounts, allocations);
     }
 
     function _configureSettings() internal {

@@ -10,24 +10,31 @@ import {SPLITS_MAIN} from "script/utils/Constants.sol";
  * @dev A factory contract for creating split wallets and easier event tracking.
  */
 contract FxSplitsFactory is IFxSplitsFactory {
-    /**
-     * @dev Emits an event for the deterministic deployment address of a split.
-     * @param accounts The array of addresses that participate in the split.
-     * @param allocations The array of allocations for each account.
-     */
-    function createVirtualSplit(address[] memory accounts, uint32[] memory allocations) external {
-        address split =
-            ISplitsMain(SPLITS_MAIN).predictImmutableSplitAddress(accounts, allocations, 0);
-        if (split.code.length == 0) emit SplitsInfo(split, accounts, allocations, address(0), 0);
+    /// @inheritdoc IFxSplitsFactory
+    function createVirtualSplit(
+        address[] memory accounts,
+        uint32[] memory allocations
+    ) external {
+        address split = ISplitsMain(SPLITS_MAIN).predictImmutableSplitAddress(
+            accounts,
+            allocations,
+            0
+        );
+        if (split.code.length == 0)
+            emit SplitsInfo(split, accounts, allocations, address(0), 0);
     }
 
-    /**
-     * @dev Creates a split wallet
-     * @param accounts The array of addresses that participate in the split.
-     * @param allocations The array of allocations for each account.
-     */
-    function createSplit(address[] memory accounts, uint32[] memory allocations) external {
-        address split = ISplitsMain(SPLITS_MAIN).createSplit(accounts, allocations, 0, address(0));
+    /// @inheritdoc IFxSplitsFactory
+    function createSplit(
+        address[] memory accounts,
+        uint32[] memory allocations
+    ) external returns (address split) {
+        split = ISplitsMain(SPLITS_MAIN).createSplit(
+            accounts,
+            allocations,
+            0,
+            address(0)
+        );
         emit SplitsInfo(split, accounts, allocations, address(0), 0);
     }
 }

@@ -20,9 +20,10 @@ abstract contract FxRoyaltyManager is IFxRoyaltyManager {
      * @param _basisPoints The basis points to calculate royalty payments (1/100th of a percent) for
      * each receiver
      */
-    function setBaseRoyalties(address payable[] calldata _receivers, uint96[] calldata _basisPoints)
-        external
-    {
+    function setBaseRoyalties(
+        address payable[] calldata _receivers,
+        uint96[] calldata _basisPoints
+    ) external {
         _setBaseRoyalties(_receivers, _basisPoints);
     }
 
@@ -48,16 +49,17 @@ abstract contract FxRoyaltyManager is IFxRoyaltyManager {
      * @return receiver The address that will receive the royalty payment
      * @return amount The amount of royalty payment
      */
-    function royaltyInfo(uint256 _tokenId, uint256 _salePrice)
-        external
-        view
-        returns (address receiver, uint256 amount)
-    {
+    function royaltyInfo(
+        uint256 _tokenId,
+        uint256 _salePrice
+    ) external view returns (address receiver, uint256 amount) {
         RoyaltyInfo[] storage tokenRoyalties_ = tokenRoyalties[_tokenId];
         RoyaltyInfo[] storage baseRoyalties_ = baseRoyalties;
 
-        if (tokenRoyalties_.length + baseRoyalties.length > 1) revert MoreThanOneRoyaltyReceiver();
-        if (tokenRoyalties_.length + baseRoyalties.length == 0) return (receiver, amount);
+        if (tokenRoyalties_.length + baseRoyalties.length > 1)
+            revert MoreThanOneRoyaltyReceiver();
+        if (tokenRoyalties_.length + baseRoyalties.length == 0)
+            return (receiver, amount);
         uint96 basisPoints;
         (receiver, basisPoints) = tokenRoyalties_.length > 0
             ? (tokenRoyalties_[0].receiver, tokenRoyalties_[0].basisPoints)
@@ -72,10 +74,15 @@ abstract contract FxRoyaltyManager is IFxRoyaltyManager {
      * @return allBasisPoints The basis points to calculate royalty payments (1/100th of a percent)
      * for each receiver.
      */
-    function getRoyalties(uint256 _tokenId)
+    function getRoyalties(
+        uint256 _tokenId
+    )
         external
         view
-        returns (address payable[] memory allReceivers, uint256[] memory allBasisPoints)
+        returns (
+            address payable[] memory allReceivers,
+            uint256[] memory allBasisPoints
+        )
     {
         RoyaltyInfo[] storage tokenRoyalties_ = tokenRoyalties[_tokenId];
         RoyaltyInfo[] storage royalties_ = baseRoyalties;
@@ -95,7 +102,9 @@ abstract contract FxRoyaltyManager is IFxRoyaltyManager {
         }
     }
 
-    function supportsInterface(bytes4 interfaceId) public view virtual returns (bool);
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view virtual returns (bool);
 
     /**
      * @dev Sets the token-specific royalties for a given token ID
@@ -151,14 +160,15 @@ abstract contract FxRoyaltyManager is IFxRoyaltyManager {
         emit TokenRoyaltiesUpdated(_receivers, _basisPoints);
     }
 
-    /// @dev Checks if the royalties exist for give token ID
+    /// @dev Checks if the token ID exists
     function _exists(uint256) internal view virtual returns (bool);
 
     /// @dev Checks that the total basis points for the royalties do not exceed 10000 (100%)
     function _checkRoyalties(uint96[] memory _basisPoints) internal pure {
         uint256 totalBasisPoints;
         for (uint256 i; i < _basisPoints.length; i++) {
-            if (_basisPoints[i] > MAX_ROYALTY_BPS) revert OverMaxBasisPointsAllowed();
+            if (_basisPoints[i] > MAX_ROYALTY_BPS)
+                revert OverMaxBasisPointsAllowed();
             totalBasisPoints += _basisPoints[i];
         }
         if (totalBasisPoints >= FEE_DENOMINATOR) revert InvalidRoyaltyConfig();

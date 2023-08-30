@@ -18,7 +18,23 @@ interface IFxSplitsFactory {
         uint32 distributorFee
     );
 
-    function createSplit(address[] memory accounts, uint32[] memory allocations) external;
+    /**
+     * @notice Creates a split wallet
+     * @param accounts The array of addresses that participate in the split.
+     * @param allocations The array of allocations for each account.
+     */
+    function createSplit(
+        address[] memory accounts,
+        uint32[] memory allocations
+    ) external returns (address);
 
-    function createVirtualSplit(address[] memory accounts, uint32[] memory allocations) external;
+    /**
+     * @notice Emits an event for the deterministic deployment address of a split.
+     * @param accounts The array of addresses that participate in the split.
+     * @param allocations The array of allocations for each account.
+     */
+    function createVirtualSplit(
+        address[] memory accounts,
+        uint32[] memory allocations
+    ) external;
 }

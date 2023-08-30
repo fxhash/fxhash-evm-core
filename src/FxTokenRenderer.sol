@@ -4,12 +4,7 @@ pragma solidity 0.8.20;
 import {Base64} from "openzeppelin/contracts/utils/Base64.sol";
 import {GenArtInfo, MetadataInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxTokenRenderer} from "src/interfaces/IFxTokenRenderer.sol";
-import {
-    IScriptyBuilderV2,
-    HTMLRequest,
-    HTMLTagType,
-    HTMLTag
-} from "scripty.sol/contracts/scripty/interfaces/IScriptyBuilderV2.sol";
+import {IScriptyBuilderV2, HTMLRequest, HTMLTagType, HTMLTag} from "scripty.sol/contracts/scripty/interfaces/IScriptyBuilderV2.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
 /**
@@ -18,8 +13,8 @@ import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
  */
 contract FxTokenRenderer is IFxTokenRenderer {
     using Strings for uint256;
-    /// @inheritdoc IFxTokenRenderer
 
+    /// @inheritdoc IFxTokenRenderer
     address public immutable ethfsFileStorage;
     /// @inheritdoc IFxTokenRenderer
     address public immutable scriptyStorage;
@@ -27,7 +22,11 @@ contract FxTokenRenderer is IFxTokenRenderer {
     address public immutable scriptyBuilder;
 
     /// @dev Initializes ETHFS and Scripty contracts for storing and building scripts onchain
-    constructor(address _ethfsFileStorage, address _scriptyStorage, address _scriptyBuilder) {
+    constructor(
+        address _ethfsFileStorage,
+        address _scriptyStorage,
+        address _scriptyBuilder
+    ) {
         ethfsFileStorage = _ethfsFileStorage;
         scriptyStorage = _scriptyStorage;
         scriptyBuilder = _scriptyBuilder;
@@ -47,12 +46,20 @@ contract FxTokenRenderer is IFxTokenRenderer {
             HTMLRequest memory animation = _metadataInfo.animation;
             HTMLRequest memory attributes = _metadataInfo.attributes;
             bytes memory onchainData = renderOnchain(
-                _tokenId, _genArtInfo.seed, _genArtInfo.fxParams, animation, attributes
+                _tokenId,
+                _genArtInfo.seed,
+                _genArtInfo.fxParams,
+                animation,
+                attributes
             );
             /* solhint-disable quotes*/
-            return string(
-                abi.encodePacked("data:application/json;base64,", Base64.encode(onchainData))
-            );
+            return
+                string(
+                    abi.encodePacked(
+                        "data:application/json;base64,",
+                        Base64.encode(onchainData)
+                    )
+                );
             /* solhint-enable quotes*/
         }
     }
@@ -65,12 +72,28 @@ contract FxTokenRenderer is IFxTokenRenderer {
         HTMLRequest memory _animation,
         HTMLRequest memory _attributes
     ) public view returns (bytes memory) {
-        bytes memory animation = getEncodedHTML(_tokenId, _seed, _fxParams, _animation);
-        bytes memory attributes = getEncodedHTML(_tokenId, _seed, _fxParams, _attributes);
+        bytes memory animation = getEncodedHTML(
+            _tokenId,
+            _seed,
+            _fxParams,
+            _animation
+        );
+        bytes memory attributes = getEncodedHTML(
+            _tokenId,
+            _seed,
+            _fxParams,
+            _attributes
+        );
 
         /* solhint-disable quotes*/
         return
-            abi.encodePacked('"animation_url":"', animation, '","attributes":["', attributes, '"]}');
+            abi.encodePacked(
+                '"animation_url":"',
+                animation,
+                '","attributes":["',
+                attributes,
+                '"]}'
+            );
         /* solhint-enable quotes*/
     }
 
@@ -97,7 +120,9 @@ contract FxTokenRenderer is IFxTokenRenderer {
             bodyTags[i].tagType = _htmlRequest.bodyTags[i].tagType;
             bodyTags[i].tagOpen = _htmlRequest.bodyTags[i].tagOpen;
             bodyTags[i].tagClose = _htmlRequest.bodyTags[i].tagClose;
-            bodyTags[i].contractAddress = _htmlRequest.bodyTags[i].contractAddress;
+            bodyTags[i].contractAddress = _htmlRequest
+                .bodyTags[i]
+                .contractAddress;
         }
 
         bodyTags[bodyTags.length].tagType = HTMLTagType.script;
@@ -113,30 +138,39 @@ contract FxTokenRenderer is IFxTokenRenderer {
     }
 
     /// @dev Returns the seed content for fxHash
-    function _getSeedContent(uint256 _tokenId, bytes32 _seed)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function _getSeedContent(
+        uint256 _tokenId,
+        bytes32 _seed
+    ) internal pure returns (bytes memory) {
         string memory tokenId = _tokenId.toString();
         string memory seed = uint256(_seed).toHexString(32);
         /* solhint-disable quotes */
         return
-            abi.encodePacked('let tokenData = {"tokenId": "', tokenId, '", "seed": "', seed, '"};');
+            abi.encodePacked(
+                'let tokenData = {"tokenId": "',
+                tokenId,
+                '", "seed": "',
+                seed,
+                '"};'
+            );
         /* solhint-enable quotes */
     }
 
     /// @dev Returns the params content for fxParams
-    function _getParamsContent(uint256 _tokenId, bytes memory _fxParams)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function _getParamsContent(
+        uint256 _tokenId,
+        bytes memory _fxParams
+    ) internal pure returns (bytes memory) {
         string memory tokenId = _tokenId.toString();
         /* solhint-disable quotes */
-        return abi.encodePacked(
-            'let tokenData = {"tokenId": "', tokenId, '", "fxParams": "', _fxParams, '"};'
-        );
+        return
+            abi.encodePacked(
+                'let tokenData = {"tokenId": "',
+                tokenId,
+                '", "fxParams": "',
+                _fxParams,
+                '"};'
+            );
         /* solhint-enable quotes */
     }
 }
