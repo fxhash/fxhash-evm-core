@@ -3,22 +3,38 @@ pragma solidity 0.8.20;
 
 interface IFxSplitsFactory {
     /**
-     * @dev Emitted to indicate a split was created or where it will be deployed to.
-     * @param split The address the split contract will be deployed to.
-     * @param accounts The array of addresses that participate in the split.
-     * @param allocations The array of allocations for each account.
-     * @param controller The address of the controller contract. (address(0) for immutable splits)
-     * @param distributorFee The distributor fee percentage. (Currently not used)
+     * @notice Emitted to indicate a split was created or where it will be deployed to
+     * @param _split The address the split contract will be deployed to
+     * @param _accounts The array of addresses that participate in the split
+     * @param _allocations The array of allocations for each account
+     * @param _controller The address of the controller contract
+     * @param _distributorFee The distributor fee percentage
      */
     event SplitsInfo(
-        address indexed split,
-        address[] accounts,
-        uint32[] allocations,
-        address controller,
-        uint32 distributorFee
+        address indexed _split,
+        address[] _accounts,
+        uint32[] _allocations,
+        address _controller,
+        uint32 _distributorFee
     );
 
-    function createSplit(address[] memory accounts, uint32[] memory allocations) external;
+    /**
+     * @notice Creates a new split wallet
+     * @param _accounts The array of addresses that participate in the split
+     * @param _allocations The array of allocations for each account
+     * @return split Address of the deployed splits contract
+     */
+    function createSplit(address[] calldata _accounts, uint32[] calldata _allocations)
+        external
+        returns (address);
 
-    function createVirtualSplit(address[] memory accounts, uint32[] memory allocations) external;
+    /**
+     * @notice Creates a deterministic split wallet
+     * @param _accounts The array of addresses that participate in the split
+     * @param _allocations The array of allocations for each account
+     * @return split Address of the deployed splits contract
+     */
+    function createVirtualSplit(address[] calldata _accounts, uint32[] calldata _allocations)
+        external
+        returns (address);
 }

@@ -2,17 +2,24 @@
 pragma solidity 0.8.20;
 
 import {FxContractRegistry} from "src/registries/FxContractRegistry.sol";
+import {FxGenArt721} from "src/tokens/FxGenArt721.sol";
+import {FxIssuerFactory, ConfigInfo} from "src/factories/FxIssuerFactory.sol";
+import {FxPsuedoRandomizer} from "src/randomizers/FxPsuedoRandomizer.sol";
+import {FxSplitsFactory} from "src/factories/FxSplitsFactory.sol";
+import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
+import {FxTokenRenderer} from "src/renderers/FxTokenRenderer.sol";
 import {
-    FxGenArt721,
     GenArtInfo,
     IssuerInfo,
+    MetadataInfo,
     MintInfo,
     ProjectInfo,
     ReserveInfo
-} from "src/FxGenArt721.sol";
-import {FxIssuerFactory, ConfigInfo} from "src/factories/FxIssuerFactory.sol";
-import {FxTokenRenderer} from "src/FxTokenRenderer.sol";
-import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
+} from "src/interfaces/IFxGenArt721.sol";
+import {HTMLRequest} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
+import {IFxSeedConsumer} from "src/interfaces/IFxSeedConsumer.sol";
+import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
+import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 import {Test} from "forge-std/Test.sol";
 
 import "script/utils/Constants.sol";
@@ -21,36 +28,59 @@ import "test/utils/Constants.sol";
 
 contract BaseTest is Test {
     // Contracts
-    FxContractRegistry public fxContractRegistry;
-    FxIssuerFactory public fxIssuerFactory;
-    FxGenArt721 public fxGenArt721;
-    FxRoleRegistry public fxRoleRegistry;
-    FxTokenRenderer public fxTokenRenderer;
+    FxContractRegistry internal fxContractRegistry;
+    FxIssuerFactory internal fxIssuerFactory;
+    FxGenArt721 internal fxGenArt721;
+    FxPsuedoRandomizer internal fxPsuedoRandomizer;
+    FxRoleRegistry internal fxRoleRegistry;
+    FxSplitsFactory internal splitsFactory;
+    FxTokenRenderer internal fxTokenRenderer;
 
-    // Users
-    address public admin;
-    address public moderator;
-    address public creator;
-    address public alice;
-    address public bob;
-    address public eve;
-    address public susan;
+    // Accounts
+    address internal admin;
+    address internal creator;
+    address internal minter;
+    address internal tokenMod;
+    address internal userMod;
+    address internal alice;
+    address internal bob;
+    address internal eve;
+    address internal susan;
 
     // Structs
-    IssuerInfo public isserInfo;
-    ProjectInfo public projectInfo;
-    MintInfo[] public mintInfo;
-    ReserveInfo[] public reserveInfo;
-    GenArtInfo public genArtInfo;
-    ConfigInfo public configInfo;
+    ConfigInfo internal configInfo;
+    IssuerInfo internal issuerInfo;
+    GenArtInfo internal genArtInfo;
+    MetadataInfo internal metadataInfo;
+    MintInfo[] internal mintInfo;
+    ProjectInfo internal projectInfo;
+    ReserveInfo internal reserveInfo;
 
-    // State
-    address public fxGenArtProxy;
-    address public owner;
-    address public primaryReceiver;
-    address payable[] public royaltyReceivers;
-    uint96[] public basisPoints;
-    uint96 public projectId;
+    // Project
+    address internal fxGenArtProxy;
+    address internal owner;
+    address internal primaryReceiver;
+    uint96 internal projectId;
+    string internal contractURI;
+
+    // Token
+    uint256 internal tokenId;
+    bytes32 internal seed;
+    bytes internal fxParams;
+
+    // Metadata
+    string internal baseURI;
+    string internal imageURI;
+    HTMLRequest internal animation;
+    HTMLRequest internal attributes;
+
+    // Royalties
+    address payable[] internal royaltyReceivers;
+    uint96[] internal basisPoints;
+
+    // Splits
+    address[] internal accounts;
+    uint32[] internal allocations;
 
     // Modifiers
     modifier prank(address _caller) {
@@ -61,21 +91,22 @@ contract BaseTest is Test {
 
     function setUp() public virtual {
         createAccounts();
-        deployContracts();
+        deployContracts(admin);
     }
 
     function createAccounts() public virtual {
         admin = _createUser("admin");
-        moderator = _createUser("moderator");
         creator = _createUser("creator");
+        minter = _createUser("minter");
+        tokenMod = _createUser("tokenMod");
+        userMod = _createUser("userMod");
         alice = _createUser("alice");
         bob = _createUser("bob");
         eve = _createUser("eve");
         susan = _createUser("susan");
-        primaryReceiver = creator;
     }
 
-    function deployContracts() public virtual {
+    function deployContracts(address _admin) public virtual prank(_admin) {
         fxContractRegistry = new FxContractRegistry();
         fxRoleRegistry = new FxRoleRegistry();
         fxGenArt721 = new FxGenArt721(
@@ -83,6 +114,7 @@ contract BaseTest is Test {
             address(fxRoleRegistry)
         );
         fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721), configInfo);
+        fxPsuedoRandomizer = new FxPsuedoRandomizer();
         fxTokenRenderer = new FxTokenRenderer(
             ETHFS_FILE_STORAGE,
             SCRIPTY_STORAGE_V2,
@@ -91,9 +123,10 @@ contract BaseTest is Test {
 
         vm.label(address(this), "BaseTest");
         vm.label(address(fxContractRegistry), "FxContractRegistry");
-        vm.label(address(fxRoleRegistry), "FxRoleRegistry");
         vm.label(address(fxGenArt721), "FxGenArt721");
         vm.label(address(fxIssuerFactory), "FxIssuerFactory");
+        vm.label(address(fxPsuedoRandomizer), "FxPsuedoRandomizer");
+        vm.label(address(fxRoleRegistry), "FxRoleRegistry");
         vm.label(address(fxTokenRenderer), "FxTokenRenderer");
     }
 
@@ -101,5 +134,23 @@ contract BaseTest is Test {
         user = address(uint160(uint256(keccak256(abi.encodePacked(_name)))));
         vm.deal(user, INITIAL_BALANCE);
         vm.label(user, _name);
+    }
+
+    function _mock0xSplits() internal {
+        bytes memory splitMainBytecode = abi.encodePacked(SPLITS_MAIN_CREATION_CODE, abi.encode());
+        address deployedAddress_;
+        vm.prank(SPLITS_DEPLOYER);
+        vm.setNonce(SPLITS_DEPLOYER, SPLITS_DEPLOYER_NONCE);
+        assembly {
+            deployedAddress_ := create(0, add(splitMainBytecode, 32), mload(splitMainBytecode))
+        }
+    }
+
+    function _setRandomizer(address _admin, address _randomizer) internal prank(_admin) {
+        FxGenArt721(fxGenArtProxy).setRandomizer(_randomizer);
+    }
+
+    function _setRenderer(address _admin, address _renderer) internal prank(_admin) {
+        FxGenArt721(fxGenArtProxy).setRenderer(_renderer);
     }
 }
