@@ -5,9 +5,6 @@ import "test/BaseTest.t.sol";
 import {IFxIssuerFactory, ConfigInfo} from "src/interfaces/IFxIssuerFactory.sol";
 
 contract FxIssuerFactoryTest is BaseTest {
-    // State
-    ConfigInfo internal configInfo;
-
     // Custom Errors
     bytes4 INVALID_OWNER_ERROR = IFxIssuerFactory.InvalidOwner.selector;
     bytes4 INVALID_PRIMARY_RECEIVER_ERROR = IFxIssuerFactory.InvalidPrimaryReceiver.selector;
