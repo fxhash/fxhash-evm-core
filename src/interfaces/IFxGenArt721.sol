@@ -267,7 +267,7 @@ interface IFxGenArt721 {
     /// @notice Returns the address of the Renderer contract
     function renderer() external view returns (address);
 
-    /// @notice Returns address of the RoleRegistry contract
+    /// @notice Returns the address of the RoleRegistry contract
     function roleRegistry() external view returns (address);
 
     /// @notice Returns the current total supply of tokens

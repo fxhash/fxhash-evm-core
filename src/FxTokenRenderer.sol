@@ -18,17 +18,22 @@ import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
  */
 contract FxTokenRenderer is IFxTokenRenderer {
     using Strings for uint256;
+    /// @inheritdoc IFxTokenRenderer
 
     address public immutable ethfsFileStorage;
+    /// @inheritdoc IFxTokenRenderer
     address public immutable scriptyStorage;
+    /// @inheritdoc IFxTokenRenderer
     address public immutable scriptyBuilder;
 
+    /// @dev Initializes ETHFS and Scripty contracts for storing and building scripts onchain
     constructor(address _ethfsFileStorage, address _scriptyStorage, address _scriptyBuilder) {
         ethfsFileStorage = _ethfsFileStorage;
         scriptyStorage = _scriptyStorage;
         scriptyBuilder = _scriptyBuilder;
     }
 
+    /// @inheritdoc IFxTokenRenderer
     function tokenURI(
         uint256 _tokenId,
         ProjectInfo memory _projectInfo,
@@ -52,6 +57,7 @@ contract FxTokenRenderer is IFxTokenRenderer {
         }
     }
 
+    /// @inheritdoc IFxTokenRenderer
     function renderOnchain(
         uint256 _tokenId,
         bytes32 _seed,
@@ -68,6 +74,7 @@ contract FxTokenRenderer is IFxTokenRenderer {
         /* solhint-enable quotes*/
     }
 
+    /// @inheritdoc IFxTokenRenderer
     function getEncodedHTML(
         uint256 _tokenId,
         bytes32 _seed,
@@ -105,6 +112,7 @@ contract FxTokenRenderer is IFxTokenRenderer {
         return IScriptyBuilderV2(scriptyBuilder).getEncodedHTML(htmlRequest);
     }
 
+    /// @dev Returns the seed content for fxHash
     function _getSeedContent(uint256 _tokenId, bytes32 _seed)
         internal
         pure
@@ -118,6 +126,7 @@ contract FxTokenRenderer is IFxTokenRenderer {
         /* solhint-enable quotes */
     }
 
+    /// @dev Returns the params content for fxParams
     function _getParamsContent(uint256 _tokenId, bytes memory _fxParams)
         internal
         pure
