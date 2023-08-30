@@ -2,7 +2,14 @@
 pragma solidity 0.8.20;
 
 import {FxContractRegistry} from "src/registries/FxContractRegistry.sol";
-import {FxGenArt721, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/FxGenArt721.sol";
+import {
+    FxGenArt721,
+    IssuerInfo,
+    MetadataInfo,
+    MintInfo,
+    ProjectInfo,
+    ReserveInfo
+} from "src/FxGenArt721.sol";
 import {FxIssuerFactory, ConfigInfo} from "src/factories/FxIssuerFactory.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 import {FxSplitsFactory} from "src/factories/FxSplitsFactory.sol";
@@ -62,18 +69,10 @@ contract Deploy is Script {
 
     function _createAccounts() internal {
         admin = msg.sender;
-        creator = address(
-            uint160(uint256(keccak256(abi.encodePacked("creator"))))
-        );
-        minter = address(
-            uint160(uint256(keccak256(abi.encodePacked("minter"))))
-        );
-        tokenMod = address(
-            uint160(uint256(keccak256(abi.encodePacked("tokenMod"))))
-        );
-        userMod = address(
-            uint160(uint256(keccak256(abi.encodePacked("userMod"))))
-        );
+        creator = address(uint160(uint256(keccak256(abi.encodePacked("creator")))));
+        minter = address(uint160(uint256(keccak256(abi.encodePacked("minter")))));
+        tokenMod = address(uint160(uint256(keccak256(abi.encodePacked("tokenMod")))));
+        userMod = address(uint160(uint256(keccak256(abi.encodePacked("userMod")))));
     }
 
     function _deployContracts() internal {

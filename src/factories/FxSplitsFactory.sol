@@ -11,30 +11,18 @@ import {SPLITS_MAIN} from "script/utils/Constants.sol";
  */
 contract FxSplitsFactory is IFxSplitsFactory {
     /// @inheritdoc IFxSplitsFactory
-    function createVirtualSplit(
-        address[] memory accounts,
-        uint32[] memory allocations
-    ) external {
-        address split = ISplitsMain(SPLITS_MAIN).predictImmutableSplitAddress(
-            accounts,
-            allocations,
-            0
-        );
-        if (split.code.length == 0)
-            emit SplitsInfo(split, accounts, allocations, address(0), 0);
+    function createVirtualSplit(address[] memory accounts, uint32[] memory allocations) external {
+        address split =
+            ISplitsMain(SPLITS_MAIN).predictImmutableSplitAddress(accounts, allocations, 0);
+        if (split.code.length == 0) emit SplitsInfo(split, accounts, allocations, address(0), 0);
     }
 
     /// @inheritdoc IFxSplitsFactory
-    function createSplit(
-        address[] memory accounts,
-        uint32[] memory allocations
-    ) external returns (address split) {
-        split = ISplitsMain(SPLITS_MAIN).createSplit(
-            accounts,
-            allocations,
-            0,
-            address(0)
-        );
+    function createSplit(address[] memory accounts, uint32[] memory allocations)
+        external
+        returns (address split)
+    {
+        split = ISplitsMain(SPLITS_MAIN).createSplit(accounts, allocations, 0, address(0));
         emit SplitsInfo(split, accounts, allocations, address(0), 0);
     }
 }
