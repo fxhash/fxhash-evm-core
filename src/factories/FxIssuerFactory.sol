@@ -20,9 +20,10 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     /// @inheritdoc IFxIssuerFactory
     mapping(uint96 => address) public projects;
 
-    /// @dev Initializes registries and implementation contracts
-    constructor(address _implementation) {
-        implementation = _implementation;
+    /// @dev Initializes FxGenArt721 implementation and sets the initial config info
+    constructor(address _implementation, ConfigInfo memory _configInfo) {
+        _setConfigInfo(_configInfo);
+        _setImplementation(_implementation);
     }
 
     /// @inheritdoc IFxIssuerFactory
@@ -55,12 +56,22 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
 
     /// @inheritdoc IFxIssuerFactory
     function setConfig(ConfigInfo calldata _configInfo) external onlyOwner {
-        configInfo = _configInfo;
-        emit ConfigUpdated(msg.sender, _configInfo);
+        _setConfigInfo(_configInfo);
     }
 
     /// @inheritdoc IFxIssuerFactory
     function setImplementation(address _implementation) external onlyOwner {
+        _setImplementation(_implementation);
+    }
+
+    /// @dev Sets the configuration information
+    function _setConfigInfo(ConfigInfo memory _configInfo) internal {
+        configInfo = _configInfo;
+        emit ConfigUpdated(msg.sender, _configInfo);
+    }
+
+    /// @dev Sets the implementation address
+    function _setImplementation(address _implementation) internal {
         implementation = _implementation;
         emit ImplementationUpdated(msg.sender, _implementation);
     }

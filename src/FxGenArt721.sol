@@ -113,7 +113,10 @@ contract FxGenArt721 is
         _setBaseRoyalties(_royaltyReceivers, _basisPoints);
         _transferOwnership(_owner);
 
-        emit ProjectInitialized(_projectInfo, _mintInfo, _primaryReceiver);
+        issuerInfo.projectInfo = _projectInfo;
+        issuerInfo.primaryReceiver = _primaryReceiver;
+
+        emit ProjectInitialized(_primaryReceiver, _projectInfo, _mintInfo);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

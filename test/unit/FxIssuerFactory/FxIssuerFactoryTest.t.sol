@@ -6,7 +6,6 @@ import {IFxIssuerFactory, ConfigInfo} from "src/interfaces/IFxIssuerFactory.sol"
 
 contract FxIssuerFactoryTest is BaseTest {
     // State
-    ConfigInfo internal configInfo;
     uint128 internal feeShare;
     uint128 internal lockTime;
     string internal defaultMetadata;

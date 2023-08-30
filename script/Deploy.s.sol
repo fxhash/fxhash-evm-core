@@ -10,7 +10,7 @@ import {
     ProjectInfo,
     ReserveInfo
 } from "src/FxGenArt721.sol";
-import {FxIssuerFactory} from "src/factories/FxIssuerFactory.sol";
+import {FxIssuerFactory, ConfigInfo} from "src/factories/FxIssuerFactory.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 import {FxTokenRenderer} from "src/FxTokenRenderer.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
@@ -35,6 +35,7 @@ contract Deploy is Script {
     address internal userMod;
 
     // Structs
+    ConfigInfo internal configInfo;
     IssuerInfo internal isserInfo;
     MetadataInfo internal metadataInfo;
     MintInfo[] internal mintInfo;
@@ -80,7 +81,7 @@ contract Deploy is Script {
             address(fxContractRegistry),
             address(fxRoleRegistry)
         );
-        fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721));
+        fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721), configInfo);
         fxTokenRenderer = new FxTokenRenderer(
             ETHFS_FILE_STORAGE,
             SCRIPTY_STORAGE_V2,

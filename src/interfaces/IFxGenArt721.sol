@@ -75,6 +75,46 @@ struct ReserveInfo {
  */
 interface IFxGenArt721 {
     /**
+     * @notice Event emitted when baseURI is updated
+     * @param _uri URI pointer of token metadata
+     */
+    event BaseURIUpdated(string indexed _uri);
+
+    /**
+     * @notice Event emitted when contractURI is updated
+     * @param _uri URI pointer of project metadata
+     */
+    event ContractURIUpdated(string indexed _uri);
+
+    /**
+     * @notice Event emitted when imageURI is updated
+     * @param _uri URI pointer of token images
+     */
+    event ImageURIUpdated(string indexed _uri);
+
+    /**
+     * @notice Event emitted when new project is initialized
+     * @param _projectInfo Project information
+     * @param _mintInfo List of authorized minter contracts and their reserves
+     * @param _primaryReceiver Address of splitter contract receiving primary sales
+     */
+    event ProjectInitialized(
+        address indexed _primaryReceiver, ProjectInfo _projectInfo, MintInfo[] _mintInfo
+    );
+
+    /**
+     * @notice Event emitted when Randomizer contract is updated
+     * @param _randomizer Address of new Randomizer contract
+     */
+    event RandomizerUpdated(address indexed _randomizer);
+
+    /**
+     * @notice Event emitted when Renderer contract is updated
+     * @param _renderer Address of new Renderer contract
+     */
+    event RendererUpdated(address indexed _renderer);
+
+    /**
      * @notice Error thrown when total minter allocation exceeds maximum supply
      */
     error AllocationExceeded();
@@ -118,48 +158,6 @@ interface IFxGenArt721 {
      * @notice Error thrown when minter is not registered on token contract
      */
     error UnregisteredMinter();
-
-    /**
-     * @notice Event emitted when new project is initialized
-     * @param _projectInfo Project information
-     * @param _mintInfo List of authorized minter contracts and their reserves
-     * @param _primaryReceiver Address of splitter contract receiving primary sales
-     */
-    event ProjectInitialized(
-        ProjectInfo indexed _projectInfo,
-        MintInfo[] indexed _mintInfo,
-        address indexed _primaryReceiver
-    );
-
-    /**
-     * @notice Event emitted when baseURI is updated
-     * @param _uri URI pointer of token metadata
-     */
-    event BaseURIUpdated(string indexed _uri);
-
-    /**
-     * @notice Event emitted when contractURI is updated
-     * @param _uri URI pointer of project metadata
-     */
-    event ContractURIUpdated(string indexed _uri);
-
-    /**
-     * @notice Event emitted when imageURI is updated
-     * @param _uri URI pointer of token images
-     */
-    event ImageURIUpdated(string indexed _uri);
-
-    /**
-     * @notice Event emitted when Randomizer contract is updated
-     * @param _randomizer Address of new Randomizer contract
-     */
-    event RandomizerUpdated(address indexed _randomizer);
-
-    /**
-     * @notice Event emitted when Renderer contract is updated
-     * @param _renderer Address of new Renderer contract
-     */
-    event RendererUpdated(address indexed _renderer);
 
     /**
      * @notice Burns token ID from the circulating supply

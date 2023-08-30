@@ -3,7 +3,7 @@ pragma solidity 0.8.20;
 
 import {FxContractRegistry} from "src/registries/FxContractRegistry.sol";
 import {FxGenArt721} from "src/FxGenArt721.sol";
-import {FxIssuerFactory} from "src/factories/FxIssuerFactory.sol";
+import {FxIssuerFactory, ConfigInfo} from "src/factories/FxIssuerFactory.sol";
 import {FxSplitsFactory} from "src/factories/FxSplitsFactory.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 import {FxRandomizer} from "src/FxRandomizer.sol";
@@ -48,6 +48,7 @@ contract BaseTest is Test {
     address internal susan;
 
     // Structs
+    ConfigInfo internal configInfo;
     IssuerInfo internal issuerInfo;
     GenArtInfo internal genArtInfo;
     MetadataInfo internal metadataInfo;
@@ -112,7 +113,7 @@ contract BaseTest is Test {
             address(fxContractRegistry),
             address(fxRoleRegistry)
         );
-        fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721));
+        fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721), configInfo);
         fxRandomizer = new FxRandomizer();
         fxTokenRenderer = new FxTokenRenderer(
             ETHFS_FILE_STORAGE,

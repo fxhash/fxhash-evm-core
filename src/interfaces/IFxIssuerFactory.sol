@@ -20,26 +20,6 @@ struct ConfigInfo {
  */
 interface IFxIssuerFactory {
     /**
-     * @notice Error thrown when owner is zero address
-     */
-    error InvalidOwner();
-
-    /**
-     * @notice Error thrown when primary receiver is zero address
-     */
-    error InvalidPrimaryReceiver();
-
-    /**
-     * @notice Event emitted when new Generative Art project is created
-     * @param _projectId ID of the project
-     * @param _owner Address of project owner
-     * @param _genArtToken Address of newly deployed FxGenArt721 token contract
-     */
-    event ProjectCreated(
-        uint96 indexed _projectId, address indexed _owner, address indexed _genArtToken
-    );
-
-    /**
      * @notice Event emitted when the configuration is updated
      * @param _owner Address of the owner updating the configuration
      * @param _configInfo Updated configuration information
@@ -52,6 +32,26 @@ interface IFxIssuerFactory {
      * @param _implementation Address of the new FxGenArt721 implementation contract
      */
     event ImplementationUpdated(address indexed _owner, address indexed _implementation);
+
+    /**
+     * @notice Event emitted when new Generative Art project is created
+     * @param _projectId ID of the project
+     * @param _owner Address of project owner
+     * @param _genArtToken Address of newly deployed FxGenArt721 token contract
+     */
+    event ProjectCreated(
+        uint96 indexed _projectId, address indexed _owner, address indexed _genArtToken
+    );
+
+    /**
+     * @notice Error thrown when owner is zero address
+     */
+    error InvalidOwner();
+
+    /**
+     * @notice Error thrown when primary receiver is zero address
+     */
+    error InvalidPrimaryReceiver();
 
     /**
      * @notice Creates new Generative Art project
