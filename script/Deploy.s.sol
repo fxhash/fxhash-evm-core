@@ -4,6 +4,7 @@ pragma solidity 0.8.20;
 import {FxContractRegistry} from "src/registries/FxContractRegistry.sol";
 import {
     FxGenArt721,
+    GenArtInfo,
     IssuerInfo,
     MetadataInfo,
     MintInfo,
@@ -15,6 +16,7 @@ import {FxPsuedoRandomizer} from "src/randomizers/FxPsuedoRandomizer.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 import {FxSplitsFactory} from "src/factories/FxSplitsFactory.sol";
 import {FxTokenRenderer} from "src/renderers/FxTokenRenderer.sol";
+import {HTMLRequest} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
 import {Script} from "forge-std/Script.sol";
 
 import "script/utils/Constants.sol";
@@ -40,6 +42,7 @@ contract Deploy is Script {
     // Structs
     ConfigInfo internal configInfo;
     IssuerInfo internal isserInfo;
+    GenArtInfo internal genArtInfo;
     MetadataInfo internal metadataInfo;
     MintInfo[] internal mintInfo;
     ProjectInfo internal projectInfo;
@@ -47,7 +50,21 @@ contract Deploy is Script {
 
     // Project
     address internal fxGenArtProxy;
+    address internal owner;
     address internal primaryReceiver;
+    uint96 internal projectId;
+    string internal contractURI;
+
+    // Token
+    uint256 internal tokenId;
+    bytes32 internal seed;
+    bytes internal fxParams;
+
+    // Metadata
+    string internal baseURI;
+    string internal imageURI;
+    HTMLRequest internal animation;
+    HTMLRequest internal attributes;
 
     // Royalties
     address payable[] internal royaltyReceivers;
@@ -71,10 +88,10 @@ contract Deploy is Script {
 
     function _createAccounts() internal {
         admin = msg.sender;
-        creator = address(uint160(uint256(keccak256(abi.encodePacked("creator")))));
-        minter = address(uint160(uint256(keccak256(abi.encodePacked("minter")))));
-        tokenMod = address(uint160(uint256(keccak256(abi.encodePacked("tokenMod")))));
-        userMod = address(uint160(uint256(keccak256(abi.encodePacked("userMod")))));
+        creator = _createUser("creator");
+        minter = _createUser("minter");
+        tokenMod = _createUser("tokenMod");
+        userMod = _createUser("userMod");
     }
 
     function _deployContracts() internal {
@@ -113,5 +130,9 @@ contract Deploy is Script {
             basisPoints
         );
         FxGenArt721(fxGenArtProxy).setRenderer(address(fxTokenRenderer));
+    }
+
+    function _createUser(string memory _user) internal pure returns (address) {
+        return address(uint160(uint256(keccak256(abi.encodePacked(_user)))));
     }
 }
