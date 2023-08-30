@@ -3,7 +3,7 @@ pragma solidity 0.8.20;
 
 import {FxContractRegistry} from "src/registries/FxContractRegistry.sol";
 import {FxGenArt721, IssuerInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/FxGenArt721.sol";
-import {FxIssuerFactory} from "src/factories/FxIssuerFactory.sol";
+import {FxIssuerFactory, ConfigInfo} from "src/factories/FxIssuerFactory.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 import {FxTokenRenderer} from "src/FxTokenRenderer.sol";
 import {Script} from "forge-std/Script.sol";
@@ -27,6 +27,7 @@ contract Deploy is Script {
     ProjectInfo public projectInfo;
     MintInfo[] public mintInfo;
     ReserveInfo[] public reserveInfo;
+    ConfigInfo public configInfo;
     address payable[] public royaltyReceivers;
     uint96[] public basisPoints;
 
@@ -49,7 +50,7 @@ contract Deploy is Script {
             address(fxContractRegistry),
             address(fxRoleRegistry)
         );
-        fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721));
+        fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721), configInfo);
         fxTokenRenderer = new FxTokenRenderer(
             ETHFS_FILE_STORAGE,
             SCRIPTY_STORAGE_V2,
