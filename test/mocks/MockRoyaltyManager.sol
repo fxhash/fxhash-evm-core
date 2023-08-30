@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {FxRoyaltyManager} from "src/managers/FxRoyaltyManager.sol";
+import {FxRoyaltyManager} from "src/tokens/extensions/FxRoyaltyManager.sol";
 
 contract MockRoyaltyManager is FxRoyaltyManager {
     mapping(uint256 => bool) public tokens;

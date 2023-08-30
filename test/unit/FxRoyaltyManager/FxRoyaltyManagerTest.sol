@@ -3,7 +3,7 @@ pragma solidity 0.8.20;
 
 import "test/BaseTest.t.sol";
 
-import {FxRoyaltyManager} from "src/managers/FxRoyaltyManager.sol";
+import {FxRoyaltyManager} from "src/tokens/extensions/FxRoyaltyManager.sol";
 import {IFxRoyaltyManager} from "src/interfaces/IFxRoyaltyManager.sol";
 import {MockRoyaltyManager} from "test/mocks/MockRoyaltyManager.sol";
 
