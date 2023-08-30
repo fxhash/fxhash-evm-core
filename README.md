@@ -39,5 +39,5 @@ forge fmt
 6. Deploy contracts
 
 ```
-forge script script/Deploy.s.sol
+forge script script/Deploy.s.sol --rpc-url $GOERLI_RPC_URL --private-key $DEPLOYER_PRIVATE_KEY --verify --etherscan-api-key $ETHERSCAN_API_KEY --broadcast
 ```
