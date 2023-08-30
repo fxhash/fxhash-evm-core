@@ -61,7 +61,7 @@ contract FxTokenRenderer is IFxTokenRenderer {
         bytes memory attributes = getEncodedHTML(_tokenId, _seed, _fxParams, _attributes);
 
         return
-            abi.encodePacked('"animation_url":"', animation, '","attributes":["', attributes, '"]}');
+            abi.encodePacked("'animation_url':'", animation, "','attributes':['", attributes, "']}");
     }
 
     function getEncodedHTML(
@@ -109,7 +109,7 @@ contract FxTokenRenderer is IFxTokenRenderer {
         string memory tokenId = _tokenId.toString();
         string memory seed = uint256(_seed).toHexString(32);
         return
-            abi.encodePacked('let tokenData = {"tokenId": "', tokenId, '", "seed": "', seed, '"};');
+            abi.encodePacked("let tokenData = {'tokenId': '", tokenId, "', 'seed': '", seed, "'};");
     }
 
     function _getParamsContent(uint256 _tokenId, bytes memory _fxParams)
@@ -119,7 +119,7 @@ contract FxTokenRenderer is IFxTokenRenderer {
     {
         string memory tokenId = _tokenId.toString();
         return abi.encodePacked(
-            'let tokenData = {"tokenId": "', tokenId, '", "fxParams": "', _fxParams, '"};'
+            "let tokenData = {'tokenId': '", tokenId, "', 'fxParams': '", _fxParams, "'};"
         );
     }
 }
