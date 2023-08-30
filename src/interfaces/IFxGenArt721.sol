@@ -19,14 +19,12 @@ struct IssuerInfo {
  * @param onchain Onchain status of project
  * @param supply Maximum supply of tokens
  * @param contractURI Contract URI of project
- * @param metadataInfo Metadata information of tokens
  */
 struct ProjectInfo {
     bool enabled;
     bool onchain;
     uint240 supply;
     string contractURI;
-    MetadataInfo metadataInfo;
 }
 
 /**
@@ -77,58 +75,6 @@ struct ReserveInfo {
  */
 interface IFxGenArt721 {
     /**
-     * @notice Error thrown when total minter allocation exceeds maximum supply
-     */
-    error AllocationExceeded();
-
-    /**
-     * @notice Error thrown when reserve start time is greater than or equal to end time
-     */
-    error InvalidReserveTime();
-
-    /**
-     * @notice Error thrown when minting is active
-     */
-    error MintActive();
-
-    /**
-     * @notice Error thrown when minting is inactive
-     */
-    error MintInactive();
-
-    /**
-     * @notice Error thrown when caller is not an authorized contract
-     */
-    error UnauthorizedContract();
-
-    /**
-     * @notice Error thrown when caller does not have minter role
-     */
-    error UnauthorizedMinter();
-
-    /**
-     * @notice Error thrown when caller does not have given role
-     */
-    error UnauthorizedAccount();
-
-    /**
-     * @notice Error thrown when minter is not registered on token contract
-     */
-    error UnregisteredMinter();
-
-    /**
-     * @notice Event emitted when new project is initialized
-     * @param _projectInfo Project information
-     * @param _mintInfo List of authorized minter contracts and their reserves
-     * @param _primaryReceiver Address of splitter contract receiving primary sales
-     */
-    event ProjectInitialized(
-        ProjectInfo indexed _projectInfo,
-        MintInfo[] indexed _mintInfo,
-        address indexed _primaryReceiver
-    );
-
-    /**
      * @notice Event emitted when baseURI is updated
      * @param _uri URI pointer of token metadata
      */
@@ -147,16 +93,66 @@ interface IFxGenArt721 {
     event ImageURIUpdated(string indexed _uri);
 
     /**
+     * @notice Event emitted when new project is initialized
+     * @param _projectInfo Project information
+     * @param _mintInfo List of authorized minter contracts and their reserves
+     * @param _primaryReceiver Address of splitter contract receiving primary sales
+     */
+    event ProjectInitialized(
+        address indexed _primaryReceiver, ProjectInfo _projectInfo, MintInfo[] _mintInfo
+    );
+
+    /**
+     * @notice Event emitted when Randomizer contract is updated
+     * @param _randomizer Address of new Randomizer contract
+     */
+    event RandomizerUpdated(address indexed _randomizer);
+
+    /**
      * @notice Event emitted when Renderer contract is updated
      * @param _renderer Address of new Renderer contract
      */
     event RendererUpdated(address indexed _renderer);
+
+    /// @notice Error thrown when total minter allocation exceeds maximum supply
+    error AllocationExceeded();
+
+    /// @notice Error thrown when max supply amount is invalid
+    error InvalidAmount();
+
+    /// @notice Error thrown when reserve start time is greater than or equal to end time
+    error InvalidReserveTime();
+
+    /// @notice Error thrown when minting is inactive
+    error MintInactive();
+
+    /// @notice Error thrown when caller is not authorized to execute transaction
+    error NotAuthorized();
+
+    /// @notice Error thrown when caller does not have given role
+    error UnauthorizedAccount();
+
+    /// @notice Error thrown when caller is not an authorized contract
+    error UnauthorizedContract();
+
+    /// @notice Error thrown when caller does not have minter role
+    error UnauthorizedMinter();
+
+    /// @notice Error thrown when minter is not registered on token contract
+    error UnregisteredMinter();
+
+    /**
+     * @notice Burns token ID from the circulating supply
+     * @param _tokenId ID of the token
+     */
+    function burn(uint256 _tokenId) external;
 
     /**
      * @notice Initializes new generative art project
      * @param _owner Address of contract owner
      * @param _primaryReceiver Address of splitter contract receiving primary sales
      * @param _projectInfo Project information
+     * @param _metadataInfo Metadata information
      * @param _mintInfo List of authorized minter contracts and their reserves
      * @param _royaltyReceivers List of addresses receiving royalties
      * @param _basisPoints List of basis points for calculating royalty shares
@@ -165,24 +161,31 @@ interface IFxGenArt721 {
         address _owner,
         address _primaryReceiver,
         ProjectInfo calldata _projectInfo,
+        MetadataInfo calldata _metadataInfo,
         MintInfo[] calldata _mintInfo,
         address payable[] calldata _royaltyReceivers,
         uint96[] calldata _basisPoints
     ) external;
 
     /**
+     * @notice Allows any minter contract to mint an arbitrary amount of tokens to a given account
+     * @param _to Address being minted to
+     * @param _amount Amount of tokens being minted
+     */
+    function mint(address _to, uint256 _amount) external;
+
+    /**
      * @notice Allows owner to mint tokens to given account
-     * @dev Public mint must be disabled
+     * @dev Owner can mint at anytime up to supply cap
      * @param _to Address being minted to
      */
     function ownerMint(address _to) external;
 
     /**
-     * @notice Allows any minter contract to mint an arbitrary amount of tokens to a given account
-     * @param _to Address being minted to
-     * @param _amount Amount of tokens being minted
+     * @notice Reduces max supply of collection
+     * @param _supply Max supply amount
      */
-    function publicMint(address _to, uint256 _amount) external;
+    function reduceSupply(uint240 _supply) external;
 
     /**
      * @notice Sets the new URI of the token metadata
@@ -203,29 +206,27 @@ interface IFxGenArt721 {
     function setImageURI(string calldata _uri) external;
 
     /**
+     * @notice Sets the new Randomizer contract
+     * @param _randomizer Address of the Randomizer contract
+     */
+    function setRandomizer(address _randomizer) external;
+
+    /**
      * @notice Sets the new Renderer contract
      * @param _renderer Address of the Renderer contract
      */
     function setRenderer(address _renderer) external;
 
-    /**
-     * @notice Toggles public mint from enabled to disabled and vice versa
-     */
+    /// @notice Toggles public mint from enabled to disabled and vice versa
     function toggleMint() external;
 
-    /**
-     * @notice Toggles token metadata from offchain to onchain and vice versa
-     */
+    /// @notice Toggles token metadata from offchain to onchain and vice versa
     function toggleOnchain() external;
 
-    /**
-     * @notice Returns the address of the ContractRegistry contract
-     */
+    /// @notice Returns the address of the ContractRegistry contract
     function contractRegistry() external view returns (address);
 
-    /**
-     * @notice Returns contract-level metadata for storefront marketplaces
-     */
+    /// @notice Returns contract-level metadata for storefront marketplaces
     function contractURI() external view returns (string memory);
 
     /**
@@ -249,22 +250,26 @@ interface IFxGenArt721 {
     function issuerInfo() external view returns (ProjectInfo memory, address);
 
     /**
-     * @notice Returns the remaining supply of tokens left to mint
+     * @notice Gets the MetadataInfo of the project
+     * @return baseURI, imageURI, animation and attributes
      */
+    function metadataInfo()
+        external
+        view
+        returns (string memory, string memory, HTMLRequest memory, HTMLRequest memory);
+
+    /// @notice Returns the remaining supply of tokens left to mint
     function remainingSupply() external view returns (uint256);
 
-    /**
-     * @notice Returns the address of the Renderer contract
-     */
+    /// @notice Returns the address of the Randomizer contract
+    function randomizer() external view returns (address);
+
+    /// @notice Returns the address of the Renderer contract
     function renderer() external view returns (address);
 
-    /**
-     * @notice Returns address of the RoleRegistry contract
-     */
+    /// @notice Returns the address of the RoleRegistry contract
     function roleRegistry() external view returns (address);
 
-    /**
-     * @notice Returns the current total supply of tokens
-     */
+    /// @notice Returns the current total supply of tokens
     function totalSupply() external view returns (uint96);
 }

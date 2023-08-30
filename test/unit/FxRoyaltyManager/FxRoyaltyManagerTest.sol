@@ -3,14 +3,13 @@ pragma solidity 0.8.20;
 
 import "test/BaseTest.t.sol";
 
-import {FxRoyaltyManager} from "src/FxRoyaltyManager.sol";
+import {FxRoyaltyManager} from "src/managers/FxRoyaltyManager.sol";
 import {IFxRoyaltyManager} from "src/interfaces/IFxRoyaltyManager.sol";
-import {MockFxRoyaltyManager} from "test/mocks/MockFxRoyaltyManager.sol";
+import {MockRoyaltyManager} from "test/mocks/MockRoyaltyManager.sol";
 
 contract FxRoyaltyManagerTest is BaseTest {
     // State
-    uint256 internal tokenId;
-    FxRoyaltyManager public royaltyManager;
+    FxRoyaltyManager internal royaltyManager;
 
     // Custom Errors
     bytes4 INVALID_ROYALTY_CONFIG_ERROR = IFxRoyaltyManager.InvalidRoyaltyConfig.selector;
@@ -22,6 +21,6 @@ contract FxRoyaltyManagerTest is BaseTest {
         IFxRoyaltyManager.OverMaxBasisPointsAllowed.selector;
 
     function setUp() public virtual override {
-        royaltyManager = new MockFxRoyaltyManager();
+        royaltyManager = new MockRoyaltyManager();
     }
 }

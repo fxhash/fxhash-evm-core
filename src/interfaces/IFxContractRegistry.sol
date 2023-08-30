@@ -13,9 +13,11 @@ interface IFxContractRegistry {
     /// @notice Error thrown when empty arrays passed
     error InputEmpty();
 
-    /// @notice Sets the contracts mapping of name to address
-    /// @param _names List of contract names
-    /// @param _contracts List of contract addresses
+    /**
+     * @notice Sets the contracts mapping of name to address
+     * @param _names List of contract names
+     * @param _contracts List of contract addresses
+     */
     function setContracts(string[] calldata _names, address[] calldata _contracts) external;
 
     /// @notice Returns the contract address for a given name

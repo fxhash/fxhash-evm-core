@@ -15,7 +15,8 @@ bytes32 constant FX_TOKEN_RENDERER = keccak256("FX_TOKEN_RENDERER");
 bytes32 constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 bytes32 constant CREATOR_ROLE = keccak256("CREATOR_ROLE");
 bytes32 constant MINTER_ROLE = keccak256("MINTER_ROLE");
-bytes32 constant MODERATOR_ROLE = keccak256("MODERATOR_ROLE");
+bytes32 constant TOKEN_MODERATOR_ROLE = keccak256("TOKEN_MODERATOR_ROLE");
+bytes32 constant USER_MODERATOR_ROLE = keccak256("USER_MODERATOR_ROLE");
 
 // Authorizations
 uint16 constant TOKEN_AUTH = 10;
@@ -37,3 +38,7 @@ uint128 constant VERIFIED = 10;
 
 // Basis Points
 uint96 constant MAX_ROYALTY_BPS = 2500;
+uint96 constant FEE_DENOMINATOR = 10_000;
+
+// EIP712 Type Hashses
+bytes32 constant CLAIM_TYPEHASH = keccak256("Claim(uint256 index, address user, bytes mintCode)");
