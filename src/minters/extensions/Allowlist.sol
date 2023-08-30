@@ -4,6 +4,10 @@ pragma solidity ^0.8.20;
 import {MerkleProof} from "openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import {BitMaps} from "openzeppelin/contracts/utils/structs/BitMaps.sol";
 
+/**
+ * @title Allowlist
+ * @dev A contract that implements a merkle tree allowlist.
+ */
 abstract contract Allowlist {
     using BitMaps for BitMaps.BitMap;
 
