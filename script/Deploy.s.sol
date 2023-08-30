@@ -9,7 +9,7 @@ import {
     MintInfo,
     ProjectInfo,
     ReserveInfo
-} from "src/FxGenArt721.sol";
+} from "src/tokens/FxGenArt721.sol";
 import {FxIssuerFactory, ConfigInfo} from "src/factories/FxIssuerFactory.sol";
 import {FxPsuedoRandomizer} from "src/randomizers/FxPsuedoRandomizer.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";

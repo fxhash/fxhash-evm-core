@@ -39,3 +39,6 @@ uint128 constant VERIFIED = 10;
 // Basis Points
 uint96 constant MAX_ROYALTY_BPS = 2500;
 uint96 constant FEE_DENOMINATOR = 10_000;
+
+// EIP712 Type Hashses
+bytes32 constant CLAIM_TYPEHASH = keccak256("Claim(uint256 index, address user, bytes mintCode)");
