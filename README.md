@@ -18,6 +18,7 @@
 
 ### Architechture
 
+```mermaid
 graph TD
 B[FxGenArt721]--> A[FxRoleRegistry]
 C[FxIssuerFactory] --> B
@@ -25,6 +26,7 @@ B --> D[FxContractRegistry]
 E[FxSplitsFactory]
 B --> F[FxPsuedoRandomizer]
 B --> G[FxTokenRenderer]
+```
 
 ## Setup
 
