@@ -45,29 +45,55 @@ contract FirstComeFirstServeTest is BaseTest {
 
 contract BuyTokens is FirstComeFirstServeTest {
     function test_buyTokens() public {
-        vm.warp(block.timestamp + 1);
+        vm.warp(block.timestamp);
         sale.buyTokens{value: price}(address(mockToken), 0, 1, address(this));
         assertEq(mockToken.balanceOf(address(this)), 1);
     }
 
-    function test_RevertsIf_BuyMoreThanAllocation() public {}
-
-    function test_RevertsIf_InsufficientWETHBalance() public {}
-
-    function test_RevertsIf_NotStarted() public {}
-
-    function test_RevertsIf_Ended() public {}
-
-    function test_RevertsIf_WETHNotApproved() public {}
-
-    function test_RevertsIf_TokenAddress0() public {}
-
-    function test_RevertsIf_ToAddress0() public {
-        // this should revert via underlying token checks.
-        // including incase we change token implementations
+    function test_RevertsIf_BuyMoreThanAllocation() public {
+        vm.expectRevert();
+        sale.buyTokens{value: (price * (supply + 1))}(
+            address(mockToken), 0, supply + 1, address(this)
+        );
+        assertEq(mockToken.balanceOf(address(this)), 0);
     }
 
-    function test_RevertsIf_Purchase0() public {}
+    function test_RevertsIf_InsufficientPrice() public {
+        vm.expectRevert();
+        sale.buyTokens{value: price - 1}(address(mockToken), 0, 1, address(this));
+        assertEq(mockToken.balanceOf(address(this)), 0);
+    }
+
+    function test_RevertsIf_NotStarted() public {
+        vm.warp(block.timestamp - 1);
+        vm.expectRevert();
+        sale.buyTokens{value: price}(address(mockToken), 0, 1, address(this));
+        assertEq(mockToken.balanceOf(address(this)), 0);
+    }
+
+    function test_RevertsIf_Ended() public {
+        vm.warp(uint256(endTime) + 1);
+        vm.expectRevert();
+        sale.buyTokens{value: price}(address(mockToken), 0, 1, address(this));
+        assertEq(mockToken.balanceOf(address(this)), 0);
+    }
+
+    function test_RevertsIf_TokenAddress0() public {
+        vm.expectRevert();
+        sale.buyTokens{value: price}(address(0), 0, 1, address(this));
+        assertEq(mockToken.balanceOf(address(this)), 0);
+    }
+
+    function test_RevertsIf_ToAddress0() public {
+        vm.expectRevert();
+        sale.buyTokens{value: price}(address(mockToken), 0, 1, address(0));
+    }
+
+    function test_RevertsIf_Purchase0() public {
+        vm.expectRevert();
+        sale.buyTokens{value: price}(address(mockToken), 0, 0, address(this));
+        assertEq(mockToken.balanceOf(address(this)), 0);
+    }
 }
 
 contract SetMintDetails is FirstComeFirstServeTest {
