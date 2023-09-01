@@ -25,8 +25,8 @@ import "src/utils/Constants.sol";
 contract Deploy is Script {
     // Contracts
     FxContractRegistry internal fxContractRegistry;
-    FxIssuerFactory internal fxIssuerFactory;
     FxGenArt721 internal fxGenArt721;
+    FxIssuerFactory internal fxIssuerFactory;
     FxPsuedoRandomizer internal fxPseudoRandomizer;
     FxRoleRegistry internal fxRoleRegistry;
     FxSplitsFactory internal fxSplitsFactory;
@@ -97,11 +97,6 @@ contract Deploy is Script {
     function _deployContracts() internal {
         fxContractRegistry = new FxContractRegistry();
         fxRoleRegistry = new FxRoleRegistry();
-        fxGenArt721 = new FxGenArt721(
-            address(fxContractRegistry),
-            address(fxRoleRegistry)
-        );
-        fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721), configInfo);
         fxSplitsFactory = new FxSplitsFactory();
         fxPseudoRandomizer = new FxPsuedoRandomizer();
         fxTokenRenderer = new FxTokenRenderer(
@@ -109,13 +104,18 @@ contract Deploy is Script {
             SCRIPTY_STORAGE_V2,
             SCRIPTY_BUILDER_V2
         );
+        fxGenArt721 = new FxGenArt721(
+            address(fxContractRegistry),
+            address(fxRoleRegistry)
+        );
+        fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721), configInfo);
     }
 
     function _createSplit() internal {
-        accounts.push(admin);
         accounts.push(creator);
-        allocations.push(SPLITS_ADMIN_ALLOCATION);
+        accounts.push(admin);
         allocations.push(SPLITS_CREATOR_ALLOCATION);
+        allocations.push(SPLITS_ADMIN_ALLOCATION);
         primaryReceiver = fxSplitsFactory.createSplit(accounts, allocations);
     }
 

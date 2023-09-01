@@ -29,8 +29,8 @@ import "test/utils/Constants.sol";
 contract BaseTest is Test {
     // Contracts
     FxContractRegistry internal fxContractRegistry;
-    FxIssuerFactory internal fxIssuerFactory;
     FxGenArt721 internal fxGenArt721;
+    FxIssuerFactory internal fxIssuerFactory;
     FxPsuedoRandomizer internal fxPsuedoRandomizer;
     FxRoleRegistry internal fxRoleRegistry;
     FxSplitsFactory internal splitsFactory;
@@ -42,6 +42,8 @@ contract BaseTest is Test {
     address internal minter;
     address internal tokenMod;
     address internal userMod;
+
+    // Users
     address internal alice;
     address internal bob;
     address internal eve;
