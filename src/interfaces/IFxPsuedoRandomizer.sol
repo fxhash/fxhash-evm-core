@@ -8,6 +8,7 @@ import {IFxRandomizer} from "src/interfaces/IFxRandomizer.sol";
 interface IFxPsuedoRandomizer is IFxRandomizer {
     /// @inheritdoc IFxRandomizer
     function requestRandomness(uint256 _tokenId) external;
+
     /**
      * @notice Generates a random seed for a token based specific entropy
      * @param _tokenId ID of the token
