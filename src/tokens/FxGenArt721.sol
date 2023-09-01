@@ -4,7 +4,15 @@ pragma solidity 0.8.20;
 import {ERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
-import {IFxGenArt721, GenArtInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
+import {
+    IFxGenArt721,
+    GenArtInfo,
+    IssuerInfo,
+    MetadataInfo,
+    MintInfo,
+    ProjectInfo,
+    ReserveInfo
+} from "src/interfaces/IFxGenArt721.sol";
 import {IFxRandomizer} from "src/interfaces/IFxRandomizer.sol";
 import {IFxSeedConsumer} from "src/interfaces/IFxSeedConsumer.sol";
 import {IFxTokenRenderer} from "src/interfaces/IFxTokenRenderer.sol";
@@ -52,9 +60,7 @@ contract FxGenArt721 is
      * @dev Modifier for restricting calls to only registered contracts
      */
     modifier onlyContract(bytes32 _name) {
-        if (
-            msg.sender != IFxContractRegistry(contractRegistry).contracts(_name)
-        ) {
+        if (msg.sender != IFxContractRegistry(contractRegistry).contracts(_name)) {
             revert UnauthorizedContract();
         }
         _;
@@ -72,8 +78,7 @@ contract FxGenArt721 is
      * @dev Modifier for restricting calls to only authorized accounts with given roles
      */
     modifier onlyRole(bytes32 _role) {
-        if (!IAccessControl(roleRegistry).hasRole(_role, msg.sender))
-            revert UnauthorizedAccount();
+        if (!IAccessControl(roleRegistry).hasRole(_role, msg.sender)) revert UnauthorizedAccount();
         _;
     }
 
@@ -82,10 +87,7 @@ contract FxGenArt721 is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Sets core registry contracts
-    constructor(
-        address _contractRegistry,
-        address _roleRegistry
-    ) ERC721("FxGenArt721", "FXHASH") {
+    constructor(address _contractRegistry, address _roleRegistry) ERC721("FxGenArt721", "FXHASH") {
         contractRegistry = _contractRegistry;
         roleRegistry = _roleRegistry;
     }
@@ -184,9 +186,7 @@ contract FxGenArt721 is
     }
 
     /// @inheritdoc IFxGenArt721
-    function setContractURI(
-        string calldata _uri
-    ) external onlyRole(ADMIN_ROLE) {
+    function setContractURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
         issuerInfo.projectInfo.contractURI = _uri;
         emit ContractURIUpdated(_uri);
     }
@@ -229,25 +229,22 @@ contract FxGenArt721 is
     }
 
     /// @inheritdoc ERC721
-    function supportsInterface(
-        bytes4 _interfaceId
-    ) public view override(ERC721, RoyaltyManager) returns (bool) {
+    function supportsInterface(bytes4 _interfaceId)
+        public
+        view
+        override(ERC721, RoyaltyManager)
+        returns (bool)
+    {
         return super.supportsInterface(_interfaceId);
     }
 
     /// @inheritdoc ERC721
-    function tokenURI(
-        uint256 _tokenId
-    ) public view virtual override returns (string memory) {
+    function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
         _requireMinted(_tokenId);
 
-        return
-            IFxTokenRenderer(renderer).tokenURI(
-                _tokenId,
-                issuerInfo.projectInfo,
-                metadataInfo,
-                genArtInfo[_tokenId]
-            );
+        return IFxTokenRenderer(renderer).tokenURI(
+            _tokenId, issuerInfo.projectInfo, metadataInfo, genArtInfo[_tokenId]
+        );
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -266,26 +263,25 @@ contract FxGenArt721 is
             for (uint256 i; i < _mintInfo.length; ++i) {
                 minter = _mintInfo[i].minter;
                 reserveInfo = _mintInfo[i].reserveInfo;
-                if (
-                    !IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)
-                ) {
+                if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) {
                     revert UnauthorizedMinter();
                 }
-                if (reserveInfo.startTime >= reserveInfo.endTime)
-                    revert InvalidReserveTime();
+                if (reserveInfo.startTime >= reserveInfo.endTime) revert InvalidReserveTime();
                 issuerInfo.minters[minter] = true;
                 totalAllocation += reserveInfo.allocation;
             }
         }
 
-        if (totalAllocation > issuerInfo.projectInfo.supply)
-            revert AllocationExceeded();
+        if (totalAllocation > issuerInfo.projectInfo.supply) revert AllocationExceeded();
     }
 
     /// @inheritdoc ERC721
-    function _exists(
-        uint256 _tokenId
-    ) internal view override(ERC721, RoyaltyManager) returns (bool) {
+    function _exists(uint256 _tokenId)
+        internal
+        view
+        override(ERC721, RoyaltyManager)
+        returns (bool)
+    {
         return super._exists(_tokenId);
     }
 }
