@@ -1,17 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {BaseTest} from "test/BaseTest.t.sol";
+import "test/BaseTest.t.sol";
+import "forge-std/Test.sol";
 import {FixedPrice} from "src/minters/FixedPrice.sol";
 import {ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
-import {FxGenArt721} from "src/FxGenArt721.sol";
+import {FxGenArt721, MintInfo, ProjectInfo} from "src/tokens/FxGenArt721.sol";
 
 contract FirstComeFirstServeTest is BaseTest {
     FixedPrice internal sale;
     FxGenArt721 internal mockToken;
     uint256 internal price = 1 ether;
     uint256 internal quantity = 1;
-    uint256 internal supply = 100;
+    uint128 internal supply = 100;
     uint64 internal startTime = uint64(block.timestamp);
     uint64 internal endTime = type(uint64).max;
 
@@ -20,14 +21,32 @@ contract FirstComeFirstServeTest is BaseTest {
         mockToken = new FxGenArt721(address(fxContractRegistry), address(fxRoleRegistry));
         vm.deal(address(this), 100 ether);
         sale = new FixedPrice();
-        // mockToken.initialize();
+        vm.prank(admin);
+        fxRoleRegistry.grantRole(MINTER_ROLE, address(sale));
+        // fxContractRegistry.setContracts("MINTER", address(sale));
+        projectInfo.supply = supply;
+        mintInfo.push(
+            MintInfo(address(sale), ReserveInfo(startTime, endTime, supply), abi.encode(price))
+        );
+        mockToken.initialize(
+            address(this),
+            address(this),
+            projectInfo,
+            metadataInfo,
+            mintInfo,
+            royaltyReceivers,
+            basisPoints
+        );
+        mockToken.toggleMint();
+        vm.prank(admin);
+        mockToken.setRandomizer(address(fxPsuedoRandomizer));
     }
 }
 
 contract BuyTokens is FirstComeFirstServeTest {
     function test_buyTokens() public {
         vm.warp(block.timestamp + 1);
-        sale.buyTokens(address(mockToken), 0, 1, address(this));
+        sale.buyTokens{value: price}(address(mockToken), 0, 1, address(this));
         assertEq(mockToken.balanceOf(address(this)), 1);
     }
 

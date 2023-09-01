@@ -52,10 +52,12 @@ struct GenArtInfo {
 /**
  * @param minter Address of the minter contract
  * @param reserveInfo Reserve information
+ * @param mintParams Optional abi.encoded bytes data to pass params to the minter
  */
 struct MintInfo {
     address minter;
     ReserveInfo reserveInfo;
+    bytes mintParams;
 }
 
 /**

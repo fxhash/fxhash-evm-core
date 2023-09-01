@@ -16,6 +16,7 @@ import {
 } from "src/interfaces/IFxGenArt721.sol";
 import {IFxPsuedoRandomizer} from "src/interfaces/IFxPsuedoRandomizer.sol";
 import {IFxSeedConsumer} from "src/interfaces/IFxSeedConsumer.sol";
+import {IMinter} from "src/interfaces/IMinter.sol";
 import {IFxTokenRenderer} from "src/interfaces/IFxTokenRenderer.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
 import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
@@ -106,15 +107,13 @@ contract FxGenArt721 is
         uint96[] calldata _basisPoints
     ) external initializer {
         issuerInfo.projectInfo = _projectInfo;
-        issuerInfo.primaryReceiver = _primaryReceiver;
-        metadataInfo = _metadataInfo;
 
         _registerMinters(_mintInfo);
         _setBaseRoyalties(_royaltyReceivers, _basisPoints);
         _transferOwnership(_owner);
 
-        issuerInfo.projectInfo = _projectInfo;
         issuerInfo.primaryReceiver = _primaryReceiver;
+        metadataInfo = _metadataInfo;
 
         emit ProjectInitialized(_primaryReceiver, _projectInfo, _mintInfo);
     }
@@ -266,6 +265,7 @@ contract FxGenArt721 is
                     revert UnauthorizedMinter();
                 }
                 if (reserveInfo.startTime >= reserveInfo.endTime) revert InvalidReserveTime();
+                IMinter(minter).setMintDetails(reserveInfo, _mintInfo[i].mintParams);
                 issuerInfo.minters[minter] = true;
                 totalAllocation += reserveInfo.allocation;
             }
