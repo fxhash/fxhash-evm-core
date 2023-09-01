@@ -20,7 +20,10 @@ contract FixedPrice {
     error TooMany();
 
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external {
+        if (_reserve.startTime > _reserve.endTime) revert();
+        if (_reserve.allocation == 0) revert();
         uint256 price = abi.decode(_mintDetails, (uint256));
+        if (price == 0) revert();
         prices[msg.sender].push(price);
         reserves[msg.sender].push(_reserve);
     }

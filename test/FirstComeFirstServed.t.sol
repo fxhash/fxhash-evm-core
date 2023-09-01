@@ -111,16 +111,28 @@ contract SetMintDetails is FirstComeFirstServeTest {
         assertEq(allocation_, allocation, "allocation incorrectly set");
     }
 
-    function test_RevertsIf_StartTimeGtEndTime() public {}
+    function test_RevertsIf_StartTimeGtEndTime() public {
+        endTime = startTime - 1;
+        vm.expectRevert();
+        sale.setMintDetails(ReserveInfo(startTime, endTime, supply), abi.encode(price));
+    }
 
-    function test_RevertsIf_Allocation0() public {}
+    function test_RevertsIf_Allocation0() public {
+        vm.expectRevert();
+        sale.setMintDetails(ReserveInfo(startTime, endTime, 0), abi.encode(price));
+    }
 
-    function test_RevertsIf_Price0() public {}
-
-    /// might want to store fee receiver here to save external call
-    function test_RevertsIf_FeeReceiverAddress0() public {}
+    function test_RevertsIf_Price0() public {
+        vm.expectRevert();
+        sale.setMintDetails(ReserveInfo(startTime, endTime, supply), abi.encode(0));
+    }
 }
 
 contract Withdraw is FirstComeFirstServeTest {
-    function test_withdraw() public {}
+    receive() external payable {}
+
+    function test_withdraw() public {
+        sale.buyTokens{value: price}(address(mockToken), 0, 1, address(this));
+        sale.withdraw(address(mockToken));
+    }
 }
