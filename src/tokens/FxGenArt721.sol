@@ -14,7 +14,6 @@ import {
     ReserveInfo
 } from "src/interfaces/IFxGenArt721.sol";
 import {IFxRandomizer} from "src/interfaces/IFxRandomizer.sol";
-import {IFxSeedConsumer} from "src/interfaces/IFxSeedConsumer.sol";
 import {IFxTokenRenderer} from "src/interfaces/IFxTokenRenderer.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
