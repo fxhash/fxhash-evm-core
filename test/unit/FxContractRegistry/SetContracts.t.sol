@@ -44,11 +44,10 @@ contract SetContracts is FxContractRegistryTest {
         _setContracts(admin, names, contracts);
     }
 
-    function _setContracts(
-        address _admin,
-        bytes32[] storage _names,
-        address[] storage _contracts
-    ) internal prank(_admin) {
+    function _setContracts(address _admin, bytes32[] storage _names, address[] storage _contracts)
+        internal
+        prank(_admin)
+    {
         fxContractRegistry.setContracts(_names, _contracts);
     }
 }

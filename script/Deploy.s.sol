@@ -2,7 +2,15 @@
 pragma solidity 0.8.20;
 
 import {FxContractRegistry} from "src/registries/FxContractRegistry.sol";
-import {FxGenArt721, GenArtInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/tokens/FxGenArt721.sol";
+import {
+    FxGenArt721,
+    GenArtInfo,
+    IssuerInfo,
+    MetadataInfo,
+    MintInfo,
+    ProjectInfo,
+    ReserveInfo
+} from "src/tokens/FxGenArt721.sol";
 import {FxIssuerFactory, ConfigInfo} from "src/factories/FxIssuerFactory.sol";
 import {FxPsuedoRandomizer} from "src/randomizers/FxPsuedoRandomizer.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
