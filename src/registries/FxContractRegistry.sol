@@ -11,7 +11,7 @@ contract FxContractRegistry is Ownable, IFxContractRegistry {
     mapping(bytes32 => address) public contracts;
 
     /// @inheritdoc IFxContractRegistry
-    function setContracts(string[] calldata _names, address[] calldata _contracts)
+    function setContracts(bytes32[] calldata _names, address[] calldata _contracts)
         external
         onlyOwner
     {

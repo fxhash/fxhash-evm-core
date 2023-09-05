@@ -2,15 +2,7 @@
 pragma solidity 0.8.20;
 
 import {FxContractRegistry} from "src/registries/FxContractRegistry.sol";
-import {
-    FxGenArt721,
-    GenArtInfo,
-    IssuerInfo,
-    MetadataInfo,
-    MintInfo,
-    ProjectInfo,
-    ReserveInfo
-} from "src/tokens/FxGenArt721.sol";
+import {FxGenArt721, GenArtInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/tokens/FxGenArt721.sol";
 import {FxIssuerFactory, ConfigInfo} from "src/factories/FxIssuerFactory.sol";
 import {FxPsuedoRandomizer} from "src/randomizers/FxPsuedoRandomizer.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
@@ -21,6 +13,7 @@ import {Script} from "forge-std/Script.sol";
 
 import "script/utils/Constants.sol";
 import "src/utils/Constants.sol";
+import "test/utils/Constants.sol";
 
 contract Deploy is Script {
     // Contracts
@@ -66,6 +59,10 @@ contract Deploy is Script {
     HTMLRequest internal animation;
     HTMLRequest internal attributes;
 
+    // Registries
+    bytes32[] names;
+    address[] contracts;
+
     // Royalties
     address payable[] internal royaltyReceivers;
     uint96[] internal basisPoints;
@@ -82,6 +79,8 @@ contract Deploy is Script {
         vm.startBroadcast();
         _deployContracts();
         _createSplit();
+        _registerMinter(minter);
+        _createProject();
         _configureSettings();
         vm.stopBroadcast();
     }
@@ -111,6 +110,26 @@ contract Deploy is Script {
         fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721), configInfo);
     }
 
+    function _registerContracts() internal {
+        names[0] = FX_CONTRACT_REGISTRY;
+        names[1] = FX_GEN_ART_721;
+        names[2] = FX_ISSUER_FACTORY;
+        names[3] = FX_PSUEDO_RANDOMIZER;
+        names[4] = FX_ROLE_REGISTRY;
+        names[5] = FX_SPLITS_FACTORY;
+        names[6] = FX_TOKEN_RENDERER;
+
+        contracts[0] = address(fxContractRegistry);
+        contracts[1] = address(fxGenArt721);
+        contracts[2] = address(fxIssuerFactory);
+        contracts[3] = address(fxPseudoRandomizer);
+        contracts[4] = address(fxRoleRegistry);
+        contracts[5] = address(fxSplitsFactory);
+        contracts[6] = address(fxTokenRenderer);
+
+        fxContractRegistry.setContracts(names, contracts);
+    }
+
     function _createSplit() internal {
         accounts.push(creator);
         accounts.push(admin);
@@ -119,7 +138,7 @@ contract Deploy is Script {
         primaryReceiver = fxSplitsFactory.createSplit(accounts, allocations);
     }
 
-    function _configureSettings() internal {
+    function _createProject() internal {
         fxGenArtProxy = fxIssuerFactory.createProject(
             creator,
             primaryReceiver,
@@ -129,6 +148,19 @@ contract Deploy is Script {
             royaltyReceivers,
             basisPoints
         );
+    }
+
+    function _registerMinter(address _minter) internal {
+        fxRoleRegistry.grantRole(MINTER_ROLE, _minter);
+    }
+
+    function _configureSettings() internal {
+        configInfo.feeShare = CONFIG_FEE_SHARE;
+        configInfo.lockTime = CONFIG_LOCK_TIME;
+        configInfo.defaultMetadata = CONFIG_DEFAULT_METADATA;
+        fxIssuerFactory.setConfig(configInfo);
+
+        FxGenArt721(fxGenArtProxy).setRandomizer(address(fxPseudoRandomizer));
         FxGenArt721(fxGenArtProxy).setRenderer(address(fxTokenRenderer));
     }
 

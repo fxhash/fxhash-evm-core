@@ -65,6 +65,10 @@ contract BaseTest is Test {
     uint96 internal projectId;
     string internal contractURI;
 
+    // Registries
+    bytes32[] internal names;
+    address[] internal contracts;
+
     // Token
     uint256 internal tokenId;
     bytes32 internal seed;

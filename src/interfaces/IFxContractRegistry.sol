@@ -18,7 +18,7 @@ interface IFxContractRegistry {
      * @param _names List of contract names
      * @param _contracts List of contract addresses
      */
-    function setContracts(string[] calldata _names, address[] calldata _contracts) external;
+    function setContracts(bytes32[] calldata _names, address[] calldata _contracts) external;
 
     /// @notice Returns the contract address for a given name
     function contracts(bytes32) external view returns (address);
