@@ -16,7 +16,11 @@ import {
     ProjectInfo,
     ReserveInfo
 } from "src/interfaces/IFxGenArt721.sol";
-import {HTMLRequest} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
+import {
+    HTMLRequest,
+    HTMLTagType,
+    HTMLTag
+} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
@@ -79,6 +83,8 @@ contract BaseTest is Test {
     string internal imageURI;
     HTMLRequest internal animation;
     HTMLRequest internal attributes;
+    HTMLTag[] internal headTags;
+    HTMLTag[] internal bodyTags;
 
     // Royalties
     address payable[] internal royaltyReceivers;
