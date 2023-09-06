@@ -80,43 +80,32 @@ contract Deploy is Script {
     uint32[] internal allocations;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  SET UP
+                                     SETUP
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual {
         _createAccounts();
         _configureInfo();
         _configureProject();
-        _configureMinters();
+        _configureMinter();
         _configureMetdata();
         _configureRoyalties();
         _configureSplits();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                    RUN
+                                    RUN SCRIPT
     //////////////////////////////////////////////////////////////////////////*/
 
     function run() public virtual {
         vm.startBroadcast();
         _deployContracts();
-        _grantRole(MINTER_ROLE, minter);
+        _registerContracts();
+        _registerRoles();
         _createSplit();
         _createProject();
         _setContracts();
         vm.stopBroadcast();
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                    ACCOUNTS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function _createAccounts() internal {
-        admin = msg.sender;
-        creator = _createUser("creator");
-        minter = _createUser("minter");
-        tokenMod = _createUser("tokenMod");
-        userMod = _createUser("userMod");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -131,7 +120,7 @@ contract Deploy is Script {
 
     function _configureProject() internal {
         projectInfo.enabled = true;
-        projectInfo.onchain = false;
+        projectInfo.onchain = true;
         projectInfo.supply = MAX_SUPPLY;
         projectInfo.contractURI = CONTRACT_URI;
     }
@@ -141,7 +130,7 @@ contract Deploy is Script {
         metadataInfo.imageURI = IMAGE_URI;
     }
 
-    function _configureMinters() internal {
+    function _configureMinter() internal {
         mintInfo.push(
             MintInfo({
                 minter: minter,
@@ -197,6 +186,14 @@ contract Deploy is Script {
                                     CREATE
     //////////////////////////////////////////////////////////////////////////*/
 
+    function _createAccounts() internal {
+        admin = msg.sender;
+        creator = _createUser("creator");
+        minter = _createUser("minter");
+        tokenMod = _createUser("tokenMod");
+        userMod = _createUser("userMod");
+    }
+
     function _createSplit() internal {
         primaryReceiver = fxSplitsFactory.createSplit(accounts, allocations);
     }
@@ -218,23 +215,29 @@ contract Deploy is Script {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _registerContracts() internal {
-        names[0] = FX_CONTRACT_REGISTRY;
-        names[1] = FX_GEN_ART_721;
-        names[2] = FX_ISSUER_FACTORY;
-        names[3] = FX_PSUEDO_RANDOMIZER;
-        names[4] = FX_ROLE_REGISTRY;
-        names[5] = FX_SPLITS_FACTORY;
-        names[6] = FX_TOKEN_RENDERER;
+        names.push(FX_CONTRACT_REGISTRY);
+        names.push(FX_GEN_ART_721);
+        names.push(FX_ISSUER_FACTORY);
+        names.push(FX_PSUEDO_RANDOMIZER);
+        names.push(FX_ROLE_REGISTRY);
+        names.push(FX_SPLITS_FACTORY);
+        names.push(FX_TOKEN_RENDERER);
 
-        contracts[0] = address(fxContractRegistry);
-        contracts[1] = address(fxGenArt721);
-        contracts[2] = address(fxIssuerFactory);
-        contracts[3] = address(fxPseudoRandomizer);
-        contracts[4] = address(fxRoleRegistry);
-        contracts[5] = address(fxSplitsFactory);
-        contracts[6] = address(fxTokenRenderer);
+        contracts.push(address(fxContractRegistry));
+        contracts.push(address(fxGenArt721));
+        contracts.push(address(fxIssuerFactory));
+        contracts.push(address(fxPseudoRandomizer));
+        contracts.push(address(fxRoleRegistry));
+        contracts.push(address(fxSplitsFactory));
+        contracts.push(address(fxTokenRenderer));
 
         fxContractRegistry.setContracts(names, contracts);
+    }
+
+    function _registerRoles() internal {
+        fxRoleRegistry.grantRole(MINTER_ROLE, minter);
+        fxRoleRegistry.grantRole(TOKEN_MODERATOR_ROLE, tokenMod);
+        fxRoleRegistry.grantRole(USER_MODERATOR_ROLE, userMod);
     }
 
     function _setContracts() internal {
@@ -248,9 +251,5 @@ contract Deploy is Script {
 
     function _createUser(string memory _user) internal pure returns (address) {
         return address(uint160(uint256(keccak256(abi.encodePacked(_user)))));
-    }
-
-    function _grantRole(bytes32 _role, address _minter) internal {
-        fxRoleRegistry.grantRole(_role, _minter);
     }
 }
