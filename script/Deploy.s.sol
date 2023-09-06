@@ -16,7 +16,11 @@ import {FxPsuedoRandomizer} from "src/randomizers/FxPsuedoRandomizer.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 import {FxSplitsFactory} from "src/factories/FxSplitsFactory.sol";
 import {FxTokenRenderer} from "src/renderers/FxTokenRenderer.sol";
-import {HTMLRequest} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
+import {
+    HTMLRequest,
+    HTMLTagType,
+    HTMLTag
+} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
 import {Script} from "forge-std/Script.sol";
 
 import "script/utils/Constants.sol";
@@ -66,6 +70,8 @@ contract Deploy is Script {
     string internal imageURI;
     HTMLRequest internal animation;
     HTMLRequest internal attributes;
+    HTMLTag[] internal headTags;
+    HTMLTag[] internal bodyTags;
 
     // Registries
     bytes32[] names;
@@ -88,9 +94,10 @@ contract Deploy is Script {
         _configureInfo();
         _configureProject();
         _configureMinter();
-        _configureMetdata();
-        _configureRoyalties();
         _configureSplits();
+        _configureRoyalties();
+        _configureScripty();
+        _configureMetdata();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -125,9 +132,63 @@ contract Deploy is Script {
         projectInfo.contractURI = CONTRACT_URI;
     }
 
+    function _configureScripty() internal {
+        headTags.push(
+            HTMLTag({
+                name: "fullSizeCanvas.css",
+                contractAddress: ETHFS_FILE_STORAGE,
+                contractData: bytes(""),
+                tagType: HTMLTagType.useTagOpenAndClose,
+                tagOpen: '<link rel="stylesheet" href="data:text/css;base64,',
+                tagClose: '">',
+                tagContent: bytes("")
+            })
+        );
+
+        bodyTags.push(
+            HTMLTag({
+                name: "p5-v1.5.0.min.js.gz",
+                contractAddress: ETHFS_FILE_STORAGE,
+                contractData: bytes(""),
+                tagType: HTMLTagType.scriptGZIPBase64DataURI,
+                tagOpen: bytes(""),
+                tagClose: bytes(""),
+                tagContent: bytes("")
+            })
+        );
+
+        bodyTags.push(
+            HTMLTag({
+                name: "gunzipScripts-0.0.1.js",
+                contractAddress: ETHFS_FILE_STORAGE,
+                contractData: bytes(""),
+                tagType: HTMLTagType.scriptBase64DataURI,
+                tagOpen: bytes(""),
+                tagClose: bytes(""),
+                tagContent: bytes("")
+            })
+        );
+
+        bodyTags.push(
+            HTMLTag({
+                name: "pointsAndLines",
+                contractAddress: SCRIPTY_STORAGE_V2,
+                contractData: bytes(""),
+                tagType: HTMLTagType.script,
+                tagOpen: bytes(""),
+                tagClose: bytes(""),
+                tagContent: bytes("")
+            })
+        );
+
+        animation.headTags = headTags;
+        animation.bodyTags = bodyTags;
+    }
+
     function _configureMetdata() internal {
         metadataInfo.baseURI = BASE_URI;
         metadataInfo.imageURI = IMAGE_URI;
+        metadataInfo.animation = animation;
     }
 
     function _configureMinter() internal {
