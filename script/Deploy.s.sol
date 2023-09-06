@@ -61,6 +61,7 @@ contract Deploy is Script {
     string internal contractURI;
 
     // Token
+    uint256 internal amount;
     uint256 internal tokenId;
     bytes32 internal seed;
     bytes internal fxParams;
@@ -91,6 +92,7 @@ contract Deploy is Script {
 
     function setUp() public virtual {
         _createAccounts();
+        _configureState();
         _configureInfo();
         _configureProject();
         _configureMinters();
@@ -112,8 +114,8 @@ contract Deploy is Script {
         _createSplit();
         _createProject();
         _setContracts();
-        _mint(admin, 3);
-        _burn(1);
+        _mint(admin, amount);
+        _burn(tokenId);
         vm.stopBroadcast();
     }
 
@@ -147,7 +149,7 @@ contract Deploy is Script {
                 reserveInfo: ReserveInfo({
                     startTime: RESERVE_START_TIME,
                     endTime: RESERVE_END_TIME,
-                    allocation: RESERVE_MINTER_ALLOCATION / 2
+                    allocation: RESERVE_ADMIN_ALLOCATION
                 })
             })
         );
@@ -158,7 +160,7 @@ contract Deploy is Script {
                 reserveInfo: ReserveInfo({
                     startTime: RESERVE_START_TIME,
                     endTime: RESERVE_END_TIME,
-                    allocation: RESERVE_MINTER_ALLOCATION / 2
+                    allocation: RESERVE_MINTER_ALLOCATION
                 })
             })
         );
@@ -233,6 +235,11 @@ contract Deploy is Script {
         accounts.push(admin);
         allocations.push(SPLITS_CREATOR_ALLOCATION);
         allocations.push(SPLITS_ADMIN_ALLOCATION);
+    }
+
+    function _configureState() internal {
+        amount = 10;
+        tokenId = 1;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
