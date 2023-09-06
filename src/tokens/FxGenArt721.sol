@@ -265,7 +265,6 @@ contract FxGenArt721 is
                 if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) {
                     revert UnauthorizedMinter();
                 }
-                if (reserveInfo.startTime >= reserveInfo.endTime) revert InvalidReserveTime();
                 issuerInfo.minters[minter] = true;
                 totalAllocation += reserveInfo.allocation;
             }

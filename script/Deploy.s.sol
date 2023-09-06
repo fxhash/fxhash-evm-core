@@ -79,19 +79,37 @@ contract Deploy is Script {
     address[] internal accounts;
     uint32[] internal allocations;
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                  SET UP
+    //////////////////////////////////////////////////////////////////////////*/
+
     function setUp() public virtual {
         _createAccounts();
+        _configureInfo();
+        _configureProject();
+        _configureMinters();
+        _configureMetdata();
+        _configureRoyalties();
+        _configureSplits();
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    RUN
+    //////////////////////////////////////////////////////////////////////////*/
 
     function run() public virtual {
         vm.startBroadcast();
         _deployContracts();
+        _grantRole(MINTER_ROLE, minter);
         _createSplit();
-        _registerMinter(minter);
         _createProject();
-        _configureSettings();
+        _setContracts();
         vm.stopBroadcast();
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    ACCOUNTS
+    //////////////////////////////////////////////////////////////////////////*/
 
     function _createAccounts() internal {
         admin = msg.sender;
@@ -100,6 +118,63 @@ contract Deploy is Script {
         tokenMod = _createUser("tokenMod");
         userMod = _createUser("userMod");
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                  CONFIGURATIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function _configureInfo() internal {
+        configInfo.feeShare = CONFIG_FEE_SHARE;
+        configInfo.lockTime = CONFIG_LOCK_TIME;
+        configInfo.defaultMetadata = CONFIG_DEFAULT_METADATA;
+    }
+
+    function _configureProject() internal {
+        projectInfo.enabled = true;
+        projectInfo.onchain = false;
+        projectInfo.supply = MAX_SUPPLY;
+        projectInfo.contractURI = CONTRACT_URI;
+    }
+
+    function _configureMetdata() internal {
+        metadataInfo.baseURI = BASE_URI;
+        metadataInfo.imageURI = IMAGE_URI;
+    }
+
+    function _configureMinters() internal {
+        mintInfo.push(
+            MintInfo({
+                minter: minter,
+                reserveInfo: ReserveInfo({
+                    startTime: RESERVE_START_TIME,
+                    endTime: RESERVE_END_TIME,
+                    allocation: RESERVE_MINTER_ALLOCATION
+                })
+            })
+        );
+    }
+
+    function _configureRoyalties() internal {
+        royaltyReceivers.push(payable(admin));
+        royaltyReceivers.push(payable(creator));
+        royaltyReceivers.push(payable(tokenMod));
+        royaltyReceivers.push(payable(userMod));
+        basisPoints.push(ROYALTY_BPS);
+        basisPoints.push(ROYALTY_BPS * 2);
+        basisPoints.push(ROYALTY_BPS * 3);
+        basisPoints.push(ROYALTY_BPS * 4);
+    }
+
+    function _configureSplits() internal {
+        accounts.push(creator);
+        accounts.push(admin);
+        allocations.push(SPLITS_CREATOR_ALLOCATION);
+        allocations.push(SPLITS_ADMIN_ALLOCATION);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    DEPLOYMENTS
+    //////////////////////////////////////////////////////////////////////////*/
 
     function _deployContracts() internal {
         fxContractRegistry = new FxContractRegistry();
@@ -117,6 +192,30 @@ contract Deploy is Script {
         );
         fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721), configInfo);
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    CREATE
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function _createSplit() internal {
+        primaryReceiver = fxSplitsFactory.createSplit(accounts, allocations);
+    }
+
+    function _createProject() internal {
+        fxGenArtProxy = fxIssuerFactory.createProject(
+            creator,
+            primaryReceiver,
+            projectInfo,
+            metadataInfo,
+            mintInfo,
+            royaltyReceivers,
+            basisPoints
+        );
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    SETTERS
+    //////////////////////////////////////////////////////////////////////////*/
 
     function _registerContracts() internal {
         names[0] = FX_CONTRACT_REGISTRY;
@@ -138,41 +237,20 @@ contract Deploy is Script {
         fxContractRegistry.setContracts(names, contracts);
     }
 
-    function _createSplit() internal {
-        accounts.push(creator);
-        accounts.push(admin);
-        allocations.push(SPLITS_CREATOR_ALLOCATION);
-        allocations.push(SPLITS_ADMIN_ALLOCATION);
-        primaryReceiver = fxSplitsFactory.createSplit(accounts, allocations);
-    }
-
-    function _createProject() internal {
-        fxGenArtProxy = fxIssuerFactory.createProject(
-            creator,
-            primaryReceiver,
-            projectInfo,
-            metadataInfo,
-            mintInfo,
-            royaltyReceivers,
-            basisPoints
-        );
-    }
-
-    function _registerMinter(address _minter) internal {
-        fxRoleRegistry.grantRole(MINTER_ROLE, _minter);
-    }
-
-    function _configureSettings() internal {
-        configInfo.feeShare = CONFIG_FEE_SHARE;
-        configInfo.lockTime = CONFIG_LOCK_TIME;
-        configInfo.defaultMetadata = CONFIG_DEFAULT_METADATA;
-        fxIssuerFactory.setConfig(configInfo);
-
+    function _setContracts() internal {
         FxGenArt721(fxGenArtProxy).setRandomizer(address(fxPseudoRandomizer));
         FxGenArt721(fxGenArtProxy).setRenderer(address(fxTokenRenderer));
     }
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                    HELPERS
+    //////////////////////////////////////////////////////////////////////////*/
+
     function _createUser(string memory _user) internal pure returns (address) {
         return address(uint160(uint256(keccak256(abi.encodePacked(_user)))));
+    }
+
+    function _grantRole(bytes32 _role, address _minter) internal {
+        fxRoleRegistry.grantRole(_role, _minter);
     }
 }
