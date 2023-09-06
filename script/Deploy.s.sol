@@ -101,7 +101,7 @@ contract Deploy is Script {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                    RUN SCRIPT
+                                      RUN
     //////////////////////////////////////////////////////////////////////////*/
 
     function run() public virtual {
@@ -165,19 +165,19 @@ contract Deploy is Script {
     function _configureScripty() internal {
         headTags.push(
             HTMLTag({
-                name: "fullSizeCanvas.css",
+                name: CSS_CANVAS_SCRIPT,
                 contractAddress: ETHFS_FILE_STORAGE,
                 contractData: bytes(""),
                 tagType: HTMLTagType.useTagOpenAndClose,
-                tagOpen: '<link rel="stylesheet" href="data:text/css;base64,',
-                tagClose: '">',
+                tagOpen: TAG_OPEN,
+                tagClose: TAG_CLOSE,
                 tagContent: bytes("")
             })
         );
 
         bodyTags.push(
             HTMLTag({
-                name: "p5-v1.5.0.min.js.gz",
+                name: P5_JS_SCRIPT,
                 contractAddress: ETHFS_FILE_STORAGE,
                 contractData: bytes(""),
                 tagType: HTMLTagType.scriptGZIPBase64DataURI,
@@ -189,7 +189,7 @@ contract Deploy is Script {
 
         bodyTags.push(
             HTMLTag({
-                name: "gunzipScripts-0.0.1.js",
+                name: GUNZIP_JS_SCRIPT,
                 contractAddress: ETHFS_FILE_STORAGE,
                 contractData: bytes(""),
                 tagType: HTMLTagType.scriptBase64DataURI,
@@ -201,7 +201,7 @@ contract Deploy is Script {
 
         bodyTags.push(
             HTMLTag({
-                name: "pointsAndLines",
+                name: POINTS_AND_LINES_SCRIPT,
                 contractAddress: SCRIPTY_STORAGE_V2,
                 contractData: bytes(""),
                 tagType: HTMLTagType.script,
