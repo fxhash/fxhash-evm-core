@@ -14,11 +14,11 @@ interface IFxContractRegistry {
     error InputEmpty();
 
     /**
-     * @notice Sets the contracts mapping of name to address
-     * @param _names List of contract names
+     * @notice Registers deployed contracts in mapping of hashed name to address
+     * @param _names List of hashed contract names
      * @param _contracts List of contract addresses
      */
-    function setContracts(bytes32[] calldata _names, address[] calldata _contracts) external;
+    function register(bytes32[] calldata _names, address[] calldata _contracts) external;
 
     /// @notice Returns the contract address for a given name
     function contracts(bytes32) external view returns (address);

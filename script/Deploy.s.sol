@@ -132,6 +132,36 @@ contract Deploy is Script {
         projectInfo.contractURI = CONTRACT_URI;
     }
 
+    function _configureMetdata() internal {
+        metadataInfo.baseURI = BASE_URI;
+        metadataInfo.imageURI = IMAGE_URI;
+        metadataInfo.animation = animation;
+    }
+
+    function _configureMinter() internal {
+        mintInfo.push(
+            MintInfo({
+                minter: minter,
+                reserveInfo: ReserveInfo({
+                    startTime: RESERVE_START_TIME,
+                    endTime: RESERVE_END_TIME,
+                    allocation: RESERVE_MINTER_ALLOCATION
+                })
+            })
+        );
+    }
+
+    function _configureRoyalties() internal {
+        royaltyReceivers.push(payable(admin));
+        royaltyReceivers.push(payable(creator));
+        royaltyReceivers.push(payable(tokenMod));
+        royaltyReceivers.push(payable(userMod));
+        basisPoints.push(ROYALTY_BPS);
+        basisPoints.push(ROYALTY_BPS * 2);
+        basisPoints.push(ROYALTY_BPS * 3);
+        basisPoints.push(ROYALTY_BPS * 4);
+    }
+
     function _configureScripty() internal {
         headTags.push(
             HTMLTag({
@@ -185,36 +215,6 @@ contract Deploy is Script {
         animation.bodyTags = bodyTags;
     }
 
-    function _configureMetdata() internal {
-        metadataInfo.baseURI = BASE_URI;
-        metadataInfo.imageURI = IMAGE_URI;
-        metadataInfo.animation = animation;
-    }
-
-    function _configureMinter() internal {
-        mintInfo.push(
-            MintInfo({
-                minter: minter,
-                reserveInfo: ReserveInfo({
-                    startTime: RESERVE_START_TIME,
-                    endTime: RESERVE_END_TIME,
-                    allocation: RESERVE_MINTER_ALLOCATION
-                })
-            })
-        );
-    }
-
-    function _configureRoyalties() internal {
-        royaltyReceivers.push(payable(admin));
-        royaltyReceivers.push(payable(creator));
-        royaltyReceivers.push(payable(tokenMod));
-        royaltyReceivers.push(payable(userMod));
-        basisPoints.push(ROYALTY_BPS);
-        basisPoints.push(ROYALTY_BPS * 2);
-        basisPoints.push(ROYALTY_BPS * 3);
-        basisPoints.push(ROYALTY_BPS * 4);
-    }
-
     function _configureSplits() internal {
         accounts.push(creator);
         accounts.push(admin);
@@ -255,10 +255,6 @@ contract Deploy is Script {
         userMod = _createUser("userMod");
     }
 
-    function _createSplit() internal {
-        primaryReceiver = fxSplitsFactory.createSplit(accounts, allocations);
-    }
-
     function _createProject() internal {
         fxGenArtProxy = fxIssuerFactory.createProject(
             creator,
@@ -269,6 +265,10 @@ contract Deploy is Script {
             royaltyReceivers,
             basisPoints
         );
+    }
+
+    function _createSplit() internal {
+        primaryReceiver = fxSplitsFactory.createSplit(accounts, allocations);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -292,7 +292,7 @@ contract Deploy is Script {
         contracts.push(address(fxSplitsFactory));
         contracts.push(address(fxTokenRenderer));
 
-        fxContractRegistry.setContracts(names, contracts);
+        fxContractRegistry.register(names, contracts);
     }
 
     function _registerRoles() internal {
