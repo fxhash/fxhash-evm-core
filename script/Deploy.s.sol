@@ -12,7 +12,7 @@ import {
     ReserveInfo
 } from "src/tokens/FxGenArt721.sol";
 import {FxIssuerFactory, ConfigInfo} from "src/factories/FxIssuerFactory.sol";
-import {FxPsuedoRandomizer} from "src/randomizers/FxPsuedoRandomizer.sol";
+import {FxPseudoRandomizer} from "src/randomizers/FxPseudoRandomizer.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 import {FxSplitsFactory} from "src/factories/FxSplitsFactory.sol";
 import {FxTokenRenderer} from "src/renderers/FxTokenRenderer.sol";
@@ -32,7 +32,7 @@ contract Deploy is Script {
     FxContractRegistry internal fxContractRegistry;
     FxGenArt721 internal fxGenArt721;
     FxIssuerFactory internal fxIssuerFactory;
-    FxPsuedoRandomizer internal fxPseudoRandomizer;
+    FxPseudoRandomizer internal fxPseudoRandomizer;
     FxRoleRegistry internal fxRoleRegistry;
     FxSplitsFactory internal fxSplitsFactory;
     FxTokenRenderer internal fxTokenRenderer;
@@ -247,7 +247,7 @@ contract Deploy is Script {
         fxContractRegistry = new FxContractRegistry();
         fxRoleRegistry = new FxRoleRegistry();
         fxSplitsFactory = new FxSplitsFactory();
-        fxPseudoRandomizer = new FxPsuedoRandomizer();
+        fxPseudoRandomizer = new FxPseudoRandomizer();
         fxTokenRenderer = new FxTokenRenderer(
             ETHFS_FILE_STORAGE,
             SCRIPTY_STORAGE_V2,
@@ -296,7 +296,7 @@ contract Deploy is Script {
         names.push(FX_CONTRACT_REGISTRY);
         names.push(FX_GEN_ART_721);
         names.push(FX_ISSUER_FACTORY);
-        names.push(FX_PSUEDO_RANDOMIZER);
+        names.push(FX_PSEUDO_RANDOMIZER);
         names.push(FX_ROLE_REGISTRY);
         names.push(FX_SPLITS_FACTORY);
         names.push(FX_TOKEN_RENDERER);

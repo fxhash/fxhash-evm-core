@@ -3,9 +3,9 @@ pragma solidity 0.8.20;
 
 import {IFxRandomizer} from "src/interfaces/IFxRandomizer.sol";
 
-/// @title IFxPsuedoRandomizer
+/// @title IFxPseudoRandomizer
 /// @notice Generates psuedo-random seeds for unrevealed tokens
-interface IFxPsuedoRandomizer is IFxRandomizer {
+interface IFxPseudoRandomizer is IFxRandomizer {
     /// @inheritdoc IFxRandomizer
     function requestRandomness(uint256 _tokenId) external;
 

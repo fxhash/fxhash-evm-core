@@ -5,7 +5,7 @@ pragma solidity 0.8.20;
 bytes32 constant FX_CONTRACT_REGISTRY = keccak256("FxContractRegistry");
 bytes32 constant FX_GEN_ART_721 = keccak256("FxGenArt721");
 bytes32 constant FX_ISSUER_FACTORY = keccak256("FxIssuerFactory");
-bytes32 constant FX_PSUEDO_RANDOMIZER = keccak256("FxPsuedoRandomizer");
+bytes32 constant FX_PSEUDO_RANDOMIZER = keccak256("FxPseudoRandomizer");
 bytes32 constant FX_ROLE_REGISTRY = keccak256("FxRoleRegistry");
 bytes32 constant FX_SPLITS_FACTORY = keccak256("FxSplitsFactory");
 bytes32 constant FX_TOKEN_RENDERER = keccak256("FxTokenRenderer");

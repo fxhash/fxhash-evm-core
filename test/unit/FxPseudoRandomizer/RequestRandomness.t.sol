@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import "test/unit/FxPsuedoRandomizer/FxPsuedoRandomizerTest.t.sol";
+import "test/unit/FxPseudoRandomizer/FxPseudoRandomizerTest.t.sol";
 
-contract RequestRandomness is ISeedConsumer, FxPsuedoRandomizerTest {
+contract RequestRandomness is ISeedConsumer, FxPseudoRandomizerTest {
     function fulfillSeedRequest(
         uint256,
         /* _tokenId */
@@ -13,8 +13,8 @@ contract RequestRandomness is ISeedConsumer, FxPsuedoRandomizerTest {
     }
 
     function test_requestRandomness() public {
-        fxPsuedoRandomizer.requestRandomness(tokenId);
-        seed = fxPsuedoRandomizer.generateSeed(tokenId);
+        fxPseudoRandomizer.requestRandomness(tokenId);
+        seed = fxPseudoRandomizer.generateSeed(tokenId);
         assertEq(genArtInfo.seed, seed);
     }
 }

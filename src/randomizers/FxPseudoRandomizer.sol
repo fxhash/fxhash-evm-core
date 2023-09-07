@@ -1,21 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {IFxPsuedoRandomizer} from "src/interfaces/IFxPsuedoRandomizer.sol";
+import {IFxPseudoRandomizer} from "src/interfaces/IFxPseudoRandomizer.sol";
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
 
 /**
- * @title FxPsuedoRandomizer
- * @notice See documentation in {IFxPsuedoRandomizer}
+ * @title FxPseudoRandomizer
+ * @notice See documentation in {IFxPseudoRandomizer}
  */
-contract FxPsuedoRandomizer is IFxPsuedoRandomizer {
-    /// @inheritdoc IFxPsuedoRandomizer
+contract FxPseudoRandomizer is IFxPseudoRandomizer {
+    /// @inheritdoc IFxPseudoRandomizer
     function requestRandomness(uint256 _tokenId) external {
         bytes32 seed = generateSeed(_tokenId);
         ISeedConsumer(msg.sender).fulfillSeedRequest(_tokenId, seed);
     }
 
-    /// @inheritdoc IFxPsuedoRandomizer
+    /// @inheritdoc IFxPseudoRandomizer
     function generateSeed(uint256 _tokenId) public view returns (bytes32) {
         return keccak256(
             abi.encodePacked(
