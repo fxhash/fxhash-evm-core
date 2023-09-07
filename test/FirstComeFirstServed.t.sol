@@ -3,6 +3,7 @@ pragma solidity ^0.8.20;
 
 import "test/BaseTest.t.sol";
 import "forge-std/Test.sol";
+import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
 import {FixedPrice} from "src/minters/FixedPrice.sol";
 import {ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {FxGenArt721, MintInfo, ProjectInfo} from "src/tokens/FxGenArt721.sol";
@@ -19,7 +20,7 @@ contract FirstComeFirstServeTest is BaseTest {
     function setUp() public override {
         super.setUp();
         mockToken = new FxGenArt721(address(fxContractRegistry), address(fxRoleRegistry));
-        vm.deal(address(this), 100 ether);
+        vm.deal(address(this), 1000 ether);
         sale = new FixedPrice();
         vm.prank(admin);
         fxRoleRegistry.grantRole(MINTER_ROLE, address(sale));
@@ -51,41 +52,41 @@ contract BuyTokens is FirstComeFirstServeTest {
     }
 
     function test_RevertsIf_BuyMoreThanAllocation() public {
-        vm.expectRevert();
+        vm.expectRevert(abi.encodeWithSelector(IFixedPrice.TooMany.selector));
         sale.buyTokens{value: (price * (supply + 1))}(
             address(mockToken), 0, supply + 1, address(this)
         );
         assertEq(mockToken.balanceOf(address(this)), 0);
     }
 
-    function test_RevertsIf_InsufficientPrice() public {
-        vm.expectRevert();
+    function test_RevertsIf_InsufficientPayent() public {
+        vm.expectRevert(abi.encodeWithSelector(IFixedPrice.InvalidPayment.selector));
         sale.buyTokens{value: price - 1}(address(mockToken), 0, 1, address(this));
         assertEq(mockToken.balanceOf(address(this)), 0);
     }
 
     function test_RevertsIf_NotStarted() public {
         vm.warp(block.timestamp - 1);
-        vm.expectRevert();
+        vm.expectRevert(abi.encodeWithSelector(IFixedPrice.NotStarted.selector));
         sale.buyTokens{value: price}(address(mockToken), 0, 1, address(this));
         assertEq(mockToken.balanceOf(address(this)), 0);
     }
 
     function test_RevertsIf_Ended() public {
         vm.warp(uint256(endTime) + 1);
-        vm.expectRevert();
+        vm.expectRevert(abi.encodeWithSelector(IFixedPrice.Ended.selector));
         sale.buyTokens{value: price}(address(mockToken), 0, 1, address(this));
         assertEq(mockToken.balanceOf(address(this)), 0);
     }
 
     function test_RevertsIf_TokenAddress0() public {
-        vm.expectRevert();
+        vm.expectRevert(abi.encodeWithSelector(IFixedPrice.InvalidToken.selector));
         sale.buyTokens{value: price}(address(0), 0, 1, address(this));
         assertEq(mockToken.balanceOf(address(this)), 0);
     }
 
     function test_RevertsIf_ToAddress0() public {
-        vm.expectRevert();
+        vm.expectRevert(abi.encodeWithSelector(IFixedPrice.AddressZero.selector));
         sale.buyTokens{value: price}(address(mockToken), 0, 1, address(0));
     }
 
@@ -113,17 +114,17 @@ contract SetMintDetails is FirstComeFirstServeTest {
 
     function test_RevertsIf_StartTimeGtEndTime() public {
         endTime = startTime - 1;
-        vm.expectRevert();
+        vm.expectRevert(abi.encodeWithSelector(IFixedPrice.InvalidTimes.selector));
         sale.setMintDetails(ReserveInfo(startTime, endTime, supply), abi.encode(price));
     }
 
     function test_RevertsIf_Allocation0() public {
-        vm.expectRevert();
+        vm.expectRevert(abi.encodeWithSelector(IFixedPrice.InvalidAllocation.selector));
         sale.setMintDetails(ReserveInfo(startTime, endTime, 0), abi.encode(price));
     }
 
     function test_RevertsIf_Price0() public {
-        vm.expectRevert();
+        vm.expectRevert(abi.encodeWithSelector(IFixedPrice.InvalidPrice.selector));
         sale.setMintDetails(ReserveInfo(startTime, endTime, supply), abi.encode(0));
     }
 }
