@@ -21,6 +21,16 @@ contract ClaimAllowlistSlotTest is AllowlistTest {
         allowlist.claimSlot(address(0), 1, 0.1 ether, aliceIndex1Proof);
     }
 
+    function test_ClaimsMultipleSlots() public {
+        bytes32[] memory aliceIndex1Proof = getProof(merkleTree, 0);
+        vm.prank(alice);
+        allowlist.claimSlot(address(0), 1, 0.1 ether, aliceIndex1Proof);
+
+        bytes32[] memory aliceIndex4Proof = getProof(merkleTree, 4);
+        vm.prank(alice);
+        allowlist.claimSlot(address(0), 5, 0.1 ether, aliceIndex4Proof);
+    }
+
     function test_RevertsWhen_NotClaimer() public {
         bytes32[] memory aliceIndex1Proof = getProof(merkleTree, 0);
         vm.expectRevert(abi.encodeWithSelector(Allowlist.InvalidProof.selector));
