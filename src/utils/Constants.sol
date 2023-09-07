@@ -5,6 +5,7 @@ pragma solidity 0.8.20;
 bytes32 constant FX_CONTRACT_REGISTRY = keccak256("FX_CONTRACT_REGISTRY");
 bytes32 constant FX_GEN_ART_721 = keccak256("FX_GEN_ART_721");
 bytes32 constant FX_ISSUER_FACTORY = keccak256("FX_ISSUER_FACTORY");
+bytes32 constant FX_MINT_TICKET_721 = keccak256("FX_MINT_TICKET_721");
 bytes32 constant FX_RANDOMIZER = keccak256("FX_RANDOMIZER");
 bytes32 constant FX_ROLE_REGISTRY = keccak256("FX_ROLE_REGISTRY");
 bytes32 constant FX_ROYALTY_MANAGER = keccak256("FX_ROYALTY_MANAGER");
@@ -42,3 +43,6 @@ uint96 constant FEE_DENOMINATOR = 10_000;
 
 // EIP712 Type Hashses
 bytes32 constant CLAIM_TYPEHASH = keccak256("Claim(uint256 index, address user, bytes mintCode)");
+
+// Exponential Decay
+int256 constant ONE_WAD = 1e18;

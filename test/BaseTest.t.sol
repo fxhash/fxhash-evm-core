@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+import "forge-std/Test.sol";
+import "script/utils/Constants.sol";
+import "src/utils/Constants.sol";
+import "test/utils/Constants.sol";
+
 import {FxContractRegistry} from "src/registries/FxContractRegistry.sol";
 import {FxGenArt721} from "src/tokens/FxGenArt721.sol";
 import {FxIssuerFactory, ConfigInfo} from "src/factories/FxIssuerFactory.sol";
@@ -20,11 +25,6 @@ import {HTMLRequest} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol
 import {IFxSeedConsumer} from "src/interfaces/IFxSeedConsumer.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
-import {Test} from "forge-std/Test.sol";
-
-import "script/utils/Constants.sol";
-import "src/utils/Constants.sol";
-import "test/utils/Constants.sol";
 
 contract BaseTest is Test {
     // Contracts
