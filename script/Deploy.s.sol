@@ -46,7 +46,7 @@ contract Deploy is Script {
 
     // Structs
     ConfigInfo internal configInfo;
-    IssuerInfo internal isserInfo;
+    IssuerInfo internal issuerInfo;
     GenArtInfo internal genArtInfo;
     MetadataInfo internal metadataInfo;
     MintInfo[] internal mintInfo;
@@ -55,9 +55,7 @@ contract Deploy is Script {
 
     // Project
     address internal fxGenArtProxy;
-    address internal owner;
     address internal primaryReceiver;
-    uint96 internal projectId;
     string internal contractURI;
 
     // Token
@@ -70,13 +68,12 @@ contract Deploy is Script {
     string internal baseURI;
     string internal imageURI;
     HTMLRequest internal animation;
-    HTMLRequest internal attributes;
     HTMLTag[] internal headTags;
     HTMLTag[] internal bodyTags;
 
     // Registries
-    bytes32[] names;
-    address[] contracts;
+    bytes32[] internal names;
+    address[] internal contracts;
 
     // Royalties
     address payable[] internal royaltyReceivers;
