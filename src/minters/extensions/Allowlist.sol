@@ -34,7 +34,7 @@ abstract contract Allowlist {
         address _token,
         uint256 _index,
         uint256 _price,
-        bytes32[] calldata _proof
+        bytes32[] memory _proof
     ) internal {
         if (_bitmap.get(_index)) revert AlreadyClaimed();
         bytes32 root = _getTokenMerkleRoot(_token);
