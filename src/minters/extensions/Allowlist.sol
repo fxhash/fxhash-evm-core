@@ -36,10 +36,8 @@ abstract contract Allowlist {
         uint256 _price,
         bytes32[] calldata proof
     ) internal {
-        if (_isClaimed(_bitmap, _index)) revert AlreadyClaimed();
-
+        if (_bitmap.get(_index)) revert AlreadyClaimed();
         bytes32 root = _getTokenMerkleRoot(_token);
-
         bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(_index, _price, msg.sender))));
         if (!MerkleProof.verify(proof, root, leaf)) revert InvalidProof();
         _bitmap.set(_index);
@@ -51,17 +49,4 @@ abstract contract Allowlist {
      * @return The merkle root of the token.
      */
     function _getTokenMerkleRoot(address _token) internal view virtual returns (bytes32);
-
-    /**
-     * @dev Checks if an index in the merkle tree has previusly been claimed
-     * @param _index The index in the merkle tree.
-     * @return A boolean indicating it has been claimed or not
-     */
-    function _isClaimed(BitMaps.BitMap storage _bitmap, uint256 _index)
-        internal
-        view
-        returns (bool)
-    {
-        return _bitmap.get(_index);
-    }
 }
