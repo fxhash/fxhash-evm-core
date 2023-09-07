@@ -34,7 +34,7 @@ contract FixedPrice is IFixedPrice {
         external
         payable
     {
-        if (_token == address(0)) revert InvalidToken();
+        if (_token == address(0) || reserves[_token].length == 0) revert InvalidToken();
         ReserveInfo storage reserve = reserves[_token][_mintId];
         if (block.timestamp < reserve.startTime) revert NotStarted();
         if (block.timestamp > reserve.endTime) revert Ended();
