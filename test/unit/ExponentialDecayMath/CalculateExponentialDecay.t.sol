@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "test/unit/ExponentialDecayMath/ExponentialDecayMath.t.sol";
+import "test/unit/ExponentialDecayMath/ExponentialDecayMathTest.t.sol";
 
 contract CalculateExponentialDecay is ExponentialDecayMathTest {
     function setUp() public override {
