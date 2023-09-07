@@ -136,4 +136,10 @@ contract Withdraw is FirstComeFirstServeTest {
         sale.buyTokens{value: price}(address(mockToken), 0, 1, address(this));
         sale.withdraw(address(mockToken));
     }
+
+    function test_RevertsIf_Token0() public {
+        sale.buyTokens{value: price}(address(mockToken), 0, 1, address(this));
+        vm.expectRevert(abi.encodeWithSelector(IFixedPrice.InvalidToken.selector));
+        sale.withdraw(address(0));
+    }
 }
