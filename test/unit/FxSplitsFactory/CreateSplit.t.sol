@@ -13,14 +13,20 @@ contract CreateSplit is FxSplitsFactoryTest {
     }
 
     function test_createSplit() public {
-        ISplitsMain(SPLITS_MAIN).createSplit(accounts, allocations, 0, address(0));
+        splitsFactory.createSplit(accounts, allocations);
+    }
+
+    function test_RevertsWhen_CreateSplitTwice() public {
+        splitsFactory.createSplit(accounts, allocations);
+        vm.expectRevert(abi.encodeWithSelector(IFxSplitsFactory.SplitsExists.selector));
+        splitsFactory.createSplit(accounts, allocations);
     }
 
     function test_FirstWithdraw() public {
         address libPredicted =
             ISplitsMain(SPLITS_MAIN).predictImmutableSplitAddress(accounts, allocations, 0);
         vm.deal(libPredicted, 1 ether);
-        ISplitsMain(SPLITS_MAIN).createSplit(accounts, allocations, 0, address(0));
+        splitsFactory.createSplit(accounts, allocations);
         ISplitsMain(SPLITS_MAIN).distributeETH(libPredicted, accounts, allocations, 0, address(0));
         ISplitsMain(SPLITS_MAIN).withdraw(address(2), 0.4 ether, new address[](0));
         ISplitsMain(SPLITS_MAIN).withdraw(address(3), 0.6 ether, new address[](0));
