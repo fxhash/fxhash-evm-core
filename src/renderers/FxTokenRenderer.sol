@@ -28,6 +28,9 @@ contract FxTokenRenderer is IFxTokenRenderer {
 
     /// @dev Initializes ETHFS and Scripty contracts for storing and building scripts onchain
     constructor(address _ethfsFileStorage, address _scriptyStorage, address _scriptyBuilder) {
+        if (_ethfsFileStorage == address(0)) revert AddressZero();
+        if (_scriptyStorage == address(0)) revert AddressZero();
+        if (_scriptyBuilder == address(0)) revert AddressZero();
         ethfsFileStorage = _ethfsFileStorage;
         scriptyStorage = _scriptyStorage;
         scriptyBuilder = _scriptyBuilder;

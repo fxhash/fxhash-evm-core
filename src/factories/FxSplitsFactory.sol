@@ -15,8 +15,13 @@ contract FxSplitsFactory is IFxSplitsFactory {
         external
         returns (address split)
     {
-        split = ISplitsMain(SPLITS_MAIN).createSplit(_accounts, _allocations, 0, address(0));
-        emit SplitsInfo(split, _accounts, _allocations, address(0), 0);
+        emit SplitsInfo(
+            split = ISplitsMain(SPLITS_MAIN).createSplit(_accounts, _allocations, 0, address(0)),
+            _accounts,
+            _allocations,
+            address(0),
+            0
+        );
     }
 
     /// @inheritdoc IFxSplitsFactory

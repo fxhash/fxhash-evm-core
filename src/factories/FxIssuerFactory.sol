@@ -41,6 +41,8 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
         genArtToken = Clones.clone(implementation);
         projects[++projectId] = genArtToken;
 
+        emit ProjectCreated(projectId, _owner, genArtToken);
+
         IFxGenArt721(genArtToken).initialize(
             _owner,
             _primaryReceiver,
@@ -50,8 +52,6 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
             _royaltyReceivers,
             _basisPoints
         );
-
-        emit ProjectCreated(projectId, _owner, genArtToken);
     }
 
     /// @inheritdoc IFxIssuerFactory
