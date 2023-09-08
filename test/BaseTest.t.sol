@@ -9,7 +9,7 @@ import "test/utils/Constants.sol";
 import {FxContractRegistry} from "src/registries/FxContractRegistry.sol";
 import {FxGenArt721} from "src/tokens/FxGenArt721.sol";
 import {FxIssuerFactory, ConfigInfo} from "src/factories/FxIssuerFactory.sol";
-import {FxPsuedoRandomizer} from "src/randomizers/FxPsuedoRandomizer.sol";
+import {FxPseudoRandomizer} from "src/randomizers/FxPseudoRandomizer.sol";
 import {FxSplitsFactory} from "src/factories/FxSplitsFactory.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 import {FxTokenRenderer} from "src/renderers/FxTokenRenderer.sol";
@@ -21,17 +21,21 @@ import {
     ProjectInfo,
     ReserveInfo
 } from "src/interfaces/IFxGenArt721.sol";
-import {HTMLRequest} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
-import {IFxSeedConsumer} from "src/interfaces/IFxSeedConsumer.sol";
+import {
+    HTMLRequest,
+    HTMLTagType,
+    HTMLTag
+} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
+import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
 contract BaseTest is Test {
     // Contracts
     FxContractRegistry internal fxContractRegistry;
-    FxIssuerFactory internal fxIssuerFactory;
     FxGenArt721 internal fxGenArt721;
-    FxPsuedoRandomizer internal fxPsuedoRandomizer;
+    FxIssuerFactory internal fxIssuerFactory;
+    FxPseudoRandomizer internal fxPseudoRandomizer;
     FxRoleRegistry internal fxRoleRegistry;
     FxSplitsFactory internal splitsFactory;
     FxTokenRenderer internal fxTokenRenderer;
@@ -42,6 +46,8 @@ contract BaseTest is Test {
     address internal minter;
     address internal tokenMod;
     address internal userMod;
+
+    // Users
     address internal alice;
     address internal bob;
     address internal eve;
@@ -63,6 +69,10 @@ contract BaseTest is Test {
     uint96 internal projectId;
     string internal contractURI;
 
+    // Registries
+    bytes32[] internal names;
+    address[] internal contracts;
+
     // Token
     uint256 internal tokenId;
     bytes32 internal seed;
@@ -73,6 +83,8 @@ contract BaseTest is Test {
     string internal imageURI;
     HTMLRequest internal animation;
     HTMLRequest internal attributes;
+    HTMLTag[] internal headTags;
+    HTMLTag[] internal bodyTags;
 
     // Royalties
     address payable[] internal royaltyReceivers;
@@ -114,7 +126,7 @@ contract BaseTest is Test {
             address(fxRoleRegistry)
         );
         fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721), configInfo);
-        fxPsuedoRandomizer = new FxPsuedoRandomizer();
+        fxPseudoRandomizer = new FxPseudoRandomizer();
         fxTokenRenderer = new FxTokenRenderer(
             ETHFS_FILE_STORAGE,
             SCRIPTY_STORAGE_V2,
@@ -125,7 +137,7 @@ contract BaseTest is Test {
         vm.label(address(fxContractRegistry), "FxContractRegistry");
         vm.label(address(fxGenArt721), "FxGenArt721");
         vm.label(address(fxIssuerFactory), "FxIssuerFactory");
-        vm.label(address(fxPsuedoRandomizer), "FxPsuedoRandomizer");
+        vm.label(address(fxPseudoRandomizer), "FxPseudoRandomizer");
         vm.label(address(fxRoleRegistry), "FxRoleRegistry");
         vm.label(address(fxTokenRenderer), "FxTokenRenderer");
     }
