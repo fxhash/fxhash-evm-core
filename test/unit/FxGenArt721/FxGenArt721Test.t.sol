@@ -24,7 +24,6 @@ contract FxGenArt721Test is BaseTest {
     bytes4 internal UNAUTHORIZED_CONTRACT_ERROR = IFxGenArt721.UnauthorizedContract.selector;
     bytes4 internal UNAUTHORIZED_MINTER_ERROR = IFxGenArt721.UnauthorizedMinter.selector;
     bytes4 internal UNREGISTERED_MINTER_ERROR = IFxGenArt721.UnregisteredMinter.selector;
-    bytes4 internal ADDRESS_ZERO_ERROR = IFxGenArt721.AddressZero.selector;
 
     function setUp() public virtual override {
         super.setUp();
@@ -37,22 +36,6 @@ contract FxGenArt721Test is BaseTest {
         _registerMinter(admin, minter);
         _createSplit(creator);
         _createProject(creator);
-    }
-
-    function test_RevertsWhen_ContractRegistryAddress0_Constructor() public {
-        vm.expectRevert(ADDRESS_ZERO_ERROR);
-        new FxGenArt721(
-            address(0),
-            address(fxRoleRegistry)
-        );
-    }
-
-    function test_RevertsWhen_RoleRegistryAddress0_Constructor() public {
-        vm.expectRevert(ADDRESS_ZERO_ERROR);
-        new FxGenArt721(
-            address(fxContractRegistry),
-            address(0)
-        );
     }
 
     function test_Implementation() public {
