@@ -2,10 +2,10 @@
 pragma solidity 0.8.20;
 
 /**
- * @title IFxSeedConsumer
+ * @title ISeedConsumer
  * @notice Interface for fullfilling random seed requests
  */
-interface IFxSeedConsumer {
+interface ISeedConsumer {
     /**
      * @notice Fullfills the random seed request on the GenArt721 token contract
      * @param _tokenId ID of the token
