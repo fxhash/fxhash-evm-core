@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {IFxRoyaltyManager, RoyaltyInfo} from "src/interfaces/IFxRoyaltyManager.sol";
+import {IRoyaltyManager, RoyaltyInfo} from "src/interfaces/IRoyaltyManager.sol";
 import {MAX_ROYALTY_BPS, FEE_DENOMINATOR} from "src/utils/Constants.sol";
 
 /**
- * @title FxRoyaltyManager
+ * @title RoyaltyManager
  * @notice Manages the royalty inforamtion for generative art collections
  */
-abstract contract FxRoyaltyManager is IFxRoyaltyManager {
+abstract contract RoyaltyManager is IRoyaltyManager {
     /// @notice List of basis points and receiver addresses for base royalty info
     RoyaltyInfo[] public baseRoyalties;
     /// @notice Mapping of token ID to token-specific royalty info

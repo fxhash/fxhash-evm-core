@@ -34,9 +34,10 @@ contract FxGenArt721Test is BaseTest {
         minter = address(new MockMinter());
         _mock0xSplits();
         _configureProject();
-        _configureMetdata();
         _configureMinters();
         _configureRoyalties();
+        _configureScripty();
+        _configureMetdata();
         _registerMinter(admin, minter);
         _createSplit(creator);
         _createProject(creator);
@@ -67,6 +68,7 @@ contract FxGenArt721Test is BaseTest {
     function _configureMetdata() internal {
         metadataInfo.baseURI = BASE_URI;
         metadataInfo.imageURI = IMAGE_URI;
+        metadataInfo.animation = animation;
     }
 
     function _configureMinters() internal {
@@ -102,6 +104,59 @@ contract FxGenArt721Test is BaseTest {
         primaryReceiver = ISplitsMain(SPLITS_MAIN).createSplit(
             accounts, allocations, SPLITS_DISTRIBUTOR_FEE, SPLITS_CONTROLLER
         );
+    }
+
+    function _configureScripty() internal {
+        headTags.push(
+            HTMLTag({
+                name: CSS_CANVAS_SCRIPT,
+                contractAddress: ETHFS_FILE_STORAGE,
+                contractData: bytes(""),
+                tagType: HTMLTagType.useTagOpenAndClose,
+                tagOpen: TAG_OPEN,
+                tagClose: TAG_CLOSE,
+                tagContent: bytes("")
+            })
+        );
+
+        bodyTags.push(
+            HTMLTag({
+                name: P5_JS_SCRIPT,
+                contractAddress: ETHFS_FILE_STORAGE,
+                contractData: bytes(""),
+                tagType: HTMLTagType.scriptGZIPBase64DataURI,
+                tagOpen: bytes(""),
+                tagClose: bytes(""),
+                tagContent: bytes("")
+            })
+        );
+
+        bodyTags.push(
+            HTMLTag({
+                name: GUNZIP_JS_SCRIPT,
+                contractAddress: ETHFS_FILE_STORAGE,
+                contractData: bytes(""),
+                tagType: HTMLTagType.scriptBase64DataURI,
+                tagOpen: bytes(""),
+                tagClose: bytes(""),
+                tagContent: bytes("")
+            })
+        );
+
+        bodyTags.push(
+            HTMLTag({
+                name: POINTS_AND_LINES_SCRIPT,
+                contractAddress: SCRIPTY_STORAGE_V2,
+                contractData: bytes(""),
+                tagType: HTMLTagType.script,
+                tagOpen: bytes(""),
+                tagClose: bytes(""),
+                tagContent: bytes("")
+            })
+        );
+
+        animation.headTags = headTags;
+        animation.bodyTags = bodyTags;
     }
 
     function _createProject(address _creator) internal prank(_creator) {

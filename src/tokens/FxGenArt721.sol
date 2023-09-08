@@ -2,7 +2,6 @@
 pragma solidity 0.8.20;
 
 import {ERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
-import {FxRoyaltyManager} from "src/managers/FxRoyaltyManager.sol";
 import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {
@@ -15,11 +14,12 @@ import {
     ReserveInfo
 } from "src/interfaces/IFxGenArt721.sol";
 import {IFxRandomizer} from "src/interfaces/IFxRandomizer.sol";
-import {IFxSeedConsumer} from "src/interfaces/IFxSeedConsumer.sol";
 import {IMinter} from "src/interfaces/IMinter.sol";
 import {IFxTokenRenderer} from "src/interfaces/IFxTokenRenderer.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
+import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
 import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
+import {RoyaltyManager} from "src/tokens/extensions/RoyaltyManager.sol";
 
 import "src/utils/Constants.sol";
 
@@ -29,11 +29,11 @@ import "src/utils/Constants.sol";
  */
 contract FxGenArt721 is
     IFxGenArt721,
-    IFxSeedConsumer,
+    ISeedConsumer,
     Initializable,
     Ownable,
     ERC721,
-    FxRoyaltyManager
+    RoyaltyManager
 {
     /// @inheritdoc IFxGenArt721
     address public immutable contractRegistry;
@@ -139,7 +139,7 @@ contract FxGenArt721 is
         _burn(_tokenId);
     }
 
-    /// @inheritdoc IFxSeedConsumer
+    /// @inheritdoc ISeedConsumer
     function fulfillSeedRequest(uint256 _tokenId, bytes32 _seed) external {
         if (msg.sender != randomizer) revert NotAuthorized();
         genArtInfo[_tokenId].seed = _seed;
@@ -230,7 +230,7 @@ contract FxGenArt721 is
     function supportsInterface(bytes4 _interfaceId)
         public
         view
-        override(ERC721, FxRoyaltyManager)
+        override(ERC721, RoyaltyManager)
         returns (bool)
     {
         return super.supportsInterface(_interfaceId);
@@ -264,8 +264,8 @@ contract FxGenArt721 is
                 if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) {
                     revert UnauthorizedMinter();
                 }
-                if (reserveInfo.startTime >= reserveInfo.endTime) revert InvalidReserveTime();
                 IMinter(minter).setMintDetails(reserveInfo, _mintInfo[i].mintParams);
+
                 issuerInfo.minters[minter] = true;
                 totalAllocation += reserveInfo.allocation;
             }
@@ -278,7 +278,7 @@ contract FxGenArt721 is
     function _exists(uint256 _tokenId)
         internal
         view
-        override(ERC721, FxRoyaltyManager)
+        override(ERC721, RoyaltyManager)
         returns (bool)
     {
         return super._exists(_tokenId);
