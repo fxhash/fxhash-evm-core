@@ -6,7 +6,7 @@ struct RoyaltyInfo {
     uint96 basisPoints;
 }
 
-interface IFxRoyaltyManager {
+interface IRoyaltyManager {
     /**
      * @notice Emitted when the royalties for a set of receivers have been updated.
      * @param receivers the addressaddress that will receive royalties.

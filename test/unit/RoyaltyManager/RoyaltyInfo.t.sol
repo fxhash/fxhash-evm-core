@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import "test/unit/FxRoyaltyManager/FxRoyaltyManagerTest.sol";
+import "test/unit/RoyaltyManager/RoyaltyManagerTest.sol";
 
-contract RoyaltyInfo is FxRoyaltyManagerTest {
+contract RoyaltyInfo is RoyaltyManagerTest {
     address internal receiver;
     uint256 internal bps;
 

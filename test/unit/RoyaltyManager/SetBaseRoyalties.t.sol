@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import "test/unit/FxRoyaltyManager/FxRoyaltyManagerTest.sol";
+import "test/unit/RoyaltyManager/RoyaltyManagerTest.sol";
 
-contract SetBaseRoyaltiesTest is FxRoyaltyManagerTest {
+contract SetBaseRoyaltiesTest is RoyaltyManagerTest {
     function setUp() public override {
         super.setUp();
         royaltyReceivers.push(payable(alice));
