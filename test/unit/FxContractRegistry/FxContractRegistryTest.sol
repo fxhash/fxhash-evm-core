@@ -7,10 +7,13 @@ import {FxContractRegistry} from "src/registries/FxContractRegistry.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 
 contract FxContractRegistryTest is BaseTest {
-    FxContractRegistry internal registry;
+    // Errors
+    bytes4 CONTRACT_ALREADY_SET_ERROR = IFxContractRegistry.ContractAlreadySet.selector;
+    bytes4 INPUT_EMPTY_ERROR = IFxContractRegistry.InputEmpty.selector;
+    bytes4 INVALID_CONTRACT_ERROR = IFxContractRegistry.InvalidContract.selector;
+    bytes4 LENGTH_MISMATCH_ERROR = IFxContractRegistry.LengthMismatch.selector;
 
     function setUp() public virtual override {
         super.setUp();
-        registry = new FxContractRegistry();
     }
 }
