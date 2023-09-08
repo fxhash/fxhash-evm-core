@@ -14,7 +14,7 @@ interface IFxContractRegistry {
     error InputEmpty();
 
     /**
-     * @notice Registers deployed contracts in mapping of hashed name to address
+     * @notice Registers deployed contracts in a mapping of hashed name to address
      * @param _names List of hashed contract names
      * @param _contracts List of contract addresses
      */
