@@ -38,6 +38,22 @@ contract FxGenArt721Test is BaseTest {
         _createProject(creator);
     }
 
+    function test_RevertsWhen_ContractRegistryAddress0_Constructor() public {
+        vm.expectRevert(ADDRESS_ZERO_ERROR);
+        new FxGenArt721(
+            address(0),
+            address(fxRoleRegistry)
+        );
+    }
+
+    function test_RevertsWhen_RoleRegistryAddress0_Constructor() public {
+        vm.expectRevert(ADDRESS_ZERO_ERROR);
+        new FxGenArt721(
+            address(fxContractRegistry),
+            address(0)
+        );
+    }
+
     function test_Implementation() public {
         assertEq(IFxGenArt721(fxGenArtProxy).contractRegistry(), address(fxContractRegistry));
         assertEq(IFxGenArt721(fxGenArtProxy).roleRegistry(), address(fxRoleRegistry));
