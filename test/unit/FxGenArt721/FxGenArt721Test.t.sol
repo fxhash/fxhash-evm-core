@@ -15,15 +15,16 @@ contract FxGenArt721Test is BaseTest {
     bool internal onchain;
 
     // Errors
-    bytes4 ALLOCATION_EXCEEDED_ERROR = IFxGenArt721.AllocationExceeded.selector;
-    bytes4 INVALID_AMOUNT_ERROR = IFxGenArt721.InvalidAmount.selector;
-    bytes4 INVALID_RESERVE_TIME_ERROR = IFxGenArt721.InvalidReserveTime.selector;
-    bytes4 MINT_INACTIVE_ERROR = IFxGenArt721.MintInactive.selector;
-    bytes4 NOT_AUTHORIZED_ERROR = IFxGenArt721.NotAuthorized.selector;
-    bytes4 UNAUTHORIZED_ACCOUNT_ERROR = IFxGenArt721.UnauthorizedAccount.selector;
-    bytes4 UNAUTHORIZED_CONTRACT_ERROR = IFxGenArt721.UnauthorizedContract.selector;
-    bytes4 UNAUTHORIZED_MINTER_ERROR = IFxGenArt721.UnauthorizedMinter.selector;
-    bytes4 UNREGISTERED_MINTER_ERROR = IFxGenArt721.UnregisteredMinter.selector;
+    bytes4 internal ALLOCATION_EXCEEDED_ERROR = IFxGenArt721.AllocationExceeded.selector;
+    bytes4 internal INVALID_AMOUNT_ERROR = IFxGenArt721.InvalidAmount.selector;
+    bytes4 internal INVALID_RESERVE_TIME_ERROR = IFxGenArt721.InvalidReserveTime.selector;
+    bytes4 internal MINT_INACTIVE_ERROR = IFxGenArt721.MintInactive.selector;
+    bytes4 internal NOT_AUTHORIZED_ERROR = IFxGenArt721.NotAuthorized.selector;
+    bytes4 internal UNAUTHORIZED_ACCOUNT_ERROR = IFxGenArt721.UnauthorizedAccount.selector;
+    bytes4 internal UNAUTHORIZED_CONTRACT_ERROR = IFxGenArt721.UnauthorizedContract.selector;
+    bytes4 internal UNAUTHORIZED_MINTER_ERROR = IFxGenArt721.UnauthorizedMinter.selector;
+    bytes4 internal UNREGISTERED_MINTER_ERROR = IFxGenArt721.UnregisteredMinter.selector;
+    bytes4 internal ADDRESS_ZERO_ERROR = IFxGenArt721.AddressZero.selector;
 
     function setUp() public virtual override {
         super.setUp();

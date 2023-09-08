@@ -60,6 +60,11 @@ contract AdminTest is FxGenArt721Test {
         _setRenderer(creator, address(fxPsuedoRandomizer));
     }
 
+    function test_setRandomizer_RevertsWhen_AddressZeroInput() public {
+        vm.expectRevert(ADDRESS_ZERO_ERROR);
+        _setRenderer(admin, address(0));
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                     RENDERER
     //////////////////////////////////////////////////////////////////////////*/
@@ -72,6 +77,11 @@ contract AdminTest is FxGenArt721Test {
     function test_setRenderer_RevertsWhen_UnauthorizedAccount() public {
         vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
         _setRenderer(creator, address(fxTokenRenderer));
+    }
+
+    function test_setRenderer_RevertsWhen_AddressZeroInput() public {
+        vm.expectRevert(ADDRESS_ZERO_ERROR);
+        _setRenderer(admin, address(0));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
