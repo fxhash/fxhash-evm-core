@@ -9,9 +9,6 @@ import {HTMLRequest} from "scripty.sol/contracts/scripty/interfaces/IScriptyBuil
  * @notice Renders token metadata using onchain generative scripts
  */
 interface IFxTokenRenderer {
-    /// @notice Error thrown when zero address used as input
-    error AddressZero();
-
     /**
      * @notice Builds the encoded HTML request for header and body tags
      * @param _tokenId ID of the token
