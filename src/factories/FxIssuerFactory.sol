@@ -2,7 +2,7 @@
 pragma solidity 0.8.20;
 
 import {Clones} from "openzeppelin/contracts/proxy/Clones.sol";
-import {IFxGenArt721, MintInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
+import {IFxGenArt721, MetadataInfo, MintInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxIssuerFactory, ConfigInfo} from "src/interfaces/IFxIssuerFactory.sol";
 import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
 
@@ -20,9 +20,10 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     /// @inheritdoc IFxIssuerFactory
     mapping(uint96 => address) public projects;
 
-    /// @dev Initializes registries and implementation contracts
-    constructor(address _implementation) {
-        implementation = _implementation;
+    /// @dev Initializes FxGenArt721 implementation and sets the initial config info
+    constructor(address _implementation, ConfigInfo memory _configInfo) {
+        _setConfigInfo(_configInfo);
+        _setImplementation(_implementation);
     }
 
     /// @inheritdoc IFxIssuerFactory
@@ -30,6 +31,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
         address _owner,
         address _primaryReceiver,
         ProjectInfo calldata _projectInfo,
+        MetadataInfo calldata _metadataInfo,
         MintInfo[] calldata _mintInfo,
         address payable[] calldata _royaltyReceivers,
         uint96[] calldata _basisPoints
@@ -40,7 +42,13 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
         projects[++projectId] = genArtToken;
 
         IFxGenArt721(genArtToken).initialize(
-            _owner, _primaryReceiver, _projectInfo, _mintInfo, _royaltyReceivers, _basisPoints
+            _owner,
+            _primaryReceiver,
+            _projectInfo,
+            _metadataInfo,
+            _mintInfo,
+            _royaltyReceivers,
+            _basisPoints
         );
 
         emit ProjectCreated(projectId, _owner, genArtToken);
@@ -48,12 +56,22 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
 
     /// @inheritdoc IFxIssuerFactory
     function setConfig(ConfigInfo calldata _configInfo) external onlyOwner {
-        configInfo = _configInfo;
-        emit ConfigUpdated(msg.sender, _configInfo);
+        _setConfigInfo(_configInfo);
     }
 
     /// @inheritdoc IFxIssuerFactory
     function setImplementation(address _implementation) external onlyOwner {
+        _setImplementation(_implementation);
+    }
+
+    /// @dev Sets the configuration information
+    function _setConfigInfo(ConfigInfo memory _configInfo) internal {
+        configInfo = _configInfo;
+        emit ConfigUpdated(msg.sender, _configInfo);
+    }
+
+    /// @dev Sets the implementation address
+    function _setImplementation(address _implementation) internal {
         implementation = _implementation;
         emit ImplementationUpdated(msg.sender, _implementation);
     }

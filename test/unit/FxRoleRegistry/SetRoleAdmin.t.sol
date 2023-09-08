@@ -1,14 +1,11 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.18;
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.20;
 
-import {FxRoleRegistryTest} from "test/unit/FxRoleRegistry/FxRoleRegistryTest.sol";
-import {ADMIN_ROLE} from "src/utils/Constants.sol";
-import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
+import "test/unit/FxRoleRegistry/FxRoleRegistryTest.sol";
 
 contract SetRoleAdmin is FxRoleRegistryTest {
     function test_SetRoleAdmin() public {
-        fxRoleRegistry.setRoleAdmin(ADMIN_ROLE);
-        assertTrue(fxRoleRegistry.hasRole(ADMIN_ROLE, address(this)));
+        assertTrue(fxRoleRegistry.hasRole(ADMIN_ROLE, admin));
     }
 
     function test_RevertsWhen_NotDefaultAdmin() public {

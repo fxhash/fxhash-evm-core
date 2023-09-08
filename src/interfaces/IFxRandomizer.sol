@@ -2,11 +2,11 @@
 pragma solidity 0.8.20;
 
 /// @title IFxRandomizer
-/// @notice Generates random seeds and reveals tokens
+/// @notice Interface for FxGenArt721 Tokens to interact with Randomizers
 interface IFxRandomizer {
     /**
-     * @notice Requests a seed for a given token ID
-     * @param _tokenId The ID of the token to request a seed for
+     * @notice Requests a random seed for a given token ID
+     * @param _tokenId ID of the token
      */
     function requestRandomness(uint256 _tokenId) external;
 }
