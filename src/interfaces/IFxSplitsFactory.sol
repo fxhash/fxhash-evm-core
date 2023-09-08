@@ -2,6 +2,11 @@
 pragma solidity 0.8.20;
 
 interface IFxSplitsFactory {
+    /// @notice Error thrown if predictedSplit doesn't match deployment
+    error InvalidSplit();
+
+    /// @notice Error thrown if split already was deployed
+    error SplitsExists();
     /**
      * @notice Emitted to indicate a split was created or where it will be deployed to
      * @param _split The address the split contract will be deployed to
@@ -10,6 +15,7 @@ interface IFxSplitsFactory {
      * @param _controller The address of the controller contract
      * @param _distributorFee The distributor fee percentage
      */
+
     event SplitsInfo(
         address indexed _split,
         address[] _accounts,

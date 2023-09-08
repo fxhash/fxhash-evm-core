@@ -2,6 +2,7 @@
 pragma solidity 0.8.20;
 
 import "test/BaseTest.t.sol";
+import {IFxSplitsFactory} from "src/interfaces/IFxSplitsFactory.sol";
 
 contract FxSplitsFactoryTest is BaseTest {
     error InvalidSplit__TooFewAccounts(uint256 accountsLength);
