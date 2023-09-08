@@ -40,6 +40,6 @@ contract FixedPriceTest is BaseTest {
         );
         mockToken.toggleMint();
         vm.prank(admin);
-        mockToken.setRandomizer(address(fxPsuedoRandomizer));
+        mockToken.setRandomizer(address(fxPseudoRandomizer));
     }
 }
