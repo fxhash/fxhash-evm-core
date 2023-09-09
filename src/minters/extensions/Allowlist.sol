@@ -29,7 +29,7 @@ abstract contract Allowlist {
      * @param _price The price associated with the claim.
      * @param _proof The merkle proof.
      */
-    function _claimMerkleTreeSlot(
+    function _claimSlot(
         BitMaps.BitMap storage _bitmap,
         address _token,
         uint256 _index,
@@ -37,7 +37,7 @@ abstract contract Allowlist {
         bytes32[] memory _proof
     ) internal {
         if (_bitmap.get(_index)) revert AlreadyClaimed();
-        bytes32 root = _getTokenMerkleRoot(_token);
+        bytes32 root = _getMerkleRoot(_token);
         bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(_index, _price, msg.sender))));
         if (!MerkleProof.verify(_proof, root, leaf)) revert InvalidProof();
         _bitmap.set(_index);
@@ -48,5 +48,5 @@ abstract contract Allowlist {
      * @param _token The address of the token.
      * @return The merkle root of the token.
      */
-    function _getTokenMerkleRoot(address _token) internal view virtual returns (bytes32);
+    function _getMerkleRoot(address _token) internal view virtual returns (bytes32);
 }
