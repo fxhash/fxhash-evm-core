@@ -140,27 +140,27 @@ contract Deploy is Script {
     }
 
     function _configureMinters() internal {
-        mintInfo.push(
-            MintInfo({
-                minter: admin,
-                reserveInfo: ReserveInfo({
-                    startTime: RESERVE_START_TIME,
-                    endTime: RESERVE_END_TIME,
-                    allocation: RESERVE_ADMIN_ALLOCATION
-                })
-            })
-        );
-
-        mintInfo.push(
-            MintInfo({
-                minter: minter,
-                reserveInfo: ReserveInfo({
-                    startTime: RESERVE_START_TIME,
-                    endTime: RESERVE_END_TIME,
-                    allocation: RESERVE_MINTER_ALLOCATION
-                })
-            })
-        );
+        // mintInfo.push(
+        //     MintInfo({
+        //         minter: admin,
+        //         reserveInfo: ReserveInfo({
+        //             startTime: RESERVE_START_TIME,
+        //             endTime: RESERVE_END_TIME,
+        //             allocation: RESERVE_ADMIN_ALLOCATION
+        //         })
+        //     })
+        // );
+        //
+        // mintInfo.push(
+        //     MintInfo({
+        //         minter: minter,
+        //         reserveInfo: ReserveInfo({
+        //             startTime: RESERVE_START_TIME,
+        //             endTime: RESERVE_END_TIME,
+        //             allocation: RESERVE_MINTER_ALLOCATION
+        //         })
+        //     })
+        // );
     }
 
     function _configureRoyalties() internal {
@@ -228,10 +228,17 @@ contract Deploy is Script {
     }
 
     function _configureSplits() internal {
-        accounts.push(creator);
-        accounts.push(admin);
-        allocations.push(SPLITS_CREATOR_ALLOCATION);
-        allocations.push(SPLITS_ADMIN_ALLOCATION);
+        if (creator < admin) {
+            accounts.push(creator);
+            accounts.push(admin);
+            allocations.push(SPLITS_CREATOR_ALLOCATION);
+            allocations.push(SPLITS_ADMIN_ALLOCATION);
+        } else {
+            accounts.push(admin);
+            accounts.push(creator);
+            allocations.push(SPLITS_ADMIN_ALLOCATION);
+            allocations.push(SPLITS_CREATOR_ALLOCATION);
+        }
     }
 
     function _configureState() internal {
