@@ -6,18 +6,18 @@ import {BitMaps} from "openzeppelin/contracts/utils/structs/BitMaps.sol";
 
 /**
  * @title Allowlist
- * @dev A contract that implements a merkle tree allowlist.
+ * @notice Extension that allows token claiming through merkle trees
  */
 abstract contract Allowlist {
     using BitMaps for BitMaps.BitMap;
 
     /**
-     * @dev Error thrown when an index in a merkle tree has already been claimed
+     * @notice Error thrown when an index in a merkle tree has already been claimed
      */
     error AlreadyClaimed();
 
     /**
-     * @dev Error thrown when the proof provided for an index is invalid.
+     * @notice Error thrown when the proof provided for an index is invalid.
      */
     error InvalidProof();
 
