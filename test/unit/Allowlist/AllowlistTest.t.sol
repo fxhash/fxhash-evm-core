@@ -23,4 +23,8 @@ contract AllowlistTest is StandardMerkleTree, BaseTest {
         merkleRoot = getRoot(merkleTree);
         allowlist.setMerkleRoot(merkleRoot);
     }
+
+    function test_MerkleRoot() public {
+        assertEq(allowlist.merkleRoot(), merkleRoot);
+    }
 }
