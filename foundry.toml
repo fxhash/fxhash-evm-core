@@ -5,26 +5,6 @@ lib = "lib"
 ignored_error_codes = [5574, 6321]
 optimizer_runs = 2
 
-# See "SMTChecker and Formal Verification" in the Solidity docs
-[profile.smt]
-ignored_error_codes = [
-  7737, # Disable inline assembly warnings
-]
-out = "out-optimized"
-script = "src"
-test = "src"
-via_ir = true
-
-[profile.smt.model_checker]
-engine = "chc"
-invariants = ["contract", "reentrancy"]
-showUnsupported = false
-showUnproved = true
-showProved = true
-timeout = 10_000
-targets = ["default"]
-contracts = { "src/factories/FxSplitsFactory.sol" = ["FxSplitsFactory"] }
-
 [fmt]
 bracket_spacing = false
 int_types = "long"
