@@ -143,6 +143,9 @@ interface IFxGenArt721 {
     /// @notice Error thrown when minter is not registered on token contract
     error UnregisteredMinter();
 
+    /// @notice Error thrown when zero address used as input
+    error AddressZero();
+
     /**
      * @notice Burns token ID from the circulating supply
      * @param _tokenId ID of the token

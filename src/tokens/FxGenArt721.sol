@@ -88,6 +88,7 @@ contract FxGenArt721 is
 
     /// @dev Sets core registry contracts
     constructor(address _contractRegistry, address _roleRegistry) ERC721("FxGenArt721", "FXHASH") {
+        if (_contractRegistry == address(0) || _roleRegistry == address(0)) revert AddressZero();
         contractRegistry = _contractRegistry;
         roleRegistry = _roleRegistry;
     }
@@ -197,12 +198,14 @@ contract FxGenArt721 is
 
     /// @inheritdoc IFxGenArt721
     function setRandomizer(address _randomizer) external onlyRole(ADMIN_ROLE) {
+        if (_randomizer == address(0)) revert AddressZero();
         randomizer = _randomizer;
         emit RandomizerUpdated(_randomizer);
     }
 
     /// @inheritdoc IFxGenArt721
     function setRenderer(address _renderer) external onlyRole(ADMIN_ROLE) {
+        if (_renderer == address(0)) revert AddressZero();
         renderer = _renderer;
         emit RendererUpdated(_renderer);
     }
