@@ -7,6 +7,7 @@ import {Merkle} from "test/utils/Merkle.sol";
 
 contract AllowlistTest is Merkle, BaseTest {
     MockAllowlist internal allowlist;
+    uint256 internal constant PRICE = 0.1 ether;
     bytes32 internal merkleRoot;
     bytes32[] internal merkleTree;
     bytes32[] internal proof;
@@ -15,11 +16,10 @@ contract AllowlistTest is Merkle, BaseTest {
 
     function setUp() public virtual override {
         allowlist = new MockAllowlist();
-        merkleTree.push(keccak256(bytes.concat(keccak256(abi.encode(1, 0.1 ether, alice)))));
-        merkleTree.push(keccak256(bytes.concat(keccak256(abi.encode(2, 0.1 ether, bob)))));
-        merkleTree.push(keccak256(bytes.concat(keccak256(abi.encode(3, 0.1 ether, eve)))));
-        merkleTree.push(keccak256(bytes.concat(keccak256(abi.encode(4, 0.1 ether, susan)))));
-        merkleTree.push(keccak256(bytes.concat(keccak256(abi.encode(5, 0.1 ether, alice)))));
+        address[5] memory users = [alice, bob, eve, susan, alice];
+        for (uint256 i; i < users.length; ++i) {
+            merkleTree.push(keccak256(bytes.concat(keccak256(abi.encode(i + 1, PRICE, users[i])))));
+        }
         merkleRoot = getRoot(merkleTree);
         allowlist.setMerkleRoot(merkleRoot);
     }
