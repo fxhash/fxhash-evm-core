@@ -9,4 +9,5 @@ artifacts
 # Foundry files
 broadcast
 out
+out-optimized
 data

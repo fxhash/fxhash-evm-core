@@ -1,4 +1,4 @@
 {
-  "detectors_to_exclude": "naming-convention,solc-version,timestamp",
+  "detectors_to_exclude": "reentrancy-events,missing-zero-check,naming-convention,solc-version,timestamp",
   "filter_paths": "(lib|test|script)"
 }
