@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {Merkle} from "test/utils/Merkle.sol";
+import {StandardMerkleTree} from "test/utils/StandardMerkleTree.sol";
 import {MockAllowlist, Allowlist} from "test/mocks/MockAllowlist.sol";
 import "test/BaseTest.t.sol";
 
-contract AllowlistTest is Merkle, BaseTest {
+contract AllowlistTest is StandardMerkleTree, BaseTest {
     MockAllowlist internal allowlist;
     uint256 internal constant PRICE = 0.1 ether;
     bytes32 internal merkleRoot;
