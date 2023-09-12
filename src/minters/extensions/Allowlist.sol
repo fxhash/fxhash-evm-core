@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity 0.8.20;
 
 import {BitMaps} from "openzeppelin/contracts/utils/structs/BitMaps.sol";
 import {MerkleProof} from "openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
@@ -11,23 +11,19 @@ import {MerkleProof} from "openzeppelin/contracts/utils/cryptography/MerkleProof
 abstract contract Allowlist {
     using BitMaps for BitMaps.BitMap;
 
-    /**
-     * @notice Error thrown when an index in a merkle tree has already been claimed
-     */
+    /// @notice Error thrown when an index in a merkle tree has already been claimed
     error AlreadyClaimed();
 
-    /**
-     * @notice Error thrown when the proof provided for an index is invalid.
-     */
+    /// @notice Error thrown when the proof provided for an index is invalid
     error InvalidProof();
 
     /**
-     * @dev Claims a merkle tree slot.
-     * @param _bitmap The bitmap to check if the index is already claimed.
-     * @param _token The address of the token.
-     * @param _index The index in the merkle tree.
-     * @param _price The price associated with the claim.
-     * @param _proof The merkle proof.
+     * @dev Claims a merkle tree slot
+     * @param _bitmap The bitmap to check if the index is already claimed
+     * @param _token The address of the token contract
+     * @param _index The index in the merkle tree
+     * @param _price The price associated with the claim
+     * @param _proof The merkle proof
      */
     function _claimSlot(
         BitMaps.BitMap storage _bitmap,
@@ -44,9 +40,9 @@ abstract contract Allowlist {
     }
 
     /**
-     * @dev Retrieves the merkle root of a token.
-     * @param _token The address of the token.
-     * @return The merkle root of the token.
+     * @dev Retrieves the merkle root of a token
+     * @param _token The address of the token contract
+     * @return The merkle root of the token
      */
     function _getMerkleRoot(address _token) internal view virtual returns (bytes32);
 }

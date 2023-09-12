@@ -1,18 +1,24 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {StandardMerkleTree} from "test/utils/StandardMerkleTree.sol";
-import {MockAllowlist, Allowlist} from "test/mocks/MockAllowlist.sol";
 import "test/BaseTest.t.sol";
 
-contract AllowlistTest is StandardMerkleTree, BaseTest {
+import {Allowlist} from "src/minters/extensions/Allowlist.sol";
+import {MockAllowlist} from "test/mocks/MockAllowlist.sol";
+import {StandardMerkleTree} from "test/utils/StandardMerkleTree.sol";
+
+contract AllowlistTest is BaseTest, StandardMerkleTree {
+    // State
     MockAllowlist internal allowlist;
-    uint256 internal constant PRICE = 0.1 ether;
+    address internal token;
+    uint256 internal index;
     bytes32 internal merkleRoot;
     bytes32[] internal merkleTree;
     bytes32[] internal proof;
-    bytes4 internal ERROR_INVALID_PROOF = Allowlist.InvalidProof.selector;
-    bytes4 internal ERROR_ALREADY_CLAIMED = Allowlist.AlreadyClaimed.selector;
+
+    // Errors
+    bytes4 internal ALREADY_CLAIMED_ERROR = Allowlist.AlreadyClaimed.selector;
+    bytes4 internal INVALID_PROOF_ERROR = Allowlist.InvalidProof.selector;
 
     function setUp() public virtual override {
         allowlist = new MockAllowlist();

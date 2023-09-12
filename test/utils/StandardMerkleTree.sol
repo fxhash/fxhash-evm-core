@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity 0.8.20;
 
 /// @title StandardMerkleTree
 /// @author Modified from Murky (https://github.com/dmfxyz/murky/blob/main/src/common/MurkyBase.sol)
 /// @notice Utility contract for generating merkle roots and verifying proofs
-/// @notice Intended to be compatible with https://github.com/OpenZeppelin/merkle-tree#
+/// @dev Intended to be compatible with https://github.com/OpenZeppelin/merkle-tree
 contract StandardMerkleTree {
     /// @notice Hashes two leaf pairs
     /// @param _left Node on left side of tree level
