@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+// Allowlist
+uint256 constant PRICE = 0.1 ether;
+
 // Balances
 uint256 constant INITIAL_BALANCE = 1000 ether;
 
