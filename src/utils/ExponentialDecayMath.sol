@@ -17,7 +17,7 @@ function fromWad(int256 _wadValue) pure returns (uint256) {
 
 /**
  * @notice Calculates the remaining amount based on a rate of exponential decay and duration
- * @dev decayConstant must be non-negative
+ * @dev Price decay constant must be non-negative
  * @param _startingPrice The starting price
  * @param _timeElapsed Time passed since the initial price began decaying
  * @param _wadDecayRate The percent price decays per unit of time (1 day), scaled by 1e18

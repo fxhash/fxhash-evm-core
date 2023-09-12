@@ -29,7 +29,6 @@ uint64 constant RESERVE_MINTER_ALLOCATION = 500;
 // Royalties
 uint96 constant ROYALTY_BPS = 500;
 
-// Exponential Decay
-int256 constant PRICE_DECAY = 0.01e18;
+// Mint Ticket
 uint256 constant INITIAL_PRICE = 100 ether;
 uint256 constant TIME_SINCE_START = 1 days;

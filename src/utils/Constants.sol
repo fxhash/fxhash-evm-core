@@ -43,5 +43,7 @@ uint96 constant FEE_DENOMINATOR = 10_000;
 // EIP712 Type Hashses
 bytes32 constant CLAIM_TYPEHASH = keccak256("Claim(uint256 index, address user, bytes mintCode)");
 
-// Exponential Decay
+// Mint Ticket
 int256 constant ONE_WAD = 1e18;
+int256 constant PRICE_DECAY = 0.01e18;
+uint128 constant TAX_PRICE = 0.1 ether;
