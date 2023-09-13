@@ -30,8 +30,8 @@ contract FxGenArt721 is
     IFxGenArt721,
     ISeedConsumer,
     Initializable,
-    Ownable,
     ERC721,
+    Ownable,
     RoyaltyManager
 {
     /// @inheritdoc IFxGenArt721
