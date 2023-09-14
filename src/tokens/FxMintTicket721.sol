@@ -15,13 +15,14 @@ import {
     wadLn,
     wadMul
 } from "solmate/src/utils/SignedWadMath.sol";
-import {ONE_WAD, PRICE_DECAY, TAX_PRICE} from "src/utils/Constants.sol";
+import {ONE_WAD, PRICE_DECAY} from "src/utils/Constants.sol";
 
 contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
     using Strings for uint256;
 
     address public genArt721;
-    uint96 public totalSupply;
+    uint48 public totalSupply;
+    uint48 public gracePeriod;
     string public baseURI;
     mapping(uint256 => TaxInfo) public taxInfo;
 
@@ -32,8 +33,12 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
 
     constructor() ERC721("FxMintTicket721", "TICKET") {}
 
-    function initialize(address _genArt721, address _owner) external initializer {
+    function initialize(address _genArt721, address _owner, uint48 _gracePeriod)
+        external
+        initializer
+    {
         genArt721 = _genArt721;
+        gracePeriod = _gracePeriod;
         _transferOwnership(_owner);
 
         emit TicketInitialized(_owner, _genArt721);
@@ -42,7 +47,8 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
     function mint(address _to, uint256 _amount) external payable {
         for (uint256 i; i < _amount; ++i) {
             _mint(_to, ++totalSupply);
-            taxInfo[totalSupply] = TaxInfo(uint128(msg.value), uint128(block.timestamp));
+            taxInfo[totalSupply] =
+                TaxInfo(true, uint120(msg.value), uint128(block.timestamp) + gracePeriod);
         }
     }
 
@@ -55,8 +61,33 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         baseURI = _uri;
     }
 
+    function buyTicket(uint256 _tokenId) external payable {
+        if (taxInfo[_tokenId].gracePeriod) revert GracePeriodActive();
+    }
+
     function payTax(uint256 _tokenId) external payable {
-        taxInfo[_tokenId] = TaxInfo(uint128(msg.value), uint128(block.timestamp));
+        uint128 newForeclosure = taxInfo[_tokenId].currentPrice + uint128(msg.value);
+        taxInfo[_tokenId].foreclosure = newForeclosure;
+    }
+
+    function setPrice(uint256 _tokenId, uint120 _newPrice) external {
+        if (_ownerOf(_tokenId) != msg.sender) revert NotAuthorized();
+        if (_newPrice == 0) revert InvalidPrice();
+        TaxInfo storage tax = taxInfo[_tokenId];
+        tax.currentPrice = _newPrice;
+        tax.foreclosure = uint128(block.timestamp);
+    }
+
+    function withdraw(address _to) external {
+        (bool success,) = _to.call{value: address(this).balance}("");
+        if (!success) revert TransferFailed();
+    }
+
+    function getCurrentPrice(uint256 _tokenId) public view returns (uint256) {
+        TaxInfo memory tax = taxInfo[_tokenId];
+        return _calculateExponentialDecay(
+            tax.currentPrice, block.timestamp - tax.foreclosure, PRICE_DECAY
+        );
     }
 
     function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
@@ -64,23 +95,26 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         return string.concat(baseURI, _tokenId.toString());
     }
 
-    function getCurrentPrice(uint256 _tokenId) public view returns (uint256) {
-        TaxInfo memory tax = taxInfo[_tokenId];
-        return _calculateExponentialDecay(
-            tax.currentPrice, block.timestamp - tax.latestTime, PRICE_DECAY
-        );
+    function isForeclosed(uint256 _tokenId) public view returns (bool) {
+        return block.timestamp > taxInfo[_tokenId].foreclosure;
     }
 
     function isMinter(address _minter) public view returns (bool) {
         return IFxGenArt721(genArt721).isMinter(_minter);
     }
 
-    function _update(address _to, uint256 _tokenId, address _auth)
+    function _beforeTokenTransfer(address _from, address _to, uint256 _tokenId, uint256 _batchSize)
         internal
         virtual
-        returns (address)
+        override
     {
-        if (getCurrentPrice(_tokenId) == 0) revert Foreclosure();
+        if (isForeclosed(_tokenId) && _from == _ownerOf(_tokenId)) revert Foreclosure();
+        _resetForeclosure(_tokenId);
+        return super._beforeTokenTransfer(_from, _to, _tokenId, _batchSize);
+    }
+
+    function _resetForeclosure(uint256 _tokenId) internal {
+        taxInfo[_tokenId].foreclosure = uint128(block.timestamp) + gracePeriod;
     }
 
     function _calculateExponentialDecay(
