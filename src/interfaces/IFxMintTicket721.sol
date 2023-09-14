@@ -12,6 +12,7 @@ interface IFxMintTicket721 {
 
     error Foreclosure();
     error GracePeriodActive();
+    error InsufficientPayment();
     error InvalidPrice();
     error NotAuthorized();
     error TransferFailed();

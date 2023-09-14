@@ -63,6 +63,13 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
 
     function buyTicket(uint256 _tokenId) external payable {
         if (taxInfo[_tokenId].gracePeriod) revert GracePeriodActive();
+        if (msg.value >= taxInfo[_tokenId].currentPrice) revert InsufficientPayment();
+
+        address previousOwner = _ownerOf(_tokenId);
+        (bool success,) = previousOwner.call{value: msg.value}("");
+        if (!success) revert TransferFailed();
+
+        transferFrom(previousOwner, msg.sender, _tokenId);
     }
 
     function payTax(uint256 _tokenId) external payable {
@@ -93,6 +100,16 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
     function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
         _requireMinted(_tokenId);
         return string.concat(baseURI, _tokenId.toString());
+    }
+
+    function isApprovedForAll(address _owner, address _operator)
+        public
+        view
+        virtual
+        override
+        returns (bool)
+    {
+        return _owner == address(this) || super.isApprovedForAll(_owner, _operator);
     }
 
     function isForeclosed(uint256 _tokenId) public view returns (bool) {
