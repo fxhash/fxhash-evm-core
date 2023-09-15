@@ -10,13 +10,13 @@ import "src/utils/Constants.sol";
 contract FixedPrice is IFixedPrice {
     using SafeCastLib for uint256;
 
-    /// @dev Stores the prices of tokens for each token address and sequential mintId
+    /// @inheritdoc IFixedPrice
     mapping(address => uint256[]) public prices;
 
-    /// @dev Stores the reserve information for each token address and sequential mintId
+    /// @inheritdoc IFixedPrice
     mapping(address => ReserveInfo[]) public reserves;
 
-    /// @dev stores the sale proceeds for each primary receiver address
+    /// @inheritdoc IFixedPrice
     mapping(address => uint256) public saleProceeds;
 
     /// @inheritdoc IFixedPrice

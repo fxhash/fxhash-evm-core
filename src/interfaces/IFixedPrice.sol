@@ -35,10 +35,13 @@ interface IFixedPrice {
     function prices(address _token, uint256 _mintId) external view returns (uint256);
 
     /// @notice Returns the reserve of a token for a mintId
-    function reserves(address _token, uint256 _mintId) external view returns (ReserveInfo memory);
+    function reserves(address _token, uint256 _mintId)
+        external
+        view
+        returns (uint64, uint64, uint128);
 
-    /// @notice Returns the amount of saleProceeds of a token for a mint Id
-    function saleProceeds(address _token, uint256 _mintId) external view returns (uint256);
+    /// @notice Returns the amount of saleProceeds of a token
+    function saleProceeds(address _token) external view returns (uint256);
     /**
      * @dev Sets the mint details for a token's reserves
      * @param _reserve The reserve information for the token
