@@ -31,17 +31,6 @@ interface IFixedPrice {
     /// @dev Thrown when amount purchased exceeds remaining allocation
     error TooMany();
 
-    /// @notice Returns the price of a token for a mintId
-    function prices(address _token, uint256 _mintId) external view returns (uint256);
-
-    /// @notice Returns the reserve of a token for a mintId
-    function reserves(address _token, uint256 _mintId)
-        external
-        view
-        returns (uint64, uint64, uint128);
-
-    /// @notice Returns the amount of saleProceeds of a token
-    function saleProceeds(address _token) external view returns (uint256);
     /**
      * @dev Sets the mint details for a token's reserves
      * @param _reserve The reserve information for the token
@@ -65,4 +54,16 @@ interface IFixedPrice {
      * @param _token The address of the token to withdraw proceeds for
      */
     function withdraw(address _token) external;
+
+    /// @notice Returns the price of a token for a mintId
+    function prices(address _token, uint256 _mintId) external view returns (uint256);
+
+    /// @notice Returns the reserve of a token for a mintId
+    function reserves(address _token, uint256 _mintId)
+        external
+        view
+        returns (uint64, uint64, uint128);
+
+    /// @notice Returns the amount of saleProceeds of a token
+    function saleProceeds(address _token) external view returns (uint256);
 }
