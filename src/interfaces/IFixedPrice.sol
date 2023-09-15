@@ -4,32 +4,32 @@ pragma solidity 0.8.20;
 import {ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 
 interface IFixedPrice {
-    /// @dev Thrown when an invalid token address is provided
-    error InvalidToken();
-
-    /// @dev Thrown when an invalid price is provided
-    error InvalidPrice();
-
-    /// @dev Thrown when payment doesn't equal price
-    error InvalidPayment();
-
-    /// @dev Thrown when invalid times are provided for reserve
-    error InvalidTimes();
-
-    /// @dev Thrown when the allocation is zero
-    error InvalidAllocation();
-
-    /// @dev Thrown when the sale has not started
-    error NotStarted();
+    /// @dev Thrown when *to* address is the zero address
+    error AddressZero();
 
     /// @dev Thrown when the sale has already ended
     error Ended();
 
+    /// @dev Thrown when the allocation is zero
+    error InvalidAllocation();
+
+    /// @dev Thrown when payment doesn't equal price
+    error InvalidPayment();
+
+    /// @dev Thrown when an invalid price is provided
+    error InvalidPrice();
+
+    /// @dev Thrown when invalid times are provided for reserve
+    error InvalidTimes();
+
+    /// @dev Thrown when an invalid token address is provided
+    error InvalidToken();
+
+    /// @dev Thrown when the sale has not started
+    error NotStarted();
+
     /// @dev Thrown when amount purchased exceeds remaining allocation
     error TooMany();
-
-    /// @dev Thrown when *to* address is the zero address
-    error AddressZero();
 
     /**
      * @dev Sets the mint details for a token's reserves
