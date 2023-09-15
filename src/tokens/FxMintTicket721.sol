@@ -49,7 +49,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         for (uint256 i; i < _amount; ++i) {
             _mint(_to, ++totalSupply);
             taxInfo[totalSupply] =
-                TaxInfo(true, uint64(msg.value), uint64(block.timestamp) + gracePeriod, 0);
+                TaxInfo(uint64(msg.value), uint64(block.timestamp) + gracePeriod, 0);
         }
     }
 
@@ -63,15 +63,15 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
     }
 
     function claim(uint256 _tokenId, uint64 _newPrice, uint64 _days) external payable {
-        if (taxInfo[_tokenId].gracePeriod) revert GracePeriodActive();
+        // if (taxInfo[_tokenId].gracePeriod) revert GracePeriodActive();
         if (msg.value >= taxInfo[_tokenId].currentPrice) revert InsufficientPayment();
-        setPrice(_tokenId, _newPrice, _days);
 
         address previousOwner = _ownerOf(_tokenId);
         (bool success,) = previousOwner.call{value: msg.value}("");
         if (!success) revert TransferFailed();
 
         transferFrom(previousOwner, msg.sender, _tokenId);
+        setPrice(_tokenId, _newPrice, _days);
     }
 
     function deposit(uint256 _tokenId) external payable {
@@ -82,6 +82,8 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
     function setPrice(uint256 _tokenId, uint64 _newPrice, uint64 _days) public payable {
         if (_ownerOf(_tokenId) != msg.sender) revert NotAuthorized();
         if (_newPrice == 0) revert InvalidPrice();
+        if (_days == 0) revert InvalidDuration();
+
         TaxInfo storage tax = taxInfo[_tokenId];
         tax.currentPrice = _newPrice;
         tax.foreclosure = uint64(block.timestamp) + (_days * ONE_DAY);

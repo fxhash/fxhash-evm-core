@@ -2,10 +2,9 @@
 pragma solidity 0.8.20;
 
 struct TaxInfo {
-    bool gracePeriod;
     uint64 currentPrice;
     uint64 foreclosure;
-    uint120 depositAmount;
+    uint128 depositAmount;
 }
 
 interface IFxMintTicket721 {
@@ -14,6 +13,7 @@ interface IFxMintTicket721 {
     error Foreclosure();
     error GracePeriodActive();
     error InsufficientPayment();
+    error InvalidDuration();
     error InvalidPrice();
     error NotAuthorized();
     error TransferFailed();
