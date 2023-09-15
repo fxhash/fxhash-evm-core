@@ -3,8 +3,9 @@ pragma solidity 0.8.20;
 
 struct TaxInfo {
     bool gracePeriod;
-    uint120 currentPrice;
-    uint128 foreclosure;
+    uint64 currentPrice;
+    uint64 foreclosure;
+    uint120 depositAmount;
 }
 
 interface IFxMintTicket721 {
@@ -20,6 +21,8 @@ interface IFxMintTicket721 {
 
     function burn(uint256 _tokenId) external;
 
+    function claim(uint256 _tokenId, uint64 _newPrice, uint64 _days) external payable;
+
     function getCurrentPrice(uint256 _tokenId) external view returns (uint256);
 
     function initialize(address _genArt721, address _owner, uint48 _gracePeriod) external;
@@ -30,9 +33,11 @@ interface IFxMintTicket721 {
 
     function mint(address _to, uint256 _amount) external payable;
 
-    function payTax(uint256 _tokenId) external payable;
+    function deposit(uint256 _tokenId) external payable;
 
     function setBaseURI(string calldata _uri) external;
+
+    function setPrice(uint256 _tokenId, uint64 _newPrice, uint64 _days) external payable;
 
     function totalSupply() external returns (uint48);
 

@@ -15,7 +15,7 @@ import {
     wadLn,
     wadMul
 } from "solmate/src/utils/SignedWadMath.sol";
-import {ONE_WAD, PRICE_DECAY} from "src/utils/Constants.sol";
+import {ONE_DAY, ONE_WAD, PRICE_DECAY} from "src/utils/Constants.sol";
 
 contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
     using Strings for uint256;
@@ -25,6 +25,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
     uint48 public gracePeriod;
     string public baseURI;
     mapping(uint256 => TaxInfo) public taxInfo;
+    mapping(address => uint256) public balances;
 
     modifier onlyMinter() {
         if (!isMinter(msg.sender)) revert UnregisteredMinter();
@@ -48,7 +49,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         for (uint256 i; i < _amount; ++i) {
             _mint(_to, ++totalSupply);
             taxInfo[totalSupply] =
-                TaxInfo(true, uint120(msg.value), uint128(block.timestamp) + gracePeriod);
+                TaxInfo(true, uint64(msg.value), uint64(block.timestamp) + gracePeriod, 0);
         }
     }
 
@@ -61,9 +62,10 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         baseURI = _uri;
     }
 
-    function buyTicket(uint256 _tokenId) external payable {
+    function claim(uint256 _tokenId, uint64 _newPrice, uint64 _days) external payable {
         if (taxInfo[_tokenId].gracePeriod) revert GracePeriodActive();
         if (msg.value >= taxInfo[_tokenId].currentPrice) revert InsufficientPayment();
+        setPrice(_tokenId, _newPrice, _days);
 
         address previousOwner = _ownerOf(_tokenId);
         (bool success,) = previousOwner.call{value: msg.value}("");
@@ -72,21 +74,25 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         transferFrom(previousOwner, msg.sender, _tokenId);
     }
 
-    function payTax(uint256 _tokenId) external payable {
-        uint128 newForeclosure = taxInfo[_tokenId].currentPrice + uint128(msg.value);
+    function deposit(uint256 _tokenId) external payable {
+        uint64 newForeclosure = taxInfo[_tokenId].currentPrice + uint64(msg.value);
         taxInfo[_tokenId].foreclosure = newForeclosure;
     }
 
-    function setPrice(uint256 _tokenId, uint120 _newPrice) external {
+    function setPrice(uint256 _tokenId, uint64 _newPrice, uint64 _days) public payable {
         if (_ownerOf(_tokenId) != msg.sender) revert NotAuthorized();
         if (_newPrice == 0) revert InvalidPrice();
         TaxInfo storage tax = taxInfo[_tokenId];
         tax.currentPrice = _newPrice;
-        tax.foreclosure = uint128(block.timestamp);
+        tax.foreclosure = uint64(block.timestamp) + (_days * ONE_DAY);
+        tax.depositAmount += uint120(msg.value);
     }
 
     function withdraw(address _to) external {
-        (bool success,) = _to.call{value: address(this).balance}("");
+        uint256 balance = balances[_to];
+        delete balances[_to];
+
+        (bool success,) = _to.call{value: balance}("");
         if (!success) revert TransferFailed();
     }
 
@@ -126,12 +132,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         override
     {
         if (isForeclosed(_tokenId) && _from == _ownerOf(_tokenId)) revert Foreclosure();
-        _resetForeclosure(_tokenId);
         return super._beforeTokenTransfer(_from, _to, _tokenId, _batchSize);
-    }
-
-    function _resetForeclosure(uint256 _tokenId) internal {
-        taxInfo[_tokenId].foreclosure = uint128(block.timestamp) + gracePeriod;
     }
 
     function _calculateExponentialDecay(

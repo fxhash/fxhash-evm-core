@@ -46,3 +46,4 @@ bytes32 constant CLAIM_TYPEHASH = keccak256("Claim(uint256 index, address user, 
 // Mint Ticket
 int256 constant ONE_WAD = 1e18;
 int256 constant PRICE_DECAY = 0.01e18;
+uint64 constant ONE_DAY = 86_400;
