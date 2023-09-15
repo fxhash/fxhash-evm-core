@@ -148,7 +148,7 @@ contract Deploy is Script {
                     endTime: RESERVE_END_TIME,
                     allocation: RESERVE_ADMIN_ALLOCATION
                 }),
-                mintParams: ""
+                params: ""
             })
         );
 
@@ -160,7 +160,7 @@ contract Deploy is Script {
                     endTime: RESERVE_END_TIME,
                     allocation: RESERVE_MINTER_ALLOCATION
                 }),
-                mintParams: ""
+                params: ""
             })
         );
     }

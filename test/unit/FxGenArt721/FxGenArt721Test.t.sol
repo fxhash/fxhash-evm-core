@@ -80,7 +80,7 @@ contract FxGenArt721Test is BaseTest {
                     endTime: RESERVE_END_TIME,
                     allocation: RESERVE_MINTER_ALLOCATION
                 }),
-                mintParams: ""
+                params: ""
             })
         );
     }

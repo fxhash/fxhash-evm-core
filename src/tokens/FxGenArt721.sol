@@ -264,7 +264,7 @@ contract FxGenArt721 is
                 if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) {
                     revert UnauthorizedMinter();
                 }
-                IMinter(minter).setMintDetails(reserveInfo, _mintInfo[i].mintParams);
+                IMinter(minter).setMintDetails(reserveInfo, _mintInfo[i].params);
 
                 issuerInfo.minters[minter] = true;
                 totalAllocation += reserveInfo.allocation;
