@@ -31,6 +31,14 @@ interface IFixedPrice {
     /// @dev Thrown when amount purchased exceeds remaining allocation
     error TooMany();
 
+    /// @notice Returns the price of a token for a mintId
+    function prices(address _token, uint256 _mintId) external view returns (uint256);
+
+    /// @notice Returns the reserve of a token for a mintId
+    function reserves(address _token, uint256 _mintId) external view returns (ReserveInfo memory);
+
+    /// @notice Returns the amount of saleProceeds of a token for a mint Id
+    function saleProceeds(address _token, uint256 _mintId) external view returns (uint256);
     /**
      * @dev Sets the mint details for a token's reserves
      * @param _reserve The reserve information for the token
