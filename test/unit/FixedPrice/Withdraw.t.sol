@@ -6,7 +6,10 @@ import "test/unit/FixedPrice/FixedPrice.t.sol";
 contract Withdraw is FixedPriceTest {
     function test_withdraw() public {
         sale.buy{value: price}(address(mockToken), 0, 1, address(this));
+        uint256 beforeBalance = address(this).balance;
         sale.withdraw(address(mockToken));
+        uint256 afterBalance = address(this).balance;
+        assertEq(beforeBalance + price, afterBalance);
     }
 
     function test_RevertsIf_Token0() public {
