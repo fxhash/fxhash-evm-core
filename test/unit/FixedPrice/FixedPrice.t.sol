@@ -5,7 +5,6 @@ import "test/BaseTest.t.sol";
 import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
 import {FixedPrice} from "src/minters/FixedPrice.sol";
 import {ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
-import {FxGenArt721, MintInfo, ProjectInfo} from "src/tokens/FxGenArt721.sol";
 
 contract FixedPriceTest is BaseTest {
     FixedPrice internal sale;
