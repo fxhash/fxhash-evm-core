@@ -2,7 +2,6 @@
 pragma solidity ^0.8.20;
 
 import "test/BaseTest.t.sol";
-import "forge-std/Test.sol";
 import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
 import {FixedPrice} from "src/minters/FixedPrice.sol";
 import {ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
