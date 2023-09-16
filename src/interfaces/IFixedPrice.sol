@@ -41,7 +41,7 @@ interface IFixedPrice is IMinter {
      * @param _amount The number of tokens to buy
      * @param _to The address to receive the tokens
      */
-    function buyTokens(address _token, uint256 _mintId, uint256 _amount, address _to)
+    function buy(address _token, uint256 _mintId, uint256 _amount, address _to)
         external
         payable;
 
