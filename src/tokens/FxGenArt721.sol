@@ -14,8 +14,8 @@ import {
     ReserveInfo
 } from "src/interfaces/IFxGenArt721.sol";
 import {IFxRandomizer} from "src/interfaces/IFxRandomizer.sol";
-import {IMinter} from "src/interfaces/IMinter.sol";
 import {IFxTokenRenderer} from "src/interfaces/IFxTokenRenderer.sol";
+import {IMinter} from "src/interfaces/IMinter.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
 import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
@@ -27,14 +27,7 @@ import "src/utils/Constants.sol";
  * @title FxGenArt721
  * @notice See the documentation in {IFxGenArt721}
  */
-contract FxGenArt721 is
-    IFxGenArt721,
-    ISeedConsumer,
-    Initializable,
-    Ownable,
-    ERC721,
-    RoyaltyManager
-{
+contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, RoyaltyManager {
     /// @inheritdoc IFxGenArt721
     address public immutable contractRegistry;
     /// @inheritdoc IFxGenArt721
