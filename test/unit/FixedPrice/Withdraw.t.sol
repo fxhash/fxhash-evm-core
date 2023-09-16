@@ -13,7 +13,7 @@ contract Withdraw is FixedPriceTest {
 
     function test_RevertsIf_Token0() public {
         sale.buyTokens{value: price}(address(mockToken), 0, 1, address(this));
-        vm.expectRevert(abi.encodeWithSelector(IFixedPrice.InvalidToken.selector));
+        vm.expectRevert(abi.encodeWithSelector(IFixedPrice.InsufficientFunds.selector));
         sale.withdraw(address(0));
     }
 }

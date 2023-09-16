@@ -10,6 +10,9 @@ interface IFixedPrice is IMinter {
     /// @dev Thrown when the sale has already ended
     error Ended();
 
+    /// @dev Thrown when there is no funds from a sale to withdraw
+    error InsufficientFunds();
+
     /// @dev Thrown when the allocation is zero
     error InvalidAllocation();
 
