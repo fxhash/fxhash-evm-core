@@ -43,5 +43,3 @@ uint96 constant FEE_DENOMINATOR = 10_000;
 
 // EIP712 Type Hashses
 bytes32 constant CLAIM_TYPEHASH = keccak256("Claim(uint256 index,address user,bytes mintCode)");
-
-bytes32 constant NULL_RESERVE = keccak256(abi.encode(ReserveInfo(0, 0, 0)));
