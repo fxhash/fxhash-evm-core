@@ -15,7 +15,7 @@ import {
     wadLn,
     wadMul
 } from "solmate/src/utils/SignedWadMath.sol";
-import {ONE_DAY, ONE_WAD, PRICE_DECAY} from "src/utils/Constants.sol";
+import {DAILY_TAX_RATE, SCALING_FACTOR, SECONDS_IN_DAY} from "src/utils/Constants.sol";
 
 contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
     using Strings for uint256;
@@ -46,10 +46,15 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
     }
 
     function mint(address _to, uint256 _amount) external payable {
+        uint128 listingPrice = uint128(msg.value / _amount);
         for (uint256 i; i < _amount; ++i) {
             _mint(_to, ++totalSupply);
-            taxInfo[totalSupply] =
-                TaxInfo(uint64(msg.value), uint64(block.timestamp) + gracePeriod, 0);
+            taxInfo[totalSupply] = TaxInfo(
+                uint128(block.timestamp) + gracePeriod,
+                uint128(block.timestamp) + gracePeriod,
+                listingPrice,
+                0
+            );
         }
     }
 
@@ -62,33 +67,38 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         baseURI = _uri;
     }
 
-    function claim(uint256 _tokenId, uint64 _newPrice, uint64 _days) external payable {
-        // if (taxInfo[_tokenId].gracePeriod) revert GracePeriodActive();
-        if (msg.value >= taxInfo[_tokenId].currentPrice) revert InsufficientPayment();
+    function claim(uint256 _tokenId, uint128 _newPrice, uint128 _days) external payable {
+        if (block.timestamp <= taxInfo[_tokenId].gracePeriod) revert GracePeriodActive();
+        uint128 listingPrice = taxInfo[_tokenId].listingPrice;
+
+        if (msg.value >= listingPrice) revert InsufficientPayment();
 
         address previousOwner = _ownerOf(_tokenId);
         (bool success,) = previousOwner.call{value: msg.value}("");
         if (!success) revert TransferFailed();
 
         transferFrom(previousOwner, msg.sender, _tokenId);
-        setPrice(_tokenId, _newPrice, _days);
+        setPrice(_tokenId, _newPrice);
     }
 
     function deposit(uint256 _tokenId) external payable {
         TaxInfo storage tax = taxInfo[_tokenId];
-        uint64 newForeclosure = tax.currentPrice + uint64(msg.value);
-        tax.foreclosure = newForeclosure;
+        uint128 newForeclosure = tax.listingPrice + uint128(msg.value);
+        tax.foreclosureTime = newForeclosure;
         tax.depositAmount += uint128(msg.value);
     }
 
-    function setPrice(uint256 _tokenId, uint64 _newPrice, uint64 _days) public {
+    function setPrice(uint256 _tokenId, uint128 _newPrice) public {
         if (_ownerOf(_tokenId) != msg.sender) revert NotAuthorized();
+        if (isForeclosed(_tokenId)) revert Foreclosure();
         if (_newPrice == 0) revert InvalidPrice();
-        if (_days == 0) revert InvalidDuration();
 
         TaxInfo storage tax = taxInfo[_tokenId];
-        tax.currentPrice = _newPrice;
-        tax.foreclosure = uint64(block.timestamp) + (_days * ONE_DAY);
+        uint128 remainingDeposit =
+            _calculateRemainingDeposit(tax.listingPrice, tax.foreclosureTime, tax.depositAmount);
+
+        tax.listingPrice = _newPrice;
+        tax.foreclosureTime = _calculateForeclosureTime(_tokenId, remainingDeposit);
     }
 
     function withdraw(address _to) external {
@@ -97,13 +107,6 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
 
         (bool success,) = _to.call{value: balance}("");
         if (!success) revert TransferFailed();
-    }
-
-    function getCurrentPrice(uint256 _tokenId) public view returns (uint256) {
-        TaxInfo memory tax = taxInfo[_tokenId];
-        return _calculateExponentialDecay(
-            tax.currentPrice, block.timestamp - tax.foreclosure, PRICE_DECAY
-        );
     }
 
     function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
@@ -122,7 +125,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
     }
 
     function isForeclosed(uint256 _tokenId) public view returns (bool) {
-        return block.timestamp > taxInfo[_tokenId].foreclosure;
+        return block.timestamp > taxInfo[_tokenId].foreclosureTime;
     }
 
     function isMinter(address _minter) public view returns (bool) {
@@ -138,20 +141,25 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         return super._beforeTokenTransfer(_from, _to, _tokenId, _batchSize);
     }
 
-    function _calculateExponentialDecay(
-        uint256 _startingPrice,
-        uint256 _timeElapsed,
-        int256 _wadDecayRate
-    ) internal pure returns (uint256) {
-        int256 wadDecayConstant = wadLn(ONE_WAD - _wadDecayRate);
-        int256 wadDaysElapsed = toDaysWadUnsafe(_timeElapsed);
-        int256 wadStartingPrice = toWadUnsafe(_startingPrice);
-        return _fromWad(
-            wadMul(wadStartingPrice, wadExp(unsafeWadMul(wadDecayConstant, wadDaysElapsed)))
-        );
+    function _calculateForeclosureTime(uint256 _tokenId, uint256 _taxPayment)
+        internal
+        view
+        returns (uint128)
+    {
+        uint256 listingPrice = taxInfo[_tokenId].listingPrice;
+        uint256 dailyTax = (listingPrice * DAILY_TAX_RATE) / SCALING_FACTOR;
+        uint256 timeCovered = (_taxPayment * SECONDS_IN_DAY) / dailyTax;
+        return taxInfo[_tokenId].foreclosureTime + uint128(timeCovered);
     }
 
-    function _fromWad(int256 _wadValue) internal pure returns (uint256) {
-        return uint256(_wadValue / ONE_WAD);
+    function _calculateRemainingDeposit(
+        uint128 _listingPrice,
+        uint128 _foreclosureTime,
+        uint128 _depositAmount
+    ) internal view returns (uint128) {
+        uint256 timeElapsed = _foreclosureTime - block.timestamp;
+        uint256 dailyTax = (_listingPrice * DAILY_TAX_RATE) / SCALING_FACTOR;
+        uint256 owed = timeElapsed * dailyTax;
+        return _depositAmount - uint128(owed);
     }
 }
