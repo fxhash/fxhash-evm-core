@@ -75,11 +75,13 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
     }
 
     function deposit(uint256 _tokenId) external payable {
-        uint64 newForeclosure = taxInfo[_tokenId].currentPrice + uint64(msg.value);
-        taxInfo[_tokenId].foreclosure = newForeclosure;
+        TaxInfo storage tax = taxInfo[_tokenId];
+        uint64 newForeclosure = tax.currentPrice + uint64(msg.value);
+        tax.foreclosure = newForeclosure;
+        tax.depositAmount += uint128(msg.value);
     }
 
-    function setPrice(uint256 _tokenId, uint64 _newPrice, uint64 _days) public payable {
+    function setPrice(uint256 _tokenId, uint64 _newPrice, uint64 _days) public {
         if (_ownerOf(_tokenId) != msg.sender) revert NotAuthorized();
         if (_newPrice == 0) revert InvalidPrice();
         if (_days == 0) revert InvalidDuration();
@@ -87,7 +89,6 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         TaxInfo storage tax = taxInfo[_tokenId];
         tax.currentPrice = _newPrice;
         tax.foreclosure = uint64(block.timestamp) + (_days * ONE_DAY);
-        tax.depositAmount += uint120(msg.value);
     }
 
     function withdraw(address _to) external {

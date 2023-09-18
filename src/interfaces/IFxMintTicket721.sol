@@ -37,7 +37,7 @@ interface IFxMintTicket721 {
 
     function setBaseURI(string calldata _uri) external;
 
-    function setPrice(uint256 _tokenId, uint64 _newPrice, uint64 _days) external payable;
+    function setPrice(uint256 _tokenId, uint64 _newPrice, uint64 _days) external;
 
     function totalSupply() external returns (uint48);
 
