@@ -119,8 +119,8 @@ contract BaseTest is Test {
     }
 
     function deployContracts(address _admin) public virtual prank(_admin) {
-        fxContractRegistry = new FxContractRegistry();
-        fxRoleRegistry = new FxRoleRegistry();
+        fxContractRegistry = new FxContractRegistry(_admin);
+        fxRoleRegistry = new FxRoleRegistry(_admin);
         fxGenArt721 = new FxGenArt721(
             address(fxContractRegistry),
             address(fxRoleRegistry)

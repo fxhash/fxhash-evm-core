@@ -244,20 +244,53 @@ contract Deploy is Script {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _deployContracts() internal {
-        fxContractRegistry = new FxContractRegistry();
-        fxRoleRegistry = new FxRoleRegistry();
-        fxSplitsFactory = new FxSplitsFactory();
-        fxPseudoRandomizer = new FxPseudoRandomizer();
-        fxTokenRenderer = new FxTokenRenderer(
-            ETHFS_FILE_STORAGE,
-            SCRIPTY_STORAGE_V2,
-            SCRIPTY_BUILDER_V2
-        );
-        fxGenArt721 = new FxGenArt721(
-            address(fxContractRegistry),
-            address(fxRoleRegistry)
-        );
-        fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721), configInfo);
+        /// I think we should mine a single create2 salt for the FxGenArt721 token
+        /// and use it for all the contracts so we only have to track 1
+        /// We would mine the salt to get an efficient address (many leading 0's) for the token implementation to save gas
+        bytes32 salt = keccak256("TEMP_SALT");
+        bytes memory creationCode = type(FxContractRegistry).creationCode;
+        bytes memory initCode = bytes.concat(creationCode, abi.encode(admin));
+        (bool success, bytes memory response) = CREATE2_FACTORY.call(bytes.concat(salt, initCode));
+        address deployedAddress = address(bytes20(response));
+        require(success, "deployment failed");
+        fxContractRegistry = FxContractRegistry(deployedAddress);
+        creationCode = type(FxRoleRegistry).creationCode;
+        initCode = bytes.concat(creationCode, abi.encode(admin));
+        (success ,response) = CREATE2_FACTORY.call(bytes.concat(salt, initCode));
+        deployedAddress = address(bytes20(response));
+        require(success, "deployment failed");
+        fxRoleRegistry = FxRoleRegistry(deployedAddress);
+        creationCode = type(FxSplitsFactory).creationCode;
+        initCode = bytes.concat(creationCode, abi.encode());
+        (success ,response) = CREATE2_FACTORY.call(bytes.concat(salt, initCode));
+        deployedAddress = address(bytes20(response));
+        require(success, "deployment failed");
+        fxSplitsFactory = FxSplitsFactory(deployedAddress);
+        creationCode = type(FxPseudoRandomizer).creationCode;
+        initCode = bytes.concat(creationCode, abi.encode());
+        (success ,response) = CREATE2_FACTORY.call(bytes.concat(salt, initCode));
+        deployedAddress = address(bytes20(response));
+        require(success, "deployment failed");
+        fxPseudoRandomizer =FxPseudoRandomizer(deployedAddress);
+
+        creationCode = type(FxPseudoRandomizer).creationCode;
+        initCode = bytes.concat(creationCode, abi.encode(ETHFS_FILE_STORAGE, SCRIPTY_STORAGE_V2, SCRIPTY_BUILDER_V2));
+        (success ,response) = CREATE2_FACTORY.call(bytes.concat(salt, initCode));
+        deployedAddress = address(bytes20(response));
+        require(success, "deployment failed");
+        fxTokenRenderer = FxTokenRenderer(deployedAddress);
+        creationCode = type(FxGenArt721).creationCode;
+        initCode = bytes.concat(creationCode, abi.encode(address(fxContractRegistry), address(fxRoleRegistry)));
+        (success ,response) = CREATE2_FACTORY.call(bytes.concat(salt, initCode));
+        deployedAddress = address(bytes20(response));
+        require(success, "deployment failed");
+        fxGenArt721 = FxGenArt721(deployedAddress);
+        creationCode = type(FxIssuerFactory).creationCode;
+        initCode = bytes.concat(creationCode, abi.encode(address(fxGenArt721), configInfo));
+        (success ,response) = CREATE2_FACTORY.call(bytes.concat(salt, initCode));
+        deployedAddress = address(bytes20(response));
+        require(success, "deployment failed");
+        fxIssuerFactory = FxIssuerFactory(deployedAddress);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
