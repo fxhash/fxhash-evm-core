@@ -16,6 +16,7 @@ import {FxPseudoRandomizer} from "src/randomizers/FxPseudoRandomizer.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 import {FxSplitsFactory} from "src/factories/FxSplitsFactory.sol";
 import {FxTokenRenderer} from "src/renderers/FxTokenRenderer.sol";
+import {FixedPrice} from "src/minters/FixedPrice.sol";
 import {
     HTMLRequest,
     HTMLTagType,
@@ -36,6 +37,7 @@ contract Deploy is Script {
     FxRoleRegistry internal fxRoleRegistry;
     FxSplitsFactory internal fxSplitsFactory;
     FxTokenRenderer internal fxTokenRenderer;
+    FixedPrice internal fixedPrice;
 
     // Accounts
     address internal admin;
@@ -63,6 +65,7 @@ contract Deploy is Script {
     uint256 internal tokenId;
     bytes32 internal seed;
     bytes internal fxParams;
+    uint256 internal price;
 
     // Metadata
     string internal baseURI;
@@ -92,7 +95,6 @@ contract Deploy is Script {
         _configureState();
         _configureInfo();
         _configureProject();
-        _configureMinters();
         _configureSplits();
         _configureRoyalties();
         _configureScripty();
@@ -109,10 +111,11 @@ contract Deploy is Script {
         _registerContracts();
         _registerRoles();
         _createSplit();
+        _configureMinters();
         _createProject();
         _setContracts();
-        _mint(admin, amount);
-        _burn(tokenId);
+        // _mint(admin, amount);
+        // _burn(tokenId);
         vm.stopBroadcast();
     }
 
@@ -140,27 +143,16 @@ contract Deploy is Script {
     }
 
     function _configureMinters() internal {
+        price = 1 gwei;
         mintInfo.push(
             MintInfo({
-                minter: admin,
+                minter: address(fixedPrice),
                 reserveInfo: ReserveInfo({
                     startTime: RESERVE_START_TIME,
                     endTime: RESERVE_END_TIME,
                     allocation: RESERVE_ADMIN_ALLOCATION
                 }),
-                params: ""
-            })
-        );
-
-        mintInfo.push(
-            MintInfo({
-                minter: minter,
-                reserveInfo: ReserveInfo({
-                    startTime: RESERVE_START_TIME,
-                    endTime: RESERVE_END_TIME,
-                    allocation: RESERVE_MINTER_ALLOCATION
-                }),
-                params: ""
+                params: abi.encode(price)
             })
         );
     }
@@ -230,10 +222,18 @@ contract Deploy is Script {
     }
 
     function _configureSplits() internal {
+        if (creator < admin) {
         accounts.push(creator);
         accounts.push(admin);
         allocations.push(SPLITS_CREATOR_ALLOCATION);
         allocations.push(SPLITS_ADMIN_ALLOCATION);
+        } else {
+        accounts.push(admin);
+        accounts.push(creator);
+        allocations.push(SPLITS_ADMIN_ALLOCATION);
+        allocations.push(SPLITS_CREATOR_ALLOCATION);
+
+        }
     }
 
     function _configureState() internal {
@@ -260,6 +260,7 @@ contract Deploy is Script {
             address(fxRoleRegistry)
         );
         fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721), configInfo);
+        fixedPrice = new FixedPrice();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -315,8 +316,7 @@ contract Deploy is Script {
     }
 
     function _registerRoles() internal {
-        fxRoleRegistry.grantRole(MINTER_ROLE, admin);
-        fxRoleRegistry.grantRole(MINTER_ROLE, minter);
+        fxRoleRegistry.grantRole(MINTER_ROLE, address(fixedPrice));
         fxRoleRegistry.grantRole(TOKEN_MODERATOR_ROLE, tokenMod);
         fxRoleRegistry.grantRole(USER_MODERATOR_ROLE, userMod);
     }
