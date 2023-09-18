@@ -29,7 +29,7 @@ contract FixedPriceTest is BaseTest {
         );
         vm.startPrank(creator);
         fxGenArtProxy = fxIssuerFactory.createProject(
-            creator, creator, projectInfo, metadataInfo, mintInfo, royaltyReceivers, basisPoints
+            _creator, _creator, projectInfo, metadataInfo, mintInfo, royaltyReceivers, basisPoints
         );
         FxGenArt721(fxGenArtProxy).toggleMint();
         vm.stopPrank();

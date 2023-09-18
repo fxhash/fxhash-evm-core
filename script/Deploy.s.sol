@@ -114,9 +114,9 @@ contract Deploy is Script {
         _configureMinters();
         _createProject();
         _setContracts();
-        // _mint(admin, amount);
-        // _burn(tokenId);
         vm.stopBroadcast();
+        _mint(admin);
+        _burn(tokenId);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -223,16 +223,15 @@ contract Deploy is Script {
 
     function _configureSplits() internal {
         if (creator < admin) {
-        accounts.push(creator);
-        accounts.push(admin);
-        allocations.push(SPLITS_CREATOR_ALLOCATION);
-        allocations.push(SPLITS_ADMIN_ALLOCATION);
+            accounts.push(creator);
+            accounts.push(admin);
+            allocations.push(SPLITS_CREATOR_ALLOCATION);
+            allocations.push(SPLITS_ADMIN_ALLOCATION);
         } else {
-        accounts.push(admin);
-        accounts.push(creator);
-        allocations.push(SPLITS_ADMIN_ALLOCATION);
-        allocations.push(SPLITS_CREATOR_ALLOCATION);
-
+            accounts.push(admin);
+            accounts.push(creator);
+            allocations.push(SPLITS_ADMIN_ALLOCATION);
+            allocations.push(SPLITS_CREATOR_ALLOCATION);
         }
     }
 
@@ -330,11 +329,13 @@ contract Deploy is Script {
                                     TOKEN
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _mint(address _to, uint256 _amount) internal {
-        FxGenArt721(fxGenArtProxy).mint(_to, _amount);
+    function _mint(address _to) internal {
+        vm.prank(creator);
+        FxGenArt721(fxGenArtProxy).ownerMint(_to);
     }
 
     function _burn(uint256 _tokenId) internal {
+        vm.prank(FxGenArt721(fxGenArtProxy).ownerOf(_tokenId));
         FxGenArt721(fxGenArtProxy).burn(_tokenId);
     }
 
