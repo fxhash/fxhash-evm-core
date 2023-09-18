@@ -6,6 +6,7 @@ import "test/unit/FixedPrice/FixedPrice.t.sol";
 contract BuyTokens is FixedPriceTest {
     uint256 internal mintId = 0;
     uint256 internal quantity = 1;
+
     function test_buy() public {
         vm.warp(block.timestamp);
         sale.buy{value: price}(fxGenArtProxy, mintId, quantity, alice);

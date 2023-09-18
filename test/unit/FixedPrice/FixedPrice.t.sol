@@ -12,6 +12,7 @@ contract FixedPriceTest is BaseTest {
     uint64 internal startTime = uint64(block.timestamp);
     uint64 internal endTime = uint64(block.timestamp + 100);
     uint96 internal price = 1 ether;
+
     function setUp() public override {
         super.setUp();
         vm.deal(address(this), 1000 ether);
@@ -28,13 +29,7 @@ contract FixedPriceTest is BaseTest {
         );
         vm.startPrank(creator);
         fxGenArtProxy = fxIssuerFactory.createProject(
-            creator,
-            creator,
-            projectInfo,
-            metadataInfo,
-            mintInfo,
-            royaltyReceivers,
-            basisPoints
+            creator, creator, projectInfo, metadataInfo, mintInfo, royaltyReceivers, basisPoints
         );
         FxGenArt721(fxGenArtProxy).toggleMint();
         vm.stopPrank();
@@ -42,6 +37,4 @@ contract FixedPriceTest is BaseTest {
         vm.prank(_admin);
         FxGenArt721(fxGenArtProxy).setRandomizer(address(fxPseudoRandomizer));
     }
-
-
 }
