@@ -94,11 +94,13 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         if (_newPrice == 0) revert InvalidPrice();
 
         TaxInfo storage tax = taxInfo[_tokenId];
+        uint128 foreclosureTime = tax.foreclosureTime;
         uint128 remainingDeposit =
-            _calculateRemainingDeposit(tax.listingPrice, tax.foreclosureTime, tax.depositAmount);
+            _calculateRemainingDeposit(tax.listingPrice, foreclosureTime, tax.depositAmount);
 
         tax.listingPrice = _newPrice;
-        tax.foreclosureTime = _calculateForeclosureTime(_tokenId, remainingDeposit);
+        tax.foreclosureTime =
+            _calculateForeclosureTime(_newPrice, remainingDeposit, foreclosureTime);
     }
 
     function withdraw(address _to) external {
@@ -141,15 +143,14 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         return super._beforeTokenTransfer(_from, _to, _tokenId, _batchSize);
     }
 
-    function _calculateForeclosureTime(uint256 _tokenId, uint256 _taxPayment)
-        internal
-        view
-        returns (uint128)
-    {
-        uint256 listingPrice = taxInfo[_tokenId].listingPrice;
-        uint256 dailyTax = (listingPrice * DAILY_TAX_RATE) / SCALING_FACTOR;
+    function _calculateForeclosureTime(
+        uint256 _listingPrice,
+        uint256 _taxPayment,
+        uint256 _foreclosureTime
+    ) internal pure returns (uint128) {
+        uint256 dailyTax = _getDailyTax(_listingPrice);
         uint256 timeCovered = (_taxPayment * SECONDS_IN_DAY) / dailyTax;
-        return taxInfo[_tokenId].foreclosureTime + uint128(timeCovered);
+        return uint128(_foreclosureTime + timeCovered);
     }
 
     function _calculateRemainingDeposit(
@@ -157,9 +158,13 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         uint128 _foreclosureTime,
         uint128 _depositAmount
     ) internal view returns (uint128) {
+        uint256 dailyTax = _getDailyTax(_listingPrice);
         uint256 timeElapsed = _foreclosureTime - block.timestamp;
-        uint256 dailyTax = (_listingPrice * DAILY_TAX_RATE) / SCALING_FACTOR;
-        uint256 owed = timeElapsed * dailyTax;
+        uint256 owed = (timeElapsed) * dailyTax;
         return _depositAmount - uint128(owed);
+    }
+
+    function _getDailyTax(uint256 _listingPrice) internal pure returns (uint256) {
+        return (_listingPrice * DAILY_TAX_RATE) / SCALING_FACTOR;
     }
 }
