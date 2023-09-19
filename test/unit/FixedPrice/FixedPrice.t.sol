@@ -21,9 +21,13 @@ contract FixedPriceTest is BaseTest {
     function _configureGenArtToken(address _creator, address _admin, address _sale) internal {
         vm.prank(admin);
         fxRoleRegistry.grantRole(MINTER_ROLE, _sale);
-        projectInfo.supply= RESERVE_MINTER_ALLOCATION ;
+        projectInfo.supply = RESERVE_MINTER_ALLOCATION;
         mintInfo.push(
-            MintInfo(address(sale), ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, RESERVE_MINTER_ALLOCATION), abi.encode(price))
+            MintInfo(
+                address(sale),
+                ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, RESERVE_MINTER_ALLOCATION),
+                abi.encode(price)
+            )
         );
         vm.startPrank(creator);
         fxGenArtProxy = fxIssuerFactory.createProject(
