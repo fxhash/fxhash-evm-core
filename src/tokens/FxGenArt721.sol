@@ -35,6 +35,8 @@ contract FxGenArt721 is
     RoyaltyManager
 {
     /// @inheritdoc IFxGenArt721
+    bytes32 public immutable version;
+    /// @inheritdoc IFxGenArt721
     address public immutable contractRegistry;
     /// @inheritdoc IFxGenArt721
     address public immutable roleRegistry;
@@ -86,9 +88,12 @@ contract FxGenArt721 is
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Sets core registry contracts
-    constructor(address _contractRegistry, address _roleRegistry) ERC721("FxGenArt721", "FXHASH") {
+    constructor(address _contractRegistry, address _roleRegistry, bytes32 _version)
+        ERC721("FxGenArt721", "FXHASH")
+    {
         contractRegistry = _contractRegistry;
         roleRegistry = _roleRegistry;
+        version = _version;
     }
 
     /*//////////////////////////////////////////////////////////////////////////

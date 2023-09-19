@@ -255,7 +255,8 @@ contract Deploy is Script {
         );
         fxGenArt721 = new FxGenArt721(
             address(fxContractRegistry),
-            address(fxRoleRegistry)
+            address(fxRoleRegistry),
+            VERSION
         );
         fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721), configInfo);
     }

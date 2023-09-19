@@ -123,7 +123,8 @@ contract BaseTest is Test {
         fxRoleRegistry = new FxRoleRegistry();
         fxGenArt721 = new FxGenArt721(
             address(fxContractRegistry),
-            address(fxRoleRegistry)
+            address(fxRoleRegistry),
+            VERSION
         );
         fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721), configInfo);
         fxPseudoRandomizer = new FxPseudoRandomizer();

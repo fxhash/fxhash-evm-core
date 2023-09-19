@@ -272,4 +272,7 @@ interface IFxGenArt721 {
 
     /// @notice Returns the current total supply of tokens
     function totalSupply() external view returns (uint96);
+
+    /// @notice Returns the version of the implementatiaon
+    function version() external view returns (bytes32);
 }

@@ -28,3 +28,6 @@ uint64 constant RESERVE_MINTER_ALLOCATION = 500;
 
 // Royalties
 uint96 constant ROYALTY_BPS = 500;
+
+// Token
+bytes32 constant VERSION = bytes32("ITERATION-1");
