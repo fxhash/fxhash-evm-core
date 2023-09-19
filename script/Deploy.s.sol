@@ -250,52 +250,30 @@ contract Deploy is Script {
         /// implementation to save gas
         bytes32 salt = keccak256("TEMP_SALT");
         bytes memory creationCode = type(FxContractRegistry).creationCode;
-        bytes memory initCode = bytes.concat(creationCode, abi.encode(admin));
-        (bool success, bytes memory response) = CREATE2_FACTORY.call(bytes.concat(salt, initCode));
-        address deployedAddress = address(bytes20(response));
-        require(success, "deployment failed");
-        fxContractRegistry = FxContractRegistry(deployedAddress);
+        bytes memory constructorArgs = abi.encode(admin);
+        fxContractRegistry = FxContractRegistry(_deployCreate2(creationCode, constructorArgs, salt));
+
         creationCode = type(FxRoleRegistry).creationCode;
-        initCode = bytes.concat(creationCode, abi.encode(admin));
-        (success, response) = CREATE2_FACTORY.call(bytes.concat(salt, initCode));
-        deployedAddress = address(bytes20(response));
-        require(success, "deployment failed");
-        fxRoleRegistry = FxRoleRegistry(deployedAddress);
+        constructorArgs = abi.encode(admin);
+        fxRoleRegistry = FxRoleRegistry(_deployCreate2(creationCode, constructorArgs, salt));
+
         creationCode = type(FxSplitsFactory).creationCode;
-        initCode = bytes.concat(creationCode, abi.encode());
-        (success, response) = CREATE2_FACTORY.call(bytes.concat(salt, initCode));
-        deployedAddress = address(bytes20(response));
-        require(success, "deployment failed");
-        fxSplitsFactory = FxSplitsFactory(deployedAddress);
-        creationCode = type(FxPseudoRandomizer).creationCode;
-        initCode = bytes.concat(creationCode, abi.encode());
-        (success, response) = CREATE2_FACTORY.call(bytes.concat(salt, initCode));
-        deployedAddress = address(bytes20(response));
-        require(success, "deployment failed");
-        fxPseudoRandomizer = FxPseudoRandomizer(deployedAddress);
+        fxSplitsFactory = FxSplitsFactory(_deployCreate2(creationCode, salt));
 
         creationCode = type(FxPseudoRandomizer).creationCode;
-        initCode = bytes.concat(
-            creationCode, abi.encode(ETHFS_FILE_STORAGE, SCRIPTY_STORAGE_V2, SCRIPTY_BUILDER_V2)
-        );
-        (success, response) = CREATE2_FACTORY.call(bytes.concat(salt, initCode));
-        deployedAddress = address(bytes20(response));
-        require(success, "deployment failed");
-        fxTokenRenderer = FxTokenRenderer(deployedAddress);
+        fxPseudoRandomizer = FxPseudoRandomizer(_deployCreate2(creationCode, salt));
+
+        creationCode = type(FxTokenRenderer).creationCode;
+        constructorArgs = abi.encode(ETHFS_FILE_STORAGE, SCRIPTY_STORAGE_V2, SCRIPTY_BUILDER_V2);
+        fxTokenRenderer = FxTokenRenderer(_deployCreate2(creationCode, constructorArgs, salt));
+
         creationCode = type(FxGenArt721).creationCode;
-        initCode = bytes.concat(
-            creationCode, abi.encode(address(fxContractRegistry), address(fxRoleRegistry))
-        );
-        (success, response) = CREATE2_FACTORY.call(bytes.concat(salt, initCode));
-        deployedAddress = address(bytes20(response));
-        require(success, "deployment failed");
-        fxGenArt721 = FxGenArt721(deployedAddress);
+        constructorArgs = abi.encode(address(fxContractRegistry), address(fxRoleRegistry));
+        fxGenArt721 = FxGenArt721(_deployCreate2(creationCode, constructorArgs, salt));
+
         creationCode = type(FxIssuerFactory).creationCode;
-        initCode = bytes.concat(creationCode, abi.encode(address(fxGenArt721), configInfo));
-        (success, response) = CREATE2_FACTORY.call(bytes.concat(salt, initCode));
-        deployedAddress = address(bytes20(response));
-        require(success, "deployment failed");
-        fxIssuerFactory = FxIssuerFactory(deployedAddress);
+        constructorArgs = abi.encode(address(fxGenArt721), configInfo);
+        fxIssuerFactory = FxIssuerFactory(_deployCreate2(creationCode, constructorArgs, salt));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -380,5 +358,40 @@ contract Deploy is Script {
 
     function _createUser(string memory _user) internal pure returns (address) {
         return address(uint160(uint256(keccak256(abi.encodePacked(_user)))));
+    }
+
+    function _initCode(bytes memory creationCode, bytes memory args)
+        internal
+        pure
+        returns (bytes memory)
+    {
+        return bytes.concat(creationCode, args);
+    }
+
+    function _computeCreate2Address(bytes memory creationCode, bytes memory args, bytes32 salt)
+        internal
+        pure
+    {
+        computeCreate2Address(salt, hashInitCode(creationCode, args));
+    }
+
+    function _deployCreate2(bytes memory creationCode, bytes memory args, bytes32 salt)
+        internal
+        returns (address deployedAddress)
+    {
+        (bool success, bytes memory response) =
+            CREATE2_FACTORY.call(bytes.concat(salt, creationCode, args));
+        deployedAddress = address(bytes20(response));
+        require(success, "deployment failed");
+    }
+
+    function _deployCreate2(bytes memory creationCode, bytes32 salt)
+        internal
+        returns (address deployedAddress)
+    {
+        (bool success, bytes memory response) =
+            CREATE2_FACTORY.call(bytes.concat(salt, creationCode, ""));
+        deployedAddress = address(bytes20(response));
+        require(success, "deployment failed");
     }
 }
