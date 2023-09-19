@@ -32,7 +32,6 @@ contract FixedPriceTest is BaseTest {
         FxGenArt721(fxGenArtProxy).toggleMint();
         vm.stopPrank();
 
-        vm.prank(_admin);
-        FxGenArt721(fxGenArtProxy).setRandomizer(address(fxPseudoRandomizer));
+        _setRandomizer(_admin, address(fxPseudoRandomizer));
     }
 }
