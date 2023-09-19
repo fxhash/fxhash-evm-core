@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+import {FixedPrice} from "src/minters/FixedPrice.sol";
 import {FxContractRegistry} from "src/registries/FxContractRegistry.sol";
 import {
     FxGenArt721,
@@ -16,7 +17,6 @@ import {FxPseudoRandomizer} from "src/randomizers/FxPseudoRandomizer.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 import {FxSplitsFactory} from "src/factories/FxSplitsFactory.sol";
 import {FxTokenRenderer} from "src/renderers/FxTokenRenderer.sol";
-import {FixedPrice} from "src/minters/FixedPrice.sol";
 import {
     HTMLRequest,
     HTMLTagType,
