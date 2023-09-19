@@ -10,17 +10,17 @@ contract FixedPriceTest is BaseTest {
     FixedPrice internal sale;
     uint96 internal price = 1 ether;
 
-    bytes4 internal immutable TOO_MANY_ERROR = IFixedPrice.TooMany.selector;
-    bytes4 internal immutable INVALID_PAYMENT_ERROR = IFixedPrice.InvalidPayment.selector;
-    bytes4 internal immutable INVALID_PRICE_ERROR = IFixedPrice.InvalidPrice.selector;
-    bytes4 internal immutable INVALID_AMOUNT_ERROR = IFixedPrice.InvalidPrice.selector;
-    bytes4 internal immutable INVALID_TIMES_ERROR = IFixedPrice.InvalidTimes.selector;
-    bytes4 internal immutable INVALID_TOKEN_ERROR = IFixedPrice.InvalidToken.selector;
-    bytes4 internal immutable INVALID_ALLOCATION_ERROR = IFixedPrice.InvalidAllocation.selector;
-    bytes4 internal immutable ENDED_ERROR = IFixedPrice.Ended.selector;
-    bytes4 internal immutable NOT_STARTED_ERROR = IFixedPrice.NotStarted.selector;
-    bytes4 internal immutable ADDRESS_ZERO_ERROR = IFixedPrice.AddressZero.selector;
-    bytes4 internal immutable INSUFFICIENT_FUNDS_ERROR = IFixedPrice.InsufficientFunds.selector;
+    bytes4 internal TOO_MANY_ERROR = IFixedPrice.TooMany.selector;
+    bytes4 internal INVALID_PAYMENT_ERROR = IFixedPrice.InvalidPayment.selector;
+    bytes4 internal INVALID_PRICE_ERROR = IFixedPrice.InvalidPrice.selector;
+    bytes4 internal INVALID_AMOUNT_ERROR = IFixedPrice.InvalidPrice.selector;
+    bytes4 internal INVALID_TIMES_ERROR = IFixedPrice.InvalidTimes.selector;
+    bytes4 internal INVALID_TOKEN_ERROR = IFixedPrice.InvalidToken.selector;
+    bytes4 internal INVALID_ALLOCATION_ERROR = IFixedPrice.InvalidAllocation.selector;
+    bytes4 internal ENDED_ERROR = IFixedPrice.Ended.selector;
+    bytes4 internal NOT_STARTED_ERROR = IFixedPrice.NotStarted.selector;
+    bytes4 internal ADDRESS_ZERO_ERROR = IFixedPrice.AddressZero.selector;
+    bytes4 internal INSUFFICIENT_FUNDS_ERROR = IFixedPrice.InsufficientFunds.selector;
 
     function setUp() public override {
         super.setUp();
