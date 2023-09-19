@@ -51,7 +51,7 @@ abstract contract MintPass is EIP712 {
         bytes calldata _mintCode,
         bytes calldata _signature
     ) internal {
-        if (_isClaimed(_bitmap, _index)) revert AlreadyClaimed();
+        if (_bitmap.get(_index)) revert AlreadyClaimed();
         bytes32 hash = generateTypedDataHash(_index, msg.sender, _mintCode);
         (uint8 v, bytes32 r, bytes32 s) = abi.decode(_signature, (uint8, bytes32, bytes32));
         address signer = ECDSA.recover(hash, v, r, s);
@@ -60,17 +60,4 @@ abstract contract MintPass is EIP712 {
     }
 
     function _isSigningAuthority(address _signer) internal view virtual returns (bool);
-
-    /**
-     * @dev Checks if a token at a specific index has been claimed
-     * @param _index The index of the mint pass
-     * @return A boolean indicating whether the token has been claimed or not
-     */
-    function _isClaimed(BitMaps.BitMap storage _bitmap, uint256 _index)
-        internal
-        view
-        returns (bool)
-    {
-        return _bitmap.get(_index);
-    }
 }
