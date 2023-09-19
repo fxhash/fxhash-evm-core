@@ -6,7 +6,6 @@ import "test/unit/FixedPrice/FixedPrice.t.sol";
 contract SetMintDetails is FixedPriceTest {
     function test_setMintDetails() public {
         sale.setMintDetails(ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, RESERVE_MINTER_ALLOCATION), abi.encode(price));
-        assertEq(sale.prices(address(this), 0), price, "price incorrectly set");
         (uint64 startTime_, uint64 endTime_, uint160 supply_) = sale.reserves(address(this), 0);
         assertEq(sale.prices(address(this), 0), price, "price incorrectly set");
         assertEq(RESERVE_START_TIME, startTime_, "startTime incorrectly set");
