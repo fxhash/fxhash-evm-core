@@ -4,6 +4,7 @@ pragma solidity 0.8.20;
 import "test/BaseTest.t.sol";
 
 import {IFxGenArt721} from "src/interfaces/IFxGenArt721.sol";
+import {MockMinter} from "test/mocks/MockMinter.sol";
 
 contract FxGenArt721Test is BaseTest {
     // State
@@ -27,6 +28,7 @@ contract FxGenArt721Test is BaseTest {
 
     function setUp() public virtual override {
         super.setUp();
+        minter = address(new MockMinter());
         _mock0xSplits();
         _configureProject();
         _configureMinters();
@@ -74,7 +76,8 @@ contract FxGenArt721Test is BaseTest {
                     startTime: RESERVE_START_TIME,
                     endTime: RESERVE_END_TIME,
                     allocation: RESERVE_MINTER_ALLOCATION
-                })
+                }),
+                params: ""
             })
         );
     }

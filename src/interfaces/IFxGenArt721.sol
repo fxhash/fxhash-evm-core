@@ -2,6 +2,7 @@
 pragma solidity 0.8.20;
 
 import {HTMLRequest} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
+import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
 
 /**
  * @param projectInfo Project information
@@ -52,10 +53,12 @@ struct GenArtInfo {
 /**
  * @param minter Address of the minter contract
  * @param reserveInfo Reserve information
+ * @param params Optional abi.encoded bytes data to pass params to the minter
  */
 struct MintInfo {
     address minter;
     ReserveInfo reserveInfo;
+    bytes params;
 }
 
 /**
@@ -73,7 +76,7 @@ struct ReserveInfo {
  * @title IFxGenArt721
  * @notice ERC-721 proxy token for Generative Art projects
  */
-interface IFxGenArt721 {
+interface IFxGenArt721 is ISeedConsumer {
     /**
      * @notice Event emitted when baseURI is updated
      * @param _uri URI pointer of token metadata
