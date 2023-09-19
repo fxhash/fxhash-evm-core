@@ -108,10 +108,10 @@ contract Deploy is Script {
     function run() public virtual {
         vm.startBroadcast();
         _deployContracts();
+        _configureMinters();
         _registerContracts();
         _registerRoles();
         _createSplit();
-        _configureMinters();
         _createProject();
         _setContracts();
         vm.stopBroadcast();
