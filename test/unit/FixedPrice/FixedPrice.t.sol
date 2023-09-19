@@ -12,7 +12,7 @@ contract FixedPriceTest is BaseTest {
 
     function setUp() public override {
         super.setUp();
-        vm.deal(address(this), 1000 ether);
+        vm.deal(address(this), INITIAL_BALANCE);
         sale = new FixedPrice();
         _configureGenArtToken(creator, admin, address(sale));
         vm.warp(RESERVE_START_TIME);
