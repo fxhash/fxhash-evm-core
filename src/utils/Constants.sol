@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
-
 // Contracts
 bytes32 constant FX_CONTRACT_REGISTRY = keccak256("FxContractRegistry");
 bytes32 constant FX_GEN_ART_721 = keccak256("FxGenArt721");
