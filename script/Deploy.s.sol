@@ -398,5 +398,4 @@ contract Deploy is Script {
     {
         computeCreate2Address(salt, hashInitCode(creationCode, args));
     }
-
 }
