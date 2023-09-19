@@ -273,7 +273,7 @@ contract Deploy is Script {
         creationCode = type(FxIssuerFactory).creationCode;
         constructorArgs = abi.encode(address(fxGenArt721), configInfo);
         fxIssuerFactory = FxIssuerFactory(_deployCreate2(creationCode, constructorArgs, salt));
-          
+
         creationCode = type(FixedPrice).creationCode;
         fixedPrice = FixedPrice(_deployCreate2(creationCode, salt));
     }
