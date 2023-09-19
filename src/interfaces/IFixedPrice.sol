@@ -4,38 +4,38 @@ pragma solidity 0.8.20;
 import {IMinter} from "src/interfaces/IMinter.sol";
 
 interface IFixedPrice is IMinter {
-    /// @dev Thrown when *to* address is the zero address
+    /// @notice Thrown when *to* address is the zero address
     error AddressZero();
 
-    /// @dev Thrown when the sale has already ended
+    /// @notice Thrown when the sale has already ended
     error Ended();
 
-    /// @dev Thrown when there is no funds from a sale to withdraw
+    /// @notice Thrown when there is no funds from a sale to withdraw
     error InsufficientFunds();
 
-    /// @dev Thrown when the allocation is zero
+    /// @notice Thrown when the allocation is zero
     error InvalidAllocation();
 
-    /// @dev Thrown when payment doesn't equal price
+    /// @notice Thrown when payment doesn't equal price
     error InvalidPayment();
 
-    /// @dev Thrown when an invalid price is provided
+    /// @notice Thrown when an invalid price is provided
     error InvalidPrice();
 
-    /// @dev Thrown when invalid times are provided for reserve
+    /// @notice Thrown when invalid times are provided for reserve
     error InvalidTimes();
 
-    /// @dev Thrown when an invalid token address is provided
+    /// @notice Thrown when an invalid token address is provided
     error InvalidToken();
 
-    /// @dev Thrown when the sale has not started
+    /// @notice Thrown when the sale has not started
     error NotStarted();
 
-    /// @dev Thrown when amount purchased exceeds remaining allocation
+    /// @notice Thrown when amount purchased exceeds remaining allocation
     error TooMany();
 
     /**
-     * @dev Buys tokens by sending payment to the contract
+     * @notice Buys tokens by sending payment to the contract
      * @param _token The address of the token to buy
      * @param _mintId The mint ID of the reserve for the token
      * @param _amount The number of tokens to buy
@@ -44,7 +44,7 @@ interface IFixedPrice is IMinter {
     function buy(address _token, uint256 _mintId, uint256 _amount, address _to) external payable;
 
     /**
-     * @dev Withdraws the sale proceeds to the sale receiver
+     * @notice Withdraws the sale proceeds to the sale receiver
      * @param _token The address of the token to withdraw proceeds for
      */
     function withdraw(address _token) external;
