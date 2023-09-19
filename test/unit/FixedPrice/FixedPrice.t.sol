@@ -8,9 +8,6 @@ import {ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 
 contract FixedPriceTest is BaseTest {
     FixedPrice internal sale;
-    uint128 internal supply = 100;
-    uint64 internal startTime = uint64(block.timestamp);
-    uint64 internal endTime = uint64(block.timestamp + 100);
     uint96 internal price = 1 ether;
 
     function setUp() public override {
@@ -18,14 +15,15 @@ contract FixedPriceTest is BaseTest {
         vm.deal(address(this), 1000 ether);
         sale = new FixedPrice();
         _configureGenArtToken(creator, admin, address(sale));
+        vm.warp(RESERVE_START_TIME);
     }
 
     function _configureGenArtToken(address _creator, address _admin, address _sale) internal {
         vm.prank(admin);
         fxRoleRegistry.grantRole(MINTER_ROLE, _sale);
-        projectInfo.supply = supply;
+        projectInfo.supply= RESERVE_MINTER_ALLOCATION ;
         mintInfo.push(
-            MintInfo(address(sale), ReserveInfo(startTime, endTime, supply), abi.encode(price))
+            MintInfo(address(sale), ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, RESERVE_MINTER_ALLOCATION), abi.encode(price))
         );
         vm.startPrank(creator);
         fxGenArtProxy = fxIssuerFactory.createProject(
