@@ -356,6 +356,23 @@ contract Deploy is Script {
                                     HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
+    function _deployCreate2(bytes memory creationCode, bytes memory args, bytes32 salt)
+        internal
+        returns (address deployedAddress)
+    {
+        (bool success, bytes memory response) =
+            CREATE2_FACTORY.call(bytes.concat(salt, creationCode, args));
+        deployedAddress = address(bytes20(response));
+        require(success, "deployment failed");
+    }
+
+    function _deployCreate2(bytes memory creationCode, bytes32 salt)
+        internal
+        returns (address deployedAddress)
+    {
+        deployedAddress = _deployCreate2(creationCode, "", salt);
+    }
+
     function _createUser(string memory _user) internal pure returns (address) {
         return address(uint160(uint256(keccak256(abi.encodePacked(_user)))));
     }
@@ -375,23 +392,4 @@ contract Deploy is Script {
         computeCreate2Address(salt, hashInitCode(creationCode, args));
     }
 
-    function _deployCreate2(bytes memory creationCode, bytes memory args, bytes32 salt)
-        internal
-        returns (address deployedAddress)
-    {
-        (bool success, bytes memory response) =
-            CREATE2_FACTORY.call(bytes.concat(salt, creationCode, args));
-        deployedAddress = address(bytes20(response));
-        require(success, "deployment failed");
-    }
-
-    function _deployCreate2(bytes memory creationCode, bytes32 salt)
-        internal
-        returns (address deployedAddress)
-    {
-        (bool success, bytes memory response) =
-            CREATE2_FACTORY.call(bytes.concat(salt, creationCode, ""));
-        deployedAddress = address(bytes20(response));
-        require(success, "deployment failed");
-    }
 }
