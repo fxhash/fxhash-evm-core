@@ -18,7 +18,7 @@ contract SetMintDetails is FixedPriceTest {
 
     function test_RevertsIf_StartTimeGtEndTime() public {
         uint64 endTime = RESERVE_START_TIME - 1;
-        vm.expectRevert(abi.encodeWithSelector(IFixedPrice.InvalidTimes.selector));
+        vm.expectRevert(ERROR_INVALID_TIMES);
         sale.setMintDetails(
             ReserveInfo(RESERVE_START_TIME, uint64(endTime), RESERVE_MINTER_ALLOCATION),
             abi.encode(price)
@@ -26,12 +26,12 @@ contract SetMintDetails is FixedPriceTest {
     }
 
     function test_RevertsIf_Allocation0() public {
-        vm.expectRevert(abi.encodeWithSelector(IFixedPrice.InvalidAllocation.selector));
+        vm.expectRevert(ERROR_INVALID_ALLOCATION);
         sale.setMintDetails(ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, 0), abi.encode(price));
     }
 
     function test_RevertsIf_Price0() public {
-        vm.expectRevert(abi.encodeWithSelector(IFixedPrice.InvalidPrice.selector));
+        vm.expectRevert(ERROR_INVALID_PRICE);
         sale.setMintDetails(
             ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, RESERVE_MINTER_ALLOCATION),
             abi.encode(0)

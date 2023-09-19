@@ -17,7 +17,7 @@ contract Withdraw is FixedPriceTest {
 
     function test_RevertsIf_Token0() public {
         sale.buy{value: price}(fxGenArtProxy, mintId, quantity, alice);
-        vm.expectRevert(abi.encodeWithSelector(IFixedPrice.InsufficientFunds.selector));
+        vm.expectRevert(ERROR_INSUFFICIENT_FUNDS);
         sale.withdraw(address(0));
     }
 }
