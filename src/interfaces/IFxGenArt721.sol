@@ -95,11 +95,15 @@ interface IFxGenArt721 {
     /**
      * @notice Event emitted when new project is initialized
      * @param _projectInfo Project information
+     * @param _version Version information for the token implementation
      * @param _mintInfo List of authorized minter contracts and their reserves
      * @param _primaryReceiver Address of splitter contract receiving primary sales
      */
     event ProjectInitialized(
-        address indexed _primaryReceiver, ProjectInfo _projectInfo, MintInfo[] _mintInfo
+        address indexed _primaryReceiver,
+        bytes32 indexed _version,
+        ProjectInfo _projectInfo,
+        MintInfo[] _mintInfo
     );
 
     /**

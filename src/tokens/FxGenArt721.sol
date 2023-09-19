@@ -121,7 +121,7 @@ contract FxGenArt721 is
         issuerInfo.projectInfo = _projectInfo;
         issuerInfo.primaryReceiver = _primaryReceiver;
 
-        emit ProjectInitialized(_primaryReceiver, _projectInfo, _mintInfo);
+        emit ProjectInitialized(_primaryReceiver, version, _projectInfo, _mintInfo);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
