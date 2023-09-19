@@ -143,7 +143,6 @@ contract Deploy is Script {
     }
 
     function _configureMinters() internal {
-        price = 1 gwei;
         mintInfo.push(
             MintInfo({
                 minter: address(fixedPrice),
@@ -236,6 +235,7 @@ contract Deploy is Script {
     }
 
     function _configureState() internal {
+        price = 1 gwei;
         amount = 10;
         tokenId = 1;
     }
