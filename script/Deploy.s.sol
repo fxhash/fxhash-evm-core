@@ -115,8 +115,6 @@ contract Deploy is Script {
         _createProject();
         _setContracts();
         vm.stopBroadcast();
-        _mint(admin);
-        _burn(tokenId);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -323,20 +321,6 @@ contract Deploy is Script {
     function _setContracts() internal {
         FxGenArt721(fxGenArtProxy).setRandomizer(address(fxPseudoRandomizer));
         FxGenArt721(fxGenArtProxy).setRenderer(address(fxTokenRenderer));
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                    TOKEN
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function _mint(address _to) internal {
-        vm.prank(creator);
-        FxGenArt721(fxGenArtProxy).ownerMint(_to);
-    }
-
-    function _burn(uint256 _tokenId) internal {
-        vm.prank(FxGenArt721(fxGenArtProxy).ownerOf(_tokenId));
-        FxGenArt721(fxGenArtProxy).burn(_tokenId);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
