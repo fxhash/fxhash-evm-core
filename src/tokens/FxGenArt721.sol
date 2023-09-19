@@ -144,6 +144,7 @@ contract FxGenArt721 is
     function fulfillSeedRequest(uint256 _tokenId, bytes32 _seed) external {
         if (msg.sender != randomizer) revert NotAuthorized();
         genArtInfo[_tokenId].seed = _seed;
+        emit SeedFulfilled(randomizer, _tokenId, _seed);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
