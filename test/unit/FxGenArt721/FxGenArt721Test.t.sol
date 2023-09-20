@@ -11,7 +11,6 @@ contract FxGenArt721Test is BaseTest {
     ProjectInfo internal project;
     address internal splits;
     uint240 internal supply;
-    uint256 internal amount;
     bool internal enabled;
     bool internal onchain;
 
@@ -55,44 +54,6 @@ contract FxGenArt721Test is BaseTest {
         assertEq(IFxGenArt721(fxGenArtProxy).isMinter(minter), true);
     }
 
-    function _configureProject() internal {
-        projectInfo.enabled = enabled;
-        projectInfo.onchain = onchain;
-        projectInfo.supply = MAX_SUPPLY;
-        projectInfo.contractURI = CONTRACT_URI;
-    }
-
-    function _configureMetdata() internal {
-        metadataInfo.baseURI = BASE_URI;
-        metadataInfo.imageURI = IMAGE_URI;
-        metadataInfo.animation = animation;
-    }
-
-    function _configureMinters() internal {
-        mintInfo.push(
-            MintInfo({
-                minter: minter,
-                reserveInfo: ReserveInfo({
-                    startTime: RESERVE_START_TIME,
-                    endTime: RESERVE_END_TIME,
-                    allocation: RESERVE_MINTER_ALLOCATION
-                }),
-                params: ""
-            })
-        );
-    }
-
-    function _configureRoyalties() internal {
-        royaltyReceivers.push(payable(alice));
-        royaltyReceivers.push(payable(bob));
-        royaltyReceivers.push(payable(eve));
-        royaltyReceivers.push(payable(susan));
-        basisPoints.push(ROYALTY_BPS);
-        basisPoints.push(ROYALTY_BPS * 2);
-        basisPoints.push(ROYALTY_BPS * 3);
-        basisPoints.push(ROYALTY_BPS * 4);
-    }
-
     function _createSplit(address _creator) internal prank(_creator) {
         accounts.push(admin);
         accounts.push(creator);
@@ -101,59 +62,6 @@ contract FxGenArt721Test is BaseTest {
         primaryReceiver = ISplitsMain(SPLITS_MAIN).createSplit(
             accounts, allocations, SPLITS_DISTRIBUTOR_FEE, SPLITS_CONTROLLER
         );
-    }
-
-    function _configureScripty() internal {
-        headTags.push(
-            HTMLTag({
-                name: CSS_CANVAS_SCRIPT,
-                contractAddress: ETHFS_FILE_STORAGE,
-                contractData: bytes(""),
-                tagType: HTMLTagType.useTagOpenAndClose,
-                tagOpen: TAG_OPEN,
-                tagClose: TAG_CLOSE,
-                tagContent: bytes("")
-            })
-        );
-
-        bodyTags.push(
-            HTMLTag({
-                name: P5_JS_SCRIPT,
-                contractAddress: ETHFS_FILE_STORAGE,
-                contractData: bytes(""),
-                tagType: HTMLTagType.scriptGZIPBase64DataURI,
-                tagOpen: bytes(""),
-                tagClose: bytes(""),
-                tagContent: bytes("")
-            })
-        );
-
-        bodyTags.push(
-            HTMLTag({
-                name: GUNZIP_JS_SCRIPT,
-                contractAddress: ETHFS_FILE_STORAGE,
-                contractData: bytes(""),
-                tagType: HTMLTagType.scriptBase64DataURI,
-                tagOpen: bytes(""),
-                tagClose: bytes(""),
-                tagContent: bytes("")
-            })
-        );
-
-        bodyTags.push(
-            HTMLTag({
-                name: POINTS_AND_LINES_SCRIPT,
-                contractAddress: SCRIPTY_STORAGE_V2,
-                contractData: bytes(""),
-                tagType: HTMLTagType.script,
-                tagOpen: bytes(""),
-                tagClose: bytes(""),
-                tagContent: bytes("")
-            })
-        );
-
-        animation.headTags = headTags;
-        animation.bodyTags = bodyTags;
     }
 
     function _createProject(address _creator) internal prank(_creator) {

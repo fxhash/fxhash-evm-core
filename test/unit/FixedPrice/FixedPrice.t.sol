@@ -7,7 +7,6 @@ import {FixedPrice} from "src/minters/FixedPrice.sol";
 
 contract FixedPriceTest is BaseTest {
     FixedPrice internal sale;
-    uint96 internal price = 1 ether;
 
     bytes4 internal TOO_MANY_ERROR = IFixedPrice.TooMany.selector;
     bytes4 internal INVALID_PAYMENT_ERROR = IFixedPrice.InvalidPayment.selector;
