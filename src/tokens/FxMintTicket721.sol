@@ -8,7 +8,13 @@ import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Init
 import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
-import {DAILY_TAX_RATE, SCALING_FACTOR, SECONDS_IN_DAY} from "src/utils/Constants.sol";
+import {
+    AUCTION_DECAY_RATE,
+    DAILY_TAX_RATE,
+    ONE_DAY,
+    SCALING_FACTOR,
+    TEN_MINUTES
+} from "src/utils/Constants.sol";
 
 contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
     using Strings for uint256;
@@ -61,20 +67,38 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
     }
 
     function claim(uint256 _tokenId, uint128 _newPrice) external payable {
-        if (block.timestamp <= taxInfo[_tokenId].gracePeriod) revert GracePeriodActive();
-        uint128 currentPrice = taxInfo[_tokenId].currentPrice;
+        TaxInfo storage tax = taxInfo[_tokenId];
+        if (block.timestamp <= tax.gracePeriod) revert GracePeriodActive();
+        uint256 currentPrice = tax.currentPrice;
+        uint256 depositAmount = tax.depositAmount;
+        uint256 auctionPrice = _getAuctionPrice(_tokenId);
+        uint256 newDailyTax = _getDailyTax(_newPrice);
 
-        if (msg.value >= currentPrice) revert InsufficientPayment();
+        uint256 remainingDeposit =
+            _calculateRemainingDeposit(currentPrice, tax.foreclosureTime, tax.depositAmount);
+        uint256 depositOwed = depositAmount - remainingDeposit;
+
+        if (isForeclosed(_tokenId)) {
+            if (msg.value < auctionPrice + newDailyTax) revert InsufficientPayment();
+            // balances[owner()] += depositAmount + auctionPrice;
+            _transferFunds(owner(), depositAmount + auctionPrice);
+        } else {
+            if (msg.value < currentPrice + newDailyTax) revert InsufficientPayment();
+            // balances[owner()] += depositOwed;
+            _transferFunds(owner(), depositOwed);
+        }
+
+        tax.currentPrice = _newPrice;
+        tax.depositAmount = uint128(msg.value - depositOwed);
+        tax.foreclosureTime =
+            _calculateForeclosureTime(_newPrice, tax.depositAmount, block.timestamp);
 
         address previousOwner = _ownerOf(_tokenId);
-        (bool success,) = previousOwner.call{value: msg.value}("");
-        if (!success) revert TransferFailed();
-
         transferFrom(previousOwner, msg.sender, _tokenId);
-        setPrice(_tokenId, _newPrice);
+        _transferFunds(previousOwner, currentPrice + remainingDeposit);
     }
 
-    function deposit(uint256 _tokenId) external payable {
+    function deposit(uint256 _tokenId) public payable {
         TaxInfo storage tax = taxInfo[_tokenId];
         uint256 dailyTax = _getDailyTax(tax.currentPrice);
         if (msg.value < dailyTax) revert InsufficientDeposit();
@@ -88,10 +112,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
 
         emit Deposited(_tokenId, msg.sender, depositAmount, newForeclosure);
 
-        if (excessAmount > 0) {
-            (bool success,) = msg.sender.call{value: excessAmount}("");
-            if (!success) revert TransferFailed();
-        }
+        if (excessAmount > 0) _transferFunds(msg.sender, excessAmount);
     }
 
     function setPrice(uint256 _tokenId, uint128 _newPrice) public {
@@ -114,9 +135,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
     function withdraw(address _to) external {
         uint256 balance = balances[_to];
         delete balances[_to];
-
-        (bool success,) = _to.call{value: balance}("");
-        if (!success) revert TransferFailed();
+        _transferFunds(_to, balance);
     }
 
     function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
@@ -151,6 +170,11 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         return super._beforeTokenTransfer(_from, _to, _tokenId, _batchSize);
     }
 
+    function _transferFunds(address _to, uint256 _amount) internal {
+        (bool success,) = _to.call{value: _amount}("");
+        if (!success) revert TransferFailed();
+    }
+
     function _calculateRemainingDeposit(
         uint256 _currentPrice,
         uint256 _foreclosureTime,
@@ -158,7 +182,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
     ) internal view returns (uint256) {
         uint256 timeElapsed = _foreclosureTime - block.timestamp;
         uint256 dailyTax = _getDailyTax(_currentPrice);
-        uint256 owed = (timeElapsed * dailyTax) / SECONDS_IN_DAY;
+        uint256 owed = (timeElapsed * dailyTax) / ONE_DAY;
         return _depositAmount - owed;
     }
 
@@ -168,7 +192,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         uint256 _foreclosureTime
     ) internal pure returns (uint128) {
         uint256 dailyTax = _getDailyTax(_currentPrice);
-        uint256 secondsCovered = (_taxPayment * SECONDS_IN_DAY) / dailyTax;
+        uint256 secondsCovered = (_taxPayment * ONE_DAY) / dailyTax;
         return uint128(_foreclosureTime + secondsCovered);
     }
 
@@ -184,5 +208,18 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         uint256 daysCovered = _totalDeposit / _dailyTax;
         uint256 totalAmount = daysCovered * _dailyTax;
         return _totalDeposit - totalAmount;
+    }
+
+    function _getAuctionPrice(uint256 _tokenId) internal view returns (uint256) {
+        TaxInfo memory tax = taxInfo[_tokenId];
+        uint256 currentPrice = tax.currentPrice;
+        uint256 timeSinceForeclosure = block.timestamp - tax.foreclosureTime;
+        uint256 priceDecayPeriods = timeSinceForeclosure / TEN_MINUTES;
+        uint256 decayAmount = currentPrice * AUCTION_DECAY_RATE / SCALING_FACTOR;
+        uint256 decayedPrice = currentPrice - (decayAmount * priceDecayPeriods);
+        uint256 restingPrice = currentPrice * AUCTION_DECAY_RATE / SCALING_FACTOR;
+
+        if (decayedPrice <= restingPrice) return restingPrice;
+        else return decayedPrice;
     }
 }
