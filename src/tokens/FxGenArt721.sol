@@ -15,6 +15,7 @@ import {
 } from "src/interfaces/IFxGenArt721.sol";
 import {IFxRandomizer} from "src/interfaces/IFxRandomizer.sol";
 import {IFxTokenRenderer} from "src/interfaces/IFxTokenRenderer.sol";
+import {IMinter} from "src/interfaces/IMinter.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
 import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
@@ -26,14 +27,7 @@ import "src/utils/Constants.sol";
  * @title FxGenArt721
  * @notice See the documentation in {IFxGenArt721}
  */
-contract FxGenArt721 is
-    IFxGenArt721,
-    ISeedConsumer,
-    Initializable,
-    ERC721,
-    Ownable,
-    RoyaltyManager
-{
+contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, RoyaltyManager {
     /// @inheritdoc IFxGenArt721
     address public immutable contractRegistry;
     /// @inheritdoc IFxGenArt721
@@ -106,15 +100,13 @@ contract FxGenArt721 is
         uint96[] calldata _basisPoints
     ) external initializer {
         issuerInfo.projectInfo = _projectInfo;
-        issuerInfo.primaryReceiver = _primaryReceiver;
-        metadataInfo = _metadataInfo;
 
         _registerMinters(_mintInfo);
         _setBaseRoyalties(_royaltyReceivers, _basisPoints);
         _transferOwnership(_owner);
 
-        issuerInfo.projectInfo = _projectInfo;
         issuerInfo.primaryReceiver = _primaryReceiver;
+        metadataInfo = _metadataInfo;
 
         emit ProjectInitialized(_primaryReceiver, _projectInfo, _mintInfo);
     }
@@ -265,6 +257,8 @@ contract FxGenArt721 is
                 if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) {
                     revert UnauthorizedMinter();
                 }
+                IMinter(minter).setMintDetails(reserveInfo, _mintInfo[i].params);
+
                 issuerInfo.minters[minter] = true;
                 totalAllocation += reserveInfo.allocation;
             }

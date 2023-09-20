@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+import {FixedPrice} from "src/minters/FixedPrice.sol";
 import {FxContractRegistry} from "src/registries/FxContractRegistry.sol";
 import {
     FxGenArt721,
@@ -36,6 +37,7 @@ contract Deploy is Script {
     FxRoleRegistry internal fxRoleRegistry;
     FxSplitsFactory internal fxSplitsFactory;
     FxTokenRenderer internal fxTokenRenderer;
+    FixedPrice internal fixedPrice;
 
     // Accounts
     address internal admin;
@@ -63,6 +65,7 @@ contract Deploy is Script {
     uint256 internal tokenId;
     bytes32 internal seed;
     bytes internal fxParams;
+    uint256 internal price;
 
     // Metadata
     string internal baseURI;
@@ -92,7 +95,6 @@ contract Deploy is Script {
         _configureState();
         _configureInfo();
         _configureProject();
-        _configureMinters();
         _configureSplits();
         _configureRoyalties();
         _configureScripty();
@@ -106,13 +108,12 @@ contract Deploy is Script {
     function run() public virtual {
         vm.startBroadcast();
         _deployContracts();
+        _configureMinters();
         _registerContracts();
         _registerRoles();
         _createSplit();
         _createProject();
         _setContracts();
-        _mint(admin, amount);
-        _burn(tokenId);
         vm.stopBroadcast();
     }
 
@@ -142,23 +143,13 @@ contract Deploy is Script {
     function _configureMinters() internal {
         mintInfo.push(
             MintInfo({
-                minter: admin,
+                minter: address(fixedPrice),
                 reserveInfo: ReserveInfo({
                     startTime: RESERVE_START_TIME,
                     endTime: RESERVE_END_TIME,
                     allocation: RESERVE_ADMIN_ALLOCATION
-                })
-            })
-        );
-
-        mintInfo.push(
-            MintInfo({
-                minter: minter,
-                reserveInfo: ReserveInfo({
-                    startTime: RESERVE_START_TIME,
-                    endTime: RESERVE_END_TIME,
-                    allocation: RESERVE_MINTER_ALLOCATION
-                })
+                }),
+                params: abi.encode(price)
             })
         );
     }
@@ -228,13 +219,21 @@ contract Deploy is Script {
     }
 
     function _configureSplits() internal {
-        accounts.push(creator);
-        accounts.push(admin);
-        allocations.push(SPLITS_CREATOR_ALLOCATION);
-        allocations.push(SPLITS_ADMIN_ALLOCATION);
+        if (creator < admin) {
+            accounts.push(creator);
+            accounts.push(admin);
+            allocations.push(SPLITS_CREATOR_ALLOCATION);
+            allocations.push(SPLITS_ADMIN_ALLOCATION);
+        } else {
+            accounts.push(admin);
+            accounts.push(creator);
+            allocations.push(SPLITS_ADMIN_ALLOCATION);
+            allocations.push(SPLITS_CREATOR_ALLOCATION);
+        }
     }
 
     function _configureState() internal {
+        price = 1 gwei;
         amount = 10;
         tokenId = 1;
     }
@@ -258,6 +257,7 @@ contract Deploy is Script {
             address(fxRoleRegistry)
         );
         fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721), configInfo);
+        fixedPrice = new FixedPrice();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -313,8 +313,7 @@ contract Deploy is Script {
     }
 
     function _registerRoles() internal {
-        fxRoleRegistry.grantRole(MINTER_ROLE, admin);
-        fxRoleRegistry.grantRole(MINTER_ROLE, minter);
+        fxRoleRegistry.grantRole(MINTER_ROLE, address(fixedPrice));
         fxRoleRegistry.grantRole(TOKEN_MODERATOR_ROLE, tokenMod);
         fxRoleRegistry.grantRole(USER_MODERATOR_ROLE, userMod);
     }
@@ -322,18 +321,6 @@ contract Deploy is Script {
     function _setContracts() internal {
         FxGenArt721(fxGenArtProxy).setRandomizer(address(fxPseudoRandomizer));
         FxGenArt721(fxGenArtProxy).setRenderer(address(fxTokenRenderer));
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                    TOKEN
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function _mint(address _to, uint256 _amount) internal {
-        FxGenArt721(fxGenArtProxy).mint(_to, _amount);
-    }
-
-    function _burn(uint256 _tokenId) internal {
-        FxGenArt721(fxGenArtProxy).burn(_tokenId);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
