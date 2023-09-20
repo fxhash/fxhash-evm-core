@@ -10,9 +10,16 @@ struct TaxInfo {
 
 interface IFxMintTicket721 {
     event TicketInitialized(address indexed _owner, address indexed _genArt721);
+    event Deposited(
+        uint256 indexed _tokenId,
+        address indexed _depositer,
+        uint256 indexed _amount,
+        uint256 newForeclosure
+    );
 
     error Foreclosure();
     error GracePeriodActive();
+    error InsufficientDeposit();
     error InsufficientPayment();
     error InvalidDuration();
     error InvalidPrice();
@@ -22,7 +29,7 @@ interface IFxMintTicket721 {
 
     function burn(uint256 _tokenId) external;
 
-    function claim(uint256 _tokenId, uint128 _newPrice, uint128 _days) external payable;
+    function claim(uint256 _tokenId, uint128 _newPrice) external payable;
 
     function initialize(address _genArt721, address _owner, uint48 _gracePeriod) external;
 

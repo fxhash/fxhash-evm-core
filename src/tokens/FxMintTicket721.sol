@@ -60,7 +60,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         baseURI = _uri;
     }
 
-    function claim(uint256 _tokenId, uint128 _newPrice, uint128 _days) external payable {
+    function claim(uint256 _tokenId, uint128 _newPrice) external payable {
         if (block.timestamp <= taxInfo[_tokenId].gracePeriod) revert GracePeriodActive();
         uint128 currentPrice = taxInfo[_tokenId].currentPrice;
 
@@ -76,9 +76,22 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
 
     function deposit(uint256 _tokenId) external payable {
         TaxInfo storage tax = taxInfo[_tokenId];
-        uint128 newForeclosure = tax.currentPrice + uint128(msg.value);
+        uint256 dailyTax = _getDailyTax(tax.currentPrice);
+        if (msg.value < dailyTax) revert InsufficientDeposit();
+
+        uint256 excessAmount = _getExcessTax(msg.value, dailyTax);
+        uint256 depositAmount = msg.value - excessAmount;
+        uint128 newForeclosure =
+            _calculateForeclosureTime(tax.currentPrice, tax.foreclosureTime, depositAmount);
         tax.foreclosureTime = newForeclosure;
-        tax.depositAmount += uint128(msg.value);
+        tax.depositAmount += uint128(depositAmount);
+
+        emit Deposited(_tokenId, msg.sender, depositAmount, newForeclosure);
+
+        if (excessAmount > 0) {
+            (bool success,) = msg.sender.call{value: excessAmount}("");
+            if (!success) revert TransferFailed();
+        }
     }
 
     function setPrice(uint256 _tokenId, uint128 _newPrice) public {
@@ -88,8 +101,10 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
 
         TaxInfo storage tax = taxInfo[_tokenId];
         uint128 foreclosureTime = tax.foreclosureTime;
-        uint128 remainingDeposit =
+        uint256 remainingDeposit =
             _calculateRemainingDeposit(tax.currentPrice, foreclosureTime, tax.depositAmount);
+
+        if (remainingDeposit < _getDailyTax(_newPrice)) revert InsufficientDeposit();
 
         tax.currentPrice = _newPrice;
         tax.foreclosureTime =
@@ -136,28 +151,38 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         return super._beforeTokenTransfer(_from, _to, _tokenId, _batchSize);
     }
 
+    function _calculateRemainingDeposit(
+        uint256 _currentPrice,
+        uint256 _foreclosureTime,
+        uint256 _depositAmount
+    ) internal view returns (uint256) {
+        uint256 timeElapsed = _foreclosureTime - block.timestamp;
+        uint256 dailyTax = _getDailyTax(_currentPrice);
+        uint256 owed = (timeElapsed * dailyTax) / SECONDS_IN_DAY;
+        return _depositAmount - owed;
+    }
+
     function _calculateForeclosureTime(
         uint256 _currentPrice,
         uint256 _taxPayment,
         uint256 _foreclosureTime
     ) internal pure returns (uint128) {
         uint256 dailyTax = _getDailyTax(_currentPrice);
-        uint256 timeCovered = (_taxPayment * SECONDS_IN_DAY) / dailyTax;
-        return uint128(_foreclosureTime + timeCovered);
-    }
-
-    function _calculateRemainingDeposit(
-        uint128 _currentPrice,
-        uint128 _foreclosureTime,
-        uint128 _depositAmount
-    ) internal view returns (uint128) {
-        uint256 timeElapsed = _foreclosureTime - block.timestamp;
-        uint256 dailyTax = _getDailyTax(_currentPrice);
-        uint256 owed = timeElapsed * dailyTax;
-        return _depositAmount - uint128(owed);
+        uint256 secondsCovered = (_taxPayment * SECONDS_IN_DAY) / dailyTax;
+        return uint128(_foreclosureTime + secondsCovered);
     }
 
     function _getDailyTax(uint256 _currentPrice) internal pure returns (uint256) {
         return (_currentPrice * DAILY_TAX_RATE) / SCALING_FACTOR;
+    }
+
+    function _getExcessTax(uint256 _totalDeposit, uint256 _dailyTax)
+        internal
+        pure
+        returns (uint256)
+    {
+        uint256 daysCovered = _totalDeposit / _dailyTax;
+        uint256 totalAmount = daysCovered * _dailyTax;
+        return _totalDeposit - totalAmount;
     }
 }
