@@ -45,6 +45,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
     }
 
     function mint(address _to, uint256 _amount) external payable {
+        balances[owner()] += msg.value;
         uint128 listingPrice = uint128(msg.value / _amount);
         for (uint256 i; i < _amount; ++i) {
             _mint(_to, ++totalSupply);
@@ -77,12 +78,11 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         if (block.timestamp <= tax.gracePeriod) revert GracePeriodActive();
         uint256 currentPrice = tax.currentPrice;
         uint256 depositAmount = tax.depositAmount;
-        uint256 foreclosureTime = tax.foreclosureTime;
-        uint256 auctionPrice = _getAuctionPrice(currentPrice, foreclosureTime);
+        uint256 auctionPrice = _getAuctionPrice(currentPrice);
         uint256 newDailyTax = _getDailyTax(_newPrice);
 
         uint256 remainingDeposit =
-            _calculateRemainingDeposit(currentPrice, foreclosureTime, depositAmount);
+            _calculateRemainingDeposit(currentPrice, tax.foreclosureTime, depositAmount);
         uint256 depositOwed = depositAmount - remainingDeposit;
 
         if (isForeclosed(_tokenId)) {
@@ -217,18 +217,12 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         return _totalDeposit - totalAmount;
     }
 
-    function _getAuctionPrice(uint256 _currentPrice, uint256 _foreclosureTime)
-        internal
-        view
-        returns (uint256)
-    {
-        uint256 timeSinceForeclosure = block.timestamp - _foreclosureTime;
-        uint256 priceDecayPeriods = timeSinceForeclosure / TEN_MINUTES;
+    function _getAuctionPrice(uint256 _currentPrice) internal pure returns (uint256) {
+        uint256 decayPeriods = ONE_DAY / TEN_MINUTES;
         uint256 decayAmount = _currentPrice * AUCTION_DECAY_RATE / SCALING_FACTOR;
-        uint256 decayedPrice = _currentPrice - (decayAmount * priceDecayPeriods);
-        uint256 restingPrice = _currentPrice * AUCTION_DECAY_RATE / SCALING_FACTOR;
+        uint256 decayedPrice = _currentPrice - (decayAmount * decayPeriods);
 
-        if (decayedPrice <= restingPrice) return restingPrice;
+        if (decayedPrice < decayAmount) return decayAmount;
         else return decayedPrice;
     }
 }
