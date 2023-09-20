@@ -59,6 +59,12 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
 
     function burn(uint256 _tokenId) external {
         if (!_isApprovedOrOwner(msg.sender, _tokenId)) revert NotAuthorized();
+
+        uint256 dailyTax = _getDailyTax(_tokenId);
+        uint256 excessAmount = _getExcessTax(taxInfo[_tokenId].depositAmount, dailyTax);
+        delete taxInfo[_tokenId];
+        if (excessAmount > 0) _transferFunds(_ownerOf(_tokenId), excessAmount);
+
         _burn(_tokenId);
     }
 
@@ -71,11 +77,12 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         if (block.timestamp <= tax.gracePeriod) revert GracePeriodActive();
         uint256 currentPrice = tax.currentPrice;
         uint256 depositAmount = tax.depositAmount;
-        uint256 auctionPrice = _getAuctionPrice(_tokenId);
+        uint256 foreclosureTime = tax.foreclosureTime;
+        uint256 auctionPrice = _getAuctionPrice(currentPrice, foreclosureTime);
         uint256 newDailyTax = _getDailyTax(_newPrice);
 
         uint256 remainingDeposit =
-            _calculateRemainingDeposit(currentPrice, tax.foreclosureTime, tax.depositAmount);
+            _calculateRemainingDeposit(currentPrice, foreclosureTime, depositAmount);
         uint256 depositOwed = depositAmount - remainingDeposit;
 
         if (isForeclosed(_tokenId)) {
@@ -210,14 +217,16 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         return _totalDeposit - totalAmount;
     }
 
-    function _getAuctionPrice(uint256 _tokenId) internal view returns (uint256) {
-        TaxInfo memory tax = taxInfo[_tokenId];
-        uint256 currentPrice = tax.currentPrice;
-        uint256 timeSinceForeclosure = block.timestamp - tax.foreclosureTime;
+    function _getAuctionPrice(uint256 _currentPrice, uint256 _foreclosureTime)
+        internal
+        view
+        returns (uint256)
+    {
+        uint256 timeSinceForeclosure = block.timestamp - _foreclosureTime;
         uint256 priceDecayPeriods = timeSinceForeclosure / TEN_MINUTES;
-        uint256 decayAmount = currentPrice * AUCTION_DECAY_RATE / SCALING_FACTOR;
-        uint256 decayedPrice = currentPrice - (decayAmount * priceDecayPeriods);
-        uint256 restingPrice = currentPrice * AUCTION_DECAY_RATE / SCALING_FACTOR;
+        uint256 decayAmount = _currentPrice * AUCTION_DECAY_RATE / SCALING_FACTOR;
+        uint256 decayedPrice = _currentPrice - (decayAmount * priceDecayPeriods);
+        uint256 restingPrice = _currentPrice * AUCTION_DECAY_RATE / SCALING_FACTOR;
 
         if (decayedPrice <= restingPrice) return restingPrice;
         else return decayedPrice;
