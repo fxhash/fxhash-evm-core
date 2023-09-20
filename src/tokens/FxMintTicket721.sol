@@ -7,14 +7,7 @@ import {IFxMintTicket721, TaxInfo} from "src/interfaces/IFxMintTicket721.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
 import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
-import {
-    toDaysWadUnsafe,
-    toWadUnsafe,
-    unsafeWadMul,
-    wadExp,
-    wadLn,
-    wadMul
-} from "solmate/src/utils/SignedWadMath.sol";
+
 import {DAILY_TAX_RATE, SCALING_FACTOR, SECONDS_IN_DAY} from "src/utils/Constants.sol";
 
 contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
@@ -69,9 +62,9 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
 
     function claim(uint256 _tokenId, uint128 _newPrice, uint128 _days) external payable {
         if (block.timestamp <= taxInfo[_tokenId].gracePeriod) revert GracePeriodActive();
-        uint128 listingPrice = taxInfo[_tokenId].listingPrice;
+        uint128 currentPrice = taxInfo[_tokenId].currentPrice;
 
-        if (msg.value >= listingPrice) revert InsufficientPayment();
+        if (msg.value >= currentPrice) revert InsufficientPayment();
 
         address previousOwner = _ownerOf(_tokenId);
         (bool success,) = previousOwner.call{value: msg.value}("");
@@ -83,7 +76,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
 
     function deposit(uint256 _tokenId) external payable {
         TaxInfo storage tax = taxInfo[_tokenId];
-        uint128 newForeclosure = tax.listingPrice + uint128(msg.value);
+        uint128 newForeclosure = tax.currentPrice + uint128(msg.value);
         tax.foreclosureTime = newForeclosure;
         tax.depositAmount += uint128(msg.value);
     }
@@ -96,9 +89,9 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         TaxInfo storage tax = taxInfo[_tokenId];
         uint128 foreclosureTime = tax.foreclosureTime;
         uint128 remainingDeposit =
-            _calculateRemainingDeposit(tax.listingPrice, foreclosureTime, tax.depositAmount);
+            _calculateRemainingDeposit(tax.currentPrice, foreclosureTime, tax.depositAmount);
 
-        tax.listingPrice = _newPrice;
+        tax.currentPrice = _newPrice;
         tax.foreclosureTime =
             _calculateForeclosureTime(_newPrice, remainingDeposit, foreclosureTime);
     }
@@ -144,27 +137,27 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
     }
 
     function _calculateForeclosureTime(
-        uint256 _listingPrice,
+        uint256 _currentPrice,
         uint256 _taxPayment,
         uint256 _foreclosureTime
     ) internal pure returns (uint128) {
-        uint256 dailyTax = _getDailyTax(_listingPrice);
+        uint256 dailyTax = _getDailyTax(_currentPrice);
         uint256 timeCovered = (_taxPayment * SECONDS_IN_DAY) / dailyTax;
         return uint128(_foreclosureTime + timeCovered);
     }
 
     function _calculateRemainingDeposit(
-        uint128 _listingPrice,
+        uint128 _currentPrice,
         uint128 _foreclosureTime,
         uint128 _depositAmount
     ) internal view returns (uint128) {
-        uint256 dailyTax = _getDailyTax(_listingPrice);
         uint256 timeElapsed = _foreclosureTime - block.timestamp;
-        uint256 owed = (timeElapsed) * dailyTax;
+        uint256 dailyTax = _getDailyTax(_currentPrice);
+        uint256 owed = timeElapsed * dailyTax;
         return _depositAmount - uint128(owed);
     }
 
-    function _getDailyTax(uint256 _listingPrice) internal pure returns (uint256) {
-        return (_listingPrice * DAILY_TAX_RATE) / SCALING_FACTOR;
+    function _getDailyTax(uint256 _currentPrice) internal pure returns (uint256) {
+        return (_currentPrice * DAILY_TAX_RATE) / SCALING_FACTOR;
     }
 }

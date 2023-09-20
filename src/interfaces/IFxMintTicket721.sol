@@ -4,7 +4,7 @@ pragma solidity 0.8.20;
 struct TaxInfo {
     uint128 gracePeriod;
     uint128 foreclosureTime;
-    uint128 listingPrice;
+    uint128 currentPrice;
     uint128 depositAmount;
 }
 
