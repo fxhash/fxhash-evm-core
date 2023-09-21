@@ -2,10 +2,10 @@
 pragma solidity 0.8.20;
 
 struct TaxInfo {
-    uint128 gracePeriod;
-    uint128 foreclosureTime;
-    uint128 currentPrice;
-    uint128 depositAmount;
+    uint128 gracePeriod; // uint256
+    uint128 foreclosureTime; // uint64
+    uint128 currentPrice; // uint96
+    uint128 depositAmount; // uint96
 }
 
 interface IFxMintTicket721 {
@@ -25,6 +25,7 @@ interface IFxMintTicket721 {
     error InvalidPrice();
     error NotAuthorized();
     error TransferFailed();
+    error UnauthorizedAccount();
     error UnregisteredMinter();
 
     function burn(uint256 _tokenId) external;
