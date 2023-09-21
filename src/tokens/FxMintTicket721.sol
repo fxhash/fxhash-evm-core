@@ -79,10 +79,10 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
 
         unchecked {
             for (uint256 i; i < _amount; ++i) {
-                // Increments supply and mints token to given address
+                // Increments supply and mints token to given wallet
                 _mint(_to, ++totalSupply);
 
-                // Initializes tax info for token
+                // Sets initial tax info of token
                 taxes[totalSupply] = TaxInfo(
                     uint128(block.timestamp) + gracePeriod,
                     uint128(block.timestamp) + gracePeriod,
@@ -96,7 +96,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
     function burn(uint256 _tokenId) external {
         // Reverts if caller is not owner or approved
         if (!_isApprovedOrOwner(msg.sender, _tokenId)) revert NotAuthorized();
-        // MLOAD tax info pointer
+        // Loads current tax info
         TaxInfo memory taxInfo = taxes[_tokenId];
 
         // Deletes tax info of token
@@ -107,9 +107,9 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         // Gets excess amount of taxes paid
         uint256 excessTax = _getExcessTax(taxInfo.depositAmount, dailyTax);
 
-        // SSTORE balance of token owner with any excess tax amount
+        // Updates balance of token owner with any excess tax amount
         if (excessTax > 0) balances[_ownerOf(_tokenId)] += excessTax;
-        // SSTORE balance of contract owner with deposit amount owed
+        // Updates balance of contract owner with deposit amount owed
         balances[owner()] += taxInfo.depositAmount - excessTax;
 
         // Burns token
@@ -117,12 +117,10 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
     }
 
     function claim(uint256 _tokenId, uint128 _newPrice) external payable {
-        // SLOAD tax info pointer
+        // Loads current tax info
         TaxInfo storage taxInfo = taxes[_tokenId];
         // Reverts if grace period of token is still active
         if (block.timestamp <= taxInfo.gracePeriod) revert GracePeriodActive();
-
-        // SLOAD current tax info
         uint256 currentPrice = taxInfo.currentPrice;
         uint256 totalDeposit = taxInfo.depositAmount;
         uint256 foreclosureTime = taxInfo.foreclosureTime;
@@ -144,38 +142,34 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
             uint256 auctionPrice = _getAuctionPrice(currentPrice, foreclosureTime);
             // Reverts if payment amount is insufficient to auction price and new daily tax
             if (msg.value < auctionPrice + newDailyTax) revert InsufficientPayment();
-
-            // SSTORE balance of contract owner
+            // Updates balance of contract owner
             balances[owner()] += totalDeposit + auctionPrice;
-            // SSTORE new deposit amount based on auction price
+            // Sets new deposit amount based on auction price
             taxInfo.depositAmount = uint128(msg.value - auctionPrice);
         } else {
             // Reverts if payment amount if insufficient to current price and new daily tax
             if (msg.value < currentPrice + newDailyTax) revert InsufficientPayment();
-
-            // SSTORE balance of contract owner
+            // Updates balance of contract owner
             balances[owner()] += depositOwed;
-            // SSTORE new deposit amount based on current price
+            // Sets new deposit amount based on current price
             taxInfo.depositAmount = uint128(msg.value - currentPrice);
         }
 
-        // SSTORE new price of token
+        // Sets new tax info
         taxInfo.currentPrice = _newPrice;
-        // SSTORE new foreclosure time based on new daily tax
         taxInfo.foreclosureTime =
             _getForeclosureTime(newDailyTax, taxInfo.depositAmount, block.timestamp);
 
-        // SLOAD previous owner of token
-        address previousOwner = _ownerOf(_tokenId);
         // Transfers token from previous owner to new owner
+        address previousOwner = _ownerOf(_tokenId);
         transferFrom(previousOwner, msg.sender, _tokenId);
 
-        // SSTORE balance of previous token owner
+        // Updates balance of previous token owner
         balances[previousOwner] += currentPrice + remainingDeposit;
     }
 
     function deposit(uint256 _tokenId) public payable {
-        // SLOAD tax info pointer
+        // Loads current tax info
         TaxInfo storage taxInfo = taxes[_tokenId];
         // Gets current daily tax amount
         uint256 dailyTax = _getDailyTax(taxInfo.currentPrice);
@@ -190,9 +184,8 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         uint128 newForeclosure =
             _getForeclosureTime(dailyTax, taxInfo.foreclosureTime, depositAmount);
 
-        // SSTORE new foreclosure time
+        // Sets new tax info
         taxInfo.foreclosureTime = newForeclosure;
-        // SSTORE total deposit amount
         taxInfo.depositAmount += uint128(depositAmount);
 
         // Emits event for depositing taxes
@@ -210,9 +203,8 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         // Reverts if new price is less than the minimum price
         if (_newPrice == MINIMUM_PRICE) revert InvalidPrice();
 
-        // SLOAD tax info pointer
+        // Initializes tax info
         TaxInfo storage taxInfo = taxes[_tokenId];
-        // SLOAD current foreclosure time
         uint128 foreclosureTime = taxInfo.foreclosureTime;
 
         // Gets daily tax amount for current price
@@ -227,15 +219,13 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         // Reverts if remaining deposit amount is insufficient to new daily tax amount
         if (remainingDeposit < newDailyTax) revert InsufficientDeposit();
 
-        // SSTORE balance of contract owner with deposit amount owed
+        // Updates balance of contract owner with deposit amount owed
         balances[owner()] += (taxInfo.depositAmount - remainingDeposit);
 
-        // SSTORE new price
+        // Sets new tax info
         taxInfo.currentPrice = _newPrice;
-        // SSTORE new foreclosure time of new daily tax
         taxInfo.foreclosureTime =
             _getForeclosureTime(newDailyTax, remainingDeposit, foreclosureTime);
-        // SSTORE total deposit with remaining deposit amount
         taxInfo.depositAmount = uint128(remainingDeposit);
     }
 
