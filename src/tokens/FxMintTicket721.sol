@@ -13,7 +13,7 @@ import {
     ADMIN_ROLE,
     AUCTION_DECAY_RATE,
     DAILY_TAX_RATE,
-    MIN_TICKET_PRICE,
+    MINIMUM_PRICE,
     ONE_DAY,
     SCALING_FACTOR,
     TEN_MINUTES
@@ -29,6 +29,10 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
     mapping(address => uint256) public balances;
     mapping(uint256 => TaxInfo) public taxes;
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                  MODIFIERS
+    //////////////////////////////////////////////////////////////////////////*/
+
     modifier onlyMinter() {
         if (!isMinter(msg.sender)) revert UnregisteredMinter();
         _;
@@ -40,9 +44,17 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         _;
     }
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                  CONSTRUCTOR
+    //////////////////////////////////////////////////////////////////////////*/
+
     constructor(string memory _baseURI) ERC721("FxMintTicket721", "TICKET") {
         baseURI = _baseURI;
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                INITIALIZATION
+    //////////////////////////////////////////////////////////////////////////*/
 
     function initialize(address _genArt721, address _owner, uint48 _gracePeriod)
         external
@@ -54,6 +66,10 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
 
         emit TicketInitialized(_owner, _genArt721);
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                PUBLIC FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     function mint(address _to, uint256 _amount) external payable onlyMinter {
         // Updates balance of contract owner with total mint price
@@ -98,10 +114,6 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
 
         // Burns token
         _burn(_tokenId);
-    }
-
-    function setBaseURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
-        baseURI = _uri;
     }
 
     function claim(uint256 _tokenId, uint128 _newPrice) external payable {
@@ -196,7 +208,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         // Reverts if token is foreclosed
         if (isForeclosed(_tokenId)) revert Foreclosure();
         // Reverts if new price is less than the minimum price
-        if (_newPrice == MIN_TICKET_PRICE) revert InvalidPrice();
+        if (_newPrice == MINIMUM_PRICE) revert InvalidPrice();
 
         // SLOAD tax info pointer
         TaxInfo storage taxInfo = taxes[_tokenId];
@@ -233,10 +245,17 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         _transferFunds(_to, balance);
     }
 
-    function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
-        _requireMinted(_tokenId);
-        return string.concat(baseURI, _tokenId.toString());
+    /*//////////////////////////////////////////////////////////////////////////
+                                ADMIN FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function setBaseURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
+        baseURI = _uri;
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                READ FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     function isApprovedForAll(address _owner, address _operator)
         public
@@ -255,6 +274,15 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
     function isMinter(address _minter) public view returns (bool) {
         return IFxGenArt721(genArt721).isMinter(_minter);
     }
+
+    function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
+        _requireMinted(_tokenId);
+        return string.concat(baseURI, _tokenId.toString());
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                INTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     function _beforeTokenTransfer(address _from, address _to, uint256 _tokenId, uint256 _batchSize)
         internal
