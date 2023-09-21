@@ -174,7 +174,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         virtual
         override
     {
-        if (isForeclosed(_tokenId) && _from == _ownerOf(_tokenId)) revert Foreclosure();
+        if (isForeclosed(_tokenId) && msg.sender != address(this)) revert Foreclosure();
         return super._beforeTokenTransfer(_from, _to, _tokenId, _batchSize);
     }
 
