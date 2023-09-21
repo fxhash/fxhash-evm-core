@@ -78,14 +78,15 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         if (block.timestamp <= tax.gracePeriod) revert GracePeriodActive();
         uint256 currentPrice = tax.currentPrice;
         uint256 depositAmount = tax.depositAmount;
-        uint256 auctionPrice = _getAuctionPrice(currentPrice);
-        uint256 newDailyTax = _getDailyTax(_newPrice);
+        uint256 foreclosureTime = tax.foreclosureTime;
 
+        uint256 newDailyTax = _getDailyTax(_newPrice);
         uint256 remainingDeposit =
-            _calculateRemainingDeposit(currentPrice, tax.foreclosureTime, depositAmount);
+            _calculateRemainingDeposit(currentPrice, foreclosureTime, depositAmount);
         uint256 depositOwed = depositAmount - remainingDeposit;
 
         if (isForeclosed(_tokenId)) {
+            uint256 auctionPrice = _getAuctionPrice(currentPrice, foreclosureTime);
             if (msg.value < auctionPrice + newDailyTax) revert InsufficientPayment();
             // balances[owner()] += depositAmount + auctionPrice;
             _transferFunds(owner(), depositAmount + auctionPrice);
@@ -182,6 +183,19 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         if (!success) revert TransferFailed();
     }
 
+    function _getAuctionPrice(uint256 _currentPrice, uint256 _foreclosureTime)
+        internal
+        view
+        returns (uint256)
+    {
+        uint256 timeElapsed = block.timestamp - _foreclosureTime;
+        uint256 restingPrice = (_currentPrice * AUCTION_DECAY_RATE) / SCALING_FACTOR;
+        if (timeElapsed > ONE_DAY) return restingPrice;
+        uint256 totalDecay = _currentPrice - restingPrice;
+        uint256 decayedAmount = (totalDecay / ONE_DAY) * timeElapsed;
+        return _currentPrice - decayedAmount;
+    }
+
     function _calculateRemainingDeposit(
         uint256 _currentPrice,
         uint256 _foreclosureTime,
@@ -215,14 +229,5 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         uint256 daysCovered = _totalDeposit / _dailyTax;
         uint256 totalAmount = daysCovered * _dailyTax;
         return _totalDeposit - totalAmount;
-    }
-
-    function _getAuctionPrice(uint256 _currentPrice) internal pure returns (uint256) {
-        uint256 decayPeriods = ONE_DAY / TEN_MINUTES;
-        uint256 decayAmount = _currentPrice * AUCTION_DECAY_RATE / SCALING_FACTOR;
-        uint256 decayedPrice = _currentPrice - (decayAmount * decayPeriods);
-
-        if (decayedPrice < decayAmount) return decayAmount;
-        else return decayedPrice;
     }
 }
