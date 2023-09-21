@@ -28,6 +28,8 @@ interface IFxMintTicket721 {
     error UnauthorizedAccount();
     error UnregisteredMinter();
 
+    function baseURI() external view returns (string memory);
+
     function burn(uint256 _tokenId) external;
 
     function claim(uint256 _tokenId, uint128 _newPrice) external payable;
@@ -45,6 +47,8 @@ interface IFxMintTicket721 {
     function setBaseURI(string calldata _uri) external;
 
     function setPrice(uint256 _tokenId, uint128 _newPrice) external;
+
+    function taxes(uint256) external returns (uint128, uint128, uint128, uint128);
 
     function totalSupply() external returns (uint48);
 
