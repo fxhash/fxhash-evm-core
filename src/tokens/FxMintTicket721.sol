@@ -96,6 +96,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
     function burn(uint256 _tokenId) external {
         // Reverts if caller is not owner or approved
         if (!_isApprovedOrOwner(msg.sender, _tokenId)) revert NotAuthorized();
+
         // Loads current tax info
         TaxInfo memory taxInfo = taxes[_tokenId];
 
@@ -279,7 +280,9 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         virtual
         override
     {
+        // Reverts if token is foreclosed and caller is not this contract
         if (isForeclosed(_tokenId) && msg.sender != address(this)) revert Foreclosure();
+
         return super._beforeTokenTransfer(_from, _to, _tokenId, _batchSize);
     }
 
@@ -295,6 +298,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
     {
         uint256 timeElapsed = block.timestamp - _foreclosureTime;
         uint256 restingPrice = (_currentPrice * AUCTION_DECAY_RATE) / SCALING_FACTOR;
+        // Returns resting price if more than one day has already passed
         if (timeElapsed > ONE_DAY) return restingPrice;
         uint256 totalDecay = _currentPrice - restingPrice;
         uint256 decayedAmount = (totalDecay / ONE_DAY) * timeElapsed;
