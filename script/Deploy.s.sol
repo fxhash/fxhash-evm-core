@@ -284,9 +284,9 @@ contract Deploy is Script {
 
     function _createAccounts() internal {
         admin = msg.sender;
-        creator = _createUser("creator");
-        tokenMod = _createUser("tokenMod");
-        userMod = _createUser("userMod");
+        creator = makeAddr("creator");
+        tokenMod = makeAddr("tokenMod");
+        userMod = makeAddr("userMod");
     }
 
     function _createProject() internal virtual {
@@ -359,10 +359,6 @@ contract Deploy is Script {
         returns (address deployedAddress)
     {
         deployedAddress = _deployCreate2(creationCode, "", salt);
-    }
-
-    function _createUser(string memory _user) internal pure returns (address) {
-        return address(uint160(uint256(keccak256(abi.encodePacked(_user)))));
     }
 
     function _initCode(bytes memory creationCode, bytes memory constructorArgs)

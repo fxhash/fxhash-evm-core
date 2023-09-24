@@ -59,14 +59,14 @@ contract BaseTest is Deploy, Test {
     }
 
     function createAccounts() public virtual {
-        admin = _createUser("admin");
-        creator = _createUser("creator");
-        tokenMod = _createUser("tokenMod");
-        userMod = _createUser("userMod");
-        alice = _createUser("alice");
-        bob = _createUser("bob");
-        eve = _createUser("eve");
-        susan = _createUser("susan");
+        admin = makeAddr("admin");
+        creator = makeAddr("creator");
+        tokenMod = makeAddr("tokenMod");
+        userMod = makeAddr("userMod");
+        alice = makeAddr("alice");
+        bob = makeAddr("bob");
+        eve = makeAddr("eve");
+        susan = makeAddr("susan");
     }
 
     function _mock0xSplits() internal {
