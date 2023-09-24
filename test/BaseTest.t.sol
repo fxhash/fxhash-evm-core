@@ -61,7 +61,6 @@ contract BaseTest is Deploy, Test {
     function createAccounts() public virtual {
         admin = _createUser("admin");
         creator = _createUser("creator");
-        minter = _createUser("minter");
         tokenMod = _createUser("tokenMod");
         userMod = _createUser("userMod");
         alice = _createUser("alice");

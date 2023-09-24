@@ -121,26 +121,26 @@ contract Deploy is Script {
                                   CONFIGURATIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _configureInfo() internal {
+    function _configureInfo() internal virtual {
         configInfo.feeShare = CONFIG_FEE_SHARE;
         configInfo.lockTime = CONFIG_LOCK_TIME;
         configInfo.defaultMetadata = CONFIG_DEFAULT_METADATA;
     }
 
-    function _configureProject() internal {
+    function _configureProject() internal virtual {
         projectInfo.enabled = true;
         projectInfo.onchain = true;
         projectInfo.supply = MAX_SUPPLY;
         projectInfo.contractURI = CONTRACT_URI;
     }
 
-    function _configureMetdata() internal {
+    function _configureMetdata() internal virtual {
         metadataInfo.baseURI = BASE_URI;
         metadataInfo.imageURI = IMAGE_URI;
         metadataInfo.animation = animation;
     }
 
-    function _configureMinters() internal {
+    function _configureMinters() internal virtual {
         mintInfo.push(
             MintInfo({
                 minter: address(fixedPrice),
@@ -154,7 +154,7 @@ contract Deploy is Script {
         );
     }
 
-    function _configureRoyalties() internal {
+    function _configureRoyalties() internal virtual {
         royaltyReceivers.push(payable(admin));
         royaltyReceivers.push(payable(creator));
         royaltyReceivers.push(payable(tokenMod));
@@ -165,7 +165,7 @@ contract Deploy is Script {
         basisPoints.push(ROYALTY_BPS * 4);
     }
 
-    function _configureScripty() internal {
+    function _configureScripty() internal virtual {
         headTags.push(
             HTMLTag({
                 name: CSS_CANVAS_SCRIPT,
@@ -218,7 +218,7 @@ contract Deploy is Script {
         animation.bodyTags = bodyTags;
     }
 
-    function _configureSplits() internal {
+    function _configureSplits() internal virtual {
         if (creator < admin) {
             accounts.push(creator);
             accounts.push(admin);
@@ -232,7 +232,7 @@ contract Deploy is Script {
         }
     }
 
-    function _configureState() internal {
+    function _configureState() internal virtual {
         price = 1 gwei;
         amount = 10;
         tokenId = 1;
@@ -242,7 +242,7 @@ contract Deploy is Script {
                                     DEPLOYMENTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _deployContracts() internal {
+    function _deployContracts() internal virtual {
         /// I think we should mine a single create2 salt for the FxGenArt721 token
         /// and use it for all the contracts so we only have to track 1
         /// We would mine the salt to get an efficient address (many leading 0's) for the token
@@ -285,12 +285,11 @@ contract Deploy is Script {
     function _createAccounts() internal {
         admin = msg.sender;
         creator = _createUser("creator");
-        minter = _createUser("minter");
         tokenMod = _createUser("tokenMod");
         userMod = _createUser("userMod");
     }
 
-    function _createProject() internal {
+    function _createProject() internal virtual {
         fxGenArtProxy = fxIssuerFactory.createProject(
             creator,
             primaryReceiver,
@@ -302,7 +301,7 @@ contract Deploy is Script {
         );
     }
 
-    function _createSplit() internal {
+    function _createSplit() internal virtual {
         primaryReceiver = fxSplitsFactory.createSplit(accounts, allocations);
     }
 
@@ -310,7 +309,7 @@ contract Deploy is Script {
                                     SETTERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _registerContracts() internal {
+    function _registerContracts() internal virtual {
         names.push(FX_CONTRACT_REGISTRY);
         names.push(FX_GEN_ART_721);
         names.push(FX_ISSUER_FACTORY);
@@ -330,13 +329,13 @@ contract Deploy is Script {
         fxContractRegistry.register(names, contracts);
     }
 
-    function _registerRoles() internal {
+    function _registerRoles() internal virtual {
         fxRoleRegistry.grantRole(MINTER_ROLE, address(fixedPrice));
         fxRoleRegistry.grantRole(TOKEN_MODERATOR_ROLE, tokenMod);
         fxRoleRegistry.grantRole(USER_MODERATOR_ROLE, userMod);
     }
 
-    function _setContracts() internal {
+    function _setContracts() internal virtual {
         FxGenArt721(fxGenArtProxy).setRandomizer(address(fxPseudoRandomizer));
         FxGenArt721(fxGenArtProxy).setRenderer(address(fxTokenRenderer));
     }

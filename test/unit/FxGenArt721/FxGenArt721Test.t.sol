@@ -11,8 +11,6 @@ contract FxGenArt721Test is BaseTest {
     ProjectInfo internal project;
     address internal splits;
     uint240 internal supply;
-    bool internal enabled;
-    bool internal onchain;
 
     // Errors
     bytes4 internal ALLOCATION_EXCEEDED_ERROR = IFxGenArt721.AllocationExceeded.selector;
@@ -35,8 +33,10 @@ contract FxGenArt721Test is BaseTest {
         _configureScripty();
         _configureMetdata();
         _registerMinter(admin, minter);
-        _createSplit(creator);
-        _createProject(creator);
+        _configureSplits();
+        _createSplit();
+        _createProject();
+        _setIssuerInfo();
     }
 
     function test_Implementation() public {
@@ -45,36 +45,13 @@ contract FxGenArt721Test is BaseTest {
     }
 
     function test_Initialize() public {
-        assertEq(project.enabled, enabled);
-        assertEq(project.onchain, onchain);
-        assertEq(project.supply, MAX_SUPPLY);
-        assertEq(project.contractURI, CONTRACT_URI);
-        assertEq(splits, primaryReceiver);
-        assertEq(FxGenArt721(fxGenArtProxy).owner(), creator);
-        assertEq(IFxGenArt721(fxGenArtProxy).isMinter(minter), true);
-    }
-
-    function _createSplit(address _creator) internal prank(_creator) {
-        accounts.push(admin);
-        accounts.push(creator);
-        allocations.push(SPLITS_ADMIN_ALLOCATION);
-        allocations.push(SPLITS_CREATOR_ALLOCATION);
-        primaryReceiver = ISplitsMain(SPLITS_MAIN).createSplit(
-            accounts, allocations, SPLITS_DISTRIBUTOR_FEE, SPLITS_CONTROLLER
-        );
-    }
-
-    function _createProject(address _creator) internal prank(_creator) {
-        fxGenArtProxy = fxIssuerFactory.createProject(
-            creator,
-            primaryReceiver,
-            projectInfo,
-            metadataInfo,
-            mintInfo,
-            royaltyReceivers,
-            basisPoints
-        );
-        _setIssuerInfo();
+        assertTrue(project.enabled, "project not enabled");
+        assertTrue(project.onchain, "project not onchain");
+        assertEq(project.supply, MAX_SUPPLY, "max supply unequal");
+        assertEq(project.contractURI, CONTRACT_URI, "contract URI mismatch");
+        assertEq(splits, primaryReceiver, "primary receiver not splits address");
+        assertEq(FxGenArt721(fxGenArtProxy).owner(), creator, "owner isn't creator");
+        assertEq(IFxGenArt721(fxGenArtProxy).isMinter(minter), true, "minter isn't approved minter");
     }
 
     function _registerMinter(address _admin, address _minter) internal prank(_admin) {
@@ -96,5 +73,19 @@ contract FxGenArt721Test is BaseTest {
     function _toggleMint(address _creator) internal prank(_creator) {
         IFxGenArt721(fxGenArtProxy).toggleMint();
         _setIssuerInfo();
+    }
+
+    function _configureMinters() internal override {
+        mintInfo.push(
+            MintInfo({
+                minter: address(minter),
+                reserveInfo: ReserveInfo({
+                    startTime: RESERVE_START_TIME,
+                    endTime: RESERVE_END_TIME,
+                    allocation: RESERVE_ADMIN_ALLOCATION
+                }),
+                params: ""
+            })
+        );
     }
 }
