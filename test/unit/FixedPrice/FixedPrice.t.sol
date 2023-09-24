@@ -6,8 +6,6 @@ import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
 import {FixedPrice} from "src/minters/FixedPrice.sol";
 
 contract FixedPriceTest is BaseTest {
-    FixedPrice internal sale;
-
     bytes4 internal TOO_MANY_ERROR = IFixedPrice.TooMany.selector;
     bytes4 internal INVALID_PAYMENT_ERROR = IFixedPrice.InvalidPayment.selector;
     bytes4 internal INVALID_PRICE_ERROR = IFixedPrice.InvalidPrice.selector;
@@ -22,30 +20,19 @@ contract FixedPriceTest is BaseTest {
 
     function setUp() public override {
         super.setUp();
-        vm.deal(address(this), INITIAL_BALANCE);
-        sale = new FixedPrice();
-        _configureGenArtToken(creator, admin, address(sale));
         vm.warp(RESERVE_START_TIME);
-    }
-
-    function _configureGenArtToken(address _creator, address _admin, address _sale) internal {
-        vm.prank(admin);
-        fxRoleRegistry.grantRole(MINTER_ROLE, _sale);
-        projectInfo.supply = RESERVE_MINTER_ALLOCATION;
-        mintInfo.push(
-            MintInfo(
-                address(sale),
-                ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, RESERVE_MINTER_ALLOCATION),
-                abi.encode(price)
-            )
-        );
-        vm.startPrank(creator);
-        fxGenArtProxy = fxIssuerFactory.createProject(
-            _creator, _creator, projectInfo, metadataInfo, mintInfo, royaltyReceivers, basisPoints
-        );
-        FxGenArt721(fxGenArtProxy).toggleMint();
-        vm.stopPrank();
-
-        _setRandomizer(_admin, address(fxPseudoRandomizer));
+        vm.deal(address(this), INITIAL_BALANCE);
+        _configureState();
+        _mock0xSplits();
+        _configureProject();
+        _configureMinters();
+        _registerMinter(admin, address(fixedPrice));
+        _configureRoyalties();
+        _configureScripty();
+        _configureMetdata();
+        _configureSplits();
+        _createSplit();
+        _createProject();
+        _setRandomizer(admin, address(fxPseudoRandomizer));
     }
 }

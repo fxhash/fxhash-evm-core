@@ -54,10 +54,6 @@ contract FxGenArt721Test is BaseTest {
         assertEq(IFxGenArt721(fxGenArtProxy).isMinter(minter), true, "minter isn't approved minter");
     }
 
-    function _registerMinter(address _admin, address _minter) internal prank(_admin) {
-        fxRoleRegistry.grantRole(MINTER_ROLE, _minter);
-    }
-
     function _setGenArtInfo(uint256 _tokenId) internal {
         (fxParams, seed) = IFxGenArt721(fxGenArtProxy).genArtInfo(_tokenId);
     }

@@ -86,4 +86,8 @@ contract BaseTest is Deploy, Test {
     function _setRenderer(address _admin, address _renderer) internal prank(_admin) {
         FxGenArt721(fxGenArtProxy).setRenderer(_renderer);
     }
+
+    function _registerMinter(address _admin, address _minter) internal prank(_admin) {
+        fxRoleRegistry.grantRole(MINTER_ROLE, _minter);
+    }
 }
