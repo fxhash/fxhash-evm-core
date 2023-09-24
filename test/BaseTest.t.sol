@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import { Deploy } from "script/Deploy.s.sol";
+import {Deploy} from "script/Deploy.s.sol";
 import {FxContractRegistry} from "src/registries/FxContractRegistry.sol";
 import {FxGenArt721} from "src/tokens/FxGenArt721.sol";
 import {FxIssuerFactory, ConfigInfo} from "src/factories/FxIssuerFactory.sol";

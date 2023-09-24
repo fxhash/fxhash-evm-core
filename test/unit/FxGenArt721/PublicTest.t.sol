@@ -7,7 +7,7 @@ contract PublicTest is FxGenArt721Test {
     function setUp() public virtual override {
         super.setUp();
         _setRandomizer(admin, address(fxPseudoRandomizer));
-        vm.warp(RESERVE_START_TIME  + 1 );
+        vm.warp(RESERVE_START_TIME + 1);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
