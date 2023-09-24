@@ -7,6 +7,7 @@ contract PublicTest is FxGenArt721Test {
     function setUp() public virtual override {
         super.setUp();
         _setRandomizer(admin, address(fxPseudoRandomizer));
+        vm.warp(RESERVE_START_TIME  + 1 );
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -15,8 +16,7 @@ contract PublicTest is FxGenArt721Test {
 
     function test_mint() public {
         amount = 3;
-        _toggleMint(creator);
-        _mint(minter, alice, amount);
+        _mint(alice, amount);
         assertEq(FxGenArt721(fxGenArtProxy).ownerOf(1), alice);
         assertEq(FxGenArt721(fxGenArtProxy).ownerOf(2), alice);
         assertEq(FxGenArt721(fxGenArtProxy).ownerOf(3), alice);
@@ -26,13 +26,14 @@ contract PublicTest is FxGenArt721Test {
     }
 
     function test_RevertsWhen_MintInactive() public {
+        _toggleMint(creator);
         vm.expectRevert(MINT_INACTIVE_ERROR);
-        _mint(minter, alice, 1);
+        _mint(alice, 1);
     }
 
     function test_RevertsWhen_UnregisteredMinter() public {
         vm.expectRevert(UNREGISTERED_MINTER_ERROR);
-        _mint(admin, alice, 1);
+        IFxGenArt721(fxGenArtProxy).mint(alice, 1);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -75,8 +76,8 @@ contract PublicTest is FxGenArt721Test {
         IFxGenArt721(fxGenArtProxy).burn(_tokenId);
     }
 
-    function _mint(address _minter, address _to, uint256 _amount) internal prank(_minter) {
-        IFxGenArt721(fxGenArtProxy).mint(_to, _amount);
+    function _mint(address _to, uint256 _amount) internal {
+        MockMinter(minter).mint(fxGenArtProxy, _to, _amount);
     }
 
     function _fulfillSeedRequest(address _caller, uint256 _tokenId, bytes32 _seed)
