@@ -101,6 +101,8 @@ contract BaseTest is Test {
         vm.stopPrank();
     }
 
+    receive() external payable {}
+
     function setUp() public virtual {
         createAccounts();
         deployContracts(admin);

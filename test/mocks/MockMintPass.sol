@@ -6,6 +6,8 @@ import {BitMaps} from "openzeppelin/contracts/utils/structs/BitMaps.sol";
 import {CLAIM_TYPEHASH} from "src/utils/Constants.sol";
 
 contract MockMintPass is MintPass {
+    using BitMaps for BitMaps.BitMap;
+
     BitMaps.BitMap internal _bitmap;
     address internal signer;
 
@@ -20,7 +22,7 @@ contract MockMintPass is MintPass {
     }
 
     function isClaimed(uint256 _index) external view returns (bool) {
-        return _isClaimed(_bitmap, _index);
+        return _bitmap.get(_index);
     }
 
     function claimTypeHash() external pure returns (bytes32) {
