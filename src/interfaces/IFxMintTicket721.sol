@@ -10,12 +10,20 @@ struct TaxInfo {
 
 interface IFxMintTicket721 {
     event TicketInitialized(address indexed _owner, address indexed _genArt721);
+    event Claimed(
+        uint256 indexed _tokenId,
+        address indexed _claimer,
+        uint128 indexed _newPrice,
+        uint256 _payment
+    );
     event Deposited(
         uint256 indexed _tokenId,
         address indexed _depositer,
         uint256 indexed _amount,
-        uint256 newForeclosure
+        uint256 _newForeclosure
     );
+    event PriceSet(uint256 indexed _tokenId, address indexed _owner, uint128 indexed _newPrice);
+    event Withdraw(address indexed _caller, address indexed _to, uint256 indexed _balance);
 
     error Foreclosure();
     error GracePeriodActive();

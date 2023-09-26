@@ -167,6 +167,9 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
 
         // Updates balance of previous token owner
         balances[previousOwner] += currentPrice + remainingDeposit;
+
+        // Emits event for claiming ticket
+        emit Claimed(_tokenId, msg.sender, _newPrice, msg.value);
     }
 
     function deposit(uint256 _tokenId) public payable {
@@ -228,12 +231,16 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         taxInfo.foreclosureTime =
             _getForeclosureTime(newDailyTax, remainingDeposit, foreclosureTime);
         taxInfo.depositAmount = uint128(remainingDeposit);
+
+        emit PriceSet(_tokenId, msg.sender, _newPrice);
     }
 
     function withdraw(address _to) external {
         uint256 balance = balances[_to];
         delete balances[_to];
         _transferFunds(_to, balance);
+
+        emit Withdraw(msg.sender, _to, balance);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
