@@ -93,7 +93,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         }
     }
 
-    function burn(uint256 _tokenId) external {
+    function burn(uint256 _tokenId) external onlyMinter {
         // Reverts if caller is not owner or approved
         if (!_isApprovedOrOwner(msg.sender, _tokenId)) revert NotAuthorized();
 
@@ -282,6 +282,8 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
     {
         // Reverts if token is foreclosed and caller is not this contract
         if (isForeclosed(_tokenId) && msg.sender != address(this)) revert Foreclosure();
+        // Reverts if caller is not owner of token
+        if (_from != msg.sender) revert NotAuthorized();
 
         return super._beforeTokenTransfer(_from, _to, _tokenId, _batchSize);
     }

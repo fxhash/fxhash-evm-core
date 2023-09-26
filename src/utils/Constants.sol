@@ -13,10 +13,12 @@ bytes32 constant FX_TOKEN_RENDERER = keccak256("FX_TOKEN_RENDERER");
 
 // Roles
 bytes32 constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+bytes32 constant BANNED_USER_ROLE = keccak256("BANNED_USER_ROLE");
 bytes32 constant CREATOR_ROLE = keccak256("CREATOR_ROLE");
 bytes32 constant MINTER_ROLE = keccak256("MINTER_ROLE");
 bytes32 constant TOKEN_MODERATOR_ROLE = keccak256("TOKEN_MODERATOR_ROLE");
 bytes32 constant USER_MODERATOR_ROLE = keccak256("USER_MODERATOR_ROLE");
+bytes32 constant VERIFIED_USER_ROLE = keccak256("VERIFIED_USER_ROLE");
 
 // Authorizations
 uint16 constant TOKEN_AUTH = 10;
@@ -44,8 +46,6 @@ uint96 constant FEE_DENOMINATOR = 10_000;
 bytes32 constant CLAIM_TYPEHASH = keccak256("Claim(uint256 index, address user, bytes mintCode)");
 
 // Mint Ticket
-int256 constant ONE_WAD = 1e18;
-int256 constant PRICE_DECAY = 0.01e18;
 uint256 constant AUCTION_DECAY_RATE = 200; // 2%
 uint256 constant DAILY_TAX_RATE = 27; // 0.274%
 uint256 constant MINIMUM_PRICE = 0.01 ether;
