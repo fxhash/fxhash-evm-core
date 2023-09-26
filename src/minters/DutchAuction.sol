@@ -24,13 +24,6 @@ contract DutchAuction is IDutchAuction {
     mapping(address => mapping(address => uint256)) public cumulativeMintCost;
     mapping(address => uint256) public lastPrice;
 
-    error InvalidToken();
-    error NotStarted();
-    error Ended();
-    error TooMany();
-    error InvalidStep();
-    error InsufficientPrice();
-
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintData) external {
         DAInfo memory daInfo = abi.decode(_mintData, (DAInfo));
         require(
@@ -43,7 +36,7 @@ contract DutchAuction is IDutchAuction {
         auctionInfo[msg.sender] = daInfo;
     }
 
-    function buyTokens(address _token, uint256 _amount, address _to) external payable {
+    function buy(address _token, uint256 _amount, address _to) external payable {
         ReserveInfo storage reserve = reserves[_token];
         if (NULL_RESERVE == keccak256(abi.encode(reserve))) revert InvalidToken();
         if (block.timestamp < reserve.startTime) revert NotStarted();
@@ -63,7 +56,7 @@ contract DutchAuction is IDutchAuction {
         uint256 numMinted = cumulativeMints[_token][_who];
         delete cumulativeMintCost[_token][_who];
         delete cumulativeMints[_token][_who];
-        uint256 refund = userCost - numMinted * lastPrice[_token];
+        uint256 refundAmount = userCost - numMinted * lastPrice[_token];
     }
 
     function withdraw(address _token) external {
