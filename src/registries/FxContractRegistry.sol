@@ -10,8 +10,8 @@ contract FxContractRegistry is Ownable, IFxContractRegistry {
     /// @inheritdoc IFxContractRegistry
     mapping(bytes32 => address) public contracts;
 
-    constructor(address _initialOwner) Ownable() {
-        _transferOwnership(_initialOwner);
+    constructor(address _admin) Ownable() {
+        _transferOwnership(_admin);
     }
 
     /// @inheritdoc IFxContractRegistry
