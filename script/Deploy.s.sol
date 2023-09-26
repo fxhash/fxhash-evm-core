@@ -243,21 +243,39 @@ contract Deploy is Script {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _deployContracts() internal {
-        fxContractRegistry = new FxContractRegistry();
-        fxRoleRegistry = new FxRoleRegistry();
-        fxSplitsFactory = new FxSplitsFactory();
-        fxPseudoRandomizer = new FxPseudoRandomizer();
-        fxTokenRenderer = new FxTokenRenderer(
-            ETHFS_FILE_STORAGE,
-            SCRIPTY_STORAGE_V2,
-            SCRIPTY_BUILDER_V2
-        );
-        fxGenArt721 = new FxGenArt721(
-            address(fxContractRegistry),
-            address(fxRoleRegistry)
-        );
-        fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721), configInfo);
-        fixedPrice = new FixedPrice();
+        /// I think we should mine a single create2 salt for the FxGenArt721 token
+        /// and use it for all the contracts so we only have to track 1
+        /// We would mine the salt to get an efficient address (many leading 0's) for the token
+        /// implementation to save gas
+        bytes32 salt = keccak256("TEMP_SALT");
+        bytes memory creationCode = type(FxContractRegistry).creationCode;
+        bytes memory constructorArgs = abi.encode(admin);
+        fxContractRegistry = FxContractRegistry(_deployCreate2(creationCode, constructorArgs, salt));
+
+        creationCode = type(FxRoleRegistry).creationCode;
+        constructorArgs = abi.encode(admin);
+        fxRoleRegistry = FxRoleRegistry(_deployCreate2(creationCode, constructorArgs, salt));
+
+        creationCode = type(FxSplitsFactory).creationCode;
+        fxSplitsFactory = FxSplitsFactory(_deployCreate2(creationCode, salt));
+
+        creationCode = type(FxPseudoRandomizer).creationCode;
+        fxPseudoRandomizer = FxPseudoRandomizer(_deployCreate2(creationCode, salt));
+
+        creationCode = type(FxTokenRenderer).creationCode;
+        constructorArgs = abi.encode(ETHFS_FILE_STORAGE, SCRIPTY_STORAGE_V2, SCRIPTY_BUILDER_V2);
+        fxTokenRenderer = FxTokenRenderer(_deployCreate2(creationCode, constructorArgs, salt));
+
+        creationCode = type(FxGenArt721).creationCode;
+        constructorArgs = abi.encode(address(fxContractRegistry), address(fxRoleRegistry));
+        fxGenArt721 = FxGenArt721(_deployCreate2(creationCode, constructorArgs, salt));
+
+        creationCode = type(FxIssuerFactory).creationCode;
+        constructorArgs = abi.encode(address(fxGenArt721), configInfo);
+        fxIssuerFactory = FxIssuerFactory(_deployCreate2(creationCode, constructorArgs, salt));
+
+        creationCode = type(FixedPrice).creationCode;
+        fixedPrice = FixedPrice(_deployCreate2(creationCode, salt));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -327,7 +345,40 @@ contract Deploy is Script {
                                     HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
+    function _deployCreate2(bytes memory creationCode, bytes memory constructorArgs, bytes32 salt)
+        internal
+        returns (address deployedAddress)
+    {
+        (bool success, bytes memory response) =
+            CREATE2_FACTORY.call(bytes.concat(salt, creationCode, constructorArgs));
+        deployedAddress = address(bytes20(response));
+        require(success, "deployment failed");
+    }
+
+    function _deployCreate2(bytes memory creationCode, bytes32 salt)
+        internal
+        returns (address deployedAddress)
+    {
+        deployedAddress = _deployCreate2(creationCode, "", salt);
+    }
+
     function _createUser(string memory _user) internal pure returns (address) {
         return address(uint160(uint256(keccak256(abi.encodePacked(_user)))));
+    }
+
+    function _initCode(bytes memory creationCode, bytes memory constructorArgs)
+        internal
+        pure
+        returns (bytes memory)
+    {
+        return bytes.concat(creationCode, constructorArgs);
+    }
+
+    function _computeCreate2Address(
+        bytes memory creationCode,
+        bytes memory constructorArgs,
+        bytes32 salt
+    ) internal pure {
+        computeCreate2Address(salt, hashInitCode(creationCode, constructorArgs));
     }
 }
