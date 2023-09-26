@@ -243,10 +243,6 @@ contract Deploy is Script {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _deployContracts() internal virtual {
-        /// I think we should mine a single create2 salt for the FxGenArt721 token
-        /// and use it for all the contracts so we only have to track 1
-        /// We would mine the salt to get an efficient address (many leading 0's) for the token
-        /// implementation to save gas
         bytes32 salt = keccak256("TEMP_SALT");
         bytes memory creationCode = type(FxContractRegistry).creationCode;
         bytes memory constructorArgs = abi.encode(admin);
@@ -276,6 +272,15 @@ contract Deploy is Script {
 
         creationCode = type(FixedPrice).creationCode;
         fixedPrice = FixedPrice(_deployCreate2(creationCode, salt));
+
+        vm.label(address(fxContractRegistry), "FxContractRegistry");
+        vm.label(address(fxRoleRegistry), "FxRoleRegistry");
+        vm.label(address(fxSplitsFactory), "FxSplitsFactory");
+        vm.label(address(fxPseudoRandomizer), "FxPseudoRandomizer");
+        vm.label(address(fxTokenRenderer), "FxTokenRenderer");
+        vm.label(address(fxGenArt721), "FxGenArt721");
+        vm.label(address(fxIssuerFactory), "FxIssuerFactory");
+        vm.label(address(fixedPrice), "FixedPrice");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -361,19 +366,19 @@ contract Deploy is Script {
         deployedAddress = _deployCreate2(creationCode, "", salt);
     }
 
-    function _initCode(bytes memory creationCode, bytes memory constructorArgs)
-        internal
-        pure
-        returns (bytes memory)
-    {
-        return bytes.concat(creationCode, constructorArgs);
-    }
-
     function _computeCreate2Address(
         bytes memory creationCode,
         bytes memory constructorArgs,
         bytes32 salt
     ) internal pure {
         computeCreate2Address(salt, hashInitCode(creationCode, constructorArgs));
+    }
+
+    function _initCode(bytes memory creationCode, bytes memory constructorArgs)
+        internal
+        pure
+        returns (bytes memory)
+    {
+        return bytes.concat(creationCode, constructorArgs);
     }
 }
