@@ -6,6 +6,7 @@ import {IDutchAuction} from "src/interfaces/IDutchAuction.sol";
 import {DutchAuction} from "src/minters/DutchAuction.sol";
 
 contract DutchAuctionTest is BaseTest {
+    bytes4 internal AMOUNT_ZERO_ERROR = IDutchAuction.InvalidAmount.selector;
     bytes4 internal TOO_MANY_ERROR = IDutchAuction.TooMany.selector;
     bytes4 internal INVALID_PAYMENT_ERROR = IDutchAuction.InvalidPayment.selector;
     bytes4 internal INVALID_PRICE_ERROR = IDutchAuction.InvalidPrice.selector;
@@ -16,17 +17,19 @@ contract DutchAuctionTest is BaseTest {
     bytes4 internal NOT_STARTED_ERROR = IDutchAuction.NotStarted.selector;
     bytes4 internal ADDRESS_ZERO_ERROR = IDutchAuction.AddressZero.selector;
     bytes4 internal INSUFFICIENT_FUNDS_ERROR = IDutchAuction.InsufficientFunds.selector;
+    bytes4 internal PRICES_OUT_OF_ORDER_ERROR = IDutchAuction.PricesOutOfOrder.selector;
     DutchAuction internal dutchAuction;
     uint256 internal price;
     uint256[] internal prices;
     uint256 internal stepLength;
     bool internal refund;
 
-    function setUp() public override {
+    function setUp() public virtual override {
         super.setUp();
         dutchAuction = new DutchAuction();
         prices.push(1 ether);
         prices.push(0.5 ether);
+        vm.deal(address(this), INITIAL_BALANCE);
         stepLength = (RESERVE_END_TIME - RESERVE_START_TIME) / prices.length;
         vm.deal(address(this), INITIAL_BALANCE);
         _configureGenArtToken(creator, admin, address(dutchAuction));

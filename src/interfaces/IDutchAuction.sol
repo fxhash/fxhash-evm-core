@@ -7,6 +7,7 @@ interface IDutchAuction is IMinter {
     error AddressZero();
     error Ended();
     error InvalidAllocation();
+    error InvalidAmount();
     error InvalidPayment();
     error InvalidPrice();
     error InvalidStep();
@@ -14,6 +15,7 @@ interface IDutchAuction is IMinter {
     error InvalidToken();
     error InsufficientPrice();
     error InsufficientFunds();
+    error PricesOutOfOrder();
     error NotStarted();
     error TooMany();
 }

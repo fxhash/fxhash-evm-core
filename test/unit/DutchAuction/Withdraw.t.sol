@@ -7,6 +7,7 @@ contract Withdraw is DutchAuctionTest {
     uint256 internal quantity = 1;
 
     function test_withdraw() public {
+        (,uint256 price) = dutchAuction.getPrice(fxGenArtProxy);
         dutchAuction.buy{value: price}(fxGenArtProxy, quantity, alice);
         uint256 beforeBalance = creator.balance;
         dutchAuction.withdraw(fxGenArtProxy);
@@ -15,8 +16,7 @@ contract Withdraw is DutchAuctionTest {
     }
 
     function test_RevertsIf_Token0() public {
-        dutchAuction.buy{value: price}(fxGenArtProxy, quantity, alice);
-        vm.expectRevert(INSUFFICIENT_FUNDS_ERROR);
+        vm.expectRevert(INVALID_TOKEN_ERROR);
         dutchAuction.withdraw(address(0));
     }
 }

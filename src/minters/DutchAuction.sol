@@ -26,25 +26,32 @@ contract DutchAuction is IDutchAuction {
 
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintData) external {
         DAInfo memory daInfo = abi.decode(_mintData, (DAInfo));
-        require(
-            daInfo.prices.length * daInfo.stepLength == _reserve.endTime - _reserve.startTime,
-            "Invalid length"
-        );
-        require(_reserve.startTime > block.timestamp, "invalid startTime");
-        require(_reserve.allocation > 0, "invalid allocation");
+
+        if (_reserve.startTime > _reserve.endTime) revert InvalidTimes();
+        if (_reserve.startTime > _reserve.endTime) revert InvalidTimes();
+        if (!(daInfo.prices.length * daInfo.stepLength == _reserve.endTime - _reserve.startTime)) revert InvalidStep();
+
+        require(daInfo.prices.length > 1, "Invalid Price curve");
+        for (uint256 i =1; i < daInfo.prices.length; i++) { 
+            if (!(daInfo.prices[i-1] > daInfo.prices[i])) revert PricesOutOfOrder();
+        }
+        if (block.timestamp >= _reserve.startTime) revert InvalidTimes();
+        if (_reserve.allocation == 0) revert InvalidAllocation();
         reserves[msg.sender] = _reserve;
         auctionInfo[msg.sender] = daInfo;
     }
 
     function buy(address _token, uint256 _amount, address _to) external payable {
         ReserveInfo storage reserve = reserves[_token];
+        if (_to == address(0)) revert AddressZero();
+        if (_amount == 0) revert InvalidAmount();
         if (NULL_RESERVE == keccak256(abi.encode(reserve))) revert InvalidToken();
         if (block.timestamp < reserve.startTime) revert NotStarted();
         if (block.timestamp > reserve.endTime) revert Ended();
         if (_amount > reserve.allocation) revert TooMany();
 
         (, uint256 price) = getPrice(_token);
-        if (msg.value != price) revert InsufficientPrice();
+        if (msg.value != price * _amount) revert InvalidPayment();
 
         reserve.allocation -= _amount.safeCastTo128();
         saleProceeds[_token] += price * _amount;
@@ -60,13 +67,16 @@ contract DutchAuction is IDutchAuction {
     }
 
     function withdraw(address _token) external {
+        if (_token == address(0)) revert InvalidToken();
         (, address saleReceiver) = IFxGenArt721(_token).issuerInfo();
         uint256 proceeds = saleProceeds[_token];
+        if (proceeds == 0) revert InsufficientFunds();
         delete saleProceeds[_token];
         SafeTransferLib.safeTransferETH(saleReceiver, proceeds);
     }
 
     function getPrice(address _token) public view virtual returns (uint256 step, uint256 price) {
+        if (block.timestamp < reserves[_token].startTime) revert NotStarted();
         uint256 timeSinceStart = block.timestamp - reserves[_token].startTime;
         step = timeSinceStart / auctionInfo[_token].stepLength;
         if (step >= auctionInfo[_token].prices.length) revert InvalidStep();
