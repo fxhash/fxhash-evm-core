@@ -48,8 +48,10 @@ contract OwnerTest is FxGenArt721Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_ToggleMint() public {
+        assertTrue(project.enabled);
+
         _toggleMint(creator);
-        assertEq(project.enabled, !enabled);
+        assertFalse(project.enabled);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -57,8 +59,10 @@ contract OwnerTest is FxGenArt721Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_ToggleOnchain() public {
+        assertTrue(project.onchain);
+
         _toggleOnchain(creator);
-        assertEq(project.onchain, !onchain);
+        assertFalse(project.onchain);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

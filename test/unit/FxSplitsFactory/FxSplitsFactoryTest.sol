@@ -15,7 +15,7 @@ contract FxSplitsFactoryTest is BaseTest {
     error InvalidSplit__InvalidDistributorFee(uint32 distributorFee);
 
     function setUp() public virtual override {
+        super.setUp();
         _mock0xSplits();
-        splitsFactory = new FxSplitsFactory();
     }
 }
