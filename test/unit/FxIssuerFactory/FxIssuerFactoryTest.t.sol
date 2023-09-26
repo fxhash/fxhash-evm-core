@@ -59,7 +59,7 @@ contract FxIssuerFactoryTest is BaseTest {
         configInfo.feeShare = CONFIG_FEE_SHARE;
         configInfo.lockTime = CONFIG_LOCK_TIME;
         configInfo.defaultMetadata = CONFIG_DEFAULT_METADATA;
-        vm.prank(admin);
+        vm.prank(fxIssuerFactory.owner());
         fxIssuerFactory.setConfig(configInfo);
         (feeShare, lockTime, defaultMetadata) = fxIssuerFactory.configInfo();
         assertEq(feeShare, configInfo.feeShare);
@@ -68,7 +68,7 @@ contract FxIssuerFactoryTest is BaseTest {
     }
 
     function testSetImplementation() public {
-        vm.prank(admin);
+        vm.prank(fxIssuerFactory.owner());
         fxIssuerFactory.setImplementation(address(fxGenArt721));
         assertEq(fxIssuerFactory.implementation(), address(fxGenArt721));
     }

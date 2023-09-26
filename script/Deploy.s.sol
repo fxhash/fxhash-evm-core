@@ -121,26 +121,26 @@ contract Deploy is Script {
                                   CONFIGURATIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _configureInfo() internal {
+    function _configureInfo() internal virtual {
         configInfo.feeShare = CONFIG_FEE_SHARE;
         configInfo.lockTime = CONFIG_LOCK_TIME;
         configInfo.defaultMetadata = CONFIG_DEFAULT_METADATA;
     }
 
-    function _configureProject() internal {
+    function _configureProject() internal virtual {
         projectInfo.enabled = true;
         projectInfo.onchain = true;
         projectInfo.supply = MAX_SUPPLY;
         projectInfo.contractURI = CONTRACT_URI;
     }
 
-    function _configureMetdata() internal {
+    function _configureMetdata() internal virtual {
         metadataInfo.baseURI = BASE_URI;
         metadataInfo.imageURI = IMAGE_URI;
         metadataInfo.animation = animation;
     }
 
-    function _configureMinters() internal {
+    function _configureMinters() internal virtual {
         mintInfo.push(
             MintInfo({
                 minter: address(fixedPrice),
@@ -154,7 +154,7 @@ contract Deploy is Script {
         );
     }
 
-    function _configureRoyalties() internal {
+    function _configureRoyalties() internal virtual {
         royaltyReceivers.push(payable(admin));
         royaltyReceivers.push(payable(creator));
         royaltyReceivers.push(payable(tokenMod));
@@ -165,7 +165,7 @@ contract Deploy is Script {
         basisPoints.push(ROYALTY_BPS * 4);
     }
 
-    function _configureScripty() internal {
+    function _configureScripty() internal virtual {
         headTags.push(
             HTMLTag({
                 name: CSS_CANVAS_SCRIPT,
@@ -218,7 +218,7 @@ contract Deploy is Script {
         animation.bodyTags = bodyTags;
     }
 
-    function _configureSplits() internal {
+    function _configureSplits() internal virtual {
         if (creator < admin) {
             accounts.push(creator);
             accounts.push(admin);
@@ -232,7 +232,7 @@ contract Deploy is Script {
         }
     }
 
-    function _configureState() internal {
+    function _configureState() internal virtual {
         price = 1 gwei;
         amount = 10;
         tokenId = 1;
@@ -242,22 +242,45 @@ contract Deploy is Script {
                                     DEPLOYMENTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _deployContracts() internal {
-        fxContractRegistry = new FxContractRegistry();
-        fxRoleRegistry = new FxRoleRegistry();
-        fxSplitsFactory = new FxSplitsFactory();
-        fxPseudoRandomizer = new FxPseudoRandomizer();
-        fxTokenRenderer = new FxTokenRenderer(
-            ETHFS_FILE_STORAGE,
-            SCRIPTY_STORAGE_V2,
-            SCRIPTY_BUILDER_V2
-        );
-        fxGenArt721 = new FxGenArt721(
-            address(fxContractRegistry),
-            address(fxRoleRegistry)
-        );
-        fxIssuerFactory = new FxIssuerFactory(address(fxGenArt721), configInfo);
-        fixedPrice = new FixedPrice();
+    function _deployContracts() internal virtual {
+        bytes32 salt = keccak256("TEMP_SALT");
+        bytes memory creationCode = type(FxContractRegistry).creationCode;
+        bytes memory constructorArgs = abi.encode(admin);
+        fxContractRegistry = FxContractRegistry(_deployCreate2(creationCode, constructorArgs, salt));
+
+        creationCode = type(FxRoleRegistry).creationCode;
+        constructorArgs = abi.encode(admin);
+        fxRoleRegistry = FxRoleRegistry(_deployCreate2(creationCode, constructorArgs, salt));
+
+        creationCode = type(FxSplitsFactory).creationCode;
+        fxSplitsFactory = FxSplitsFactory(_deployCreate2(creationCode, salt));
+
+        creationCode = type(FxPseudoRandomizer).creationCode;
+        fxPseudoRandomizer = FxPseudoRandomizer(_deployCreate2(creationCode, salt));
+
+        creationCode = type(FxTokenRenderer).creationCode;
+        constructorArgs = abi.encode(ETHFS_FILE_STORAGE, SCRIPTY_STORAGE_V2, SCRIPTY_BUILDER_V2);
+        fxTokenRenderer = FxTokenRenderer(_deployCreate2(creationCode, constructorArgs, salt));
+
+        creationCode = type(FxGenArt721).creationCode;
+        constructorArgs = abi.encode(address(fxContractRegistry), address(fxRoleRegistry));
+        fxGenArt721 = FxGenArt721(_deployCreate2(creationCode, constructorArgs, salt));
+
+        creationCode = type(FxIssuerFactory).creationCode;
+        constructorArgs = abi.encode(address(fxGenArt721), configInfo);
+        fxIssuerFactory = FxIssuerFactory(_deployCreate2(creationCode, constructorArgs, salt));
+
+        creationCode = type(FixedPrice).creationCode;
+        fixedPrice = FixedPrice(_deployCreate2(creationCode, salt));
+
+        vm.label(address(fxContractRegistry), "FxContractRegistry");
+        vm.label(address(fxRoleRegistry), "FxRoleRegistry");
+        vm.label(address(fxSplitsFactory), "FxSplitsFactory");
+        vm.label(address(fxPseudoRandomizer), "FxPseudoRandomizer");
+        vm.label(address(fxTokenRenderer), "FxTokenRenderer");
+        vm.label(address(fxGenArt721), "FxGenArt721");
+        vm.label(address(fxIssuerFactory), "FxIssuerFactory");
+        vm.label(address(fixedPrice), "FixedPrice");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -266,13 +289,12 @@ contract Deploy is Script {
 
     function _createAccounts() internal {
         admin = msg.sender;
-        creator = _createUser("creator");
-        minter = _createUser("minter");
-        tokenMod = _createUser("tokenMod");
-        userMod = _createUser("userMod");
+        creator = makeAddr("creator");
+        tokenMod = makeAddr("tokenMod");
+        userMod = makeAddr("userMod");
     }
 
-    function _createProject() internal {
+    function _createProject() internal virtual {
         fxGenArtProxy = fxIssuerFactory.createProject(
             creator,
             primaryReceiver,
@@ -284,7 +306,7 @@ contract Deploy is Script {
         );
     }
 
-    function _createSplit() internal {
+    function _createSplit() internal virtual {
         primaryReceiver = fxSplitsFactory.createSplit(accounts, allocations);
     }
 
@@ -292,7 +314,7 @@ contract Deploy is Script {
                                     SETTERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _registerContracts() internal {
+    function _registerContracts() internal virtual {
         names.push(FX_CONTRACT_REGISTRY);
         names.push(FX_GEN_ART_721);
         names.push(FX_ISSUER_FACTORY);
@@ -312,13 +334,13 @@ contract Deploy is Script {
         fxContractRegistry.register(names, contracts);
     }
 
-    function _registerRoles() internal {
+    function _registerRoles() internal virtual {
         fxRoleRegistry.grantRole(MINTER_ROLE, address(fixedPrice));
         fxRoleRegistry.grantRole(TOKEN_MODERATOR_ROLE, tokenMod);
         fxRoleRegistry.grantRole(USER_MODERATOR_ROLE, userMod);
     }
 
-    function _setContracts() internal {
+    function _setContracts() internal virtual {
         FxGenArt721(fxGenArtProxy).setRandomizer(address(fxPseudoRandomizer));
         FxGenArt721(fxGenArtProxy).setRenderer(address(fxTokenRenderer));
     }
@@ -327,7 +349,36 @@ contract Deploy is Script {
                                     HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _createUser(string memory _user) internal pure returns (address) {
-        return address(uint160(uint256(keccak256(abi.encodePacked(_user)))));
+    function _deployCreate2(bytes memory creationCode, bytes memory constructorArgs, bytes32 salt)
+        internal
+        returns (address deployedAddress)
+    {
+        (bool success, bytes memory response) =
+            CREATE2_FACTORY.call(bytes.concat(salt, creationCode, constructorArgs));
+        deployedAddress = address(bytes20(response));
+        require(success, "deployment failed");
+    }
+
+    function _deployCreate2(bytes memory creationCode, bytes32 salt)
+        internal
+        returns (address deployedAddress)
+    {
+        deployedAddress = _deployCreate2(creationCode, "", salt);
+    }
+
+    function _computeCreate2Address(
+        bytes memory creationCode,
+        bytes memory constructorArgs,
+        bytes32 salt
+    ) internal pure {
+        computeCreate2Address(salt, hashInitCode(creationCode, constructorArgs));
+    }
+
+    function _initCode(bytes memory creationCode, bytes memory constructorArgs)
+        internal
+        pure
+        returns (bytes memory)
+    {
+        return bytes.concat(creationCode, constructorArgs);
     }
 }

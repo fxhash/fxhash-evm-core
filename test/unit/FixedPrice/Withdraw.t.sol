@@ -8,16 +8,16 @@ contract Withdraw is FixedPriceTest {
     uint256 internal mintId = 0;
 
     function test_withdraw() public {
-        sale.buy{value: price}(fxGenArtProxy, mintId, quantity, alice);
-        uint256 beforeBalance = creator.balance;
-        sale.withdraw(fxGenArtProxy);
-        uint256 afterBalance = creator.balance;
+        fixedPrice.buy{value: price}(fxGenArtProxy, mintId, quantity, alice);
+        uint256 beforeBalance = primaryReceiver.balance;
+        fixedPrice.withdraw(fxGenArtProxy);
+        uint256 afterBalance = primaryReceiver.balance;
         assertEq(beforeBalance + price, afterBalance);
     }
 
     function test_RevertsIf_Token0() public {
-        sale.buy{value: price}(fxGenArtProxy, mintId, quantity, alice);
+        fixedPrice.buy{value: price}(fxGenArtProxy, mintId, quantity, alice);
         vm.expectRevert(INSUFFICIENT_FUNDS_ERROR);
-        sale.withdraw(address(0));
+        fixedPrice.withdraw(address(0));
     }
 }
