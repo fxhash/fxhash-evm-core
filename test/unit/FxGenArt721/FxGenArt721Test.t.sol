@@ -11,9 +11,6 @@ contract FxGenArt721Test is BaseTest {
     ProjectInfo internal project;
     address internal splits;
     uint240 internal supply;
-    uint256 internal amount;
-    bool internal enabled;
-    bool internal onchain;
 
     // Errors
     bytes4 internal ALLOCATION_EXCEEDED_ERROR = IFxGenArt721.AllocationExceeded.selector;
@@ -36,8 +33,10 @@ contract FxGenArt721Test is BaseTest {
         _configureScripty();
         _configureMetdata();
         _registerMinter(admin, minter);
-        _createSplit(creator);
-        _createProject(creator);
+        _configureSplits();
+        _createSplit();
+        _createProject();
+        _setIssuerInfo();
     }
 
     function test_Implementation() public {
@@ -46,131 +45,13 @@ contract FxGenArt721Test is BaseTest {
     }
 
     function test_Initialize() public {
-        assertEq(project.enabled, enabled);
-        assertEq(project.onchain, onchain);
-        assertEq(project.supply, MAX_SUPPLY);
-        assertEq(project.contractURI, CONTRACT_URI);
-        assertEq(splits, primaryReceiver);
-        assertEq(FxGenArt721(fxGenArtProxy).owner(), creator);
-        assertEq(IFxGenArt721(fxGenArtProxy).isMinter(minter), true);
-    }
-
-    function _configureProject() internal {
-        projectInfo.enabled = enabled;
-        projectInfo.onchain = onchain;
-        projectInfo.supply = MAX_SUPPLY;
-        projectInfo.contractURI = CONTRACT_URI;
-    }
-
-    function _configureMetdata() internal {
-        metadataInfo.baseURI = BASE_URI;
-        metadataInfo.imageURI = IMAGE_URI;
-        metadataInfo.animation = animation;
-    }
-
-    function _configureMinters() internal {
-        mintInfo.push(
-            MintInfo({
-                minter: minter,
-                reserveInfo: ReserveInfo({
-                    startTime: RESERVE_START_TIME,
-                    endTime: RESERVE_END_TIME,
-                    allocation: RESERVE_MINTER_ALLOCATION
-                }),
-                params: ""
-            })
-        );
-    }
-
-    function _configureRoyalties() internal {
-        royaltyReceivers.push(payable(alice));
-        royaltyReceivers.push(payable(bob));
-        royaltyReceivers.push(payable(eve));
-        royaltyReceivers.push(payable(susan));
-        basisPoints.push(ROYALTY_BPS);
-        basisPoints.push(ROYALTY_BPS * 2);
-        basisPoints.push(ROYALTY_BPS * 3);
-        basisPoints.push(ROYALTY_BPS * 4);
-    }
-
-    function _createSplit(address _creator) internal prank(_creator) {
-        accounts.push(admin);
-        accounts.push(creator);
-        allocations.push(SPLITS_ADMIN_ALLOCATION);
-        allocations.push(SPLITS_CREATOR_ALLOCATION);
-        primaryReceiver = ISplitsMain(SPLITS_MAIN).createSplit(
-            accounts, allocations, SPLITS_DISTRIBUTOR_FEE, SPLITS_CONTROLLER
-        );
-    }
-
-    function _configureScripty() internal {
-        headTags.push(
-            HTMLTag({
-                name: CSS_CANVAS_SCRIPT,
-                contractAddress: ETHFS_FILE_STORAGE,
-                contractData: bytes(""),
-                tagType: HTMLTagType.useTagOpenAndClose,
-                tagOpen: TAG_OPEN,
-                tagClose: TAG_CLOSE,
-                tagContent: bytes("")
-            })
-        );
-
-        bodyTags.push(
-            HTMLTag({
-                name: P5_JS_SCRIPT,
-                contractAddress: ETHFS_FILE_STORAGE,
-                contractData: bytes(""),
-                tagType: HTMLTagType.scriptGZIPBase64DataURI,
-                tagOpen: bytes(""),
-                tagClose: bytes(""),
-                tagContent: bytes("")
-            })
-        );
-
-        bodyTags.push(
-            HTMLTag({
-                name: GUNZIP_JS_SCRIPT,
-                contractAddress: ETHFS_FILE_STORAGE,
-                contractData: bytes(""),
-                tagType: HTMLTagType.scriptBase64DataURI,
-                tagOpen: bytes(""),
-                tagClose: bytes(""),
-                tagContent: bytes("")
-            })
-        );
-
-        bodyTags.push(
-            HTMLTag({
-                name: POINTS_AND_LINES_SCRIPT,
-                contractAddress: SCRIPTY_STORAGE_V2,
-                contractData: bytes(""),
-                tagType: HTMLTagType.script,
-                tagOpen: bytes(""),
-                tagClose: bytes(""),
-                tagContent: bytes("")
-            })
-        );
-
-        animation.headTags = headTags;
-        animation.bodyTags = bodyTags;
-    }
-
-    function _createProject(address _creator) internal prank(_creator) {
-        fxGenArtProxy = fxIssuerFactory.createProject(
-            creator,
-            primaryReceiver,
-            projectInfo,
-            metadataInfo,
-            mintInfo,
-            royaltyReceivers,
-            basisPoints
-        );
-        _setIssuerInfo();
-    }
-
-    function _registerMinter(address _admin, address _minter) internal prank(_admin) {
-        fxRoleRegistry.grantRole(MINTER_ROLE, _minter);
+        assertTrue(project.enabled, "project not enabled");
+        assertTrue(project.onchain, "project not onchain");
+        assertEq(project.supply, MAX_SUPPLY, "max supply unequal");
+        assertEq(project.contractURI, CONTRACT_URI, "contract URI mismatch");
+        assertEq(splits, primaryReceiver, "primary receiver not splits address");
+        assertEq(FxGenArt721(fxGenArtProxy).owner(), creator, "owner isn't creator");
+        assertEq(IFxGenArt721(fxGenArtProxy).isMinter(minter), true, "minter isn't approved minter");
     }
 
     function _setGenArtInfo(uint256 _tokenId) internal {
@@ -188,5 +69,19 @@ contract FxGenArt721Test is BaseTest {
     function _toggleMint(address _creator) internal prank(_creator) {
         IFxGenArt721(fxGenArtProxy).toggleMint();
         _setIssuerInfo();
+    }
+
+    function _configureMinters() internal override {
+        mintInfo.push(
+            MintInfo({
+                minter: address(minter),
+                reserveInfo: ReserveInfo({
+                    startTime: RESERVE_START_TIME,
+                    endTime: RESERVE_END_TIME,
+                    allocation: RESERVE_ADMIN_ALLOCATION
+                }),
+                params: ""
+            })
+        );
     }
 }
