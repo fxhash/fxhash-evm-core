@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+import {ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
+
 // Contracts
 bytes32 constant FX_CONTRACT_REGISTRY = keccak256("FxContractRegistry");
 bytes32 constant FX_GEN_ART_721 = keccak256("FxGenArt721");
@@ -41,3 +43,5 @@ uint96 constant FEE_DENOMINATOR = 10_000;
 
 // EIP712 Type Hashses
 bytes32 constant CLAIM_TYPEHASH = keccak256("Claim(uint256 index,address user,bytes mintCode)");
+
+bytes32 constant NULL_RESERVE = keccak256(abi.encode(ReserveInfo(0, 0, 0)));

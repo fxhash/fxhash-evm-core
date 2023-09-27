@@ -5,23 +5,42 @@ import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IDutchAuction} from "src/interfaces/IDutchAuction.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
+import "src/utils/Constants.sol";
 
+/**
+ * @title DutchAuction
+ * @dev A contract for Dutch auction minting.
+ */
 contract DutchAuction is IDutchAuction {
     using SafeCastLib for uint256;
 
-    struct DAInfo {
-        uint256[] prices;
-        uint256 stepLength;
-        bool refunded;
-    }
-
-    bytes32 internal constant NULL_RESERVE = keccak256(abi.encode(ReserveInfo(0, 0, 0)));
+    /**
+     * @dev Mapping to store the Dutch auction info for each token
+     */
     mapping(address => DAInfo) public auctionInfo;
+
+    /**
+     * @dev Mapping to store the reserve information for each token
+     */
     mapping(address => ReserveInfo) public reserves;
+
+    /**
+     * @dev Mapping to store the sale proceeds for each token
+     */
     mapping(address => uint256) public saleProceeds;
-    /// Refund related info
+    /**
+     * @dev Mapping to store the cumulative mints for each buyer and token
+     */
     mapping(address => mapping(address => uint256)) public cumulativeMints;
+
+    /**
+     * @dev Mapping to store the cumulative mint costs for each buyer and token
+     */
     mapping(address => mapping(address => uint256)) public cumulativeMintCost;
+
+    /**
+     * @dev Mapping to store the last price of each token
+     */
     mapping(address => uint256) public lastPrice;
 
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintData) external {
@@ -29,16 +48,20 @@ contract DutchAuction is IDutchAuction {
 
         if (_reserve.startTime > _reserve.endTime) revert InvalidTimes();
         if (_reserve.startTime > _reserve.endTime) revert InvalidTimes();
-        if (!(daInfo.prices.length * daInfo.stepLength == _reserve.endTime - _reserve.startTime)) revert InvalidStep();
+        if (!(daInfo.prices.length * daInfo.stepLength == _reserve.endTime - _reserve.startTime)) {
+            revert InvalidStep();
+        }
 
         require(daInfo.prices.length > 1, "Invalid Price curve");
-        for (uint256 i =1; i < daInfo.prices.length; i++) { 
-            if (!(daInfo.prices[i-1] > daInfo.prices[i])) revert PricesOutOfOrder();
+        for (uint256 i = 1; i < daInfo.prices.length; i++) {
+            if (!(daInfo.prices[i - 1] > daInfo.prices[i])) revert PricesOutOfOrder();
         }
         if (block.timestamp >= _reserve.startTime) revert InvalidTimes();
         if (_reserve.allocation == 0) revert InvalidAllocation();
         reserves[msg.sender] = _reserve;
         auctionInfo[msg.sender] = daInfo;
+
+        emit DutchAuctionMintDetails(msg.sender, _reserve, daInfo);
     }
 
     function buy(address _token, uint256 _amount, address _to) external payable {
@@ -54,12 +77,12 @@ contract DutchAuction is IDutchAuction {
         if (msg.value != price * _amount) revert InvalidPayment();
 
         reserve.allocation -= _amount.safeCastTo128();
-        if (reserve.allocation == 0 && auctionInfo[_token].refunded) {
-            lastPrice[_token] = price;
-        }
+        if (reserve.allocation == 0 && auctionInfo[_token].refunded) lastPrice[_token] = price;
         cumulativeMints[_token][msg.sender] += _amount;
         cumulativeMintCost[_token][msg.sender] += price * _amount;
         saleProceeds[_token] += price * _amount;
+        emit Purchase(_token, msg.sender, _to, _amount, price);
+
         IFxGenArt721(_token).mint(_to, _amount);
     }
 
@@ -73,6 +96,9 @@ contract DutchAuction is IDutchAuction {
         delete cumulativeMints[_token][_who];
         uint256 refundAmount = userCost - numMinted * lastPrice[_token];
         if (refundAmount == 0) revert NoRefund();
+
+        emit RefundClaimed(_token, _who, refundAmount);
+        SafeTransferLib.safeTransferETH(_who, refundAmount);
     }
 
     function withdraw(address _token) external {
@@ -81,6 +107,8 @@ contract DutchAuction is IDutchAuction {
         uint256 proceeds = saleProceeds[_token];
         if (proceeds == 0) revert InsufficientFunds();
         delete saleProceeds[_token];
+        emit SaleProceedsWithdrawn(_token, saleReceiver, proceeds);
+
         SafeTransferLib.safeTransferETH(saleReceiver, proceeds);
     }
 
