@@ -26,6 +26,7 @@ contract FixedPrice is IFixedPrice {
         if (price == 0) revert InvalidPrice();
         prices[msg.sender].push(price);
         reserves[msg.sender].push(_reserve);
+        emit FixedPriceMintDetails(msg.sender, price, _reserve);
     }
 
     /// @inheritdoc IFixedPrice
@@ -41,6 +42,7 @@ contract FixedPrice is IFixedPrice {
         reserve.allocation -= _amount.safeCastTo128();
         saleProceeds[_token] += price;
         IFxGenArt721(_token).mint(_to, _amount);
+        emit Purchase(_token, _mintId, _amount, _to, price);
     }
 
     /// @inheritdoc IFixedPrice
@@ -50,5 +52,6 @@ contract FixedPrice is IFixedPrice {
         (, address saleReceiver) = IFxGenArt721(_token).issuerInfo();
         delete saleProceeds[_token];
         SafeTransferLib.safeTransferETH(saleReceiver, proceeds);
+        emit Withdrawn(_token, proceeds);
     }
 }
