@@ -2,7 +2,7 @@
 pragma solidity 0.8.20;
 
 import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
-import {IDutchAuction} from "src/interfaces/IDutchAuction.sol";
+import {IDutchAuction, IMinter} from "src/interfaces/IDutchAuction.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 import "src/utils/Constants.sol";
@@ -19,30 +19,22 @@ contract DutchAuction is IDutchAuction {
      */
     mapping(address => DAInfo) public auctionInfo;
 
-    /**
-     * @dev Mapping to store the reserve information for each token
-     */
+    /// @inheritdoc IDutchAuction
     mapping(address => ReserveInfo) public reserves;
 
-    /**
-     * @dev Mapping to store the sale proceeds for each token
-     */
+    /// @inheritdoc IDutchAuction
     mapping(address => uint256) public saleProceeds;
-    /**
-     * @dev Mapping to store the cumulative mints for each buyer and token
-     */
+
+    /// @inheritdoc IDutchAuction
     mapping(address => mapping(address => uint256)) public cumulativeMints;
 
-    /**
-     * @dev Mapping to store the cumulative mint costs for each buyer and token
-     */
+    /// @inheritdoc IDutchAuction
     mapping(address => mapping(address => uint256)) public cumulativeMintCost;
 
-    /**
-     * @dev Mapping to store the last price of each token
-     */
+    /// @inheritdoc IDutchAuction
     mapping(address => uint256) public lastPrice;
 
+    /// @inheritdoc IMinter
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintData) external {
         DAInfo memory daInfo = abi.decode(_mintData, (DAInfo));
 
@@ -64,6 +56,7 @@ contract DutchAuction is IDutchAuction {
         emit DutchAuctionMintDetails(msg.sender, _reserve, daInfo);
     }
 
+    /// @inheritdoc IDutchAuction
     function buy(address _token, uint256 _amount, address _to) external payable {
         ReserveInfo storage reserve = reserves[_token];
         if (_to == address(0)) revert AddressZero();
@@ -86,6 +79,7 @@ contract DutchAuction is IDutchAuction {
         IFxGenArt721(_token).mint(_to, _amount);
     }
 
+    /// @inheritdoc IDutchAuction
     function refund(address _token, address _who) external {
         if (_token == address(0)) revert InvalidToken();
         if (_who == address(0)) revert AddressZero();
@@ -101,6 +95,7 @@ contract DutchAuction is IDutchAuction {
         SafeTransferLib.safeTransferETH(_who, refundAmount);
     }
 
+    /// @inheritdoc IDutchAuction
     function withdraw(address _token) external {
         if (_token == address(0)) revert InvalidToken();
         (, address saleReceiver) = IFxGenArt721(_token).issuerInfo();
@@ -112,6 +107,7 @@ contract DutchAuction is IDutchAuction {
         SafeTransferLib.safeTransferETH(saleReceiver, proceeds);
     }
 
+    /// @inheritdoc IDutchAuction
     function getPrice(address _token) public view virtual returns (uint256 step, uint256 price) {
         if (block.timestamp < reserves[_token].startTime) revert NotStarted();
         uint256 timeSinceStart = block.timestamp - reserves[_token].startTime;

@@ -150,13 +150,6 @@ interface IDutchAuction is IMinter {
     function refund(address _token, address _who) external;
 
     /**
-     * @notice Sets the mint details for a Dutch auction
-     * @param _reserve The reserve info of the Dutch auction
-     * @param _mintData The encoded Dutch auction info
-     */
-    function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintData) external;
-
-    /**
      * @notice Allows the sale proceeds to be withdraw to the primary sale receiver for a token
      * @param _token The address of the token sold by the dutch auction
      */
