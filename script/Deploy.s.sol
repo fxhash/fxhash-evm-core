@@ -287,7 +287,7 @@ contract Deploy is Script {
                                     CREATE
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _createAccounts() internal {
+    function _createAccounts() internal virtual {
         admin = msg.sender;
         creator = makeAddr("creator");
         tokenMod = makeAddr("tokenMod");

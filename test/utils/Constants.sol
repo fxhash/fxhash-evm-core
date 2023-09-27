@@ -2,7 +2,7 @@
 pragma solidity 0.8.20;
 
 // Allowlist
-uint256 constant PRICE = 0.1 ether;
+uint256 constant PRICE = 1 ether;
 
 // Balances
 uint256 constant INITIAL_BALANCE = 1000 ether;
@@ -30,5 +30,5 @@ uint64 constant RESERVE_MINTER_ALLOCATION = 500;
 uint96 constant ROYALTY_BPS = 500;
 
 // Mint Ticket
-uint256 constant INITIAL_PRICE = 100 ether;
+uint256 constant DEPOSIT_AMOUNT = 0.0027 ether;
 uint256 constant TIME_SINCE_START = 1 days;

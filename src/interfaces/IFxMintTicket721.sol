@@ -9,7 +9,7 @@ struct TaxInfo {
 }
 
 interface IFxMintTicket721 {
-    event TicketInitialized(address indexed _owner, address indexed _genArt721);
+    event TicketInitialized(address indexed _genArt721, uint48 indexed _gracePeriod);
     event Claimed(
         uint256 indexed _tokenId,
         address indexed _claimer,
@@ -22,7 +22,7 @@ interface IFxMintTicket721 {
         uint256 indexed _amount,
         uint256 _newForeclosure
     );
-    event PriceSet(uint256 indexed _tokenId, address indexed _owner, uint128 indexed _newPrice);
+    event SetPrice(uint256 indexed _tokenId, address indexed _owner, uint128 indexed _newPrice);
     event Withdraw(address indexed _caller, address indexed _to, uint256 indexed _balance);
 
     error Foreclosure();
@@ -42,13 +42,13 @@ interface IFxMintTicket721 {
 
     function claim(uint256 _tokenId, uint128 _newPrice) external payable;
 
-    function initialize(address _genArt721, address _owner, uint48 _gracePeriod) external;
+    function initialize(address _owner, address _genArt721, uint48 _gracePeriod) external;
 
     function isForeclosed(uint256 _tokenId) external view returns (bool);
 
     function isMinter(address _minter) external view returns (bool);
 
-    function mint(address _to, uint256 _amount) external payable;
+    function mint(address _to, uint256 _amount, uint256 _payment) external;
 
     function deposit(uint256 _tokenId) external payable;
 

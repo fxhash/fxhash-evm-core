@@ -19,6 +19,8 @@ import {
     TEN_MINUTES
 } from "src/utils/Constants.sol";
 
+import "forge-std/Test.sol";
+
 contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
     using Strings for uint256;
 
@@ -56,7 +58,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
                                 INITIALIZATION
     //////////////////////////////////////////////////////////////////////////*/
 
-    function initialize(address _genArt721, address _owner, uint48 _gracePeriod)
+    function initialize(address _owner, address _genArt721, uint48 _gracePeriod)
         external
         initializer
     {
@@ -64,18 +66,16 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         gracePeriod = _gracePeriod;
         _transferOwnership(_owner);
 
-        emit TicketInitialized(_owner, _genArt721);
+        emit TicketInitialized(_genArt721, _gracePeriod);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                 PUBLIC FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function mint(address _to, uint256 _amount) external payable onlyMinter {
-        // Updates balance of contract owner with total mint price
-        balances[owner()] += msg.value;
+    function mint(address _to, uint256 _amount, uint256 _payment) external onlyMinter {
         // Calculates listing price per token
-        uint256 listingPrice = msg.value / _amount;
+        uint256 listingPrice = _payment / _amount;
 
         unchecked {
             for (uint256 i; i < _amount; ++i) {
@@ -205,7 +205,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         // Reverts if token is foreclosed
         if (isForeclosed(_tokenId)) revert Foreclosure();
         // Reverts if new price is less than the minimum price
-        if (_newPrice == MINIMUM_PRICE) revert InvalidPrice();
+        if (_newPrice < MINIMUM_PRICE) revert InvalidPrice();
 
         // Initializes tax info
         TaxInfo storage taxInfo = taxes[_tokenId];
@@ -229,10 +229,11 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         // Sets new tax info
         taxInfo.currentPrice = _newPrice;
         taxInfo.foreclosureTime =
-            _getForeclosureTime(newDailyTax, remainingDeposit, foreclosureTime);
+            _getForeclosureTime(newDailyTax, foreclosureTime, remainingDeposit);
         taxInfo.depositAmount = uint128(remainingDeposit);
 
-        emit PriceSet(_tokenId, msg.sender, _newPrice);
+        // Emits event for setting new price
+        emit SetPrice(_tokenId, msg.sender, _newPrice);
     }
 
     function withdraw(address _to) external {
@@ -240,6 +241,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         delete balances[_to];
         _transferFunds(_to, balance);
 
+        // Emits event for withdrawing balance
         emit Withdraw(msg.sender, _to, balance);
     }
 
@@ -266,7 +268,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
     }
 
     function isForeclosed(uint256 _tokenId) public view returns (bool) {
-        return block.timestamp > taxes[_tokenId].foreclosureTime;
+        return block.timestamp >= taxes[_tokenId].foreclosureTime;
     }
 
     function isMinter(address _minter) public view returns (bool) {
@@ -287,10 +289,13 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         virtual
         override
     {
-        // Reverts if token is foreclosed and caller is not this contract
-        if (isForeclosed(_tokenId) && msg.sender != address(this)) revert Foreclosure();
-        // Reverts if caller is not owner of token
-        if (_from != msg.sender) revert NotAuthorized();
+        // Check if token is being minted
+        if (_from != address(0)) {
+            // Reverts if token is foreclosed and caller is not this contract
+            if (isForeclosed(_tokenId) && msg.sender != address(this)) revert Foreclosure();
+            // Reverts if caller is not owner of token
+            if (!isForeclosed(_tokenId) && _from != msg.sender) revert NotAuthorized();
+        }
 
         return super._beforeTokenTransfer(_from, _to, _tokenId, _batchSize);
     }
@@ -319,9 +324,11 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         uint256 _foreclosureTime,
         uint256 _depositAmount
     ) internal view returns (uint256) {
-        uint256 timeElapsed = _foreclosureTime - block.timestamp;
-        uint256 owed = (timeElapsed * _dailyTax) / ONE_DAY;
-        return _depositAmount - owed;
+        uint256 depositEndTime = _foreclosureTime - _getElapsedDuration(_depositAmount, _dailyTax);
+        if (block.timestamp <= depositEndTime) return _depositAmount;
+        uint256 elapsedDuration = block.timestamp - depositEndTime;
+        uint256 amountOwed = (elapsedDuration * _dailyTax) / ONE_DAY;
+        return _depositAmount - amountOwed;
     }
 
     function _getDailyTax(uint256 _currentPrice) internal pure returns (uint256) {
@@ -338,12 +345,20 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         return _totalDeposit - totalAmount;
     }
 
-    function _getForeclosureTime(uint256 _dailyTax, uint256 _taxPayment, uint256 _foreclosureTime)
+    function _getForeclosureTime(uint256 _dailyTax, uint256 _foreclosureTime, uint256 _taxPayment)
         internal
         pure
         returns (uint128)
     {
-        uint256 secondsCovered = (_taxPayment * ONE_DAY) / _dailyTax;
+        uint256 secondsCovered = _getElapsedDuration(_taxPayment, _dailyTax);
         return uint128(_foreclosureTime + secondsCovered);
+    }
+
+    function _getElapsedDuration(uint256 _taxPayment, uint256 _dailyTax)
+        internal
+        pure
+        returns (uint256)
+    {
+        return (_taxPayment * ONE_DAY) / _dailyTax;
     }
 }

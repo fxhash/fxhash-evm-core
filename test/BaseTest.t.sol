@@ -29,6 +29,7 @@ import {
 } from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
+import {MockMinter} from "test/mocks/MockMinter.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
 contract BaseTest is Deploy, Test {
@@ -54,11 +55,12 @@ contract BaseTest is Deploy, Test {
     receive() external payable {}
 
     function setUp() public virtual override {
-        createAccounts();
+        _createAccounts();
+        _initializeAccounts();
         _deployContracts();
     }
 
-    function createAccounts() public virtual {
+    function _createAccounts() internal virtual override {
         admin = makeAddr("admin");
         creator = makeAddr("creator");
         tokenMod = makeAddr("tokenMod");
@@ -67,6 +69,17 @@ contract BaseTest is Deploy, Test {
         bob = makeAddr("bob");
         eve = makeAddr("eve");
         susan = makeAddr("susan");
+    }
+
+    function _initializeAccounts() internal virtual {
+        vm.deal(admin, INITIAL_BALANCE);
+        vm.deal(creator, INITIAL_BALANCE);
+        vm.deal(tokenMod, INITIAL_BALANCE);
+        vm.deal(userMod, INITIAL_BALANCE);
+        vm.deal(alice, INITIAL_BALANCE);
+        vm.deal(bob, INITIAL_BALANCE);
+        vm.deal(eve, INITIAL_BALANCE);
+        vm.deal(susan, INITIAL_BALANCE);
     }
 
     function _mock0xSplits() internal {
