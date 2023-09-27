@@ -17,5 +17,6 @@ interface IDutchAuction is IMinter {
     error InsufficientFunds();
     error PricesOutOfOrder();
     error NotStarted();
+    error NoRefund();
     error TooMany();
 }

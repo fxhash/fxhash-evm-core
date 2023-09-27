@@ -59,6 +59,7 @@ contract DutchAuction is IDutchAuction {
     }
 
     function refund(address _token, address _who) external {
+        if (!(auctionInfo[_token].refunded && lastPrice[_token] > 0)) revert NoRefund();
         uint256 userCost = cumulativeMintCost[_token][_who];
         uint256 numMinted = cumulativeMints[_token][_who];
         delete cumulativeMintCost[_token][_who];
