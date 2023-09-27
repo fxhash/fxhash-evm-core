@@ -14,9 +14,7 @@ import "src/utils/Constants.sol";
 contract DutchAuction is IDutchAuction {
     using SafeCastLib for uint256;
 
-    /**
-     * @dev Mapping to store the Dutch auction info for each token
-     */
+    /// @inheritdoc IDutchAuction
     mapping(address => DAInfo) public auctionInfo;
 
     /// @inheritdoc IDutchAuction

@@ -163,7 +163,11 @@ interface IDutchAuction is IMinter {
      */
     function getPrice(address _token) external view returns (uint256, uint256);
 
-    // function auctionInfo(address _token) external view returns (uint256[] memory, uint256, bool);
+    /**
+     * @notice Mapping to store the Dutch auction info for each token
+     * @param _token The address of the token
+     */
+    function auctionInfo(address _token) external view returns (uint256, bool);
 
     /**
      * @notice Retrieves the reserve info for a token
