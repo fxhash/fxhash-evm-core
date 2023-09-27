@@ -54,17 +54,25 @@ contract DutchAuction is IDutchAuction {
         if (msg.value != price * _amount) revert InvalidPayment();
 
         reserve.allocation -= _amount.safeCastTo128();
+        if (reserve.allocation == 0 && auctionInfo[_token].refunded) {
+            lastPrice[_token] = price;
+        }
+        cumulativeMints[_token][msg.sender] += _amount;
+        cumulativeMintCost[_token][msg.sender] += price * _amount;
         saleProceeds[_token] += price * _amount;
         IFxGenArt721(_token).mint(_to, _amount);
     }
 
     function refund(address _token, address _who) external {
+        if (_token == address(0)) revert InvalidToken();
+        if (_who == address(0)) revert AddressZero();
         if (!(auctionInfo[_token].refunded && lastPrice[_token] > 0)) revert NoRefund();
         uint256 userCost = cumulativeMintCost[_token][_who];
         uint256 numMinted = cumulativeMints[_token][_who];
         delete cumulativeMintCost[_token][_who];
         delete cumulativeMints[_token][_who];
         uint256 refundAmount = userCost - numMinted * lastPrice[_token];
+        if (refundAmount == 0) revert NoRefund();
     }
 
     function withdraw(address _token) external {

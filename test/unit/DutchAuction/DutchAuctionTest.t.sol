@@ -18,6 +18,7 @@ contract DutchAuctionTest is BaseTest {
     bytes4 internal ADDRESS_ZERO_ERROR = IDutchAuction.AddressZero.selector;
     bytes4 internal INSUFFICIENT_FUNDS_ERROR = IDutchAuction.InsufficientFunds.selector;
     bytes4 internal PRICES_OUT_OF_ORDER_ERROR = IDutchAuction.PricesOutOfOrder.selector;
+    bytes4 internal NO_REFUND_ERROR = IDutchAuction.NoRefund.selector;
     DutchAuction internal dutchAuction;
     DutchAuction internal refundableDA;
     uint256[] internal prices;
