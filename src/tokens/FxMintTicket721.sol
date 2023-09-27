@@ -293,7 +293,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         if (_from != address(0)) {
             // Reverts if token is foreclosed and caller is not this contract
             if (isForeclosed(_tokenId) && msg.sender != address(this)) revert Foreclosure();
-            // Reverts if caller is not owner of token
+            // Reverts if token is not foreclosed and caller is not owner of token
             if (!isForeclosed(_tokenId) && _from != msg.sender) revert NotAuthorized();
         }
 
@@ -324,7 +324,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         uint256 _foreclosureTime,
         uint256 _depositAmount
     ) internal view returns (uint256) {
-        uint256 depositEndTime = _foreclosureTime - _getElapsedDuration(_depositAmount, _dailyTax);
+        uint256 depositEndTime = _foreclosureTime - _getTaxDuration(_depositAmount, _dailyTax);
         if (block.timestamp <= depositEndTime) return _depositAmount;
         uint256 elapsedDuration = block.timestamp - depositEndTime;
         uint256 amountOwed = (elapsedDuration * _dailyTax) / ONE_DAY;
@@ -350,11 +350,11 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         pure
         returns (uint128)
     {
-        uint256 secondsCovered = _getElapsedDuration(_taxPayment, _dailyTax);
+        uint256 secondsCovered = _getTaxDuration(_taxPayment, _dailyTax);
         return uint128(_foreclosureTime + secondsCovered);
     }
 
-    function _getElapsedDuration(uint256 _taxPayment, uint256 _dailyTax)
+    function _getTaxDuration(uint256 _taxPayment, uint256 _dailyTax)
         internal
         pure
         returns (uint256)
