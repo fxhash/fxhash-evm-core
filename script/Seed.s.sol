@@ -25,6 +25,7 @@ contract Seed is Deploy {
 
         IFxGenArt721(fxGenArtProxy).toggleMint();
         IFxGenArt721(fxGenArtProxy).setRandomizer(address(fxPseudoRandomizer));
+        IFxGenArt721(fxGenArtProxy).setRenderer(address(fxTokenRenderer));
         for (uint256 i; i < 20; i++) {
             IFxGenArt721(fxGenArtProxy).ownerMint(msg.sender);
         }
