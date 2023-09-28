@@ -36,6 +36,8 @@ interface IFxMintTicket721 {
     error UnauthorizedAccount();
     error UnregisteredMinter();
 
+    function balances(address) external view returns (uint256);
+
     function baseURI() external view returns (string memory);
 
     function burn(uint256 _tokenId, address _operator) external;

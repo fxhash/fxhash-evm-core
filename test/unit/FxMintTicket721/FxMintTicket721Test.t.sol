@@ -49,158 +49,6 @@ contract FxMintTicket721Test is FxGenArt721Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                    MINT
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function testMint() public {
-        _mint(alice, bob, amount, PRICE);
-        _setTaxInfo();
-        assertEq(FxMintTicket721(fxMintTicketProxy).ownerOf(tokenId), bob);
-        assertEq(gracePeriod, block.timestamp + ONE_DAY);
-        assertEq(foreclosureTime, block.timestamp + ONE_DAY);
-        assertEq(currentPrice, PRICE);
-        assertEq(depositAmount, 0);
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                    BURN
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function testBurn() public {
-        testMint();
-        _burn(minter, tokenId, bob);
-        _setTaxInfo();
-        assertEq(gracePeriod, 0);
-        assertEq(foreclosureTime, 0);
-        assertEq(currentPrice, 0);
-        assertEq(depositAmount, 0);
-    }
-
-    function testBurn_RevertsWhen_NotAuthorized() public {
-        testMint();
-        vm.expectRevert(NOT_AUTHORIZED_TICKET_ERROR);
-        _burn(minter, tokenId, alice);
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                    DEPOSIT
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function testDeposit() public {
-        testMint();
-        _deposit(bob, tokenId, DEPOSIT_AMOUNT);
-        _setTaxInfo();
-        assertEq(foreclosureTime, block.timestamp + (ONE_DAY * 2));
-        assertEq(depositAmount, DEPOSIT_AMOUNT);
-    }
-
-    function testDeposit_RevertsWhen_InsufficientDeposit() public {
-        testMint();
-        vm.expectRevert(INSUFFICIENT_DEPOSIT_ERROR);
-        _deposit(bob, tokenId, DEPOSIT_AMOUNT - 1);
-    }
-
-    function testDeposit_ExcessAmount() public {
-        testMint();
-        _deposit(bob, tokenId, DEPOSIT_AMOUNT + excessAmount);
-        _setTaxInfo();
-        assertEq(foreclosureTime, block.timestamp + (ONE_DAY * 2));
-        assertEq(depositAmount, DEPOSIT_AMOUNT);
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                SET PRICE
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function testSetPrice() public {
-        testDeposit();
-        _setPrice(bob, tokenId, newPrice);
-        _setTaxInfo();
-        assertEq(foreclosureTime, block.timestamp + (ONE_DAY * 4));
-        assertEq(currentPrice, newPrice);
-        assertEq(depositAmount, DEPOSIT_AMOUNT);
-    }
-
-    function testSetPrice_RevertsWhen_NotAuthorized() public {
-        testDeposit();
-        vm.expectRevert(NOT_AUTHORIZED_TICKET_ERROR);
-        _setPrice(alice, tokenId, newPrice);
-    }
-
-    function testSetPrice_RevertsWhen_Foreclosure() public {
-        testDeposit();
-        vm.warp(foreclosureTime);
-        vm.expectRevert(FORECLOSURE_ERROR);
-        _setPrice(bob, tokenId, newPrice);
-    }
-
-    function testSetPrice_RevertsWhen_InvalidPrice() public {
-        testDeposit();
-        vm.expectRevert(INVALID_PRICE_ERROR);
-        _setPrice(bob, tokenId, uint128(MINIMUM_PRICE - 1));
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                    CLAIM
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function testClaim_ListingPrice() public {
-        testDeposit();
-        vm.warp(gracePeriod + 1);
-        _claim(alice, tokenId, newPrice, PRICE + DEPOSIT_AMOUNT);
-        _setTaxInfo();
-        assertEq(FxMintTicket721(fxMintTicketProxy).ownerOf(tokenId), alice);
-        assertEq(foreclosureTime, block.timestamp + (ONE_DAY * 2));
-        assertEq(currentPrice, newPrice);
-        assertEq(depositAmount, DEPOSIT_AMOUNT);
-    }
-
-    function testClaim_AuctionPrice() public {
-        testDeposit();
-        vm.warp(foreclosureTime + TEN_MINUTES);
-        _setAuctionPrice();
-        _claim(alice, tokenId, newPrice, auctionPrice + DEPOSIT_AMOUNT);
-        _setTaxInfo();
-        assertEq(FxMintTicket721(fxMintTicketProxy).ownerOf(tokenId), alice);
-        assertEq(foreclosureTime, block.timestamp + (ONE_DAY * 2));
-        assertEq(currentPrice, newPrice);
-        assertEq(depositAmount, DEPOSIT_AMOUNT);
-    }
-
-    function testClaim_RevertsWhen_GracePeriodActive() public {
-        testDeposit();
-        vm.expectRevert(GRACE_PERIOD_ACTIVE_ERROR);
-        _claim(alice, tokenId, newPrice, PRICE + DEPOSIT_AMOUNT);
-    }
-
-    function testClaim_RevertsWhen_InsufficientPayment() public {
-        testDeposit();
-        vm.warp(gracePeriod + 1);
-        vm.expectRevert(INSUFFICIENT_PAYMENT_ERROR);
-        _claim(alice, tokenId, newPrice, PRICE + (DEPOSIT_AMOUNT / 2) - 1);
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                BEFORE TOKEN TRANSFER
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function testTransfer_RevertsWhen_ForeclosureActive() public {
-        testDeposit();
-        vm.warp(foreclosureTime);
-        vm.expectRevert(FORECLOSURE_ERROR);
-        _transferFrom(bob, bob, alice, tokenId);
-    }
-
-    function testTransfer_RevertsWhen_ForeclosureInactive() public {
-        testDeposit();
-        _setApprovalForAll(bob, alice, true);
-        vm.expectRevert(NOT_AUTHORIZED_TICKET_ERROR);
-        _transferFrom(alice, bob, alice, tokenId);
-    }
-
-    function testTransfer_RevertsWhen_NotContract() public {}
-
-    /*//////////////////////////////////////////////////////////////////////////
                                     HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -217,7 +65,7 @@ contract FxMintTicket721Test is FxGenArt721Test {
     }
 
     function _createTicket() internal {
-        fxMintTicketProxy = fxTicketFactory.createTicket(admin, fxGenArtProxy, uint48(ONE_DAY));
+        fxMintTicketProxy = fxTicketFactory.createTicket(creator, fxGenArtProxy, uint48(ONE_DAY));
     }
 
     function _mint(address _minter, address _to, uint256 _amount, uint256 _payment)
@@ -264,6 +112,10 @@ contract FxMintTicket721Test is FxGenArt721Test {
         prank(_sender)
     {
         FxMintTicket721(fxMintTicketProxy).transferFrom(_from, _to, _tokenId);
+    }
+
+    function _withdraw(address _caller, address _to) internal prank(_caller) {
+        IFxMintTicket721(fxMintTicketProxy).withdraw(_to);
     }
 
     function _setTaxInfo() internal {

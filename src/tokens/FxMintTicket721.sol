@@ -7,6 +7,7 @@ import {IFxGenArt721, MintInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxMintTicket721, TaxInfo} from "src/interfaces/IFxMintTicket721.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
 import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
+import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
 import {
@@ -18,8 +19,6 @@ import {
     SCALING_FACTOR,
     TEN_MINUTES
 } from "src/utils/Constants.sol";
-
-import "forge-std/Test.sol";
 
 contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
     using Strings for uint256;
@@ -125,6 +124,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         uint256 currentPrice = taxInfo.currentPrice;
         uint256 totalDeposit = taxInfo.depositAmount;
         uint256 foreclosureTime = taxInfo.foreclosureTime;
+        address previousOwner = _ownerOf(_tokenId);
 
         // Gets current daily tax amount for current price
         uint256 currentDailyTax = getDailyTax(currentPrice);
@@ -141,9 +141,6 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         if (isForeclosed(_tokenId)) {
             // Gets current auction price
             uint256 auctionPrice = getAuctionPrice(currentPrice, foreclosureTime);
-            console.log("MSG.VALUE", msg.value);
-            console.log("AUCTION PRICE", auctionPrice);
-            console.log("NEW DAILY TAX", newDailyTax);
             // Reverts if payment amount is insufficient to auction price and new daily tax
             if (msg.value < auctionPrice + newDailyTax) revert InsufficientPayment();
             // Updates balance of contract owner
@@ -151,13 +148,11 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
             // Sets new deposit amount based on auction price
             taxInfo.depositAmount = uint128(msg.value - auctionPrice);
         } else {
-            console.log("MSG.VALUE", msg.value);
-            console.log("CURRENT PRICE", currentPrice);
-            console.log("NEW DAILY TAX", newDailyTax);
             // Reverts if payment amount if insufficient to current price and new daily tax
             if (msg.value < currentPrice + newDailyTax) revert InsufficientPayment();
-            // Updates balance of contract owner
+            // Updates balances of contract owner and previous owner
             balances[owner()] += depositOwed;
+            balances[previousOwner] += currentPrice + remainingDeposit;
             // Sets new deposit amount based on current price
             taxInfo.depositAmount = uint128(msg.value - currentPrice);
         }
@@ -168,11 +163,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
             getForeclosureTime(newDailyTax, block.timestamp, taxInfo.depositAmount);
 
         // Transfers token from previous owner to new owner
-        address previousOwner = _ownerOf(_tokenId);
         this.transferFrom(previousOwner, msg.sender, _tokenId);
-
-        // Updates balance of previous token owner
-        balances[previousOwner] += currentPrice + remainingDeposit;
 
         // Emits event for claiming ticket
         emit Claimed(_tokenId, msg.sender, _newPrice, msg.value);
@@ -202,7 +193,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         emit Deposited(_tokenId, msg.sender, depositAmount, newForeclosure);
 
         // Transfers any excess tax amount back to depositer
-        if (excessAmount > 0) _transferFunds(msg.sender, excessAmount);
+        if (excessAmount > 0) SafeTransferLib.safeTransferETH(msg.sender, excessAmount);
     }
 
     function setPrice(uint256 _tokenId, uint128 _newPrice) public {
@@ -244,9 +235,8 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
     function withdraw(address _to) external {
         uint256 balance = balances[_to];
         delete balances[_to];
-        _transferFunds(_to, balance);
+        SafeTransferLib.safeTransferETH(_to, balance);
 
-        // Emits event for withdrawing balance
         emit Withdraw(msg.sender, _to, balance);
     }
 
@@ -342,8 +332,8 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
      * @dev Tokens can only be transferred when either of these conditions is met:
      * 1) This contract executes transfer when token is claimed at auction price
      * 2) This contract executes transfer when token is claimed at listing price
-     * 3) Owner executes public transfer when token is not in foreclosure
-     * 4) Minter executes public burn when token is not in foreclosure
+     * 3) Contract owner executes public transfer when token is not in foreclosure
+     * 4) Registered minter executes public burn when token is not in foreclosure
      */
     function _beforeTokenTransfer(
         address _from,
@@ -361,15 +351,9 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
                 if (msg.sender == address(this) || msg.sender == _from || isMinter(msg.sender)) {
                     return;
                 }
-
                 // Reverts otherwise
                 revert NotAuthorized();
             }
         }
-    }
-
-    function _transferFunds(address _to, uint256 _amount) internal {
-        (bool success,) = _to.call{value: _amount}("");
-        if (!success) revert TransferFailed();
     }
 }
