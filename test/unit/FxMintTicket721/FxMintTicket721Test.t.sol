@@ -63,6 +63,26 @@ contract FxMintTicket721Test is FxGenArt721Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
+                                    BURN
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function testBurn() public {
+        testMint();
+        _burn(minter, tokenId, bob);
+        _setTaxInfo();
+        assertEq(gracePeriod, 0);
+        assertEq(foreclosureTime, 0);
+        assertEq(currentPrice, 0);
+        assertEq(depositAmount, 0);
+    }
+
+    function testBurn_RevertsWhen_NotAuthorized() public {
+        testMint();
+        vm.expectRevert(NOT_AUTHORIZED_TICKET_ERROR);
+        _burn(minter, tokenId, alice);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                                     DEPOSIT
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -205,6 +225,10 @@ contract FxMintTicket721Test is FxGenArt721Test {
         prank(_minter)
     {
         MockMinter(minter).mintTicket(fxMintTicketProxy, _to, _amount, _payment);
+    }
+
+    function _burn(address _minter, uint256 _tokenId, address _operator) internal prank(_minter) {
+        MockMinter(minter).burnTicket(fxMintTicketProxy, _tokenId, _operator);
     }
 
     function _deposit(address _depositer, uint256 _tokenId, uint256 _amount)

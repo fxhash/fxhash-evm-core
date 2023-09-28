@@ -93,9 +93,12 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         }
     }
 
-    function burn(uint256 _tokenId) external onlyMinter {
-        // Reverts if caller is not owner or approved
-        if (!_isApprovedOrOwner(msg.sender, _tokenId)) revert NotAuthorized();
+    function burn(uint256 _tokenId, address _operator) external onlyMinter {
+        // Reverts if operator is not owner or approved
+        if (!_isApprovedOrOwner(_operator, _tokenId)) revert NotAuthorized();
+
+        // Burns token
+        _burn(_tokenId);
 
         // Loads current tax info
         TaxInfo memory taxInfo = taxes[_tokenId];
@@ -112,9 +115,6 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         if (excessTax > 0) balances[_ownerOf(_tokenId)] += excessTax;
         // Updates balance of contract owner with deposit amount owed
         balances[owner()] += taxInfo.depositAmount - excessTax;
-
-        // Burns token
-        _burn(_tokenId);
     }
 
     function claim(uint256 _tokenId, uint128 _newPrice) external payable {
@@ -343,6 +343,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
      * 1) This contract executes transfer when token is claimed at auction price
      * 2) This contract executes transfer when token is claimed at listing price
      * 3) Owner executes public transfer when token is not in foreclosure
+     * 4) Minter executes public burn when token is not in foreclosure
      */
     function _beforeTokenTransfer(
         address _from,
@@ -356,8 +357,11 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
             if (isForeclosed(_tokenId) && msg.sender != address(this)) revert Foreclosure();
             // Checks if token is not foreclosed
             if (!isForeclosed(_tokenId)) {
-                // Returns if caller is either owner or this contract
-                if (msg.sender == address(this) || msg.sender == _from) return;
+                // Returns if caller is either owner, this contract or registered minter
+                if (msg.sender == address(this) || msg.sender == _from || isMinter(msg.sender)) {
+                    return;
+                }
+
                 // Reverts otherwise
                 revert NotAuthorized();
             }

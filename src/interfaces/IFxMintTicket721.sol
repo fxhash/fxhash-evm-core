@@ -38,7 +38,7 @@ interface IFxMintTicket721 {
 
     function baseURI() external view returns (string memory);
 
-    function burn(uint256 _tokenId) external;
+    function burn(uint256 _tokenId, address _operator) external;
 
     function claim(uint256 _tokenId, uint128 _newPrice) external payable;
 

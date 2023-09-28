@@ -14,4 +14,8 @@ contract MockMinter {
     function mintTicket(address _ticket, address _to, uint256 _amount, uint256 _payment) external {
         IFxMintTicket721(_ticket).mint(_to, _amount, _payment);
     }
+
+    function burnTicket(address _ticket, uint256 _tokenId, address _operator) external {
+        IFxMintTicket721(_ticket).burn(_tokenId, _operator);
+    }
 }
