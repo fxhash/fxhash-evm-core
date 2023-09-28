@@ -21,12 +21,13 @@ contract FxMintTicket721Test is FxGenArt721Test {
 
     // State
     address fxMintTicketProxy;
+    uint256 auctionPrice;
     uint256 excessAmount;
     uint128 newPrice;
 
     // Errors
     bytes4 internal FORECLOSURE_ERROR = IFxMintTicket721.Foreclosure.selector;
-    bytes4 internal GRACE_PERIOD_ERROR = IFxMintTicket721.GracePeriodActive.selector;
+    bytes4 internal GRACE_PERIOD_ACTIVE_ERROR = IFxMintTicket721.GracePeriodActive.selector;
     bytes4 internal INSUFFICIENT_DEPOSIT_ERROR = IFxMintTicket721.InsufficientDeposit.selector;
     bytes4 internal INSUFFICIENT_PAYMENT_ERROR = IFxMintTicket721.InsufficientPayment.selector;
     bytes4 internal INVALID_DURATION_ERROR = IFxMintTicket721.InvalidDuration.selector;
@@ -123,13 +124,61 @@ contract FxMintTicket721Test is FxGenArt721Test {
                                     CLAIM
     //////////////////////////////////////////////////////////////////////////*/
 
-    function testClaim() public {
+    function testClaim_ListingPrice() public {
         testDeposit();
         vm.warp(gracePeriod + 1);
         _claim(alice, tokenId, newPrice, PRICE + DEPOSIT_AMOUNT);
-        vm.prank(alice);
-        FxMintTicket721(fxMintTicketProxy).transferFrom(alice, bob, tokenId);
+        _setTaxInfo();
+        assertEq(FxMintTicket721(fxMintTicketProxy).ownerOf(tokenId), alice);
+        assertEq(foreclosureTime, block.timestamp + (ONE_DAY * 2));
+        assertEq(currentPrice, newPrice);
+        assertEq(depositAmount, DEPOSIT_AMOUNT);
     }
+
+    function testClaim_AuctionPrice() public {
+        testDeposit();
+        vm.warp(foreclosureTime + TEN_MINUTES);
+        _setAuctionPrice();
+        _claim(alice, tokenId, newPrice, auctionPrice + DEPOSIT_AMOUNT);
+        _setTaxInfo();
+        assertEq(FxMintTicket721(fxMintTicketProxy).ownerOf(tokenId), alice);
+        assertEq(foreclosureTime, block.timestamp + (ONE_DAY * 2));
+        assertEq(currentPrice, newPrice);
+        assertEq(depositAmount, DEPOSIT_AMOUNT);
+    }
+
+    function testClaim_RevertsWhen_GracePeriodActive() public {
+        testDeposit();
+        vm.expectRevert(GRACE_PERIOD_ACTIVE_ERROR);
+        _claim(alice, tokenId, newPrice, PRICE + DEPOSIT_AMOUNT);
+    }
+
+    function testClaim_RevertsWhen_InsufficientPayment() public {
+        testDeposit();
+        vm.warp(gracePeriod + 1);
+        vm.expectRevert(INSUFFICIENT_PAYMENT_ERROR);
+        _claim(alice, tokenId, newPrice, PRICE + (DEPOSIT_AMOUNT / 2) - 1);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                BEFORE TOKEN TRANSFER
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function testTransfer_RevertsWhen_ForeclosureActive() public {
+        testDeposit();
+        vm.warp(foreclosureTime);
+        vm.expectRevert(FORECLOSURE_ERROR);
+        _transferFrom(bob, bob, alice, tokenId);
+    }
+
+    function testTransfer_RevertsWhen_ForeclosureInactive() public {
+        testDeposit();
+        _setApprovalForAll(bob, alice, true);
+        vm.expectRevert(NOT_AUTHORIZED_TICKET_ERROR);
+        _transferFrom(alice, bob, alice, tokenId);
+    }
+
+    function testTransfer_RevertsWhen_NotContract() public {}
 
     /*//////////////////////////////////////////////////////////////////////////
                                     HELPERS
@@ -179,8 +228,26 @@ contract FxMintTicket721Test is FxGenArt721Test {
         IFxMintTicket721(fxMintTicketProxy).claim{value: _payment}(_tokenId, _newPrice);
     }
 
+    function _setApprovalForAll(address _owner, address _operator, bool _approval)
+        internal
+        prank(_owner)
+    {
+        FxMintTicket721(fxMintTicketProxy).setApprovalForAll(_operator, _approval);
+    }
+
+    function _transferFrom(address _sender, address _from, address _to, uint256 _tokenId)
+        internal
+        prank(_sender)
+    {
+        FxMintTicket721(fxMintTicketProxy).transferFrom(_from, _to, _tokenId);
+    }
+
     function _setTaxInfo() internal {
         (gracePeriod, foreclosureTime, currentPrice, depositAmount) =
             FxMintTicket721(fxMintTicketProxy).taxes(tokenId);
+    }
+
+    function _setAuctionPrice() internal {
+        auctionPrice = IFxMintTicket721(fxMintTicketProxy).getAuctionPrice(PRICE, foreclosureTime);
     }
 }

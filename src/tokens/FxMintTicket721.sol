@@ -141,6 +141,9 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         if (isForeclosed(_tokenId)) {
             // Gets current auction price
             uint256 auctionPrice = getAuctionPrice(currentPrice, foreclosureTime);
+            console.log("MSG.VALUE", msg.value);
+            console.log("AUCTION PRICE", auctionPrice);
+            console.log("NEW DAILY TAX", newDailyTax);
             // Reverts if payment amount is insufficient to auction price and new daily tax
             if (msg.value < auctionPrice + newDailyTax) revert InsufficientPayment();
             // Updates balance of contract owner
@@ -148,6 +151,9 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
             // Sets new deposit amount based on auction price
             taxInfo.depositAmount = uint128(msg.value - auctionPrice);
         } else {
+            console.log("MSG.VALUE", msg.value);
+            console.log("CURRENT PRICE", currentPrice);
+            console.log("NEW DAILY TAX", newDailyTax);
             // Reverts if payment amount if insufficient to current price and new daily tax
             if (msg.value < currentPrice + newDailyTax) revert InsufficientPayment();
             // Updates balance of contract owner
@@ -159,7 +165,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         // Sets new tax info
         taxInfo.currentPrice = _newPrice;
         taxInfo.foreclosureTime =
-            getForeclosureTime(newDailyTax, taxInfo.depositAmount, block.timestamp);
+            getForeclosureTime(newDailyTax, block.timestamp, taxInfo.depositAmount);
 
         // Transfers token from previous owner to new owner
         address previousOwner = _ownerOf(_tokenId);
@@ -256,6 +262,11 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
                                 READ FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
+        _requireMinted(_tokenId);
+        return string.concat(baseURI, _tokenId.toString());
+    }
+
     function isApprovedForAll(address _owner, address _operator)
         public
         view
@@ -297,12 +308,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         if (block.timestamp <= depositEndTime) return _depositAmount;
         uint256 elapsedDuration = block.timestamp - depositEndTime;
         uint256 amountOwed = (elapsedDuration * _dailyTax) / ONE_DAY;
-        return _depositAmount - amountOwed;
-    }
-
-    function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
-        _requireMinted(_tokenId);
-        return string.concat(baseURI, _tokenId.toString());
+        return (_depositAmount < amountOwed) ? _depositAmount : _depositAmount - amountOwed;
     }
 
     function getDailyTax(uint256 _currentPrice) public pure returns (uint256) {
@@ -332,6 +338,12 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
                                 INTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /**
+     * @dev Tokens can only be transferred when either of these conditions is met:
+     * 1) This contract executes transfer when token is claimed at auction price
+     * 2) This contract executes transfer when token is claimed at listing price
+     * 3) Owner executes public transfer when token is not in foreclosure
+     */
     function _beforeTokenTransfer(
         address _from,
         address, /* _to */
@@ -342,9 +354,13 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         if (_from != address(0)) {
             // Reverts if token is foreclosed and caller is not this contract
             if (isForeclosed(_tokenId) && msg.sender != address(this)) revert Foreclosure();
-            // Reverts if token is not foreclosed and caller is not owner of token or this contract
-            if (!isForeclosed(_tokenId) && msg.sender == _from) return;
-            if (!isForeclosed(_tokenId) && msg.sender != address(this)) revert NotAuthorized();
+            // Checks if token is not foreclosed
+            if (!isForeclosed(_tokenId)) {
+                // Returns if caller is either owner or this contract
+                if (msg.sender == address(this) || msg.sender == _from) return;
+                // Reverts otherwise
+                revert NotAuthorized();
+            }
         }
     }
 

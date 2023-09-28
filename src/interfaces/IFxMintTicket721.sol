@@ -48,6 +48,34 @@ interface IFxMintTicket721 {
 
     function isMinter(address _minter) external view returns (bool);
 
+    function getAuctionPrice(uint256 _currentPrice, uint256 _foreclosureTime)
+        external
+        view
+        returns (uint256);
+
+    function getDailyTax(uint256 _currentPrice) external pure returns (uint256);
+
+    function getExcessTax(uint256 _totalDeposit, uint256 _dailyTax)
+        external
+        pure
+        returns (uint256);
+
+    function getForeclosureTime(uint256 _dailyTax, uint256 _foreclosureTime, uint256 _taxPayment)
+        external
+        pure
+        returns (uint128);
+
+    function getRemainingDeposit(
+        uint256 _dailyTax,
+        uint256 _foreclosureTime,
+        uint256 _depositAmount
+    ) external view returns (uint256);
+
+    function getTaxDuration(uint256 _taxPayment, uint256 _dailyTax)
+        external
+        pure
+        returns (uint256);
+
     function mint(address _to, uint256 _amount, uint256 _payment) external;
 
     function deposit(uint256 _tokenId) external payable;
