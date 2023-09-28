@@ -26,7 +26,7 @@ contract FixedPrice is IFixedPrice {
         if (price == 0) revert InvalidPrice();
         prices[msg.sender].push(price);
         reserves[msg.sender].push(_reserve);
-        emit FixedPriceMintDetails(msg.sender, price, _reserve);
+        emit MintDetailsSet(msg.sender, price, _reserve);
     }
 
     /// @inheritdoc IFixedPrice
