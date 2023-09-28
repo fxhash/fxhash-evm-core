@@ -2,8 +2,40 @@
 pragma solidity 0.8.20;
 
 import {IMinter} from "src/interfaces/IMinter.sol";
+import {ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 
 interface IFixedPrice is IMinter {
+    /**
+     * @notice Emitted when a new fixed price mint is added
+     * @param token The address of the token being minted
+     * @param price The fixed price for the mint
+     * @param reserve The reserve information for the mint
+     */
+    event MintDetailsSet(address indexed token, uint256 price, ReserveInfo reserve);
+
+    /**
+     * @notice Emitted when a purchase is made
+     * @param token The address of the token being purchased
+     * @param mintId The ID of the mint
+     * @param amount The amount of tokens being purchased
+     * @param to The address to which the tokens are being transferred
+     * @param price The price of the purchase
+     */
+    event Purchase(
+        address indexed token,
+        uint256 indexed mintId,
+        uint256 amount,
+        address indexed to,
+        uint256 price
+    );
+
+    /**
+     * @notice Emitted when proceeds are withdrawn
+     * @param token The address of the token
+     * @param proceeds The amount of proceeds being withdrawn
+     */
+    event Withdrawn(address indexed token, uint256 proceeds);
+
     /// @notice Thrown when *to* address is the zero address
     error AddressZero();
 
