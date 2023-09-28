@@ -293,8 +293,10 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         if (_from != address(0)) {
             // Reverts if token is foreclosed and caller is not this contract
             if (isForeclosed(_tokenId) && msg.sender != address(this)) revert Foreclosure();
-            // Reverts if token is not foreclosed and caller is not owner of token
-            if (!isForeclosed(_tokenId) && _from != msg.sender) revert NotAuthorized();
+            // Reverts if token is not foreclosed and caller is not owner of token or this contract
+            if (!isForeclosed(_tokenId) && (msg.sender != _from || msg.sender != address(this))) {
+                revert NotAuthorized();
+            }
         }
 
         return super._beforeTokenTransfer(_from, _to, _tokenId, _batchSize);
