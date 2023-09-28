@@ -163,7 +163,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
 
         // Transfers token from previous owner to new owner
         address previousOwner = _ownerOf(_tokenId);
-        transferFrom(previousOwner, msg.sender, _tokenId);
+        this.transferFrom(previousOwner, msg.sender, _tokenId);
 
         // Updates balance of previous token owner
         balances[previousOwner] += currentPrice + remainingDeposit;
@@ -332,22 +332,21 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
                                 INTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _beforeTokenTransfer(address _from, address _to, uint256 _tokenId, uint256 _batchSize)
-        internal
-        virtual
-        override
-    {
+    function _beforeTokenTransfer(
+        address _from,
+        address, /* _to */
+        uint256 _tokenId,
+        uint256 /* _batchSize */
+    ) internal virtual override {
         // Check if token is being minted
         if (_from != address(0)) {
             // Reverts if token is foreclosed and caller is not this contract
             if (isForeclosed(_tokenId) && msg.sender != address(this)) revert Foreclosure();
             // Reverts if token is not foreclosed and caller is not owner of token or this contract
-            if (!isForeclosed(_tokenId) && (_from != msg.sender || msg.sender != address(this))) {
-                revert NotAuthorized();
-            }
+            console.log("MSG SENDER", msg.sender);
+            console.log("NOT FORECLOSED", !isForeclosed(_tokenId));
+            if (!isForeclosed(_tokenId) && msg.sender != address(this)) revert NotAuthorized();
         }
-
-        return super._beforeTokenTransfer(_from, _to, _tokenId, _batchSize);
     }
 
     function _transferFunds(address _to, uint256 _amount) internal {

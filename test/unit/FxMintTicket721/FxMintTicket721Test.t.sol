@@ -120,6 +120,18 @@ contract FxMintTicket721Test is FxGenArt721Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
+                                    CLAIM
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function testClaim() public {
+        testDeposit();
+        vm.warp(gracePeriod + 1);
+        _claim(alice, tokenId, newPrice, PRICE + DEPOSIT_AMOUNT);
+        vm.prank(alice);
+        FxMintTicket721(fxMintTicketProxy).transferFrom(alice, bob, tokenId);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                                     HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -158,6 +170,13 @@ contract FxMintTicket721Test is FxGenArt721Test {
         prank(_owner)
     {
         IFxMintTicket721(fxMintTicketProxy).setPrice(_tokenId, _newPrice);
+    }
+
+    function _claim(address _claimer, uint256 _tokenId, uint128 _newPrice, uint256 _payment)
+        internal
+        prank(_claimer)
+    {
+        IFxMintTicket721(fxMintTicketProxy).claim{value: _payment}(_tokenId, _newPrice);
     }
 
     function _setTaxInfo() internal {
