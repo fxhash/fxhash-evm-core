@@ -13,10 +13,10 @@ contract Withdraw is FxMintTicket721Test {
         _setAuctionPrice();
         _claim(alice, tokenId, newPrice, auctionPrice + DEPOSIT_AMOUNT);
         _setTaxInfo();
+        _setBalance(creator);
     }
 
     function testWithdraw() public {
-        uint256 balance = IFxMintTicket721(fxMintTicketProxy).balances(creator);
         _withdraw(alice, creator);
         assertEq(balance, auctionPrice + DEPOSIT_AMOUNT);
         assertEq(IFxMintTicket721(fxMintTicketProxy).balances(creator), 0);

@@ -22,6 +22,7 @@ contract FxMintTicket721Test is FxGenArt721Test {
     // State
     address fxMintTicketProxy;
     uint256 auctionPrice;
+    uint256 balance;
     uint256 excessAmount;
     uint128 newPrice;
 
@@ -125,5 +126,9 @@ contract FxMintTicket721Test is FxGenArt721Test {
 
     function _setAuctionPrice() internal {
         auctionPrice = IFxMintTicket721(fxMintTicketProxy).getAuctionPrice(PRICE, foreclosureTime);
+    }
+
+    function _setBalance(address _wallet) internal {
+        balance = IFxMintTicket721(fxMintTicketProxy).balances(_wallet);
     }
 }
