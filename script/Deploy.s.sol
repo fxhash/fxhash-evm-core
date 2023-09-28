@@ -107,6 +107,11 @@ contract Deploy is Script {
 
     function run() public virtual {
         vm.startBroadcast();
+        _run();
+        vm.stopBroadcast();
+    }
+
+    function _run() internal virtual {
         _deployContracts();
         _configureMinters();
         _registerContracts();
@@ -114,7 +119,6 @@ contract Deploy is Script {
         _createSplit();
         _createProject();
         _setContracts();
-        vm.stopBroadcast();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
