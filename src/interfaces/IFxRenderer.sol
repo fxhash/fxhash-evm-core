@@ -6,10 +6,5 @@ import {GenArtInfo, MetadataInfo, ProjectInfo} from "src/interfaces/IFxGenArt721
 /// @title IFxRenderer
 /// @notice Interface for FxGenArt721 Tokens to interact with Renderers
 interface IFxRenderer {
-    function tokenURI(
-        uint256 _tokenId,
-        ProjectInfo memory _projectInfo,
-        MetadataInfo memory _metadataInfo,
-        GenArtInfo memory _genArtInfo
-    ) external returns (string memory);
+    function tokenURI(uint256 _tokenId, bytes calldata _data) external returns (string memory);
 }

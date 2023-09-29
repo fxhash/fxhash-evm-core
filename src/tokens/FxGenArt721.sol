@@ -233,10 +233,9 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, RoyaltyMan
     /// @inheritdoc ERC721
     function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
         _requireMinted(_tokenId);
+        bytes memory data = abi.encode(issuerInfo.projectInfo, metadataInfo, genArtInfo[_tokenId]);
 
-        return IFxScriptyRenderer(renderer).tokenURI(
-            _tokenId, issuerInfo.projectInfo, metadataInfo, genArtInfo[_tokenId]
-        );
+        return IFxScriptyRenderer(renderer).tokenURI(_tokenId, data);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
