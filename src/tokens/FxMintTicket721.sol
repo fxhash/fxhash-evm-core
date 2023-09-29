@@ -7,6 +7,7 @@ import {IFxGenArt721, MintInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxMintTicket721, TaxInfo} from "src/interfaces/IFxMintTicket721.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
 import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
+import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
@@ -20,7 +21,7 @@ import {
     TEN_MINUTES
 } from "src/utils/Constants.sol";
 
-contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
+contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pausable {
     using Strings for uint256;
 
     address public genArt721;
@@ -72,7 +73,11 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
                                 PUBLIC FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function mint(address _to, uint256 _amount, uint256 _payment) external onlyMinter {
+    function mint(address _to, uint256 _amount, uint256 _payment)
+        external
+        onlyMinter
+        whenNotPaused
+    {
         // Calculates listing price per token
         uint256 listingPrice = _payment / _amount;
 
@@ -92,7 +97,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
         }
     }
 
-    function burn(uint256 _tokenId, address _operator) external onlyMinter {
+    function burn(uint256 _tokenId, address _operator) external onlyMinter whenNotPaused {
         // Reverts if operator is not owner or approved
         if (!_isApprovedOrOwner(_operator, _tokenId)) revert NotAuthorized();
 
@@ -246,6 +251,14 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable {
 
     function setBaseURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
         baseURI = _uri;
+    }
+
+    function pause() external onlyRole(ADMIN_ROLE) {
+        _pause();
+    }
+
+    function unpause() external onlyRole(ADMIN_ROLE) {
+        _unpause();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
