@@ -7,26 +7,18 @@ import "script/Deploy.s.sol";
 contract Seed is Deploy {
     function _run() internal override {
         super._run();
+        creator = msg.sender;
         for (uint256 i; i < 20; i++) {
-            _createProject();
+            _seedData();
         }
     }
 
-    function _createProject() internal override {
-        fxGenArtProxy = fxIssuerFactory.createProject(
-            msg.sender,
-            primaryReceiver,
-            projectInfo,
-            metadataInfo,
-            mintInfo,
-            royaltyReceivers,
-            basisPoints
-        );
-
-        IFxGenArt721(fxGenArtProxy).toggleMint();
+    function _seedData() internal {
+        _createProject();
         _setContracts();
+        IFxGenArt721(fxGenArtProxy).toggleMint();
         for (uint256 i; i < 20; i++) {
-            IFxGenArt721(fxGenArtProxy).ownerMint(msg.sender);
+            IFxGenArt721(fxGenArtProxy).ownerMint(creator);
         }
     }
 }
