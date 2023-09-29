@@ -14,7 +14,7 @@ import {
     ReserveInfo
 } from "src/interfaces/IFxGenArt721.sol";
 import {IFxRandomizer} from "src/interfaces/IFxRandomizer.sol";
-import {IFxTokenRenderer} from "src/interfaces/IFxTokenRenderer.sol";
+import {IFxScriptyRenderer} from "src/interfaces/IFxScriptyRenderer.sol";
 import {IMinter} from "src/interfaces/IMinter.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
@@ -234,7 +234,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, RoyaltyMan
     function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
         _requireMinted(_tokenId);
 
-        return IFxTokenRenderer(renderer).tokenURI(
+        return IFxScriptyRenderer(renderer).tokenURI(
             _tokenId, issuerInfo.projectInfo, metadataInfo, genArtInfo[_tokenId]
         );
     }
