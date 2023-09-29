@@ -54,7 +54,7 @@ interface IFxIssuerFactory {
      * @param _owner Address of project owner
      * @param _primaryReceiver Address of splitter contract receiving primary sales
      * @param _projectInfo Project information
-     * @param _metadatInfo Metadata information
+     * @param _metadataInfo Metadata information
      * @param _mintInfo List of authorized minter contracts and their reserves
      * @param _royaltyReceivers List of addresses receiving royalties
      * @param _basisPoints List of basis points for calculating royalty shares
@@ -63,7 +63,7 @@ interface IFxIssuerFactory {
         address _owner,
         address _primaryReceiver,
         ProjectInfo calldata _projectInfo,
-        MetadataInfo calldata _metadatInfo,
+        MetadataInfo calldata _metadataInfo,
         MintInfo[] calldata _mintInfo,
         address payable[] calldata _royaltyReceivers,
         uint96[] calldata _basisPoints
