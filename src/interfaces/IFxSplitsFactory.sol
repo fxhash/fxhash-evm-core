@@ -17,11 +17,7 @@ interface IFxSplitsFactory {
      */
 
     event SplitsInfo(
-        address indexed _split,
-        address[] _accounts,
-        uint32[] _allocations,
-        address _controller,
-        uint32 _distributorFee
+        address indexed _split, address[] _accounts, uint32[] _allocations, address _controller, uint32 _distributorFee
     );
 
     /**
@@ -30,10 +26,7 @@ interface IFxSplitsFactory {
      * @param _allocations The array of allocations for each account
      * @return split Address of the deployed splits contract
      */
-    function createSplit(
-        address[] calldata _accounts,
-        uint32[] calldata _allocations
-    ) external returns (address);
+    function createSplit(address[] calldata _accounts, uint32[] calldata _allocations) external returns (address);
 
     /**
      * @notice Creates a deterministic split wallet

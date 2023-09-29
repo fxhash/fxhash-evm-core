@@ -17,11 +17,7 @@ import {FxPseudoRandomizer} from "src/randomizers/FxPseudoRandomizer.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 import {FxScriptyRenderer} from "src/renderers/FxScriptyRenderer.sol";
 import {FxSplitsFactory} from "src/factories/FxSplitsFactory.sol";
-import {
-    HTMLRequest,
-    HTMLTagType,
-    HTMLTag
-} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
+import {HTMLRequest, HTMLTagType, HTMLTag} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
 import {Script} from "forge-std/Script.sol";
 
 import "script/utils/Constants.sol";
@@ -300,13 +296,7 @@ contract Deploy is Script {
 
     function _createProject() internal virtual {
         fxGenArtProxy = fxIssuerFactory.createProject(
-            creator,
-            primaryReceiver,
-            projectInfo,
-            metadataInfo,
-            mintInfo,
-            royaltyReceivers,
-            basisPoints
+            creator, primaryReceiver, projectInfo, metadataInfo, mintInfo, royaltyReceivers, basisPoints
         );
     }
 
@@ -358,16 +348,12 @@ contract Deploy is Script {
         bytes memory constructorArgs,
         bytes32 salt
     ) internal returns (address deployedAddress) {
-        (bool success, bytes memory response) =
-            CREATE2_FACTORY.call(bytes.concat(salt, creationCode, constructorArgs));
+        (bool success, bytes memory response) = CREATE2_FACTORY.call(bytes.concat(salt, creationCode, constructorArgs));
         deployedAddress = address(bytes20(response));
         require(success, "deployment failed");
     }
 
-    function _deployCreate2(
-        bytes memory creationCode,
-        bytes32 salt
-    ) internal returns (address deployedAddress) {
+    function _deployCreate2(bytes memory creationCode, bytes32 salt) internal returns (address deployedAddress) {
         deployedAddress = _deployCreate2(creationCode, "", salt);
     }
 
@@ -379,10 +365,7 @@ contract Deploy is Script {
         computeCreate2Address(salt, hashInitCode(creationCode, constructorArgs));
     }
 
-    function _initCode(
-        bytes memory creationCode,
-        bytes memory constructorArgs
-    ) internal pure returns (bytes memory) {
+    function _initCode(bytes memory creationCode, bytes memory constructorArgs) internal pure returns (bytes memory) {
         return bytes.concat(creationCode, constructorArgs);
     }
 }

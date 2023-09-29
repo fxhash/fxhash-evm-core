@@ -20,10 +20,7 @@ abstract contract RoyaltyManager is IRoyaltyManager {
      * @param _basisPoints The basis points to calculate royalty payments (1/100th of a percent) for
      * each receiver
      */
-    function setBaseRoyalties(
-        address payable[] calldata _receivers,
-        uint96[] calldata _basisPoints
-    ) external {
+    function setBaseRoyalties(address payable[] calldata _receivers, uint96[] calldata _basisPoints) external {
         _setBaseRoyalties(_receivers, _basisPoints);
     }
 
@@ -138,10 +135,7 @@ abstract contract RoyaltyManager is IRoyaltyManager {
     }
 
     /// @dev Sets the base royalties for the contract
-    function _setBaseRoyalties(
-        address payable[] calldata _receivers,
-        uint96[] calldata _basisPoints
-    ) internal {
+    function _setBaseRoyalties(address payable[] calldata _receivers, uint96[] calldata _basisPoints) internal {
         delete baseRoyalties;
         if (_receivers.length != _basisPoints.length) revert LengthMismatch();
         _checkRoyalties(_basisPoints);

@@ -14,13 +14,7 @@ contract Seed is Deploy {
 
     function _createProject() internal override {
         fxGenArtProxy = fxIssuerFactory.createProject(
-            msg.sender,
-            primaryReceiver,
-            projectInfo,
-            metadataInfo,
-            mintInfo,
-            royaltyReceivers,
-            basisPoints
+            msg.sender, primaryReceiver, projectInfo, metadataInfo, mintInfo, royaltyReceivers, basisPoints
         );
 
         IFxGenArt721(fxGenArtProxy).toggleMint();

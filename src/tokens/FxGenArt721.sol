@@ -53,9 +53,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, RoyaltyMan
      * @dev Modifier for restricting calls to only registered contracts
      */
     modifier onlyContract(bytes32 _name) {
-        if (msg.sender != IFxContractRegistry(contractRegistry).contracts(_name)) {
-            revert UnauthorizedContract();
-        }
+        if (msg.sender != IFxContractRegistry(contractRegistry).contracts(_name)) revert UnauthorizedContract();
         _;
     }
 
@@ -151,9 +149,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, RoyaltyMan
 
     /// @inheritdoc IFxGenArt721
     function reduceSupply(uint240 _supply) external onlyOwner {
-        if (_supply >= issuerInfo.projectInfo.supply || _supply < totalSupply) {
-            revert InvalidAmount();
-        }
+        if (_supply >= issuerInfo.projectInfo.supply || _supply < totalSupply) revert InvalidAmount();
         issuerInfo.projectInfo.supply = _supply;
     }
 
@@ -221,12 +217,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, RoyaltyMan
     }
 
     /// @inheritdoc ERC721
-    function supportsInterface(bytes4 _interfaceId)
-        public
-        view
-        override(ERC721, RoyaltyManager)
-        returns (bool)
-    {
+    function supportsInterface(bytes4 _interfaceId) public view override(ERC721, RoyaltyManager) returns (bool) {
         return super.supportsInterface(_interfaceId);
     }
 
@@ -234,9 +225,8 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, RoyaltyMan
     function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
         _requireMinted(_tokenId);
 
-        return IFxScriptyRenderer(renderer).tokenURI(
-            _tokenId, issuerInfo.projectInfo, metadataInfo, genArtInfo[_tokenId]
-        );
+        return
+            IFxScriptyRenderer(renderer).tokenURI(_tokenId, issuerInfo.projectInfo, metadataInfo, genArtInfo[_tokenId]);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -255,9 +245,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, RoyaltyMan
             for (uint256 i; i < _mintInfo.length; ++i) {
                 minter = _mintInfo[i].minter;
                 reserveInfo = _mintInfo[i].reserveInfo;
-                if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) {
-                    revert UnauthorizedMinter();
-                }
+                if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) revert UnauthorizedMinter();
                 IMinter(minter).setMintDetails(reserveInfo, _mintInfo[i].params);
 
                 issuerInfo.minters[minter] = true;
@@ -269,12 +257,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, RoyaltyMan
     }
 
     /// @inheritdoc ERC721
-    function _exists(uint256 _tokenId)
-        internal
-        view
-        override(ERC721, RoyaltyManager)
-        returns (bool)
-    {
+    function _exists(uint256 _tokenId) internal view override(ERC721, RoyaltyManager) returns (bool) {
         return super._exists(_tokenId);
     }
 }

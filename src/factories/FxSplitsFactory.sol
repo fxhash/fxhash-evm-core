@@ -18,8 +18,7 @@ contract FxSplitsFactory is IFxSplitsFactory {
         split = ISplitsMain(SPLITS_MAIN).predictImmutableSplitAddress(_accounts, _allocations, 0);
         if (split.code.length != 0) revert SplitsExists();
         emit SplitsInfo(split, _accounts, _allocations, address(0), 0);
-        address actual =
-            ISplitsMain(SPLITS_MAIN).createSplit(_accounts, _allocations, 0, address(0));
+        address actual = ISplitsMain(SPLITS_MAIN).createSplit(_accounts, _allocations, 0, address(0));
         if (actual != split) revert InvalidSplit();
     }
 
