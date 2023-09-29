@@ -3,15 +3,7 @@ pragma solidity 0.8.20;
 
 import {FixedPrice} from "src/minters/FixedPrice.sol";
 import {FxContractRegistry} from "src/registries/FxContractRegistry.sol";
-import {
-    FxGenArt721,
-    GenArtInfo,
-    IssuerInfo,
-    MetadataInfo,
-    MintInfo,
-    ProjectInfo,
-    ReserveInfo
-} from "src/tokens/FxGenArt721.sol";
+import {FxGenArt721} from "src/tokens/FxGenArt721.sol";
 import {FxIssuerFactory, ConfigInfo} from "src/factories/FxIssuerFactory.sol";
 import {FxMintTicket721} from "src/tokens/FxMintTicket721.sol";
 import {FxPseudoRandomizer} from "src/randomizers/FxPseudoRandomizer.sol";
@@ -24,6 +16,15 @@ import {
     HTMLTagType,
     HTMLTag
 } from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
+import {
+    IFxGenArt721,
+    GenArtInfo,
+    IssuerInfo,
+    MetadataInfo,
+    MintInfo,
+    ProjectInfo,
+    ReserveInfo
+} from "src/interfaces/IFxGenArt721.sol";
 import {Script} from "forge-std/Script.sol";
 
 import "script/utils/Constants.sol";
