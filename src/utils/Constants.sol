@@ -2,24 +2,15 @@
 pragma solidity 0.8.20;
 
 // Contracts
-<<<<<<< HEAD
 bytes32 constant FX_CONTRACT_REGISTRY = keccak256("FX_CONTRACT_REGISTRY");
 bytes32 constant FX_GEN_ART_721 = keccak256("FX_GEN_ART_721");
 bytes32 constant FX_ISSUER_FACTORY = keccak256("FX_ISSUER_FACTORY");
 bytes32 constant FX_MINT_TICKET_721 = keccak256("FX_MINT_TICKET_721");
 bytes32 constant FX_PSEUDO_RANDOMIZER = keccak256("FX_PSEUDO_RANDOMIZER");
 bytes32 constant FX_ROLE_REGISTRY = keccak256("FX_ROLE_REGISTRY");
+bytes32 constant FX_SCRIPTY_RENDERER = keccak256("FX_SCRIPTY_RENDERER");
 bytes32 constant FX_SPLITS_FACTORY = keccak256("FX_SPLITS_FACTORY");
-bytes32 constant FX_TOKEN_RENDERER = keccak256("FX_TOKEN_RENDERER");
-=======
-bytes32 constant FX_CONTRACT_REGISTRY = keccak256("FxContractRegistry");
-bytes32 constant FX_GEN_ART_721 = keccak256("FxGenArt721");
-bytes32 constant FX_ISSUER_FACTORY = keccak256("FxIssuerFactory");
-bytes32 constant FX_PSEUDO_RANDOMIZER = keccak256("FxPseudoRandomizer");
-bytes32 constant FX_ROLE_REGISTRY = keccak256("FxRoleRegistry");
-bytes32 constant FX_SCRIPTY_RENDERER = keccak256("FxScriptyRenderer");
-bytes32 constant FX_SPLITS_FACTORY = keccak256("FxSplitsFactory");
->>>>>>> main
+bytes32 constant FX_TICKET_FACTORY = keccak256("FX_TICKET_FACTORY");
 
 // Roles
 bytes32 constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
