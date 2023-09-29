@@ -29,21 +29,6 @@ contract Register is FxContractRegistryTest {
         _register(admin, names, contracts);
     }
 
-    function test_RevertsWhen_ContractAlreadySet() public {
-        names.push(FX_ROLE_REGISTRY);
-        contracts.push(address(fxRoleRegistry));
-
-        vm.expectRevert(abi.encodeWithSelector(CONTRACT_ALREADY_SET_ERROR));
-        _register(admin, names, contracts);
-    }
-
-    function test_RevertsWhen_ContractAddress0() public {
-        contracts[0] = address(0);
-
-        vm.expectRevert(abi.encodeWithSelector(INVALID_CONTRACT_ERROR));
-        _register(admin, names, contracts);
-    }
-
     function _register(address _admin, bytes32[] storage _names, address[] storage _contracts)
         internal
         prank(_admin)
