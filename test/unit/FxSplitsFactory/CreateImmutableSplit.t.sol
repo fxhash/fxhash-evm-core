@@ -12,21 +12,21 @@ contract CreateSplit is FxSplitsFactoryTest {
         allocations.push(uint32(600_000));
     }
 
-    function test_createSplit() public {
-        fxSplitsFactory.createSplit(accounts, allocations);
+    function test_createImmutableSplit() public {
+        fxSplitsFactory.createImmutableSplit(accounts, allocations);
     }
 
     function test_RevertsWhen_CreateSplitTwice() public {
-        fxSplitsFactory.createSplit(accounts, allocations);
+        fxSplitsFactory.createImmutableSplit(accounts, allocations);
         vm.expectRevert(abi.encodeWithSelector(IFxSplitsFactory.SplitsExists.selector));
-        fxSplitsFactory.createSplit(accounts, allocations);
+        fxSplitsFactory.createImmutableSplit(accounts, allocations);
     }
 
     function test_FirstWithdraw() public {
         address libPredicted =
             ISplitsMain(SPLITS_MAIN).predictImmutableSplitAddress(accounts, allocations, 0);
         vm.deal(libPredicted, 1 ether);
-        fxSplitsFactory.createSplit(accounts, allocations);
+        fxSplitsFactory.createImmutableSplit(accounts, allocations);
         ISplitsMain(SPLITS_MAIN).distributeETH(libPredicted, accounts, allocations, 0, address(0));
         ISplitsMain(SPLITS_MAIN).withdraw(address(2), 0.4 ether, new address[](0));
         ISplitsMain(SPLITS_MAIN).withdraw(address(3), 0.6 ether, new address[](0));
@@ -56,7 +56,7 @@ contract CreateSplit is FxSplitsFactoryTest {
         accounts.pop();
 
         vm.expectRevert();
-        fxSplitsFactory.createSplit(accounts, allocations);
+        fxSplitsFactory.createImmutableSplit(accounts, allocations);
     }
 
     function test_RevertsWhen_AllocationsGt100() public {
@@ -64,14 +64,14 @@ contract CreateSplit is FxSplitsFactoryTest {
         allocations.push(1);
 
         vm.expectRevert();
-        fxSplitsFactory.createSplit(accounts, allocations);
+        fxSplitsFactory.createImmutableSplit(accounts, allocations);
     }
 
     function test_RevertsWhen_AllocationsLt100() public {
         allocations[0]--;
 
         vm.expectRevert();
-        fxSplitsFactory.createSplit(accounts, allocations);
+        fxSplitsFactory.createImmutableSplit(accounts, allocations);
     }
 
     function test_RevertsWhen_DuplicateAccountInAccounts() public {
@@ -80,13 +80,13 @@ contract CreateSplit is FxSplitsFactoryTest {
         allocations[0]--;
 
         vm.expectRevert();
-        fxSplitsFactory.createSplit(accounts, allocations);
+        fxSplitsFactory.createImmutableSplit(accounts, allocations);
     }
 
     function test_RevertsWhen_AccountsNotSorted() public {
         (accounts[0], accounts[1]) = (accounts[1], accounts[0]);
 
         vm.expectRevert();
-        fxSplitsFactory.createSplit(accounts, allocations);
+        fxSplitsFactory.createImmutableSplit(accounts, allocations);
     }
 }

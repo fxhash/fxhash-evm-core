@@ -311,7 +311,7 @@ contract Deploy is Script {
     }
 
     function _createSplit() internal virtual {
-        primaryReceiver = fxSplitsFactory.createSplit(accounts, allocations);
+        primaryReceiver = fxSplitsFactory.createImmutableSplit(accounts, allocations);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

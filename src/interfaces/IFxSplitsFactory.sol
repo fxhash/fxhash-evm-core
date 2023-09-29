@@ -7,6 +7,16 @@ interface IFxSplitsFactory {
 
     /// @notice Error thrown if split already was deployed
     error SplitsExists();
+
+    /**
+     * @notice Emitted when the FxSplitController address is updated
+     * @param _oldFxSplitController the previous fxSplitController address
+     * @param _newFxSplitController the current fxSplitController address
+     */
+    event UpdateFxSplitController(
+        address indexed _oldFxSplitController, address indexed _newFxSplitController
+    );
+
     /**
      * @notice Emitted to indicate a split was created or where it will be deployed to
      * @param _split The address the split contract will be deployed to
@@ -15,7 +25,6 @@ interface IFxSplitsFactory {
      * @param _controller The address of the controller contract
      * @param _distributorFee The distributor fee percentage
      */
-
     event SplitsInfo(
         address indexed _split,
         address[] _accounts,
@@ -25,12 +34,28 @@ interface IFxSplitsFactory {
     );
 
     /**
+     * @notice Function to update th FxSplitController address
+     * @param _newFxSplitController the fxSplitController address
+     */
+    function updateFxSplitController(address _newFxSplitController) external;
+
+    /**
      * @notice Creates a new split wallet
      * @param _accounts The array of addresses that participate in the split
      * @param _allocations The array of allocations for each account
      * @return split Address of the deployed splits contract
      */
-    function createSplit(address[] calldata _accounts, uint32[] calldata _allocations)
+    function createImmutableSplit(address[] calldata _accounts, uint32[] calldata _allocations)
+        external
+        returns (address);
+
+    /**
+     * @notice Creates a new split wallet
+     * @param _accounts The array of addresses that participate in the split
+     * @param _allocations The array of allocations for each account
+     * @return split Address of the deployed splits contract
+     */
+    function createMutableSplit(address[] calldata _accounts, uint32[] calldata _allocations)
         external
         returns (address);
 
@@ -40,7 +65,7 @@ interface IFxSplitsFactory {
      * @param _allocations The array of allocations for each account
      * @return split Address of the deployed splits contract
      */
-    function createVirtualSplit(address[] calldata _accounts, uint32[] calldata _allocations)
+    function emitVirtualSplit(address[] calldata _accounts, uint32[] calldata _allocations)
         external
         returns (address);
 }
