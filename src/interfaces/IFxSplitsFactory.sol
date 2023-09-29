@@ -68,4 +68,9 @@ interface IFxSplitsFactory {
     function emitVirtualSplit(address[] calldata _accounts, uint32[] calldata _allocations)
         external
         returns (address);
+
+    /**
+     * @notice Returns the FxSplitsController contract
+     */
+    function fxSplitController() external view returns (address);
 }

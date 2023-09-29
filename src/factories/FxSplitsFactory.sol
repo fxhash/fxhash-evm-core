@@ -11,8 +11,10 @@ import {SPLITS_MAIN} from "script/utils/Constants.sol";
  * @dev A factory contract for creating split wallets and easier event tracking.
  */
 contract FxSplitsFactory is IFxSplitsFactory, Ownable {
-    address internal fxSplitController;
+    /// @inheritdoc IFxSplitsFactory
+    address public fxSplitController;
 
+    /// @dev initializes the owner of the FxSplitsFactory
     constructor(address _owner) {
         _transferOwnership(_owner);
     }
