@@ -3,7 +3,7 @@ pragma solidity 0.8.20;
 
 import {Base64} from "openzeppelin/contracts/utils/Base64.sol";
 import {GenArtInfo, MetadataInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
-import {IFxTokenRenderer} from "src/interfaces/IFxTokenRenderer.sol";
+import {IFxScriptyRenderer} from "src/interfaces/IFxScriptyRenderer.sol";
 import {
     IScriptyBuilderV2,
     HTMLRequest,
@@ -13,17 +13,17 @@ import {
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
 /**
- * @title FxTokenRenderer
- * @notice See the documentation in {IFxTokenRenderer}
+ * @title FxScriptyRenderer
+ * @notice See the documentation in {IFxScriptyRenderer}
  */
-contract FxTokenRenderer is IFxTokenRenderer {
+contract FxScriptyRenderer is IFxScriptyRenderer {
     using Strings for uint256;
 
-    /// @inheritdoc IFxTokenRenderer
+    /// @inheritdoc IFxScriptyRenderer
     address public immutable ethfsFileStorage;
-    /// @inheritdoc IFxTokenRenderer
+    /// @inheritdoc IFxScriptyRenderer
     address public immutable scriptyStorage;
-    /// @inheritdoc IFxTokenRenderer
+    /// @inheritdoc IFxScriptyRenderer
     address public immutable scriptyBuilder;
 
     /// @dev Initializes ETHFS and Scripty contracts for storing and building scripts onchain
@@ -33,7 +33,7 @@ contract FxTokenRenderer is IFxTokenRenderer {
         scriptyBuilder = _scriptyBuilder;
     }
 
-    /// @inheritdoc IFxTokenRenderer
+    /// @inheritdoc IFxScriptyRenderer
     function tokenURI(
         uint256 _tokenId,
         ProjectInfo memory _projectInfo,
@@ -57,7 +57,7 @@ contract FxTokenRenderer is IFxTokenRenderer {
         }
     }
 
-    /// @inheritdoc IFxTokenRenderer
+    /// @inheritdoc IFxScriptyRenderer
     function renderOnchain(
         uint256 _tokenId,
         bytes32 _seed,
@@ -74,7 +74,7 @@ contract FxTokenRenderer is IFxTokenRenderer {
         /* solhint-enable quotes*/
     }
 
-    /// @inheritdoc IFxTokenRenderer
+    /// @inheritdoc IFxScriptyRenderer
     function getEncodedHTML(
         uint256 _tokenId,
         bytes32 _seed,

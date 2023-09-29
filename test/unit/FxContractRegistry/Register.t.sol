@@ -31,7 +31,7 @@ contract Register is FxContractRegistryTest {
 
     function test_RevertsWhen_ContractAlreadySet() public {
         names.push(FX_ROLE_REGISTRY);
-        contracts.push(address(fxTokenRenderer));
+        contracts.push(address(fxRoleRegistry));
 
         vm.expectRevert(abi.encodeWithSelector(CONTRACT_ALREADY_SET_ERROR));
         _register(admin, names, contracts);

@@ -15,8 +15,8 @@ import {
 import {FxIssuerFactory, ConfigInfo} from "src/factories/FxIssuerFactory.sol";
 import {FxPseudoRandomizer} from "src/randomizers/FxPseudoRandomizer.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
+import {FxScriptyRenderer} from "src/renderers/FxScriptyRenderer.sol";
 import {FxSplitsFactory} from "src/factories/FxSplitsFactory.sol";
-import {FxTokenRenderer} from "src/renderers/FxTokenRenderer.sol";
 import {
     HTMLRequest,
     HTMLTagType,
@@ -35,8 +35,8 @@ contract Deploy is Script {
     FxIssuerFactory internal fxIssuerFactory;
     FxPseudoRandomizer internal fxPseudoRandomizer;
     FxRoleRegistry internal fxRoleRegistry;
+    FxScriptyRenderer internal fxScriptyRenderer;
     FxSplitsFactory internal fxSplitsFactory;
-    FxTokenRenderer internal fxTokenRenderer;
     FixedPrice internal fixedPrice;
 
     // Accounts
@@ -262,9 +262,9 @@ contract Deploy is Script {
         creationCode = type(FxPseudoRandomizer).creationCode;
         fxPseudoRandomizer = FxPseudoRandomizer(_deployCreate2(creationCode, salt));
 
-        creationCode = type(FxTokenRenderer).creationCode;
+        creationCode = type(FxScriptyRenderer).creationCode;
         constructorArgs = abi.encode(ETHFS_FILE_STORAGE, SCRIPTY_STORAGE_V2, SCRIPTY_BUILDER_V2);
-        fxTokenRenderer = FxTokenRenderer(_deployCreate2(creationCode, constructorArgs, salt));
+        fxScriptyRenderer = FxScriptyRenderer(_deployCreate2(creationCode, constructorArgs, salt));
 
         creationCode = type(FxGenArt721).creationCode;
         constructorArgs = abi.encode(address(fxContractRegistry), address(fxRoleRegistry));
@@ -277,14 +277,14 @@ contract Deploy is Script {
         creationCode = type(FixedPrice).creationCode;
         fixedPrice = FixedPrice(_deployCreate2(creationCode, salt));
 
+        vm.label(address(fixedPrice), "FixedPrice");
         vm.label(address(fxContractRegistry), "FxContractRegistry");
-        vm.label(address(fxRoleRegistry), "FxRoleRegistry");
-        vm.label(address(fxSplitsFactory), "FxSplitsFactory");
-        vm.label(address(fxPseudoRandomizer), "FxPseudoRandomizer");
-        vm.label(address(fxTokenRenderer), "FxTokenRenderer");
         vm.label(address(fxGenArt721), "FxGenArt721");
         vm.label(address(fxIssuerFactory), "FxIssuerFactory");
-        vm.label(address(fixedPrice), "FixedPrice");
+        vm.label(address(fxPseudoRandomizer), "FxPseudoRandomizer");
+        vm.label(address(fxRoleRegistry), "FxRoleRegistry");
+        vm.label(address(fxScriptyRenderer), "FxScriptyRenderer");
+        vm.label(address(fxSplitsFactory), "FxSplitsFactory");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -324,16 +324,16 @@ contract Deploy is Script {
         names.push(FX_ISSUER_FACTORY);
         names.push(FX_PSEUDO_RANDOMIZER);
         names.push(FX_ROLE_REGISTRY);
+        names.push(FX_SCRIPTY_RENDERER);
         names.push(FX_SPLITS_FACTORY);
-        names.push(FX_TOKEN_RENDERER);
 
         contracts.push(address(fxContractRegistry));
         contracts.push(address(fxGenArt721));
         contracts.push(address(fxIssuerFactory));
         contracts.push(address(fxPseudoRandomizer));
         contracts.push(address(fxRoleRegistry));
+        contracts.push(address(fxScriptyRenderer));
         contracts.push(address(fxSplitsFactory));
-        contracts.push(address(fxTokenRenderer));
 
         fxContractRegistry.register(names, contracts);
     }
@@ -346,7 +346,7 @@ contract Deploy is Script {
 
     function _setContracts() internal virtual {
         FxGenArt721(fxGenArtProxy).setRandomizer(address(fxPseudoRandomizer));
-        FxGenArt721(fxGenArtProxy).setRenderer(address(fxTokenRenderer));
+        FxGenArt721(fxGenArtProxy).setRenderer(address(fxScriptyRenderer));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
