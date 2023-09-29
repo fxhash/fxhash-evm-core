@@ -44,7 +44,12 @@ interface IFxMintTicket721 {
 
     function claim(uint256 _tokenId, uint128 _newPrice) external payable;
 
-    function initialize(address _owner, address _genArt721, uint48 _gracePeriod) external;
+    function initialize(
+        address _owner,
+        address _genArt721,
+        uint48 _gracePeriod,
+        string calldata _baseURI
+    ) external;
 
     function isForeclosed(uint256 _tokenId) external view returns (bool);
 

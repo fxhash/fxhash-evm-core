@@ -12,9 +12,12 @@ interface IFxTicketFactory {
     error InvalidOwner();
     error InvalidToken();
 
-    function createTicket(address _owner, address _genArt721, uint48 _gracePeriod)
-        external
-        returns (address);
+    function createTicket(
+        address _owner,
+        address _genArt721,
+        uint48 _gracePeriod,
+        string calldata _baseURI
+    ) external returns (address);
 
     function setImplementation(address _implementation) external;
 

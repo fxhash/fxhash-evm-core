@@ -50,20 +50,21 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
                                   CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(string memory _baseURI) ERC721("FxMintTicket721", "TICKET") {
-        baseURI = _baseURI;
-    }
+    constructor() ERC721("FxMintTicket721", "TICKET") {}
 
     /*//////////////////////////////////////////////////////////////////////////
                                 INITIALIZATION
     //////////////////////////////////////////////////////////////////////////*/
 
-    function initialize(address _owner, address _genArt721, uint48 _gracePeriod)
-        external
-        initializer
-    {
+    function initialize(
+        address _owner,
+        address _genArt721,
+        uint48 _gracePeriod,
+        string calldata _baseURI
+    ) external initializer {
         genArt721 = _genArt721;
         gracePeriod = _gracePeriod;
+        baseURI = _baseURI;
         _transferOwnership(_owner);
 
         emit TicketInitialized(_genArt721, _gracePeriod);

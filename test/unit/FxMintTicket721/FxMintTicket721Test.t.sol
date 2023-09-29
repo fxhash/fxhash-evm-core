@@ -61,12 +61,13 @@ contract FxMintTicket721Test is FxGenArt721Test {
     }
 
     function _deployTicket() internal {
-        fxMintTicket721 = new FxMintTicket721(BASE_URI);
+        fxMintTicket721 = new FxMintTicket721();
         fxTicketFactory = new FxTicketFactory(address(fxMintTicket721));
     }
 
     function _createTicket() internal {
-        fxMintTicketProxy = fxTicketFactory.createTicket(creator, fxGenArtProxy, uint48(ONE_DAY));
+        fxMintTicketProxy =
+            fxTicketFactory.createTicket(creator, fxGenArtProxy, uint48(ONE_DAY), BASE_URI);
     }
 
     function _mint(address _minter, address _to, uint256 _amount, uint256 _payment)
