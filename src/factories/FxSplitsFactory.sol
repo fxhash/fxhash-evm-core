@@ -12,8 +12,12 @@ import {SPLITS_MAIN} from "script/utils/Constants.sol";
  */
 contract FxSplitsFactory is IFxSplitsFactory, Ownable {
     address internal fxSplitController;
-    /// @inheritdoc IFxSplitsFactory
 
+    constructor(address _owner) {
+        _transferOwnership(_owner);
+    }
+
+    /// @inheritdoc IFxSplitsFactory
     function createImmutableSplit(address[] calldata _accounts, uint32[] calldata _allocations)
         external
         returns (address split)

@@ -257,7 +257,8 @@ contract Deploy is Script {
         fxRoleRegistry = FxRoleRegistry(_deployCreate2(creationCode, constructorArgs, salt));
 
         creationCode = type(FxSplitsFactory).creationCode;
-        fxSplitsFactory = FxSplitsFactory(_deployCreate2(creationCode, salt));
+        constructorArgs = abi.encode(admin);
+        fxSplitsFactory = FxSplitsFactory(_deployCreate2(creationCode, constructorArgs, salt));
 
         creationCode = type(FxPseudoRandomizer).creationCode;
         fxPseudoRandomizer = FxPseudoRandomizer(_deployCreate2(creationCode, salt));
