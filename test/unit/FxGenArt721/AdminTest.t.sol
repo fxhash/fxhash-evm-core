@@ -65,13 +65,13 @@ contract AdminTest is FxGenArt721Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_setRenderer() public {
-        _setRenderer(admin, address(fxTokenRenderer));
-        assertEq(IFxGenArt721(fxGenArtProxy).renderer(), address(fxTokenRenderer));
+        _setRenderer(admin, address(fxScriptyRenderer));
+        assertEq(IFxGenArt721(fxGenArtProxy).renderer(), address(fxScriptyRenderer));
     }
 
     function test_setRenderer_RevertsWhen_UnauthorizedAccount() public {
         vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
-        _setRenderer(creator, address(fxTokenRenderer));
+        _setRenderer(creator, address(fxScriptyRenderer));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
