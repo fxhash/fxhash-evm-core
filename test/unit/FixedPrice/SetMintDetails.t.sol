@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "test/unit/FixedPrice/FixedPrice.t.sol";
+import "test/unit/FixedPrice/FixedPriceTest.t.sol";
 
 contract SetMintDetails is FixedPriceTest {
     function test_setMintDetails() public {

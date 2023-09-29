@@ -13,10 +13,12 @@ import {
     ReserveInfo
 } from "src/tokens/FxGenArt721.sol";
 import {FxIssuerFactory, ConfigInfo} from "src/factories/FxIssuerFactory.sol";
+import {FxMintTicket721} from "src/tokens/FxMintTicket721.sol";
 import {FxPseudoRandomizer} from "src/randomizers/FxPseudoRandomizer.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 import {FxScriptyRenderer} from "src/renderers/FxScriptyRenderer.sol";
 import {FxSplitsFactory} from "src/factories/FxSplitsFactory.sol";
+import {FxTicketFactory} from "src/factories/FxTicketFactory.sol";
 import {
     HTMLRequest,
     HTMLTagType,
@@ -30,14 +32,16 @@ import "test/utils/Constants.sol";
 
 contract Deploy is Script {
     // Contracts
+    FixedPrice internal fixedPrice;
     FxContractRegistry internal fxContractRegistry;
     FxGenArt721 internal fxGenArt721;
     FxIssuerFactory internal fxIssuerFactory;
+    FxMintTicket721 internal fxMintTicket721;
     FxPseudoRandomizer internal fxPseudoRandomizer;
     FxRoleRegistry internal fxRoleRegistry;
     FxScriptyRenderer internal fxScriptyRenderer;
     FxSplitsFactory internal fxSplitsFactory;
-    FixedPrice internal fixedPrice;
+    FxTicketFactory internal fxTicketFactory;
 
     // Accounts
     address internal admin;
@@ -237,9 +241,9 @@ contract Deploy is Script {
     }
 
     function _configureState() internal virtual {
+        tokenId = 1;
         price = 1 gwei;
         amount = 10;
-        tokenId = 1;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -259,13 +263,6 @@ contract Deploy is Script {
         creationCode = type(FxSplitsFactory).creationCode;
         fxSplitsFactory = FxSplitsFactory(_deployCreate2(creationCode, salt));
 
-        creationCode = type(FxPseudoRandomizer).creationCode;
-        fxPseudoRandomizer = FxPseudoRandomizer(_deployCreate2(creationCode, salt));
-
-        creationCode = type(FxScriptyRenderer).creationCode;
-        constructorArgs = abi.encode(ETHFS_FILE_STORAGE, SCRIPTY_STORAGE_V2, SCRIPTY_BUILDER_V2);
-        fxScriptyRenderer = FxScriptyRenderer(_deployCreate2(creationCode, constructorArgs, salt));
-
         creationCode = type(FxGenArt721).creationCode;
         constructorArgs = abi.encode(address(fxContractRegistry), address(fxRoleRegistry));
         fxGenArt721 = FxGenArt721(_deployCreate2(creationCode, constructorArgs, salt));
@@ -274,6 +271,20 @@ contract Deploy is Script {
         constructorArgs = abi.encode(address(fxGenArt721), configInfo);
         fxIssuerFactory = FxIssuerFactory(_deployCreate2(creationCode, constructorArgs, salt));
 
+        creationCode = type(FxMintTicket721).creationCode;
+        fxMintTicket721 = FxMintTicket721(_deployCreate2(creationCode, salt));
+
+        creationCode = type(FxTicketFactory).creationCode;
+        constructorArgs = abi.encode(address(fxMintTicket721));
+        fxTicketFactory = FxTicketFactory(_deployCreate2(creationCode, constructorArgs, salt));
+
+        creationCode = type(FxPseudoRandomizer).creationCode;
+        fxPseudoRandomizer = FxPseudoRandomizer(_deployCreate2(creationCode, salt));
+
+        creationCode = type(FxScriptyRenderer).creationCode;
+        constructorArgs = abi.encode(ETHFS_FILE_STORAGE, SCRIPTY_STORAGE_V2, SCRIPTY_BUILDER_V2);
+        fxScriptyRenderer = FxScriptyRenderer(_deployCreate2(creationCode, constructorArgs, salt));
+
         creationCode = type(FixedPrice).creationCode;
         fixedPrice = FixedPrice(_deployCreate2(creationCode, salt));
 
@@ -281,10 +292,12 @@ contract Deploy is Script {
         vm.label(address(fxContractRegistry), "FxContractRegistry");
         vm.label(address(fxGenArt721), "FxGenArt721");
         vm.label(address(fxIssuerFactory), "FxIssuerFactory");
+        vm.label(address(fxMintTicket721), "FxMintTicket721");
         vm.label(address(fxPseudoRandomizer), "FxPseudoRandomizer");
         vm.label(address(fxRoleRegistry), "FxRoleRegistry");
         vm.label(address(fxScriptyRenderer), "FxScriptyRenderer");
         vm.label(address(fxSplitsFactory), "FxSplitsFactory");
+        vm.label(address(fxTicketFactory), "FxTicketFactory");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -322,18 +335,24 @@ contract Deploy is Script {
         names.push(FX_CONTRACT_REGISTRY);
         names.push(FX_GEN_ART_721);
         names.push(FX_ISSUER_FACTORY);
+        names.push(FX_MINT_TICKET_721);
         names.push(FX_PSEUDO_RANDOMIZER);
         names.push(FX_ROLE_REGISTRY);
         names.push(FX_SCRIPTY_RENDERER);
         names.push(FX_SPLITS_FACTORY);
+        names.push(FX_TICKET_FACTORY);
+        names.push(FIXED_PRICE);
 
         contracts.push(address(fxContractRegistry));
         contracts.push(address(fxGenArt721));
         contracts.push(address(fxIssuerFactory));
+        contracts.push(address(fxMintTicket721));
         contracts.push(address(fxPseudoRandomizer));
         contracts.push(address(fxRoleRegistry));
         contracts.push(address(fxScriptyRenderer));
         contracts.push(address(fxSplitsFactory));
+        contracts.push(address(fxTicketFactory));
+        contracts.push(address(fixedPrice));
 
         fxContractRegistry.register(names, contracts);
     }
@@ -350,39 +369,40 @@ contract Deploy is Script {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                    HELPERS
+                                    CREATE2
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _deployCreate2(bytes memory creationCode, bytes memory constructorArgs, bytes32 salt)
-        internal
-        returns (address deployedAddress)
-    {
+    function _deployCreate2(
+        bytes memory _creationCode,
+        bytes memory _constructorArgs,
+        bytes32 _salt
+    ) internal returns (address deployedAddress) {
         (bool success, bytes memory response) =
-            CREATE2_FACTORY.call(bytes.concat(salt, creationCode, constructorArgs));
+            CREATE2_FACTORY.call(bytes.concat(_salt, _creationCode, _constructorArgs));
         deployedAddress = address(bytes20(response));
         require(success, "deployment failed");
     }
 
-    function _deployCreate2(bytes memory creationCode, bytes32 salt)
+    function _deployCreate2(bytes memory _creationCode, bytes32 _salt)
         internal
         returns (address deployedAddress)
     {
-        deployedAddress = _deployCreate2(creationCode, "", salt);
+        deployedAddress = _deployCreate2(_creationCode, "", _salt);
     }
 
     function _computeCreate2Address(
-        bytes memory creationCode,
-        bytes memory constructorArgs,
-        bytes32 salt
+        bytes memory _creationCode,
+        bytes memory _constructorArgs,
+        bytes32 _salt
     ) internal pure {
-        computeCreate2Address(salt, hashInitCode(creationCode, constructorArgs));
+        computeCreate2Address(_salt, hashInitCode(_creationCode, _constructorArgs));
     }
 
-    function _initCode(bytes memory creationCode, bytes memory constructorArgs)
+    function _initCode(bytes memory _creationCode, bytes memory _constructorArgs)
         internal
         pure
         returns (bytes memory)
     {
-        return bytes.concat(creationCode, constructorArgs);
+        return bytes.concat(_creationCode, _constructorArgs);
     }
 }

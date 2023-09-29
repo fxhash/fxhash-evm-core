@@ -2,32 +2,9 @@
 pragma solidity 0.8.20;
 
 import "forge-std/Test.sol";
-import "script/utils/Constants.sol";
-import "src/utils/Constants.sol";
-import "test/utils/Constants.sol";
+import "script/Deploy.s.sol";
 
-import {Deploy} from "script/Deploy.s.sol";
-import {FxContractRegistry} from "src/registries/FxContractRegistry.sol";
-import {FxGenArt721} from "src/tokens/FxGenArt721.sol";
-import {FxIssuerFactory, ConfigInfo} from "src/factories/FxIssuerFactory.sol";
-import {FxPseudoRandomizer} from "src/randomizers/FxPseudoRandomizer.sol";
-import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
-import {FxScriptyRenderer} from "src/renderers/FxScriptyRenderer.sol";
-import {FxSplitsFactory} from "src/factories/FxSplitsFactory.sol";
-import {
-    HTMLRequest,
-    HTMLTagType,
-    HTMLTag
-} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
-import {
-    IFxGenArt721,
-    GenArtInfo,
-    IssuerInfo,
-    MetadataInfo,
-    MintInfo,
-    ProjectInfo,
-    ReserveInfo
-} from "src/interfaces/IFxGenArt721.sol";
+import {IFxGenArt721} from "src/interfaces/IFxGenArt721.sol";
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
 import {MockMinter} from "test/mocks/MockMinter.sol";
@@ -40,6 +17,7 @@ contract BaseTest is Deploy, Test {
     address internal eve;
     address internal susan;
 
+    // State
     address internal owner;
     uint96 internal projectId;
 

@@ -2,8 +2,9 @@
 pragma solidity ^0.8.20;
 
 import "test/BaseTest.t.sol";
-import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
+
 import {FixedPrice} from "src/minters/FixedPrice.sol";
+import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
 
 contract FixedPriceTest is BaseTest {
     bytes4 internal TOO_MANY_ERROR = IFixedPrice.TooMany.selector;

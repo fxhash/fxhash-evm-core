@@ -2,6 +2,7 @@
 pragma solidity 0.8.20;
 
 // Contracts
+bytes32 constant FIXED_PRICE = keccak256("FIXED_PRICE");
 bytes32 constant FX_CONTRACT_REGISTRY = keccak256("FX_CONTRACT_REGISTRY");
 bytes32 constant FX_GEN_ART_721 = keccak256("FX_GEN_ART_721");
 bytes32 constant FX_ISSUER_FACTORY = keccak256("FX_ISSUER_FACTORY");
