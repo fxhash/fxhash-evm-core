@@ -16,7 +16,7 @@ contract CreateSplit is FxSplitsFactoryTest {
         fxSplitsFactory.createMutableSplit(accounts, allocations);
     }
 
-    function test_FirstWithdraw() public {
+    function test_Withdraw() public {
         address split = fxSplitsFactory.createMutableSplit(accounts, allocations);
         vm.deal(split, 1 ether);
         ISplitsMain(SPLITS_MAIN).distributeETH(split, accounts, allocations, 0, address(0));
