@@ -100,8 +100,8 @@ contract FxTokenRenderer is IFxTokenRenderer {
             bodyTags[i].contractAddress = _htmlRequest.bodyTags[i].contractAddress;
         }
 
-        bodyTags[bodyTags.length-1].tagType = HTMLTagType.script;
-        bodyTags[bodyTags.length-1].tagContent = _seed != bytes32(0)
+        bodyTags[bodyTags.length - 1].tagType = HTMLTagType.script;
+        bodyTags[bodyTags.length - 1].tagContent = _seed != bytes32(0)
             ? _getSeedContent(_tokenId, _seed)
             : _getParamsContent(_tokenId, _fxParams);
 
