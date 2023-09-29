@@ -86,13 +86,13 @@ contract FxTokenRenderer is IFxTokenRenderer {
             _htmlRequest.bodyTags.length + 1
         );
 
-        for (uint256 i; i < _htmlRequest.headTags.length; ++i) {
+        for (uint256 i; i < _htmlRequest.headTags.length; i++) {
             headTags[i].tagOpen = _htmlRequest.headTags[i].tagOpen;
             headTags[i].tagContent = _htmlRequest.headTags[i].tagContent;
             headTags[i].tagClose = _htmlRequest.headTags[i].tagClose;
         }
 
-        for (uint256 i; i < _htmlRequest.bodyTags.length; ++i) {
+        for (uint256 i; i < _htmlRequest.bodyTags.length; i++) {
             bodyTags[i].name = _htmlRequest.bodyTags[i].name;
             bodyTags[i].tagType = _htmlRequest.bodyTags[i].tagType;
             bodyTags[i].tagOpen = _htmlRequest.bodyTags[i].tagOpen;
@@ -100,8 +100,8 @@ contract FxTokenRenderer is IFxTokenRenderer {
             bodyTags[i].contractAddress = _htmlRequest.bodyTags[i].contractAddress;
         }
 
-        bodyTags[bodyTags.length].tagType = HTMLTagType.script;
-        bodyTags[bodyTags.length].tagContent = _seed != bytes32(0)
+        bodyTags[bodyTags.length-1].tagType = HTMLTagType.script;
+        bodyTags[bodyTags.length-1].tagContent = _seed != bytes32(0)
             ? _getSeedContent(_tokenId, _seed)
             : _getParamsContent(_tokenId, _fxParams);
 
