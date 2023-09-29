@@ -26,7 +26,7 @@ contract FxSplitsFactory is IFxSplitsFactory, Ownable {
     {
         split = ISplitsMain(SPLITS_MAIN).predictImmutableSplitAddress(_accounts, _allocations, 0);
         if (split.code.length != 0) revert SplitsExists();
-        emit SplitsInfo(split, _accounts, _allocations, address(0), 0);
+        emit SplitsInfo(split, address(0), _accounts, _allocations, 0);
         address actual =
             ISplitsMain(SPLITS_MAIN).createSplit(_accounts, _allocations, 0, address(0));
         if (actual != split) revert InvalidSplit();
@@ -38,7 +38,7 @@ contract FxSplitsFactory is IFxSplitsFactory, Ownable {
         returns (address split)
     {
         split = ISplitsMain(SPLITS_MAIN).createSplit(_accounts, _allocations, 0, fxSplitController);
-        emit SplitsInfo(split, _accounts, _allocations, fxSplitController, 0);
+        emit SplitsInfo(split, fxSplitController, _accounts, _allocations, 0);
     }
     /// @inheritdoc IFxSplitsFactory
 
@@ -47,7 +47,7 @@ contract FxSplitsFactory is IFxSplitsFactory, Ownable {
         returns (address split)
     {
         split = ISplitsMain(SPLITS_MAIN).predictImmutableSplitAddress(_accounts, _allocations, 0);
-        if (split.code.length == 0) emit SplitsInfo(split, _accounts, _allocations, address(0), 0);
+        if (split.code.length == 0) emit SplitsInfo(split, address(0), _accounts, _allocations, 0);
     }
 
     /// @inheritdoc IFxSplitsFactory

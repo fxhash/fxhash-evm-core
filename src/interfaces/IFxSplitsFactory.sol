@@ -27,9 +27,9 @@ interface IFxSplitsFactory {
      */
     event SplitsInfo(
         address indexed _split,
+        address indexed _controller,
         address[] _accounts,
         uint32[] _allocations,
-        address _controller,
         uint32 _distributorFee
     );
 
