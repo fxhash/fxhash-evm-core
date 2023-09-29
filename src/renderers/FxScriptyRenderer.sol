@@ -113,11 +113,10 @@ contract FxScriptyRenderer is IFxScriptyRenderer {
     }
 
     /// @dev Returns the seed content for fxHash
-    function _getSeedContent(uint256 _tokenId, bytes32 _seed)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function _getSeedContent(
+        uint256 _tokenId,
+        bytes32 _seed
+    ) internal pure returns (bytes memory) {
         string memory tokenId = _tokenId.toString();
         string memory seed = uint256(_seed).toHexString(32);
         /* solhint-disable quotes */
@@ -127,11 +126,10 @@ contract FxScriptyRenderer is IFxScriptyRenderer {
     }
 
     /// @dev Returns the params content for fxParams
-    function _getParamsContent(uint256 _tokenId, bytes memory _fxParams)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function _getParamsContent(
+        uint256 _tokenId,
+        bytes memory _fxParams
+    ) internal pure returns (bytes memory) {
         string memory tokenId = _tokenId.toString();
         /* solhint-disable quotes */
         return abi.encodePacked(

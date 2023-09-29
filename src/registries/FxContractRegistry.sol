@@ -15,10 +15,10 @@ contract FxContractRegistry is Ownable, IFxContractRegistry {
     }
 
     /// @inheritdoc IFxContractRegistry
-    function register(bytes32[] calldata _names, address[] calldata _contracts)
-        external
-        onlyOwner
-    {
+    function register(
+        bytes32[] calldata _names,
+        address[] calldata _contracts
+    ) external onlyOwner {
         address contractAddr;
         bytes32 contractName;
         uint256 length = _names.length;

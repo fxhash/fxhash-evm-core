@@ -80,10 +80,11 @@ contract PublicTest is FxGenArt721Test {
         MockMinter(minter).mint(fxGenArtProxy, _to, _amount);
     }
 
-    function _fulfillSeedRequest(address _caller, uint256 _tokenId, bytes32 _seed)
-        internal
-        prank(_caller)
-    {
+    function _fulfillSeedRequest(
+        address _caller,
+        uint256 _tokenId,
+        bytes32 _seed
+    ) internal prank(_caller) {
         ISeedConsumer(fxGenArtProxy).fulfillSeedRequest(_tokenId, _seed);
         _setGenArtInfo(_tokenId);
         genArtInfo.seed = _seed;

@@ -11,10 +11,10 @@ import {SPLITS_MAIN} from "script/utils/Constants.sol";
  */
 contract FxSplitsFactory is IFxSplitsFactory {
     /// @inheritdoc IFxSplitsFactory
-    function createSplit(address[] calldata _accounts, uint32[] calldata _allocations)
-        external
-        returns (address split)
-    {
+    function createSplit(
+        address[] calldata _accounts,
+        uint32[] calldata _allocations
+    ) external returns (address split) {
         split = ISplitsMain(SPLITS_MAIN).predictImmutableSplitAddress(_accounts, _allocations, 0);
         if (split.code.length != 0) revert SplitsExists();
         emit SplitsInfo(split, _accounts, _allocations, address(0), 0);
@@ -24,10 +24,10 @@ contract FxSplitsFactory is IFxSplitsFactory {
     }
 
     /// @inheritdoc IFxSplitsFactory
-    function createVirtualSplit(address[] calldata _accounts, uint32[] calldata _allocations)
-        external
-        returns (address split)
-    {
+    function createVirtualSplit(
+        address[] calldata _accounts,
+        uint32[] calldata _allocations
+    ) external returns (address split) {
         split = ISplitsMain(SPLITS_MAIN).predictImmutableSplitAddress(_accounts, _allocations, 0);
         if (split.code.length == 0) emit SplitsInfo(split, _accounts, _allocations, address(0), 0);
     }

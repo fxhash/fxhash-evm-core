@@ -85,10 +85,10 @@ interface IFixedPrice is IMinter {
     function prices(address _token, uint256 _mintId) external view returns (uint256);
 
     /// @notice Returns the reserve of a token for a mintId
-    function reserves(address _token, uint256 _mintId)
-        external
-        view
-        returns (uint64, uint64, uint128);
+    function reserves(
+        address _token,
+        uint256 _mintId
+    ) external view returns (uint64, uint64, uint128);
 
     /// @notice Returns the amount of saleProceeds of a token
     function saleProceeds(address _token) external view returns (uint256);

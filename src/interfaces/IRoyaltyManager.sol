@@ -52,8 +52,10 @@ interface IRoyaltyManager {
     /// @notice Error thrown when the token royalties are not set
     error TokenRoyaltiesNotSet();
 
-    function setBaseRoyalties(address payable[] memory receivers, uint96[] memory basisPoints)
-        external;
+    function setBaseRoyalties(
+        address payable[] memory receivers,
+        uint96[] memory basisPoints
+    ) external;
 
     function setTokenRoyalties(
         uint256 _tokenId,
@@ -66,8 +68,8 @@ interface IRoyaltyManager {
         view
         returns (address payable[] memory, uint256[] memory);
 
-    function royaltyInfo(uint256 _tokenId, uint256 salePrice)
-        external
-        view
-        returns (address, uint256);
+    function royaltyInfo(
+        uint256 _tokenId,
+        uint256 salePrice
+    ) external view returns (address, uint256);
 }

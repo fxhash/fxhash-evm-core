@@ -30,11 +30,11 @@ abstract contract MintPass is EIP712 {
      * @param _mintCode The mint code which can have additional data for the mint
      * @return The typed data hash digest
      */
-    function generateTypedDataHash(uint256 _index, address _user, bytes calldata _mintCode)
-        public
-        view
-        returns (bytes32)
-    {
+    function generateTypedDataHash(
+        uint256 _index,
+        address _user,
+        bytes calldata _mintCode
+    ) public view returns (bytes32) {
         bytes32 structHash = keccak256(abi.encode(CLAIM_TYPEHASH, _index, _user, _mintCode));
         return _hashTypedDataV4(structHash);
     }

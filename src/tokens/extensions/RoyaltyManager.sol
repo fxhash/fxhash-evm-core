@@ -20,9 +20,10 @@ abstract contract RoyaltyManager is IRoyaltyManager {
      * @param _basisPoints The basis points to calculate royalty payments (1/100th of a percent) for
      * each receiver
      */
-    function setBaseRoyalties(address payable[] calldata _receivers, uint96[] calldata _basisPoints)
-        external
-    {
+    function setBaseRoyalties(
+        address payable[] calldata _receivers,
+        uint96[] calldata _basisPoints
+    ) external {
         _setBaseRoyalties(_receivers, _basisPoints);
     }
 
@@ -48,11 +49,10 @@ abstract contract RoyaltyManager is IRoyaltyManager {
      * @return receiver The address that will receive the royalty payment
      * @return amount The amount of royalty payment
      */
-    function royaltyInfo(uint256 _tokenId, uint256 _salePrice)
-        external
-        view
-        returns (address receiver, uint256 amount)
-    {
+    function royaltyInfo(
+        uint256 _tokenId,
+        uint256 _salePrice
+    ) external view returns (address receiver, uint256 amount) {
         RoyaltyInfo[] storage tokenRoyalties_ = tokenRoyalties[_tokenId];
         RoyaltyInfo[] storage baseRoyalties_ = baseRoyalties;
 

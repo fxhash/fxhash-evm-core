@@ -30,9 +30,10 @@ interface IFxSplitsFactory {
      * @param _allocations The array of allocations for each account
      * @return split Address of the deployed splits contract
      */
-    function createSplit(address[] calldata _accounts, uint32[] calldata _allocations)
-        external
-        returns (address);
+    function createSplit(
+        address[] calldata _accounts,
+        uint32[] calldata _allocations
+    ) external returns (address);
 
     /**
      * @notice Creates a deterministic split wallet
@@ -40,7 +41,8 @@ interface IFxSplitsFactory {
      * @param _allocations The array of allocations for each account
      * @return split Address of the deployed splits contract
      */
-    function createVirtualSplit(address[] calldata _accounts, uint32[] calldata _allocations)
-        external
-        returns (address);
+    function createVirtualSplit(
+        address[] calldata _accounts,
+        uint32[] calldata _allocations
+    ) external returns (address);
 }

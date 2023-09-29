@@ -29,10 +29,11 @@ contract Register is FxContractRegistryTest {
         _register(admin, names, contracts);
     }
 
-    function _register(address _admin, bytes32[] storage _names, address[] storage _contracts)
-        internal
-        prank(_admin)
-    {
+    function _register(
+        address _admin,
+        bytes32[] storage _names,
+        address[] storage _contracts
+    ) internal prank(_admin) {
         fxContractRegistry.register(_names, _contracts);
     }
 }

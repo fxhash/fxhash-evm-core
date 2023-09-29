@@ -353,20 +353,21 @@ contract Deploy is Script {
                                     HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _deployCreate2(bytes memory creationCode, bytes memory constructorArgs, bytes32 salt)
-        internal
-        returns (address deployedAddress)
-    {
+    function _deployCreate2(
+        bytes memory creationCode,
+        bytes memory constructorArgs,
+        bytes32 salt
+    ) internal returns (address deployedAddress) {
         (bool success, bytes memory response) =
             CREATE2_FACTORY.call(bytes.concat(salt, creationCode, constructorArgs));
         deployedAddress = address(bytes20(response));
         require(success, "deployment failed");
     }
 
-    function _deployCreate2(bytes memory creationCode, bytes32 salt)
-        internal
-        returns (address deployedAddress)
-    {
+    function _deployCreate2(
+        bytes memory creationCode,
+        bytes32 salt
+    ) internal returns (address deployedAddress) {
         deployedAddress = _deployCreate2(creationCode, "", salt);
     }
 
@@ -378,11 +379,10 @@ contract Deploy is Script {
         computeCreate2Address(salt, hashInitCode(creationCode, constructorArgs));
     }
 
-    function _initCode(bytes memory creationCode, bytes memory constructorArgs)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function _initCode(
+        bytes memory creationCode,
+        bytes memory constructorArgs
+    ) internal pure returns (bytes memory) {
         return bytes.concat(creationCode, constructorArgs);
     }
 }
