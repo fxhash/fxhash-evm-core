@@ -139,6 +139,8 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
         TaxInfo storage taxInfo = taxes[_tokenId];
         // Reverts if grace period of token is still active
         if (block.timestamp <= taxInfo.gracePeriod) revert GracePeriodActive();
+
+        // Loads current tax information
         uint256 currentPrice = taxInfo.currentPrice;
         uint256 totalDeposit = taxInfo.depositAmount;
         uint256 foreclosureTime = taxInfo.foreclosureTime;
@@ -161,6 +163,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
             uint256 auctionPrice = getAuctionPrice(currentPrice, foreclosureTime);
             // Reverts if payment amount is insufficient to auction price and new daily tax
             if (msg.value < auctionPrice + newDailyTax) revert InsufficientPayment();
+
             // Updates balance of contract owner
             balances[owner()] += totalDeposit + auctionPrice;
             // Sets new deposit amount based on auction price
@@ -168,6 +171,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
         } else {
             // Reverts if payment amount if insufficient to current price and new daily tax
             if (msg.value < currentPrice + newDailyTax) revert InsufficientPayment();
+
             // Updates balances of contract owner and previous owner
             balances[owner()] += depositOwed;
             balances[previousOwner] += currentPrice + remainingDeposit;
@@ -224,7 +228,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
         // Reverts if new price is less than the minimum price
         if (_newPrice < MINIMUM_PRICE) revert InvalidPrice();
 
-        // Initializes tax info
+        // Loads current tax info
         TaxInfo storage taxInfo = taxes[_tokenId];
         uint128 foreclosureTime = taxInfo.foreclosureTime;
 
@@ -333,6 +337,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
         uint256 _depositAmount
     ) public view returns (uint256) {
         uint256 depositEndTime = _foreclosureTime - getTaxDuration(_depositAmount, _dailyTax);
+        // Returns total deposit amount if current time is less than end of deposit timestamp
         if (block.timestamp <= depositEndTime) return _depositAmount;
         uint256 elapsedDuration = block.timestamp - depositEndTime;
         uint256 amountOwed = (elapsedDuration * _dailyTax) / ONE_DAY;
