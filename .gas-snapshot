@@ -1,0 +1,6 @@
+FxContractRegistryGas:test_Register() (gas: 9223372036854754743)
+FxIssuerFactoryGas:test_Offchain_createProject() (gas: 420185)
+FxIssuerFactoryGas:test_Onchain_createProject() (gas: 855037)
+FxSplitsFactoryGas:test_CreateSplit() (gas: 9223372036854754743)
+FxSplitsFactoryGas:test_CreateVirtualSplit() (gas: 9223372036854754743)
+FxSplitsFactoryGas:test_Revert_CreateSplit() (gas: 2758358)

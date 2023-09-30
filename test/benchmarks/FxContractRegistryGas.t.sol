@@ -14,6 +14,7 @@ contract FxContractRegistryGas is Deploy {
     }
 
     function test_Register() public {
+        vm.prank(admin);
         fxContractRegistry.register(names, contracts);
     }
 }

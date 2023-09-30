@@ -10,15 +10,22 @@ contract FxIssuerFactoryGas is Deploy {
     }
 
     function test_Onchain_createProject() public {
+        vm.pauseGasMetering();
+        ProjectInfo memory projectInfo_ = projectInfo;
+        MetadataInfo memory metadataInfo_ = metadataInfo;
+        MintInfo[] memory mintInfo_ = mintInfo;
+        address payable [] memory royaltyReceivers_=royaltyReceivers;
+        uint96[] memory basisPoints_=basisPoints;
+        vm.resumeGasMetering();
         vm.prank(creator);
         fxGenArtProxy = fxIssuerFactory.createProject(
             creator,
             address(this),
-            projectInfo,
-            metadataInfo,
-            mintInfo,
-            royaltyReceivers,
-            basisPoints
+            projectInfo_,
+            metadataInfo_,
+            mintInfo_,
+            royaltyReceivers_,
+            basisPoints_
         );
     }
 
@@ -26,16 +33,21 @@ contract FxIssuerFactoryGas is Deploy {
         vm.pauseGasMetering();
         projectInfo.onchain = false;
         delete metadataInfo.animation;
+        ProjectInfo memory projectInfo_ = projectInfo;
+        MetadataInfo memory metadataInfo_ = metadataInfo;
+        MintInfo[] memory mintInfo_ = mintInfo;
+        address payable [] memory royaltyReceivers_=royaltyReceivers;
+        uint96[] memory basisPoints_=basisPoints;
         vm.resumeGasMetering();
         vm.prank(creator);
         fxGenArtProxy = fxIssuerFactory.createProject(
             creator,
             address(this),
-            projectInfo,
-            metadataInfo,
-            mintInfo,
-            royaltyReceivers,
-            basisPoints
+            projectInfo_,
+            metadataInfo_,
+            mintInfo_,
+            royaltyReceivers_,
+            basisPoints_
         );
     }
 }

@@ -91,6 +91,7 @@ contract Deploy is Script {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual {
+        vm.pauseGasMetering();
         _createAccounts();
         _configureState();
         _configureInfo();

@@ -55,6 +55,7 @@ contract BaseTest is Deploy, Test {
     receive() external payable {}
 
     function setUp() public virtual override {
+        vm.pauseGasMetering();
         createAccounts();
         _deployContracts();
     }
