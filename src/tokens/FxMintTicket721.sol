@@ -18,7 +18,14 @@ import "src/utils/Constants.sol";
  * @title FxMintTicket721
  * @notice See the documentation in {IFxMintTicket721}
  */
-contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, ERC721Burnable, Ownable, Pausable {
+contract FxMintTicket721 is
+    IFxMintTicket721,
+    Initializable,
+    ERC721,
+    ERC721Burnable,
+    Ownable,
+    Pausable
+{
     using Strings for uint256;
 
     /// @inheritdoc IFxMintTicket721
@@ -110,7 +117,13 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, ERC721Burna
     }
 
     /// @inheritdoc ERC721Burnable
-    function burn(uint256 _tokenId) public virtual override(ERC721Burnable, IFxMintTicket721) onlyMinter whenNotPaused {
+    function burn(uint256 _tokenId)
+        public
+        virtual
+        override(ERC721Burnable, IFxMintTicket721)
+        onlyMinter
+        whenNotPaused
+    {
         super.burn(_tokenId);
 
         // Loads current tax info
