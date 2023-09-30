@@ -230,12 +230,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     }
 
     /// @inheritdoc ERC721
-    function supportsInterface(bytes4 _interfaceId)
-        public
-        view
-        override(ERC721, RoyaltyManager)
-        returns (bool)
-    {
+    function supportsInterface(bytes4 _interfaceId) public view override returns (bool) {
         return super.supportsInterface(_interfaceId);
     }
 
