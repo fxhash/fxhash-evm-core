@@ -13,9 +13,9 @@ import {
     ProjectInfo,
     ReserveInfo
 } from "src/interfaces/IFxGenArt721.sol";
+import {IFxMinter} from "src/interfaces/IFxMinter.sol";
 import {IFxRandomizer} from "src/interfaces/IFxRandomizer.sol";
 import {IFxScriptyRenderer} from "src/interfaces/IFxScriptyRenderer.sol";
-import {IMinter} from "src/interfaces/IMinter.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
 import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
@@ -266,7 +266,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
                 if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) {
                     revert UnauthorizedMinter();
                 }
-                IMinter(minter).setMintDetails(reserveInfo, _mintInfo[i].params);
+                IFxMinter(minter).setMintDetails(reserveInfo, _mintInfo[i].params);
 
                 issuerInfo.minters[minter] = true;
                 totalAllocation += reserveInfo.allocation;
