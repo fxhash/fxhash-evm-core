@@ -40,8 +40,8 @@ contract FxSplitsFactory is IFxSplitsFactory, Ownable {
         split = ISplitsMain(SPLITS_MAIN).createSplit(_accounts, _allocations, 0, controller);
         emit SplitsInfo(split, controller, _accounts, _allocations, 0);
     }
-    /// @inheritdoc IFxSplitsFactory
 
+    /// @inheritdoc IFxSplitsFactory
     function emitVirtualSplit(address[] calldata _accounts, uint32[] calldata _allocations)
         external
         returns (address split)
