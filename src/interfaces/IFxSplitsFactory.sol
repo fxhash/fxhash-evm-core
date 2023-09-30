@@ -9,20 +9,18 @@ interface IFxSplitsFactory {
     error SplitsExists();
 
     /**
-     * @notice Emitted when the FxSplitController address is updated
-     * @param _oldFxSplitController the previous fxSplitController address
-     * @param _newFxSplitController the current fxSplitController address
+     * @notice Emitted when the Controller address is updated
+     * @param _oldController the previous controller address
+     * @param _newController the current controller address
      */
-    event UpdateFxSplitController(
-        address indexed _oldFxSplitController, address indexed _newFxSplitController
-    );
+    event UpdateController(address indexed _oldController, address indexed _newController);
 
     /**
      * @notice Emitted to indicate a split was created or where it will be deployed to
      * @param _split The address the split contract will be deployed to
+     * @param _controller The address of the controller contract
      * @param _accounts The array of addresses that participate in the split
      * @param _allocations The array of allocations for each account
-     * @param _controller The address of the controller contract
      * @param _distributorFee The distributor fee percentage
      */
     event SplitsInfo(
@@ -34,10 +32,10 @@ interface IFxSplitsFactory {
     );
 
     /**
-     * @notice Function to update th FxSplitController address
-     * @param _newFxSplitController the fxSplitController address
+     * @notice Function to update th Controller address
+     * @param _newController the controller address
      */
-    function updateFxSplitController(address _newFxSplitController) external;
+    function updateController(address _newController) external;
 
     /**
      * @notice Creates a new split wallet
@@ -70,7 +68,7 @@ interface IFxSplitsFactory {
         returns (address);
 
     /**
-     * @notice Returns the FxSplitsController contract
+     * @notice Returns the controller contract
      */
-    function fxSplitController() external view returns (address);
+    function controller() external view returns (address);
 }

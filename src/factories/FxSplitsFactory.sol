@@ -12,11 +12,11 @@ import {SPLITS_MAIN} from "script/utils/Constants.sol";
  */
 contract FxSplitsFactory is IFxSplitsFactory, Ownable {
     /// @inheritdoc IFxSplitsFactory
-    address public fxSplitController;
+    address public controller;
 
     /// @dev initializes the owner of the FxSplitsFactory
-    constructor(address _owner) {
-        _transferOwnership(_owner);
+    constructor(address _admin) {
+        _transferOwnership(_admin);
     }
 
     /// @inheritdoc IFxSplitsFactory
@@ -37,8 +37,8 @@ contract FxSplitsFactory is IFxSplitsFactory, Ownable {
         external
         returns (address split)
     {
-        split = ISplitsMain(SPLITS_MAIN).createSplit(_accounts, _allocations, 0, fxSplitController);
-        emit SplitsInfo(split, fxSplitController, _accounts, _allocations, 0);
+        split = ISplitsMain(SPLITS_MAIN).createSplit(_accounts, _allocations, 0, controller);
+        emit SplitsInfo(split, controller, _accounts, _allocations, 0);
     }
     /// @inheritdoc IFxSplitsFactory
 
@@ -51,9 +51,9 @@ contract FxSplitsFactory is IFxSplitsFactory, Ownable {
     }
 
     /// @inheritdoc IFxSplitsFactory
-    function updateFxSplitController(address _newFxSplitController) external onlyOwner {
-        address oldFxSplitController = fxSplitController;
-        fxSplitController = _newFxSplitController;
-        emit UpdateFxSplitController(oldFxSplitController, _newFxSplitController);
+    function updateController(address _newController) external onlyOwner {
+        address oldController = controller;
+        controller = _newController;
+        emit UpdateController(oldController, _newController);
     }
 }

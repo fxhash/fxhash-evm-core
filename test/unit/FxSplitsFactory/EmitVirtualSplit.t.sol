@@ -6,8 +6,8 @@ import "test/unit/FxSplitsFactory/FxSplitsFactoryTest.sol";
 contract CreateVirtualSplit is FxSplitsFactoryTest {
     function setUp() public override {
         super.setUp();
-        accounts.push(address(13));
-        accounts.push(address(53));
+        accounts.push(bob);
+        accounts.push(alice);
         allocations.push(uint32(400_000));
         allocations.push(uint32(600_000));
     }
@@ -39,7 +39,7 @@ contract CreateVirtualSplit is FxSplitsFactoryTest {
     }
 
     function test_RevertsWhen_DuplicateAccountInAccounts() public {
-        accounts.push(address(13));
+        accounts.push(alice);
         allocations.push(1);
         allocations[0]--;
 
