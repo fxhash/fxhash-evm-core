@@ -25,8 +25,10 @@ interface IFxTicketFactory {
 
     /// @notice Error thrown when grace period is less than one day
     error InvalidGracePeriod();
+
     /// @notice Error thrown when owner is zero address
     error InvalidOwner();
+
     /// @notice Error thrown when token is zero address
     error InvalidToken();
 

@@ -24,7 +24,6 @@ contract FxMintTicket721Test is FxGenArt721Test {
     bytes4 internal GRACE_PERIOD_ACTIVE_ERROR = IFxMintTicket721.GracePeriodActive.selector;
     bytes4 internal INSUFFICIENT_DEPOSIT_ERROR = IFxMintTicket721.InsufficientDeposit.selector;
     bytes4 internal INSUFFICIENT_PAYMENT_ERROR = IFxMintTicket721.InsufficientPayment.selector;
-    bytes4 internal INVALID_DURATION_ERROR = IFxMintTicket721.InvalidDuration.selector;
     bytes4 internal INVALID_PRICE_ERROR = IFxMintTicket721.InvalidPrice.selector;
     bytes4 internal NOT_AUTHORIZED_TICKET_ERROR = IFxMintTicket721.NotAuthorized.selector;
     bytes4 internal UNAUTHORIZED_ACCOUNT_TICKET_ERROR =
