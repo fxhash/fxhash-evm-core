@@ -125,6 +125,12 @@ interface IFxMintTicket721 {
     function claim(uint256 _tokenId, uint128 _newPrice) external payable;
 
     /**
+     * @notice Deposits taxes for given token
+     * @param _tokenId ID of the token
+     */
+    function deposit(uint256 _tokenId) external payable;
+
+    /**
      * @notice Initializes new generative art project
      * @param _owner Address of contract owner
      * @param _genArt721 Address of GenArt721 token contract
@@ -151,6 +157,11 @@ interface IFxMintTicket721 {
      * @return Status of authorization
      */
     function isMinter(address _minter) external view returns (bool);
+
+    /**
+     * @notice Returns address of the FxGenArt721 token contract
+     */
+    function genArt721() external view returns (address);
 
     /**
      * @notice Gets the current auction price of the token
@@ -217,6 +228,11 @@ interface IFxMintTicket721 {
         returns (uint256);
 
     /**
+     * @notice Returns default grace period of time for each token
+     */
+    function gracePeriod() external view returns (uint48);
+
+    /**
      * @notice Allows any minter contract to mint an arbitrary amount of tokens to a given account
      * @param _to Address being minted to
      * @param _amount Amount of tokens being minted
@@ -225,10 +241,14 @@ interface IFxMintTicket721 {
     function mint(address _to, uint256 _amount, uint256 _payment) external;
 
     /**
-     * @notice Deposits taxes for given token
-     * @param _tokenId ID of the token
+     * @notice Pauses all function executions where modifier is applied
      */
-    function deposit(uint256 _tokenId) external payable;
+    function pause() external;
+
+    /**
+     * @notice Unpauses all function executions where modifier is applied
+     */
+    function unpause() external;
 
     /**
      * @notice Sets the new URI of the token metadata

@@ -20,17 +20,17 @@ import "src/utils/Constants.sol";
 contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pausable {
     using Strings for uint256;
 
-    // @inheritdoc IFxMintTicket721
+    /// @inheritdoc IFxMintTicket721
     address public genArt721;
-    // @inheritdoc IFxMintTicket721
+    /// @inheritdoc IFxMintTicket721
     uint48 public totalSupply;
-    // @inheritdoc IFxMintTicket721
+    /// @inheritdoc IFxMintTicket721
     uint48 public gracePeriod;
-    // @inheritdoc IFxMintTicket721
+    /// @inheritdoc IFxMintTicket721
     string public baseURI;
-    // @inheritdoc IFxMintTicket721
+    /// @inheritdoc IFxMintTicket721
     mapping(address => uint256) public balances;
-    // @inheritdoc IFxMintTicket721
+    /// @inheritdoc IFxMintTicket721
     mapping(uint256 => TaxInfo) public taxes;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -64,7 +64,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
                                 INITIALIZATION
     //////////////////////////////////////////////////////////////////////////*/
 
-    // @inheritdoc IFxMintTicket721
+    /// @inheritdoc IFxMintTicket721
     function initialize(
         address _owner,
         address _genArt721,
@@ -83,7 +83,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
                                 PUBLIC FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    // @inheritdoc IFxMintTicket721
+    /// @inheritdoc IFxMintTicket721
     function mint(address _to, uint256 _amount, uint256 _payment)
         external
         onlyMinter
@@ -108,7 +108,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
         }
     }
 
-    // @inheritdoc IFxMintTicket721
+    /// @inheritdoc IFxMintTicket721
     function burn(uint256 _tokenId, address _operator) external onlyMinter whenNotPaused {
         // Reverts if operator is not owner or approved
         if (!_isApprovedOrOwner(_operator, _tokenId)) revert NotAuthorized();
@@ -133,7 +133,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
         balances[owner()] += taxInfo.depositAmount - excessTax;
     }
 
-    // @inheritdoc IFxMintTicket721
+    /// @inheritdoc IFxMintTicket721
     function claim(uint256 _tokenId, uint128 _newPrice) external payable {
         // Loads current tax info
         TaxInfo storage taxInfo = taxes[_tokenId];
@@ -187,7 +187,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
         emit Claimed(_tokenId, msg.sender, _newPrice, msg.value);
     }
 
-    // @inheritdoc IFxMintTicket721
+    /// @inheritdoc IFxMintTicket721
     function deposit(uint256 _tokenId) public payable {
         // Loads current tax info
         TaxInfo storage taxInfo = taxes[_tokenId];
@@ -215,7 +215,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
         if (excessAmount > 0) SafeTransferLib.safeTransferETH(msg.sender, excessAmount);
     }
 
-    // @inheritdoc IFxMintTicket721
+    /// @inheritdoc IFxMintTicket721
     function setPrice(uint256 _tokenId, uint128 _newPrice) public {
         // Reverts if caller is not owner of token
         if (_ownerOf(_tokenId) != msg.sender) revert NotAuthorized();
@@ -252,7 +252,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
         emit SetPrice(_tokenId, _newPrice, taxInfo.foreclosureTime, taxInfo.depositAmount);
     }
 
-    // @inheritdoc IFxMintTicket721
+    /// @inheritdoc IFxMintTicket721
     function withdraw(address _to) external {
         uint256 balance = balances[_to];
         delete balances[_to];
@@ -265,17 +265,17 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
                                 ADMIN FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    // @inheritdoc IFxMintTicket721
+    /// @inheritdoc IFxMintTicket721
     function setBaseURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
         baseURI = _uri;
     }
 
-    // @inheritdoc IFxMintTicket721
+    /// @inheritdoc IFxMintTicket721
     function pause() external onlyRole(ADMIN_ROLE) {
         _pause();
     }
 
-    // @inheritdoc IFxMintTicket721
+    /// @inheritdoc IFxMintTicket721
     function unpause() external onlyRole(ADMIN_ROLE) {
         _unpause();
     }
@@ -284,13 +284,13 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
                                 READ FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    // @inheritdoc ERC721
+    /// @inheritdoc ERC721
     function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
         _requireMinted(_tokenId);
         return string.concat(baseURI, _tokenId.toString());
     }
 
-    // @inheritdoc ERC721
+    /// @inheritdoc ERC721
     function isApprovedForAll(address _owner, address _operator)
         public
         view
@@ -301,17 +301,17 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
         return _operator == address(this) || super.isApprovedForAll(_owner, _operator);
     }
 
-    // @inheritdoc IFxMintTicket721
+    /// @inheritdoc IFxMintTicket721
     function isForeclosed(uint256 _tokenId) public view returns (bool) {
         return block.timestamp >= taxes[_tokenId].foreclosureTime;
     }
 
-    // @inheritdoc IFxMintTicket721
+    /// @inheritdoc IFxMintTicket721
     function isMinter(address _minter) public view returns (bool) {
         return IFxGenArt721(genArt721).isMinter(_minter);
     }
 
-    // @inheritdoc IFxMintTicket721
+    /// @inheritdoc IFxMintTicket721
     function getAuctionPrice(uint256 _currentPrice, uint256 _foreclosureTime)
         public
         view
@@ -326,7 +326,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
         return _currentPrice - decayedAmount;
     }
 
-    // @inheritdoc IFxMintTicket721
+    /// @inheritdoc IFxMintTicket721
     function getRemainingDeposit(
         uint256 _dailyTax,
         uint256 _foreclosureTime,
@@ -339,19 +339,19 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
         return (_depositAmount < amountOwed) ? _depositAmount : _depositAmount - amountOwed;
     }
 
-    // @inheritdoc IFxMintTicket721
+    /// @inheritdoc IFxMintTicket721
     function getDailyTax(uint256 _currentPrice) public pure returns (uint256) {
         return (_currentPrice * DAILY_TAX_RATE) / SCALING_FACTOR;
     }
 
-    // @inheritdoc IFxMintTicket721
+    /// @inheritdoc IFxMintTicket721
     function getExcessTax(uint256 _totalDeposit, uint256 _dailyTax) public pure returns (uint256) {
         uint256 daysCovered = _totalDeposit / _dailyTax;
         uint256 totalAmount = daysCovered * _dailyTax;
         return _totalDeposit - totalAmount;
     }
 
-    // @inheritdoc IFxMintTicket721
+    /// @inheritdoc IFxMintTicket721
     function getForeclosureTime(uint256 _dailyTax, uint256 _foreclosureTime, uint256 _taxPayment)
         public
         pure
@@ -361,7 +361,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
         return uint128(_foreclosureTime + secondsCovered);
     }
 
-    // @inheritdoc IFxMintTicket721
+    /// @inheritdoc IFxMintTicket721
     function getTaxDuration(uint256 _taxPayment, uint256 _dailyTax) public pure returns (uint256) {
         return (_taxPayment * ONE_DAY) / _dailyTax;
     }

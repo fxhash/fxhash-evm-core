@@ -191,6 +191,16 @@ interface IFxGenArt721 is ISeedConsumer {
     function reduceSupply(uint240 _supply) external;
 
     /**
+     * @notice Pauses all function executions where modifier is applied
+     */
+    function pause() external;
+
+    /**
+     * @notice Unpauses all function executions where modifier is applied
+     */
+    function unpause() external;
+
+    /**
      * @notice Sets the new URI of the token metadata
      * @param _uri Pointer of the metadata
      */
