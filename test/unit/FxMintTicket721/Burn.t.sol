@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+import {IERC721} from "forge-std/interfaces/IERC721.sol";
 import "test/unit/FxMintTicket721/FxMintTicket721Test.t.sol";
 
 contract Burn is FxMintTicket721Test {
@@ -11,7 +12,9 @@ contract Burn is FxMintTicket721Test {
     }
 
     function testBurn() public {
-        _burn(minter, tokenId, bob);
+        vm.prank(bob);
+        IERC721(fxMintTicketProxy).approve(minter, tokenId);
+        _burn(bob, tokenId);
         _setTaxInfo();
         assertEq(gracePeriod, 0);
         assertEq(foreclosureTime, 0);
@@ -20,7 +23,7 @@ contract Burn is FxMintTicket721Test {
     }
 
     function testBurn_RevertsWhen_NotAuthorized() public {
-        vm.expectRevert(NOT_AUTHORIZED_TICKET_ERROR);
-        _burn(minter, tokenId, alice);
+        vm.expectRevert("ERC721: caller is not token owner or approved");
+        _burn(bob, tokenId);
     }
 }

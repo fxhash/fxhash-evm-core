@@ -58,8 +58,8 @@ contract FxMintTicket721Test is FxGenArt721Test {
         MockMinter(minter).mintTicket(fxMintTicketProxy, _to, _amount, _payment);
     }
 
-    function _burn(address _minter, uint256 _tokenId, address _operator) internal prank(_minter) {
-        MockMinter(minter).burnTicket(fxMintTicketProxy, _tokenId, _operator);
+    function _burn(address _minter, uint256 _tokenId) internal prank(_minter) {
+        MockMinter(minter).burnTicket(fxMintTicketProxy, _tokenId);
     }
 
     function _deposit(address _depositer, uint256 _tokenId, uint256 _amount)

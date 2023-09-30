@@ -2,6 +2,7 @@
 pragma solidity 0.8.20;
 
 import {ERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {ERC721Burnable} from "openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
 import {IFxGenArt721, MintInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxMintTicket721, TaxInfo} from "src/interfaces/IFxMintTicket721.sol";
@@ -17,7 +18,7 @@ import "src/utils/Constants.sol";
  * @title FxMintTicket721
  * @notice See the documentation in {IFxMintTicket721}
  */
-contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pausable {
+contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, ERC721Burnable, Ownable, Pausable {
     using Strings for uint256;
 
     /// @inheritdoc IFxMintTicket721
@@ -108,13 +109,9 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
         }
     }
 
-    /// @inheritdoc IFxMintTicket721
-    function burn(uint256 _tokenId, address _operator) external onlyMinter whenNotPaused {
-        // Reverts if operator is not owner or approved
-        if (!_isApprovedOrOwner(_operator, _tokenId)) revert NotAuthorized();
-
-        // Burns token
-        _burn(_tokenId);
+    /// @inheritdoc ERC721Burnable
+    function burn(uint256 _tokenId) public virtual override(ERC721Burnable, IFxMintTicket721) onlyMinter whenNotPaused {
+        super.burn(_tokenId);
 
         // Loads current tax info
         TaxInfo memory taxInfo = taxes[_tokenId];
