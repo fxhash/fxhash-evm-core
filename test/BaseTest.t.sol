@@ -19,6 +19,7 @@ contract BaseTest is Deploy, Test {
     // State
     address internal owner;
     uint96 internal projectId;
+    uint96 internal ticketId;
 
     // Metadata
     HTMLRequest internal attributes;

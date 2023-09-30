@@ -72,6 +72,9 @@ contract Deploy is Script {
     bytes internal fxParams;
     uint256 internal price;
 
+    // Ticket
+    address internal fxMintTicketProxy;
+
     // Metadata
     string internal baseURI;
     string internal imageURI;
@@ -123,6 +126,7 @@ contract Deploy is Script {
         _registerRoles();
         _createSplit();
         _createProject();
+        _createTicket();
         _setContracts();
     }
 
@@ -322,6 +326,11 @@ contract Deploy is Script {
             royaltyReceivers,
             basisPoints
         );
+    }
+
+    function _createTicket() internal {
+        fxMintTicketProxy =
+            fxTicketFactory.createTicket(creator, fxGenArtProxy, uint48(ONE_DAY), BASE_URI);
     }
 
     function _createSplit() internal virtual {

@@ -14,7 +14,6 @@ contract FxMintTicket721Test is FxGenArt721Test {
     uint128 depositAmount;
 
     // State
-    address fxMintTicketProxy;
     uint256 auctionPrice;
     uint256 balance;
     uint256 excessAmount;
@@ -51,11 +50,6 @@ contract FxMintTicket721Test is FxGenArt721Test {
         tokenId = 1;
         excessAmount = DEPOSIT_AMOUNT / 2;
         newPrice = uint128(PRICE / 2);
-    }
-
-    function _createTicket() internal {
-        fxMintTicketProxy =
-            fxTicketFactory.createTicket(creator, fxGenArtProxy, uint48(ONE_DAY), BASE_URI);
     }
 
     function _mint(address _minter, address _to, uint256 _amount, uint256 _payment)
