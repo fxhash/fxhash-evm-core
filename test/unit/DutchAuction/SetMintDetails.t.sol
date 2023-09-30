@@ -9,7 +9,7 @@ contract SetMintDetails is DutchAuctionTest {
     function setUp() public override {
         super.setUp();
         daInfo = IDutchAuction.DAInfo(prices, stepLength, refund);
-        vm.warp(0);
+        vm.warp(RESERVE_START_TIME - 1);
     }
 
     function test_setMintDetails() public {
@@ -20,10 +20,24 @@ contract SetMintDetails is DutchAuctionTest {
         vm.warp(RESERVE_START_TIME);
         (uint64 startTime_, uint64 endTime_, uint128 supply_) = dutchAuction.reserves(address(this));
         (uint256 step, uint256 price_) = dutchAuction.getPrice(address(this));
+
+        uint256 duration = RESERVE_END_TIME - RESERVE_START_TIME;
+        uint256 remainder = duration % daInfo.stepLength;
+
+        assertTrue(remainder == 0, "duration not multiple of stepLength");
         assertEq(price_, daInfo.prices[0], "price incorrectly set");
         assertEq(RESERVE_START_TIME, startTime_, "startTime incorrectly set");
         assertEq(RESERVE_END_TIME, endTime_, "endTime incorrectly set");
         assertEq(RESERVE_MINTER_ALLOCATION, supply_, "supply incorrectly set");
+    }
+
+    function test_RevertsIf_StartTimeLessThan_CurrentTime() public {
+        vm.warp(RESERVE_START_TIME + 1);
+        vm.expectRevert(INVALID_TIMES_ERROR);
+        dutchAuction.setMintDetails(
+            ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, RESERVE_MINTER_ALLOCATION),
+            abi.encode(daInfo)
+        );
     }
 
     function test_RevertsIf_StartTimeGtEndTime() public {
@@ -49,6 +63,18 @@ contract SetMintDetails is DutchAuctionTest {
             ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, RESERVE_MINTER_ALLOCATION),
             abi.encode(daInfo)
         );
+    }
+
+    function test_RevertsIf_DurationNotMultipleOfStepLength() public {
+        uint256 duration = RESERVE_END_TIME - RESERVE_START_TIME;
+        daInfo.stepLength--;
+        uint256 remainder = duration % daInfo.stepLength;
+        vm.expectRevert(INVALID_STEP_ERROR);
+        dutchAuction.setMintDetails(
+            ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, RESERVE_MINTER_ALLOCATION),
+            abi.encode(daInfo)
+        );
+        assertTrue(remainder != 0, "duration was multiple of stepLength");
     }
 
     function test_RevertsIf_PricesOutOfOrder() public {
