@@ -289,7 +289,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc ERC721
-    function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
+    function tokenURI(uint256 _tokenId) public view override returns (string memory) {
         _requireMinted(_tokenId);
         return string.concat(baseURI, _tokenId.toString());
     }
@@ -298,7 +298,6 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
     function isApprovedForAll(address _owner, address _operator)
         public
         view
-        virtual
         override
         returns (bool)
     {
