@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-/// @title IFxContractRegistry
-/// @notice Registry of FxHash Smart Contracts
+/**
+ * @title IFxContractRegistry
+ * @notice Registry of FxHash Smart Contracts
+ */
 interface IFxContractRegistry {
     /// @notice Error thrown when array lengths do not match
     error LengthMismatch();

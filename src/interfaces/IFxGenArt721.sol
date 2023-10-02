@@ -135,7 +135,7 @@ interface IFxGenArt721 is ISeedConsumer {
     /// @notice Error thrown when caller is not authorized to execute transaction
     error NotAuthorized();
 
-    /// @notice Error thrown when caller does not have given role
+    /// @notice Error thrown when caller does not have the specified role
     error UnauthorizedAccount();
 
     /// @notice Error thrown when caller is not an authorized contract
@@ -196,6 +196,16 @@ interface IFxGenArt721 is ISeedConsumer {
     function reduceSupply(uint240 _supply) external;
 
     /**
+     * @notice Pauses all function executions where modifier is applied
+     */
+    function pause() external;
+
+    /**
+     * @notice Unpauses all function executions where modifier is applied
+     */
+    function unpause() external;
+
+    /**
      * @notice Sets the new URI of the token metadata
      * @param _uri Pointer of the metadata
      */
@@ -225,16 +235,24 @@ interface IFxGenArt721 is ISeedConsumer {
      */
     function setRenderer(address _renderer) external;
 
-    /// @notice Toggles public mint from enabled to disabled and vice versa
+    /**
+     * @notice Toggles public mint from enabled to disabled and vice versa
+     */
     function toggleMint() external;
 
-    /// @notice Toggles token metadata from offchain to onchain and vice versa
+    /**
+     * @notice Toggles token metadata from offchain to onchain and vice versa
+     */
     function toggleOnchain() external;
 
-    /// @notice Returns the address of the ContractRegistry contract
+    /**
+     * @notice Returns the address of the ContractRegistry contract
+     */
     function contractRegistry() external view returns (address);
 
-    /// @notice Returns contract-level metadata for storefront marketplaces
+    /**
+     * @notice Returns contract-level metadata for storefront marketplaces
+     */
     function contractURI() external view returns (string memory);
 
     /**
@@ -266,18 +284,28 @@ interface IFxGenArt721 is ISeedConsumer {
         view
         returns (string memory, string memory, HTMLRequest memory, HTMLRequest memory);
 
-    /// @notice Returns the remaining supply of tokens left to mint
+    /**
+     * @notice Returns the remaining supply of tokens left to mint
+     */
     function remainingSupply() external view returns (uint256);
 
-    /// @notice Returns the address of the Randomizer contract
+    /**
+     * @notice Returns the address of the Randomizer contract
+     */
     function randomizer() external view returns (address);
 
-    /// @notice Returns the address of the Renderer contract
+    /**
+     * @notice Returns the address of the Renderer contract
+     */
     function renderer() external view returns (address);
 
-    /// @notice Returns the address of the RoleRegistry contract
+    /**
+     * @notice Returns the address of the RoleRegistry contract
+     */
     function roleRegistry() external view returns (address);
 
-    /// @notice Returns the current total supply of tokens
+    /**
+     * @notice Returns the current total supply of tokens
+     */
     function totalSupply() external view returns (uint96);
 }
