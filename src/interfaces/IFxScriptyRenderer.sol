@@ -43,16 +43,12 @@ interface IFxScriptyRenderer is IFxRenderer {
     /**
      * @notice Returns the metadata for a given token
      * @param _tokenId ID of the token
-     * @param _projectInfo Project information
-     * @param _metadataInfo Metadata information
-     * @param _genArtInfo Generative art information
+     * @param _data Bytes-encoded data
      */
-    function tokenURI(
-        uint256 _tokenId,
-        ProjectInfo memory _projectInfo,
-        MetadataInfo memory _metadataInfo,
-        GenArtInfo memory _genArtInfo
-    ) external view returns (string memory);
+    function tokenURI(uint256 _tokenId, bytes calldata _data)
+        external
+        view
+        returns (string memory);
 
     /// @notice Returns the address of ETHFSFileStorage contract
     function ethfsFileStorage() external view returns (address);

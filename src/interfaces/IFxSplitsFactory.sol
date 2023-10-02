@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+/**
+ * @title IFxSplitsFactory
+ * @notice Factory contract for deploying new split wallets
+ */
 interface IFxSplitsFactory {
     /// @notice Error thrown if predictedSplit doesn't match deployment
     error InvalidSplit();

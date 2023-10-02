@@ -34,21 +34,25 @@ contract FxScriptyRenderer is IFxScriptyRenderer {
     }
 
     /// @inheritdoc IFxScriptyRenderer
-    function tokenURI(
-        uint256 _tokenId,
-        ProjectInfo memory _projectInfo,
-        MetadataInfo memory _metadataInfo,
-        GenArtInfo memory _genArtInfo
-    ) external view returns (string memory) {
-        if (!_projectInfo.onchain) {
-            string memory baseURI = _metadataInfo.baseURI;
+    function tokenURI(uint256 _tokenId, bytes calldata _data)
+        external
+        view
+        returns (string memory)
+    {
+        (
+            ProjectInfo memory projectInfo,
+            MetadataInfo memory metadataInfo,
+            GenArtInfo memory genArtInfo
+        ) = abi.decode(_data, (ProjectInfo, MetadataInfo, GenArtInfo));
+
+        if (!projectInfo.onchain) {
+            string memory baseURI = metadataInfo.baseURI;
             return string.concat(baseURI, _tokenId.toString());
         } else {
-            HTMLRequest memory animation = _metadataInfo.animation;
-            HTMLRequest memory attributes = _metadataInfo.attributes;
-            bytes memory onchainData = renderOnchain(
-                _tokenId, _genArtInfo.seed, _genArtInfo.fxParams, animation, attributes
-            );
+            HTMLRequest memory animation = metadataInfo.animation;
+            HTMLRequest memory attributes = metadataInfo.attributes;
+            bytes memory onchainData =
+                renderOnchain(_tokenId, genArtInfo.seed, genArtInfo.fxParams, animation, attributes);
             /* solhint-disable quotes*/
             return string(
                 abi.encodePacked("data:application/json;base64,", Base64.encode(onchainData))
