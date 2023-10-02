@@ -51,10 +51,6 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @dev Modifier for checking if user is verified on platform
-     */
-
-    /**
      * @dev Modifier for restricting calls to only registered contracts
      */
     modifier onlyContract(bytes32 _name) {
@@ -124,7 +120,6 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     /// @inheritdoc IFxGenArt721
     function mint(address _to, uint256 _amount) external onlyMinter whenNotPaused {
         if (!issuerInfo.projectInfo.enabled) revert MintInactive();
-        if (IAccessControl(roleRegistry).hasRole(BANNED_USER_ROLE, owner())) _pause();
         for (uint256 i; i < _amount; ++i) {
             _mint(_to, ++totalSupply);
             IFxRandomizer(randomizer).requestRandomness(totalSupply);

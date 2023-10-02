@@ -5,7 +5,7 @@ import {MetadataInfo, MintInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.s
 
 /**
  * @param feeShare Fee share out of 1 million basis points
- * @param lockTime Locked timestamp of minting for unverified users
+ * @param lockTime Locked time duration from mint start time for unverified users
  * @param defaultMetadata Default URI of metadata
  */
 struct ConfigInfo {

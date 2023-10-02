@@ -126,7 +126,7 @@ interface IFxGenArt721 is ISeedConsumer {
     /// @notice Error thrown when reserve start time is invalid
     error InvalidStartTime();
 
-    /// @notice Error thrown when reserve end time is is invalid
+    /// @notice Error thrown when reserve end time is invalid
     error InvalidEndTime();
 
     /// @notice Error thrown when minting is inactive
@@ -157,7 +157,7 @@ interface IFxGenArt721 is ISeedConsumer {
      * @notice Initializes new generative art project
      * @param _owner Address of contract owner
      * @param _primaryReceiver Address of splitter contract receiving primary sales
-     * @param _lockTime Locked timestamp of minting for unverified users
+     * @param _lockTime Locked time duration from mint start time for unverified users
      * @param _projectInfo Project information
      * @param _metadataInfo Metadata information
      * @param _mintInfo List of authorized minter contracts and their reserves
