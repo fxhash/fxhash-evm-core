@@ -6,21 +6,21 @@ import "test/unit/FxSplitsFactory/FxSplitsFactoryTest.sol";
 contract CreateVirtualSplit is FxSplitsFactoryTest {
     function setUp() public override {
         super.setUp();
-        accounts.push(address(13));
-        accounts.push(address(53));
+        accounts.push(bob);
+        accounts.push(alice);
         allocations.push(uint32(400_000));
         allocations.push(uint32(600_000));
     }
 
     function test_createsVirtualSplit() public {
-        fxSplitsFactory.createVirtualSplit(accounts, allocations);
+        fxSplitsFactory.emitVirtualSplit(accounts, allocations);
     }
 
     function test_RevertsWhen_LengthMismatch() public {
         accounts.pop();
 
         vm.expectRevert();
-        fxSplitsFactory.createVirtualSplit(accounts, allocations);
+        fxSplitsFactory.emitVirtualSplit(accounts, allocations);
     }
 
     function test_RevertsWhen_AllocationsGt100() public {
@@ -28,29 +28,29 @@ contract CreateVirtualSplit is FxSplitsFactoryTest {
         allocations.push(1);
 
         vm.expectRevert();
-        fxSplitsFactory.createVirtualSplit(accounts, allocations);
+        fxSplitsFactory.emitVirtualSplit(accounts, allocations);
     }
 
     function test_RevertsWhen_AllocationsLt100() public {
         allocations[0]--;
 
         vm.expectRevert();
-        fxSplitsFactory.createVirtualSplit(accounts, allocations);
+        fxSplitsFactory.emitVirtualSplit(accounts, allocations);
     }
 
     function test_RevertsWhen_DuplicateAccountInAccounts() public {
-        accounts.push(address(13));
+        accounts.push(alice);
         allocations.push(1);
         allocations[0]--;
 
         vm.expectRevert();
-        fxSplitsFactory.createVirtualSplit(accounts, allocations);
+        fxSplitsFactory.emitVirtualSplit(accounts, allocations);
     }
 
     function test_RevertsWhen_AccountsNotSorted() public {
         (accounts[0], accounts[1]) = (accounts[1], accounts[0]);
 
         vm.expectRevert();
-        fxSplitsFactory.createVirtualSplit(accounts, allocations);
+        fxSplitsFactory.emitVirtualSplit(accounts, allocations);
     }
 }

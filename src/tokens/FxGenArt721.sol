@@ -14,11 +14,12 @@ import {
     ReserveInfo
 } from "src/interfaces/IFxGenArt721.sol";
 import {IFxRandomizer} from "src/interfaces/IFxRandomizer.sol";
-import {IFxTokenRenderer} from "src/interfaces/IFxTokenRenderer.sol";
+import {IFxScriptyRenderer} from "src/interfaces/IFxScriptyRenderer.sol";
 import {IMinter} from "src/interfaces/IMinter.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
 import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
+import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {RoyaltyManager} from "src/tokens/extensions/RoyaltyManager.sol";
 
 import "src/utils/Constants.sol";
@@ -27,7 +28,7 @@ import "src/utils/Constants.sol";
  * @title FxGenArt721
  * @notice See the documentation in {IFxGenArt721}
  */
-contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, RoyaltyManager {
+contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, RoyaltyManager {
     /// @inheritdoc IFxGenArt721
     address public immutable contractRegistry;
     /// @inheritdoc IFxGenArt721
@@ -116,7 +117,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, RoyaltyMan
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IFxGenArt721
-    function mint(address _to, uint256 _amount) external onlyMinter {
+    function mint(address _to, uint256 _amount) external onlyMinter whenNotPaused {
         if (!issuerInfo.projectInfo.enabled) revert MintInactive();
         unchecked {
             for (uint256 i; i < _amount; ++i) {
@@ -127,7 +128,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, RoyaltyMan
     }
 
     /// @inheritdoc IFxGenArt721
-    function burn(uint256 _tokenId) external {
+    function burn(uint256 _tokenId) external whenNotPaused {
         if (!_isApprovedOrOwner(msg.sender, _tokenId)) revert NotAuthorized();
         _burn(_tokenId);
     }
@@ -144,7 +145,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, RoyaltyMan
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IFxGenArt721
-    function ownerMint(address _to) external onlyOwner {
+    function ownerMint(address _to) external onlyOwner whenNotPaused {
         _mint(_to, ++totalSupply);
         IFxRandomizer(randomizer).requestRandomness(totalSupply);
     }
@@ -201,6 +202,14 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, RoyaltyMan
         emit RendererUpdated(_renderer);
     }
 
+    function pause() external onlyRole(ADMIN_ROLE) {
+        _pause();
+    }
+
+    function unpause() external onlyRole(ADMIN_ROLE) {
+        _unpause();
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                 READ FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -221,12 +230,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, RoyaltyMan
     }
 
     /// @inheritdoc ERC721
-    function supportsInterface(bytes4 _interfaceId)
-        public
-        view
-        override(ERC721, RoyaltyManager)
-        returns (bool)
-    {
+    function supportsInterface(bytes4 _interfaceId) public view override returns (bool) {
         return super.supportsInterface(_interfaceId);
     }
 
@@ -234,7 +238,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, RoyaltyMan
     function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
         _requireMinted(_tokenId);
 
-        return IFxTokenRenderer(renderer).tokenURI(
+        return IFxScriptyRenderer(renderer).tokenURI(
             _tokenId, issuerInfo.projectInfo, metadataInfo, genArtInfo[_tokenId]
         );
     }
