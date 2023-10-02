@@ -5,7 +5,7 @@ import {MetadataInfo, MintInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.s
 
 /**
  * @param feeShare Fee share out of 1 million basis points
- * @param lockTime Time duration of locked minting
+ * @param lockTime Locked timestamp of minting for unverified users
  * @param defaultMetadata Default URI of metadata
  */
 struct ConfigInfo {
@@ -48,6 +48,9 @@ interface IFxIssuerFactory {
 
     /// @notice Error thrown when primary receiver is zero address
     error InvalidPrimaryReceiver();
+
+    /// @notice Error thrown when caller is not authorized to execute transaction
+    error NotAuthorized();
 
     /**
      * @notice Creates new Generative Art project
@@ -92,4 +95,7 @@ interface IFxIssuerFactory {
 
     /// @notice Mapping of project ID to address of FxGenArt721 token contract
     function projects(uint96) external view returns (address);
+
+    /// @notice Returns the address of the RoleRegistry contract
+    function roleRegistry() external view returns (address);
 }

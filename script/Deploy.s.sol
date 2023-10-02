@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+import "forge-std/Test.sol";
 import {FixedPrice} from "src/minters/FixedPrice.sol";
 import {FxContractRegistry} from "src/registries/FxContractRegistry.sol";
 import {
@@ -272,7 +273,7 @@ contract Deploy is Script {
         fxGenArt721 = FxGenArt721(_deployCreate2(creationCode, constructorArgs, salt));
 
         creationCode = type(FxIssuerFactory).creationCode;
-        constructorArgs = abi.encode(address(fxGenArt721), configInfo);
+        constructorArgs = abi.encode(address(fxRoleRegistry), address(fxGenArt721), configInfo);
         fxIssuerFactory = FxIssuerFactory(_deployCreate2(creationCode, constructorArgs, salt));
 
         creationCode = type(FixedPrice).creationCode;
@@ -343,6 +344,7 @@ contract Deploy is Script {
         fxRoleRegistry.grantRole(MINTER_ROLE, address(fixedPrice));
         fxRoleRegistry.grantRole(TOKEN_MODERATOR_ROLE, tokenMod);
         fxRoleRegistry.grantRole(USER_MODERATOR_ROLE, userMod);
+        fxRoleRegistry.grantRole(VERIFIED_USER_ROLE, creator);
     }
 
     function _setContracts() internal virtual {

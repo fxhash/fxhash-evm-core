@@ -123,8 +123,11 @@ interface IFxGenArt721 is ISeedConsumer {
     /// @notice Error thrown when max supply amount is invalid
     error InvalidAmount();
 
-    /// @notice Error thrown when reserve start time is greater than or equal to end time
-    error InvalidReserveTime();
+    /// @notice Error thrown when reserve start time is invalid
+    error InvalidStartTime();
+
+    /// @notice Error thrown when reserve end time is is invalid
+    error InvalidEndTime();
 
     /// @notice Error thrown when minting is inactive
     error MintInactive();
@@ -154,6 +157,7 @@ interface IFxGenArt721 is ISeedConsumer {
      * @notice Initializes new generative art project
      * @param _owner Address of contract owner
      * @param _primaryReceiver Address of splitter contract receiving primary sales
+     * @param _lockTime Locked timestamp of minting for unverified users
      * @param _projectInfo Project information
      * @param _metadataInfo Metadata information
      * @param _mintInfo List of authorized minter contracts and their reserves
@@ -163,6 +167,7 @@ interface IFxGenArt721 is ISeedConsumer {
     function initialize(
         address _owner,
         address _primaryReceiver,
+        uint128 _lockTime,
         ProjectInfo calldata _projectInfo,
         MetadataInfo calldata _metadataInfo,
         MintInfo[] calldata _mintInfo,
