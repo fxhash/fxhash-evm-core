@@ -24,25 +24,26 @@ contract FixedPrice is IFixedPrice {
         if (_reserve.allocation == 0) revert InvalidAllocation();
         uint256 price = abi.decode(_mintDetails, (uint256));
         if (price == 0) revert InvalidPrice();
+        uint256 reserveId = reserves[msg.sender].length;
         prices[msg.sender].push(price);
         reserves[msg.sender].push(_reserve);
-        emit MintDetailsSet(msg.sender, price, _reserve);
+        emit MintDetailsSet(msg.sender, reserveId, price, _reserve);
     }
 
     /// @inheritdoc IFixedPrice
-    function buy(address _token, uint256 _mintId, uint256 _amount, address _to) external payable {
+    function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable {
         if (_token == address(0) || reserves[_token].length == 0) revert InvalidToken();
-        ReserveInfo storage reserve = reserves[_token][_mintId];
+        ReserveInfo storage reserve = reserves[_token][_reserveId];
         if (block.timestamp < reserve.startTime) revert NotStarted();
         if (block.timestamp > reserve.endTime) revert Ended();
         if (_amount > reserve.allocation) revert TooMany();
         if (_to == address(0)) revert AddressZero();
-        uint256 price = _amount * prices[_token][_mintId];
+        uint256 price = _amount * prices[_token][_reserveId];
         if (msg.value != price) revert InvalidPayment();
         reserve.allocation -= _amount.safeCastTo128();
         saleProceeds[_token] += price;
         IFxGenArt721(_token).mint(_to, _amount);
-        emit Purchase(_token, _mintId, _amount, _to, price);
+        emit Purchase(_token, _reserveId, msg.sender, _amount, _to, price);
     }
 
     /// @inheritdoc IFixedPrice
@@ -52,6 +53,6 @@ contract FixedPrice is IFixedPrice {
         (, address saleReceiver) = IFxGenArt721(_token).issuerInfo();
         delete saleProceeds[_token];
         SafeTransferLib.safeTransferETH(saleReceiver, proceeds);
-        emit Withdrawn(_token, proceeds);
+        emit Withdrawn(_token, saleReceiver, proceeds);
     }
 }

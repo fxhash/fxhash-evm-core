@@ -25,6 +25,7 @@ contract DutchAuctionTest is BaseTest {
     uint256[] internal prices;
     uint256 internal stepLength;
     bool internal refund;
+    uint256 internal reserveId;
 
     function setUp() public virtual override {
         super.setUp();
