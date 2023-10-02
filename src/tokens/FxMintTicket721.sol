@@ -109,10 +109,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
     }
 
     /// @inheritdoc IFxMintTicket721
-    function burn(uint256 _tokenId, address _operator) external onlyMinter whenNotPaused {
-        // Reverts if operator is not owner or approved
-        if (!_isApprovedOrOwner(_operator, _tokenId)) revert NotAuthorized();
-
+    function burn(uint256 _tokenId) external onlyMinter whenNotPaused {
         // Burns token
         _burn(_tokenId);
 
@@ -301,7 +298,8 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
         override
         returns (bool)
     {
-        return _operator == address(this) || super.isApprovedForAll(_owner, _operator);
+        return _operator == address(this) || isMinter(_operator)
+            || super.isApprovedForAll(_owner, _operator);
     }
 
     /// @inheritdoc IFxMintTicket721

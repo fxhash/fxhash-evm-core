@@ -113,9 +113,8 @@ interface IFxMintTicket721 {
     /**
      * @notice Burns token ID from the circulating supply
      * @param _tokenId ID of the token
-     * @param _operator Address of caller executing burn from minter contract
      */
-    function burn(uint256 _tokenId, address _operator) external;
+    function burn(uint256 _tokenId) external;
 
     /**
      * @notice Claims token at current price and sets new price of token with initial deposit amount
