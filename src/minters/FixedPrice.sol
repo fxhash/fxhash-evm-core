@@ -31,7 +31,10 @@ contract FixedPrice is IFixedPrice {
     }
 
     /// @inheritdoc IFixedPrice
-    function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable {
+    function buy(address _token, uint256 _reserveId, uint256 _amount, address _to)
+        external
+        payable
+    {
         if (_token == address(0) || reserves[_token].length == 0) revert InvalidToken();
         ReserveInfo storage reserve = reserves[_token][_reserveId];
         if (block.timestamp < reserve.startTime) revert NotStarted();

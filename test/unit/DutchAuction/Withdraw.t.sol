@@ -8,10 +8,10 @@ contract Withdraw is DutchAuctionTest {
 
     function test_withdraw() public {
         (, uint256 price) = dutchAuction.getPrice(fxGenArtProxy, reserveId);
-        dutchAuction.buy{value: price}(fxGenArtProxy, reserveId,quantity, alice);
+        dutchAuction.buy{value: price}(fxGenArtProxy, reserveId, quantity, alice);
         uint256 beforeBalance = creator.balance;
 
-        vm.warp(RESERVE_END_TIME+ 1);
+        vm.warp(RESERVE_END_TIME + 1);
         dutchAuction.withdraw(fxGenArtProxy, reserveId);
         uint256 afterBalance = creator.balance;
         assertEq(beforeBalance + price, afterBalance);

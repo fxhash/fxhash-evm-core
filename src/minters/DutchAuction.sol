@@ -56,7 +56,10 @@ contract DutchAuction is IDutchAuction {
     }
 
     /// @inheritdoc IDutchAuction
-    function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable {
+    function buy(address _token, uint256 _reserveId, uint256 _amount, address _to)
+        external
+        payable
+    {
         if (reserves[_token].length == 0) revert InvalidToken();
         ReserveInfo storage reserve = reserves[_token][_reserveId];
         if (_to == address(0)) revert AddressZero();
@@ -70,7 +73,9 @@ contract DutchAuction is IDutchAuction {
         if (msg.value != price * _amount) revert InvalidPayment();
 
         reserve.allocation -= _amount.safeCastTo128();
-        if (reserve.allocation == 0 && auctionInfo[_token][_reserveId].refunded) lastPrice[_token][_reserveId] = price;
+        if (reserve.allocation == 0 && auctionInfo[_token][_reserveId].refunded) {
+            lastPrice[_token][_reserveId] = price;
+        }
         cumulativeMints[_token][_reserveId][msg.sender] += _amount;
         cumulativeMintCost[_token][_reserveId][msg.sender] += price * _amount;
         saleProceeds[_token][_reserveId] += price * _amount;
@@ -85,7 +90,9 @@ contract DutchAuction is IDutchAuction {
         if (_token == address(0)) revert InvalidToken();
         if (_who == address(0)) revert AddressZero();
         ReserveInfo storage reserve = reserves[_token][_reserveId];
-        if (!(auctionInfo[_token][_reserveId].refunded && lastPrice[_token][_reserveId] > 0)) revert NoRefund();
+        if (!(auctionInfo[_token][_reserveId].refunded && lastPrice[_token][_reserveId] > 0)) {
+            revert NoRefund();
+        }
         if (block.timestamp < reserve.endTime && reserve.allocation > 0) revert NotEnded();
         uint256 userCost = cumulativeMintCost[_token][_reserveId][_who];
         uint256 numMinted = cumulativeMints[_token][_reserveId][_who];
@@ -102,20 +109,27 @@ contract DutchAuction is IDutchAuction {
     function withdraw(address _token, uint256 _reserveId) external {
         if (reserves[_token].length == 0) revert InvalidToken();
         ReserveInfo storage reserve = reserves[_token][_reserveId];
-        if (NULL_RESERVE == keccak256(abi.encode(reserve)) || reserves[_token].length == 0) revert InvalidToken();
+        if (NULL_RESERVE == keccak256(abi.encode(reserve)) || reserves[_token].length == 0) {
+            revert InvalidToken();
+        }
         if (_token == address(0)) revert InvalidToken();
         if (block.timestamp < reserve.endTime && reserve.allocation > 0) revert NotEnded();
         (, address saleReceiver) = IFxGenArt721(_token).issuerInfo();
         uint256 proceeds = saleProceeds[_token][_reserveId];
         if (proceeds == 0) revert InsufficientFunds();
         delete saleProceeds[_token][_reserveId];
-        emit Withdrawn(_token, _reserveId,saleReceiver, proceeds);
+        emit Withdrawn(_token, _reserveId, saleReceiver, proceeds);
 
         SafeTransferLib.safeTransferETH(saleReceiver, proceeds);
     }
 
     /// @inheritdoc IDutchAuction
-    function getPrice(address _token, uint256 _reserveId) public view virtual returns (uint256 step, uint256 price) {
+    function getPrice(address _token, uint256 _reserveId)
+        public
+        view
+        virtual
+        returns (uint256 step, uint256 price)
+    {
         if (block.timestamp < reserves[_token][_reserveId].startTime) revert NotStarted();
         uint256 timeSinceStart = block.timestamp - reserves[_token][_reserveId].startTime;
         step = timeSinceStart / auctionInfo[_token][_reserveId].stepLength;

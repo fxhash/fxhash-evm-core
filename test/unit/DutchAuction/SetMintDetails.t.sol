@@ -18,7 +18,8 @@ contract SetMintDetails is DutchAuctionTest {
             abi.encode(daInfo)
         );
         vm.warp(RESERVE_START_TIME);
-        (uint64 startTime_, uint64 endTime_, uint128 supply_) = dutchAuction.reserves(address(this), 0);
+        (uint64 startTime_, uint64 endTime_, uint128 supply_) =
+            dutchAuction.reserves(address(this), 0);
         (uint256 step, uint256 price_) = dutchAuction.getPrice(address(this), 0);
 
         uint256 duration = RESERVE_END_TIME - RESERVE_START_TIME;

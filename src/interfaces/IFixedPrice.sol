@@ -12,13 +12,15 @@ interface IFixedPrice is IMinter {
      * @param price The fixed price for the mint
      * @param reserve The reserve information for the mint
      */
-    event MintDetailsSet(address indexed token, uint256 indexed reserveId, uint256 price, ReserveInfo reserve);
+    event MintDetailsSet(
+        address indexed token, uint256 indexed reserveId, uint256 price, ReserveInfo reserve
+    );
 
     /**
      * @notice Emitted when a purchase is made
      * @param token The address of the token being purchased
      * @param reserveId The ID of the mint
-     * @param buyer The address to purchasing the tokens 
+     * @param buyer The address to purchasing the tokens
      * @param amount The amount of tokens being purchased
      * @param to The address to which the tokens are being transferred
      * @param price The price of the purchase
@@ -77,7 +79,9 @@ interface IFixedPrice is IMinter {
      * @param _amount The number of tokens to buy
      * @param _to The address to receive the tokens
      */
-    function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable;
+    function buy(address _token, uint256 _reserveId, uint256 _amount, address _to)
+        external
+        payable;
 
     /**
      * @notice Withdraws the sale proceeds to the sale receiver
