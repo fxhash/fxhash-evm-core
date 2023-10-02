@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {IMinter} from "src/interfaces/IMinter.sol";
+import {IFxMinter} from "src/interfaces/IFxMinter.sol";
 import {ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 
-interface IDutchAuction is IMinter {
+interface IDutchAuction is IFxMinter {
     /**
      * @notice Struct to store the Dutch auction information.
      * @param prices The array of prices for each step of the auction.

@@ -2,7 +2,7 @@
 pragma solidity 0.8.20;
 
 import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
-import {IDutchAuction, IMinter} from "src/interfaces/IDutchAuction.sol";
+import {IDutchAuction, IFxMinter} from "src/interfaces/IDutchAuction.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 
@@ -31,7 +31,7 @@ contract DutchAuction is IDutchAuction {
     /// @inheritdoc IDutchAuction
     mapping(address => mapping(uint256 => uint256)) public lastPrice;
 
-    /// @inheritdoc IMinter
+    /// @inheritdoc IFxMinter
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintData) external {
         DAInfo memory daInfo = abi.decode(_mintData, (DAInfo));
 
