@@ -15,7 +15,7 @@ struct ConfigInfo {
 }
 
 /**
- * @title FxIssuerFactory
+ * @title IFxIssuerFactory
  * @notice Manages newly deployed FxGenArt721 token contracts
  */
 interface IFxIssuerFactory {

@@ -77,7 +77,7 @@ contract PublicTest is FxGenArt721Test {
     }
 
     function _mint(address _to, uint256 _amount) internal {
-        MockMinter(minter).mint(fxGenArtProxy, _to, _amount);
+        MockMinter(minter).mintToken(fxGenArtProxy, _to, _amount);
     }
 
     function _fulfillSeedRequest(address _caller, uint256 _tokenId, bytes32 _seed)

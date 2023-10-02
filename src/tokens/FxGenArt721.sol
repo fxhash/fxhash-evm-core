@@ -13,9 +13,9 @@ import {
     ProjectInfo,
     ReserveInfo
 } from "src/interfaces/IFxGenArt721.sol";
+import {IFxMinter} from "src/interfaces/IFxMinter.sol";
 import {IFxRandomizer} from "src/interfaces/IFxRandomizer.sol";
 import {IFxScriptyRenderer} from "src/interfaces/IFxScriptyRenderer.sol";
-import {IMinter} from "src/interfaces/IMinter.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
 import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
@@ -202,10 +202,12 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
         emit RendererUpdated(_renderer);
     }
 
+    /// @inheritdoc IFxGenArt721
     function pause() external onlyRole(ADMIN_ROLE) {
         _pause();
     }
 
+    /// @inheritdoc IFxGenArt721
     function unpause() external onlyRole(ADMIN_ROLE) {
         _unpause();
     }
@@ -237,10 +239,9 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     /// @inheritdoc ERC721
     function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
         _requireMinted(_tokenId);
+        bytes memory data = abi.encode(issuerInfo.projectInfo, metadataInfo, genArtInfo[_tokenId]);
 
-        return IFxScriptyRenderer(renderer).tokenURI(
-            _tokenId, issuerInfo.projectInfo, metadataInfo, genArtInfo[_tokenId]
-        );
+        return IFxScriptyRenderer(renderer).tokenURI(_tokenId, data);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -262,7 +263,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
                 if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) {
                     revert UnauthorizedMinter();
                 }
-                IMinter(minter).setMintDetails(reserveInfo, _mintInfo[i].params);
+                IFxMinter(minter).setMintDetails(reserveInfo, _mintInfo[i].params);
 
                 issuerInfo.minters[minter] = true;
                 totalAllocation += reserveInfo.allocation;
