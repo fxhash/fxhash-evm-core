@@ -266,7 +266,8 @@ contract Deploy is Script {
         fxRoleRegistry = FxRoleRegistry(_deployCreate2(creationCode, constructorArgs, salt));
 
         creationCode = type(FxSplitsFactory).creationCode;
-        fxSplitsFactory = FxSplitsFactory(_deployCreate2(creationCode, salt));
+        constructorArgs = abi.encode(admin);
+        fxSplitsFactory = FxSplitsFactory(_deployCreate2(creationCode, constructorArgs, salt));
 
         creationCode = type(FxGenArt721).creationCode;
         constructorArgs = abi.encode(address(fxContractRegistry), address(fxRoleRegistry));
@@ -334,7 +335,7 @@ contract Deploy is Script {
     }
 
     function _createSplit() internal virtual {
-        primaryReceiver = fxSplitsFactory.createSplit(accounts, allocations);
+        primaryReceiver = fxSplitsFactory.createImmutableSplit(accounts, allocations);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
