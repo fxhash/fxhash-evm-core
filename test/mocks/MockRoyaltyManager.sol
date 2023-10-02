@@ -13,8 +13,4 @@ contract MockRoyaltyManager is RoyaltyManager {
     function _exists(uint256 _tokenId) internal view override returns (bool) {
         return tokens[_tokenId];
     }
-
-    function supportsInterface(bytes4) public pure override returns (bool) {
-        return true;
-    }
 }
