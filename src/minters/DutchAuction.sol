@@ -5,7 +5,6 @@ import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IDutchAuction, IMinter} from "src/interfaces/IDutchAuction.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
-import "src/utils/Constants.sol";
 
 /**
  * @title DutchAuction
@@ -64,7 +63,6 @@ contract DutchAuction is IDutchAuction {
         ReserveInfo storage reserve = reserves[_token][_reserveId];
         if (_to == address(0)) revert AddressZero();
         if (_amount == 0) revert InvalidAmount();
-        if (NULL_RESERVE == keccak256(abi.encode(reserve))) revert InvalidToken();
         if (block.timestamp < reserve.startTime) revert NotStarted();
         if (block.timestamp > reserve.endTime) revert Ended();
         if (_amount > reserve.allocation) revert TooMany();
@@ -109,9 +107,6 @@ contract DutchAuction is IDutchAuction {
     function withdraw(address _token, uint256 _reserveId) external {
         if (reserves[_token].length == 0) revert InvalidToken();
         ReserveInfo storage reserve = reserves[_token][_reserveId];
-        if (NULL_RESERVE == keccak256(abi.encode(reserve)) || reserves[_token].length == 0) {
-            revert InvalidToken();
-        }
         if (_token == address(0)) revert InvalidToken();
         if (block.timestamp < reserve.endTime && reserve.allocation > 0) revert NotEnded();
         (, address saleReceiver) = IFxGenArt721(_token).issuerInfo();
