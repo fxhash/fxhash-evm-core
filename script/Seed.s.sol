@@ -1,32 +1,27 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {IFxGenArt721} from "src/interfaces/IFxGenArt721.sol";
 import "script/Deploy.s.sol";
 
 contract Seed is Deploy {
-    function _run() internal override {
-        super._run();
+    function run() public override {
+        super.run();
+        creator = msg.sender;
         for (uint256 i; i < 20; i++) {
-            _createProject();
+            _configure();
+            _mint();
         }
     }
 
-    function _createProject() internal override {
-        fxGenArtProxy = fxIssuerFactory.createProject(
-            msg.sender,
-            primaryReceiver,
-            projectInfo,
-            metadataInfo,
-            mintInfo,
-            royaltyReceivers,
-            basisPoints
-        );
-
-        IFxGenArt721(fxGenArtProxy).toggleMint();
+    function _configure() internal {
+        _createProject();
         _setContracts();
+        IFxGenArt721(fxGenArtProxy).toggleMint();
+    }
+
+    function _mint() internal {
         for (uint256 i; i < 20; i++) {
-            IFxGenArt721(fxGenArtProxy).ownerMint(msg.sender);
+            IFxGenArt721(fxGenArtProxy).ownerMint(creator);
         }
     }
 }

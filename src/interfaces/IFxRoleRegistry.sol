@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-/// @title IFxRoleRegistry
-/// @notice Registry of FxHash Access Control roles
+/**
+ * @title IFxRoleRegistry
+ * @notice Registry of FxHash Access Control roles
+ */
 interface IFxRoleRegistry {
     /**
      * @notice Sets the admin of a new or current role

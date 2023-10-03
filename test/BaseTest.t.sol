@@ -1,36 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {Deploy} from "script/Deploy.s.sol";
-import {FxContractRegistry} from "src/registries/FxContractRegistry.sol";
-import {FxGenArt721} from "src/tokens/FxGenArt721.sol";
-import {FxIssuerFactory, ConfigInfo} from "src/factories/FxIssuerFactory.sol";
-import {FxPseudoRandomizer} from "src/randomizers/FxPseudoRandomizer.sol";
-import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
-import {FxScriptyRenderer} from "src/renderers/FxScriptyRenderer.sol";
-import {FxSplitsFactory} from "src/factories/FxSplitsFactory.sol";
-import {
-    HTMLRequest,
-    HTMLTagType,
-    HTMLTag
-} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
-import {
-    IFxGenArt721,
-    GenArtInfo,
-    IssuerInfo,
-    MetadataInfo,
-    MintInfo,
-    ProjectInfo,
-    ReserveInfo
-} from "src/interfaces/IFxGenArt721.sol";
+import "forge-std/Test.sol";
+import "script/Deploy.s.sol";
+
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
+import {MockMinter} from "test/mocks/MockMinter.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
-import {Test} from "forge-std/Test.sol";
-
-import "script/utils/Constants.sol";
-import "src/utils/Constants.sol";
-import "test/utils/Constants.sol";
 
 contract BaseTest is Deploy, Test {
     // Users
@@ -39,8 +16,10 @@ contract BaseTest is Deploy, Test {
     address internal eve;
     address internal susan;
 
+    // State
     address internal owner;
     uint96 internal projectId;
+    uint96 internal ticketId;
 
     // Metadata
     HTMLRequest internal attributes;
@@ -56,11 +35,13 @@ contract BaseTest is Deploy, Test {
 
     function setUp() public virtual override {
         vm.pauseGasMetering();
-        createAccounts();
+        _createAccounts();
+        _initializeAccounts();
         _deployContracts();
+        vm.warp(RESERVE_START_TIME);
     }
 
-    function createAccounts() public virtual {
+    function _createAccounts() internal virtual override {
         admin = makeAddr("admin");
         creator = makeAddr("creator");
         tokenMod = makeAddr("tokenMod");
@@ -69,6 +50,17 @@ contract BaseTest is Deploy, Test {
         bob = makeAddr("bob");
         eve = makeAddr("eve");
         susan = makeAddr("susan");
+    }
+
+    function _initializeAccounts() internal virtual {
+        vm.deal(admin, INITIAL_BALANCE);
+        vm.deal(creator, INITIAL_BALANCE);
+        vm.deal(tokenMod, INITIAL_BALANCE);
+        vm.deal(userMod, INITIAL_BALANCE);
+        vm.deal(alice, INITIAL_BALANCE);
+        vm.deal(bob, INITIAL_BALANCE);
+        vm.deal(eve, INITIAL_BALANCE);
+        vm.deal(susan, INITIAL_BALANCE);
     }
 
     function _mock0xSplits() internal {
