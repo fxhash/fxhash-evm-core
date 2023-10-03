@@ -30,8 +30,11 @@ jobs:
         with:
           version: nightly
 
+      - name: install dependencies 
+        run: npm ci
+
       - name: check formatting
-        run: forge fmt --check
+        run: npx prettier --check 'src/**/*.sol' 'test/**/*.sol' 'script/**/*.sol'
 
       - name: Run Forge build
         run: |

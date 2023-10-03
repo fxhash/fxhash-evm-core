@@ -28,28 +28,24 @@ contract FxTicketFactoryTest is BaseTest {
     }
 
     function test_createTicket() public {
-        fxMintTicketProxy =
-            fxTicketFactory.createTicket(creator, fxGenArtProxy, uint48(ONE_DAY), BASE_URI);
+        fxMintTicketProxy = fxTicketFactory.createTicket(creator, fxGenArtProxy, uint48(ONE_DAY), BASE_URI);
         assertEq(FxMintTicket721(fxMintTicketProxy).owner(), creator);
         assertEq(fxTicketFactory.tickets(ticketId), fxMintTicketProxy);
     }
 
     function test_RevertsWhen_InvalidGracePeriod() public {
         vm.expectRevert(INVALID_GRACE_PERIOD_ERROR);
-        fxMintTicketProxy =
-            fxTicketFactory.createTicket(creator, fxGenArtProxy, uint48(ONE_DAY - 1), BASE_URI);
+        fxMintTicketProxy = fxTicketFactory.createTicket(creator, fxGenArtProxy, uint48(ONE_DAY - 1), BASE_URI);
     }
 
     function test_RevertsWhen_InvalidOwner() public {
         vm.expectRevert(INVALID_OWNER_ERROR);
-        fxMintTicketProxy =
-            fxTicketFactory.createTicket(address(0), fxGenArtProxy, uint48(ONE_DAY), BASE_URI);
+        fxMintTicketProxy = fxTicketFactory.createTicket(address(0), fxGenArtProxy, uint48(ONE_DAY), BASE_URI);
     }
 
     function test_RevertsWhen_InvalidToken() public {
         vm.expectRevert(INVALID_TOKEN_ERROR);
-        fxMintTicketProxy =
-            fxTicketFactory.createTicket(creator, address(0), uint48(ONE_DAY), BASE_URI);
+        fxMintTicketProxy = fxTicketFactory.createTicket(creator, address(0), uint48(ONE_DAY), BASE_URI);
     }
 
     function testSetImplementation() public {

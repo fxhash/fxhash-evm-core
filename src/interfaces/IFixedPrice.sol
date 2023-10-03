@@ -25,13 +25,7 @@ interface IFixedPrice is IFxMinter {
      * @param to The address to which the tokens are being transferred
      * @param price The price of the purchase
      */
-    event Purchase(
-        address indexed token,
-        uint256 indexed mintId,
-        uint256 amount,
-        address indexed to,
-        uint256 price
-    );
+    event Purchase(address indexed token, uint256 indexed mintId, uint256 amount, address indexed to, uint256 price);
 
     /**
      * @notice Emitted when proceeds are withdrawn
@@ -89,10 +83,7 @@ interface IFixedPrice is IFxMinter {
     function prices(address _token, uint256 _mintId) external view returns (uint256);
 
     /// @notice Returns the reserve of a token for a mintId
-    function reserves(address _token, uint256 _mintId)
-        external
-        view
-        returns (uint64, uint64, uint128);
+    function reserves(address _token, uint256 _mintId) external view returns (uint64, uint64, uint128);
 
     /// @notice Returns the amount of saleProceeds of a token
     function saleProceeds(address _token) external view returns (uint256);

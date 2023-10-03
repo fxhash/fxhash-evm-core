@@ -101,9 +101,7 @@ interface IFxGenArt721 is ISeedConsumer {
      * @param _mintInfo List of authorized minter contracts and their reserves
      * @param _primaryReceiver Address of splitter contract receiving primary sales
      */
-    event ProjectInitialized(
-        address indexed _primaryReceiver, ProjectInfo _projectInfo, MintInfo[] _mintInfo
-    );
+    event ProjectInitialized(address indexed _primaryReceiver, ProjectInfo _projectInfo, MintInfo[] _mintInfo);
 
     /**
      * @notice Event emitted when Randomizer contract is updated

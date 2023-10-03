@@ -84,11 +84,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IFxMintTicket721
-    function mint(address _to, uint256 _amount, uint256 _payment)
-        external
-        onlyMinter
-        whenNotPaused
-    {
+    function mint(address _to, uint256 _amount, uint256 _payment) external onlyMinter whenNotPaused {
         // Calculates listing price per token
         uint256 listingPrice = _payment / _amount;
 
@@ -146,8 +142,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
         // Gets current daily tax amount for current price
         uint256 currentDailyTax = getDailyTax(currentPrice);
         // Gets remaining deposit amount for current price
-        uint256 remainingDeposit =
-            getRemainingDeposit(currentDailyTax, foreclosureTime, totalDeposit);
+        uint256 remainingDeposit = getRemainingDeposit(currentDailyTax, foreclosureTime, totalDeposit);
         // Calculates deposit amount owed for current price
         uint256 depositOwed = totalDeposit - remainingDeposit;
 
@@ -178,8 +173,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
 
         // Sets new tax info
         taxInfo.currentPrice = _newPrice;
-        taxInfo.foreclosureTime =
-            getForeclosureTime(newDailyTax, block.timestamp, taxInfo.depositAmount);
+        taxInfo.foreclosureTime = getForeclosureTime(newDailyTax, block.timestamp, taxInfo.depositAmount);
 
         // Transfers token from previous owner to new owner
         this.transferFrom(previousOwner, msg.sender, _tokenId);
@@ -202,8 +196,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
         // Calculates total deposit amount
         uint256 depositAmount = msg.value - excessAmount;
         // Gets new foreclosure time based on deposit amount
-        uint128 newForeclosure =
-            getForeclosureTime(dailyTax, taxInfo.foreclosureTime, depositAmount);
+        uint128 newForeclosure = getForeclosureTime(dailyTax, taxInfo.foreclosureTime, depositAmount);
 
         // Sets new tax info
         taxInfo.foreclosureTime = newForeclosure;
@@ -232,8 +225,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
         // Gets daily tax amount for current price
         uint256 currentDailyTax = getDailyTax(taxInfo.currentPrice);
         // Gets remaining deposit amount for current price
-        uint256 remainingDeposit =
-            getRemainingDeposit(currentDailyTax, foreclosureTime, taxInfo.depositAmount);
+        uint256 remainingDeposit = getRemainingDeposit(currentDailyTax, foreclosureTime, taxInfo.depositAmount);
 
         // Gets new daily tax amount for new price
         uint256 newDailyTax = getDailyTax(_newPrice);
@@ -292,14 +284,8 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
     }
 
     /// @inheritdoc ERC721
-    function isApprovedForAll(address _owner, address _operator)
-        public
-        view
-        override
-        returns (bool)
-    {
-        return _operator == address(this) || isMinter(_operator)
-            || super.isApprovedForAll(_owner, _operator);
+    function isApprovedForAll(address _owner, address _operator) public view override returns (bool) {
+        return _operator == address(this) || isMinter(_operator) || super.isApprovedForAll(_owner, _operator);
     }
 
     /// @inheritdoc IFxMintTicket721
@@ -313,11 +299,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
     }
 
     /// @inheritdoc IFxMintTicket721
-    function getAuctionPrice(uint256 _currentPrice, uint256 _foreclosureTime)
-        public
-        view
-        returns (uint256)
-    {
+    function getAuctionPrice(uint256 _currentPrice, uint256 _foreclosureTime) public view returns (uint256) {
         uint256 timeElapsed = block.timestamp - _foreclosureTime;
         uint256 restingPrice = (_currentPrice * AUCTION_DECAY_RATE) / SCALING_FACTOR;
         // Returns resting price if more than one day has already passed
@@ -354,11 +336,11 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
     }
 
     /// @inheritdoc IFxMintTicket721
-    function getForeclosureTime(uint256 _dailyTax, uint256 _foreclosureTime, uint256 _taxPayment)
-        public
-        pure
-        returns (uint128)
-    {
+    function getForeclosureTime(
+        uint256 _dailyTax,
+        uint256 _foreclosureTime,
+        uint256 _taxPayment
+    ) public pure returns (uint128) {
         uint256 secondsCovered = getTaxDuration(_taxPayment, _dailyTax);
         return uint128(_foreclosureTime + secondsCovered);
     }
@@ -381,7 +363,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
      */
     function _beforeTokenTransfer(
         address _from,
-        address, /* _to */
+        address /* _to */,
         uint256 _tokenId,
         uint256 /* _batchSize */
     ) internal virtual override {

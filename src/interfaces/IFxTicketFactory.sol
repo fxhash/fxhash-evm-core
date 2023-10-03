@@ -19,9 +19,7 @@ interface IFxTicketFactory {
      * @param _owner Address of ticket owner
      * @param _mintTicket Address of newly deployed FxMintTicket721 token contract
      */
-    event TicketCreated(
-        uint96 indexed _ticketId, address indexed _owner, address indexed _mintTicket
-    );
+    event TicketCreated(uint96 indexed _ticketId, address indexed _owner, address indexed _mintTicket);
 
     /// @notice Error thrown when grace period is less than one day
     error InvalidGracePeriod();
