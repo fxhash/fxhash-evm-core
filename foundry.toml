@@ -5,14 +5,3 @@ lib = "lib"
 ignored_error_codes = [5574, 6321]
 optimizer_runs = 2
 libs = ["node_modules", "lib"]
-
-[fmt]
-bracket_spacing = false
-int_types = "long"
-line_length = 120
-multiline_func_header = "params_first"
-number_underscore = "thousands"
-quote_style = "double"
-single_line_statement_blocks = "single"
-tab_width = 4
-wrap_comments = true
