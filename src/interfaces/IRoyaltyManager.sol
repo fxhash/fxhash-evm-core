@@ -6,6 +6,10 @@ struct RoyaltyInfo {
     uint96 basisPoints;
 }
 
+/**
+ * @title IRoyaltyManager
+ * @notice Manages royalty payments for secondary sales
+ */
 interface IRoyaltyManager {
     /**
      * @notice Emitted when the royalties for a set of receivers have been updated.

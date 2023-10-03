@@ -13,12 +13,13 @@ import {
     ProjectInfo,
     ReserveInfo
 } from "src/interfaces/IFxGenArt721.sol";
+import {IFxMinter} from "src/interfaces/IFxMinter.sol";
 import {IFxRandomizer} from "src/interfaces/IFxRandomizer.sol";
 import {IFxScriptyRenderer} from "src/interfaces/IFxScriptyRenderer.sol";
-import {IMinter} from "src/interfaces/IMinter.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
 import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
+import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {RoyaltyManager} from "src/tokens/extensions/RoyaltyManager.sol";
 
 import "src/utils/Constants.sol";
@@ -27,7 +28,7 @@ import "src/utils/Constants.sol";
  * @title FxGenArt721
  * @notice See the documentation in {IFxGenArt721}
  */
-contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, RoyaltyManager {
+contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, RoyaltyManager {
     /// @inheritdoc IFxGenArt721
     address public immutable contractRegistry;
     /// @inheritdoc IFxGenArt721
@@ -53,7 +54,9 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, RoyaltyMan
      * @dev Modifier for restricting calls to only registered contracts
      */
     modifier onlyContract(bytes32 _name) {
-        if (msg.sender != IFxContractRegistry(contractRegistry).contracts(_name)) revert UnauthorizedContract();
+        if (msg.sender != IFxContractRegistry(contractRegistry).contracts(_name)) {
+            revert UnauthorizedContract();
+        }
         _;
     }
 
@@ -91,6 +94,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, RoyaltyMan
     function initialize(
         address _owner,
         address _primaryReceiver,
+        uint128 _lockTime,
         ProjectInfo calldata _projectInfo,
         MetadataInfo calldata _metadataInfo,
         MintInfo[] calldata _mintInfo,
@@ -99,7 +103,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, RoyaltyMan
     ) external initializer {
         issuerInfo.projectInfo = _projectInfo;
 
-        _registerMinters(_mintInfo);
+        _registerMinters(_owner, _lockTime, _mintInfo);
         _setBaseRoyalties(_royaltyReceivers, _basisPoints);
         _transferOwnership(_owner);
 
@@ -114,18 +118,16 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, RoyaltyMan
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IFxGenArt721
-    function mint(address _to, uint256 _amount) external onlyMinter {
+    function mint(address _to, uint256 _amount) external onlyMinter whenNotPaused {
         if (!issuerInfo.projectInfo.enabled) revert MintInactive();
-        unchecked {
-            for (uint256 i; i < _amount; ++i) {
-                _mint(_to, ++totalSupply);
-                IFxRandomizer(randomizer).requestRandomness(totalSupply);
-            }
+        for (uint256 i; i < _amount; ++i) {
+            _mint(_to, ++totalSupply);
+            IFxRandomizer(randomizer).requestRandomness(totalSupply);
         }
     }
 
     /// @inheritdoc IFxGenArt721
-    function burn(uint256 _tokenId) external {
+    function burn(uint256 _tokenId) external whenNotPaused {
         if (!_isApprovedOrOwner(msg.sender, _tokenId)) revert NotAuthorized();
         _burn(_tokenId);
     }
@@ -142,14 +144,16 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, RoyaltyMan
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IFxGenArt721
-    function ownerMint(address _to) external onlyOwner {
+    function ownerMint(address _to) external onlyOwner whenNotPaused {
         _mint(_to, ++totalSupply);
         IFxRandomizer(randomizer).requestRandomness(totalSupply);
     }
 
     /// @inheritdoc IFxGenArt721
     function reduceSupply(uint240 _supply) external onlyOwner {
-        if (_supply >= issuerInfo.projectInfo.supply || _supply < totalSupply) revert InvalidAmount();
+        if (_supply >= issuerInfo.projectInfo.supply || _supply < totalSupply) {
+            revert InvalidAmount();
+        }
         issuerInfo.projectInfo.supply = _supply;
     }
 
@@ -197,6 +201,16 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, RoyaltyMan
         emit RendererUpdated(_renderer);
     }
 
+    /// @inheritdoc IFxGenArt721
+    function pause() external onlyRole(ADMIN_ROLE) {
+        _pause();
+    }
+
+    /// @inheritdoc IFxGenArt721
+    function unpause() external onlyRole(ADMIN_ROLE) {
+        _unpause();
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                 READ FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -217,16 +231,16 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, RoyaltyMan
     }
 
     /// @inheritdoc ERC721
-    function supportsInterface(bytes4 _interfaceId) public view override(ERC721, RoyaltyManager) returns (bool) {
+    function supportsInterface(bytes4 _interfaceId) public view override returns (bool) {
         return super.supportsInterface(_interfaceId);
     }
 
     /// @inheritdoc ERC721
     function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
         _requireMinted(_tokenId);
+        bytes memory data = abi.encode(issuerInfo.projectInfo, metadataInfo, genArtInfo[_tokenId]);
 
-        return
-            IFxScriptyRenderer(renderer).tokenURI(_tokenId, issuerInfo.projectInfo, metadataInfo, genArtInfo[_tokenId]);
+        return IFxScriptyRenderer(renderer).tokenURI(_tokenId, data);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -237,16 +251,23 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, RoyaltyMan
      * @dev Registers arbitrary number of minter contracts
      * @param _mintInfo List of minter contracts and their reserves
      */
-    function _registerMinters(MintInfo[] calldata _mintInfo) internal {
+    function _registerMinters(address _owner, uint128 _lockTime, MintInfo[] calldata _mintInfo)
+        internal
+    {
         address minter;
         uint128 totalAllocation;
         ReserveInfo memory reserveInfo;
+        uint128 lockTime = _isVerified(_owner) ? 0 : _lockTime;
         unchecked {
             for (uint256 i; i < _mintInfo.length; ++i) {
                 minter = _mintInfo[i].minter;
                 reserveInfo = _mintInfo[i].reserveInfo;
-                if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) revert UnauthorizedMinter();
-                IMinter(minter).setMintDetails(reserveInfo, _mintInfo[i].params);
+                if (reserveInfo.startTime < block.timestamp + lockTime) revert InvalidStartTime();
+                if (reserveInfo.endTime < reserveInfo.startTime) revert InvalidEndTime();
+                if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) {
+                    revert UnauthorizedMinter();
+                }
+                IFxMinter(minter).setMintDetails(reserveInfo, _mintInfo[i].params);
 
                 issuerInfo.minters[minter] = true;
                 totalAllocation += reserveInfo.allocation;
@@ -256,8 +277,20 @@ contract FxGenArt721 is IFxGenArt721, Initializable, Ownable, ERC721, RoyaltyMan
         if (totalAllocation > issuerInfo.projectInfo.supply) revert AllocationExceeded();
     }
 
+    /**
+     * @dev Checks if user is verified on platform
+     */
+    function _isVerified(address _user) internal view returns (bool) {
+        return (IAccessControl(roleRegistry).hasRole(VERIFIED_USER_ROLE, _user));
+    }
+
     /// @inheritdoc ERC721
-    function _exists(uint256 _tokenId) internal view override(ERC721, RoyaltyManager) returns (bool) {
+    function _exists(uint256 _tokenId)
+        internal
+        view
+        override(ERC721, RoyaltyManager)
+        returns (bool)
+    {
         return super._exists(_tokenId);
     }
 }

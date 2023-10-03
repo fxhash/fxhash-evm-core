@@ -6,8 +6,9 @@ import "test/unit/FxGenArt721/FxGenArt721Test.t.sol";
 contract PublicTest is FxGenArt721Test {
     function setUp() public virtual override {
         super.setUp();
+        _createProject();
+        _setIssuerInfo();
         _setRandomizer(admin, address(fxPseudoRandomizer));
-        vm.warp(RESERVE_START_TIME + 1);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -77,7 +78,7 @@ contract PublicTest is FxGenArt721Test {
     }
 
     function _mint(address _to, uint256 _amount) internal {
-        MockMinter(minter).mint(fxGenArtProxy, _to, _amount);
+        MockMinter(minter).mintToken(fxGenArtProxy, _to, _amount);
     }
 
     function _fulfillSeedRequest(address _caller, uint256 _tokenId, bytes32 _seed) internal prank(_caller) {

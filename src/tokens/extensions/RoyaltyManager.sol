@@ -92,8 +92,6 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         }
     }
 
-    function supportsInterface(bytes4 interfaceId) public view virtual returns (bool);
-
     /**
      * @dev Sets the token-specific royalties for a given token ID
      * @param _tokenId The token ID for which the royalties are being set

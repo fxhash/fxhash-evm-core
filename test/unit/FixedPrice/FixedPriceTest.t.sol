@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity 0.8.20;
 
 import "test/BaseTest.t.sol";
-import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
+
 import {FixedPrice} from "src/minters/FixedPrice.sol";
+import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
 
 contract FixedPriceTest is BaseTest {
     bytes4 internal TOO_MANY_ERROR = IFixedPrice.TooMany.selector;
@@ -22,14 +23,12 @@ contract FixedPriceTest is BaseTest {
         super.setUp();
         vm.warp(RESERVE_START_TIME);
         vm.deal(address(this), INITIAL_BALANCE);
-        _configureState();
         _mock0xSplits();
+        _configureState();
         _configureProject();
-        _configureMinters();
+        _configureMinters(address(fixedPrice), RESERVE_START_TIME, RESERVE_END_TIME);
         _registerMinter(admin, address(fixedPrice));
         _configureRoyalties();
-        _configureScripty();
-        _configureMetdata();
         _configureSplits();
         _createSplit();
         _createProject();
