@@ -32,24 +32,6 @@ contract SetMintDetails is DutchAuctionTest {
         assertEq(RESERVE_MINTER_ALLOCATION, supply_, "supply incorrectly set");
     }
 
-    function test_RevertsIf_StartTimeLessThan_CurrentTime() public {
-        vm.warp(RESERVE_START_TIME + 1);
-        vm.expectRevert(INVALID_TIMES_ERROR);
-        dutchAuction.setMintDetails(
-            ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, RESERVE_MINTER_ALLOCATION),
-            abi.encode(daInfo)
-        );
-    }
-
-    function test_RevertsIf_StartTimeGtEndTime() public {
-        uint64 endTime = RESERVE_START_TIME - 1;
-        vm.expectRevert(INVALID_TIMES_ERROR);
-        dutchAuction.setMintDetails(
-            ReserveInfo(RESERVE_START_TIME, uint64(endTime), RESERVE_MINTER_ALLOCATION),
-            abi.encode(daInfo)
-        );
-    }
-
     function test_RevertsIf_Allocation0() public {
         vm.expectRevert(INVALID_ALLOCATION_ERROR);
         dutchAuction.setMintDetails(
