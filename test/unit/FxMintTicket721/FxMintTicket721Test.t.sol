@@ -3,10 +3,9 @@ pragma solidity 0.8.20;
 
 import "test/BaseTest.t.sol";
 
-import {FxGenArt721Test} from "test/unit/FxGenArt721/FxGenArt721Test.t.sol";
 import {IFxMintTicket721, TaxInfo} from "src/interfaces/IFxMintTicket721.sol";
 
-contract FxMintTicket721Test is FxGenArt721Test {
+contract FxMintTicket721Test is BaseTest {
     // Tax Info
     uint128 gracePeriod;
     uint128 foreclosureTime;
@@ -36,8 +35,19 @@ contract FxMintTicket721Test is FxGenArt721Test {
 
     function setUp() public virtual override {
         super.setUp();
-        _initializeState();
+        minter = address(new MockMinter());
+        _mock0xSplits();
+        vm.prank(admin);
+        fxRoleRegistry.grantRole(MINTER_ROLE, minter);
+        _configureProject();
+        _configureRoyalties();
+        _configureMinters(minter, RESERVE_START_TIME, RESERVE_END_TIME);
+        _registerMinter(admin, minter);
+        _configureSplits();
+        _createSplit();
+        _createProject();
         _createTicket();
+        _initializeState();
     }
 
     /*//////////////////////////////////////////////////////////////////////////

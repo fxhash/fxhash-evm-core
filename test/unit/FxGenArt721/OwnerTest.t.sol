@@ -6,6 +6,8 @@ import "test/unit/FxGenArt721/FxGenArt721Test.t.sol";
 contract OwnerTest is FxGenArt721Test {
     function setUp() public virtual override {
         super.setUp();
+        _createProject();
+        _setIssuerInfo();
         _setRandomizer(admin, address(fxPseudoRandomizer));
     }
 

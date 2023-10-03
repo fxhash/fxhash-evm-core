@@ -115,19 +115,15 @@ contract Deploy is Script {
 
     function run() public virtual {
         vm.startBroadcast();
-        _run();
-        vm.stopBroadcast();
-    }
-
-    function _run() internal virtual {
         _deployContracts();
-        _configureMinters();
+        _configureMinters(address(fixedPrice), RESERVE_START_TIME, RESERVE_END_TIME);
         _registerContracts();
         _registerRoles();
         _createSplit();
         _createProject();
         _createTicket();
         _setContracts();
+        vm.stopBroadcast();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -153,13 +149,16 @@ contract Deploy is Script {
         metadataInfo.animation = animation;
     }
 
-    function _configureMinters() internal virtual {
+    function _configureMinters(address _minter, uint64 _startTime, uint64 _endTime)
+        internal
+        virtual
+    {
         mintInfo.push(
             MintInfo({
-                minter: address(fixedPrice),
+                minter: _minter,
                 reserveInfo: ReserveInfo({
-                    startTime: RESERVE_START_TIME,
-                    endTime: RESERVE_END_TIME,
+                    startTime: _startTime,
+                    endTime: _endTime,
                     allocation: RESERVE_ADMIN_ALLOCATION
                 }),
                 params: abi.encode(price)
@@ -274,7 +273,7 @@ contract Deploy is Script {
         fxGenArt721 = FxGenArt721(_deployCreate2(creationCode, constructorArgs, salt));
 
         creationCode = type(FxIssuerFactory).creationCode;
-        constructorArgs = abi.encode(address(fxGenArt721), configInfo);
+        constructorArgs = abi.encode(address(fxRoleRegistry), address(fxGenArt721), configInfo);
         fxIssuerFactory = FxIssuerFactory(_deployCreate2(creationCode, constructorArgs, salt));
 
         creationCode = type(FxMintTicket721).creationCode;
@@ -372,6 +371,7 @@ contract Deploy is Script {
         fxRoleRegistry.grantRole(MINTER_ROLE, address(fixedPrice));
         fxRoleRegistry.grantRole(TOKEN_MODERATOR_ROLE, tokenMod);
         fxRoleRegistry.grantRole(USER_MODERATOR_ROLE, userMod);
+        fxRoleRegistry.grantRole(VERIFIED_USER_ROLE, creator);
     }
 
     function _setContracts() internal virtual {
