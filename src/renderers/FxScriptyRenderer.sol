@@ -4,12 +4,7 @@ pragma solidity 0.8.20;
 import {Base64} from "openzeppelin/contracts/utils/Base64.sol";
 import {GenArtInfo, MetadataInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxScriptyRenderer} from "src/interfaces/IFxScriptyRenderer.sol";
-import {
-    IScriptyBuilderV2,
-    HTMLRequest,
-    HTMLTagType,
-    HTMLTag
-} from "scripty.sol/contracts/scripty/interfaces/IScriptyBuilderV2.sol";
+import {IScriptyBuilderV2, HTMLRequest, HTMLTagType, HTMLTag} from "scripty.sol/contracts/scripty/interfaces/IScriptyBuilderV2.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
 /**
@@ -34,16 +29,11 @@ contract FxScriptyRenderer is IFxScriptyRenderer {
     }
 
     /// @inheritdoc IFxScriptyRenderer
-    function tokenURI(uint256 _tokenId, bytes calldata _data)
-        external
-        view
-        returns (string memory)
-    {
-        (
-            ProjectInfo memory projectInfo,
-            MetadataInfo memory metadataInfo,
-            GenArtInfo memory genArtInfo
-        ) = abi.decode(_data, (ProjectInfo, MetadataInfo, GenArtInfo));
+    function tokenURI(uint256 _tokenId, bytes calldata _data) external view returns (string memory) {
+        (ProjectInfo memory projectInfo, MetadataInfo memory metadataInfo, GenArtInfo memory genArtInfo) = abi.decode(
+            _data,
+            (ProjectInfo, MetadataInfo, GenArtInfo)
+        );
 
         if (!projectInfo.onchain) {
             string memory baseURI = metadataInfo.baseURI;
@@ -51,12 +41,15 @@ contract FxScriptyRenderer is IFxScriptyRenderer {
         } else {
             HTMLRequest memory animation = metadataInfo.animation;
             HTMLRequest memory attributes = metadataInfo.attributes;
-            bytes memory onchainData =
-                renderOnchain(_tokenId, genArtInfo.seed, genArtInfo.fxParams, animation, attributes);
-            /* solhint-disable quotes*/
-            return string(
-                abi.encodePacked("data:application/json;base64,", Base64.encode(onchainData))
+            bytes memory onchainData = renderOnchain(
+                _tokenId,
+                genArtInfo.seed,
+                genArtInfo.fxParams,
+                animation,
+                attributes
             );
+            /* solhint-disable quotes*/
+            return string(abi.encodePacked("data:application/json;base64,", Base64.encode(onchainData)));
             /* solhint-enable quotes*/
         }
     }
@@ -73,8 +66,7 @@ contract FxScriptyRenderer is IFxScriptyRenderer {
         bytes memory attributes = getEncodedHTML(_tokenId, _seed, _fxParams, _attributes);
 
         /* solhint-disable quotes*/
-        return
-            abi.encodePacked('"animation_url":"', animation, '","attributes":["', attributes, '"]}');
+        return abi.encodePacked('"animation_url":"', animation, '","attributes":["', attributes, '"]}');
         /* solhint-enable quotes*/
     }
 
@@ -86,9 +78,7 @@ contract FxScriptyRenderer is IFxScriptyRenderer {
         HTMLRequest memory _htmlRequest
     ) public view returns (bytes memory) {
         HTMLTag[] memory headTags = new HTMLTag[](_htmlRequest.headTags.length);
-        HTMLTag[] memory bodyTags = new HTMLTag[](
-            _htmlRequest.bodyTags.length + 1
-        );
+        HTMLTag[] memory bodyTags = new HTMLTag[](_htmlRequest.bodyTags.length + 1);
 
         for (uint256 i; i < _htmlRequest.headTags.length; ++i) {
             headTags[i].tagOpen = _htmlRequest.headTags[i].tagOpen;
@@ -117,30 +107,19 @@ contract FxScriptyRenderer is IFxScriptyRenderer {
     }
 
     /// @dev Returns the seed content for fxHash
-    function _getSeedContent(uint256 _tokenId, bytes32 _seed)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function _getSeedContent(uint256 _tokenId, bytes32 _seed) internal pure returns (bytes memory) {
         string memory tokenId = _tokenId.toString();
         string memory seed = uint256(_seed).toHexString(32);
         /* solhint-disable quotes */
-        return
-            abi.encodePacked('let tokenData = {"tokenId": "', tokenId, '", "seed": "', seed, '"};');
+        return abi.encodePacked('let tokenData = {"tokenId": "', tokenId, '", "seed": "', seed, '"};');
         /* solhint-enable quotes */
     }
 
     /// @dev Returns the params content for fxParams
-    function _getParamsContent(uint256 _tokenId, bytes memory _fxParams)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function _getParamsContent(uint256 _tokenId, bytes memory _fxParams) internal pure returns (bytes memory) {
         string memory tokenId = _tokenId.toString();
         /* solhint-disable quotes */
-        return abi.encodePacked(
-            'let tokenData = {"tokenId": "', tokenId, '", "fxParams": "', _fxParams, '"};'
-        );
+        return abi.encodePacked('let tokenData = {"tokenId": "', tokenId, '", "fxParams": "', _fxParams, '"};');
         /* solhint-enable quotes */
     }
 }

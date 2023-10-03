@@ -25,8 +25,7 @@ contract FxMintTicket721Test is BaseTest {
     bytes4 internal INSUFFICIENT_PAYMENT_ERROR = IFxMintTicket721.InsufficientPayment.selector;
     bytes4 internal INVALID_PRICE_ERROR = IFxMintTicket721.InvalidPrice.selector;
     bytes4 internal NOT_AUTHORIZED_TICKET_ERROR = IFxMintTicket721.NotAuthorized.selector;
-    bytes4 internal UNAUTHORIZED_ACCOUNT_TICKET_ERROR =
-        IFxMintTicket721.UnauthorizedAccount.selector;
+    bytes4 internal UNAUTHORIZED_ACCOUNT_TICKET_ERROR = IFxMintTicket721.UnauthorizedAccount.selector;
     bytes4 internal UNREGISTERED_MINTER_TICKET_ERROR = IFxMintTicket721.UnregisteredMinter.selector;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -61,10 +60,7 @@ contract FxMintTicket721Test is BaseTest {
         newPrice = uint128(PRICE / 2);
     }
 
-    function _mint(address _minter, address _to, uint256 _amount, uint256 _payment)
-        internal
-        prank(_minter)
-    {
+    function _mint(address _minter, address _to, uint256 _amount, uint256 _payment) internal prank(_minter) {
         MockMinter(minter).mintTicket(fxMintTicketProxy, _to, _amount, _payment);
     }
 
@@ -72,38 +68,23 @@ contract FxMintTicket721Test is BaseTest {
         MockMinter(minter).burnTicket(fxMintTicketProxy, _tokenId);
     }
 
-    function _deposit(address _depositer, uint256 _tokenId, uint256 _amount)
-        internal
-        prank(_depositer)
-    {
+    function _deposit(address _depositer, uint256 _tokenId, uint256 _amount) internal prank(_depositer) {
         IFxMintTicket721(fxMintTicketProxy).deposit{value: _amount}(_tokenId);
     }
 
-    function _setPrice(address _owner, uint256 _tokenId, uint128 _newPrice)
-        internal
-        prank(_owner)
-    {
+    function _setPrice(address _owner, uint256 _tokenId, uint128 _newPrice) internal prank(_owner) {
         IFxMintTicket721(fxMintTicketProxy).setPrice(_tokenId, _newPrice);
     }
 
-    function _claim(address _claimer, uint256 _tokenId, uint128 _newPrice, uint256 _payment)
-        internal
-        prank(_claimer)
-    {
+    function _claim(address _claimer, uint256 _tokenId, uint128 _newPrice, uint256 _payment) internal prank(_claimer) {
         IFxMintTicket721(fxMintTicketProxy).claim{value: _payment}(_tokenId, _newPrice);
     }
 
-    function _setApprovalForAll(address _owner, address _operator, bool _approval)
-        internal
-        prank(_owner)
-    {
+    function _setApprovalForAll(address _owner, address _operator, bool _approval) internal prank(_owner) {
         FxMintTicket721(fxMintTicketProxy).setApprovalForAll(_operator, _approval);
     }
 
-    function _transferFrom(address _sender, address _from, address _to, uint256 _tokenId)
-        internal
-        prank(_sender)
-    {
+    function _transferFrom(address _sender, address _from, address _to, uint256 _tokenId) internal prank(_sender) {
         FxMintTicket721(fxMintTicketProxy).transferFrom(_from, _to, _tokenId);
     }
 
@@ -112,8 +93,7 @@ contract FxMintTicket721Test is BaseTest {
     }
 
     function _setTaxInfo() internal {
-        (gracePeriod, foreclosureTime, currentPrice, depositAmount) =
-            FxMintTicket721(fxMintTicketProxy).taxes(tokenId);
+        (gracePeriod, foreclosureTime, currentPrice, depositAmount) = FxMintTicket721(fxMintTicketProxy).taxes(tokenId);
     }
 
     function _setAuctionPrice() internal {

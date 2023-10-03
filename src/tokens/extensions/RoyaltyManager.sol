@@ -69,11 +69,9 @@ abstract contract RoyaltyManager is IRoyaltyManager {
      * @return allBasisPoints The basis points to calculate royalty payments (1/100th of a percent)
      * for each receiver.
      */
-    function getRoyalties(uint256 _tokenId)
-        external
-        view
-        returns (address payable[] memory allReceivers, uint256[] memory allBasisPoints)
-    {
+    function getRoyalties(
+        uint256 _tokenId
+    ) external view returns (address payable[] memory allReceivers, uint256[] memory allBasisPoints) {
         RoyaltyInfo[] storage tokenRoyalties_ = tokenRoyalties[_tokenId];
         RoyaltyInfo[] storage royalties_ = baseRoyalties;
         uint256 baseLength = royalties_.length;
@@ -112,9 +110,7 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         RoyaltyInfo[] memory royalties_ = baseRoyalties;
         uint256 baseLength = baseRoyalties.length;
         uint256 tokenLength = _basisPoints.length;
-        uint96[] memory totalBasisPoints = new uint96[](
-            baseLength + _basisPoints.length
-        );
+        uint96[] memory totalBasisPoints = new uint96[](baseLength + _basisPoints.length);
         for (uint256 i; i < baseLength; i++) {
             totalBasisPoints[i] = royalties_[i].basisPoints;
         }

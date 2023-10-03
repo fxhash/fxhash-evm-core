@@ -12,7 +12,7 @@ contract MockERC1155 is ERC1155, IERC2981 {
     }
 
     function royaltyInfo(
-        uint256, /* tokenId */
+        uint256 /* tokenId */,
         uint256 salePrice
     ) external pure override returns (address receiver, uint256 royaltyAmount) {
         return (receiver, (salePrice * 1000) / 10_000);

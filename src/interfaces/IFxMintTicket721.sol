@@ -33,12 +33,7 @@ interface IFxMintTicket721 {
      * @param _newPrice New listing price of token
      * @param _payment Current price of token in addition to taxes deposited
      */
-    event Claimed(
-        uint256 indexed _tokenId,
-        address indexed _claimer,
-        uint128 indexed _newPrice,
-        uint256 _payment
-    );
+    event Claimed(uint256 indexed _tokenId, address indexed _claimer, uint128 indexed _newPrice, uint256 _payment);
 
     /**
      * @notice Event emitted when additional taxes are deposited
@@ -136,12 +131,7 @@ interface IFxMintTicket721 {
      * @param _gracePeriod Period time before token enters harberger taxation
      * @param _baseURI Base URI of the token metadata
      */
-    function initialize(
-        address _owner,
-        address _genArt721,
-        uint48 _gracePeriod,
-        string calldata _baseURI
-    ) external;
+    function initialize(address _owner, address _genArt721, uint48 _gracePeriod, string calldata _baseURI) external;
 
     /**
      * @notice Checks if token is foreclosed
@@ -167,10 +157,7 @@ interface IFxMintTicket721 {
      * @param _currentPrice Listing price of the token
      * @param _foreclosureTime Timestamp of the foreclosure
      */
-    function getAuctionPrice(uint256 _currentPrice, uint256 _foreclosureTime)
-        external
-        view
-        returns (uint256);
+    function getAuctionPrice(uint256 _currentPrice, uint256 _foreclosureTime) external view returns (uint256);
 
     /**
      * @notice Gets the daily tax amount based on current price
@@ -185,10 +172,7 @@ interface IFxMintTicket721 {
      * @param _dailyTax Daily tax amount based on current price
      * @return Excess amount of taxes
      */
-    function getExcessTax(uint256 _totalDeposit, uint256 _dailyTax)
-        external
-        pure
-        returns (uint256);
+    function getExcessTax(uint256 _totalDeposit, uint256 _dailyTax) external pure returns (uint256);
 
     /**
      * @notice Gets the new foreclosure timestamp
@@ -197,10 +181,11 @@ interface IFxMintTicket721 {
      * @param _taxPayment Amount of taxes being deposited
      * @return Timestamp of new foreclosure
      */
-    function getForeclosureTime(uint256 _dailyTax, uint256 _foreclosureTime, uint256 _taxPayment)
-        external
-        pure
-        returns (uint128);
+    function getForeclosureTime(
+        uint256 _dailyTax,
+        uint256 _foreclosureTime,
+        uint256 _taxPayment
+    ) external pure returns (uint128);
 
     /**
      * @notice Gets the remaining amount of taxes to be deposited
@@ -221,10 +206,7 @@ interface IFxMintTicket721 {
      * @param _dailyTax Daily tax amount based on current price
      * @return Total time duration
      */
-    function getTaxDuration(uint256 _taxPayment, uint256 _dailyTax)
-        external
-        pure
-        returns (uint256);
+    function getTaxDuration(uint256 _taxPayment, uint256 _dailyTax) external pure returns (uint256);
 
     /**
      * @notice Returns default grace period of time for each token
