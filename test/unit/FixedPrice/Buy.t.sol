@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity 0.8.20;
 
-import "test/unit/FixedPrice/FixedPrice.t.sol";
+import "test/unit/FixedPrice/FixedPriceTest.t.sol";
 
 contract BuyTokens is FixedPriceTest {
     uint256 internal mintId = 0;
