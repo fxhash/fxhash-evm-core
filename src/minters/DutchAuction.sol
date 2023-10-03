@@ -123,7 +123,6 @@ contract DutchAuction is IDutchAuction {
     function getPrice(address _token, uint256 _reserveId)
         public
         view
-        virtual
         returns (uint256 step, uint256 price)
     {
         if (block.timestamp < reserves[_token][_reserveId].startTime) revert NotStarted();
