@@ -29,6 +29,13 @@ contract Buy is DutchAuctionTest {
         assertEq(FxGenArt721(fxGenArtProxy).balanceOf(alice), 0);
     }
 
+    function test_RevertsIf_Payment0() public {
+        (, uint256 price) = dutchAuction.getPrice(fxGenArtProxy, reserveId);
+        vm.expectRevert(INVALID_PAYMENT_ERROR);
+        dutchAuction.buy{value: 0}(fxGenArtProxy, reserveId, quantity, alice);
+        assertEq(FxGenArt721(fxGenArtProxy).balanceOf(alice), 0);
+    }
+
     function test_RevertsIf_NotStarted() public {
         (, uint256 price) = dutchAuction.getPrice(fxGenArtProxy, reserveId);
         vm.warp(RESERVE_START_TIME - 1);
@@ -64,5 +71,17 @@ contract Buy is DutchAuctionTest {
         vm.expectRevert(AMOUNT_ZERO_ERROR);
         dutchAuction.buy{value: price}(fxGenArtProxy, reserveId, quantity, alice);
         assertEq(FxGenArt721(fxGenArtProxy).balanceOf(alice), 0);
+    }
+
+    function test_RevertsIf_SoldOut() public {
+        (, uint256 price) = dutchAuction.getPrice(fxGenArtProxy, reserveId);
+        quantity = RESERVE_MINTER_ALLOCATION;
+        dutchAuction.buy{value: price * quantity}(fxGenArtProxy, reserveId, quantity, alice);
+        assertEq(FxGenArt721(fxGenArtProxy).balanceOf(alice), RESERVE_MINTER_ALLOCATION);
+
+        quantity = 1;
+        vm.expectRevert(TOO_MANY_ERROR);
+        dutchAuction.buy{value: price * quantity}(fxGenArtProxy, reserveId, quantity, alice);
+        assertEq(FxGenArt721(fxGenArtProxy).balanceOf(alice), RESERVE_MINTER_ALLOCATION);
     }
 }

@@ -57,7 +57,7 @@ contract SetMintDetails is DutchAuctionTest {
             ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, RESERVE_MINTER_ALLOCATION),
             abi.encode(daInfo)
         );
-        assertTrue(remainder != 0, "duration was multiple of stepLength");
+        assertTrue(remainder != 0, "duration was not even multiple of stepLength");
     }
 
     function test_RevertsIf_PricesOutOfOrder() public {
