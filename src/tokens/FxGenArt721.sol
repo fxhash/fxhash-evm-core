@@ -94,6 +94,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     function initialize(
         address _owner,
         address _primaryReceiver,
+        uint128 _lockTime,
         ProjectInfo calldata _projectInfo,
         MetadataInfo calldata _metadataInfo,
         MintInfo[] calldata _mintInfo,
@@ -102,7 +103,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     ) external initializer {
         issuerInfo.projectInfo = _projectInfo;
 
-        _registerMinters(_mintInfo);
+        _registerMinters(_owner, _lockTime, _mintInfo);
         _setBaseRoyalties(_royaltyReceivers, _basisPoints);
         _transferOwnership(_owner);
 
@@ -119,11 +120,9 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     /// @inheritdoc IFxGenArt721
     function mint(address _to, uint256 _amount) external onlyMinter whenNotPaused {
         if (!issuerInfo.projectInfo.enabled) revert MintInactive();
-        unchecked {
-            for (uint256 i; i < _amount; ++i) {
-                _mint(_to, ++totalSupply);
-                IFxRandomizer(randomizer).requestRandomness(totalSupply);
-            }
+        for (uint256 i; i < _amount; ++i) {
+            _mint(_to, ++totalSupply);
+            IFxRandomizer(randomizer).requestRandomness(totalSupply);
         }
     }
 
@@ -252,14 +251,19 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
      * @dev Registers arbitrary number of minter contracts
      * @param _mintInfo List of minter contracts and their reserves
      */
-    function _registerMinters(MintInfo[] calldata _mintInfo) internal {
+    function _registerMinters(address _owner, uint128 _lockTime, MintInfo[] calldata _mintInfo)
+        internal
+    {
         address minter;
         uint128 totalAllocation;
         ReserveInfo memory reserveInfo;
+        uint128 lockTime = _isVerified(_owner) ? 0 : _lockTime;
         unchecked {
             for (uint256 i; i < _mintInfo.length; ++i) {
                 minter = _mintInfo[i].minter;
                 reserveInfo = _mintInfo[i].reserveInfo;
+                if (reserveInfo.startTime < block.timestamp + lockTime) revert InvalidStartTime();
+                if (reserveInfo.endTime < reserveInfo.startTime) revert InvalidEndTime();
                 if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) {
                     revert UnauthorizedMinter();
                 }
@@ -271,6 +275,13 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
         }
 
         if (totalAllocation > issuerInfo.projectInfo.supply) revert AllocationExceeded();
+    }
+
+    /**
+     * @dev Checks if user is verified on platform
+     */
+    function _isVerified(address _user) internal view returns (bool) {
+        return (IAccessControl(roleRegistry).hasRole(VERIFIED_USER_ROLE, _user));
     }
 
     /// @inheritdoc ERC721

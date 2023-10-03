@@ -37,6 +37,7 @@ contract BaseTest is Deploy, Test {
         _createAccounts();
         _initializeAccounts();
         _deployContracts();
+        vm.warp(RESERVE_START_TIME);
     }
 
     function _createAccounts() internal virtual override {
