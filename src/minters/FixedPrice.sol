@@ -24,7 +24,6 @@ contract FixedPrice is IFixedPrice {
 
     /// @inheritdoc IFxMinter
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external {
-        if (_reserve.startTime > _reserve.endTime) revert InvalidTimes();
         if (_reserve.allocation == 0) revert InvalidAllocation();
         uint256 price = abi.decode(_mintDetails, (uint256));
         if (price == 0) revert InvalidPrice();
@@ -39,7 +38,9 @@ contract FixedPrice is IFixedPrice {
         external
         payable
     {
-        if (_token == address(0) || reserves[_token].length == 0) revert InvalidToken();
+        uint256 length = reserves[_token].length;
+        if (length == 0) revert InvalidToken();
+        if (_reserveId >= length) revert InvalidReserve();
         ReserveInfo storage reserve = reserves[_token][_reserveId];
         if (block.timestamp < reserve.startTime) revert NotStarted();
         if (block.timestamp > reserve.endTime) revert Ended();

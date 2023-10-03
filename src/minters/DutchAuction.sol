@@ -35,17 +35,12 @@ contract DutchAuction is IDutchAuction {
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintData) external {
         DAInfo memory daInfo = abi.decode(_mintData, (DAInfo));
 
-        if (_reserve.startTime > _reserve.endTime) revert InvalidTimes();
-        if (_reserve.startTime > _reserve.endTime) revert InvalidTimes();
-        if (!(daInfo.prices.length * daInfo.stepLength == _reserve.endTime - _reserve.startTime)) {
-            revert InvalidStep();
-        }
+        if ((_reserve.endTime - _reserve.startTime) % daInfo.stepLength != 0) revert InvalidStep();
 
-        require(daInfo.prices.length > 1, "Invalid Price curve");
+        if (daInfo.prices.length < 2) revert InvalidPriceCurve();
         for (uint256 i = 1; i < daInfo.prices.length; i++) {
             if (!(daInfo.prices[i - 1] > daInfo.prices[i])) revert PricesOutOfOrder();
         }
-        if (block.timestamp >= _reserve.startTime) revert InvalidTimes();
         if (_reserve.allocation == 0) revert InvalidAllocation();
         uint256 reserveId = reserves[msg.sender].length;
         reserves[msg.sender].push(_reserve);
@@ -59,7 +54,9 @@ contract DutchAuction is IDutchAuction {
         external
         payable
     {
-        if (reserves[_token].length == 0) revert InvalidToken();
+        uint256 length = reserves[_token].length;
+        if (length == 0) revert InvalidToken();
+        if (_reserveId >= length) revert InvalidReserve();
         ReserveInfo storage reserve = reserves[_token][_reserveId];
         if (_to == address(0)) revert AddressZero();
         if (_amount == 0) revert InvalidAmount();
@@ -84,7 +81,9 @@ contract DutchAuction is IDutchAuction {
 
     /// @inheritdoc IDutchAuction
     function refund(address _token, uint256 _reserveId, address _who) external {
-        if (reserves[_token].length == 0) revert InvalidToken();
+        uint256 length = reserves[_token].length;
+        if (length == 0) revert InvalidToken();
+        if (_reserveId >= length) revert InvalidReserve();
         if (_token == address(0)) revert InvalidToken();
         if (_who == address(0)) revert AddressZero();
         ReserveInfo storage reserve = reserves[_token][_reserveId];
@@ -105,7 +104,9 @@ contract DutchAuction is IDutchAuction {
 
     /// @inheritdoc IDutchAuction
     function withdraw(address _token, uint256 _reserveId) external {
-        if (reserves[_token].length == 0) revert InvalidToken();
+        uint256 length = reserves[_token].length;
+        if (length == 0) revert InvalidToken();
+        if (_reserveId >= length) revert InvalidReserve();
         ReserveInfo storage reserve = reserves[_token][_reserveId];
         if (_token == address(0)) revert InvalidToken();
         if (block.timestamp < reserve.endTime && reserve.allocation > 0) revert NotEnded();

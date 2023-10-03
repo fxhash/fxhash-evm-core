@@ -100,6 +100,10 @@ interface IDutchAuction is IFxMinter {
      * @notice Error thrown when the price is 0
      */
     error InvalidPrice();
+    /**
+     * @notice Error thrown when the passing a price curve with less than 2 points
+     */
+    error InvalidPriceCurve();
 
     /**
      * @notice Error thrown when the step length passed doesn't divide auction duration isn't a
@@ -117,6 +121,11 @@ interface IDutchAuction is IFxMinter {
      * @notice Error thrown when the token is address zero
      */
     error InvalidToken();
+
+    /**
+     * @notice Error thrown when a reserve doesnt exist
+     */
+    error InvalidReserve();
 
     /**
      * @notice Error thrown when the price is insufficient

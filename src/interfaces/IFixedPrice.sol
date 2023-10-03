@@ -70,6 +70,9 @@ interface IFixedPrice is IFxMinter {
     /// @notice Thrown when an invalid token address is provided
     error InvalidToken();
 
+    /// @notice Error thrown when a reserve doesnt exist
+    error InvalidReserve();
+
     /// @notice Thrown when the sale has not started
     error NotStarted();
 
