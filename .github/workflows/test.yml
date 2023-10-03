@@ -34,7 +34,7 @@ jobs:
         run: npm ci
 
       - name: check formatting
-        run: npx prettier --check
+        run: prettier --check 'src/**/*.sol' 'test/**/*.sol' 'script/**/*.sol'
 
       - name: Run Forge build
         run: |
