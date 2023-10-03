@@ -23,14 +23,12 @@ contract FixedPriceTest is BaseTest {
         super.setUp();
         vm.warp(RESERVE_START_TIME);
         vm.deal(address(this), INITIAL_BALANCE);
-        _configureState();
         _mock0xSplits();
+        _configureState();
         _configureProject();
-        _configureMinters();
+        _configureMinters(address(fixedPrice), RESERVE_START_TIME, RESERVE_END_TIME);
         _registerMinter(admin, address(fixedPrice));
         _configureRoyalties();
-        _configureScripty();
-        _configureMetdata();
         _configureSplits();
         _createSplit();
         _createProject();

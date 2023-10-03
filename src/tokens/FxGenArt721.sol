@@ -262,8 +262,8 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
             for (uint256 i; i < _mintInfo.length; ++i) {
                 minter = _mintInfo[i].minter;
                 reserveInfo = _mintInfo[i].reserveInfo;
-                if (block.timestamp + lockTime < reserveInfo.startTime) revert InvalidStartTime();
-                if (block.timestamp + lockTime > reserveInfo.endTime) revert InvalidEndTime();
+                if (reserveInfo.startTime < block.timestamp + lockTime) revert InvalidStartTime();
+                if (reserveInfo.endTime < reserveInfo.startTime) revert InvalidEndTime();
                 if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) {
                     revert UnauthorizedMinter();
                 }

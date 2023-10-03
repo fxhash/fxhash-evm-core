@@ -3,8 +3,6 @@ pragma solidity 0.8.20;
 
 import "test/BaseTest.t.sol";
 
-import {IFxGenArt721} from "src/interfaces/IFxGenArt721.sol";
-
 contract FxGenArt721Test is BaseTest {
     // State
     ProjectInfo internal project;
@@ -28,23 +26,22 @@ contract FxGenArt721Test is BaseTest {
         minter = address(new MockMinter());
         _mock0xSplits();
         _configureProject();
-        _configureMinters();
-        _configureRoyalties();
-        _configureScripty();
-        _configureMetdata();
+        _configureMinters(minter, RESERVE_START_TIME, RESERVE_END_TIME);
         _registerMinter(admin, minter);
+        _configureRoyalties();
         _configureSplits();
         _createSplit();
-        _createProject();
-        _setIssuerInfo();
     }
 
     function test_Implementation() public {
+        _createProject();
         assertEq(IFxGenArt721(fxGenArtProxy).contractRegistry(), address(fxContractRegistry));
         assertEq(IFxGenArt721(fxGenArtProxy).roleRegistry(), address(fxRoleRegistry));
     }
 
     function test_Initialize() public {
+        _createProject();
+        _setIssuerInfo();
         assertTrue(project.enabled, "project not enabled");
         assertTrue(project.onchain, "project not onchain");
         assertEq(project.supply, MAX_SUPPLY, "max supply unequal");
@@ -53,6 +50,24 @@ contract FxGenArt721Test is BaseTest {
         assertEq(FxGenArt721(fxGenArtProxy).owner(), creator, "owner isn't creator");
         assertEq(IFxGenArt721(fxGenArtProxy).isMinter(minter), true, "minter isn't approved minter");
     }
+
+    function test_Initialize_RevertsWhen_InvalidStartTime() public {
+        delete mintInfo;
+        _configureMinters(minter, RESERVE_START_TIME - 1, RESERVE_END_TIME);
+        vm.expectRevert(INVALID_START_TIME_ERROR);
+        _createProject();
+    }
+
+    function test_Initialize_RevertsWhen_InvalidEndTime() public {
+        delete mintInfo;
+        _configureMinters(minter, RESERVE_START_TIME, RESERVE_START_TIME - 1);
+        vm.expectRevert(INVALID_END_TIME_ERROR);
+        _createProject();
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    HELPERS
+    //////////////////////////////////////////////////////////////////////////*/
 
     function _setGenArtInfo(uint256 _tokenId) internal {
         (fxParams, seed) = IFxGenArt721(fxGenArtProxy).genArtInfo(_tokenId);
@@ -69,19 +84,5 @@ contract FxGenArt721Test is BaseTest {
     function _toggleMint(address _creator) internal prank(_creator) {
         IFxGenArt721(fxGenArtProxy).toggleMint();
         _setIssuerInfo();
-    }
-
-    function _configureMinters() internal override {
-        mintInfo.push(
-            MintInfo({
-                minter: address(minter),
-                reserveInfo: ReserveInfo({
-                    startTime: RESERVE_START_TIME,
-                    endTime: RESERVE_END_TIME,
-                    allocation: RESERVE_ADMIN_ALLOCATION
-                }),
-                params: ""
-            })
-        );
     }
 }
