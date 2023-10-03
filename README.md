@@ -57,10 +57,10 @@ forge install
 forge test
 ```
 
-5. Run formatter
+5. Run prettier
 
 ```
-forge fmt
+npm run prettier
 ```
 
 6. Deploy contracts
