@@ -142,8 +142,8 @@ contract Deploy is Script {
             MintInfo({
                 minter: _minter,
                 reserveInfo: ReserveInfo({
-                    startTime: _startTime,
-                    endTime: _endTime,
+                    startTime: uint64(block.timestamp) + _startTime,
+                    endTime: uint64(block.timestamp) + _endTime,
                     allocation: RESERVE_ADMIN_ALLOCATION
                 }),
                 params: abi.encode(price)

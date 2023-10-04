@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
-
+import "forge-std/Test.sol";
 import {ERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
@@ -249,10 +249,14 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
         uint128 totalAllocation;
         ReserveInfo memory reserveInfo;
         uint128 lockTime = _isVerified(_owner) ? 0 : _lockTime;
+        console.log("LOCK TIME", lockTime);
         unchecked {
             for (uint256 i; i < _mintInfo.length; ++i) {
                 minter = _mintInfo[i].minter;
                 reserveInfo = _mintInfo[i].reserveInfo;
+                console.log("BLOCK TIME", block.timestamp);
+                console.log("START TIME", reserveInfo.startTime);
+                console.log("END TIME", reserveInfo.endTime);
                 if (reserveInfo.startTime < block.timestamp + lockTime) {
                     revert InvalidStartTime();
                 }
