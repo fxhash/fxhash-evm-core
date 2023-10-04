@@ -102,7 +102,12 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
         issuerInfo.primaryReceiver = _primaryReceiver;
         metadataInfo = _metadataInfo;
 
-        emit ProjectInitialized(_primaryReceiver, _projectInfo, _mintInfo);
+        emit ProjectInitialized(
+            _primaryReceiver,
+            _projectInfo,
+            _metadataInfo,
+            _mintInfo
+        );
     }
 
     /*//////////////////////////////////////////////////////////////////////////
