@@ -64,7 +64,9 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
      * @dev Modifier for restricting calls to only authorized accounts with given roles
      */
     modifier onlyRole(bytes32 _role) {
-        if (!IAccessControl(roleRegistry).hasRole(_role, msg.sender)) revert UnauthorizedAccount();
+        if (!IAccessControl(roleRegistry).hasRole(_role, msg.sender)) {
+            revert UnauthorizedAccount();
+        }
         _;
     }
 
@@ -102,7 +104,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
         issuerInfo.primaryReceiver = _primaryReceiver;
         metadataInfo = _metadataInfo;
 
-        emit ProjectInitialized(_primaryReceiver, _projectInfo, _mintInfo);
+        emit ProjectInitialized(_primaryReceiver, _projectInfo, _metadataInfo, _mintInfo);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -251,8 +253,12 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
             for (uint256 i; i < _mintInfo.length; ++i) {
                 minter = _mintInfo[i].minter;
                 reserveInfo = _mintInfo[i].reserveInfo;
-                if (reserveInfo.startTime < block.timestamp + lockTime) revert InvalidStartTime();
-                if (reserveInfo.endTime < reserveInfo.startTime) revert InvalidEndTime();
+                if (reserveInfo.startTime < block.timestamp + lockTime) {
+                    revert InvalidStartTime();
+                }
+                if (reserveInfo.endTime < reserveInfo.startTime) {
+                    revert InvalidEndTime();
+                }
                 if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) {
                     revert UnauthorizedMinter();
                 }
@@ -263,7 +269,9 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
             }
         }
 
-        if (totalAllocation > issuerInfo.projectInfo.supply) revert AllocationExceeded();
+        if (totalAllocation > issuerInfo.projectInfo.supply) {
+            revert AllocationExceeded();
+        }
     }
 
     /**
