@@ -18,6 +18,8 @@ contract BaseTest is Deploy, Test {
 
     // State
     address internal owner;
+    bytes internal fxParams;
+    bytes32 internal seed;
     uint96 internal projectId;
 
     // Modifiers
@@ -30,11 +32,19 @@ contract BaseTest is Deploy, Test {
     // Callbacks
     receive() external payable {}
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                     SETUP
+    //////////////////////////////////////////////////////////////////////////*/
+
     function setUp() public virtual override {
         _createAccounts();
         _initializeAccounts();
         _deployContracts();
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                     HELPERS
+    //////////////////////////////////////////////////////////////////////////*/
 
     function _createAccounts() internal virtual override {
         admin = makeAddr("admin");

@@ -71,8 +71,6 @@ contract Deploy is Script {
 
     // Token
     address internal fxGenArtProxy;
-    bytes internal fxParams;
-    bytes32 internal seed;
     uint256 internal amount;
     uint256 internal price;
     uint256 internal tokenId;
@@ -91,7 +89,7 @@ contract Deploy is Script {
         _configureRoyalties();
         _configureScripty();
         _configureState(AMOUNT, PRICE, TOKEN_ID);
-        _configureInfo(FEE_SHARE, LOCK_TIME, DEFAULT_METADATA);
+        _configureInfo(LOCK_TIME, DEFAULT_METADATA);
         _configureProject(ENABLED, ONCHAIN, MAX_SUPPLY, CONTRACT_URI);
         _configureMetdata(BASE_URI, IMAGE_URI, animation);
     }
@@ -129,8 +127,7 @@ contract Deploy is Script {
         tokenId = _tokenId;
     }
 
-    function _configureInfo(uint128 _feeShare, uint128 _lockTime, string memory defaultMetadata) internal virtual {
-        configInfo.feeShare = _feeShare;
+    function _configureInfo(uint256 _lockTime, string memory defaultMetadata) internal virtual {
         configInfo.lockTime = _lockTime;
         configInfo.defaultMetadata = defaultMetadata;
     }

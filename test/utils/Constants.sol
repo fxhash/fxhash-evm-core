@@ -6,8 +6,7 @@ uint256 constant INITIAL_BALANCE = 1000 ether;
 
 // Config
 string constant DEFAULT_METADATA = "ipfs://QmZZVBKapDg2wXzwpDxdmL9Ah665h9ZzeJ9gYdbTZ4GBzf";
-uint128 constant FEE_SHARE = 50_000; // 5%
-uint128 constant LOCK_TIME = 3600; // 1 hour
+uint256 constant LOCK_TIME = 3600; // 1 hour
 
 // Metadata
 string constant BASE_URI = "ipfs://";
