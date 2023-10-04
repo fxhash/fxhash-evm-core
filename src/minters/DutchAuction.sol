@@ -61,7 +61,7 @@ contract DutchAuction is IDutchAuction {
         if (block.timestamp > reserve.endTime) revert Ended();
         if (_amount > reserve.allocation) revert TooMany();
 
-        (, uint256 price) = getPrice(_token, _reserveId);
+        uint256 price = getPrice(_token, _reserveId);
         if (msg.value != price * _amount) revert InvalidPayment();
 
         reserve.allocation -= _amount.safeCastTo128();
@@ -115,11 +115,13 @@ contract DutchAuction is IDutchAuction {
     }
 
     /// @inheritdoc IDutchAuction
-    function getPrice(address _token, uint256 _reserveId) public view returns (uint256 step, uint256 price) {
-        if (block.timestamp < reserves[_token][_reserveId].startTime) revert NotStarted();
-        uint256 timeSinceStart = block.timestamp - reserves[_token][_reserveId].startTime;
-        step = timeSinceStart / auctionInfo[_token][_reserveId].stepLength;
-        if (step >= auctionInfo[_token][_reserveId].prices.length) revert InvalidStep();
-        price = auctionInfo[_token][_reserveId].prices[step];
+    function getPrice(address _token, uint256 _reserveId) public view returns (uint256) {
+        ReserveInfo memory reserve = reserves[_token][_reserveId];
+        AuctionInfo storage auctionInfo = auctionInfo[_token][_reserveId];
+        if (block.timestamp < reserve.startTime) revert NotStarted();
+        uint256 timeSinceStart = block.timestamp - reserve.startTime;
+        uint256 step = timeSinceStart / auctionInfo.stepLength;
+        if (step >= auctionInfo.prices.length) revert InvalidStep();
+        return auctionInfo.prices[step];
     }
 }

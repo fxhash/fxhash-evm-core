@@ -181,10 +181,9 @@ interface IDutchAuction is IFxMinter {
      * @notice Retrieves the current price for a Dutch auction
      * @param _token The address of the token
      * @param _reserveId The ID of the mint
-     * @return step The current step of the Dutch auction
      * @return price The current price of the token
      */
-    function getPrice(address _token, uint256 _reserveId) external view returns (uint256, uint256);
+    function getPrice(address _token, uint256 _reserveId) external view returns (uint256);
 
     /**
      * @notice Mapping to store the Dutch auction info for each token
