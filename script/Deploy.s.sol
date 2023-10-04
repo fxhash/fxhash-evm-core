@@ -104,7 +104,11 @@ contract Deploy is Script {
     function run() public virtual {
         vm.startBroadcast();
         _deployContracts();
-        _configureMinters(address(fixedPrice), RESERVE_START_TIME, RESERVE_END_TIME);
+        _configureMinters(
+            address(fixedPrice),
+            uint64(block.timestamp) + RESERVE_START_TIME,
+            uint64(block.timestamp) + RESERVE_END_TIME
+        );
         _registerContracts();
         _registerRoles();
         _createSplit();

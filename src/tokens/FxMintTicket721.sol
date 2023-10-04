@@ -361,7 +361,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
      * 3) Contract owner executes public transfer when token is not in foreclosure
      * 4) Registered minter executes public burn when token is not in foreclosure
      */
-    function _beforeTokenTransfer(address _from, address, uint256 _tokenId, uint256) internal override {
+    function _beforeTokenTransfer(address _from, address, uint256 _tokenId, uint256) internal view override {
         // Check if token is being minted
         if (_from != address(0)) {
             // Reverts if token is foreclosed and caller is not this contract
