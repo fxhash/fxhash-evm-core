@@ -264,7 +264,9 @@ interface IFxGenArt721 is ISeedConsumer {
      * @param _tokenId ID of the token
      * @return FxParams and Seed
      */
-    function genArtInfo(uint256 _tokenId) external view returns (bytes memory, bytes32);
+    function genArtInfo(
+        uint256 _tokenId
+    ) external view returns (bytes memory, bytes32);
 
     /**
      * @notice Gets the authorization status for the given minter
@@ -286,7 +288,12 @@ interface IFxGenArt721 is ISeedConsumer {
     function metadataInfo()
         external
         view
-        returns (string memory, string memory, HTMLRequest memory, HTMLRequest memory);
+        returns (
+            string memory,
+            string memory,
+            HTMLRequest memory,
+            HTMLRequest memory
+        );
 
     /**
      * @notice Returns the remaining supply of tokens left to mint
