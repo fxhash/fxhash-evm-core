@@ -3,8 +3,6 @@ pragma solidity 0.8.20;
 
 import "test/BaseTest.t.sol";
 
-import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
-
 contract FixedPriceTest is BaseTest {
     bytes4 internal ADDRESS_ZERO_ERROR = IFixedPrice.AddressZero.selector;
     bytes4 internal ENDED_ERROR = IFixedPrice.Ended.selector;

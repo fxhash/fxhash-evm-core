@@ -4,10 +4,26 @@ pragma solidity 0.8.20;
 import "forge-std/Test.sol";
 import "script/Deploy.s.sol";
 
+import {Allowlist} from "src/minters/extensions/Allowlist.sol";
+import {ECDSA} from "openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {MintPass} from "src/minters/extensions/MintPass.sol";
+import {MockAllowlist} from "test/mocks/MockAllowlist.sol";
+import {MockMinter} from "test/mocks/MockMinter.sol";
+import {MockMintPass} from "test/mocks/MockMintPass.sol";
+import {MockRoyaltyManager} from "test/mocks/MockRoyaltyManager.sol";
+import {RoyaltyManager} from "src/tokens/extensions/RoyaltyManager.sol";
+import {StandardMerkleTree} from "test/utils/StandardMerkleTree.sol";
+import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
+
+import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
+import {IFxIssuerFactory} from "src/interfaces/IFxIssuerFactory.sol";
+import {IFxMintTicket721, TaxInfo} from "src/interfaces/IFxMintTicket721.sol";
+import {IFxSplitsFactory} from "src/interfaces/IFxSplitsFactory.sol";
+import {IFxTicketFactory} from "src/interfaces/IFxTicketFactory.sol";
+import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
+import {IRoyaltyManager} from "src/interfaces/IRoyaltyManager.sol";
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
-import {MockMinter} from "test/mocks/MockMinter.sol";
-import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
 contract BaseTest is Deploy, Test {
     // Accounts
@@ -76,7 +92,7 @@ contract BaseTest is Deploy, Test {
     function _mockSplits(address _deployer) internal prank(_deployer) {
         bytes memory splitMainBytecode = abi.encodePacked(SPLITS_MAIN_CREATION_CODE, abi.encode());
         address deployedAddress;
-        vm.setNonce(SPLITS_DEPLOYER, SPLITS_DEPLOYER_NONCE);
+        vm.setNonce(SPLITS_DEPLOYER, 0);
         assembly {
             deployedAddress := create(0, add(splitMainBytecode, 32), mload(splitMainBytecode))
         }

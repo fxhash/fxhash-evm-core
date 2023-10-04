@@ -170,7 +170,7 @@ contract Deploy is Script {
         headTags.push(
             HTMLTag({
                 name: CSS_CANVAS_SCRIPT,
-                contractAddress: ETHFS_FILE_STORAGE,
+                contractAddress: GOERLI_ETHFS_FILE_STORAGE,
                 contractData: bytes(""),
                 tagType: HTMLTagType.useTagOpenAndClose,
                 tagOpen: TAG_OPEN,
@@ -182,7 +182,7 @@ contract Deploy is Script {
         bodyTags.push(
             HTMLTag({
                 name: P5_JS_SCRIPT,
-                contractAddress: ETHFS_FILE_STORAGE,
+                contractAddress: GOERLI_ETHFS_FILE_STORAGE,
                 contractData: bytes(""),
                 tagType: HTMLTagType.scriptGZIPBase64DataURI,
                 tagOpen: bytes(""),
@@ -194,7 +194,7 @@ contract Deploy is Script {
         bodyTags.push(
             HTMLTag({
                 name: GUNZIP_JS_SCRIPT,
-                contractAddress: ETHFS_FILE_STORAGE,
+                contractAddress: GOERLI_ETHFS_FILE_STORAGE,
                 contractData: bytes(""),
                 tagType: HTMLTagType.scriptBase64DataURI,
                 tagOpen: bytes(""),
@@ -206,7 +206,7 @@ contract Deploy is Script {
         bodyTags.push(
             HTMLTag({
                 name: POINTS_AND_LINES_SCRIPT,
-                contractAddress: SCRIPTY_STORAGE_V2,
+                contractAddress: GOERLI_SCRIPTY_STORAGE_V2,
                 contractData: bytes(""),
                 tagType: HTMLTagType.script,
                 tagOpen: bytes(""),
@@ -282,7 +282,7 @@ contract Deploy is Script {
         fxPseudoRandomizer = FxPseudoRandomizer(_deployCreate2(creationCode, salt));
 
         creationCode = type(FxScriptyRenderer).creationCode;
-        constructorArgs = abi.encode(ETHFS_FILE_STORAGE, SCRIPTY_STORAGE_V2, SCRIPTY_BUILDER_V2);
+        constructorArgs = abi.encode(GOERLI_ETHFS_FILE_STORAGE, GOERLI_SCRIPTY_STORAGE_V2, GOERLI_SCRIPTY_BUILDER_V2);
         fxScriptyRenderer = FxScriptyRenderer(_deployCreate2(creationCode, constructorArgs, salt));
 
         creationCode = type(FixedPrice).creationCode;

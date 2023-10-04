@@ -3,8 +3,6 @@ pragma solidity 0.8.20;
 
 import "test/BaseTest.t.sol";
 
-import {IFxMintTicket721, TaxInfo} from "src/interfaces/IFxMintTicket721.sol";
-
 contract FxMintTicket721Test is BaseTest {
     // Tax Info
     uint128 gracePeriod;

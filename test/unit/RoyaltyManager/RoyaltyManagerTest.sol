@@ -3,10 +3,6 @@ pragma solidity 0.8.20;
 
 import "test/BaseTest.t.sol";
 
-import {RoyaltyManager} from "src/tokens/extensions/RoyaltyManager.sol";
-import {IRoyaltyManager} from "src/interfaces/IRoyaltyManager.sol";
-import {MockRoyaltyManager} from "test/mocks/MockRoyaltyManager.sol";
-
 contract RoyaltyManagerTest is BaseTest {
     // State
     RoyaltyManager internal royaltyManager;

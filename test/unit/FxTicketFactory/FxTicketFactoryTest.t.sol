@@ -3,8 +3,6 @@ pragma solidity 0.8.20;
 
 import "test/BaseTest.t.sol";
 
-import {IFxTicketFactory} from "src/interfaces/IFxTicketFactory.sol";
-
 contract FxTicketFactoryTest is BaseTest {
     // Custom Errors
     bytes4 INVALID_GRACE_PERIOD_ERROR = IFxTicketFactory.InvalidGracePeriod.selector;
