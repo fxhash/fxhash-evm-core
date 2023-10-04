@@ -24,7 +24,6 @@ interface IDutchAuction is IFxMinter {
      * @param reserve The reserve info of the Dutch auction
      * @param daInfo The Dutch auction info
      */
-
     event MintDetailsSet(address indexed token, uint256 indexed reserveId, ReserveInfo reserve, AuctionInfo daInfo);
 
     /**
@@ -74,6 +73,16 @@ interface IDutchAuction is IFxMinter {
     error Ended();
 
     /**
+     * @notice Error thrown when trying to send an amount of 0
+     */
+    error InsufficientFunds();
+
+    /**
+     * @notice Error thrown when the price is insufficient
+     */
+    error InsufficientPrice();
+
+    /**
      * @notice Error thrown when the allocation is 0
      */
     error InvalidAllocation();
@@ -98,6 +107,11 @@ interface IDutchAuction is IFxMinter {
     error InvalidPriceCurve();
 
     /**
+     * @notice Error thrown when a reserve doesnt exist
+     */
+    error InvalidReserve();
+
+    /**
      * @notice Error thrown when the step length passed doesn't divide auction duration isn't a
      * discrete number of steps
      */
@@ -115,38 +129,24 @@ interface IDutchAuction is IFxMinter {
     error InvalidToken();
 
     /**
-     * @notice Error thrown when a reserve doesnt exist
-     */
-    error InvalidReserve();
-
-    /**
-     * @notice Error thrown when the price is insufficient
-     */
-    error InsufficientPrice();
-
-    /**
-     * @notice Error thrown when trying to send an amount of 0
-     */
-    error InsufficientFunds();
-
-    /**
      * @notice Error thrown when the prices are out of order
      */
     error PricesOutOfOrder();
 
     /**
-     * @notice Error thrown when the auction has not started
+     * @notice Error thrown when there is no refund available
      */
-    error NotStarted();
+    error NoRefund();
 
     /**
      * @notice Error thrown on function only callable after an auction ends
      */
     error NotEnded();
+
     /**
-     * @notice Error thrown when there is no refund available
+     * @notice Error thrown when the auction has not started
      */
-    error NoRefund();
+    error NotStarted();
 
     /**
      * @notice Error thrown when a buyer requets to buy more than the remaining allocation
@@ -194,6 +194,32 @@ interface IDutchAuction is IFxMinter {
     function auctionInfo(address _token, uint256 _reserveId) external view returns (uint248, bool);
 
     /**
+     * @notice Retrieves the cumulative mint cost for a buyer
+     * @param _token The address of the token
+     * @param _reserveId The ID of the mint
+     * @param _buyer The address of the buyer
+     * @return The cumulative mint cost paid by the buyer
+     */
+    function cumulativeMintCost(address _token, uint256 _reserveId, address _buyer) external view returns (uint256);
+
+    /**
+     * @notice Retrieves the cumulative mints for a buyer
+     * @param _token The address of the token
+     * @param _reserveId The ID of the mint
+     * @param _buyer The address of the buyer
+     * @return The cumulative number of mints buyer purchased
+     */
+    function cumulativeMints(address _token, uint256 _reserveId, address _buyer) external view returns (uint256);
+
+    /**
+     * @notice Retrieves the last price of a token
+     * @param _token The address of the token
+     * @param _reserveId The ID of the mint
+     * @return The last price of the token
+     */
+    function lastPrice(address _token, uint256 _reserveId) external view returns (uint256);
+
+    /**
      * @notice Retrieves the reserve info for a token
      * @param _token The address of the token
      * @param _reserveId The ID of the mint
@@ -210,30 +236,4 @@ interface IDutchAuction is IFxMinter {
      * @return The amount of sale proceeds withdrawn
      */
     function saleProceeds(address _token, uint256 _reserveId) external view returns (uint256);
-
-    /**
-     * @notice Retrieves the cumulative mints for a buyer
-     * @param _token The address of the token
-     * @param _reserveId The ID of the mint
-     * @param _buyer The address of the buyer
-     * @return The cumulative number of mints buyer purchased
-     */
-    function cumulativeMints(address _token, uint256 _reserveId, address _buyer) external view returns (uint256);
-
-    /**
-     * @notice Retrieves the cumulative mint cost for a buyer
-     * @param _token The address of the token
-     * @param _reserveId The ID of the mint
-     * @param _buyer The address of the buyer
-     * @return The cumulative mint cost paid by the buyer
-     */
-    function cumulativeMintCost(address _token, uint256 _reserveId, address _buyer) external view returns (uint256);
-
-    /**
-     * @notice Retrieves the last price of a token
-     * @param _token The address of the token
-     * @param _reserveId The ID of the mint
-     * @return The last price of the token
-     */
-    function lastPrice(address _token, uint256 _reserveId) external view returns (uint256);
 }
