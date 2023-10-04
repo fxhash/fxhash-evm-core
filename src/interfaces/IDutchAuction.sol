@@ -190,7 +190,7 @@ interface IDutchAuction is IFxMinter {
      * @param _reserveId The ID of the mint
      * @param _token The address of the token
      */
-    function auctionInfo(address _token, uint256 _reserveId) external view returns (uint256, bool);
+    function auctionInfo(address _token, uint256 _reserveId) external view returns (uint248, bool);
 
     /**
      * @notice Retrieves the reserve info for a token

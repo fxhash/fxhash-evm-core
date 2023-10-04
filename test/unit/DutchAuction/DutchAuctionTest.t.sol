@@ -24,7 +24,7 @@ contract DutchAuctionTest is BaseTest {
     DutchAuction internal dutchAuction;
     DutchAuction internal refundableDA;
     uint256[] internal prices;
-    uint256 internal stepLength;
+    uint248 internal stepLength;
     bool internal refund;
     uint256 internal reserveId;
 
@@ -35,7 +35,7 @@ contract DutchAuctionTest is BaseTest {
         prices.push(1 ether);
         prices.push(0.5 ether);
         vm.deal(address(this), INITIAL_BALANCE);
-        stepLength = (RESERVE_END_TIME - RESERVE_START_TIME) / prices.length;
+        stepLength = uint248((RESERVE_END_TIME - RESERVE_START_TIME) / prices.length);
         vm.deal(address(this), INITIAL_BALANCE);
         _configureGenArtToken();
         vm.warp(RESERVE_START_TIME);

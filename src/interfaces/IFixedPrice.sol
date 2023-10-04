@@ -16,9 +16,7 @@ interface IFixedPrice is IFxMinter {
      * @param price The fixed price for the mint
      * @param reserve The reserve information for the mint
      */
-    event MintDetailsSet(
-        address indexed token, uint256 indexed reserveId, uint256 price, ReserveInfo reserve
-    );
+    event MintDetailsSet(address indexed token, uint256 indexed reserveId, uint256 price, ReserveInfo reserve);
 
     /**
      * @notice Emitted when a purchase is made
@@ -29,7 +27,6 @@ interface IFixedPrice is IFxMinter {
      * @param to The address to which the tokens are being transferred
      * @param price The price of the purchase
      */
-<<<<<<< HEAD
     event Purchase(
         address indexed token,
         uint256 indexed reserveId,
@@ -38,9 +35,6 @@ interface IFixedPrice is IFxMinter {
         address to,
         uint256 price
     );
-=======
-    event Purchase(address indexed token, uint256 indexed mintId, uint256 amount, address indexed to, uint256 price);
->>>>>>> main
 
     /**
      * @notice Emitted when proceeds are withdrawn
@@ -90,9 +84,7 @@ interface IFixedPrice is IFxMinter {
      * @param _amount The number of tokens to buy
      * @param _to The address to receive the tokens
      */
-    function buy(address _token, uint256 _reserveId, uint256 _amount, address _to)
-        external
-        payable;
+    function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable;
 
     /**
      * @notice Withdraws the sale proceeds to the sale receiver
@@ -103,16 +95,8 @@ interface IFixedPrice is IFxMinter {
     /// @notice Returns the price of a token for a reserveId
     function prices(address _token, uint256 _reserveId) external view returns (uint256);
 
-<<<<<<< HEAD
     /// @notice Returns the reserve of a token for a reserveId
-    function reserves(address _token, uint256 _reserveId)
-        external
-        view
-        returns (uint64, uint64, uint128);
-=======
-    /// @notice Returns the reserve of a token for a mintId
-    function reserves(address _token, uint256 _mintId) external view returns (uint64, uint64, uint128);
->>>>>>> main
+    function reserves(address _token, uint256 _reserveId) external view returns (uint64, uint64, uint128);
 
     /// @notice Returns the amount of saleProceeds of a token
     function saleProceeds(address _token) external view returns (uint256);
