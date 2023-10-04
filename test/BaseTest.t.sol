@@ -17,6 +17,7 @@ contract BaseTest is Deploy, Test {
     address internal susan;
 
     // State
+    address internal minter;
     address internal owner;
     bytes internal fxParams;
     bytes32 internal seed;

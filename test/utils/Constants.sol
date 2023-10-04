@@ -19,18 +19,18 @@ string constant CONTRACT_URI = "ipfs://";
 uint240 constant MAX_SUPPLY = 1000;
 
 // Reserves
+uint64 constant MINTER_ALLOCATION = 500;
 uint64 constant RESERVE_START_TIME = 86_400; // 1 day
 uint64 constant RESERVE_END_TIME = 604_800; // 1 week
-uint64 constant MINTER_ALLOCATION = 500;
 
 // Royalties
 uint96 constant ROYALTY_BPS = 500; // 5%
 
-// Splits Values
+// Splits
 uint32 constant ADMIN_ALLOCATION = 100_000;
 uint32 constant CREATOR_ALLOCATION = 900_000;
 
-// State
+// Token
 uint256 constant AMOUNT = 10;
 uint256 constant PRICE = 1 ether;
 uint256 constant TOKEN_ID = 1;

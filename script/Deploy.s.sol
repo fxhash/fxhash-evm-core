@@ -36,7 +36,6 @@ contract Deploy is Script {
     // Accounts
     address internal admin;
     address internal creator;
-    address internal minter;
 
     // Metadata
     string internal baseURI;
@@ -48,11 +47,13 @@ contract Deploy is Script {
     bytes32[] internal names;
 
     // Royalties
-    address internal primaryReceiver;
     address payable[] internal royaltyReceivers;
+    uint96[] internal basisPoints;
+
+    // Splits
+    address internal primaryReceiver;
     address[] internal accounts;
     uint32[] internal allocations;
-    uint96[] internal basisPoints;
 
     // Scripty
     HTMLRequest internal animation;
