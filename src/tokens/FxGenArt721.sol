@@ -20,14 +20,7 @@ import "src/utils/Constants.sol";
  * @title FxGenArt721
  * @notice See the documentation in {IFxGenArt721}
  */
-contract FxGenArt721 is
-    IFxGenArt721,
-    Initializable,
-    ERC721,
-    Ownable,
-    Pausable,
-    RoyaltyManager
-{
+contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, RoyaltyManager {
     /// @inheritdoc IFxGenArt721
     address public immutable contractRegistry;
     /// @inheritdoc IFxGenArt721
@@ -53,9 +46,7 @@ contract FxGenArt721 is
      * @dev Modifier for restricting calls to only registered contracts
      */
     modifier onlyContract(bytes32 _name) {
-        if (
-            msg.sender != IFxContractRegistry(contractRegistry).contracts(_name)
-        ) {
+        if (msg.sender != IFxContractRegistry(contractRegistry).contracts(_name)) {
             revert UnauthorizedContract();
         }
         _;
