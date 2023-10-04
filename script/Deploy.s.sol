@@ -104,7 +104,11 @@ contract Deploy is Script {
     function run() public virtual {
         vm.startBroadcast();
         _deployContracts();
-        _configureMinters(address(fixedPrice), RESERVE_START_TIME, RESERVE_END_TIME);
+        _configureMinters(
+            address(fixedPrice),
+            uint64(block.timestamp) + RESERVE_START_TIME,
+            uint64(block.timestamp) + RESERVE_END_TIME
+        );
         _registerContracts();
         _registerRoles();
         _createSplit();
@@ -142,8 +146,8 @@ contract Deploy is Script {
             MintInfo({
                 minter: _minter,
                 reserveInfo: ReserveInfo({
-                    startTime: uint64(block.timestamp) + _startTime,
-                    endTime: uint64(block.timestamp) + _endTime,
+                    startTime: _startTime,
+                    endTime: _endTime,
                     allocation: RESERVE_ADMIN_ALLOCATION
                 }),
                 params: abi.encode(price)
