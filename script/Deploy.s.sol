@@ -103,14 +103,14 @@ contract Deploy is Script {
     function run() public virtual {
         vm.startBroadcast();
         _deployContracts();
-        _configureMinters(
+        _configureMinter(
             address(fixedPrice),
             uint64(block.timestamp) + RESERVE_START_TIME,
             uint64(block.timestamp) + RESERVE_END_TIME,
-            MINTER_ALLOCATION, 
+            MINTER_ALLOCATION,
             PRICE
         );
-        _registerContracts();
+        _registerContracts(admin);
         _grantRoles();
         _createSplit();
         _createProject();
@@ -224,10 +224,10 @@ contract Deploy is Script {
     function _configureMetdata(
         string memory _baseURI,
         string memory _imageURI,
-        HTMLRequest memory _animation
+        HTMLRequest storage _animation
     ) internal virtual {
-        metadataInfo.baseURI = BASE_URI;
-        metadataInfo.imageURI = IMAGE_URI;
+        metadataInfo.baseURI = _baseURI;
+        metadataInfo.imageURI = _imageURI;
         metadataInfo.animation = _animation;
     }
 
@@ -241,7 +241,7 @@ contract Deploy is Script {
         mintInfo.push(
             MintInfo({
                 minter: _minter,
-                reserveInfo: ReserveInfo({startTime: _startTime, endTime: _endTime, allocation: ADMIN_ALLOCATION}),
+                reserveInfo: ReserveInfo({startTime: _startTime, endTime: _endTime, allocation: _allocation}),
                 params: abi.encode(_price)
             })
         );
@@ -311,6 +311,10 @@ contract Deploy is Script {
         creator = makeAddr("creator");
     }
 
+    function _createSplit() internal virtual {
+        primaryReceiver = fxSplitsFactory.createImmutableSplit(accounts, allocations);
+    }
+
     function _createProject() internal virtual {
         fxGenArtProxy = fxIssuerFactory.createProject(
             creator,
@@ -327,10 +331,6 @@ contract Deploy is Script {
         fxMintTicketProxy = fxTicketFactory.createTicket(creator, fxGenArtProxy, uint48(ONE_DAY), BASE_URI);
     }
 
-    function _createSplit() internal virtual {
-        primaryReceiver = fxSplitsFactory.createImmutableSplit(accounts, allocations);
-    }
-
     /*//////////////////////////////////////////////////////////////////////////
                                     SETTERS
     //////////////////////////////////////////////////////////////////////////*/
@@ -340,7 +340,7 @@ contract Deploy is Script {
         fxRoleRegistry.grantRole(VERIFIED_USER_ROLE, creator);
     }
 
-    function _registerContracts() internal virtual {
+    function _registerContracts(address) internal virtual {
         names.push(FX_CONTRACT_REGISTRY);
         names.push(FX_GEN_ART_721);
         names.push(FX_ISSUER_FACTORY);

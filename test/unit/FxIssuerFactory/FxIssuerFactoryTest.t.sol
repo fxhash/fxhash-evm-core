@@ -16,6 +16,11 @@ contract FxIssuerFactoryTest is BaseTest {
 
     function setUp() public virtual override {
         super.setUp();
+        _initializeState();
+    }
+
+    function _initializeState() internal override {
+        super._initializeState();
         projectId = 1;
     }
 

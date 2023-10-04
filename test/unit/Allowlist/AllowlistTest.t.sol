@@ -21,6 +21,16 @@ contract AllowlistTest is BaseTest, StandardMerkleTree {
     bytes4 internal INVALID_PROOF_ERROR = Allowlist.InvalidProof.selector;
 
     function setUp() public virtual override {
+        super.setUp();
+        _initializeState();
+        _configureAllowlist();
+    }
+
+    function test_MerkleRoot() public {
+        assertEq(allowlist.merkleRoot(), merkleRoot);
+    }
+
+    function _configureAllowlist() internal {
         allowlist = new MockAllowlist();
         address[5] memory users = [alice, bob, eve, susan, alice];
         for (uint256 i; i < users.length; ++i) {
@@ -28,9 +38,5 @@ contract AllowlistTest is BaseTest, StandardMerkleTree {
         }
         merkleRoot = getRoot(merkleTree);
         allowlist.setMerkleRoot(merkleRoot);
-    }
-
-    function test_MerkleRoot() public {
-        assertEq(allowlist.merkleRoot(), merkleRoot);
     }
 }

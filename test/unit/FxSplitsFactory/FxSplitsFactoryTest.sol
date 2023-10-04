@@ -14,6 +14,7 @@ contract FxSplitsFactoryTest is BaseTest {
 
     function setUp() public virtual override {
         super.setUp();
-        _mock0xSplits();
+        _initializeState();
+        _mockSplits(SPLITS_DEPLOYER);
     }
 }

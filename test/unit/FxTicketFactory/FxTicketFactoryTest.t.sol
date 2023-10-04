@@ -13,17 +13,21 @@ contract FxTicketFactoryTest is BaseTest {
 
     function setUp() public virtual override {
         super.setUp();
-        minter = address(new MockMinter());
-        vm.prank(admin);
-        fxRoleRegistry.grantRole(MINTER_ROLE, minter);
-        _mock0xSplits();
-        _configureProject();
-        _configureRoyalties();
-        _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME);
-        _grantRole(admin, MINTER_ROLE, minter);
+        _initializeState();
+        _mockMinter(admin);
+        _mockSplits(SPLITS_DEPLOYER);
         _configureSplits();
+        _configureRoyalties();
+        _configureProject(ENABLED, ONCHAIN, MAX_SUPPLY, CONTRACT_URI);
+        _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, PRICE);
+        _registerContracts(admin);
+        _grantRole(admin, MINTER_ROLE, minter);
         _createSplit();
         _createProject();
+    }
+
+    function _initializeState() internal override {
+        super._initializeState();
         ticketId = 1;
     }
 

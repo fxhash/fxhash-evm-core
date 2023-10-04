@@ -20,17 +20,22 @@ contract FixedPriceTest is BaseTest {
 
     function setUp() public override {
         super.setUp();
-        vm.warp(RESERVE_START_TIME);
-        vm.deal(address(this), INITIAL_BALANCE);
-        _mock0xSplits();
-        _configureState(AMOUNT, PRICE, TOKEN_ID);
-        _configureProject();
-        _configureMinter(address(fixedPrice), RESERVE_START_TIME, RESERVE_END_TIME);
-        _grantRole(admin, MINTER_ROLE, address(fixedPrice));
-        _configureRoyalties();
+        _initializeState();
+        _mockSplits(SPLITS_DEPLOYER);
         _configureSplits();
+        _configureRoyalties();
+        _configureState(AMOUNT, PRICE, TOKEN_ID);
+        _configureProject(ENABLED, ONCHAIN, MAX_SUPPLY, CONTRACT_URI);
+        _configureMinter(address(fixedPrice), RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, PRICE);
+        _registerContracts(admin);
+        _grantRole(admin, MINTER_ROLE, address(fixedPrice));
         _createSplit();
         _createProject();
         _setRandomizer(admin, address(fxPseudoRandomizer));
+    }
+
+    function _initializeState() internal override {
+        super._initializeState();
+        vm.deal(address(this), INITIAL_BALANCE);
     }
 }

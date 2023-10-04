@@ -10,7 +10,7 @@ import {MockMinter} from "test/mocks/MockMinter.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
 contract BaseTest is Deploy, Test {
-    // Users
+    // Accounts
     address internal alice;
     address internal bob;
     address internal eve;
@@ -27,13 +27,13 @@ contract BaseTest is Deploy, Test {
         vm.stopPrank();
     }
 
+    // Callbacks
     receive() external payable {}
 
     function setUp() public virtual override {
         _createAccounts();
         _initializeAccounts();
         _deployContracts();
-        vm.warp(RESERVE_START_TIME);
     }
 
     function _createAccounts() internal virtual override {
@@ -54,7 +54,15 @@ contract BaseTest is Deploy, Test {
         vm.deal(susan, INITIAL_BALANCE);
     }
 
-    function _mock0xSplits() internal prank(SPLITS_DEPLOYER) {
+    function _initializeState() internal virtual {
+        vm.warp(RESERVE_START_TIME);
+    }
+
+    function _mockMinter(address _admin) internal prank(_admin) {
+        minter = address(new MockMinter());
+    }
+
+    function _mockSplits(address _deployer) internal prank(_deployer) {
         bytes memory splitMainBytecode = abi.encodePacked(SPLITS_MAIN_CREATION_CODE, abi.encode());
         address deployedAddress;
         vm.setNonce(SPLITS_DEPLOYER, SPLITS_DEPLOYER_NONCE);
@@ -65,6 +73,10 @@ contract BaseTest is Deploy, Test {
 
     function _grantRole(address _admin, bytes32 _role, address _user) internal prank(_admin) {
         fxRoleRegistry.grantRole(_role, _user);
+    }
+
+    function _registerContracts(address _admin) internal virtual override prank(_admin) {
+        super._registerContracts(_admin);
     }
 
     function _setRandomizer(address _admin, address _randomizer) internal prank(_admin) {

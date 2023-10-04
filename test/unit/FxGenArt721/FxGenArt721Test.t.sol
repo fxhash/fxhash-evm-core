@@ -23,13 +23,16 @@ contract FxGenArt721Test is BaseTest {
 
     function setUp() public virtual override {
         super.setUp();
-        minter = address(new MockMinter());
-        _mock0xSplits();
-        _configureProject();
-        _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME);
-        _grantRole(admin, MINTER_ROLE, minter);
-        _configureRoyalties();
+        _initializeState();
+        _mockMinter(admin);
+        _mockSplits(SPLITS_DEPLOYER);
         _configureSplits();
+        _configureRoyalties();
+        _configureState(AMOUNT, PRICE, TOKEN_ID);
+        _configureProject(ENABLED, ONCHAIN, MAX_SUPPLY, CONTRACT_URI);
+        _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, PRICE);
+        _registerContracts(admin);
+        _grantRole(admin, MINTER_ROLE, minter);
         _createSplit();
     }
 
@@ -53,14 +56,14 @@ contract FxGenArt721Test is BaseTest {
 
     function test_Initialize_RevertsWhen_InvalidStartTime() public {
         delete mintInfo;
-        _configureMinter(minter, RESERVE_START_TIME - 1, RESERVE_END_TIME);
+        _configureMinter(minter, RESERVE_START_TIME - 1, RESERVE_END_TIME, MINTER_ALLOCATION, PRICE);
         vm.expectRevert(INVALID_START_TIME_ERROR);
         _createProject();
     }
 
     function test_Initialize_RevertsWhen_InvalidEndTime() public {
         delete mintInfo;
-        _configureMinter(minter, RESERVE_START_TIME, RESERVE_START_TIME - 1);
+        _configureMinter(minter, RESERVE_START_TIME, RESERVE_START_TIME - 1, MINTER_ALLOCATION, PRICE);
         vm.expectRevert(INVALID_END_TIME_ERROR);
         _createProject();
     }
