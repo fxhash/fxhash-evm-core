@@ -78,7 +78,7 @@ contract FxGenArt721Test is BaseTest {
     }
 
     function _setMetadatInfo() internal {
-        (baseURI, imageURI,,) = IFxGenArt721(fxGenArtProxy).metadataInfo();
+        (baseURI, imageURI, , ) = IFxGenArt721(fxGenArtProxy).metadataInfo();
     }
 
     function _toggleMint(address _creator) internal prank(_creator) {

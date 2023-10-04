@@ -64,7 +64,13 @@ contract DutchAuctionTest is BaseTest {
         );
         vm.startPrank(creator);
         fxGenArtProxy = fxIssuerFactory.createProject(
-            creator, creator, projectInfo, metadataInfo, mintInfo, royaltyReceivers, basisPoints
+            creator,
+            creator,
+            projectInfo,
+            metadataInfo,
+            mintInfo,
+            royaltyReceivers,
+            basisPoints
         );
         FxGenArt721(fxGenArtProxy).toggleMint();
         vm.stopPrank();

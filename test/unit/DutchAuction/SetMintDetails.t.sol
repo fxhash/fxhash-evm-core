@@ -18,8 +18,7 @@ contract SetMintDetails is DutchAuctionTest {
             abi.encode(daInfo)
         );
         vm.warp(RESERVE_START_TIME);
-        (uint64 startTime_, uint64 endTime_, uint128 supply_) =
-            dutchAuction.reserves(address(this), 0);
+        (uint64 startTime_, uint64 endTime_, uint128 supply_) = dutchAuction.reserves(address(this), 0);
         (uint256 step, uint256 price_) = dutchAuction.getPrice(address(this), 0);
 
         uint256 duration = RESERVE_END_TIME - RESERVE_START_TIME;
@@ -34,9 +33,7 @@ contract SetMintDetails is DutchAuctionTest {
 
     function test_RevertsIf_Allocation0() public {
         vm.expectRevert(INVALID_ALLOCATION_ERROR);
-        dutchAuction.setMintDetails(
-            ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, 0), abi.encode(daInfo)
-        );
+        dutchAuction.setMintDetails(ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, 0), abi.encode(daInfo));
     }
 
     function test_RevertsIf_InvalidStepLength() public {

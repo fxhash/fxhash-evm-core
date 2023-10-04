@@ -16,9 +16,7 @@ contract Buy is DutchAuctionTest {
         (, uint256 price) = dutchAuction.getPrice(fxGenArtProxy, reserveId);
         quantity = RESERVE_MINTER_ALLOCATION + 1;
         vm.expectRevert(TOO_MANY_ERROR);
-        dutchAuction.buy{value: (price * (RESERVE_MINTER_ALLOCATION + 1))}(
-            fxGenArtProxy, reserveId, quantity, alice
-        );
+        dutchAuction.buy{value: (price * (RESERVE_MINTER_ALLOCATION + 1))}(fxGenArtProxy, reserveId, quantity, alice);
         assertEq(FxGenArt721(fxGenArtProxy).balanceOf(alice), 0);
     }
 

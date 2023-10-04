@@ -34,10 +34,7 @@ contract FixedPrice is IFixedPrice {
     }
 
     /// @inheritdoc IFixedPrice
-    function buy(address _token, uint256 _reserveId, uint256 _amount, address _to)
-        external
-        payable
-    {
+    function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable {
         uint256 length = reserves[_token].length;
         if (length == 0) revert InvalidToken();
         if (_reserveId >= length) revert InvalidReserve();

@@ -13,7 +13,7 @@ interface IDutchAuction is IFxMinter {
      */
     struct DAInfo {
         uint256[] prices;
-        uint256 stepLength;
+        uint248 stepLength;
         bool refunded;
     }
     /**
@@ -24,9 +24,7 @@ interface IDutchAuction is IFxMinter {
      * @param daInfo The Dutch auction info
      */
 
-    event MintDetailsSet(
-        address indexed token, uint256 indexed reserveId, ReserveInfo reserve, DAInfo daInfo
-    );
+    event MintDetailsSet(address indexed token, uint256 indexed reserveId, ReserveInfo reserve, DAInfo daInfo);
 
     /**
      * @notice Emitted when a purchase is made in the Dutch auction
@@ -53,12 +51,7 @@ interface IDutchAuction is IFxMinter {
      * @param buyer The address of the buyer claiming the refund
      * @param refundAmount The amount of refund claimed
      */
-    event RefundClaimed(
-        address indexed token,
-        uint256 indexed reserveId,
-        address indexed buyer,
-        uint256 refundAmount
-    );
+    event RefundClaimed(address indexed token, uint256 indexed reserveId, address indexed buyer, uint256 refundAmount);
 
     /**
      * @notice Emitted when the sale proceeds are withdrawn
@@ -67,9 +60,7 @@ interface IDutchAuction is IFxMinter {
      * @param creator The address of the creator of the project
      * @param proceeds The amount of sale proceeds withdrawn
      */
-    event Withdrawn(
-        address indexed token, uint256 indexed reserveId, address indexed creator, uint256 proceeds
-    );
+    event Withdrawn(address indexed token, uint256 indexed reserveId, address indexed creator, uint256 proceeds);
 
     /**
      * @notice Error thrown when an input address is zero
@@ -168,9 +159,7 @@ interface IDutchAuction is IFxMinter {
      * @param _amount The amount of tokens to purchase
      * @param _to The address where the purchased tokens will be sent
      */
-    function buy(address _token, uint256 _reserveId, uint256 _amount, address _to)
-        external
-        payable;
+    function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable;
 
     /**
      * @notice Allows a buyer to claim a refund for a Dutch Auction configured with a rebate
@@ -194,20 +183,14 @@ interface IDutchAuction is IFxMinter {
      * @return step The current step of the Dutch auction
      * @return price The current price of the token
      */
-    function getPrice(address _token, uint256 _reserveId)
-        external
-        view
-        returns (uint256, uint256);
+    function getPrice(address _token, uint256 _reserveId) external view returns (uint256, uint256);
 
     /**
      * @notice Mapping to store the Dutch auction info for each token
      * @param _reserveId The ID of the mint
      * @param _token The address of the token
      */
-    function auctionInfo(address _token, uint256 _reserveId)
-        external
-        view
-        returns (uint256, bool);
+    function auctionInfo(address _token, uint256 _reserveId) external view returns (uint256, bool);
 
     /**
      * @notice Retrieves the reserve info for a token
@@ -217,10 +200,7 @@ interface IDutchAuction is IFxMinter {
      * @return reservePrice The reserve price of the token
      * @return maxMint The maximum number of tokens that can be minted in the Dutch auction
      */
-    function reserves(address _token, uint256 _reserveId)
-        external
-        view
-        returns (uint64, uint64, uint128);
+    function reserves(address _token, uint256 _reserveId) external view returns (uint64, uint64, uint128);
 
     /**
      * @notice Retrieves the sale proceeds for a token
@@ -237,10 +217,7 @@ interface IDutchAuction is IFxMinter {
      * @param _buyer The address of the buyer
      * @return The cumulative number of mints buyer purchased
      */
-    function cumulativeMints(address _token, uint256 _reserveId, address _buyer)
-        external
-        view
-        returns (uint256);
+    function cumulativeMints(address _token, uint256 _reserveId, address _buyer) external view returns (uint256);
 
     /**
      * @notice Retrieves the cumulative mint cost for a buyer
@@ -249,10 +226,7 @@ interface IDutchAuction is IFxMinter {
      * @param _buyer The address of the buyer
      * @return The cumulative mint cost paid by the buyer
      */
-    function cumulativeMintCost(address _token, uint256 _reserveId, address _buyer)
-        external
-        view
-        returns (uint256);
+    function cumulativeMintCost(address _token, uint256 _reserveId, address _buyer) external view returns (uint256);
 
     /**
      * @notice Retrieves the last price of a token

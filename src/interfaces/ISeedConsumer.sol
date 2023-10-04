@@ -13,6 +13,7 @@ interface ISeedConsumer {
      * @param _seed The hash of the random seed.
      */
     event SeedFulfilled(address indexed _randomizer, uint256 indexed _tokenId, bytes32 _seed);
+
     /**
      * @notice Fullfills the random seed request on the GenArt721 token contract
      * @param _tokenId ID of the token
