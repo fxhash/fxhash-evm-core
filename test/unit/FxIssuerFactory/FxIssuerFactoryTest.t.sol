@@ -8,18 +8,13 @@ contract FxIssuerFactoryTest is BaseTest {
     string internal defaultMetadata;
     uint256 internal lockTime;
 
-    // Custom Errors
+    // Errors
     bytes4 INVALID_OWNER_ERROR = IFxIssuerFactory.InvalidOwner.selector;
     bytes4 INVALID_PRIMARY_RECEIVER_ERROR = IFxIssuerFactory.InvalidPrimaryReceiver.selector;
 
     function setUp() public virtual override {
         super.setUp();
         _initializeState();
-    }
-
-    function _initializeState() internal override {
-        super._initializeState();
-        projectId = 1;
     }
 
     function test_createProject() public {
@@ -78,5 +73,10 @@ contract FxIssuerFactoryTest is BaseTest {
         vm.prank(fxIssuerFactory.owner());
         fxIssuerFactory.setImplementation(address(fxGenArt721));
         assertEq(fxIssuerFactory.implementation(), address(fxGenArt721));
+    }
+
+    function _initializeState() internal override {
+        super._initializeState();
+        projectId = 1;
     }
 }

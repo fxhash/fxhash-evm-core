@@ -4,6 +4,7 @@ pragma solidity 0.8.20;
 import "test/BaseTest.t.sol";
 
 contract FxSplitsFactoryTest is BaseTest {
+    // Errors
     error InvalidSplit__TooFewAccounts(uint256 accountsLength);
     error InvalidSplit__AccountsAndAllocationsMismatch(uint256 accountsLength, uint256 allocationsLength);
     error InvalidSplit__InvalidAllocationsSum(uint32 allocationsSum);

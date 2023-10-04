@@ -9,7 +9,7 @@ import "test/utils/Constants.sol";
 import {FixedPrice} from "src/minters/FixedPrice.sol";
 import {FxContractRegistry} from "src/registries/FxContractRegistry.sol";
 import {FxGenArt721} from "src/tokens/FxGenArt721.sol";
-import {FxIssuerFactory, ConfigInfo} from "src/factories/FxIssuerFactory.sol";
+import {FxIssuerFactory} from "src/factories/FxIssuerFactory.sol";
 import {FxMintTicket721} from "src/tokens/FxMintTicket721.sol";
 import {FxPseudoRandomizer} from "src/randomizers/FxPseudoRandomizer.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
@@ -19,6 +19,8 @@ import {FxTicketFactory} from "src/factories/FxTicketFactory.sol";
 
 import {HTMLRequest, HTMLTagType, HTMLTag} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
 import {IFxGenArt721, GenArtInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
+import {IFxIssuerFactory, ConfigInfo} from "src/interfaces/IFxIssuerFactory.sol";
+import {IFxMintTicket721, TaxInfo} from "src/interfaces/IFxMintTicket721.sol";
 
 contract Deploy is Script {
     // Contracts

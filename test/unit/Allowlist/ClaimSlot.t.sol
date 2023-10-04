@@ -6,7 +6,6 @@ import "test/unit/Allowlist/AllowlistTest.t.sol";
 contract ClaimSlot is AllowlistTest {
     function setUp() public virtual override {
         super.setUp();
-        index = 1;
     }
 
     function test_ClaimSlot() public {

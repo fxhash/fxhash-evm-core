@@ -4,7 +4,7 @@ pragma solidity 0.8.20;
 import "test/BaseTest.t.sol";
 
 contract FxMintTicket721Test is BaseTest {
-    // Tax Info
+    // Taxes
     uint128 gracePeriod;
     uint128 foreclosureTime;
     uint128 currentPrice;

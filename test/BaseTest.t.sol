@@ -7,17 +7,16 @@ import "script/Deploy.s.sol";
 import {Allowlist} from "src/minters/extensions/Allowlist.sol";
 import {ECDSA} from "openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {MintPass} from "src/minters/extensions/MintPass.sol";
-import {MockAllowlist} from "test/mocks/MockAllowlist.sol";
-import {MockMinter} from "test/mocks/MockMinter.sol";
-import {MockMintPass} from "test/mocks/MockMintPass.sol";
-import {MockRoyaltyManager} from "test/mocks/MockRoyaltyManager.sol";
 import {RoyaltyManager} from "src/tokens/extensions/RoyaltyManager.sol";
 import {StandardMerkleTree} from "test/utils/StandardMerkleTree.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
+import {MockAllowlist} from "test/mocks/MockAllowlist.sol";
+import {MockMinter} from "test/mocks/MockMinter.sol";
+import {MockMintPass} from "test/mocks/MockMintPass.sol";
+import {MockRoyaltyManager} from "test/mocks/MockRoyaltyManager.sol";
+
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
-import {IFxIssuerFactory} from "src/interfaces/IFxIssuerFactory.sol";
-import {IFxMintTicket721, TaxInfo} from "src/interfaces/IFxMintTicket721.sol";
 import {IFxSplitsFactory} from "src/interfaces/IFxSplitsFactory.sol";
 import {IFxTicketFactory} from "src/interfaces/IFxTicketFactory.sol";
 import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
@@ -26,6 +25,11 @@ import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
 
 contract BaseTest is Deploy, Test {
+    // Mocks
+    MockAllowlist internal allowlist;
+    MockMintPass internal mintPass;
+    MockRoyaltyManager internal royaltyManager;
+
     // Accounts
     address internal alice;
     address internal bob;
@@ -60,7 +64,7 @@ contract BaseTest is Deploy, Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                     HELPERS
+                                    ACCOUNTS
     //////////////////////////////////////////////////////////////////////////*/
 
     function _createAccounts() internal virtual override {
@@ -71,6 +75,10 @@ contract BaseTest is Deploy, Test {
         eve = makeAddr("eve");
         susan = makeAddr("susan");
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    INITIALIZATIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     function _initializeAccounts() internal virtual {
         vm.deal(admin, INITIAL_BALANCE);
@@ -85,8 +93,24 @@ contract BaseTest is Deploy, Test {
         vm.warp(RESERVE_START_TIME);
     }
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                     MOCKS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function _mockAllowlist(address _admin) internal prank(_admin) {
+        allowlist = new MockAllowlist();
+    }
+
     function _mockMinter(address _admin) internal prank(_admin) {
         minter = address(new MockMinter());
+    }
+
+    function _mockMintPass(address _admin, address _signer) internal prank(_admin) {
+        mintPass = new MockMintPass(_signer);
+    }
+
+    function _mockRoyaltyManager(address _admin) internal prank(_admin) {
+        royaltyManager = new MockRoyaltyManager();
     }
 
     function _mockSplits(address _deployer) internal prank(_deployer) {
@@ -97,6 +121,10 @@ contract BaseTest is Deploy, Test {
             deployedAddress := create(0, add(splitMainBytecode, 32), mload(splitMainBytecode))
         }
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                     SETTERS
+    //////////////////////////////////////////////////////////////////////////*/
 
     function _grantRole(address _admin, bytes32 _role, address _user) internal prank(_admin) {
         fxRoleRegistry.grantRole(_role, _user);

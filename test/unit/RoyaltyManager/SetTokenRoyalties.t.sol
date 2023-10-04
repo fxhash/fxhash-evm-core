@@ -6,10 +6,8 @@ import "test/unit/RoyaltyManager/RoyaltyManagerTest.sol";
 contract SetTokenRoyaltiesTest is RoyaltyManagerTest {
     function setUp() public override {
         super.setUp();
-        tokenId = 1;
         MockRoyaltyManager(address(royaltyManager)).setTokenExists(tokenId, true);
         royaltyReceivers.push(payable(susan));
-
         basisPoints.push(MAX_ROYALTY_BPS);
     }
 
@@ -30,7 +28,7 @@ contract SetTokenRoyaltiesTest is RoyaltyManagerTest {
     }
 
     function test_RevertsWhen_TokenAndBaseGreaterThan100() public {
-        /// Get royalty Config to 100 without being over on any individual one
+        // Get royalty Config to 100 without being over on any individual one
         royaltyReceivers.push(payable(alice));
         royaltyReceivers.push(payable(bob));
         royaltyReceivers.push(payable(eve));

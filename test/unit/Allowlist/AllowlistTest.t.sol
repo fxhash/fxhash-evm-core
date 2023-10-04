@@ -5,7 +5,6 @@ import "test/BaseTest.t.sol";
 
 contract AllowlistTest is BaseTest, StandardMerkleTree {
     // State
-    MockAllowlist internal allowlist;
     address internal token;
     uint256 internal index;
     bytes32 internal merkleRoot;
@@ -19,6 +18,7 @@ contract AllowlistTest is BaseTest, StandardMerkleTree {
     function setUp() public virtual override {
         super.setUp();
         _initializeState();
+        _mockAllowlist(admin);
         _configureAllowlist();
     }
 
@@ -26,8 +26,12 @@ contract AllowlistTest is BaseTest, StandardMerkleTree {
         assertEq(allowlist.merkleRoot(), merkleRoot);
     }
 
+    function _initializeState() internal override {
+        super._initializeState();
+        index = 1;
+    }
+
     function _configureAllowlist() internal {
-        allowlist = new MockAllowlist();
         address[5] memory users = [alice, bob, eve, susan, alice];
         for (uint256 i; i < users.length; ++i) {
             merkleTree.push(keccak256(bytes.concat(keccak256(abi.encode(i + 1, PRICE, users[i])))));

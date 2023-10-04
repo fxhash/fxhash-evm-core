@@ -4,6 +4,10 @@ pragma solidity 0.8.20;
 import "test/BaseTest.t.sol";
 
 contract FixedPriceTest is BaseTest {
+    uint256 internal mintId;
+    uint256 internal quantity;
+
+    // Errors
     bytes4 internal ADDRESS_ZERO_ERROR = IFixedPrice.AddressZero.selector;
     bytes4 internal ENDED_ERROR = IFixedPrice.Ended.selector;
     bytes4 internal INSUFFICIENT_FUNDS_ERROR = IFixedPrice.InsufficientFunds.selector;
@@ -34,6 +38,7 @@ contract FixedPriceTest is BaseTest {
 
     function _initializeState() internal override {
         super._initializeState();
+        quantity = 1;
         vm.deal(address(this), INITIAL_BALANCE);
     }
 }
