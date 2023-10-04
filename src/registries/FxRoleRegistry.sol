@@ -3,7 +3,8 @@ pragma solidity 0.8.20;
 
 import {AccessControl} from "openzeppelin/contracts/access/AccessControl.sol";
 import {IFxRoleRegistry} from "src/interfaces/IFxRoleRegistry.sol";
-import {ADMIN_ROLE, CREATOR_ROLE, MINTER_ROLE, TOKEN_MODERATOR_ROLE, USER_MODERATOR_ROLE} from "src/utils/Constants.sol";
+
+import "src/utils/Constants.sol";
 
 /// @title FxRoleRegistry
 /// @notice See the documentation in {IFxRoleRegistry}
@@ -14,6 +15,7 @@ contract FxRoleRegistry is AccessControl, IFxRoleRegistry {
         _setRoleAdmin(MINTER_ROLE, ADMIN_ROLE);
         _setRoleAdmin(TOKEN_MODERATOR_ROLE, ADMIN_ROLE);
         _setRoleAdmin(USER_MODERATOR_ROLE, ADMIN_ROLE);
+        _setRoleAdmin(VERIFIED_USER_ROLE, ADMIN_ROLE);
 
         _grantRole(ADMIN_ROLE, _admin);
         _grantRole(TOKEN_MODERATOR_ROLE, _admin);
