@@ -13,9 +13,9 @@ contract BuyTokens is FixedPriceTest {
     }
 
     function test_RevertsIf_BuyMoreThanAllocation() public {
-        quantity = RESERVE_MINTER_ALLOCATION + 1;
+        quantity = MINTER_ALLOCATION + 1;
         vm.expectRevert(TOO_MANY_ERROR);
-        fixedPrice.buy{value: (price * (RESERVE_MINTER_ALLOCATION + 1))}(fxGenArtProxy, mintId, quantity, alice);
+        fixedPrice.buy{value: (price * (MINTER_ALLOCATION + 1))}(fxGenArtProxy, mintId, quantity, alice);
         assertEq(FxGenArt721(fxGenArtProxy).balanceOf(alice), 0);
     }
 

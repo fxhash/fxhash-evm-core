@@ -26,8 +26,8 @@ contract FxGenArt721Test is BaseTest {
         minter = address(new MockMinter());
         _mock0xSplits();
         _configureProject();
-        _configureMinters(minter, RESERVE_START_TIME, RESERVE_END_TIME);
-        _registerMinter(admin, minter);
+        _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME);
+        _grantRole(admin, MINTER_ROLE, minter);
         _configureRoyalties();
         _configureSplits();
         _createSplit();
@@ -53,14 +53,14 @@ contract FxGenArt721Test is BaseTest {
 
     function test_Initialize_RevertsWhen_InvalidStartTime() public {
         delete mintInfo;
-        _configureMinters(minter, RESERVE_START_TIME - 1, RESERVE_END_TIME);
+        _configureMinter(minter, RESERVE_START_TIME - 1, RESERVE_END_TIME);
         vm.expectRevert(INVALID_START_TIME_ERROR);
         _createProject();
     }
 
     function test_Initialize_RevertsWhen_InvalidEndTime() public {
         delete mintInfo;
-        _configureMinters(minter, RESERVE_START_TIME, RESERVE_START_TIME - 1);
+        _configureMinter(minter, RESERVE_START_TIME, RESERVE_START_TIME - 1);
         vm.expectRevert(INVALID_END_TIME_ERROR);
         _createProject();
     }

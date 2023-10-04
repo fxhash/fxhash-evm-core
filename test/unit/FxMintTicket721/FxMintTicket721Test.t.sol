@@ -36,12 +36,10 @@ contract FxMintTicket721Test is BaseTest {
         super.setUp();
         minter = address(new MockMinter());
         _mock0xSplits();
-        vm.prank(admin);
-        fxRoleRegistry.grantRole(MINTER_ROLE, minter);
+        _grantRole(admin, MINTER_ROLE, minter);
         _configureProject();
         _configureRoyalties();
-        _configureMinters(minter, RESERVE_START_TIME, RESERVE_END_TIME);
-        _registerMinter(admin, minter);
+        _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME);
         _configureSplits();
         _createSplit();
         _createProject();

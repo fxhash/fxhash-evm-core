@@ -19,8 +19,8 @@ contract FxTicketFactoryTest is BaseTest {
         _mock0xSplits();
         _configureProject();
         _configureRoyalties();
-        _configureMinters(minter, RESERVE_START_TIME, RESERVE_END_TIME);
-        _registerMinter(admin, minter);
+        _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME);
+        _grantRole(admin, MINTER_ROLE, minter);
         _configureSplits();
         _createSplit();
         _createProject();

@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "prettier": "prettier --plugin=prettier-plugin-solidity --write 'src/**/*.sol' 'test/**/*.sol' 'script/**/*.sol'"
+    "prettier": "prettier --plugin=prettier-plugin-solidity --write 'src/**/*.sol' 'test/**/*.sol' 'script/**/*.sol'",
+    "test": "forge clean & forge test"
   },
   "devDependencies": {
     "prettier": "^3.0.3",

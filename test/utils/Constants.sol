@@ -1,34 +1,40 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-// Allowlist
-uint256 constant PRICE = 1 ether;
-
 // Balances
 uint256 constant INITIAL_BALANCE = 1000 ether;
 
 // Config
-uint128 constant CONFIG_FEE_SHARE = 50_000; // 5%
-uint128 constant CONFIG_LOCK_TIME = 3600; // 1 hour
-string constant CONFIG_DEFAULT_METADATA = "ipfs://QmZZVBKapDg2wXzwpDxdmL9Ah665h9ZzeJ9gYdbTZ4GBzf";
+string constant DEFAULT_METADATA = "ipfs://QmZZVBKapDg2wXzwpDxdmL9Ah665h9ZzeJ9gYdbTZ4GBzf";
+uint128 constant FEE_SHARE = 50_000; // 5%
+uint128 constant LOCK_TIME = 3600; // 1 hour
 
 // Metadata
 string constant BASE_URI = "ipfs://";
 string constant IMAGE_URI = "ipfs://";
 
 // Project
+bool constant ENABLED = true;
+bool constant ONCHAIN = true;
 string constant CONTRACT_URI = "ipfs://";
 uint240 constant MAX_SUPPLY = 1000;
 
 // Reserves
 uint64 constant RESERVE_START_TIME = 86_400; // 1 day
 uint64 constant RESERVE_END_TIME = 604_800; // 1 week
-uint64 constant RESERVE_ADMIN_ALLOCATION = 25;
-uint64 constant RESERVE_MINTER_ALLOCATION = 500;
+uint64 constant MINTER_ALLOCATION = 500;
 
 // Royalties
-uint96 constant ROYALTY_BPS = 500;
+uint96 constant ROYALTY_BPS = 500; // 5%
 
-// Mint Ticket
+// Splits Values
+uint32 constant ADMIN_ALLOCATION = 100_000;
+uint32 constant CREATOR_ALLOCATION = 900_000;
+
+// State
+uint256 constant AMOUNT = 10;
+uint256 constant PRICE = 1 ether;
+uint256 constant TOKEN_ID = 1;
+
+// Ticket
 uint256 constant DEPOSIT_AMOUNT = 0.0027 ether;
-uint256 constant TIME_SINCE_START = 1 days;

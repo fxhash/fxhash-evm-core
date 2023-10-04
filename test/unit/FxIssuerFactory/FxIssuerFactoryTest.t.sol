@@ -6,9 +6,9 @@ import {IFxIssuerFactory, ConfigInfo} from "src/interfaces/IFxIssuerFactory.sol"
 
 contract FxIssuerFactoryTest is BaseTest {
     // State
+    string internal defaultMetadata;
     uint128 internal feeShare;
     uint128 internal lockTime;
-    string internal defaultMetadata;
 
     // Custom Errors
     bytes4 INVALID_OWNER_ERROR = IFxIssuerFactory.InvalidOwner.selector;
@@ -62,9 +62,9 @@ contract FxIssuerFactoryTest is BaseTest {
     }
 
     function testSetConfig() public {
-        configInfo.feeShare = CONFIG_FEE_SHARE;
-        configInfo.lockTime = CONFIG_LOCK_TIME;
-        configInfo.defaultMetadata = CONFIG_DEFAULT_METADATA;
+        configInfo.feeShare = FEE_SHARE;
+        configInfo.lockTime = LOCK_TIME;
+        configInfo.defaultMetadata = DEFAULT_METADATA;
         vm.prank(fxIssuerFactory.owner());
         fxIssuerFactory.setConfig(configInfo);
         (feeShare, lockTime, defaultMetadata) = fxIssuerFactory.configInfo();
