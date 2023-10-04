@@ -24,7 +24,6 @@ import {IFxMintTicket721, TaxInfo} from "src/interfaces/IFxMintTicket721.sol";
 
 contract Deploy is Script {
     // Contracts
-    FixedPrice internal fixedPrice;
     FxContractRegistry internal fxContractRegistry;
     FxGenArt721 internal fxGenArt721;
     FxIssuerFactory internal fxIssuerFactory;
@@ -34,6 +33,7 @@ contract Deploy is Script {
     FxScriptyRenderer internal fxScriptyRenderer;
     FxSplitsFactory internal fxSplitsFactory;
     FxTicketFactory internal fxTicketFactory;
+    FixedPrice internal fixedPrice;
 
     // Accounts
     address internal admin;
@@ -53,11 +53,15 @@ contract Deploy is Script {
     uint96[] internal basisPoints;
 
     // Splits
+    address internal splitsMain;
     address internal primaryReceiver;
     address[] internal accounts;
     uint32[] internal allocations;
 
     // Scripty
+    address internal ethFSFileStorage;
+    address internal scriptyBuilderV2;
+    address internal scriptyStorageV2;
     HTMLRequest internal animation;
     HTMLRequest internal attributes;
     HTMLTag[] internal headTags;
@@ -169,10 +173,20 @@ contract Deploy is Script {
     }
 
     function _configureScripty() internal virtual {
+        if (block.chainid == SEPOLIA) {
+            ethFSFileStorage = SEPOLIA_ETHFS_FILE_STORAGE;
+            scriptyBuilderV2 = SEPOLIA_SCRIPTY_BUILDER_V2;
+            scriptyStorageV2 = SEPOLIA_SCRIPTY_STORAGE_V2;
+        } else {
+            ethFSFileStorage = GOERLI_ETHFS_FILE_STORAGE;
+            scriptyBuilderV2 = GOERLI_SCRIPTY_BUILDER_V2;
+            scriptyStorageV2 = GOERLI_SCRIPTY_STORAGE_V2;
+        }
+
         headTags.push(
             HTMLTag({
                 name: CSS_CANVAS_SCRIPT,
-                contractAddress: GOERLI_ETHFS_FILE_STORAGE,
+                contractAddress: ethFSFileStorage,
                 contractData: bytes(""),
                 tagType: HTMLTagType.useTagOpenAndClose,
                 tagOpen: TAG_OPEN,
@@ -184,7 +198,7 @@ contract Deploy is Script {
         bodyTags.push(
             HTMLTag({
                 name: P5_JS_SCRIPT,
-                contractAddress: GOERLI_ETHFS_FILE_STORAGE,
+                contractAddress: ethFSFileStorage,
                 contractData: bytes(""),
                 tagType: HTMLTagType.scriptGZIPBase64DataURI,
                 tagOpen: bytes(""),
@@ -196,7 +210,7 @@ contract Deploy is Script {
         bodyTags.push(
             HTMLTag({
                 name: GUNZIP_JS_SCRIPT,
-                contractAddress: GOERLI_ETHFS_FILE_STORAGE,
+                contractAddress: ethFSFileStorage,
                 contractData: bytes(""),
                 tagType: HTMLTagType.scriptBase64DataURI,
                 tagOpen: bytes(""),
@@ -208,7 +222,7 @@ contract Deploy is Script {
         bodyTags.push(
             HTMLTag({
                 name: POINTS_AND_LINES_SCRIPT,
-                contractAddress: GOERLI_SCRIPTY_STORAGE_V2,
+                contractAddress: scriptyStorageV2,
                 contractData: bytes(""),
                 tagType: HTMLTagType.script,
                 tagOpen: bytes(""),
@@ -261,8 +275,9 @@ contract Deploy is Script {
         constructorArgs = abi.encode(admin);
         fxRoleRegistry = FxRoleRegistry(_deployCreate2(creationCode, constructorArgs, salt));
 
+        splitsMain = (block.chainid == SEPOLIA) ? SEPOLIA_SPLITS_MAIN : SPLITS_MAIN;
         creationCode = type(FxSplitsFactory).creationCode;
-        constructorArgs = abi.encode(admin);
+        constructorArgs = abi.encode(admin, splitsMain);
         fxSplitsFactory = FxSplitsFactory(_deployCreate2(creationCode, constructorArgs, salt));
 
         creationCode = type(FxGenArt721).creationCode;
@@ -284,7 +299,7 @@ contract Deploy is Script {
         fxPseudoRandomizer = FxPseudoRandomizer(_deployCreate2(creationCode, salt));
 
         creationCode = type(FxScriptyRenderer).creationCode;
-        constructorArgs = abi.encode(GOERLI_ETHFS_FILE_STORAGE, GOERLI_SCRIPTY_STORAGE_V2, GOERLI_SCRIPTY_BUILDER_V2);
+        constructorArgs = abi.encode(ethFSFileStorage, scriptyStorageV2, scriptyBuilderV2);
         fxScriptyRenderer = FxScriptyRenderer(_deployCreate2(creationCode, constructorArgs, salt));
 
         creationCode = type(FixedPrice).creationCode;
