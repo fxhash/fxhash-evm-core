@@ -79,9 +79,8 @@ contract DutchAuction is IDutchAuction {
     /// @inheritdoc IDutchAuction
     function refund(address _token, uint256 _reserveId, address _who) external {
         uint256 length = reserves[_token].length;
-        if (length == 0) revert InvalidToken();
+        if (length == 0 || _token == address(0)) revert InvalidToken();
         if (_reserveId >= length) revert InvalidReserve();
-        if (_token == address(0)) revert InvalidToken();
         if (_who == address(0)) revert AddressZero();
         ReserveInfo storage reserve = reserves[_token][_reserveId];
         if (!(auctionInfo[_token][_reserveId].refunded && lastPrice[_token][_reserveId] > 0)) {
@@ -102,10 +101,9 @@ contract DutchAuction is IDutchAuction {
     /// @inheritdoc IDutchAuction
     function withdraw(address _token, uint256 _reserveId) external {
         uint256 length = reserves[_token].length;
-        if (length == 0) revert InvalidToken();
+        if (length == 0 || _token == address(0)) revert InvalidToken();
         if (_reserveId >= length) revert InvalidReserve();
         ReserveInfo storage reserve = reserves[_token][_reserveId];
-        if (_token == address(0)) revert InvalidToken();
         if (block.timestamp < reserve.endTime && reserve.allocation > 0) revert NotEnded();
         (, address saleReceiver) = IFxGenArt721(_token).issuerInfo();
         uint256 proceeds = saleProceeds[_token][_reserveId];
