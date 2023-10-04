@@ -171,7 +171,7 @@ interface IDutchAuction is IFxMinter {
     function refund(address _token, uint256 _reserveId, address _who) external;
 
     /**
-     * @notice Allows the sale proceeds to be withdraw to the primary sale receiver for a token
+     * @notice Allows the sale proceeds to be withdrawn to the primary sale receiver for a token
      * @param _reserveId The ID of the mint
      * @param _token The address of the token sold by the dutch auction
      */
