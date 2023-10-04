@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "test/BaseTest.t.sol";
-import {IDutchAuction} from "src/interfaces/IDutchAuction.sol";
+import {IDutchAuction, AuctionInfo} from "src/interfaces/IDutchAuction.sol";
 import {DutchAuction} from "src/minters/DutchAuction.sol";
 
 contract DutchAuctionTest is BaseTest {
@@ -51,7 +51,7 @@ contract DutchAuctionTest is BaseTest {
             MintInfo(
                 address(dutchAuction),
                 ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, RESERVE_MINTER_ALLOCATION),
-                abi.encode(IDutchAuction.DAInfo(prices, stepLength, refund))
+                abi.encode(AuctionInfo(prices, stepLength, refund))
             )
         );
         refund = true;
@@ -59,7 +59,7 @@ contract DutchAuctionTest is BaseTest {
             MintInfo(
                 address(refundableDA),
                 ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, RESERVE_MINTER_ALLOCATION),
-                abi.encode(IDutchAuction.DAInfo(prices, stepLength, refund))
+                abi.encode(AuctionInfo(prices, stepLength, refund))
             )
         );
         vm.startPrank(creator);

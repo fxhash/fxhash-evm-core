@@ -4,18 +4,19 @@ pragma solidity 0.8.20;
 import {IFxMinter} from "src/interfaces/IFxMinter.sol";
 import {ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 
+/**
+ * @notice Struct to store the Dutch auction information.
+ * @param prices The array of prices for each step of the auction.
+ * @param stepLength The duration (in seconds) of each auction step.
+ * @param refunded Flag indicating if refunds are enabled.
+ */
+struct AuctionInfo {
+    uint256[] prices;
+    uint248 stepLength;
+    bool refunded;
+}
+
 interface IDutchAuction is IFxMinter {
-    /**
-     * @notice Struct to store the Dutch auction information.
-     * @param prices The array of prices for each step of the auction.
-     * @param stepLength The duration (in seconds) of each auction step.
-     * @param refunded Flag indicating if refunds are enabled.
-     */
-    struct DAInfo {
-        uint256[] prices;
-        uint248 stepLength;
-        bool refunded;
-    }
     /**
      * @notice Emitted when the mint details for a Dutch auction are set
      * @param token The address of the token being minted
@@ -24,7 +25,7 @@ interface IDutchAuction is IFxMinter {
      * @param daInfo The Dutch auction info
      */
 
-    event MintDetailsSet(address indexed token, uint256 indexed reserveId, ReserveInfo reserve, DAInfo daInfo);
+    event MintDetailsSet(address indexed token, uint256 indexed reserveId, ReserveInfo reserve, AuctionInfo daInfo);
 
     /**
      * @notice Emitted when a purchase is made in the Dutch auction

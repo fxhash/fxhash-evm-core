@@ -4,11 +4,11 @@ pragma solidity ^0.8.20;
 import "test/unit/DutchAuction/DutchAuctionTest.t.sol";
 
 contract SetMintDetails is DutchAuctionTest {
-    DutchAuction.DAInfo internal daInfo;
+    AuctionInfo internal daInfo;
 
     function setUp() public override {
         super.setUp();
-        daInfo = IDutchAuction.DAInfo(prices, stepLength, refund);
+        daInfo = AuctionInfo(prices, stepLength, refund);
         vm.warp(RESERVE_START_TIME - 1);
     }
 

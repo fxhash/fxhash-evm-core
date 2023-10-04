@@ -2,7 +2,7 @@
 pragma solidity 0.8.20;
 
 import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
-import {IDutchAuction, IFxMinter} from "src/interfaces/IDutchAuction.sol";
+import {IDutchAuction, IFxMinter, AuctionInfo} from "src/interfaces/IDutchAuction.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 
@@ -14,7 +14,7 @@ contract DutchAuction is IDutchAuction {
     using SafeCastLib for uint256;
 
     /// @inheritdoc IDutchAuction
-    mapping(address => DAInfo[]) public auctionInfo;
+    mapping(address => AuctionInfo[]) public auctionInfo;
 
     /// @inheritdoc IDutchAuction
     mapping(address => ReserveInfo[]) public reserves;
@@ -33,7 +33,7 @@ contract DutchAuction is IDutchAuction {
 
     /// @inheritdoc IFxMinter
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintData) external {
-        DAInfo memory daInfo = abi.decode(_mintData, (DAInfo));
+        AuctionInfo memory daInfo = abi.decode(_mintData, (AuctionInfo));
 
         if ((_reserve.endTime - _reserve.startTime) % daInfo.stepLength != 0) revert InvalidStep();
 
