@@ -20,9 +20,7 @@ abstract contract RoyaltyManager is IRoyaltyManager {
      * @param _basisPoints The basis points to calculate royalty payments (1/100th of a percent) for
      * each receiver
      */
-    function setBaseRoyalties(address payable[] calldata _receivers, uint96[] calldata _basisPoints)
-        external
-    {
+    function setBaseRoyalties(address payable[] calldata _receivers, uint96[] calldata _basisPoints) external {
         _setBaseRoyalties(_receivers, _basisPoints);
     }
 
@@ -48,11 +46,10 @@ abstract contract RoyaltyManager is IRoyaltyManager {
      * @return receiver The address that will receive the royalty payment
      * @return amount The amount of royalty payment
      */
-    function royaltyInfo(uint256 _tokenId, uint256 _salePrice)
-        external
-        view
-        returns (address receiver, uint256 amount)
-    {
+    function royaltyInfo(
+        uint256 _tokenId,
+        uint256 _salePrice
+    ) external view returns (address receiver, uint256 amount) {
         RoyaltyInfo[] storage tokenRoyalties_ = tokenRoyalties[_tokenId];
         RoyaltyInfo[] storage baseRoyalties_ = baseRoyalties;
 
@@ -72,11 +69,9 @@ abstract contract RoyaltyManager is IRoyaltyManager {
      * @return allBasisPoints The basis points to calculate royalty payments (1/100th of a percent)
      * for each receiver.
      */
-    function getRoyalties(uint256 _tokenId)
-        external
-        view
-        returns (address payable[] memory allReceivers, uint256[] memory allBasisPoints)
-    {
+    function getRoyalties(
+        uint256 _tokenId
+    ) external view returns (address payable[] memory allReceivers, uint256[] memory allBasisPoints) {
         RoyaltyInfo[] storage tokenRoyalties_ = tokenRoyalties[_tokenId];
         RoyaltyInfo[] storage royalties_ = baseRoyalties;
         uint256 baseLength = royalties_.length;
@@ -115,9 +110,7 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         RoyaltyInfo[] memory royalties_ = baseRoyalties;
         uint256 baseLength = baseRoyalties.length;
         uint256 tokenLength = _basisPoints.length;
-        uint96[] memory totalBasisPoints = new uint96[](
-            baseLength + _basisPoints.length
-        );
+        uint96[] memory totalBasisPoints = new uint96[](baseLength + _basisPoints.length);
         for (uint256 i; i < baseLength; i++) {
             totalBasisPoints[i] = royalties_[i].basisPoints;
         }
@@ -136,10 +129,7 @@ abstract contract RoyaltyManager is IRoyaltyManager {
     }
 
     /// @dev Sets the base royalties for the contract
-    function _setBaseRoyalties(
-        address payable[] calldata _receivers,
-        uint96[] calldata _basisPoints
-    ) internal {
+    function _setBaseRoyalties(address payable[] calldata _receivers, uint96[] calldata _basisPoints) internal {
         delete baseRoyalties;
         if (_receivers.length != _basisPoints.length) revert LengthMismatch();
         _checkRoyalties(_basisPoints);

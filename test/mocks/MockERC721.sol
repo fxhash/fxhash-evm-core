@@ -15,12 +15,10 @@ contract MockERC721 is ERC721, IERC2981 {
         super._mint(to, tokenId);
     }
 
-    function royaltyInfo(uint256, /* tokenId */ uint256 salePrice)
-        external
-        view
-        override
-        returns (address receiver, uint256 royaltyAmount)
-    {
+    function royaltyInfo(
+        uint256 /* tokenId */,
+        uint256 salePrice
+    ) external view override returns (address receiver, uint256 royaltyAmount) {
         return (royaltyReceiver, (salePrice * 1000) / 10_000);
     }
 }

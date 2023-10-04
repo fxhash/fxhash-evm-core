@@ -98,11 +98,15 @@ interface IFxGenArt721 is ISeedConsumer {
     /**
      * @notice Event emitted when new project is initialized
      * @param _projectInfo Project information
+     * @param _metadataInfo List of CIDs/attributes for token metadata
      * @param _mintInfo List of authorized minter contracts and their reserves
      * @param _primaryReceiver Address of splitter contract receiving primary sales
      */
     event ProjectInitialized(
-        address indexed _primaryReceiver, ProjectInfo _projectInfo, MintInfo[] _mintInfo
+        address indexed _primaryReceiver,
+        ProjectInfo _projectInfo,
+        MetadataInfo _metadataInfo,
+        MintInfo[] _mintInfo
     );
 
     /**

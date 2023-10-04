@@ -11,20 +11,8 @@ import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 import {FxScriptyRenderer} from "src/renderers/FxScriptyRenderer.sol";
 import {FxSplitsFactory} from "src/factories/FxSplitsFactory.sol";
 import {FxTicketFactory} from "src/factories/FxTicketFactory.sol";
-import {
-    HTMLRequest,
-    HTMLTagType,
-    HTMLTag
-} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
-import {
-    IFxGenArt721,
-    GenArtInfo,
-    IssuerInfo,
-    MetadataInfo,
-    MintInfo,
-    ProjectInfo,
-    ReserveInfo
-} from "src/interfaces/IFxGenArt721.sol";
+import {HTMLRequest, HTMLTagType, HTMLTag} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
+import {IFxGenArt721, GenArtInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {Script} from "forge-std/Script.sol";
 
 import "script/utils/Constants.sol";
@@ -116,7 +104,11 @@ contract Deploy is Script {
     function run() public virtual {
         vm.startBroadcast();
         _deployContracts();
-        _configureMinters(address(fixedPrice), RESERVE_START_TIME, RESERVE_END_TIME);
+        _configureMinters(
+            address(fixedPrice),
+            uint64(block.timestamp) + RESERVE_START_TIME,
+            uint64(block.timestamp) + RESERVE_END_TIME
+        );
         _registerContracts();
         _registerRoles();
         _createSplit();
@@ -149,10 +141,7 @@ contract Deploy is Script {
         metadataInfo.animation = animation;
     }
 
-    function _configureMinters(address _minter, uint64 _startTime, uint64 _endTime)
-        internal
-        virtual
-    {
+    function _configureMinters(address _minter, uint64 _startTime, uint64 _endTime) internal virtual {
         mintInfo.push(
             MintInfo({
                 minter: _minter,
@@ -329,8 +318,7 @@ contract Deploy is Script {
     }
 
     function _createTicket() internal {
-        fxMintTicketProxy =
-            fxTicketFactory.createTicket(creator, fxGenArtProxy, uint48(ONE_DAY), BASE_URI);
+        fxMintTicketProxy = fxTicketFactory.createTicket(creator, fxGenArtProxy, uint48(ONE_DAY), BASE_URI);
     }
 
     function _createSplit() internal virtual {
@@ -388,16 +376,14 @@ contract Deploy is Script {
         bytes memory _constructorArgs,
         bytes32 _salt
     ) internal returns (address deployedAddress) {
-        (bool success, bytes memory response) =
-            CREATE2_FACTORY.call(bytes.concat(_salt, _creationCode, _constructorArgs));
+        (bool success, bytes memory response) = CREATE2_FACTORY.call(
+            bytes.concat(_salt, _creationCode, _constructorArgs)
+        );
         deployedAddress = address(bytes20(response));
         require(success, "deployment failed");
     }
 
-    function _deployCreate2(bytes memory _creationCode, bytes32 _salt)
-        internal
-        returns (address deployedAddress)
-    {
+    function _deployCreate2(bytes memory _creationCode, bytes32 _salt) internal returns (address deployedAddress) {
         deployedAddress = _deployCreate2(_creationCode, "", _salt);
     }
 
@@ -409,11 +395,7 @@ contract Deploy is Script {
         computeCreate2Address(_salt, hashInitCode(_creationCode, _constructorArgs));
     }
 
-    function _initCode(bytes memory _creationCode, bytes memory _constructorArgs)
-        internal
-        pure
-        returns (bytes memory)
-    {
+    function _initCode(bytes memory _creationCode, bytes memory _constructorArgs) internal pure returns (bytes memory) {
         return bytes.concat(_creationCode, _constructorArgs);
     }
 }

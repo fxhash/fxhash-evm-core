@@ -17,8 +17,6 @@ contract FxPseudoRandomizer is IFxPseudoRandomizer {
 
     /// @inheritdoc IFxPseudoRandomizer
     function generateSeed(uint256 _tokenId) public view returns (bytes32) {
-        return keccak256(
-            abi.encodePacked(_tokenId, msg.sender, block.number, blockhash(block.number - 1))
-        );
+        return keccak256(abi.encodePacked(_tokenId, msg.sender, block.number, blockhash(block.number - 1)));
     }
 }

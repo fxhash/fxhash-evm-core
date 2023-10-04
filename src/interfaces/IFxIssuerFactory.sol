@@ -39,9 +39,7 @@ interface IFxIssuerFactory {
      * @param _owner Address of project owner
      * @param _genArtToken Address of newly deployed FxGenArt721 token contract
      */
-    event ProjectCreated(
-        uint96 indexed _projectId, address indexed _owner, address indexed _genArtToken
-    );
+    event ProjectCreated(uint96 indexed _projectId, address indexed _owner, address indexed _genArtToken);
 
     /// @notice Error thrown when owner is zero address
     error InvalidOwner();

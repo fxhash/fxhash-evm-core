@@ -4,15 +4,7 @@ pragma solidity 0.8.20;
 import {ERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
-import {
-    IFxGenArt721,
-    GenArtInfo,
-    IssuerInfo,
-    MetadataInfo,
-    MintInfo,
-    ProjectInfo,
-    ReserveInfo
-} from "src/interfaces/IFxGenArt721.sol";
+import {IFxGenArt721, GenArtInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxMinter} from "src/interfaces/IFxMinter.sol";
 import {IFxRandomizer} from "src/interfaces/IFxRandomizer.sol";
 import {IFxScriptyRenderer} from "src/interfaces/IFxScriptyRenderer.sol";
@@ -72,7 +64,9 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
      * @dev Modifier for restricting calls to only authorized accounts with given roles
      */
     modifier onlyRole(bytes32 _role) {
-        if (!IAccessControl(roleRegistry).hasRole(_role, msg.sender)) revert UnauthorizedAccount();
+        if (!IAccessControl(roleRegistry).hasRole(_role, msg.sender)) {
+            revert UnauthorizedAccount();
+        }
         _;
     }
 
@@ -110,7 +104,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
         issuerInfo.primaryReceiver = _primaryReceiver;
         metadataInfo = _metadataInfo;
 
-        emit ProjectInitialized(_primaryReceiver, _projectInfo, _mintInfo);
+        emit ProjectInitialized(_primaryReceiver, _projectInfo, _metadataInfo, _mintInfo);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -236,10 +230,9 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     }
 
     /// @inheritdoc ERC721
-    function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
+    function tokenURI(uint256 _tokenId) public view override returns (string memory) {
         _requireMinted(_tokenId);
         bytes memory data = abi.encode(issuerInfo.projectInfo, metadataInfo, genArtInfo[_tokenId]);
-
         return IFxScriptyRenderer(renderer).tokenURI(_tokenId, data);
     }
 
@@ -251,9 +244,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
      * @dev Registers arbitrary number of minter contracts
      * @param _mintInfo List of minter contracts and their reserves
      */
-    function _registerMinters(address _owner, uint128 _lockTime, MintInfo[] calldata _mintInfo)
-        internal
-    {
+    function _registerMinters(address _owner, uint128 _lockTime, MintInfo[] calldata _mintInfo) internal {
         address minter;
         uint128 totalAllocation;
         ReserveInfo memory reserveInfo;
@@ -262,8 +253,12 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
             for (uint256 i; i < _mintInfo.length; ++i) {
                 minter = _mintInfo[i].minter;
                 reserveInfo = _mintInfo[i].reserveInfo;
-                if (reserveInfo.startTime < block.timestamp + lockTime) revert InvalidStartTime();
-                if (reserveInfo.endTime < reserveInfo.startTime) revert InvalidEndTime();
+                if (reserveInfo.startTime < block.timestamp + lockTime) {
+                    revert InvalidStartTime();
+                }
+                if (reserveInfo.endTime < reserveInfo.startTime) {
+                    revert InvalidEndTime();
+                }
                 if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) {
                     revert UnauthorizedMinter();
                 }
@@ -274,7 +269,9 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
             }
         }
 
-        if (totalAllocation > issuerInfo.projectInfo.supply) revert AllocationExceeded();
+        if (totalAllocation > issuerInfo.projectInfo.supply) {
+            revert AllocationExceeded();
+        }
     }
 
     /**
@@ -285,12 +282,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     }
 
     /// @inheritdoc ERC721
-    function _exists(uint256 _tokenId)
-        internal
-        view
-        override(ERC721, RoyaltyManager)
-        returns (bool)
-    {
+    function _exists(uint256 _tokenId) internal view override(ERC721, RoyaltyManager) returns (bool) {
         return super._exists(_tokenId);
     }
 }

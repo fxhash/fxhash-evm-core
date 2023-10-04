@@ -23,8 +23,7 @@ contract CreateSplit is FxSplitsFactoryTest {
     }
 
     function test_FirstWithdraw() public {
-        address libPredicted =
-            ISplitsMain(SPLITS_MAIN).predictImmutableSplitAddress(accounts, allocations, 0);
+        address libPredicted = ISplitsMain(SPLITS_MAIN).predictImmutableSplitAddress(accounts, allocations, 0);
         vm.deal(libPredicted, 1 ether);
         fxSplitsFactory.createImmutableSplit(accounts, allocations);
         ISplitsMain(SPLITS_MAIN).distributeETH(libPredicted, accounts, allocations, 0, address(0));
@@ -37,12 +36,9 @@ contract CreateSplit is FxSplitsFactoryTest {
 
     function test_2ndWithdraw() public {
         test_FirstWithdraw();
-        address computedAddress =
-            ISplitsMain(SPLITS_MAIN).predictImmutableSplitAddress(accounts, allocations, 0);
+        address computedAddress = ISplitsMain(SPLITS_MAIN).predictImmutableSplitAddress(accounts, allocations, 0);
         vm.deal(computedAddress, 1 ether);
-        ISplitsMain(SPLITS_MAIN).distributeETH(
-            computedAddress, accounts, allocations, 0, address(0)
-        );
+        ISplitsMain(SPLITS_MAIN).distributeETH(computedAddress, accounts, allocations, 0, address(0));
         uint256 cachedBalance2 = alice.balance;
         uint256 cachedBalance3 = bob.balance;
         ISplitsMain(SPLITS_MAIN).withdraw(alice, 0.4 ether, new address[](0));

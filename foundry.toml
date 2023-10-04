@@ -4,14 +4,4 @@ out = "out"
 lib = "lib"
 ignored_error_codes = [5574, 6321]
 optimizer_runs = 2
-
-[fmt]
-bracket_spacing = false
-int_types = "long"
-line_length = 100
-multiline_func_header = "attributes_first"
-number_underscore = "thousands"
-quote_style = "double"
-single_line_statement_blocks = "single"
-tab_width = 4
-wrap_comments = true
+libs = ["node_modules", "lib"]
