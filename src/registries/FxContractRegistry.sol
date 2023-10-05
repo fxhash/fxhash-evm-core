@@ -4,9 +4,11 @@ pragma solidity 0.8.20;
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
 
-/// @title FxContractRegistry
-/// @notice See the documentation in {IFxContractRegistry}
-contract FxContractRegistry is Ownable, IFxContractRegistry {
+/**
+ * @title FxContractRegistry
+ * @notice See the documentation in {IFxContractRegistry}
+ */
+contract FxContractRegistry is IFxContractRegistry, Ownable {
     /// @inheritdoc IFxContractRegistry
     mapping(bytes32 => address) public contracts;
 

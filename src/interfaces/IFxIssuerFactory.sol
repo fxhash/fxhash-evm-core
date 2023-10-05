@@ -4,13 +4,11 @@ pragma solidity 0.8.20;
 import {MetadataInfo, MintInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
 
 /**
- * @param feeShare Fee share out of 1 million basis points
  * @param lockTime Locked time duration from mint start time for unverified users
  * @param defaultMetadata Default URI of metadata
  */
 struct ConfigInfo {
-    uint128 feeShare;
-    uint128 lockTime;
+    uint256 lockTime;
     string defaultMetadata;
 }
 
@@ -82,8 +80,8 @@ interface IFxIssuerFactory {
      */
     function setImplementation(address _implementation) external;
 
-    /// @notice Returns the configuration values (feeShare, lockTime, defaultMetadata)
-    function configInfo() external view returns (uint128, uint128, string memory);
+    /// @notice Returns the configuration values (lockTime, defaultMetadata)
+    function configInfo() external view returns (uint256, string memory);
 
     /// @notice Returns address of current FxGenArt721 implementation contract
     function implementation() external view returns (address);

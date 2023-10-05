@@ -171,7 +171,7 @@ interface IFxGenArt721 is ISeedConsumer {
     function initialize(
         address _owner,
         address _primaryReceiver,
-        uint128 _lockTime,
+        uint256 _lockTime,
         ProjectInfo calldata _projectInfo,
         MetadataInfo calldata _metadataInfo,
         MintInfo[] calldata _mintInfo,

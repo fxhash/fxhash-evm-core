@@ -75,4 +75,9 @@ interface IFxSplitsFactory {
      * @notice Returns the controller contract
      */
     function controller() external view returns (address);
+
+    /**
+     * @notice Returns the main Splits contract
+     */
+    function splitsMain() external view returns (address);
 }

@@ -3,16 +3,12 @@ pragma solidity 0.8.20;
 
 import "test/BaseTest.t.sol";
 
-import {IFxMintTicket721, TaxInfo} from "src/interfaces/IFxMintTicket721.sol";
-
 contract FxMintTicket721Test is BaseTest {
-    // Tax Info
+    // State
     uint128 gracePeriod;
     uint128 foreclosureTime;
     uint128 currentPrice;
     uint128 depositAmount;
-
-    // State
     uint256 auctionPrice;
     uint256 balance;
     uint256 excessAmount;
@@ -34,15 +30,13 @@ contract FxMintTicket721Test is BaseTest {
 
     function setUp() public virtual override {
         super.setUp();
-        minter = address(new MockMinter());
-        _mock0xSplits();
-        vm.prank(admin);
-        fxRoleRegistry.grantRole(MINTER_ROLE, minter);
-        _configureProject();
-        _configureRoyalties();
-        _configureMinters(minter, RESERVE_START_TIME, RESERVE_END_TIME);
-        _registerMinter(admin, minter);
+        _mockMinter(admin);
+        _mockSplits(SPLITS_DEPLOYER);
         _configureSplits();
+        _configureRoyalties();
+        _configureProject(ENABLED, ONCHAIN, MAX_SUPPLY, CONTRACT_URI);
+        _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, PRICE);
+        _grantRole(admin, MINTER_ROLE, minter);
         _createSplit();
         _createProject();
         _createTicket();
@@ -53,7 +47,8 @@ contract FxMintTicket721Test is BaseTest {
                                     HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _initializeState() internal {
+    function _initializeState() internal override {
+        super._initializeState();
         amount = 1;
         tokenId = 1;
         excessAmount = DEPOSIT_AMOUNT / 2;
