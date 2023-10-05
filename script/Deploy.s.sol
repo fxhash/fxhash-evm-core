@@ -54,7 +54,7 @@ contract Deploy is Script {
 
     // Registries
     address[] internal contracts;
-    bytes32[] internal names;
+    string[] internal names;
 
     // Royalties
     address payable[] internal royaltyReceivers;
@@ -89,6 +89,10 @@ contract Deploy is Script {
     uint256 internal amount;
     uint256 internal price;
     uint256 internal tokenId;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                     MODIFIERS
+    //////////////////////////////////////////////////////////////////////////*/
 
     modifier onlyLocalForge() {
         try vm.activeFork() returns (uint256) {

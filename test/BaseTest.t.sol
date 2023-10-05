@@ -123,7 +123,7 @@ contract BaseTest is Deploy, Test {
 
     function _registerContracts(
         address _admin,
-        bytes32[] storage _names,
+        string[] storage _names,
         address[] storage _contracts
     ) internal prank(_admin) {
         fxContractRegistry.register(_names, _contracts);

@@ -7,8 +7,9 @@ contract Register is FxContractRegistryTest {
     function test_Register() public {
         names.push(FX_CONTRACT_REGISTRY);
         contracts.push(address(fxContractRegistry));
+        hashedName = keccak256(abi.encode(FX_CONTRACT_REGISTRY));
         _registerContracts(admin, names, contracts);
-        // assertEq(fxContractRegistry.contracts(FX_CONTRACT_REGISTRY), address(fxContractRegistry));
+        assertEq(fxContractRegistry.contracts(hashedName), address(fxContractRegistry));
     }
 
     function test_RevertsWhen_ArrayLengthMismatch() public {
