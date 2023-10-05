@@ -12,10 +12,18 @@ contract FxIssuerFactoryTest is BaseTest {
     bytes4 INVALID_OWNER_ERROR = IFxIssuerFactory.InvalidOwner.selector;
     bytes4 INVALID_PRIMARY_RECEIVER_ERROR = IFxIssuerFactory.InvalidPrimaryReceiver.selector;
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                     SETUP
+    //////////////////////////////////////////////////////////////////////////*/
+
     function setUp() public virtual override {
         super.setUp();
         _initializeState();
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                CREATE PROJECT
+    //////////////////////////////////////////////////////////////////////////*/
 
     function test_createProject() public {
         fxGenArtProxy = fxIssuerFactory.createProject(
@@ -59,6 +67,10 @@ contract FxIssuerFactoryTest is BaseTest {
         );
     }
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                    SET CONFIG
+    //////////////////////////////////////////////////////////////////////////*/
+
     function testSetConfig() public {
         configInfo.lockTime = LOCK_TIME;
         configInfo.defaultMetadata = DEFAULT_METADATA;
@@ -69,11 +81,19 @@ contract FxIssuerFactoryTest is BaseTest {
         assertEq(defaultMetadata, configInfo.defaultMetadata);
     }
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                SET IMPLEMENTATION
+    //////////////////////////////////////////////////////////////////////////*/
+
     function testSetImplementation() public {
         vm.prank(fxIssuerFactory.owner());
         fxIssuerFactory.setImplementation(address(fxGenArt721));
         assertEq(fxIssuerFactory.implementation(), address(fxGenArt721));
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                     HELPERS
+    //////////////////////////////////////////////////////////////////////////*/
 
     function _initializeState() internal override {
         super._initializeState();

@@ -4,6 +4,7 @@ pragma solidity 0.8.20;
 import "test/unit/RoyaltyManager/RoyaltyManagerTest.sol";
 
 contract GetRoyalties is RoyaltyManagerTest {
+    // State
     address payable[] internal receivers;
     uint256[] internal bps;
 

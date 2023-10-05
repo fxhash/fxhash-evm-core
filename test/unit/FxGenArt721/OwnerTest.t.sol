@@ -4,6 +4,10 @@ pragma solidity 0.8.20;
 import "test/unit/FxGenArt721/FxGenArt721Test.t.sol";
 
 contract OwnerTest is FxGenArt721Test {
+    /*//////////////////////////////////////////////////////////////////////////
+                                    SET UP
+    //////////////////////////////////////////////////////////////////////////*/
+
     function setUp() public virtual override {
         super.setUp();
         _createProject();
@@ -29,6 +33,7 @@ contract OwnerTest is FxGenArt721Test {
     function test_ReduceSupply() public {
         supply = MAX_SUPPLY / 2;
         _reduceSupply(creator, supply);
+        _setIssuerInfo();
         assertEq(project.supply, supply);
     }
 
@@ -51,8 +56,8 @@ contract OwnerTest is FxGenArt721Test {
 
     function test_ToggleMint() public {
         assertTrue(project.enabled);
-
         _toggleMint(creator);
+        _setIssuerInfo();
         assertFalse(project.enabled);
     }
 
@@ -62,8 +67,8 @@ contract OwnerTest is FxGenArt721Test {
 
     function test_ToggleOnchain() public {
         assertTrue(project.onchain);
-
         _toggleOnchain(creator);
+        _setIssuerInfo();
         assertFalse(project.onchain);
     }
 
@@ -77,11 +82,9 @@ contract OwnerTest is FxGenArt721Test {
 
     function _reduceSupply(address _creator, uint240 _amount) internal prank(_creator) {
         IFxGenArt721(fxGenArtProxy).reduceSupply(_amount);
-        _setIssuerInfo();
     }
 
     function _toggleOnchain(address _creator) internal prank(_creator) {
         IFxGenArt721(fxGenArtProxy).toggleOnchain();
-        _setIssuerInfo();
     }
 }

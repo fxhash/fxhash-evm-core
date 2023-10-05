@@ -4,6 +4,10 @@ pragma solidity 0.8.20;
 import "test/BaseTest.t.sol";
 
 contract FixedPriceTest is BaseTest {
+    // State
+    uint64 internal startTime;
+    uint64 internal endTime;
+    uint160 internal supply;
     uint256 internal mintId;
     uint256 internal quantity;
 
@@ -20,6 +24,10 @@ contract FixedPriceTest is BaseTest {
     bytes4 internal NOT_STARTED_ERROR = IFixedPrice.NotStarted.selector;
     bytes4 internal TOO_MANY_ERROR = IFixedPrice.TooMany.selector;
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                     SETUP
+    //////////////////////////////////////////////////////////////////////////*/
+
     function setUp() public override {
         super.setUp();
         _initializeState();
@@ -29,15 +37,19 @@ contract FixedPriceTest is BaseTest {
         _configureState(AMOUNT, PRICE, TOKEN_ID);
         _configureProject(ENABLED, ONCHAIN, MAX_SUPPLY, CONTRACT_URI);
         _configureMinter(address(fixedPrice), RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, PRICE);
-        _registerContracts(admin);
         _grantRole(admin, MINTER_ROLE, address(fixedPrice));
         _createSplit();
         _createProject();
         _setRandomizer(admin, address(fxPseudoRandomizer));
     }
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                    HELPERS
+    //////////////////////////////////////////////////////////////////////////*/
+
     function _initializeState() internal override {
         super._initializeState();
+        mintId = 0;
         quantity = 1;
         vm.deal(address(this), INITIAL_BALANCE);
     }

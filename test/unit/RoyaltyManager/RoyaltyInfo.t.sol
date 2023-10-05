@@ -4,6 +4,7 @@ pragma solidity 0.8.20;
 import "test/unit/RoyaltyManager/RoyaltyManagerTest.sol";
 
 contract RoyaltyInfo is RoyaltyManagerTest {
+    // State
     address internal receiver;
     uint256 internal bps;
 

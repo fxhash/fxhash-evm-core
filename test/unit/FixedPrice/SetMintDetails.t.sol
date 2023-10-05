@@ -9,15 +9,15 @@ contract SetMintDetails is FixedPriceTest {
             ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
             abi.encode(price)
         );
-        (uint64 startTime_, uint64 endTime_, uint160 supply_) = fixedPrice.reserves(address(this), 0);
+        (startTime, endTime, supply) = fixedPrice.reserves(address(this), 0);
         assertEq(fixedPrice.prices(address(this), 0), price, "price incorrectly set");
-        assertEq(RESERVE_START_TIME, startTime_, "startTime incorrectly set");
-        assertEq(RESERVE_END_TIME, endTime_, "endTime incorrectly set");
-        assertEq(MINTER_ALLOCATION, supply_, "supply incorrectly set");
+        assertEq(RESERVE_START_TIME, startTime, "startTime incorrectly set");
+        assertEq(RESERVE_END_TIME, endTime, "endTime incorrectly set");
+        assertEq(MINTER_ALLOCATION, supply, "supply incorrectly set");
     }
 
     function test_RevertsIf_StartTimeGtEndTime() public {
-        uint64 endTime = RESERVE_START_TIME - 1;
+        endTime = RESERVE_START_TIME - 1;
         vm.expectRevert(INVALID_TIMES_ERROR);
         fixedPrice.setMintDetails(
             ReserveInfo(RESERVE_START_TIME, uint64(endTime), MINTER_ALLOCATION),

@@ -4,21 +4,20 @@ pragma solidity 0.8.20;
 import {ERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {IERC2981} from "openzeppelin/contracts/interfaces/IERC2981.sol";
 
+import {FEE_DENOMINATOR} from "src/utils/Constants.sol";
+
 contract MockERC721 is ERC721, IERC2981 {
-    address royaltyReceiver;
+    constructor() ERC721("MockERC721", "ERC721") {}
 
-    constructor(address _royaltyReceiver) ERC721("MockERC721", "MERC721") {
-        royaltyReceiver = _royaltyReceiver;
-    }
-
-    function mint(address to, uint256 tokenId) external {
-        super._mint(to, tokenId);
+    function mint(address _to, uint256 _tokenId) external {
+        _mint(_to, _tokenId);
     }
 
     function royaltyInfo(
         uint256,
-        /* tokenId */ uint256 salePrice
-    ) external view override returns (address receiver, uint256 royaltyAmount) {
-        return (royaltyReceiver, (salePrice * 1000) / 10_000);
+        uint256 _salePrice
+    ) external pure override returns (address receiver, uint256 royaltyAmount) {
+        royaltyAmount = (_salePrice * 1_000) / FEE_DENOMINATOR;
+        return (receiver, royaltyAmount);
     }
 }

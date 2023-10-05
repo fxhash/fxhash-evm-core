@@ -21,6 +21,10 @@ contract FxGenArt721Test is BaseTest {
     bytes4 internal UNAUTHORIZED_MINTER_ERROR = IFxGenArt721.UnauthorizedMinter.selector;
     bytes4 internal UNREGISTERED_MINTER_ERROR = IFxGenArt721.UnregisteredMinter.selector;
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                     SETUP
+    //////////////////////////////////////////////////////////////////////////*/
+
     function setUp() public virtual override {
         super.setUp();
         _initializeState();
@@ -31,16 +35,23 @@ contract FxGenArt721Test is BaseTest {
         _configureState(AMOUNT, PRICE, TOKEN_ID);
         _configureProject(ENABLED, ONCHAIN, MAX_SUPPLY, CONTRACT_URI);
         _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, PRICE);
-        _registerContracts(admin);
         _grantRole(admin, MINTER_ROLE, minter);
         _createSplit();
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                IMPLEMENTATION
+    //////////////////////////////////////////////////////////////////////////*/
 
     function test_Implementation() public {
         _createProject();
         assertEq(IFxGenArt721(fxGenArtProxy).contractRegistry(), address(fxContractRegistry));
         assertEq(IFxGenArt721(fxGenArtProxy).roleRegistry(), address(fxRoleRegistry));
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                INITIALIZE
+    //////////////////////////////////////////////////////////////////////////*/
 
     function test_Initialize() public {
         _createProject();
@@ -86,6 +97,5 @@ contract FxGenArt721Test is BaseTest {
 
     function _toggleMint(address _creator) internal prank(_creator) {
         IFxGenArt721(fxGenArtProxy).toggleMint();
-        _setIssuerInfo();
     }
 }

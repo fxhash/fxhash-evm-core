@@ -6,14 +6,18 @@ import "test/BaseTest.t.sol";
 contract AllowlistTest is BaseTest, StandardMerkleTree {
     // State
     address internal token;
-    uint256 internal index;
     bytes32 internal merkleRoot;
     bytes32[] internal merkleTree;
     bytes32[] internal proof;
+    uint256 internal index;
 
     // Errors
     bytes4 internal ALREADY_CLAIMED_ERROR = Allowlist.AlreadyClaimed.selector;
     bytes4 internal INVALID_PROOF_ERROR = Allowlist.InvalidProof.selector;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                     SETUP
+    //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
         super.setUp();
@@ -22,9 +26,17 @@ contract AllowlistTest is BaseTest, StandardMerkleTree {
         _configureAllowlist();
     }
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                MERKLE ROOT
+    //////////////////////////////////////////////////////////////////////////*/
+
     function test_MerkleRoot() public {
         assertEq(allowlist.merkleRoot(), merkleRoot);
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    HELPERS
+    //////////////////////////////////////////////////////////////////////////*/
 
     function _initializeState() internal override {
         super._initializeState();

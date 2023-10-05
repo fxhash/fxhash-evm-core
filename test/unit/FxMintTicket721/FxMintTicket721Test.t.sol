@@ -4,13 +4,11 @@ pragma solidity 0.8.20;
 import "test/BaseTest.t.sol";
 
 contract FxMintTicket721Test is BaseTest {
-    // Taxes
+    // State
     uint128 gracePeriod;
     uint128 foreclosureTime;
     uint128 currentPrice;
     uint128 depositAmount;
-
-    // State
     uint256 auctionPrice;
     uint256 balance;
     uint256 excessAmount;
@@ -38,7 +36,6 @@ contract FxMintTicket721Test is BaseTest {
         _configureRoyalties();
         _configureProject(ENABLED, ONCHAIN, MAX_SUPPLY, CONTRACT_URI);
         _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, PRICE);
-        _registerContracts(admin);
         _grantRole(admin, MINTER_ROLE, minter);
         _createSplit();
         _createProject();

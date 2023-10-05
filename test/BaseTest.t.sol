@@ -114,10 +114,10 @@ contract BaseTest is Deploy, Test {
 
     function _mockSplits(address _deployer) internal prank(_deployer) {
         bytes memory splitMainBytecode = abi.encodePacked(SPLITS_MAIN_CREATION_CODE, abi.encode());
-        address deployedAddress;
+        address deployedAddr;
         vm.setNonce(SPLITS_DEPLOYER, 0);
         assembly {
-            deployedAddress := create(0, add(splitMainBytecode, 32), mload(splitMainBytecode))
+            deployedAddr := create(0, add(splitMainBytecode, 32), mload(splitMainBytecode))
         }
     }
 
@@ -129,8 +129,12 @@ contract BaseTest is Deploy, Test {
         fxRoleRegistry.grantRole(_role, _account);
     }
 
-    function _registerContracts(address _admin) internal virtual override prank(_admin) {
-        super._registerContracts(_admin);
+    function _registerContracts(
+        address _admin,
+        bytes32[] storage _names,
+        address[] storage _contracts
+    ) internal prank(_admin) {
+        fxContractRegistry.register(_names, _contracts);
     }
 
     function _setRandomizer(address _admin, address _randomizer) internal prank(_admin) {
