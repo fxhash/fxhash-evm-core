@@ -7,7 +7,7 @@ pragma solidity 0.8.20;
  */
 interface IFxContractRegistry {
     /// @notice Emits event when contract is registered
-    event ContractRegistered(string _contractName, bytes32 _hashedName, address _contractAddr);
+    event ContractRegistered(string indexed _contractName, bytes32 indexed _hashedName, address indexed _contractAddr);
 
     /// @notice Error thrown when array lengths do not match
     error LengthMismatch();
