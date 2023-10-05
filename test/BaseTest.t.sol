@@ -60,6 +60,7 @@ contract BaseTest is Deploy, Test {
     function setUp() public virtual override {
         _createAccounts();
         _initializeAccounts();
+        _mockSplits();
         _deployContracts();
     }
 
@@ -110,15 +111,6 @@ contract BaseTest is Deploy, Test {
 
     function _mockRoyaltyManager(address _admin) internal prank(_admin) {
         royaltyManager = new MockRoyaltyManager();
-    }
-
-    function _mockSplits(address _deployer) internal prank(_deployer) {
-        bytes memory splitMainBytecode = abi.encodePacked(SPLITS_MAIN_CREATION_CODE, abi.encode());
-        address deployedAddr;
-        vm.setNonce(SPLITS_DEPLOYER, 0);
-        assembly {
-            deployedAddr := create(0, add(splitMainBytecode, 32), mload(splitMainBytecode))
-        }
     }
 
     /*//////////////////////////////////////////////////////////////////////////

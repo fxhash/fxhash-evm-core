@@ -31,7 +31,6 @@ contract FxMintTicket721Test is BaseTest {
     function setUp() public virtual override {
         super.setUp();
         _mockMinter(admin);
-        _mockSplits(SPLITS_DEPLOYER);
         _configureSplits();
         _configureRoyalties();
         _configureProject(ENABLED, ONCHAIN, MAX_SUPPLY, CONTRACT_URI);
