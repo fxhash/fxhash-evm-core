@@ -8,7 +8,7 @@ contract SetMintDetails is DutchAuctionTest {
 
     function setUp() public override {
         super.setUp();
-        daInfo = AuctionInfo(prices, stepLength, refund);
+        daInfo = AuctionInfo(stepLength, refund, prices);
         vm.warp(RESERVE_START_TIME - 1);
     }
 

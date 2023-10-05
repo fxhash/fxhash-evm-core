@@ -51,7 +51,7 @@ contract DutchAuctionTest is BaseTest {
             MintInfo(
                 address(dutchAuction),
                 ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
-                abi.encode(AuctionInfo(prices, stepLength, refund))
+                abi.encode(AuctionInfo(stepLength, refund, prices))
             )
         );
         refund = true;
@@ -59,7 +59,7 @@ contract DutchAuctionTest is BaseTest {
             MintInfo(
                 address(refundableDA),
                 ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
-                abi.encode(AuctionInfo(prices, stepLength, refund))
+                abi.encode(AuctionInfo(stepLength, refund, prices))
             )
         );
         vm.startPrank(creator);

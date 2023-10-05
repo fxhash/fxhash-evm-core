@@ -11,10 +11,9 @@ import {ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
  * @param refunded Flag indicating if refunds are enabled.
  */
 struct AuctionInfo {
-    uint256[] prices;
     uint248 stepLength;
     bool refunded;
-    /// add reserve here
+    uint256[] prices;
 }
 
 struct MinterInfo {
