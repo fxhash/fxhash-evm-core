@@ -17,7 +17,6 @@ contract FxTicketFactoryTest is BaseTest {
         super.setUp();
         _initializeState();
         _mockMinter(admin);
-        _mockSplits(SPLITS_DEPLOYER);
         _configureSplits();
         _configureRoyalties();
         _configureProject(ENABLED, ONCHAIN, MAX_SUPPLY, CONTRACT_URI);

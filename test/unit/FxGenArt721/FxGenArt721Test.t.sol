@@ -29,7 +29,6 @@ contract FxGenArt721Test is BaseTest {
         super.setUp();
         _initializeState();
         _mockMinter(admin);
-        _mockSplits(SPLITS_DEPLOYER);
         _configureSplits();
         _configureRoyalties();
         _configureState(AMOUNT, PRICE, TOKEN_ID);

@@ -90,6 +90,14 @@ contract Deploy is Script {
     uint256 internal price;
     uint256 internal tokenId;
 
+    modifier onlyLocalForge() {
+        try vm.activeFork() returns (uint256) {
+            return;
+        } catch {
+            _;
+        }
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                      SETUP
     //////////////////////////////////////////////////////////////////////////*/
@@ -108,9 +116,14 @@ contract Deploy is Script {
     /*//////////////////////////////////////////////////////////////////////////
                                       RUN
     //////////////////////////////////////////////////////////////////////////*/
-
     function run() public virtual {
+        _mockSplits();
         vm.startBroadcast();
+        _run();
+        vm.stopBroadcast();
+    }
+
+    function _run() internal virtual {
         _deployContracts();
         _configureMinter(
             address(fixedPrice),
@@ -125,7 +138,6 @@ contract Deploy is Script {
         _createProject();
         _createTicket();
         _setContracts();
-        vm.stopBroadcast();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -412,6 +424,16 @@ contract Deploy is Script {
 
     function _deployCreate2(bytes memory _creationCode, bytes32 _salt) internal returns (address deployedAddr) {
         deployedAddr = _deployCreate2(_creationCode, "", _salt);
+    }
+
+    function _mockSplits() internal onlyLocalForge {
+        bytes memory splitMainBytecode = abi.encodePacked(SPLITS_MAIN_CREATION_CODE, abi.encode());
+        address deployedAddr;
+        vm.setNonce(SPLITS_DEPLOYER, 0);
+        vm.prank(SPLITS_DEPLOYER);
+        assembly {
+            deployedAddr := create(0, add(splitMainBytecode, 32), mload(splitMainBytecode))
+        }
     }
 
     function _computeCreate2Addr(
