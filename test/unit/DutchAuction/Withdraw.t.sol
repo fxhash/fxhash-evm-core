@@ -7,7 +7,7 @@ contract Withdraw is DutchAuctionTest {
     uint256 internal quantity = 1;
 
     function test_withdraw() public {
-        (, uint256 price) = dutchAuction.getPrice(fxGenArtProxy, reserveId);
+        uint256 price = dutchAuction.getPrice(fxGenArtProxy, reserveId);
         dutchAuction.buy{value: price}(fxGenArtProxy, reserveId, quantity, alice);
         uint256 beforeBalance = creator.balance;
 
@@ -18,7 +18,7 @@ contract Withdraw is DutchAuctionTest {
     }
 
     function test_RevertsIf_NotOver() public {
-        (, uint256 price) = dutchAuction.getPrice(fxGenArtProxy, reserveId);
+        uint256 price = dutchAuction.getPrice(fxGenArtProxy, reserveId);
         dutchAuction.buy{value: price}(fxGenArtProxy, reserveId, quantity, alice);
         vm.warp(RESERVE_END_TIME - 1);
         vm.expectRevert(NOT_ENDED_ERROR);
@@ -26,7 +26,7 @@ contract Withdraw is DutchAuctionTest {
     }
 
     function test_RevertsIf_NoFunds() public {
-        (, uint256 price) = dutchAuction.getPrice(fxGenArtProxy, reserveId);
+        uint256 price = dutchAuction.getPrice(fxGenArtProxy, reserveId);
         dutchAuction.buy{value: price}(fxGenArtProxy, reserveId, quantity, alice);
         vm.warp(RESERVE_END_TIME + 1);
         dutchAuction.withdraw(fxGenArtProxy, reserveId);

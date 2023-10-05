@@ -46,11 +46,11 @@ contract DutchAuctionTest is BaseTest {
         fxRoleRegistry.grantRole(MINTER_ROLE, address(dutchAuction));
         fxRoleRegistry.grantRole(MINTER_ROLE, address(refundableDA));
         vm.stopPrank();
-        projectInfo.supply = RESERVE_MINTER_ALLOCATION * 2;
+        projectInfo.supply = MINTER_ALLOCATION * 2;
         mintInfo.push(
             MintInfo(
                 address(dutchAuction),
-                ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, RESERVE_MINTER_ALLOCATION),
+                ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
                 abi.encode(AuctionInfo(prices, stepLength, refund))
             )
         );
@@ -58,7 +58,7 @@ contract DutchAuctionTest is BaseTest {
         mintInfo.push(
             MintInfo(
                 address(refundableDA),
-                ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, RESERVE_MINTER_ALLOCATION),
+                ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
                 abi.encode(AuctionInfo(prices, stepLength, refund))
             )
         );

@@ -14,6 +14,17 @@ struct AuctionInfo {
     uint256[] prices;
     uint248 stepLength;
     bool refunded;
+    /// add reserve here
+}
+
+struct MinterInfo {
+    uint128 totalMints;
+    uint128 totalPaid;
+}
+
+struct RefundInfo {
+    mapping(address minter => MinterInfo) minterInfo;
+    uint256 lastPrice;
 }
 
 interface IDutchAuction is IFxMinter {
@@ -193,30 +204,11 @@ interface IDutchAuction is IFxMinter {
     function auctionInfo(address _token, uint256 _reserveId) external view returns (uint248, bool);
 
     /**
-     * @notice Retrieves the cumulative mint cost for a buyer
-     * @param _token The address of the token
+     * @notice Mapping to store the Dutch auction info for each token
      * @param _reserveId The ID of the mint
-     * @param _buyer The address of the buyer
-     * @return The cumulative mint cost paid by the buyer
-     */
-    function cumulativeMintCost(address _token, uint256 _reserveId, address _buyer) external view returns (uint256);
-
-    /**
-     * @notice Retrieves the cumulative mints for a buyer
      * @param _token The address of the token
-     * @param _reserveId The ID of the mint
-     * @param _buyer The address of the buyer
-     * @return The cumulative number of mints buyer purchased
      */
-    function cumulativeMints(address _token, uint256 _reserveId, address _buyer) external view returns (uint256);
-
-    /**
-     * @notice Retrieves the last price of a token
-     * @param _token The address of the token
-     * @param _reserveId The ID of the mint
-     * @return The last price of the token
-     */
-    function lastPrice(address _token, uint256 _reserveId) external view returns (uint256);
+    function refundInfo(address _token, uint256 _reserveId) external view returns (uint256);
 
     /**
      * @notice Retrieves the reserve info for a token

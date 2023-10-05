@@ -1,18 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
-import {IDutchAuction, IFxMinter, AuctionInfo} from "src/interfaces/IDutchAuction.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
+
+import {IDutchAuction, IFxMinter, AuctionInfo, RefundInfo, MinterInfo} from "src/interfaces/IDutchAuction.sol";
+import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 
 /**
  * @title DutchAuction
  * @dev A contract for Dutch auction minting.
  */
 contract DutchAuction is IDutchAuction {
-    using SafeCastLib for uint256;
-
     /// @inheritdoc IDutchAuction
     mapping(address => AuctionInfo[]) public auctionInfo;
 
@@ -23,13 +22,7 @@ contract DutchAuction is IDutchAuction {
     mapping(address => mapping(uint256 => uint256)) public saleProceeds;
 
     /// @inheritdoc IDutchAuction
-    mapping(address => mapping(uint256 => mapping(address => uint256))) public cumulativeMints;
-
-    /// @inheritdoc IDutchAuction
-    mapping(address => mapping(uint256 => mapping(address => uint256))) public cumulativeMintCost;
-
-    /// @inheritdoc IDutchAuction
-    mapping(address => mapping(uint256 => uint256)) public lastPrice;
+    mapping(address => mapping(uint256 => RefundInfo)) public refundInfo;
 
     /// @inheritdoc IFxMinter
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintData) external {
@@ -64,12 +57,13 @@ contract DutchAuction is IDutchAuction {
         uint256 price = getPrice(_token, _reserveId);
         if (msg.value != price * _amount) revert InvalidPayment();
 
-        reserve.allocation -= _amount.safeCastTo128();
+        reserve.allocation -= SafeCastLib.safeCastTo128(_amount);
         if (reserve.allocation == 0 && auctionInfo[_token][_reserveId].refunded) {
-            lastPrice[_token][_reserveId] = price;
+            refundInfo[_token][_reserveId].lastPrice = price;
         }
-        cumulativeMints[_token][_reserveId][msg.sender] += _amount;
-        cumulativeMintCost[_token][_reserveId][msg.sender] += price * _amount;
+        MinterInfo storage minterInfo = refundInfo[_token][_reserveId].minterInfo[msg.sender];
+        minterInfo.totalMints += SafeCastLib.safeCastTo128(_amount);
+        minterInfo.totalPaid += SafeCastLib.safeCastTo128(price * _amount);
         saleProceeds[_token][_reserveId] += price * _amount;
         emit Purchase(_token, _reserveId, msg.sender, _to, _amount, price);
 
@@ -83,15 +77,14 @@ contract DutchAuction is IDutchAuction {
         if (_reserveId >= length) revert InvalidReserve();
         if (_who == address(0)) revert AddressZero();
         ReserveInfo storage reserve = reserves[_token][_reserveId];
-        if (!(auctionInfo[_token][_reserveId].refunded && lastPrice[_token][_reserveId] > 0)) {
+        uint256 lastPrice = refundInfo[_token][_reserveId].lastPrice;
+        if (!(auctionInfo[_token][_reserveId].refunded && lastPrice > 0)) {
             revert NoRefund();
         }
         if (block.timestamp < reserve.endTime && reserve.allocation > 0) revert NotEnded();
-        uint256 userCost = cumulativeMintCost[_token][_reserveId][_who];
-        uint256 numMinted = cumulativeMints[_token][_reserveId][_who];
-        delete cumulativeMintCost[_token][_reserveId][_who];
-        delete cumulativeMints[_token][_reserveId][_who];
-        uint256 refundAmount = userCost - numMinted * lastPrice[_token][_reserveId];
+        MinterInfo memory minterInfo = refundInfo[_token][_reserveId].minterInfo[_who];
+        uint128 refundAmount = SafeCastLib.safeCastTo128(minterInfo.totalPaid - minterInfo.totalMints * lastPrice);
+        delete refundInfo[_token][_reserveId].minterInfo[_who];
         if (refundAmount == 0) revert NoRefund();
 
         emit RefundClaimed(_token, _reserveId, _who, refundAmount);
