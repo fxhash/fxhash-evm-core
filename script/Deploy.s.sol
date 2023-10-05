@@ -103,7 +103,6 @@ contract Deploy is Script {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual {
-        _mockSplits();
         _createAccounts();
         _configureSplits();
         _configureRoyalties();
@@ -118,6 +117,7 @@ contract Deploy is Script {
                                       RUN
     //////////////////////////////////////////////////////////////////////////*/
     function run() public virtual {
+        _mockSplits();
         vm.startBroadcast();
         _run();
         vm.stopBroadcast();
