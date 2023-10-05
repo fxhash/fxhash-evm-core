@@ -128,12 +128,6 @@ interface IDutchAuction is IFxMinter {
     error InvalidStep();
 
     /**
-     * @notice Error thrown when the auction times are invalid
-     * Either because startTime > endTime or startTime is in the past
-     */
-    error InvalidTimes();
-
-    /**
      * @notice Error thrown when the token is address zero
      */
     error InvalidToken();
