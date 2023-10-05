@@ -4,16 +4,10 @@ pragma solidity 0.8.20;
 import "test/unit/Allowlist/AllowlistTest.t.sol";
 
 contract ClaimSlot is AllowlistTest {
-    function setUp() public virtual override {
-        super.setUp();
-        index = 1;
-    }
-
     function test_ClaimSlot() public {
         proof = getProof(merkleTree, index - 1);
         vm.prank(alice);
         allowlist.claimSlot(token, index, PRICE, proof);
-
         assertTrue(allowlist.isClaimed(index));
     }
 

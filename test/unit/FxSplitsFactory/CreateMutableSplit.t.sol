@@ -22,7 +22,6 @@ contract CreateSplit is FxSplitsFactoryTest {
         ISplitsMain(SPLITS_MAIN).distributeETH(split, accounts, allocations, 0, address(0));
         ISplitsMain(SPLITS_MAIN).withdraw(alice, 0.4 ether, new address[](0));
         ISplitsMain(SPLITS_MAIN).withdraw(bob, 0.6 ether, new address[](0));
-        /// on first withdraw, 1 wei is withheld for gas savings
         assertGt(alice.balance, 0.3999999 ether);
         assertGt(bob.balance, 0.5999999 ether);
     }

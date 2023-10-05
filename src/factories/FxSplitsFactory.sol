@@ -8,14 +8,17 @@ import {SPLITS_MAIN} from "script/utils/Constants.sol";
 
 /**
  * @title FxSplitsFactory
- * @dev A factory contract for creating split wallets and easier event tracking.
+ * @notice A factory contract for creating split wallets and easier event tracking
  */
 contract FxSplitsFactory is IFxSplitsFactory, Ownable {
     /// @inheritdoc IFxSplitsFactory
     address public controller;
+    /// @inheritdoc IFxSplitsFactory
+    address public splitsMain;
 
-    /// @dev initializes the owner of the FxSplitsFactory
-    constructor(address _admin) {
+    /// @dev Initializes contract owner and 0xSplits contract
+    constructor(address _admin, address _splitsMain) {
+        splitsMain = _splitsMain;
         _transferOwnership(_admin);
     }
 
@@ -24,10 +27,10 @@ contract FxSplitsFactory is IFxSplitsFactory, Ownable {
         address[] calldata _accounts,
         uint32[] calldata _allocations
     ) external returns (address split) {
-        split = ISplitsMain(SPLITS_MAIN).predictImmutableSplitAddress(_accounts, _allocations, 0);
+        split = ISplitsMain(splitsMain).predictImmutableSplitAddress(_accounts, _allocations, 0);
         if (split.code.length != 0) revert SplitsExists();
         emit SplitsInfo(split, address(0), _accounts, _allocations, 0);
-        address actual = ISplitsMain(SPLITS_MAIN).createSplit(_accounts, _allocations, 0, address(0));
+        address actual = ISplitsMain(splitsMain).createSplit(_accounts, _allocations, 0, address(0));
         if (actual != split) revert InvalidSplit();
     }
 
@@ -36,7 +39,7 @@ contract FxSplitsFactory is IFxSplitsFactory, Ownable {
         address[] calldata _accounts,
         uint32[] calldata _allocations
     ) external returns (address split) {
-        split = ISplitsMain(SPLITS_MAIN).createSplit(_accounts, _allocations, 0, controller);
+        split = ISplitsMain(splitsMain).createSplit(_accounts, _allocations, 0, controller);
         emit SplitsInfo(split, controller, _accounts, _allocations, 0);
     }
 
@@ -45,7 +48,7 @@ contract FxSplitsFactory is IFxSplitsFactory, Ownable {
         address[] calldata _accounts,
         uint32[] calldata _allocations
     ) external returns (address split) {
-        split = ISplitsMain(SPLITS_MAIN).predictImmutableSplitAddress(_accounts, _allocations, 0);
+        split = ISplitsMain(splitsMain).predictImmutableSplitAddress(_accounts, _allocations, 0);
         if (split.code.length == 0) emit SplitsInfo(split, address(0), _accounts, _allocations, 0);
     }
 

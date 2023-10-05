@@ -4,11 +4,7 @@ pragma solidity 0.8.20;
 import "test/unit/FxPseudoRandomizer/FxPseudoRandomizerTest.t.sol";
 
 contract RequestRandomness is ISeedConsumer, FxPseudoRandomizerTest {
-    function fulfillSeedRequest(
-        uint256,
-        /* _tokenId */
-        bytes32 _seed
-    ) external {
+    function fulfillSeedRequest(uint256, bytes32 _seed) external {
         genArtInfo.seed = _seed;
     }
 

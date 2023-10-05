@@ -2,9 +2,9 @@
 pragma solidity 0.8.20;
 
 import "test/BaseTest.t.sol";
-import {IFxSplitsFactory} from "src/interfaces/IFxSplitsFactory.sol";
 
 contract FxSplitsFactoryTest is BaseTest {
+    // Errors
     error InvalidSplit__TooFewAccounts(uint256 accountsLength);
     error InvalidSplit__AccountsAndAllocationsMismatch(uint256 accountsLength, uint256 allocationsLength);
     error InvalidSplit__InvalidAllocationsSum(uint32 allocationsSum);
@@ -14,6 +14,7 @@ contract FxSplitsFactoryTest is BaseTest {
 
     function setUp() public virtual override {
         super.setUp();
-        _mock0xSplits();
+        _initializeState();
+        _mockSplits(SPLITS_DEPLOYER);
     }
 }

@@ -21,23 +21,37 @@ contract FxGenArt721Test is BaseTest {
     bytes4 internal UNAUTHORIZED_MINTER_ERROR = IFxGenArt721.UnauthorizedMinter.selector;
     bytes4 internal UNREGISTERED_MINTER_ERROR = IFxGenArt721.UnregisteredMinter.selector;
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                     SETUP
+    //////////////////////////////////////////////////////////////////////////*/
+
     function setUp() public virtual override {
         super.setUp();
-        minter = address(new MockMinter());
-        _mock0xSplits();
-        _configureProject();
-        _configureMinters(minter, RESERVE_START_TIME, RESERVE_END_TIME);
-        _registerMinter(admin, minter);
-        _configureRoyalties();
+        _initializeState();
+        _mockMinter(admin);
+        _mockSplits(SPLITS_DEPLOYER);
         _configureSplits();
+        _configureRoyalties();
+        _configureState(AMOUNT, PRICE, TOKEN_ID);
+        _configureProject(ENABLED, ONCHAIN, MAX_SUPPLY, CONTRACT_URI);
+        _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, PRICE);
+        _grantRole(admin, MINTER_ROLE, minter);
         _createSplit();
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                IMPLEMENTATION
+    //////////////////////////////////////////////////////////////////////////*/
 
     function test_Implementation() public {
         _createProject();
         assertEq(IFxGenArt721(fxGenArtProxy).contractRegistry(), address(fxContractRegistry));
         assertEq(IFxGenArt721(fxGenArtProxy).roleRegistry(), address(fxRoleRegistry));
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                INITIALIZE
+    //////////////////////////////////////////////////////////////////////////*/
 
     function test_Initialize() public {
         _createProject();
@@ -53,14 +67,14 @@ contract FxGenArt721Test is BaseTest {
 
     function test_Initialize_RevertsWhen_InvalidStartTime() public {
         delete mintInfo;
-        _configureMinters(minter, RESERVE_START_TIME - 1, RESERVE_END_TIME);
+        _configureMinter(minter, RESERVE_START_TIME - 1, RESERVE_END_TIME, MINTER_ALLOCATION, PRICE);
         vm.expectRevert(INVALID_START_TIME_ERROR);
         _createProject();
     }
 
     function test_Initialize_RevertsWhen_InvalidEndTime() public {
         delete mintInfo;
-        _configureMinters(minter, RESERVE_START_TIME, RESERVE_START_TIME - 1);
+        _configureMinter(minter, RESERVE_START_TIME, RESERVE_START_TIME - 1, MINTER_ALLOCATION, PRICE);
         vm.expectRevert(INVALID_END_TIME_ERROR);
         _createProject();
     }
@@ -83,6 +97,5 @@ contract FxGenArt721Test is BaseTest {
 
     function _toggleMint(address _creator) internal prank(_creator) {
         IFxGenArt721(fxGenArtProxy).toggleMint();
-        _setIssuerInfo();
     }
 }

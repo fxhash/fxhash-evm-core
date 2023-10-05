@@ -1,4 +1,10 @@
 {
+  "scripts": {
+    "broadcast": "forge script script/Deploy.s.sol --rpc-url $GOERLI_RPC_URL --private-key $DEPLOYER_PRIVATE_KEY --verify --etherscan-api-key $ETHERSCAN_API_KEY --broadcast",
+    "deploy": "forge script script/Deploy.s.sol --rpc-url $GOERLI_RPC_URL --private-key $DEPLOYER_PRIVATE_KEY",
+    "prettier": "prettier --plugin=prettier-plugin-solidity --write 'src/**/*.sol' 'test/**/*.sol' 'script/**/*.sol'",
+    "test": "forge clean & forge test"
+  },
   "devDependencies": {
     "prettier": "^3.0.3",
     "prettier-plugin-solidity": "^1.1.3"
