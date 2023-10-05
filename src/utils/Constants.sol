@@ -2,16 +2,16 @@
 pragma solidity 0.8.20;
 
 // Contracts
-bytes32 constant FIXED_PRICE = keccak256("FIXED_PRICE");
-bytes32 constant FX_CONTRACT_REGISTRY = keccak256("FX_CONTRACT_REGISTRY");
-bytes32 constant FX_GEN_ART_721 = keccak256("FX_GEN_ART_721");
-bytes32 constant FX_ISSUER_FACTORY = keccak256("FX_ISSUER_FACTORY");
-bytes32 constant FX_MINT_TICKET_721 = keccak256("FX_MINT_TICKET_721");
-bytes32 constant FX_PSEUDO_RANDOMIZER = keccak256("FX_PSEUDO_RANDOMIZER");
-bytes32 constant FX_ROLE_REGISTRY = keccak256("FX_ROLE_REGISTRY");
-bytes32 constant FX_SCRIPTY_RENDERER = keccak256("FX_SCRIPTY_RENDERER");
-bytes32 constant FX_SPLITS_FACTORY = keccak256("FX_SPLITS_FACTORY");
-bytes32 constant FX_TICKET_FACTORY = keccak256("FX_TICKET_FACTORY");
+string constant FIXED_PRICE = "FIXED_PRICE";
+string constant FX_CONTRACT_REGISTRY = "FX_CONTRACT_REGISTRY";
+string constant FX_GEN_ART_721 = "FX_GEN_ART_721";
+string constant FX_ISSUER_FACTORY = "FX_ISSUER_FACTORY";
+string constant FX_MINT_TICKET_721 = "FX_MINT_TICKET_721";
+string constant FX_PSEUDO_RANDOMIZER = "FX_PSEUDO_RANDOMIZER";
+string constant FX_ROLE_REGISTRY = "FX_ROLE_REGISTRY";
+string constant FX_SCRIPTY_RENDERER = "FX_SCRIPTY_RENDERER";
+string constant FX_SPLITS_FACTORY = "FX_SPLITS_FACTORY";
+string constant FX_TICKET_FACTORY = "FX_TICKET_FACTORY";
 
 // EIP-712
 bytes32 constant CLAIM_TYPEHASH = keccak256("Claim(uint256 index, address user, bytes mintCode)");

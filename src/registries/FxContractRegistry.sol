@@ -17,7 +17,7 @@ contract FxContractRegistry is IFxContractRegistry, Ownable {
     }
 
     /// @inheritdoc IFxContractRegistry
-    function register(bytes32[] calldata _names, address[] calldata _contracts) external onlyOwner {
+    function register(string[] calldata _names, address[] calldata _contracts) external onlyOwner {
         address contractAddr;
         bytes32 contractName;
         uint256 length = _names.length;
@@ -29,6 +29,7 @@ contract FxContractRegistry is IFxContractRegistry, Ownable {
             contractAddr = _contracts[i];
             contractName = keccak256(abi.encode(_names[i]));
             contracts[contractName] = contractAddr;
+            emit ContractRegistered(_names[i], contractName, contractAddr);
             unchecked {
                 ++i;
             }
