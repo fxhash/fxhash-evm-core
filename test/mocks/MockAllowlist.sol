@@ -22,7 +22,7 @@ contract MockAllowlist is Allowlist {
         return _bitmap.get(_index);
     }
 
-    function _getMerkleRoot(address /* _token */) internal view override returns (bytes32) {
+    function _getMerkleRoot(address) internal view override returns (bytes32) {
         return merkleRoot;
     }
 }

@@ -4,6 +4,10 @@ pragma solidity 0.8.20;
 import "test/unit/FxGenArt721/FxGenArt721Test.t.sol";
 
 contract AdminTest is FxGenArt721Test {
+    /*//////////////////////////////////////////////////////////////////////////
+                                    SET UP
+    //////////////////////////////////////////////////////////////////////////*/
+
     function setUp() public virtual override {
         super.setUp();
         _createProject();
@@ -11,11 +15,12 @@ contract AdminTest is FxGenArt721Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                    BASE_URI
+                                    BASE URI
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_setBaseURI() public {
         _setBaseURI(admin, BASE_URI);
+        _setMetadatInfo();
         assertEq(baseURI, BASE_URI);
     }
 
@@ -25,11 +30,12 @@ contract AdminTest is FxGenArt721Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                    CONTRACT_URI
+                                    CONTRACT URI
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_setContractURI() public {
         _setContractURI(admin, CONTRACT_URI);
+        _setIssuerInfo();
         assertEq(project.contractURI, CONTRACT_URI);
     }
 
@@ -39,11 +45,12 @@ contract AdminTest is FxGenArt721Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                    IMAGE_URI
+                                    IMAGE URI
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_setImageURI() public {
         _setImageURI(admin, IMAGE_URI);
+        _setMetadatInfo();
         assertEq(imageURI, IMAGE_URI);
     }
 
@@ -86,16 +93,13 @@ contract AdminTest is FxGenArt721Test {
 
     function _setBaseURI(address _admin, string memory _uri) internal prank(_admin) {
         IFxGenArt721(fxGenArtProxy).setBaseURI(_uri);
-        _setMetadatInfo();
     }
 
     function _setContractURI(address _admin, string memory _uri) internal prank(_admin) {
         IFxGenArt721(fxGenArtProxy).setContractURI(_uri);
-        _setIssuerInfo();
     }
 
     function _setImageURI(address _admin, string memory _uri) internal prank(_admin) {
         IFxGenArt721(fxGenArtProxy).setImageURI(_uri);
-        _setMetadatInfo();
     }
 }

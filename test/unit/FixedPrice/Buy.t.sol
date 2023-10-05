@@ -4,18 +4,15 @@ pragma solidity 0.8.20;
 import "test/unit/FixedPrice/FixedPriceTest.t.sol";
 
 contract BuyTokens is FixedPriceTest {
-    uint256 internal mintId = 0;
-    uint256 internal quantity = 1;
-
     function test_buy() public {
         fixedPrice.buy{value: price}(fxGenArtProxy, mintId, quantity, alice);
         assertEq(FxGenArt721(fxGenArtProxy).balanceOf(alice), 1);
     }
 
     function test_RevertsIf_BuyMoreThanAllocation() public {
-        quantity = RESERVE_MINTER_ALLOCATION + 1;
+        quantity = MINTER_ALLOCATION + 1;
         vm.expectRevert(TOO_MANY_ERROR);
-        fixedPrice.buy{value: (price * (RESERVE_MINTER_ALLOCATION + 1))}(fxGenArtProxy, mintId, quantity, alice);
+        fixedPrice.buy{value: (price * (MINTER_ALLOCATION + 1))}(fxGenArtProxy, mintId, quantity, alice);
         assertEq(FxGenArt721(fxGenArtProxy).balanceOf(alice), 0);
     }
 

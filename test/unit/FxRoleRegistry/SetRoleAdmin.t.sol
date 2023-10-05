@@ -23,7 +23,6 @@ contract SetRoleAdmin is FxRoleRegistryTest {
     }
 
     function test_RevertsWhen_NotRoleAdmin() public {
-        /// in this case address(this) is the default admin as well as admin
         vm.prank(alice);
         vm.expectRevert(
             abi.encodePacked(

@@ -2,22 +2,24 @@
 pragma solidity 0.8.20;
 
 import "test/BaseTest.t.sol";
-import {IFxIssuerFactory, ConfigInfo} from "src/interfaces/IFxIssuerFactory.sol";
 
 contract FxIssuerFactoryTest is BaseTest {
-    // State
-    uint128 internal feeShare;
-    uint128 internal lockTime;
-    string internal defaultMetadata;
-
-    // Custom Errors
+    // Errors
     bytes4 INVALID_OWNER_ERROR = IFxIssuerFactory.InvalidOwner.selector;
     bytes4 INVALID_PRIMARY_RECEIVER_ERROR = IFxIssuerFactory.InvalidPrimaryReceiver.selector;
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                     SETUP
+    //////////////////////////////////////////////////////////////////////////*/
+
     function setUp() public virtual override {
         super.setUp();
-        projectId = 1;
+        _initializeState();
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                CREATE PROJECT
+    //////////////////////////////////////////////////////////////////////////*/
 
     function test_createProject() public {
         fxGenArtProxy = fxIssuerFactory.createProject(
@@ -61,21 +63,36 @@ contract FxIssuerFactoryTest is BaseTest {
         );
     }
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                    SET CONFIG
+    //////////////////////////////////////////////////////////////////////////*/
+
     function testSetConfig() public {
-        configInfo.feeShare = CONFIG_FEE_SHARE;
-        configInfo.lockTime = CONFIG_LOCK_TIME;
-        configInfo.defaultMetadata = CONFIG_DEFAULT_METADATA;
+        configInfo.lockTime = LOCK_TIME;
+        configInfo.defaultMetadata = DEFAULT_METADATA;
         vm.prank(fxIssuerFactory.owner());
         fxIssuerFactory.setConfig(configInfo);
-        (feeShare, lockTime, defaultMetadata) = fxIssuerFactory.configInfo();
-        assertEq(feeShare, configInfo.feeShare);
+        (lockTime, defaultMetadata) = fxIssuerFactory.configInfo();
         assertEq(lockTime, configInfo.lockTime);
         assertEq(defaultMetadata, configInfo.defaultMetadata);
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                SET IMPLEMENTATION
+    //////////////////////////////////////////////////////////////////////////*/
 
     function testSetImplementation() public {
         vm.prank(fxIssuerFactory.owner());
         fxIssuerFactory.setImplementation(address(fxGenArt721));
         assertEq(fxIssuerFactory.implementation(), address(fxGenArt721));
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                     HELPERS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function _initializeState() internal override {
+        super._initializeState();
+        projectId = 1;
     }
 }

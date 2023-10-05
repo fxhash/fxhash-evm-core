@@ -29,7 +29,6 @@ contract CreateSplit is FxSplitsFactoryTest {
         ISplitsMain(SPLITS_MAIN).distributeETH(libPredicted, accounts, allocations, 0, address(0));
         ISplitsMain(SPLITS_MAIN).withdraw(alice, 0.4 ether, new address[](0));
         ISplitsMain(SPLITS_MAIN).withdraw(bob, 0.6 ether, new address[](0));
-        /// on first withdraw, 1 wei is withheld for gas savings
         assertGt(alice.balance, 0.3999999 ether);
         assertGt(bob.balance, 0.5999999 ether);
     }
@@ -43,14 +42,12 @@ contract CreateSplit is FxSplitsFactoryTest {
         uint256 cachedBalance3 = bob.balance;
         ISplitsMain(SPLITS_MAIN).withdraw(alice, 0.4 ether, new address[](0));
         ISplitsMain(SPLITS_MAIN).withdraw(bob, 0.6 ether, new address[](0));
-        /// balance fully availalble
         assertEq(alice.balance - cachedBalance2, 0.4 ether);
         assertEq(bob.balance - cachedBalance3, 0.6 ether);
     }
 
     function test_RevertsWhen_LengthMismatch() public {
         accounts.pop();
-
         vm.expectRevert();
         fxSplitsFactory.createImmutableSplit(accounts, allocations);
     }
@@ -58,14 +55,12 @@ contract CreateSplit is FxSplitsFactoryTest {
     function test_RevertsWhen_AllocationsGt100() public {
         accounts.push(address(420));
         allocations.push(1);
-
         vm.expectRevert();
         fxSplitsFactory.createImmutableSplit(accounts, allocations);
     }
 
     function test_RevertsWhen_AllocationsLt100() public {
         allocations[0]--;
-
         vm.expectRevert();
         fxSplitsFactory.createImmutableSplit(accounts, allocations);
     }
@@ -74,7 +69,6 @@ contract CreateSplit is FxSplitsFactoryTest {
         accounts.push(alice);
         allocations.push(1);
         allocations[0]--;
-
         vm.expectRevert();
         fxSplitsFactory.createImmutableSplit(accounts, allocations);
     }

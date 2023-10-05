@@ -4,6 +4,10 @@ pragma solidity 0.8.20;
 import "test/unit/FxGenArt721/FxGenArt721Test.t.sol";
 
 contract PublicTest is FxGenArt721Test {
+    /*//////////////////////////////////////////////////////////////////////////
+                                    SET UP
+    //////////////////////////////////////////////////////////////////////////*/
+
     function setUp() public virtual override {
         super.setUp();
         _createProject();
@@ -54,13 +58,14 @@ contract PublicTest is FxGenArt721Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                FULFILL SEED REQUEST
+                                FULFILL SEED
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_fulfillSeedRequest() public {
         tokenId = 1;
         genArtInfo.seed = keccak256("seed");
         _fulfillSeedRequest(address(fxPseudoRandomizer), tokenId, genArtInfo.seed);
+        _setGenArtInfo(tokenId);
         assertEq(genArtInfo.seed, seed);
     }
 
@@ -83,7 +88,5 @@ contract PublicTest is FxGenArt721Test {
 
     function _fulfillSeedRequest(address _caller, uint256 _tokenId, bytes32 _seed) internal prank(_caller) {
         ISeedConsumer(fxGenArtProxy).fulfillSeedRequest(_tokenId, _seed);
-        _setGenArtInfo(_tokenId);
-        genArtInfo.seed = _seed;
     }
 }
