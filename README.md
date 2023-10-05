@@ -1,22 +1,28 @@
-# FxHash Core Contracts
+# FxHash EVM Smart Contracts
 
 ## Overview
 
-1.  **[`FxContractRegistry`](src/registries/FxContractRegistry.sol#L8-L36)**: This contract maintains a registry of other contracts in the system. It maps the keccak256 hash of a contract's name to its address.
+1. **[`FxContractRegistry`](src/registries/FxContractRegistry.sol)**: Registry contract that manages all deployed contracts by **FxHash**
 
-2.  **[`FxGenArt721`](src/tokens/FxGenArt721.sol#L28-L285)**: This contract is an implementation of the ERC721 standard for non-fungible tokens (NFTs). It includes additional functionality for minting tokens, burning tokens, and managing royalties. It also interacts with a randomizer contract to generate pseudo-random seeds for each token.
+2. **[`FxGenArt721`](src/tokens/FxGenArt721.sol)**: ERC-721 implementation contract that allows for mintng of new tokens, burning of existing tokens and managing of token royalties
 
-3.  **[`FxIssuerFactory`](src/factories/FxIssuerFactory.sol#L12-L77)**: This contract is responsible for creating new projects. It clones a given implementation of the `IFxGenArt721` interface and initializes it with the provided parameters. It also manages the configuration information and the mapping of project IDs to their corresponding contract addresses.
+3.  **[`FxIssuerFactory`](src/factories/FxIssuerFactory.sol)**: Factory contract that clones the `FxGenArt721` implementation to create new Generative Art Projects
 
-4.  **[`FxPsuedoRandomizer`](src/randomizers/FxPsuedoRandomizer.sol#L10-L25)**: This contract provides pseudo-randomness for the system. It has a function `requestRandomness` that generates a pseudo-random seed based on the provided token ID and then fulfills the seed request for the calling contract. The seed is generated in the `generateSeed` function, which uses the keccak256 hash of the token ID, the sender's address, the current block number, the current timestamp, and the hash of the previous block.
+4.  **[`FxMintTicket721`](src/tokens/FxMintTicket721.sol)**: ERC-721 implementation contract that allows for minting of new tickets, burning of exisiting tickets, and enforcing of harberger taxes over ticket ownership
 
-5.  **[`FxRoleRegistry`](src/registries/FxRoleRegistry.sol#L15-L31)**: This contract is an implementation of the `AccessControl` contract from the OpenZeppelin library. It is used to manage different roles within the system, such as admin, creator, minter, token moderator, and user moderator. The contract allows for setting role admins and granting roles to addresses.
+5. **[`FxPseudoRandomizer`](src/randomizers/FxPseudoRandomizer.sol)**: Randomizer contract that provides a pseudo-randomness `keccak256` hash using the token ID, the sender's address, the current block number, and the hash of the previous block
 
-6.  **[`FxSplitsFactory`](src/factories/FxSplitsFactory.sol#L11-L29)**: This contract is responsible for creating and managing split contracts. It provides two main functions: `createSplit` and `createVirtualSplit`. The `createSplit` function interacts with the `ISplitsMain` contract to create a new split contract with the provided accounts and allocations. The `createVirtualSplit` function predicts the address of a split contract that would be created with the provided accounts and allocations, and emits an event if the predicted address does not have any code associated with it.
+6. **[`FxRoleRegistry`](src/registries/FxRoleRegistry.sol)**: Registry contract that implements `AccessControl` to manage different roles within the system, such as **Admin**, **Creator**, **Minter**, and **Moderator** 
 
-7.  **[`FxTokenRenderer`](src/renders/FxTokenRenderer.sol)**: # This contract generates the token URI based on whether the project is stored on-chain or off-chain. If the project is stored off-chain, it simply concatenates the base URI with the token ID. If the project is stored on-chain, it uses the `renderOnchain` function to generate the on-chain data and encodes it in base64 format.
+7. **[`FxScriptyRenderer`](src/renderers/FxScriptyRenderer.sol)**: Renderer contract that generates and builds the metadata of a token fully onchain in `base64` format using [`Scripty.sol`](https://int-art.gitbook.io/scripty.sol-v2/)
 
-### Architechture
+8. **[`FxSplitsFactory`](src/factories/FxSplitsFactory.sol)**: Factory contract that creates and manages `0xSplit` contracts for distributing token royalties on primary and secondary sales
+
+9.  **[`FxTicketFactory`](src/factories/FxTicketFactory.sol)**: Factory contract that clones the `FxMintTicket721` implementation to create new Mint Tickets for an existing `FxGenArt721` project
+
+10. **[`FixedPrice`](src/minters/FixedPrice.sol)**: Minter contract that mints new `FxGenArt721` and `FxMintTicket721` tokens at a fixed price
+
+## Architechture
 
 ```mermaid
 graph TD
@@ -24,8 +30,8 @@ B[FxGenArt721]--> A[FxRoleRegistry]
 C[FxIssuerFactory] --> B
 B --> D[FxContractRegistry]
 E[FxSplitsFactory]
-B --> F[FxPsuedoRandomizer]
-B --> G[FxTokenRenderer]
+B --> F[FxPseudoRandomizer]
+B --> G[FxScriptyRenderer]
 ```
 
 ## Setup
@@ -55,7 +61,7 @@ forge install
 4. Run tests
 
 ```
-forge test
+npm run test
 ```
 
 5. Run prettier

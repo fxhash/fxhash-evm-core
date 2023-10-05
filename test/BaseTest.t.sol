@@ -68,8 +68,7 @@ contract BaseTest is Deploy, Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _createAccounts() internal virtual override {
-        admin = makeAddr("admin");
-        creator = makeAddr("creator");
+        super._createAccounts();
         alice = makeAddr("alice");
         bob = makeAddr("bob");
         eve = makeAddr("eve");
@@ -77,7 +76,7 @@ contract BaseTest is Deploy, Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                    INITIALIZATIONS
+                                INITIALIZATIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     function _initializeAccounts() internal virtual {
@@ -126,8 +125,8 @@ contract BaseTest is Deploy, Test {
                                      SETTERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _grantRole(address _admin, bytes32 _role, address _user) internal prank(_admin) {
-        fxRoleRegistry.grantRole(_role, _user);
+    function _grantRole(address _admin, bytes32 _role, address _account) internal prank(_admin) {
+        fxRoleRegistry.grantRole(_role, _account);
     }
 
     function _registerContracts(address _admin) internal virtual override prank(_admin) {

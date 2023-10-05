@@ -125,6 +125,15 @@ contract Deploy is Script {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
+                                    ACCOUNTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function _createAccounts() internal virtual {
+        admin = msg.sender;
+        creator = makeAddr("creator");
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                                     CONFIGURATIONS
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -320,11 +329,6 @@ contract Deploy is Script {
     /*//////////////////////////////////////////////////////////////////////////
                                     CREATE
     //////////////////////////////////////////////////////////////////////////*/
-
-    function _createAccounts() internal virtual {
-        admin = msg.sender;
-        creator = makeAddr("creator");
-    }
 
     function _createSplit() internal virtual {
         primaryReceiver = fxSplitsFactory.createImmutableSplit(accounts, allocations);
