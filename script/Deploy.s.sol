@@ -39,10 +39,18 @@ contract Deploy is Script {
     address internal admin;
     address internal creator;
 
+    // Project
+    string internal contractURI;
+    string internal defaultMetadata;
+    uint256 internal lockTime;
+
     // Metadata
     string internal baseURI;
-    string internal contractURI;
     string internal imageURI;
+    HTMLRequest internal animation;
+    HTMLRequest internal attributes;
+    HTMLTag[] internal headTags;
+    HTMLTag[] internal bodyTags;
 
     // Registries
     address[] internal contracts;
@@ -62,10 +70,6 @@ contract Deploy is Script {
     address internal ethFSFileStorage;
     address internal scriptyBuilderV2;
     address internal scriptyStorageV2;
-    HTMLRequest internal animation;
-    HTMLRequest internal attributes;
-    HTMLTag[] internal headTags;
-    HTMLTag[] internal bodyTags;
 
     // Structs
     ConfigInfo internal configInfo;
@@ -76,15 +80,15 @@ contract Deploy is Script {
     ProjectInfo internal projectInfo;
     ReserveInfo internal reserveInfo;
 
+    // Ticket
+    address internal fxMintTicketProxy;
+    uint96 internal ticketId;
+
     // Token
     address internal fxGenArtProxy;
     uint256 internal amount;
     uint256 internal price;
     uint256 internal tokenId;
-
-    // Ticket
-    address internal fxMintTicketProxy;
-    uint96 internal ticketId;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      SETUP
@@ -115,7 +119,7 @@ contract Deploy is Script {
             MINTER_ALLOCATION,
             PRICE
         );
-        _registerContracts(admin);
+        _registerContracts();
         _grantRoles();
         _createSplit();
         _createProject();
@@ -134,31 +138,8 @@ contract Deploy is Script {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                    CONFIGURATIONS
+                                CONFIGURATIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    function _configureState(uint256 _amount, uint256 _price, uint256 _tokenId) internal virtual {
-        amount = _amount;
-        price = _price;
-        tokenId = _tokenId;
-    }
-
-    function _configureInfo(uint256 _lockTime, string memory defaultMetadata) internal virtual {
-        configInfo.lockTime = _lockTime;
-        configInfo.defaultMetadata = defaultMetadata;
-    }
-
-    function _configureProject(
-        bool _enabled,
-        bool _onchain,
-        uint240 _supply,
-        string memory _contractURI
-    ) internal virtual {
-        projectInfo.enabled = _enabled;
-        projectInfo.onchain = _onchain;
-        projectInfo.supply = _supply;
-        projectInfo.contractURI = _contractURI;
-    }
 
     function _configureSplits() internal virtual {
         if (creator < admin) {
@@ -242,6 +223,29 @@ contract Deploy is Script {
 
         animation.headTags = headTags;
         animation.bodyTags = bodyTags;
+    }
+
+    function _configureState(uint256 _amount, uint256 _price, uint256 _tokenId) internal virtual {
+        amount = _amount;
+        price = _price;
+        tokenId = _tokenId;
+    }
+
+    function _configureInfo(uint256 _lockTime, string memory _defaultMetadata) internal virtual {
+        configInfo.lockTime = _lockTime;
+        configInfo.defaultMetadata = _defaultMetadata;
+    }
+
+    function _configureProject(
+        bool _enabled,
+        bool _onchain,
+        uint240 _supply,
+        string memory _contractURI
+    ) internal virtual {
+        projectInfo.enabled = _enabled;
+        projectInfo.onchain = _onchain;
+        projectInfo.supply = _supply;
+        projectInfo.contractURI = _contractURI;
     }
 
     function _configureMetdata(
@@ -359,7 +363,7 @@ contract Deploy is Script {
         fxRoleRegistry.grantRole(VERIFIED_USER_ROLE, creator);
     }
 
-    function _registerContracts(address) internal virtual {
+    function _registerContracts() internal virtual {
         names.push(FX_CONTRACT_REGISTRY);
         names.push(FX_GEN_ART_721);
         names.push(FX_ISSUER_FACTORY);
@@ -398,19 +402,19 @@ contract Deploy is Script {
         bytes memory _creationCode,
         bytes memory _constructorArgs,
         bytes32 _salt
-    ) internal returns (address deployedAddress) {
+    ) internal returns (address deployedAddr) {
         (bool success, bytes memory response) = CREATE2_FACTORY.call(
             bytes.concat(_salt, _creationCode, _constructorArgs)
         );
-        deployedAddress = address(bytes20(response));
+        deployedAddr = address(bytes20(response));
         require(success, "deployment failed");
     }
 
-    function _deployCreate2(bytes memory _creationCode, bytes32 _salt) internal returns (address deployedAddress) {
-        deployedAddress = _deployCreate2(_creationCode, "", _salt);
+    function _deployCreate2(bytes memory _creationCode, bytes32 _salt) internal returns (address deployedAddr) {
+        deployedAddr = _deployCreate2(_creationCode, "", _salt);
     }
 
-    function _computeCreate2Address(
+    function _computeCreate2Addr(
         bytes memory _creationCode,
         bytes memory _constructorArgs,
         bytes32 _salt

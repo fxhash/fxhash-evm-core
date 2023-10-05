@@ -4,10 +4,6 @@ pragma solidity 0.8.20;
 import "test/BaseTest.t.sol";
 
 contract FxIssuerFactoryTest is BaseTest {
-    // State
-    string internal defaultMetadata;
-    uint256 internal lockTime;
-
     // Errors
     bytes4 INVALID_OWNER_ERROR = IFxIssuerFactory.InvalidOwner.selector;
     bytes4 INVALID_PRIMARY_RECEIVER_ERROR = IFxIssuerFactory.InvalidPrimaryReceiver.selector;
