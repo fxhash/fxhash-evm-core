@@ -31,7 +31,6 @@ contract FixedPriceTest is BaseTest {
     function setUp() public override {
         super.setUp();
         _initializeState();
-        _mockSplits(SPLITS_DEPLOYER);
         _configureSplits();
         _configureRoyalties();
         _configureState(AMOUNT, PRICE, TOKEN_ID);
