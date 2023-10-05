@@ -4,8 +4,8 @@ pragma solidity 0.8.20;
 import "script/Deploy.s.sol";
 
 contract Seed is Deploy {
-    function run() public override {
-        super.run();
+    function _run() internal override {
+        super._run();
         creator = msg.sender;
         for (uint256 i; i < 20; i++) {
             _configure();

@@ -61,3 +61,10 @@ jobs:
         run: |
           echo "## Coverage result" >> $GITHUB_STEP_SUMMARY
           echo "✅ Uploaded to Codecov" >> $GITHUB_STEP_SUMMARY
+      - name: Deploy script
+        run: |
+          forge script script/Deploy.s.sol
+
+      - name: Seed script
+        run: |
+          forge script script/Seed.s.sol
