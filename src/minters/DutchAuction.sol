@@ -110,11 +110,11 @@ contract DutchAuction is IDutchAuction {
     /// @inheritdoc IDutchAuction
     function getPrice(address _token, uint256 _reserveId) public view returns (uint256) {
         ReserveInfo memory reserve = reserves[_token][_reserveId];
-        AuctionInfo storage auctionInfo = auctionInfo[_token][_reserveId];
+        AuctionInfo storage daInfo = auctionInfo[_token][_reserveId];
         if (block.timestamp < reserve.startTime) revert NotStarted();
         uint256 timeSinceStart = block.timestamp - reserve.startTime;
-        uint256 step = timeSinceStart / auctionInfo.stepLength;
-        if (step >= auctionInfo.prices.length) revert InvalidStep();
-        return auctionInfo.prices[step];
+        uint256 step = timeSinceStart / daInfo.stepLength;
+        if (step >= daInfo.prices.length) revert InvalidStep();
+        return daInfo.prices[step];
     }
 }

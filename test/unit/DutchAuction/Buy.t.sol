@@ -28,7 +28,6 @@ contract Buy is DutchAuctionTest {
     }
 
     function test_RevertsIf_Payment0() public {
-        uint256 price = dutchAuction.getPrice(fxGenArtProxy, reserveId);
         vm.expectRevert(INVALID_PAYMENT_ERROR);
         dutchAuction.buy{value: 0}(fxGenArtProxy, reserveId, quantity, alice);
         assertEq(FxGenArt721(fxGenArtProxy).balanceOf(alice), 0);
