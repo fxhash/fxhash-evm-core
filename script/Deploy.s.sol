@@ -347,14 +347,13 @@ contract Deploy is Script {
         constructorArgs = abi.encode(address(fxMintTicket721));
         fxTicketFactory = FxTicketFactory(_deployCreate2(creationCode, constructorArgs, salt));
 
-        // PseudoRandomizer
-        creationCode = type(PseudoRandomizer).creationCode;
-        pseudoRandomizer = PseudoRandomizer(_deployCreate2(creationCode, salt));
-
-        // ScriptyRenderer
-        creationCode = type(ScriptyRenderer).creationCode;
-        constructorArgs = abi.encode(ethFSFileStorage, scriptyStorageV2, scriptyBuilderV2);
-        scriptyRenderer = ScriptyRenderer(_deployCreate2(creationCode, constructorArgs, salt));
+        vm.label(address(fxContractRegistry), "FxContractRegistry");
+        vm.label(address(fxGenArt721), "FxGenArt721");
+        vm.label(address(fxIssuerFactory), "FxIssuerFactory");
+        vm.label(address(fxMintTicket721), "FxMintTicket721");
+        vm.label(address(fxRoleRegistry), "FxRoleRegistry");
+        vm.label(address(fxSplitsFactory), "FxSplitsFactory");
+        vm.label(address(fxTicketFactory), "FxTicketFactory");
 
         // DutchAuction
         creationCode = type(DutchAuction).creationCode;
@@ -364,17 +363,18 @@ contract Deploy is Script {
         creationCode = type(FixedPrice).creationCode;
         fixedPrice = FixedPrice(_deployCreate2(creationCode, salt));
 
+        // PseudoRandomizer
+        creationCode = type(PseudoRandomizer).creationCode;
+        pseudoRandomizer = PseudoRandomizer(_deployCreate2(creationCode, salt));
+
+        // ScriptyRenderer
+        creationCode = type(ScriptyRenderer).creationCode;
+        constructorArgs = abi.encode(ethFSFileStorage, scriptyStorageV2, scriptyBuilderV2);
+        scriptyRenderer = ScriptyRenderer(_deployCreate2(creationCode, constructorArgs, salt));
+
         // TicketRedeemer
         creationCode = type(TicketRedeemer).creationCode;
         ticketRedeemer = TicketRedeemer(_deployCreate2(creationCode, salt));
-
-        vm.label(address(fxContractRegistry), "FxContractRegistry");
-        vm.label(address(fxGenArt721), "FxGenArt721");
-        vm.label(address(fxIssuerFactory), "FxIssuerFactory");
-        vm.label(address(fxMintTicket721), "FxMintTicket721");
-        vm.label(address(fxRoleRegistry), "FxRoleRegistry");
-        vm.label(address(fxSplitsFactory), "FxSplitsFactory");
-        vm.label(address(fxTicketFactory), "FxTicketFactory");
 
         vm.label(address(dutchAuction), "DutchAuction");
         vm.label(address(fixedPrice), "FixedPrice");
