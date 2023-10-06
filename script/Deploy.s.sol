@@ -334,6 +334,10 @@ contract Deploy is Script {
         constructorArgs = abi.encode(address(fxMintTicket721));
         fxTicketFactory = FxTicketFactory(_deployCreate2(creationCode, constructorArgs, salt));
 
+        // FxTokenRedeemer
+        creationCode = type(FxTokenRedeemer).creationCode;
+        fxTokenRedeemer = FxTokenRedeemer(_deployCreate2(creationCode, salt));
+
         // FxPseudoRandomizer
         creationCode = type(FxPseudoRandomizer).creationCode;
         fxPseudoRandomizer = FxPseudoRandomizer(_deployCreate2(creationCode, salt));
@@ -346,10 +350,6 @@ contract Deploy is Script {
         // FixedPrice
         creationCode = type(FixedPrice).creationCode;
         fixedPrice = FixedPrice(_deployCreate2(creationCode, salt));
-
-        // FxTokenRedeemer
-        creationCode = type(FxTokenRedeemer).creationCode;
-        fxTokenRedeemer = FxTokenRedeemer(_deployCreate2(creationCode, salt));
 
         vm.label(address(fxContractRegistry), "FxContractRegistry");
         vm.label(address(fxGenArt721), "FxGenArt721");
