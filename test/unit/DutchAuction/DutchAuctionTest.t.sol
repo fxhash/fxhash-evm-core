@@ -19,7 +19,6 @@ contract DutchAuctionTest is BaseTest {
     bytes4 internal NOT_STARTED_ERROR = IDutchAuction.NotStarted.selector;
     bytes4 internal NOT_ENDED_ERROR = IDutchAuction.NotEnded.selector;
     bytes4 internal PRICES_OUT_OF_ORDER_ERROR = IDutchAuction.PricesOutOfOrder.selector;
-    DutchAuction internal dutchAuction;
     DutchAuction internal refundableDA;
     uint256[] internal prices;
     uint248 internal stepLength;
