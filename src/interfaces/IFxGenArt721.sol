@@ -142,7 +142,7 @@ interface IFxGenArt721 is ISeedConsumer {
     /// @notice Error thrown when caller does not have the specified role
     error UnauthorizedAccount();
 
-    /// @notice Error thrown when caller is not an authorized contract
+    /// @notice Error thrown when caller is not a registered contract
     error UnauthorizedContract();
 
     /// @notice Error thrown when caller does not have minter role
@@ -185,6 +185,12 @@ interface IFxGenArt721 is ISeedConsumer {
      * @param _amount Amount of tokens being minted
      */
     function mint(address _to, uint256 _amount) external;
+
+    /**
+     * @notice Allows any redeemer contract to claim a new token to a given account
+     * @param _to Address being minted to
+     */
+    function claim(address _to) external;
 
     /**
      * @notice Allows owner to mint tokens to given account

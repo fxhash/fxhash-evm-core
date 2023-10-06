@@ -12,7 +12,7 @@ contract Burn is FxMintTicket721Test {
     }
 
     function testBurn() public {
-        _burn(minter, tokenId);
+        _burn(bob, fxMintTicketProxy, tokenId);
         _setTaxInfo();
         assertEq(gracePeriod, 0);
         assertEq(foreclosureTime, 0);

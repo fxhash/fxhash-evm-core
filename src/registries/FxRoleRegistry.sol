@@ -13,6 +13,7 @@ contract FxRoleRegistry is AccessControl, IFxRoleRegistry {
         _setRoleAdmin(ADMIN_ROLE, ADMIN_ROLE);
         _setRoleAdmin(CREATOR_ROLE, ADMIN_ROLE);
         _setRoleAdmin(MINTER_ROLE, ADMIN_ROLE);
+        _setRoleAdmin(REDEEMER_ROLE, ADMIN_ROLE);
         _setRoleAdmin(TOKEN_MODERATOR_ROLE, ADMIN_ROLE);
         _setRoleAdmin(USER_MODERATOR_ROLE, ADMIN_ROLE);
         _setRoleAdmin(VERIFIED_USER_ROLE, ADMIN_ROLE);

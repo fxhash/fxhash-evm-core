@@ -121,6 +121,12 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     }
 
     /// @inheritdoc IFxGenArt721
+    function claim(address _to) external onlyRole(REDEEMER_ROLE) whenNotPaused {
+        _mint(_to, ++totalSupply);
+        IFxRandomizer(randomizer).requestRandomness(totalSupply);
+    }
+
+    /// @inheritdoc IFxGenArt721
     function burn(uint256 _tokenId) external whenNotPaused {
         if (!_isApprovedOrOwner(msg.sender, _tokenId)) revert NotAuthorized();
         _burn(_tokenId);
@@ -272,6 +278,13 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
         if (totalAllocation > issuerInfo.projectInfo.supply) {
             revert AllocationExceeded();
         }
+    }
+
+    /**
+     * @dev Checks if caller is an authorized Redeemer contract
+     */
+    function _isRedeemer(address _contract) internal view returns (bool) {
+        return (IAccessControl(roleRegistry).hasRole(REDEEMER_ROLE, _contract));
     }
 
     /**
