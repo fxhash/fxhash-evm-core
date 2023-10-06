@@ -49,10 +49,7 @@ contract DutchAuction is IDutchAuction {
     /// @inheritdoc IDutchAuction
     function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable {
         // Input validation
-        uint256 length = reserves[_token].length;
-        if (length == 0) revert InvalidToken();
-        if (_reserveId >= length) revert InvalidReserve();
-        if (_to == address(0)) revert AddressZero();
+        _validateInput(_token, _reserveId, _to);
         if (_amount == 0) revert InvalidAmount();
 
         ReserveInfo storage reserve = reserves[_token][_reserveId];
@@ -91,10 +88,7 @@ contract DutchAuction is IDutchAuction {
     /// @inheritdoc IDutchAuction
     function refund(address _token, uint256 _reserveId, address _who) external {
         // Input validation
-        uint256 length = reserves[_token].length;
-        if (length == 0 || _token == address(0)) revert InvalidToken();
-        if (_reserveId >= length) revert InvalidReserve();
-        if (_who == address(0)) revert AddressZero();
+        _validateInput(_token, _reserveId, _who);
 
         ReserveInfo storage reserve = reserves[_token][_reserveId];
         uint256 lastPrice = refundInfo[_token][_reserveId].lastPrice;
@@ -162,5 +156,12 @@ contract DutchAuction is IDutchAuction {
         // Check if the step is within the range of prices
         if (step >= _daInfo.prices.length) revert InvalidStep();
         return _daInfo.prices[step];
+    }
+
+    function _validateInput(address _token, uint256 _reserveId, address _who) internal view {
+        uint256 length = reserves[_token].length;
+        if (length == 0) revert InvalidToken();
+        if (_reserveId >= length) revert InvalidReserve();
+        if (_who == address(0)) revert AddressZero();
     }
 }
