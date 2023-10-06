@@ -298,44 +298,56 @@ contract Deploy is Script {
 
     function _deployContracts() internal virtual {
         bytes32 salt = keccak256(abi.encode(vm.getNonce(msg.sender)));
+
+        // FxContractRegistry
         bytes memory creationCode = type(FxContractRegistry).creationCode;
         bytes memory constructorArgs = abi.encode(admin);
         fxContractRegistry = FxContractRegistry(_deployCreate2(creationCode, constructorArgs, salt));
 
+        // FxRoleRegistry
         creationCode = type(FxRoleRegistry).creationCode;
         constructorArgs = abi.encode(admin);
         fxRoleRegistry = FxRoleRegistry(_deployCreate2(creationCode, constructorArgs, salt));
 
+        // FxSplitsFactory
         splitsMain = (block.chainid == SEPOLIA) ? SEPOLIA_SPLITS_MAIN : SPLITS_MAIN;
         creationCode = type(FxSplitsFactory).creationCode;
         constructorArgs = abi.encode(admin, splitsMain);
         fxSplitsFactory = FxSplitsFactory(_deployCreate2(creationCode, constructorArgs, salt));
 
+        // FxGenArt721
         creationCode = type(FxGenArt721).creationCode;
         constructorArgs = abi.encode(address(fxContractRegistry), address(fxRoleRegistry));
         fxGenArt721 = FxGenArt721(_deployCreate2(creationCode, constructorArgs, salt));
 
+        // FxIssuerFactory
         creationCode = type(FxIssuerFactory).creationCode;
         constructorArgs = abi.encode(address(fxRoleRegistry), address(fxGenArt721), configInfo);
         fxIssuerFactory = FxIssuerFactory(_deployCreate2(creationCode, constructorArgs, salt));
 
+        // FxMintTicket721
         creationCode = type(FxMintTicket721).creationCode;
         fxMintTicket721 = FxMintTicket721(_deployCreate2(creationCode, salt));
 
+        // FxTicketFactory
         creationCode = type(FxTicketFactory).creationCode;
         constructorArgs = abi.encode(address(fxMintTicket721));
         fxTicketFactory = FxTicketFactory(_deployCreate2(creationCode, constructorArgs, salt));
 
+        // FxPseudoRandomizer
         creationCode = type(FxPseudoRandomizer).creationCode;
         fxPseudoRandomizer = FxPseudoRandomizer(_deployCreate2(creationCode, salt));
 
+        // FxScriptyRenderer
         creationCode = type(FxScriptyRenderer).creationCode;
         constructorArgs = abi.encode(ethFSFileStorage, scriptyStorageV2, scriptyBuilderV2);
         fxScriptyRenderer = FxScriptyRenderer(_deployCreate2(creationCode, constructorArgs, salt));
 
+        // FixedPrice
         creationCode = type(FixedPrice).creationCode;
         fixedPrice = FixedPrice(_deployCreate2(creationCode, salt));
 
+        // Redeemer
         creationCode = type(Redeemer).creationCode;
         redeemer = Redeemer(_deployCreate2(creationCode, salt));
 
