@@ -60,7 +60,7 @@ contract FxMintTicket721Test is BaseTest {
     }
 
     function _burn(address _owner, address _ticket, uint256 _tokenId) internal prank(_owner) {
-        IRedeemer(redeemer).redeem(_ticket, _tokenId);
+        IRedeemer(redeemer).burn(_ticket, _tokenId);
     }
 
     function _deposit(address _depositer, uint256 _tokenId, uint256 _amount) internal prank(_depositer) {

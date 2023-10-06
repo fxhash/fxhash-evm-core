@@ -187,10 +187,10 @@ interface IFxGenArt721 is ISeedConsumer {
     function mint(address _to, uint256 _amount) external;
 
     /**
-     * @notice Allows any redeemer contract to claim a new token to a given account
-     * @param _to Address being minted to
+     * @notice Allows any redeemer contract to mint a new token to a given account
+     * @param _to Address redeeming token
      */
-    function claim(address _to) external;
+    function redeem(address _to) external;
 
     /**
      * @notice Allows owner to mint tokens to given account

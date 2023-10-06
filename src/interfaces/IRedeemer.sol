@@ -7,5 +7,5 @@ interface IRedeemer {
 
     event Redeemed(address indexed ticket, uint256 indexed tokenId, address indexed owner, address token);
 
-    function redeem(address _ticket, uint256 _tokenId) external;
+    function burn(address _ticket, uint256 _tokenId) external;
 }

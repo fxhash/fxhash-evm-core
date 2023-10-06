@@ -117,7 +117,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     }
 
     /// @inheritdoc IFxGenArt721
-    function claim(address _to) external onlyRole(REDEEMER_ROLE) whenNotPaused {
+    function redeem(address _to) external onlyRole(REDEEMER_ROLE) whenNotPaused {
         _mint(_to, ++totalSupply);
         IFxRandomizer(randomizer).requestRandomness(totalSupply);
     }
