@@ -5,10 +5,10 @@ import {IFxMinter} from "src/interfaces/IFxMinter.sol";
 import {ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 
 /**
- * @notice Struct to store the Dutch auction information.
- * @param prices The array of prices for each step of the auction.
- * @param stepLength The duration (in seconds) of each auction step.
- * @param refunded Flag indicating if refunds are enabled.
+ * @notice Struct to store the Dutch auction information
+ * @param prices The array of prices for each step of the auction
+ * @param refunded Flag indicating if refunds are enabled
+ * @param stepLength The duration (in seconds) of each auction step
  */
 struct AuctionInfo {
     uint248 stepLength;
@@ -16,11 +16,21 @@ struct AuctionInfo {
     uint256[] prices;
 }
 
+/**
+ * @notice Struct to store information about a minter
+ * @param totalMints The total number of mints performed by the minter
+ * @param totalPaid The total amount paid by the minter
+ */
 struct MinterInfo {
     uint128 totalMints;
     uint128 totalPaid;
 }
 
+/**
+ * @notice Struct to store information about refunds
+ * @param minterInfo Mapping of minter address to MinterInfo struct
+ * @param lastPrice The price for the last sale before selling out
+ */
 struct RefundInfo {
     mapping(address minter => MinterInfo) minterInfo;
     uint256 lastPrice;
