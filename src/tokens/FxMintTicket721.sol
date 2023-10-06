@@ -45,14 +45,6 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
         _;
     }
 
-    /**
-     * @dev Modifier for restricting calls to only authorized accounts with given roles
-     */
-    modifier onlyRedeemer() {
-        if (!_isRedeemer(msg.sender)) revert UnauthorizedRedeemer();
-        _;
-    }
-
     modifier onlyRole(bytes32 _role) {
         address roleRegistry = IFxGenArt721(genArt721).roleRegistry();
         if (!IAccessControl(roleRegistry).hasRole(_role, msg.sender)) revert UnauthorizedAccount();
@@ -110,7 +102,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
     }
 
     /// @inheritdoc IFxMintTicket721
-    function burn(uint256 _tokenId) external onlyRedeemer whenNotPaused {
+    function burn(uint256 _tokenId) external onlyMinter whenNotPaused {
         // Burns token
         _burn(_tokenId);
 
@@ -364,7 +356,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
      * 1) This contract executes transfer when token is in foreclosure and claimed at auction price
      * 2) This contract executes transfer when token is not in foreclosure and claimed at listing price
      * 3) Token owner executes transfer when token is not in foreclosure
-     * 4) Authorized redeemer contract executes burn when token is not in foreclosure
+     * 4) Registered minter contract executes burn when token is not in foreclosure
      */
     function _beforeTokenTransfer(address _from, address, uint256 _tokenId, uint256) internal view override {
         // Checks if token is not being minted
@@ -374,20 +366,12 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
             // Checks if token is not foreclosed
             if (!isForeclosed(_tokenId)) {
                 // Returns if caller is this contract, current token owner or a registered minter
-                if (msg.sender == address(this) || msg.sender == _from || _isRedeemer(msg.sender)) {
+                if (msg.sender == address(this) || msg.sender == _from || isMinter(msg.sender)) {
                     return;
                 }
                 // Reverts otherwise
                 revert NotAuthorized();
             }
         }
-    }
-
-    /**
-     * @dev Checks if caller is an authorized Redeemer contract
-     */
-    function _isRedeemer(address _contract) internal view returns (bool) {
-        address roleRegistry = IFxGenArt721(genArt721).roleRegistry();
-        return IAccessControl(roleRegistry).hasRole(REDEEMER_ROLE, _contract);
     }
 }

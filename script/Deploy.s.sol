@@ -17,7 +17,7 @@ import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 import {FxScriptyRenderer} from "src/renderers/FxScriptyRenderer.sol";
 import {FxSplitsFactory} from "src/factories/FxSplitsFactory.sol";
 import {FxTicketFactory} from "src/factories/FxTicketFactory.sol";
-import {FxTokenRedeemer} from "src/redeemers/FxTokenRedeemer.sol";
+import {TicketRedeemer} from "src/minters/TicketRedeemer.sol";
 
 import {HTMLRequest, HTMLTagType, HTMLTag} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
 import {IFxGenArt721, GenArtInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
@@ -37,7 +37,7 @@ contract Deploy is Script {
     FxScriptyRenderer internal fxScriptyRenderer;
     FxSplitsFactory internal fxSplitsFactory;
     FxTicketFactory internal fxTicketFactory;
-    FxTokenRedeemer internal fxTokenRedeemer;
+    TicketRedeemer internal ticketRedeemer;
 
     // Accounts
     address internal admin;
@@ -139,6 +139,13 @@ contract Deploy is Script {
             uint64(block.timestamp) + RESERVE_END_TIME,
             MINTER_ALLOCATION,
             PRICE
+        );
+        _configureMinter(
+            address(ticketRedeemer),
+            uint64(block.timestamp) + RESERVE_START_TIME,
+            uint64(block.timestamp) + RESERVE_END_TIME,
+            0,
+            0
         );
         _registerContracts();
         _grantRoles();
@@ -336,10 +343,6 @@ contract Deploy is Script {
         constructorArgs = abi.encode(address(fxMintTicket721));
         fxTicketFactory = FxTicketFactory(_deployCreate2(creationCode, constructorArgs, salt));
 
-        // FxTokenRedeemer
-        creationCode = type(FxTokenRedeemer).creationCode;
-        fxTokenRedeemer = FxTokenRedeemer(_deployCreate2(creationCode, salt));
-
         // FxPseudoRandomizer
         creationCode = type(FxPseudoRandomizer).creationCode;
         fxPseudoRandomizer = FxPseudoRandomizer(_deployCreate2(creationCode, salt));
@@ -349,13 +352,17 @@ contract Deploy is Script {
         constructorArgs = abi.encode(ethFSFileStorage, scriptyStorageV2, scriptyBuilderV2);
         fxScriptyRenderer = FxScriptyRenderer(_deployCreate2(creationCode, constructorArgs, salt));
 
+        // DutchAuction
+        creationCode = type(DutchAuction).creationCode;
+        dutchAuction = DutchAuction(_deployCreate2(creationCode, salt));
+
         // FixedPrice
         creationCode = type(FixedPrice).creationCode;
         fixedPrice = FixedPrice(_deployCreate2(creationCode, salt));
 
-        // DutchAuction
-        creationCode = type(DutchAuction).creationCode;
-        dutchAuction = DutchAuction(_deployCreate2(creationCode, salt));
+        // TicketRedeemer
+        creationCode = type(TicketRedeemer).creationCode;
+        ticketRedeemer = TicketRedeemer(_deployCreate2(creationCode, salt));
 
         vm.label(address(dutchAuction), "DutchAuction");
         vm.label(address(fixedPrice), "FixedPrice");
@@ -368,7 +375,7 @@ contract Deploy is Script {
         vm.label(address(fxScriptyRenderer), "FxScriptyRenderer");
         vm.label(address(fxSplitsFactory), "FxSplitsFactory");
         vm.label(address(fxTicketFactory), "FxTicketFactory");
-        vm.label(address(fxTokenRedeemer), "FxTokenRedeemer");
+        vm.label(address(ticketRedeemer), "TicketRedeemer");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -402,7 +409,7 @@ contract Deploy is Script {
     function _grantRoles() internal virtual {
         fxRoleRegistry.grantRole(MINTER_ROLE, address(dutchAuction));
         fxRoleRegistry.grantRole(MINTER_ROLE, address(fixedPrice));
-        fxRoleRegistry.grantRole(REDEEMER_ROLE, address(fxTokenRedeemer));
+        fxRoleRegistry.grantRole(MINTER_ROLE, address(ticketRedeemer));
         fxRoleRegistry.grantRole(VERIFIED_USER_ROLE, creator);
     }
 
@@ -416,9 +423,9 @@ contract Deploy is Script {
         names.push(FX_SCRIPTY_RENDERER);
         names.push(FX_SPLITS_FACTORY);
         names.push(FX_TICKET_FACTORY);
-        names.push(FX_TOKEN_REDEEMER);
         names.push(DUTCH_AUCTION);
         names.push(FIXED_PRICE);
+        names.push(TICKET_REDEEMER);
 
         contracts.push(address(fxContractRegistry));
         contracts.push(address(fxGenArt721));
@@ -429,9 +436,9 @@ contract Deploy is Script {
         contracts.push(address(fxScriptyRenderer));
         contracts.push(address(fxSplitsFactory));
         contracts.push(address(fxTicketFactory));
-        contracts.push(address(fxTokenRedeemer));
         contracts.push(address(dutchAuction));
         contracts.push(address(fixedPrice));
+        contracts.push(address(ticketRedeemer));
 
         fxContractRegistry.register(names, contracts);
     }

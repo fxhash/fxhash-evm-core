@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+import {IDutchAuction, IMinter, AuctionInfo, RefundInfo, MinterInfo} from "src/interfaces/IDutchAuction.sol";
+import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
-
-import {IDutchAuction, IFxMinter, AuctionInfo, RefundInfo, MinterInfo} from "src/interfaces/IDutchAuction.sol";
-import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 
 /**
  * @title DutchAuction
@@ -24,7 +23,7 @@ contract DutchAuction is IDutchAuction {
     /// @inheritdoc IDutchAuction
     mapping(address => mapping(uint256 => RefundInfo)) public refundInfo;
 
-    /// @inheritdoc IFxMinter
+    /// @inheritdoc IMinter
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintData) external {
         AuctionInfo memory daInfo = abi.decode(_mintData, (AuctionInfo));
 

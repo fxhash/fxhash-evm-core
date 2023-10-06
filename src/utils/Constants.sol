@@ -13,7 +13,7 @@ string constant FX_ROLE_REGISTRY = "FX_ROLE_REGISTRY";
 string constant FX_SCRIPTY_RENDERER = "FX_SCRIPTY_RENDERER";
 string constant FX_SPLITS_FACTORY = "FX_SPLITS_FACTORY";
 string constant FX_TICKET_FACTORY = "FX_TICKET_FACTORY";
-string constant FX_TOKEN_REDEEMER = "FX_TOKEN_REDEEMER";
+string constant TICKET_REDEEMER = "TICKET_REDEEMER";
 
 // EIP-712
 bytes32 constant CLAIM_TYPEHASH = keccak256("Claim(uint256 index, address user, bytes mintCode)");
@@ -31,7 +31,6 @@ bytes32 constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 bytes32 constant BANNED_USER_ROLE = keccak256("BANNED_USER_ROLE");
 bytes32 constant CREATOR_ROLE = keccak256("CREATOR_ROLE");
 bytes32 constant MINTER_ROLE = keccak256("MINTER_ROLE");
-bytes32 constant REDEEMER_ROLE = keccak256("REDEEMER_ROLE");
 bytes32 constant TOKEN_MODERATOR_ROLE = keccak256("TOKEN_MODERATOR_ROLE");
 bytes32 constant USER_MODERATOR_ROLE = keccak256("USER_MODERATOR_ROLE");
 bytes32 constant VERIFIED_USER_ROLE = keccak256("VERIFIED_USER_ROLE");

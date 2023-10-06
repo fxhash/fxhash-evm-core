@@ -4,10 +4,10 @@ pragma solidity 0.8.20;
 import {ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 
 /**
- * @title IFxMinter
+ * @title IMinter
  * @notice Interface for FxGenArt721 Tokens to interact with Minters
  */
-interface IFxMinter {
+interface IMinter {
     /**
      * @dev Sets the mint details for a token's reserves
      * @param _reserve The reserve information for the token
