@@ -9,7 +9,7 @@ import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 
 /**
  * @title DutchAuction
- * @dev A contract for Dutch auction minting.
+ * @notice Minter contract for distributing tokens through a Dutch Auction pricing mechanism
  */
 contract DutchAuction is IDutchAuction {
     /// @inheritdoc IDutchAuction
