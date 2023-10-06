@@ -30,6 +30,7 @@ contract FxMintTicket721Test is BaseTest {
 
     function setUp() public virtual override {
         super.setUp();
+        _initializeState();
         _mockMinter(admin);
         _configureSplits();
         _configureRoyalties();
@@ -40,7 +41,6 @@ contract FxMintTicket721Test is BaseTest {
         _createSplit();
         _createProject();
         _createTicket();
-        _initializeState();
     }
 
     /*//////////////////////////////////////////////////////////////////////////

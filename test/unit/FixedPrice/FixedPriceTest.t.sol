@@ -9,7 +9,6 @@ contract FixedPriceTest is BaseTest {
     uint64 internal endTime;
     uint160 internal supply;
     uint256 internal mintId;
-    uint256 internal quantity;
 
     // Errors
     bytes4 internal ADDRESS_ZERO_ERROR = IFixedPrice.AddressZero.selector;
@@ -50,6 +49,5 @@ contract FixedPriceTest is BaseTest {
         super._initializeState();
         mintId = 0;
         quantity = 1;
-        vm.deal(address(this), INITIAL_BALANCE);
     }
 }

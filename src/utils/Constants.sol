@@ -2,6 +2,7 @@
 pragma solidity 0.8.20;
 
 // Contracts
+string constant DUTCH_AUCTION = "DUTCH_AUCTION";
 string constant FIXED_PRICE = "FIXED_PRICE";
 string constant FX_CONTRACT_REGISTRY = "FX_CONTRACT_REGISTRY";
 string constant FX_GEN_ART_721 = "FX_GEN_ART_721";

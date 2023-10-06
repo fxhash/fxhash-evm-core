@@ -400,6 +400,7 @@ contract Deploy is Script {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _grantRoles() internal virtual {
+        fxRoleRegistry.grantRole(MINTER_ROLE, address(dutchAuction));
         fxRoleRegistry.grantRole(MINTER_ROLE, address(fixedPrice));
         fxRoleRegistry.grantRole(REDEEMER_ROLE, address(fxTokenRedeemer));
         fxRoleRegistry.grantRole(VERIFIED_USER_ROLE, creator);
@@ -416,6 +417,7 @@ contract Deploy is Script {
         names.push(FX_SPLITS_FACTORY);
         names.push(FX_TICKET_FACTORY);
         names.push(FX_TOKEN_REDEEMER);
+        names.push(DUTCH_AUCTION);
         names.push(FIXED_PRICE);
 
         contracts.push(address(fxContractRegistry));
@@ -428,6 +430,7 @@ contract Deploy is Script {
         contracts.push(address(fxSplitsFactory));
         contracts.push(address(fxTicketFactory));
         contracts.push(address(fxTokenRedeemer));
+        contracts.push(address(dutchAuction));
         contracts.push(address(fixedPrice));
 
         fxContractRegistry.register(names, contracts);

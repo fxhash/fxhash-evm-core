@@ -4,12 +4,6 @@ pragma solidity 0.8.20;
 import "test/unit/DutchAuction/DutchAuctionTest.t.sol";
 
 contract Refund is DutchAuctionTest {
-    uint256 internal quantity = 1;
-
-    function setUp() public virtual override {
-        super.setUp();
-    }
-
     function test_Refund() public {
         uint256 price = refundableDA.getPrice(fxGenArtProxy, reserveId);
         refundableDA.buy{value: price * quantity}(fxGenArtProxy, reserveId, quantity, alice);
