@@ -3,9 +3,9 @@ pragma solidity 0.8.20;
 
 import {FxMintTicket721} from "src/tokens/FxMintTicket721.sol";
 import {IFxGenArt721} from "src/interfaces/IFxGenArt721.sol";
-import {IRedeemer} from "src/interfaces/IRedeemer.sol";
+import {IFxTokenRedeemer} from "src/interfaces/IFxTokenRedeemer.sol";
 
-contract Redeemer is IRedeemer {
+contract FxTokenRedeemer is IFxTokenRedeemer {
     function burn(address _ticket, uint256 _tokenId) external {
         // Reverts if caller is not owner of ticket
         address owner = FxMintTicket721(_ticket).ownerOf(_tokenId);

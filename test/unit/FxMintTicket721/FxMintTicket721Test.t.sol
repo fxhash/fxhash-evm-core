@@ -36,7 +36,7 @@ contract FxMintTicket721Test is BaseTest {
         _configureProject(ENABLED, ONCHAIN, MAX_SUPPLY, CONTRACT_URI);
         _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, PRICE);
         _grantRole(admin, MINTER_ROLE, minter);
-        _grantRole(admin, REDEEMER_ROLE, address(redeemer));
+        _grantRole(admin, REDEEMER_ROLE, address(fxTokenRedeemer));
         _createSplit();
         _createProject();
         _createTicket();
@@ -60,7 +60,7 @@ contract FxMintTicket721Test is BaseTest {
     }
 
     function _burn(address _owner, address _ticket, uint256 _tokenId) internal prank(_owner) {
-        IRedeemer(redeemer).burn(_ticket, _tokenId);
+        IFxTokenRedeemer(fxTokenRedeemer).burn(_ticket, _tokenId);
     }
 
     function _deposit(address _depositer, uint256 _tokenId, uint256 _amount) internal prank(_depositer) {

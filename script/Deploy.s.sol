@@ -16,7 +16,7 @@ import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 import {FxScriptyRenderer} from "src/renderers/FxScriptyRenderer.sol";
 import {FxSplitsFactory} from "src/factories/FxSplitsFactory.sol";
 import {FxTicketFactory} from "src/factories/FxTicketFactory.sol";
-import {Redeemer} from "src/minters/extensions/Redeemer.sol";
+import {FxTokenRedeemer} from "src/redeemers/FxTokenRedeemer.sol";
 
 import {HTMLRequest, HTMLTagType, HTMLTag} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
 import {IFxGenArt721, GenArtInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
@@ -34,8 +34,8 @@ contract Deploy is Script {
     FxScriptyRenderer internal fxScriptyRenderer;
     FxSplitsFactory internal fxSplitsFactory;
     FxTicketFactory internal fxTicketFactory;
+    FxTokenRedeemer internal fxTokenRedeemer;
     FixedPrice internal fixedPrice;
-    Redeemer internal redeemer;
 
     // Accounts
     address internal admin;
@@ -347,9 +347,9 @@ contract Deploy is Script {
         creationCode = type(FixedPrice).creationCode;
         fixedPrice = FixedPrice(_deployCreate2(creationCode, salt));
 
-        // Redeemer
-        creationCode = type(Redeemer).creationCode;
-        redeemer = Redeemer(_deployCreate2(creationCode, salt));
+        // FxTokenRedeemer
+        creationCode = type(FxTokenRedeemer).creationCode;
+        fxTokenRedeemer = FxTokenRedeemer(_deployCreate2(creationCode, salt));
 
         vm.label(address(fxContractRegistry), "FxContractRegistry");
         vm.label(address(fxGenArt721), "FxGenArt721");
@@ -360,8 +360,8 @@ contract Deploy is Script {
         vm.label(address(fxScriptyRenderer), "FxScriptyRenderer");
         vm.label(address(fxSplitsFactory), "FxSplitsFactory");
         vm.label(address(fxTicketFactory), "FxTicketFactory");
+        vm.label(address(fxTokenRedeemer), "FxTokenRedeemer");
         vm.label(address(fixedPrice), "FixedPrice");
-        vm.label(address(redeemer), "Redeemer");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -394,7 +394,7 @@ contract Deploy is Script {
 
     function _grantRoles() internal virtual {
         fxRoleRegistry.grantRole(MINTER_ROLE, address(fixedPrice));
-        fxRoleRegistry.grantRole(REDEEMER_ROLE, address(redeemer));
+        fxRoleRegistry.grantRole(REDEEMER_ROLE, address(fxTokenRedeemer));
         fxRoleRegistry.grantRole(VERIFIED_USER_ROLE, creator);
     }
 

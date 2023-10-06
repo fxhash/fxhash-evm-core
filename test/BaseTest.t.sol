@@ -20,7 +20,7 @@ import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {IFxSplitsFactory} from "src/interfaces/IFxSplitsFactory.sol";
 import {IFxTicketFactory} from "src/interfaces/IFxTicketFactory.sol";
-import {IRedeemer} from "src/interfaces/IRedeemer.sol";
+import {IFxTokenRedeemer} from "src/interfaces/IFxTokenRedeemer.sol";
 import {IRoyaltyManager} from "src/interfaces/IRoyaltyManager.sol";
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
