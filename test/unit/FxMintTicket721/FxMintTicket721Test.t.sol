@@ -41,7 +41,7 @@ contract FxMintTicket721Test is BaseTest {
             RESERVE_START_TIME,
             RESERVE_END_TIME,
             REDEEMER_ALLOCATION,
-            abi.encode(_computeTicketAddress(address(this)))
+            abi.encode(_computeTicketAddr(address(this)))
         );
         _grantRole(admin, MINTER_ROLE, minter);
         _grantRole(admin, MINTER_ROLE, address(ticketRedeemer));

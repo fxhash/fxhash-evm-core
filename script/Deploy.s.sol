@@ -149,7 +149,7 @@ contract Deploy is Script {
             uint64(block.timestamp) + RESERVE_START_TIME,
             uint64(block.timestamp) + RESERVE_END_TIME,
             REDEEMER_ALLOCATION,
-            abi.encode(_computeTicketAddress(msg.sender))
+            abi.encode(_computeTicketAddr(msg.sender))
         );
         _registerContracts();
         _grantRoles();
@@ -483,21 +483,21 @@ contract Deploy is Script {
         }
     }
 
-    function _computeCreate2Addr(
-        bytes memory _creationCode,
-        bytes memory _constructorArgs,
-        bytes32 _salt
-    ) internal pure {
-        computeCreate2Address(_salt, hashInitCode(_creationCode, _constructorArgs));
-    }
-
-    function _computeTicketAddress(address _deployer) internal view returns (address) {
+    function _computeTicketAddr(address _deployer) internal view returns (address) {
         return
             Clones.predictDeterministicAddress(
                 address(fxMintTicket721),
                 bytes32(fxTicketFactory.nonces(_deployer)),
                 address(fxTicketFactory)
             );
+    }
+
+    function _computeCreate2Addr(
+        bytes memory _creationCode,
+        bytes memory _constructorArgs,
+        bytes32 _salt
+    ) internal pure {
+        computeCreate2Address(_salt, hashInitCode(_creationCode, _constructorArgs));
     }
 
     function _initCode(bytes memory _creationCode, bytes memory _constructorArgs) internal pure returns (bytes memory) {
