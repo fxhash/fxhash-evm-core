@@ -55,9 +55,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
 
     modifier onlyRole(bytes32 _role) {
         address roleRegistry = IFxGenArt721(genArt721).roleRegistry();
-        if (!IAccessControl(roleRegistry).hasRole(_role, msg.sender)) {
-            revert UnauthorizedAccount();
-        }
+        if (!IAccessControl(roleRegistry).hasRole(_role, msg.sender)) revert UnauthorizedAccount();
         _;
     }
 

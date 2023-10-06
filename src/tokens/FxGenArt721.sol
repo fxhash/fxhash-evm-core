@@ -46,9 +46,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
      * @dev Modifier for restricting calls to only registered contracts
      */
     modifier onlyContract(bytes32 _name) {
-        if (msg.sender != IFxContractRegistry(contractRegistry).contracts(_name)) {
-            revert UnauthorizedContract();
-        }
+        if (msg.sender != IFxContractRegistry(contractRegistry).contracts(_name)) revert UnauthorizedContract();
         _;
     }
 
@@ -64,9 +62,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
      * @dev Modifier for restricting calls to only authorized accounts with given roles
      */
     modifier onlyRole(bytes32 _role) {
-        if (!IAccessControl(roleRegistry).hasRole(_role, msg.sender)) {
-            revert UnauthorizedAccount();
-        }
+        if (!IAccessControl(roleRegistry).hasRole(_role, msg.sender)) revert UnauthorizedAccount();
         _;
     }
 
@@ -278,13 +274,6 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
         if (totalAllocation > issuerInfo.projectInfo.supply) {
             revert AllocationExceeded();
         }
-    }
-
-    /**
-     * @dev Checks if caller is an authorized Redeemer contract
-     */
-    function _isRedeemer(address _contract) internal view returns (bool) {
-        return (IAccessControl(roleRegistry).hasRole(REDEEMER_ROLE, _contract));
     }
 
     /**
