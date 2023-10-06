@@ -34,7 +34,13 @@ contract FixedPriceTest is BaseTest {
         _configureRoyalties();
         _configureState(AMOUNT, PRICE, TOKEN_ID);
         _configureProject(ENABLED, ONCHAIN, MAX_SUPPLY, CONTRACT_URI);
-        _configureMinter(address(fixedPrice), RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, PRICE);
+        _configureMinter(
+            address(fixedPrice),
+            RESERVE_START_TIME,
+            RESERVE_END_TIME,
+            MINTER_ALLOCATION,
+            abi.encode(PRICE)
+        );
         _grantRole(admin, MINTER_ROLE, address(fixedPrice));
         _createSplit();
         _createProject();

@@ -35,7 +35,7 @@ contract FxMintTicket721Test is BaseTest {
         _configureSplits();
         _configureRoyalties();
         _configureProject(ENABLED, ONCHAIN, MAX_SUPPLY, CONTRACT_URI);
-        _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, PRICE);
+        _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, abi.encode(PRICE));
         _grantRole(admin, MINTER_ROLE, minter);
         _grantRole(admin, MINTER_ROLE, address(ticketRedeemer));
         _createSplit();

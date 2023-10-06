@@ -138,14 +138,14 @@ contract Deploy is Script {
             uint64(block.timestamp) + RESERVE_START_TIME,
             uint64(block.timestamp) + RESERVE_END_TIME,
             MINTER_ALLOCATION,
-            PRICE
+            abi.encode(PRICE)
         );
         _configureMinter(
             address(ticketRedeemer),
             uint64(block.timestamp) + RESERVE_START_TIME,
             uint64(block.timestamp) + RESERVE_END_TIME,
-            0,
-            0
+            REDEEMER_ALLOCATION,
+            abi.encode(0)
         );
         _registerContracts();
         _grantRoles();
@@ -290,13 +290,13 @@ contract Deploy is Script {
         uint64 _startTime,
         uint64 _endTime,
         uint64 _allocation,
-        uint256 _price
+        bytes memory _params
     ) internal virtual {
         mintInfo.push(
             MintInfo({
                 minter: _minter,
                 reserveInfo: ReserveInfo({startTime: _startTime, endTime: _endTime, allocation: _allocation}),
-                params: abi.encode(_price)
+                params: _params
             })
         );
     }
