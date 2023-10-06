@@ -29,48 +29,53 @@ struct RefundInfo {
 interface IDutchAuction is IFxMinter {
     /**
      * @notice Emitted when the mint details for a Dutch auction are set
-     * @param token The address of the token being minted
-     * @param reserveId The ID of the mint
-     * @param reserve The reserve info of the Dutch auction
-     * @param daInfo The Dutch auction info
+     * @param _token The address of the token being minted
+     * @param _reserveId The ID of the mint
+     * @param _reserve The reserve info of the Dutch auction
+     * @param _daInfo The Dutch auction info
      */
-    event MintDetailsSet(address indexed token, uint256 indexed reserveId, ReserveInfo reserve, AuctionInfo daInfo);
+    event MintDetailsSet(address indexed _token, uint256 indexed _reserveId, ReserveInfo _reserve, AuctionInfo _daInfo);
 
     /**
      * @notice Emitted when a purchase is made in the Dutch auction
-     * @param token The address of the token being purchased
-     * @param reserveId The ID of the mint
-     * @param buyer The address of the buyer
-     * @param to The address where the purchased tokens will be sent
-     * @param amount The amount of tokens purchased
-     * @param price The price at which the tokens were purchased
+     * @param _token The address of the token being purchased
+     * @param _reserveId The ID of the mint
+     * @param _buyer The address of the buyer
+     * @param _to The address where the purchased tokens will be sent
+     * @param _amount The amount of tokens purchased
+     * @param _price The price at which the tokens were purchased
      */
     event Purchase(
-        address indexed token,
-        uint256 indexed reserveId,
-        address indexed buyer,
-        address to,
-        uint256 amount,
-        uint256 price
+        address indexed _token,
+        uint256 indexed _reserveId,
+        address indexed _buyer,
+        address _to,
+        uint256 _amount,
+        uint256 _price
     );
 
     /**
      * @notice Emitted when a refund is claimed by a buyer
-     * @param token The address of the token for which the refund is claimed
-     * @param reserveId The ID of the mint
-     * @param buyer The address of the buyer claiming the refund
-     * @param refundAmount The amount of refund claimed
+     * @param _token The address of the token for which the refund is claimed
+     * @param _reserveId The ID of the mint
+     * @param _buyer The address of the buyer claiming the refund
+     * @param _refundAmount The amount of refund claimed
      */
-    event RefundClaimed(address indexed token, uint256 indexed reserveId, address indexed buyer, uint256 refundAmount);
+    event RefundClaimed(
+        address indexed _token,
+        uint256 indexed _reserveId,
+        address indexed _buyer,
+        uint256 _refundAmount
+    );
 
     /**
      * @notice Emitted when the sale proceeds are withdrawn
-     * @param token The address of the token for which the sale proceeds are withdrawn
-     * @param reserveId The ID of the mint
-     * @param creator The address of the creator of the project
-     * @param proceeds The amount of sale proceeds withdrawn
+     * @param _token The address of the token for which the sale proceeds are withdrawn
+     * @param _reserveId The ID of the mint
+     * @param _creator The address of the creator of the project
+     * @param _proceeds The amount of sale proceeds withdrawn
      */
-    event Withdrawn(address indexed token, uint256 indexed reserveId, address indexed creator, uint256 proceeds);
+    event Withdrawn(address indexed _token, uint256 indexed _reserveId, address indexed _creator, uint256 _proceeds);
 
     /**
      * @notice Error thrown when an input address is zero
