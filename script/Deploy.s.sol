@@ -6,6 +6,7 @@ import "script/utils/Constants.sol";
 import "src/utils/Constants.sol";
 import "test/utils/Constants.sol";
 
+import {DutchAuction} from "src/minters/DutchAuction.sol";
 import {FixedPrice} from "src/minters/FixedPrice.sol";
 import {FxContractRegistry} from "src/registries/FxContractRegistry.sol";
 import {FxGenArt721} from "src/tokens/FxGenArt721.sol";
@@ -25,6 +26,8 @@ import {IFxMintTicket721, TaxInfo} from "src/interfaces/IFxMintTicket721.sol";
 
 contract Deploy is Script {
     // Contracts
+    DutchAuction internal dutchAuction;
+    FixedPrice internal fixedPrice;
     FxContractRegistry internal fxContractRegistry;
     FxGenArt721 internal fxGenArt721;
     FxIssuerFactory internal fxIssuerFactory;
@@ -35,7 +38,6 @@ contract Deploy is Script {
     FxSplitsFactory internal fxSplitsFactory;
     FxTicketFactory internal fxTicketFactory;
     FxTokenRedeemer internal fxTokenRedeemer;
-    FixedPrice internal fixedPrice;
 
     // Accounts
     address internal admin;
@@ -351,6 +353,12 @@ contract Deploy is Script {
         creationCode = type(FixedPrice).creationCode;
         fixedPrice = FixedPrice(_deployCreate2(creationCode, salt));
 
+        // DutchAuction
+        creationCode = type(DutchAuction).creationCode;
+        dutchAuction = DutchAuction(_deployCreate2(creationCode, salt));
+
+        vm.label(address(dutchAuction), "DutchAuction");
+        vm.label(address(fixedPrice), "FixedPrice");
         vm.label(address(fxContractRegistry), "FxContractRegistry");
         vm.label(address(fxGenArt721), "FxGenArt721");
         vm.label(address(fxIssuerFactory), "FxIssuerFactory");
@@ -361,7 +369,6 @@ contract Deploy is Script {
         vm.label(address(fxSplitsFactory), "FxSplitsFactory");
         vm.label(address(fxTicketFactory), "FxTicketFactory");
         vm.label(address(fxTokenRedeemer), "FxTokenRedeemer");
-        vm.label(address(fixedPrice), "FixedPrice");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
