@@ -15,7 +15,7 @@ contract Buy is DutchAuctionTest {
     function test_RevertsIf_BuyMoreThanAllocation() public {
         uint256 price = dutchAuction.getPrice(fxGenArtProxy, reserveId);
         quantity = MINTER_ALLOCATION + 1;
-        vm.expectRevert(TOO_MANY_ERROR);
+        vm.expectRevert(INVALID_AMOUNT_ERROR);
         dutchAuction.buy{value: (price * (MINTER_ALLOCATION + 1))}(fxGenArtProxy, reserveId, quantity, alice);
         assertEq(FxGenArt721(fxGenArtProxy).balanceOf(alice), 0);
     }
@@ -65,7 +65,7 @@ contract Buy is DutchAuctionTest {
     function test_RevertsIf_Purchase0() public {
         uint256 price = dutchAuction.getPrice(fxGenArtProxy, reserveId);
         quantity = 0;
-        vm.expectRevert(AMOUNT_ZERO_ERROR);
+        vm.expectRevert(INVALID_AMOUNT_ERROR);
         dutchAuction.buy{value: price}(fxGenArtProxy, reserveId, quantity, alice);
         assertEq(FxGenArt721(fxGenArtProxy).balanceOf(alice), 0);
     }
@@ -77,7 +77,7 @@ contract Buy is DutchAuctionTest {
         assertEq(FxGenArt721(fxGenArtProxy).balanceOf(alice), MINTER_ALLOCATION);
 
         quantity = 1;
-        vm.expectRevert(TOO_MANY_ERROR);
+        vm.expectRevert(INVALID_AMOUNT_ERROR);
         dutchAuction.buy{value: price * quantity}(fxGenArtProxy, reserveId, quantity, alice);
         assertEq(FxGenArt721(fxGenArtProxy).balanceOf(alice), MINTER_ALLOCATION);
     }

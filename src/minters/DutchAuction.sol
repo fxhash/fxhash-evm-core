@@ -59,7 +59,7 @@ contract DutchAuction is IDutchAuction {
         if (block.timestamp > reserve.endTime) revert Ended();
 
         // Check if the requested amount is within the available allocation for the reserve
-        if (_amount > reserve.allocation) revert TooMany();
+        if (_amount > reserve.allocation) revert InvalidAmount();
 
         AuctionInfo storage daInfo = auctionInfo[_token][_reserveId];
         uint256 price = _getPrice(reserve, daInfo);

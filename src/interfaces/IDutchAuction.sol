@@ -153,11 +153,6 @@ interface IDutchAuction is IFxMinter {
     error NotStarted();
 
     /**
-     * @notice Error thrown when a buyer requets to buy more than the remaining allocation
-     */
-    error TooMany();
-
-    /**
      * @notice Allows a buyer to purchase tokens in the Dutch auction
      * @param _token The address of the token being purchased
      * @param _reserveId The ID of the mint
