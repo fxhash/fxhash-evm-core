@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {IFxRandomizer} from "src/interfaces/IFxRandomizer.sol";
+import {IRandomizer} from "src/interfaces/IRandomizer.sol";
 
 /**
- * @title IFxPseudoRandomizer
+ * @title IPseudoRandomizer
  * @notice Generates psuedo-random seeds for unrevealed tokens
  */
-interface IFxPseudoRandomizer is IFxRandomizer {
-    /// @inheritdoc IFxRandomizer
+interface IPseudoRandomizer is IRandomizer {
+    /// @inheritdoc IRandomizer
     function requestRandomness(uint256 _tokenId) external;
 
     /**

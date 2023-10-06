@@ -12,7 +12,7 @@ contract PublicTest is FxGenArt721Test {
         super.setUp();
         _createProject();
         _setIssuerInfo();
-        _setRandomizer(admin, address(fxPseudoRandomizer));
+        _setRandomizer(admin, address(pseudoRandomizer));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -64,7 +64,7 @@ contract PublicTest is FxGenArt721Test {
     function test_fulfillSeedRequest() public {
         tokenId = 1;
         genArtInfo.seed = keccak256("seed");
-        _fulfillSeedRequest(address(fxPseudoRandomizer), tokenId, genArtInfo.seed);
+        _fulfillSeedRequest(address(pseudoRandomizer), tokenId, genArtInfo.seed);
         _setGenArtInfo(tokenId);
         assertEq(genArtInfo.seed, seed);
     }

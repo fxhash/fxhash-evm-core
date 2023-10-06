@@ -3,22 +3,22 @@ pragma solidity 0.8.20;
 
 import {Base64} from "openzeppelin/contracts/utils/Base64.sol";
 import {GenArtInfo, MetadataInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
-import {IFxScriptyRenderer} from "src/interfaces/IFxScriptyRenderer.sol";
 import {IScriptyBuilderV2, HTMLRequest, HTMLTagType, HTMLTag} from "scripty.sol/contracts/scripty/interfaces/IScriptyBuilderV2.sol";
+import {IScriptyRenderer} from "src/interfaces/IScriptyRenderer.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
 /**
- * @title FxScriptyRenderer
- * @notice See the documentation in {IFxScriptyRenderer}
+ * @title ScriptyRenderer
+ * @notice See the documentation in {IScriptyRenderer}
  */
-contract FxScriptyRenderer is IFxScriptyRenderer {
+contract ScriptyRenderer is IScriptyRenderer {
     using Strings for uint256;
 
-    /// @inheritdoc IFxScriptyRenderer
+    /// @inheritdoc IScriptyRenderer
     address public immutable ethfsFileStorage;
-    /// @inheritdoc IFxScriptyRenderer
+    /// @inheritdoc IScriptyRenderer
     address public immutable scriptyStorage;
-    /// @inheritdoc IFxScriptyRenderer
+    /// @inheritdoc IScriptyRenderer
     address public immutable scriptyBuilder;
 
     /// @dev Initializes ETHFS and Scripty contracts for storing and building scripts onchain
@@ -28,7 +28,7 @@ contract FxScriptyRenderer is IFxScriptyRenderer {
         scriptyBuilder = _scriptyBuilder;
     }
 
-    /// @inheritdoc IFxScriptyRenderer
+    /// @inheritdoc IScriptyRenderer
     function tokenURI(uint256 _tokenId, bytes calldata _data) external view returns (string memory) {
         (ProjectInfo memory projectInfo, MetadataInfo memory metadataInfo, GenArtInfo memory genArtInfo) = abi.decode(
             _data,
@@ -54,7 +54,7 @@ contract FxScriptyRenderer is IFxScriptyRenderer {
         }
     }
 
-    /// @inheritdoc IFxScriptyRenderer
+    /// @inheritdoc IScriptyRenderer
     function renderOnchain(
         uint256 _tokenId,
         bytes32 _seed,
@@ -70,7 +70,7 @@ contract FxScriptyRenderer is IFxScriptyRenderer {
         /* solhint-enable quotes*/
     }
 
-    /// @inheritdoc IFxScriptyRenderer
+    /// @inheritdoc IScriptyRenderer
     function getEncodedHTML(
         uint256 _tokenId,
         bytes32 _seed,

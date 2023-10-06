@@ -48,7 +48,7 @@ contract DutchAuctionTest is BaseTest {
         _createSplit();
         _createProject();
         _toggleMint(creator);
-        _setRandomizer(admin, address(fxPseudoRandomizer));
+        _setRandomizer(admin, address(pseudoRandomizer));
     }
 
     /*//////////////////////////////////////////////////////////////////////////

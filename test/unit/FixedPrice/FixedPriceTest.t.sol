@@ -44,7 +44,7 @@ contract FixedPriceTest is BaseTest {
         _grantRole(admin, MINTER_ROLE, address(fixedPrice));
         _createSplit();
         _createProject();
-        _setRandomizer(admin, address(fxPseudoRandomizer));
+        _setRandomizer(admin, address(pseudoRandomizer));
     }
 
     /*//////////////////////////////////////////////////////////////////////////

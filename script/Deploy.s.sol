@@ -6,17 +6,18 @@ import "script/utils/Constants.sol";
 import "src/utils/Constants.sol";
 import "test/utils/Constants.sol";
 
-import {DutchAuction} from "src/minters/DutchAuction.sol";
-import {FixedPrice} from "src/minters/FixedPrice.sol";
 import {FxContractRegistry} from "src/registries/FxContractRegistry.sol";
 import {FxGenArt721} from "src/tokens/FxGenArt721.sol";
 import {FxIssuerFactory} from "src/factories/FxIssuerFactory.sol";
 import {FxMintTicket721} from "src/tokens/FxMintTicket721.sol";
-import {FxPseudoRandomizer} from "src/randomizers/FxPseudoRandomizer.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
-import {FxScriptyRenderer} from "src/renderers/FxScriptyRenderer.sol";
 import {FxSplitsFactory} from "src/factories/FxSplitsFactory.sol";
 import {FxTicketFactory} from "src/factories/FxTicketFactory.sol";
+
+import {DutchAuction} from "src/minters/DutchAuction.sol";
+import {FixedPrice} from "src/minters/FixedPrice.sol";
+import {PseudoRandomizer} from "src/randomizers/PseudoRandomizer.sol";
+import {ScriptyRenderer} from "src/renderers/ScriptyRenderer.sol";
 import {TicketRedeemer} from "src/minters/TicketRedeemer.sol";
 
 import {Clones} from "openzeppelin-contracts/contracts/proxy/Clones.sol";
@@ -26,18 +27,20 @@ import {IFxIssuerFactory, ConfigInfo} from "src/interfaces/IFxIssuerFactory.sol"
 import {IFxMintTicket721, TaxInfo} from "src/interfaces/IFxMintTicket721.sol";
 
 contract Deploy is Script {
-    // Contracts
-    DutchAuction internal dutchAuction;
-    FixedPrice internal fixedPrice;
+    // Core
     FxContractRegistry internal fxContractRegistry;
     FxGenArt721 internal fxGenArt721;
     FxIssuerFactory internal fxIssuerFactory;
     FxMintTicket721 internal fxMintTicket721;
-    FxPseudoRandomizer internal fxPseudoRandomizer;
     FxRoleRegistry internal fxRoleRegistry;
-    FxScriptyRenderer internal fxScriptyRenderer;
     FxSplitsFactory internal fxSplitsFactory;
     FxTicketFactory internal fxTicketFactory;
+
+    // Periphery
+    DutchAuction internal dutchAuction;
+    FixedPrice internal fixedPrice;
+    PseudoRandomizer internal pseudoRandomizer;
+    ScriptyRenderer internal scriptyRenderer;
     TicketRedeemer internal ticketRedeemer;
 
     // Accounts
@@ -146,7 +149,7 @@ contract Deploy is Script {
             uint64(block.timestamp) + RESERVE_START_TIME,
             uint64(block.timestamp) + RESERVE_END_TIME,
             REDEEMER_ALLOCATION,
-            abi.encode(_computeMintTicketAddress(msg.sender))
+            abi.encode(_computeTicketAddress(msg.sender))
         );
         _registerContracts();
         _grantRoles();
@@ -344,14 +347,14 @@ contract Deploy is Script {
         constructorArgs = abi.encode(address(fxMintTicket721));
         fxTicketFactory = FxTicketFactory(_deployCreate2(creationCode, constructorArgs, salt));
 
-        // FxPseudoRandomizer
-        creationCode = type(FxPseudoRandomizer).creationCode;
-        fxPseudoRandomizer = FxPseudoRandomizer(_deployCreate2(creationCode, salt));
+        // PseudoRandomizer
+        creationCode = type(PseudoRandomizer).creationCode;
+        pseudoRandomizer = PseudoRandomizer(_deployCreate2(creationCode, salt));
 
-        // FxScriptyRenderer
-        creationCode = type(FxScriptyRenderer).creationCode;
+        // ScriptyRenderer
+        creationCode = type(ScriptyRenderer).creationCode;
         constructorArgs = abi.encode(ethFSFileStorage, scriptyStorageV2, scriptyBuilderV2);
-        fxScriptyRenderer = FxScriptyRenderer(_deployCreate2(creationCode, constructorArgs, salt));
+        scriptyRenderer = ScriptyRenderer(_deployCreate2(creationCode, constructorArgs, salt));
 
         // DutchAuction
         creationCode = type(DutchAuction).creationCode;
@@ -365,17 +368,18 @@ contract Deploy is Script {
         creationCode = type(TicketRedeemer).creationCode;
         ticketRedeemer = TicketRedeemer(_deployCreate2(creationCode, salt));
 
-        vm.label(address(dutchAuction), "DutchAuction");
-        vm.label(address(fixedPrice), "FixedPrice");
         vm.label(address(fxContractRegistry), "FxContractRegistry");
         vm.label(address(fxGenArt721), "FxGenArt721");
         vm.label(address(fxIssuerFactory), "FxIssuerFactory");
         vm.label(address(fxMintTicket721), "FxMintTicket721");
-        vm.label(address(fxPseudoRandomizer), "FxPseudoRandomizer");
         vm.label(address(fxRoleRegistry), "FxRoleRegistry");
-        vm.label(address(fxScriptyRenderer), "FxScriptyRenderer");
         vm.label(address(fxSplitsFactory), "FxSplitsFactory");
         vm.label(address(fxTicketFactory), "FxTicketFactory");
+
+        vm.label(address(dutchAuction), "DutchAuction");
+        vm.label(address(fixedPrice), "FixedPrice");
+        vm.label(address(pseudoRandomizer), "PseudoRandomizer");
+        vm.label(address(scriptyRenderer), "ScriptyRenderer");
         vm.label(address(ticketRedeemer), "TicketRedeemer");
     }
 
@@ -419,34 +423,34 @@ contract Deploy is Script {
         names.push(FX_GEN_ART_721);
         names.push(FX_ISSUER_FACTORY);
         names.push(FX_MINT_TICKET_721);
-        names.push(FX_PSEUDO_RANDOMIZER);
         names.push(FX_ROLE_REGISTRY);
-        names.push(FX_SCRIPTY_RENDERER);
         names.push(FX_SPLITS_FACTORY);
         names.push(FX_TICKET_FACTORY);
         names.push(DUTCH_AUCTION);
         names.push(FIXED_PRICE);
+        names.push(PSEUDO_RANDOMIZER);
+        names.push(SCRIPTY_RENDERER);
         names.push(TICKET_REDEEMER);
 
         contracts.push(address(fxContractRegistry));
         contracts.push(address(fxGenArt721));
         contracts.push(address(fxIssuerFactory));
         contracts.push(address(fxMintTicket721));
-        contracts.push(address(fxPseudoRandomizer));
         contracts.push(address(fxRoleRegistry));
-        contracts.push(address(fxScriptyRenderer));
         contracts.push(address(fxSplitsFactory));
         contracts.push(address(fxTicketFactory));
         contracts.push(address(dutchAuction));
         contracts.push(address(fixedPrice));
+        contracts.push(address(pseudoRandomizer));
+        contracts.push(address(scriptyRenderer));
         contracts.push(address(ticketRedeemer));
 
         fxContractRegistry.register(names, contracts);
     }
 
     function _setContracts() internal virtual {
-        FxGenArt721(fxGenArtProxy).setRandomizer(address(fxPseudoRandomizer));
-        FxGenArt721(fxGenArtProxy).setRenderer(address(fxScriptyRenderer));
+        FxGenArt721(fxGenArtProxy).setRandomizer(address(pseudoRandomizer));
+        FxGenArt721(fxGenArtProxy).setRenderer(address(scriptyRenderer));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -487,13 +491,11 @@ contract Deploy is Script {
         computeCreate2Address(_salt, hashInitCode(_creationCode, _constructorArgs));
     }
 
-    function _computeMintTicketAddress(address _deployer) internal view returns (address) {
-        require(address(fxMintTicket721) != address(0), "implementation NOT deployed");
-        require(address(fxTicketFactory) != address(0), "factory NOT deployed");
+    function _computeTicketAddress(address _deployer) internal view returns (address) {
         return
             Clones.predictDeterministicAddress(
                 address(fxMintTicket721),
-                bytes32(fxTicketFactory.deployerNonces(_deployer)),
+                bytes32(fxTicketFactory.nonces(_deployer)),
                 address(fxTicketFactory)
             );
     }

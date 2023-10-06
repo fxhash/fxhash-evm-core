@@ -12,7 +12,7 @@ contract OwnerTest is FxGenArt721Test {
         super.setUp();
         _createProject();
         _setIssuerInfo();
-        _setRandomizer(admin, address(fxPseudoRandomizer));
+        _setRandomizer(admin, address(pseudoRandomizer));
     }
 
     /*//////////////////////////////////////////////////////////////////////////

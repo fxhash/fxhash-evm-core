@@ -3,13 +3,13 @@ pragma solidity 0.8.20;
 
 import {GenArtInfo, MetadataInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
 import {HTMLRequest} from "scripty.sol/contracts/scripty/interfaces/IScriptyBuilderV2.sol";
-import {IFxRenderer} from "src/interfaces/IFxRenderer.sol";
+import {IRenderer} from "src/interfaces/IRenderer.sol";
 
 /**
- * @title IFxScriptyRenderer
+ * @title IScriptyRenderer
  * @notice Renders token metadata using onchain generative scripts
  */
-interface IFxScriptyRenderer is IFxRenderer {
+interface IScriptyRenderer is IRenderer {
     /**
      * @notice Builds the encoded HTML request for header and body tags
      * @param _tokenId ID of the token
