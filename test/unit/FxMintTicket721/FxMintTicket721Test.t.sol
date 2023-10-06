@@ -5,14 +5,14 @@ import "test/BaseTest.t.sol";
 
 contract FxMintTicket721Test is BaseTest {
     // State
-    uint128 gracePeriod;
-    uint128 foreclosureTime;
     uint128 currentPrice;
     uint128 depositAmount;
+    uint128 foreclosureTime;
+    uint128 gracePeriod;
+    uint128 newPrice;
     uint256 auctionPrice;
     uint256 balance;
     uint256 excessAmount;
-    uint128 newPrice;
 
     // Errors
     bytes4 internal FORECLOSURE_ERROR = IFxMintTicket721.Foreclosure.selector;
