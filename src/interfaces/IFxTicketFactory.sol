@@ -50,6 +50,9 @@ interface IFxTicketFactory {
      */
     function setImplementation(address _implementation) external;
 
+    /// @notice Keeps track of nonces associated with deployers to precompute addresses
+    function deployerNonces(address _deployer) external view returns (uint256);
+
     /// @notice Returns address of current FxMintTicket721 implementation contract
     function implementation() external view returns (address);
 

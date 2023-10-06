@@ -19,6 +19,7 @@ import {FxSplitsFactory} from "src/factories/FxSplitsFactory.sol";
 import {FxTicketFactory} from "src/factories/FxTicketFactory.sol";
 import {TicketRedeemer} from "src/minters/TicketRedeemer.sol";
 
+import {Clones} from "openzeppelin-contracts/contracts/proxy/Clones.sol";
 import {HTMLRequest, HTMLTagType, HTMLTag} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
 import {IFxGenArt721, GenArtInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxIssuerFactory, ConfigInfo} from "src/interfaces/IFxIssuerFactory.sol";
@@ -145,7 +146,7 @@ contract Deploy is Script {
             uint64(block.timestamp) + RESERVE_START_TIME,
             uint64(block.timestamp) + RESERVE_END_TIME,
             REDEEMER_ALLOCATION,
-            abi.encode(0)
+            abi.encode(_computeMintTicketAddress(msg.sender))
         );
         _registerContracts();
         _grantRoles();
@@ -484,6 +485,17 @@ contract Deploy is Script {
         bytes32 _salt
     ) internal pure {
         computeCreate2Address(_salt, hashInitCode(_creationCode, _constructorArgs));
+    }
+
+    function _computeMintTicketAddress(address _deployer) internal view returns (address) {
+        require(address(fxMintTicket721) != address(0), "implementation NOT deployed");
+        require(address(fxTicketFactory) != address(0), "factory NOT deployed");
+        return
+            Clones.predictDeterministicAddress(
+                address(fxMintTicket721),
+                bytes32(fxTicketFactory.deployerNonces(_deployer)),
+                address(fxTicketFactory)
+            );
     }
 
     function _initCode(bytes memory _creationCode, bytes memory _constructorArgs) internal pure returns (bytes memory) {
