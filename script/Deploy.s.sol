@@ -408,6 +408,7 @@ contract Deploy is Script {
         names.push(FX_SCRIPTY_RENDERER);
         names.push(FX_SPLITS_FACTORY);
         names.push(FX_TICKET_FACTORY);
+        names.push(FX_TOKEN_REDEEMER);
         names.push(FIXED_PRICE);
 
         contracts.push(address(fxContractRegistry));
@@ -419,6 +420,7 @@ contract Deploy is Script {
         contracts.push(address(fxScriptyRenderer));
         contracts.push(address(fxSplitsFactory));
         contracts.push(address(fxTicketFactory));
+        contracts.push(address(fxTokenRedeemer));
         contracts.push(address(fixedPrice));
 
         fxContractRegistry.register(names, contracts);

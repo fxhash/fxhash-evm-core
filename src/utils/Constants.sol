@@ -12,6 +12,7 @@ string constant FX_ROLE_REGISTRY = "FX_ROLE_REGISTRY";
 string constant FX_SCRIPTY_RENDERER = "FX_SCRIPTY_RENDERER";
 string constant FX_SPLITS_FACTORY = "FX_SPLITS_FACTORY";
 string constant FX_TICKET_FACTORY = "FX_TICKET_FACTORY";
+string constant FX_TOKEN_REDEEMER = "FX_TOKEN_REDEEMER";
 
 // EIP-712
 bytes32 constant CLAIM_TYPEHASH = keccak256("Claim(uint256 index, address user, bytes mintCode)");
