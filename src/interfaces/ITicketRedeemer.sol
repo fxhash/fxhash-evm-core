@@ -42,7 +42,7 @@ interface ITicketRedeemer is IMinter {
      * @param _ticket The address of the ticket contract
      * @param _tokenId The ID of the ticket token to burn
      */
-    function burn(address _ticket, uint256 _tokenId) external;
+    function redeem(address _ticket, uint256 _tokenId) external;
 
     /**
      * @notice A mapping of tickets to the tokens they can mint

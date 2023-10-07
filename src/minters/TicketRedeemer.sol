@@ -23,7 +23,7 @@ contract TicketRedeemer is ITicketRedeemer {
     }
 
     /// @inheritdoc ITicketRedeemer
-    function burn(address _ticket, uint256 _tokenId) external {
+    function redeem(address _ticket, uint256 _tokenId) external {
         // Reverts if caller is not owner of ticket
         address owner = FxMintTicket721(_ticket).ownerOf(_tokenId);
         if (msg.sender != owner) revert NotAuthorized();

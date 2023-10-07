@@ -3,7 +3,7 @@ pragma solidity 0.8.20;
 
 import "test/unit/FxMintTicket721/FxMintTicket721Test.t.sol";
 
-contract Burn is FxMintTicket721Test {
+contract Redeem is FxMintTicket721Test {
     function setUp() public virtual override {
         super.setUp();
         _setRandomizer(admin, address(pseudoRandomizer));
@@ -11,8 +11,8 @@ contract Burn is FxMintTicket721Test {
         _setTaxInfo();
     }
 
-    function testBurn() public {
-        _burn(bob, fxMintTicketProxy, tokenId);
+    function testRedeem() public {
+        _redeem(bob, fxMintTicketProxy, tokenId);
         _setTaxInfo();
         assertEq(gracePeriod, 0);
         assertEq(foreclosureTime, 0);
