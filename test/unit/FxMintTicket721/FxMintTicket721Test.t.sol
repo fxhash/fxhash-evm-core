@@ -5,14 +5,14 @@ import "test/BaseTest.t.sol";
 
 contract FxMintTicket721Test is BaseTest {
     // State
-    uint128 gracePeriod;
-    uint128 foreclosureTime;
     uint128 currentPrice;
     uint128 depositAmount;
+    uint128 foreclosureTime;
+    uint128 gracePeriod;
+    uint128 newPrice;
     uint256 auctionPrice;
     uint256 balance;
     uint256 excessAmount;
-    uint128 newPrice;
 
     // Errors
     bytes4 internal FORECLOSURE_ERROR = IFxMintTicket721.Foreclosure.selector;
@@ -30,16 +30,24 @@ contract FxMintTicket721Test is BaseTest {
 
     function setUp() public virtual override {
         super.setUp();
+        _initializeState();
         _mockMinter(admin);
         _configureSplits();
         _configureRoyalties();
         _configureProject(ENABLED, ONCHAIN, MAX_SUPPLY, CONTRACT_URI);
-        _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, PRICE);
+        _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, abi.encode(PRICE));
+        _configureMinter(
+            address(ticketRedeemer),
+            RESERVE_START_TIME,
+            RESERVE_END_TIME,
+            REDEEMER_ALLOCATION,
+            abi.encode(_computeTicketAddr(address(this)))
+        );
         _grantRole(admin, MINTER_ROLE, minter);
+        _grantRole(admin, MINTER_ROLE, address(ticketRedeemer));
         _createSplit();
         _createProject();
         _createTicket();
-        _initializeState();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -58,8 +66,8 @@ contract FxMintTicket721Test is BaseTest {
         MockMinter(minter).mintTicket(fxMintTicketProxy, _to, _amount, _payment);
     }
 
-    function _burn(address _minter, uint256 _tokenId) internal prank(_minter) {
-        MockMinter(minter).burnTicket(fxMintTicketProxy, _tokenId);
+    function _burn(address _owner, address _ticket, uint256 _tokenId) internal prank(_owner) {
+        ITicketRedeemer(ticketRedeemer).burn(_ticket, _tokenId);
     }
 
     function _deposit(address _depositer, uint256 _tokenId, uint256 _amount) internal prank(_depositer) {

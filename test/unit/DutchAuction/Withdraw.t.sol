@@ -4,16 +4,14 @@ pragma solidity 0.8.20;
 import "test/unit/DutchAuction/DutchAuctionTest.t.sol";
 
 contract Withdraw is DutchAuctionTest {
-    uint256 internal quantity = 1;
-
     function test_withdraw() public {
         uint256 price = dutchAuction.getPrice(fxGenArtProxy, reserveId);
         dutchAuction.buy{value: price}(fxGenArtProxy, reserveId, quantity, alice);
-        uint256 beforeBalance = creator.balance;
+        uint256 beforeBalance = primaryReceiver.balance;
 
         vm.warp(RESERVE_END_TIME + 1);
         dutchAuction.withdraw(fxGenArtProxy, reserveId);
-        uint256 afterBalance = creator.balance;
+        uint256 afterBalance = primaryReceiver.balance;
         assertEq(beforeBalance + price, afterBalance);
     }
 

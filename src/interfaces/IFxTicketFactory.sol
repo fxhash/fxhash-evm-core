@@ -53,6 +53,9 @@ interface IFxTicketFactory {
     /// @notice Returns address of current FxMintTicket721 implementation contract
     function implementation() external view returns (address);
 
+    /// @notice Mapping of deployer nonce to precomputed ticket address
+    function nonces(address _deployer) external view returns (uint256);
+
     /// @notice Returns counter of latest token ID
     function ticketId() external view returns (uint96);
 

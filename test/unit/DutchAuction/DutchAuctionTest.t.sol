@@ -2,10 +2,20 @@
 pragma solidity 0.8.20;
 
 import "test/BaseTest.t.sol";
-import {IDutchAuction, AuctionInfo} from "src/interfaces/IDutchAuction.sol";
-import {DutchAuction} from "src/minters/DutchAuction.sol";
+
+import {AuctionInfo} from "src/interfaces/IDutchAuction.sol";
 
 contract DutchAuctionTest is BaseTest {
+    // Contracts
+    DutchAuction internal refundableDA;
+
+    // State
+    bool internal refund;
+    uint248 internal stepLength;
+    uint256 internal reserveId;
+    uint256[] internal prices;
+
+    // Errors
     bytes4 internal ADDRESS_ZERO_ERROR = IDutchAuction.AddressZero.selector;
     bytes4 internal ENDED_ERROR = IDutchAuction.Ended.selector;
     bytes4 internal INSUFFICIENT_FUNDS_ERROR = IDutchAuction.InsufficientFunds.selector;
@@ -19,31 +29,49 @@ contract DutchAuctionTest is BaseTest {
     bytes4 internal NOT_STARTED_ERROR = IDutchAuction.NotStarted.selector;
     bytes4 internal NOT_ENDED_ERROR = IDutchAuction.NotEnded.selector;
     bytes4 internal PRICES_OUT_OF_ORDER_ERROR = IDutchAuction.PricesOutOfOrder.selector;
-    DutchAuction internal refundableDA;
-    uint256[] internal prices;
-    uint248 internal stepLength;
-    bool internal refund;
-    uint256 internal reserveId;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    SETUP
+    //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
         super.setUp();
-        dutchAuction = new DutchAuction();
-        refundableDA = new DutchAuction();
-        prices.push(1 ether);
-        prices.push(0.5 ether);
-        vm.deal(address(this), INITIAL_BALANCE);
-        stepLength = uint248((RESERVE_END_TIME - RESERVE_START_TIME) / prices.length);
-        vm.deal(address(this), INITIAL_BALANCE);
-        _configureGenArtToken();
-        vm.warp(RESERVE_START_TIME);
+        _initializeState();
+        _deployRefundableDA();
+        _configureSplits();
+        _configureRoyalties();
+        _configureState(AMOUNT, PRICE, TOKEN_ID);
+        _configureReserve();
+        _configureMinters();
+        _grantRole(admin, MINTER_ROLE, address(dutchAuction));
+        _grantRole(admin, MINTER_ROLE, address(refundableDA));
+        _createSplit();
+        _createProject();
+        _toggleMint(creator);
+        _setRandomizer(admin, address(pseudoRandomizer));
     }
 
-    function _configureGenArtToken() internal {
-        vm.startPrank(admin);
-        fxRoleRegistry.grantRole(MINTER_ROLE, address(dutchAuction));
-        fxRoleRegistry.grantRole(MINTER_ROLE, address(refundableDA));
-        vm.stopPrank();
+    /*//////////////////////////////////////////////////////////////////////////
+                                    HELPERS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function _initializeState() internal override {
+        super._initializeState();
+        quantity = 1;
         projectInfo.supply = MINTER_ALLOCATION * 2;
+    }
+
+    function _deployRefundableDA() internal {
+        refundableDA = new DutchAuction();
+    }
+
+    function _configureReserve() internal {
+        prices.push(1 ether);
+        prices.push(0.5 ether);
+        stepLength = uint248((RESERVE_END_TIME - RESERVE_START_TIME) / prices.length);
+    }
+
+    function _configureMinters() internal {
         mintInfo.push(
             MintInfo(
                 address(dutchAuction),
@@ -59,19 +87,5 @@ contract DutchAuctionTest is BaseTest {
                 abi.encode(AuctionInfo(stepLength, refund, prices))
             )
         );
-        vm.startPrank(creator);
-        fxGenArtProxy = fxIssuerFactory.createProject(
-            creator,
-            creator,
-            projectInfo,
-            metadataInfo,
-            mintInfo,
-            royaltyReceivers,
-            basisPoints
-        );
-        FxGenArt721(fxGenArtProxy).toggleMint();
-        vm.stopPrank();
-
-        _setRandomizer(admin, address(fxPseudoRandomizer));
     }
 }

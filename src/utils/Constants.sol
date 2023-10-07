@@ -1,17 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-// Contracts
-string constant FIXED_PRICE = "FIXED_PRICE";
+// Core
 string constant FX_CONTRACT_REGISTRY = "FX_CONTRACT_REGISTRY";
 string constant FX_GEN_ART_721 = "FX_GEN_ART_721";
 string constant FX_ISSUER_FACTORY = "FX_ISSUER_FACTORY";
 string constant FX_MINT_TICKET_721 = "FX_MINT_TICKET_721";
-string constant FX_PSEUDO_RANDOMIZER = "FX_PSEUDO_RANDOMIZER";
 string constant FX_ROLE_REGISTRY = "FX_ROLE_REGISTRY";
-string constant FX_SCRIPTY_RENDERER = "FX_SCRIPTY_RENDERER";
 string constant FX_SPLITS_FACTORY = "FX_SPLITS_FACTORY";
 string constant FX_TICKET_FACTORY = "FX_TICKET_FACTORY";
+
+// Periphery
+string constant DUTCH_AUCTION = "DUTCH_AUCTION";
+string constant FIXED_PRICE = "FIXED_PRICE";
+string constant PSEUDO_RANDOMIZER = "PSEUDO_RANDOMIZER";
+string constant SCRIPTY_RENDERER = "SCRIPTY_RENDERER";
+string constant TICKET_REDEEMER = "TICKET_REDEEMER";
 
 // EIP-712
 bytes32 constant CLAIM_TYPEHASH = keccak256("Claim(uint256 index, address user, bytes mintCode)");

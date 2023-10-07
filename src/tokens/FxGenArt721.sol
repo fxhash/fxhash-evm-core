@@ -5,10 +5,10 @@ import {ERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {IFxGenArt721, GenArtInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
-import {IFxMinter} from "src/interfaces/IFxMinter.sol";
-import {IFxRandomizer} from "src/interfaces/IFxRandomizer.sol";
-import {IFxScriptyRenderer} from "src/interfaces/IFxScriptyRenderer.sol";
+import {IMinter} from "src/interfaces/IMinter.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
+import {IRandomizer} from "src/interfaces/IRandomizer.sol";
+import {IRenderer} from "src/interfaces/IRenderer.sol";
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
 import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
 import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
@@ -46,9 +46,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
      * @dev Modifier for restricting calls to only registered contracts
      */
     modifier onlyContract(bytes32 _name) {
-        if (msg.sender != IFxContractRegistry(contractRegistry).contracts(_name)) {
-            revert UnauthorizedContract();
-        }
+        if (msg.sender != IFxContractRegistry(contractRegistry).contracts(_name)) revert UnauthorizedContract();
         _;
     }
 
@@ -64,9 +62,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
      * @dev Modifier for restricting calls to only authorized accounts with given roles
      */
     modifier onlyRole(bytes32 _role) {
-        if (!IAccessControl(roleRegistry).hasRole(_role, msg.sender)) {
-            revert UnauthorizedAccount();
-        }
+        if (!IAccessControl(roleRegistry).hasRole(_role, msg.sender)) revert UnauthorizedAccount();
         _;
     }
 
@@ -116,7 +112,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
         if (!issuerInfo.projectInfo.enabled) revert MintInactive();
         for (uint256 i; i < _amount; ++i) {
             _mint(_to, ++totalSupply);
-            IFxRandomizer(randomizer).requestRandomness(totalSupply);
+            IRandomizer(randomizer).requestRandomness(totalSupply);
         }
     }
 
@@ -140,7 +136,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     /// @inheritdoc IFxGenArt721
     function ownerMint(address _to) external onlyOwner whenNotPaused {
         _mint(_to, ++totalSupply);
-        IFxRandomizer(randomizer).requestRandomness(totalSupply);
+        IRandomizer(randomizer).requestRandomness(totalSupply);
     }
 
     /// @inheritdoc IFxGenArt721
@@ -233,7 +229,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     function tokenURI(uint256 _tokenId) public view override returns (string memory) {
         _requireMinted(_tokenId);
         bytes memory data = abi.encode(issuerInfo.projectInfo, metadataInfo, genArtInfo[_tokenId]);
-        return IFxScriptyRenderer(renderer).tokenURI(_tokenId, data);
+        return IRenderer(renderer).tokenURI(_tokenId, data);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -262,7 +258,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
                 if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) {
                     revert UnauthorizedMinter();
                 }
-                IFxMinter(minter).setMintDetails(reserveInfo, _mintInfo[i].params);
+                IMinter(minter).setMintDetails(reserveInfo, _mintInfo[i].params);
 
                 issuerInfo.minters[minter] = true;
                 totalAllocation += reserveInfo.allocation;

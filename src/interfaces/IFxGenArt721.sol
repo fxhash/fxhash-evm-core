@@ -142,7 +142,7 @@ interface IFxGenArt721 is ISeedConsumer {
     /// @notice Error thrown when caller does not have the specified role
     error UnauthorizedAccount();
 
-    /// @notice Error thrown when caller is not an authorized contract
+    /// @notice Error thrown when caller is not a registered contract
     error UnauthorizedContract();
 
     /// @notice Error thrown when caller does not have minter role

@@ -45,9 +45,6 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
         _;
     }
 
-    /**
-     * @dev Modifier for restricting calls to only authorized accounts with given roles
-     */
     modifier onlyRole(bytes32 _role) {
         address roleRegistry = IFxGenArt721(genArt721).roleRegistry();
         if (!IAccessControl(roleRegistry).hasRole(_role, msg.sender)) revert UnauthorizedAccount();
@@ -356,19 +353,19 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
 
     /**
      * @dev Tokens can only be transferred when either of these conditions is met:
-     * 1) This contract executes transfer when token is claimed at auction price
-     * 2) This contract executes transfer when token is claimed at listing price
-     * 3) Contract owner executes public transfer when token is not in foreclosure
-     * 4) Registered minter executes public burn when token is not in foreclosure
+     * 1) This contract executes transfer when token is in foreclosure and claimed at auction price
+     * 2) This contract executes transfer when token is not in foreclosure and claimed at listing price
+     * 3) Token owner executes transfer when token is not in foreclosure
+     * 4) Registered minter contract executes burn when token is not in foreclosure
      */
     function _beforeTokenTransfer(address _from, address, uint256 _tokenId, uint256) internal view override {
-        // Check if token is being minted
+        // Checks if token is not being minted
         if (_from != address(0)) {
             // Reverts if token is foreclosed and caller is not this contract
             if (isForeclosed(_tokenId) && msg.sender != address(this)) revert Foreclosure();
             // Checks if token is not foreclosed
             if (!isForeclosed(_tokenId)) {
-                // Returns if caller is either owner, this contract or registered minter
+                // Returns if caller is this contract, current token owner or a registered minter
                 if (msg.sender == address(this) || msg.sender == _from || isMinter(msg.sender)) {
                     return;
                 }

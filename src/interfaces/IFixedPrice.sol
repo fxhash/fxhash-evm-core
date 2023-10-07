@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {IFxMinter} from "src/interfaces/IFxMinter.sol";
+import {IMinter} from "src/interfaces/IMinter.sol";
 import {ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 
 /**
  * @title IFixedPrice
  * @notice Minter contract for purchasing tokens at a fixed price
  */
-interface IFixedPrice is IFxMinter {
+interface IFixedPrice is IMinter {
     /**
      * @notice Emitted when a new fixed price mint is added
      * @param token The address of the token being minted

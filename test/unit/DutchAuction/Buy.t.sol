@@ -4,8 +4,6 @@ pragma solidity 0.8.20;
 import "test/unit/DutchAuction/DutchAuctionTest.t.sol";
 
 contract Buy is DutchAuctionTest {
-    uint256 internal quantity = 1;
-
     function test_buy() public {
         uint256 price = dutchAuction.getPrice(fxGenArtProxy, reserveId);
         dutchAuction.buy{value: price}(fxGenArtProxy, reserveId, quantity, alice);

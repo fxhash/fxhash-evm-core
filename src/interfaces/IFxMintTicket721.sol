@@ -92,6 +92,9 @@ interface IFxMintTicket721 {
     /// @notice Error thrown when caller does not have the specified role
     error UnauthorizedAccount();
 
+    /// @notice Error thrown when caller does not have the redeemer role
+    error UnauthorizedRedeemer();
+
     /// @notice Error thrown when caller is not a registered minter
     error UnregisteredMinter();
 

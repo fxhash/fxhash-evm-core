@@ -6,13 +6,13 @@ import "test/unit/FxMintTicket721/FxMintTicket721Test.t.sol";
 contract Burn is FxMintTicket721Test {
     function setUp() public virtual override {
         super.setUp();
-        _setRandomizer(admin, address(fxPseudoRandomizer));
+        _setRandomizer(admin, address(pseudoRandomizer));
         _mint(alice, bob, amount, PRICE);
         _setTaxInfo();
     }
 
     function testBurn() public {
-        _burn(minter, tokenId);
+        _burn(bob, fxMintTicketProxy, tokenId);
         _setTaxInfo();
         assertEq(gracePeriod, 0);
         assertEq(foreclosureTime, 0);

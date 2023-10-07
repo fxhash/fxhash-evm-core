@@ -64,13 +64,13 @@ contract AdminTest is FxGenArt721Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_setRandomizer() public {
-        _setRandomizer(admin, address(fxPseudoRandomizer));
-        assertEq(IFxGenArt721(fxGenArtProxy).randomizer(), address(fxPseudoRandomizer));
+        _setRandomizer(admin, address(pseudoRandomizer));
+        assertEq(IFxGenArt721(fxGenArtProxy).randomizer(), address(pseudoRandomizer));
     }
 
     function test_setRandomizer_RevertsWhen_NotAuthorized() public {
         vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
-        _setRenderer(creator, address(fxPseudoRandomizer));
+        _setRenderer(creator, address(pseudoRandomizer));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -78,13 +78,13 @@ contract AdminTest is FxGenArt721Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_setRenderer() public {
-        _setRenderer(admin, address(fxScriptyRenderer));
-        assertEq(IFxGenArt721(fxGenArtProxy).renderer(), address(fxScriptyRenderer));
+        _setRenderer(admin, address(scriptyRenderer));
+        assertEq(IFxGenArt721(fxGenArtProxy).renderer(), address(scriptyRenderer));
     }
 
     function test_setRenderer_RevertsWhen_UnauthorizedAccount() public {
         vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
-        _setRenderer(creator, address(fxScriptyRenderer));
+        _setRenderer(creator, address(scriptyRenderer));
     }
 
     /*//////////////////////////////////////////////////////////////////////////

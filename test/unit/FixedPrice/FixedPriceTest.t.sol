@@ -9,7 +9,6 @@ contract FixedPriceTest is BaseTest {
     uint64 internal endTime;
     uint160 internal supply;
     uint256 internal mintId;
-    uint256 internal quantity;
 
     // Errors
     bytes4 internal ADDRESS_ZERO_ERROR = IFixedPrice.AddressZero.selector;
@@ -35,11 +34,17 @@ contract FixedPriceTest is BaseTest {
         _configureRoyalties();
         _configureState(AMOUNT, PRICE, TOKEN_ID);
         _configureProject(ENABLED, ONCHAIN, MAX_SUPPLY, CONTRACT_URI);
-        _configureMinter(address(fixedPrice), RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, PRICE);
+        _configureMinter(
+            address(fixedPrice),
+            RESERVE_START_TIME,
+            RESERVE_END_TIME,
+            MINTER_ALLOCATION,
+            abi.encode(PRICE)
+        );
         _grantRole(admin, MINTER_ROLE, address(fixedPrice));
         _createSplit();
         _createProject();
-        _setRandomizer(admin, address(fxPseudoRandomizer));
+        _setRandomizer(admin, address(pseudoRandomizer));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -50,6 +55,5 @@ contract FixedPriceTest is BaseTest {
         super._initializeState();
         mintId = 0;
         quantity = 1;
-        vm.deal(address(this), INITIAL_BALANCE);
     }
 }

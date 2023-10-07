@@ -33,7 +33,7 @@ contract FxGenArt721Test is BaseTest {
         _configureRoyalties();
         _configureState(AMOUNT, PRICE, TOKEN_ID);
         _configureProject(ENABLED, ONCHAIN, MAX_SUPPLY, CONTRACT_URI);
-        _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, PRICE);
+        _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, abi.encode(PRICE));
         _grantRole(admin, MINTER_ROLE, minter);
         _createSplit();
     }
@@ -66,14 +66,14 @@ contract FxGenArt721Test is BaseTest {
 
     function test_Initialize_RevertsWhen_InvalidStartTime() public {
         delete mintInfo;
-        _configureMinter(minter, RESERVE_START_TIME - 1, RESERVE_END_TIME, MINTER_ALLOCATION, PRICE);
+        _configureMinter(minter, RESERVE_START_TIME - 1, RESERVE_END_TIME, MINTER_ALLOCATION, abi.encode(PRICE));
         vm.expectRevert(INVALID_START_TIME_ERROR);
         _createProject();
     }
 
     function test_Initialize_RevertsWhen_InvalidEndTime() public {
         delete mintInfo;
-        _configureMinter(minter, RESERVE_START_TIME, RESERVE_START_TIME - 1, MINTER_ALLOCATION, PRICE);
+        _configureMinter(minter, RESERVE_START_TIME, RESERVE_START_TIME - 1, MINTER_ALLOCATION, abi.encode(PRICE));
         vm.expectRevert(INVALID_END_TIME_ERROR);
         _createProject();
     }
@@ -92,9 +92,5 @@ contract FxGenArt721Test is BaseTest {
 
     function _setMetadatInfo() internal {
         (baseURI, imageURI, , ) = IFxGenArt721(fxGenArtProxy).metadataInfo();
-    }
-
-    function _toggleMint(address _creator) internal prank(_creator) {
-        IFxGenArt721(fxGenArtProxy).toggleMint();
     }
 }

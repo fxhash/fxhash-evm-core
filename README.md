@@ -1,26 +1,32 @@
-# FxHash EVM Contracts
+# FxHash
 
-## Overview
+## Core Contracts
 
 1. **[FxContractRegistry](src/registries/FxContractRegistry.sol)**: Registry contract that manages all deployed and registered smart contracts by **FxHash**
 
 2. **[FxGenArt721](src/tokens/FxGenArt721.sol)**: `ERC-721` implementation contract that allows for mintng of new tokens, burning of existing tokens and managing of token royalties
 
-3.  **[FxIssuerFactory](src/factories/FxIssuerFactory.sol)**: Factory contract that clones the `FxGenArt721` implementation to create new Generative Art Projects
+3. **[FxIssuerFactory](src/factories/FxIssuerFactory.sol)**: Factory contract that clones the `FxGenArt721` implementation to create new Generative Art Projects
 
-4.  **[FxMintTicket721](src/tokens/FxMintTicket721.sol)**: `ERC-721` implementation contract that allows for minting of new tickets, burning of exisiting tickets, and enforcing of harberger taxes over ticket ownership
+4. **[FxMintTicket721](src/tokens/FxMintTicket721.sol)**: `ERC-721` implementation contract that allows for minting of new tickets, burning of exisiting tickets, and enforcing of harberger taxes over ticket ownership
 
-5. **[FxPseudoRandomizer](src/randomizers/FxPseudoRandomizer.sol)**: Randomizer contract that provides a pseudo-randomness `keccak256` hash using the token ID, the sender's address, the current block number, and the hash of the previous block
+5. **[FxRoleRegistry](src/registries/FxRoleRegistry.sol)**: Registry contract that implements **[AccessControl](https://docs.openzeppelin.com/contracts/4.x/api/access)** to manage different roles within the system, such as `admin`, `creator`, `minter`, and `moderator`
 
-6. **[FxRoleRegistry](src/registries/FxRoleRegistry.sol)**: Registry contract that implements **[AccessControl](https://docs.openzeppelin.com/contracts/4.x/api/access)** to manage different roles within the system, such as `admin`, `creator`, `minter`, and `moderator`
+6. **[FxSplitsFactory](src/factories/FxSplitsFactory.sol)**: Factory contract that creates and manages **[0xSplits](https://docs.splits.org)** contracts for distributing token royalties on primary and secondary sales
 
-7. **[FxScriptyRenderer](src/renderers/FxScriptyRenderer.sol)**: Renderer contract that generates and builds the metadata of a token fully onchain in `base64` format using **[Scripty.sol](https://int-art.gitbook.io/scripty.sol-v2)**
+7. **[FxTicketFactory](src/factories/FxTicketFactory.sol)**: Factory contract that clones the `FxMintTicket721` implementation to create new Mint Tickets for an existing `FxGenArt721` project
 
-8. **[FxSplitsFactory](src/factories/FxSplitsFactory.sol)**: Factory contract that creates and manages **[0xSplits](https://docs.splits.org)** contracts for distributing token royalties on primary and secondary sales
+## Periphery Contracts
 
-9.  **[FxTicketFactory](src/factories/FxTicketFactory.sol)**: Factory contract that clones the `FxMintTicket721` implementation to create new Mint Tickets for an existing `FxGenArt721` project
+1. **[DutchAuction](src/minters/DutchAuction.sol)**: Minters contract mints new `FxGenArt721` and `FxMintTicket721` tokens with a dutch auction pricing mechanism
 
-10. **[FixedPrice](src/minters/FixedPrice.sol)**: Minter contract that mints new `FxGenArt721` and `FxMintTicket721` tokens at a fixed price
+2. **[FixedPrice](src/minters/FixedPrice.sol)**: Minter contract that mints new `FxGenArt721` and `FxMintTicket721` tokens at a fixed price
+
+3. **[PseudoRandomizer](src/randomizers/PseudoRandomizer.sol)**: Randomizer contract that provides a pseudo-randomness `keccak256` hash using the token ID, the sender's address, the current block number, and the hash of the previous block
+
+4. **[ScriptyRenderer](src/renderers/ScriptyRenderer.sol)**: Renderer contract that generates and builds the metadata of a token fully onchain in `base64` format using **[Scripty.sol](https://int-art.gitbook.io/scripty.sol-v2)**
+
+4. **[TicketRedeemer](src/minters/TicketRedeemer.sol)**: Minter contract that burns an existing `FxMintTicket721` token and mints a new `FxGenArt721` token
 
 ## Architechture
 
@@ -30,8 +36,8 @@ B[FxGenArt721]--> A[FxRoleRegistry]
 C[FxIssuerFactory] --> B
 B --> D[FxContractRegistry]
 E[FxSplitsFactory]
-B --> F[FxPseudoRandomizer]
-B --> G[FxScriptyRenderer]
+B --> F[PseudoRandomizer]
+B --> G[ScriptyRenderer]
 ```
 
 ## Setup
