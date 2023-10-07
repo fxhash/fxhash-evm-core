@@ -32,6 +32,6 @@ contract SetPrice is FxMintTicket721Test {
 
     function testSetPrice_RevertsWhen_InvalidPrice() public {
         vm.expectRevert(INVALID_PRICE_ERROR);
-        _setPrice(bob, tokenId, uint128(MINIMUM_PRICE - 1));
+        _setPrice(bob, tokenId, uint80(MINIMUM_PRICE - 1));
     }
 }

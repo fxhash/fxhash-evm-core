@@ -92,9 +92,9 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
 
                 // Sets initial tax info of token
                 taxes[totalSupply] = TaxInfo(
-                    uint128(block.timestamp) + gracePeriod,
-                    uint128(block.timestamp) + gracePeriod,
-                    uint128(listingPrice),
+                    uint48(block.timestamp) + gracePeriod,
+                    uint48(block.timestamp) + gracePeriod,
+                    uint80(listingPrice),
                     0
                 );
             }
@@ -124,7 +124,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
     }
 
     /// @inheritdoc IFxMintTicket721
-    function claim(uint256 _tokenId, uint128 _newPrice) external payable {
+    function claim(uint256 _tokenId, uint80 _newPrice) external payable {
         // Loads current tax info
         TaxInfo storage taxInfo = taxes[_tokenId];
         // Reverts if grace period of token is still active
@@ -156,7 +156,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
             // Updates balance of contract owner
             balances[owner()] += totalDeposit + auctionPrice;
             // Sets new deposit amount based on auction price
-            taxInfo.depositAmount = uint128(msg.value - auctionPrice);
+            taxInfo.depositAmount = uint80(msg.value - auctionPrice);
         } else {
             // Reverts if payment amount if insufficient to current price and new daily tax
             if (msg.value < currentPrice + newDailyTax) revert InsufficientPayment();
@@ -165,7 +165,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
             balances[owner()] += depositOwed;
             balances[previousOwner] += currentPrice + remainingDeposit;
             // Sets new deposit amount based on current price
-            taxInfo.depositAmount = uint128(msg.value - currentPrice);
+            taxInfo.depositAmount = uint80(msg.value - currentPrice);
         }
 
         // Sets new tax info
@@ -193,11 +193,11 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
         // Calculates total deposit amount
         uint256 depositAmount = msg.value - excessAmount;
         // Gets new foreclosure time based on deposit amount
-        uint128 newForeclosure = getForeclosureTime(dailyTax, taxInfo.foreclosureTime, depositAmount);
+        uint48 newForeclosure = getForeclosureTime(dailyTax, taxInfo.foreclosureTime, depositAmount);
 
         // Sets new tax info
         taxInfo.foreclosureTime = newForeclosure;
-        taxInfo.depositAmount += uint128(depositAmount);
+        taxInfo.depositAmount += uint80(depositAmount);
 
         // Emits event for depositing taxes
         emit Deposited(_tokenId, msg.sender, depositAmount, newForeclosure);
@@ -207,7 +207,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
     }
 
     /// @inheritdoc IFxMintTicket721
-    function setPrice(uint256 _tokenId, uint128 _newPrice) public {
+    function setPrice(uint256 _tokenId, uint80 _newPrice) public {
         // Reverts if caller is not owner of token
         if (_ownerOf(_tokenId) != msg.sender) revert NotAuthorized();
         // Reverts if token is foreclosed
@@ -217,7 +217,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
 
         // Loads current tax info
         TaxInfo storage taxInfo = taxes[_tokenId];
-        uint128 foreclosureTime = taxInfo.foreclosureTime;
+        uint48 foreclosureTime = taxInfo.foreclosureTime;
 
         // Gets daily tax amount for current price
         uint256 currentDailyTax = getDailyTax(taxInfo.currentPrice);
@@ -236,7 +236,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
         // Sets new tax info
         taxInfo.currentPrice = _newPrice;
         taxInfo.foreclosureTime = getForeclosureTime(newDailyTax, foreclosureTime, remainingDeposit);
-        taxInfo.depositAmount = uint128(remainingDeposit);
+        taxInfo.depositAmount = uint80(remainingDeposit);
 
         // Emits event for setting new price
         emit SetPrice(_tokenId, _newPrice, taxInfo.foreclosureTime, taxInfo.depositAmount);
@@ -337,9 +337,9 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
         uint256 _dailyTax,
         uint256 _foreclosureTime,
         uint256 _taxPayment
-    ) public pure returns (uint128) {
+    ) public pure returns (uint48) {
         uint256 secondsCovered = getTaxDuration(_taxPayment, _dailyTax);
-        return uint128(_foreclosureTime + secondsCovered);
+        return uint48(_foreclosureTime + secondsCovered);
     }
 
     /// @inheritdoc IFxMintTicket721

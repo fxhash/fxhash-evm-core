@@ -5,11 +5,11 @@ import "test/BaseTest.t.sol";
 
 contract FxMintTicket721Test is BaseTest {
     // State
-    uint128 currentPrice;
-    uint128 depositAmount;
-    uint128 foreclosureTime;
-    uint128 gracePeriod;
-    uint128 newPrice;
+    uint48 foreclosureTime;
+    uint48 gracePeriod;
+    uint80 currentPrice;
+    uint80 depositAmount;
+    uint80 newPrice;
     uint256 auctionPrice;
     uint256 balance;
     uint256 excessAmount;
@@ -59,7 +59,7 @@ contract FxMintTicket721Test is BaseTest {
         amount = 1;
         tokenId = 1;
         excessAmount = DEPOSIT_AMOUNT / 2;
-        newPrice = uint128(PRICE / 2);
+        newPrice = uint80(PRICE / 2);
     }
 
     function _mint(address _minter, address _to, uint256 _amount, uint256 _payment) internal prank(_minter) {
@@ -74,11 +74,11 @@ contract FxMintTicket721Test is BaseTest {
         IFxMintTicket721(fxMintTicketProxy).deposit{value: _amount}(_tokenId);
     }
 
-    function _setPrice(address _owner, uint256 _tokenId, uint128 _newPrice) internal prank(_owner) {
+    function _setPrice(address _owner, uint256 _tokenId, uint80 _newPrice) internal prank(_owner) {
         IFxMintTicket721(fxMintTicketProxy).setPrice(_tokenId, _newPrice);
     }
 
-    function _claim(address _claimer, uint256 _tokenId, uint128 _newPrice, uint256 _payment) internal prank(_claimer) {
+    function _claim(address _claimer, uint256 _tokenId, uint80 _newPrice, uint256 _payment) internal prank(_claimer) {
         IFxMintTicket721(fxMintTicketProxy).claim{value: _payment}(_tokenId, _newPrice);
     }
 
