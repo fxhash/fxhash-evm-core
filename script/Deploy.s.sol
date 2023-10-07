@@ -11,13 +11,13 @@ import {FxGenArt721} from "src/tokens/FxGenArt721.sol";
 import {FxIssuerFactory} from "src/factories/FxIssuerFactory.sol";
 import {FxMintTicket721} from "src/tokens/FxMintTicket721.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
-import {SplitsFactory} from "src/factories/SplitsFactory.sol";
 import {FxTicketFactory} from "src/factories/FxTicketFactory.sol";
 
 import {DutchAuction} from "src/minters/DutchAuction.sol";
 import {FixedPrice} from "src/minters/FixedPrice.sol";
 import {PseudoRandomizer} from "src/randomizers/PseudoRandomizer.sol";
 import {ScriptyRenderer} from "src/renderers/ScriptyRenderer.sol";
+import {SplitsFactory} from "src/factories/SplitsFactory.sol";
 import {TicketRedeemer} from "src/minters/TicketRedeemer.sol";
 
 import {Clones} from "openzeppelin-contracts/contracts/proxy/Clones.sol";
