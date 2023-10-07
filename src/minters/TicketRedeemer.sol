@@ -3,11 +3,17 @@ pragma solidity 0.8.20;
 
 import {FxMintTicket721} from "src/tokens/FxMintTicket721.sol";
 import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
-import {ITicketRedeemer} from "src/interfaces/ITicketRedeemer.sol";
+import {ITicketRedeemer, IMinter} from "src/interfaces/ITicketRedeemer.sol";
 
+/**
+ * @title TicketRedeemer
+ * @notice See the documentation in {ITicketRedeemer}
+ */
 contract TicketRedeemer is ITicketRedeemer {
+    /// @inheritdoc ITicketRedeemer
     mapping(address => address) public tokens;
 
+    /// @inheritdoc IMinter
     function setMintDetails(ReserveInfo calldata, bytes calldata _mintData) external {
         address ticket = abi.decode(_mintData, (address));
         if (tokens[ticket] != address(0)) revert AlreadySet();
@@ -16,6 +22,7 @@ contract TicketRedeemer is ITicketRedeemer {
         emit MintDetailsSet(ticket, msg.sender);
     }
 
+    /// @inheritdoc ITicketRedeemer
     function burn(address _ticket, uint256 _tokenId) external {
         // Reverts if caller is not owner of ticket
         address owner = FxMintTicket721(_ticket).ownerOf(_tokenId);

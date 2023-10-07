@@ -18,7 +18,7 @@
 
 ## Periphery Contracts
 
-1. **[DutchAuction](src/minters/DutchAuction.sol)**: Minters contract mints new `FxGenArt721` and `FxMintTicket721` tokens with a dutch auction pricing mechanism
+1. **[DutchAuction](src/minters/DutchAuction.sol)**: Minter contract that mints new `FxGenArt721` and `FxMintTicket721` tokens with a dutch auction pricing mechanism
 
 2. **[FixedPrice](src/minters/FixedPrice.sol)**: Minter contract that mints new `FxGenArt721` and `FxMintTicket721` tokens at a fixed price
 
@@ -26,7 +26,7 @@
 
 4. **[ScriptyRenderer](src/renderers/ScriptyRenderer.sol)**: Renderer contract that generates and builds the metadata of a token fully onchain in `base64` format using **[Scripty.sol](https://int-art.gitbook.io/scripty.sol-v2)**
 
-4. **[TicketRedeemer](src/minters/TicketRedeemer.sol)**: Minter contract that burns an existing `FxMintTicket721` token and mints a new `FxGenArt721` token
+5. **[TicketRedeemer](src/minters/TicketRedeemer.sol)**: Minter contract that burns an existing `FxMintTicket721` token and mints a new `FxGenArt721` token
 
 ## Architechture
 
