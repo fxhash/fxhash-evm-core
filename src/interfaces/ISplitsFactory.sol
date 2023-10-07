@@ -2,16 +2,10 @@
 pragma solidity 0.8.20;
 
 /**
- * @title IFxSplitsFactory
+ * @title ISplitsFactory
  * @notice Factory contract for deploying new split wallets
  */
-interface IFxSplitsFactory {
-    /// @notice Error thrown if predictedSplit doesn't match deployment
-    error InvalidSplit();
-
-    /// @notice Error thrown if split already was deployed
-    error SplitsExists();
-
+interface ISplitsFactory {
     /**
      * @notice Emitted when the Controller address is updated
      * @param _oldController the previous controller address
@@ -34,6 +28,12 @@ interface IFxSplitsFactory {
         uint32[] _allocations,
         uint32 _distributorFee
     );
+
+    /// @notice Error thrown if predictedSplit doesn't match deployment
+    error InvalidSplit();
+
+    /// @notice Error thrown if split already was deployed
+    error SplitsExists();
 
     /**
      * @notice Function to update th Controller address

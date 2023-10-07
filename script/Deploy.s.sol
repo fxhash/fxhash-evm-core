@@ -11,7 +11,7 @@ import {FxGenArt721} from "src/tokens/FxGenArt721.sol";
 import {FxIssuerFactory} from "src/factories/FxIssuerFactory.sol";
 import {FxMintTicket721} from "src/tokens/FxMintTicket721.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
-import {FxSplitsFactory} from "src/factories/FxSplitsFactory.sol";
+import {SplitsFactory} from "src/factories/SplitsFactory.sol";
 import {FxTicketFactory} from "src/factories/FxTicketFactory.sol";
 
 import {DutchAuction} from "src/minters/DutchAuction.sol";
@@ -33,7 +33,7 @@ contract Deploy is Script {
     FxIssuerFactory internal fxIssuerFactory;
     FxMintTicket721 internal fxMintTicket721;
     FxRoleRegistry internal fxRoleRegistry;
-    FxSplitsFactory internal fxSplitsFactory;
+    SplitsFactory internal splitsFactory;
     FxTicketFactory internal fxTicketFactory;
 
     // Periphery
@@ -322,11 +322,11 @@ contract Deploy is Script {
         constructorArgs = abi.encode(admin);
         fxRoleRegistry = FxRoleRegistry(_deployCreate2(creationCode, constructorArgs, salt));
 
-        // FxSplitsFactory
+        // SplitsFactory
         splitsMain = (block.chainid == SEPOLIA) ? SEPOLIA_SPLITS_MAIN : SPLITS_MAIN;
-        creationCode = type(FxSplitsFactory).creationCode;
+        creationCode = type(SplitsFactory).creationCode;
         constructorArgs = abi.encode(admin, splitsMain);
-        fxSplitsFactory = FxSplitsFactory(_deployCreate2(creationCode, constructorArgs, salt));
+        splitsFactory = SplitsFactory(_deployCreate2(creationCode, constructorArgs, salt));
 
         // FxGenArt721
         creationCode = type(FxGenArt721).creationCode;
@@ -352,7 +352,7 @@ contract Deploy is Script {
         vm.label(address(fxIssuerFactory), "FxIssuerFactory");
         vm.label(address(fxMintTicket721), "FxMintTicket721");
         vm.label(address(fxRoleRegistry), "FxRoleRegistry");
-        vm.label(address(fxSplitsFactory), "FxSplitsFactory");
+        vm.label(address(splitsFactory), "SplitsFactory");
         vm.label(address(fxTicketFactory), "FxTicketFactory");
 
         // DutchAuction
@@ -388,7 +388,7 @@ contract Deploy is Script {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _createSplit() internal virtual {
-        primaryReceiver = fxSplitsFactory.createImmutableSplit(accounts, allocations);
+        primaryReceiver = splitsFactory.createImmutableSplit(accounts, allocations);
     }
 
     function _createProject() internal virtual {
@@ -437,7 +437,7 @@ contract Deploy is Script {
         contracts.push(address(fxIssuerFactory));
         contracts.push(address(fxMintTicket721));
         contracts.push(address(fxRoleRegistry));
-        contracts.push(address(fxSplitsFactory));
+        contracts.push(address(splitsFactory));
         contracts.push(address(fxTicketFactory));
         contracts.push(address(dutchAuction));
         contracts.push(address(fixedPrice));

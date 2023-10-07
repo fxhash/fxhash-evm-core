@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import "test/unit/FxSplitsFactory/FxSplitsFactoryTest.sol";
+import "test/unit/SplitsFactory/SplitsFactoryTest.sol";
 
-contract CreateSplit is FxSplitsFactoryTest {
+contract CreateSplit is SplitsFactoryTest {
     function setUp() public virtual override {
         super.setUp();
         accounts.push(bob);
@@ -13,11 +13,11 @@ contract CreateSplit is FxSplitsFactoryTest {
     }
 
     function test_createMutableSplit() public {
-        fxSplitsFactory.createMutableSplit(accounts, allocations);
+        splitsFactory.createMutableSplit(accounts, allocations);
     }
 
     function test_Withdraw() public {
-        address split = fxSplitsFactory.createMutableSplit(accounts, allocations);
+        address split = splitsFactory.createMutableSplit(accounts, allocations);
         vm.deal(split, 1 ether);
         ISplitsMain(SPLITS_MAIN).distributeETH(split, accounts, allocations, 0, address(0));
         ISplitsMain(SPLITS_MAIN).withdraw(alice, 0.4 ether, new address[](0));
@@ -30,7 +30,7 @@ contract CreateSplit is FxSplitsFactoryTest {
         accounts.pop();
 
         vm.expectRevert();
-        fxSplitsFactory.createMutableSplit(accounts, allocations);
+        splitsFactory.createMutableSplit(accounts, allocations);
     }
 
     function test_RevertsWhen_AllocationsGt100() public {
@@ -38,14 +38,14 @@ contract CreateSplit is FxSplitsFactoryTest {
         allocations.push(1);
 
         vm.expectRevert();
-        fxSplitsFactory.createMutableSplit(accounts, allocations);
+        splitsFactory.createMutableSplit(accounts, allocations);
     }
 
     function test_RevertsWhen_AllocationsLt100() public {
         allocations[0]--;
 
         vm.expectRevert();
-        fxSplitsFactory.createMutableSplit(accounts, allocations);
+        splitsFactory.createMutableSplit(accounts, allocations);
     }
 
     function test_RevertsWhen_DuplicateAccountInAccounts() public {
@@ -54,13 +54,13 @@ contract CreateSplit is FxSplitsFactoryTest {
         allocations[0]--;
 
         vm.expectRevert();
-        fxSplitsFactory.createMutableSplit(accounts, allocations);
+        splitsFactory.createMutableSplit(accounts, allocations);
     }
 
     function test_RevertsWhen_AccountsNotSorted() public {
         (accounts[0], accounts[1]) = (accounts[1], accounts[0]);
 
         vm.expectRevert();
-        fxSplitsFactory.createMutableSplit(accounts, allocations);
+        splitsFactory.createMutableSplit(accounts, allocations);
     }
 }

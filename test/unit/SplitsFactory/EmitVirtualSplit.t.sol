@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import "test/unit/FxSplitsFactory/FxSplitsFactoryTest.sol";
+import "test/unit/SplitsFactory/SplitsFactoryTest.sol";
 
-contract CreateVirtualSplit is FxSplitsFactoryTest {
+contract CreateVirtualSplit is SplitsFactoryTest {
     function setUp() public override {
         super.setUp();
         accounts.push(bob);
@@ -13,14 +13,14 @@ contract CreateVirtualSplit is FxSplitsFactoryTest {
     }
 
     function test_createsVirtualSplit() public {
-        fxSplitsFactory.emitVirtualSplit(accounts, allocations);
+        splitsFactory.emitVirtualSplit(accounts, allocations);
     }
 
     function test_RevertsWhen_LengthMismatch() public {
         accounts.pop();
 
         vm.expectRevert();
-        fxSplitsFactory.emitVirtualSplit(accounts, allocations);
+        splitsFactory.emitVirtualSplit(accounts, allocations);
     }
 
     function test_RevertsWhen_AllocationsGt100() public {
@@ -28,14 +28,14 @@ contract CreateVirtualSplit is FxSplitsFactoryTest {
         allocations.push(1);
 
         vm.expectRevert();
-        fxSplitsFactory.emitVirtualSplit(accounts, allocations);
+        splitsFactory.emitVirtualSplit(accounts, allocations);
     }
 
     function test_RevertsWhen_AllocationsLt100() public {
         allocations[0]--;
 
         vm.expectRevert();
-        fxSplitsFactory.emitVirtualSplit(accounts, allocations);
+        splitsFactory.emitVirtualSplit(accounts, allocations);
     }
 
     function test_RevertsWhen_DuplicateAccountInAccounts() public {
@@ -44,13 +44,13 @@ contract CreateVirtualSplit is FxSplitsFactoryTest {
         allocations[0]--;
 
         vm.expectRevert();
-        fxSplitsFactory.emitVirtualSplit(accounts, allocations);
+        splitsFactory.emitVirtualSplit(accounts, allocations);
     }
 
     function test_RevertsWhen_AccountsNotSorted() public {
         (accounts[0], accounts[1]) = (accounts[1], accounts[0]);
 
         vm.expectRevert();
-        fxSplitsFactory.emitVirtualSplit(accounts, allocations);
+        splitsFactory.emitVirtualSplit(accounts, allocations);
     }
 }

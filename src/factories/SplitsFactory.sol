@@ -1,19 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {IFxSplitsFactory} from "src/interfaces/IFxSplitsFactory.sol";
+import {ISplitsFactory} from "src/interfaces/ISplitsFactory.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
 import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
 import {SPLITS_MAIN} from "script/utils/Constants.sol";
 
 /**
- * @title FxSplitsFactory
+ * @title SplitsFactory
  * @notice A factory contract for creating split wallets and easier event tracking
  */
-contract FxSplitsFactory is IFxSplitsFactory, Ownable {
-    /// @inheritdoc IFxSplitsFactory
+contract SplitsFactory is ISplitsFactory, Ownable {
+    /// @inheritdoc ISplitsFactory
     address public controller;
-    /// @inheritdoc IFxSplitsFactory
+    /// @inheritdoc ISplitsFactory
     address public splitsMain;
 
     /// @dev Initializes contract owner and 0xSplits contract
@@ -22,7 +22,7 @@ contract FxSplitsFactory is IFxSplitsFactory, Ownable {
         _transferOwnership(_admin);
     }
 
-    /// @inheritdoc IFxSplitsFactory
+    /// @inheritdoc ISplitsFactory
     function createImmutableSplit(
         address[] calldata _accounts,
         uint32[] calldata _allocations
@@ -34,7 +34,7 @@ contract FxSplitsFactory is IFxSplitsFactory, Ownable {
         if (actual != split) revert InvalidSplit();
     }
 
-    /// @inheritdoc IFxSplitsFactory
+    /// @inheritdoc ISplitsFactory
     function createMutableSplit(
         address[] calldata _accounts,
         uint32[] calldata _allocations
@@ -43,7 +43,7 @@ contract FxSplitsFactory is IFxSplitsFactory, Ownable {
         emit SplitsInfo(split, controller, _accounts, _allocations, 0);
     }
 
-    /// @inheritdoc IFxSplitsFactory
+    /// @inheritdoc ISplitsFactory
     function emitVirtualSplit(
         address[] calldata _accounts,
         uint32[] calldata _allocations
@@ -52,7 +52,7 @@ contract FxSplitsFactory is IFxSplitsFactory, Ownable {
         if (split.code.length == 0) emit SplitsInfo(split, address(0), _accounts, _allocations, 0);
     }
 
-    /// @inheritdoc IFxSplitsFactory
+    /// @inheritdoc ISplitsFactory
     function updateController(address _newController) external onlyOwner {
         address oldController = controller;
         controller = _newController;

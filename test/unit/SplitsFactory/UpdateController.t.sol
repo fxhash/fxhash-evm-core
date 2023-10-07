@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import "test/unit/FxSplitsFactory/FxSplitsFactoryTest.sol";
+import "test/unit/SplitsFactory/SplitsFactoryTest.sol";
 
-contract UpdateController is FxSplitsFactoryTest {
+contract UpdateController is SplitsFactoryTest {
     function test_UpdateController() public {
         vm.prank(admin);
-        fxSplitsFactory.updateController(alice);
+        splitsFactory.updateController(alice);
     }
 
     function test_RevertsWhen_NotOwner_UpdateController() public {
         vm.expectRevert("Ownable: caller is not the owner");
-        fxSplitsFactory.updateController(alice);
+        splitsFactory.updateController(alice);
     }
 }
