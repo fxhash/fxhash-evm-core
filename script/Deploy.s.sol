@@ -11,13 +11,13 @@ import {FxGenArt721} from "src/tokens/FxGenArt721.sol";
 import {FxIssuerFactory} from "src/factories/FxIssuerFactory.sol";
 import {FxMintTicket721} from "src/tokens/FxMintTicket721.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
-import {FxSplitsFactory} from "src/factories/FxSplitsFactory.sol";
 import {FxTicketFactory} from "src/factories/FxTicketFactory.sol";
 
 import {DutchAuction} from "src/minters/DutchAuction.sol";
 import {FixedPrice} from "src/minters/FixedPrice.sol";
 import {PseudoRandomizer} from "src/randomizers/PseudoRandomizer.sol";
 import {ScriptyRenderer} from "src/renderers/ScriptyRenderer.sol";
+import {SplitsFactory} from "src/factories/SplitsFactory.sol";
 import {TicketRedeemer} from "src/minters/TicketRedeemer.sol";
 
 import {Clones} from "openzeppelin-contracts/contracts/proxy/Clones.sol";
@@ -33,7 +33,6 @@ contract Deploy is Script {
     FxIssuerFactory internal fxIssuerFactory;
     FxMintTicket721 internal fxMintTicket721;
     FxRoleRegistry internal fxRoleRegistry;
-    FxSplitsFactory internal fxSplitsFactory;
     FxTicketFactory internal fxTicketFactory;
 
     // Periphery
@@ -41,6 +40,7 @@ contract Deploy is Script {
     FixedPrice internal fixedPrice;
     PseudoRandomizer internal pseudoRandomizer;
     ScriptyRenderer internal scriptyRenderer;
+    SplitsFactory internal splitsFactory;
     TicketRedeemer internal ticketRedeemer;
 
     // Accounts
@@ -322,12 +322,6 @@ contract Deploy is Script {
         constructorArgs = abi.encode(admin);
         fxRoleRegistry = FxRoleRegistry(_deployCreate2(creationCode, constructorArgs, salt));
 
-        // FxSplitsFactory
-        splitsMain = (block.chainid == SEPOLIA) ? SEPOLIA_SPLITS_MAIN : SPLITS_MAIN;
-        creationCode = type(FxSplitsFactory).creationCode;
-        constructorArgs = abi.encode(admin, splitsMain);
-        fxSplitsFactory = FxSplitsFactory(_deployCreate2(creationCode, constructorArgs, salt));
-
         // FxGenArt721
         creationCode = type(FxGenArt721).creationCode;
         constructorArgs = abi.encode(address(fxContractRegistry), address(fxRoleRegistry));
@@ -352,16 +346,13 @@ contract Deploy is Script {
         vm.label(address(fxIssuerFactory), "FxIssuerFactory");
         vm.label(address(fxMintTicket721), "FxMintTicket721");
         vm.label(address(fxRoleRegistry), "FxRoleRegistry");
-        vm.label(address(fxSplitsFactory), "FxSplitsFactory");
         vm.label(address(fxTicketFactory), "FxTicketFactory");
 
-        // DutchAuction
-        creationCode = type(DutchAuction).creationCode;
-        dutchAuction = DutchAuction(_deployCreate2(creationCode, salt));
-
-        // FixedPrice
-        creationCode = type(FixedPrice).creationCode;
-        fixedPrice = FixedPrice(_deployCreate2(creationCode, salt));
+        // SplitsFactory
+        splitsMain = (block.chainid == SEPOLIA) ? SEPOLIA_SPLITS_MAIN : SPLITS_MAIN;
+        creationCode = type(SplitsFactory).creationCode;
+        constructorArgs = abi.encode(admin, splitsMain);
+        splitsFactory = SplitsFactory(_deployCreate2(creationCode, constructorArgs, salt));
 
         // PseudoRandomizer
         creationCode = type(PseudoRandomizer).creationCode;
@@ -372,6 +363,14 @@ contract Deploy is Script {
         constructorArgs = abi.encode(ethFSFileStorage, scriptyStorageV2, scriptyBuilderV2);
         scriptyRenderer = ScriptyRenderer(_deployCreate2(creationCode, constructorArgs, salt));
 
+        // DutchAuction
+        creationCode = type(DutchAuction).creationCode;
+        dutchAuction = DutchAuction(_deployCreate2(creationCode, salt));
+
+        // FixedPrice
+        creationCode = type(FixedPrice).creationCode;
+        fixedPrice = FixedPrice(_deployCreate2(creationCode, salt));
+
         // TicketRedeemer
         creationCode = type(TicketRedeemer).creationCode;
         ticketRedeemer = TicketRedeemer(_deployCreate2(creationCode, salt));
@@ -380,6 +379,7 @@ contract Deploy is Script {
         vm.label(address(fixedPrice), "FixedPrice");
         vm.label(address(pseudoRandomizer), "PseudoRandomizer");
         vm.label(address(scriptyRenderer), "ScriptyRenderer");
+        vm.label(address(splitsFactory), "SplitsFactory");
         vm.label(address(ticketRedeemer), "TicketRedeemer");
     }
 
@@ -388,7 +388,7 @@ contract Deploy is Script {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _createSplit() internal virtual {
-        primaryReceiver = fxSplitsFactory.createImmutableSplit(accounts, allocations);
+        primaryReceiver = splitsFactory.createImmutableSplit(accounts, allocations);
     }
 
     function _createProject() internal virtual {
@@ -424,12 +424,12 @@ contract Deploy is Script {
         names.push(FX_ISSUER_FACTORY);
         names.push(FX_MINT_TICKET_721);
         names.push(FX_ROLE_REGISTRY);
-        names.push(FX_SPLITS_FACTORY);
         names.push(FX_TICKET_FACTORY);
         names.push(DUTCH_AUCTION);
         names.push(FIXED_PRICE);
         names.push(PSEUDO_RANDOMIZER);
         names.push(SCRIPTY_RENDERER);
+        names.push(SPLITS_FACTORY);
         names.push(TICKET_REDEEMER);
 
         contracts.push(address(fxContractRegistry));
@@ -437,12 +437,12 @@ contract Deploy is Script {
         contracts.push(address(fxIssuerFactory));
         contracts.push(address(fxMintTicket721));
         contracts.push(address(fxRoleRegistry));
-        contracts.push(address(fxSplitsFactory));
         contracts.push(address(fxTicketFactory));
         contracts.push(address(dutchAuction));
         contracts.push(address(fixedPrice));
         contracts.push(address(pseudoRandomizer));
         contracts.push(address(scriptyRenderer));
+        contracts.push(address(splitsFactory));
         contracts.push(address(ticketRedeemer));
 
         fxContractRegistry.register(names, contracts);

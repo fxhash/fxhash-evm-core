@@ -19,10 +19,10 @@ import {MockRoyaltyManager} from "test/mocks/MockRoyaltyManager.sol";
 import {IDutchAuction} from "src/interfaces/IDutchAuction.sol";
 import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
-import {IFxSplitsFactory} from "src/interfaces/IFxSplitsFactory.sol";
 import {IFxTicketFactory} from "src/interfaces/IFxTicketFactory.sol";
 import {IRoyaltyManager} from "src/interfaces/IRoyaltyManager.sol";
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
+import {ISplitsFactory} from "src/interfaces/ISplitsFactory.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
 import {ITicketRedeemer} from "src/interfaces/ITicketRedeemer.sol";
 

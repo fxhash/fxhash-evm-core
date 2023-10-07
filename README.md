@@ -12,13 +12,11 @@
 
 5. **[FxRoleRegistry](src/registries/FxRoleRegistry.sol)**: Registry contract that implements **[AccessControl](https://docs.openzeppelin.com/contracts/4.x/api/access)** to manage different roles within the system, such as `admin`, `creator`, `minter`, and `moderator`
 
-6. **[FxSplitsFactory](src/factories/FxSplitsFactory.sol)**: Factory contract that creates and manages **[0xSplits](https://docs.splits.org)** contracts for distributing token royalties on primary and secondary sales
-
-7. **[FxTicketFactory](src/factories/FxTicketFactory.sol)**: Factory contract that clones the `FxMintTicket721` implementation to create new Mint Tickets for an existing `FxGenArt721` project
+6. **[FxTicketFactory](src/factories/FxTicketFactory.sol)**: Factory contract that clones the `FxMintTicket721` implementation to create new Mint Tickets for an existing `FxGenArt721` project
 
 ## Periphery Contracts
 
-1. **[DutchAuction](src/minters/DutchAuction.sol)**: Minters contract mints new `FxGenArt721` and `FxMintTicket721` tokens with a dutch auction pricing mechanism
+1. **[DutchAuction](src/minters/DutchAuction.sol)**: Minter contract that mints new `FxGenArt721` and `FxMintTicket721` tokens with a dutch auction pricing mechanism
 
 2. **[FixedPrice](src/minters/FixedPrice.sol)**: Minter contract that mints new `FxGenArt721` and `FxMintTicket721` tokens at a fixed price
 
@@ -26,7 +24,9 @@
 
 4. **[ScriptyRenderer](src/renderers/ScriptyRenderer.sol)**: Renderer contract that generates and builds the metadata of a token fully onchain in `base64` format using **[Scripty.sol](https://int-art.gitbook.io/scripty.sol-v2)**
 
-4. **[TicketRedeemer](src/minters/TicketRedeemer.sol)**: Minter contract that burns an existing `FxMintTicket721` token and mints a new `FxGenArt721` token
+5. **[TicketRedeemer](src/minters/TicketRedeemer.sol)**: Minter contract that burns an existing `FxMintTicket721` token and mints a new `FxGenArt721` token
+
+6. **[SplitsFactory](src/factories/SplitsFactory.sol)**: Factory contract that creates and manages **[0xSplits](https://docs.splits.org)** contracts for distributing token royalties on primary and secondary sales
 
 ## Architechture
 
@@ -35,7 +35,7 @@ graph TD
 B[FxGenArt721]--> A[FxRoleRegistry]
 C[FxIssuerFactory] --> B
 B --> D[FxContractRegistry]
-E[FxSplitsFactory]
+E[SplitsFactory]
 B --> F[PseudoRandomizer]
 B --> G[ScriptyRenderer]
 ```
