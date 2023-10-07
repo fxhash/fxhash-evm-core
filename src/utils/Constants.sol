@@ -7,7 +7,6 @@ string constant FX_GEN_ART_721 = "FX_GEN_ART_721";
 string constant FX_ISSUER_FACTORY = "FX_ISSUER_FACTORY";
 string constant FX_MINT_TICKET_721 = "FX_MINT_TICKET_721";
 string constant FX_ROLE_REGISTRY = "FX_ROLE_REGISTRY";
-string constant FX_SPLITS_FACTORY = "FX_SPLITS_FACTORY";
 string constant FX_TICKET_FACTORY = "FX_TICKET_FACTORY";
 
 // Periphery
@@ -15,6 +14,7 @@ string constant DUTCH_AUCTION = "DUTCH_AUCTION";
 string constant FIXED_PRICE = "FIXED_PRICE";
 string constant PSEUDO_RANDOMIZER = "PSEUDO_RANDOMIZER";
 string constant SCRIPTY_RENDERER = "SCRIPTY_RENDERER";
+string constant SPLITS_FACTORY = "SPLITS_FACTORY";
 string constant TICKET_REDEEMER = "TICKET_REDEEMER";
 
 // EIP-712
