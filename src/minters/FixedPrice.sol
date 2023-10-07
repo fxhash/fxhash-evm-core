@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+import {IFixedPrice, IMinter} from "src/interfaces/IFixedPrice.sol";
 import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
-import {IFixedPrice, IFxMinter} from "src/interfaces/IFixedPrice.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 
@@ -22,7 +22,7 @@ contract FixedPrice is IFixedPrice {
     /// @inheritdoc IFixedPrice
     mapping(address => uint256) public saleProceeds;
 
-    /// @inheritdoc IFxMinter
+    /// @inheritdoc IMinter
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external {
         if (_reserve.allocation == 0) revert InvalidAllocation();
         uint256 price = abi.decode(_mintDetails, (uint256));

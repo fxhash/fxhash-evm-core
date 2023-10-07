@@ -20,6 +20,7 @@ uint240 constant MAX_SUPPLY = 1000;
 
 // Reserves
 uint64 constant MINTER_ALLOCATION = 500;
+uint64 constant REDEEMER_ALLOCATION = 0;
 uint64 constant RESERVE_START_TIME = 86_400; // 1 day
 uint64 constant RESERVE_END_TIME = 604_800; // 1 week
 

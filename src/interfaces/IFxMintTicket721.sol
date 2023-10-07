@@ -8,10 +8,10 @@ pragma solidity 0.8.20;
  * @param depositAmount Total amount of taxes deposited
  */
 struct TaxInfo {
-    uint128 gracePeriod; // uint256
-    uint128 foreclosureTime; // uint64
-    uint128 currentPrice; // uint96
-    uint128 depositAmount; // uint96
+    uint48 gracePeriod;
+    uint48 foreclosureTime;
+    uint80 currentPrice;
+    uint80 depositAmount;
 }
 
 /**
@@ -92,6 +92,9 @@ interface IFxMintTicket721 {
     /// @notice Error thrown when caller does not have the specified role
     error UnauthorizedAccount();
 
+    /// @notice Error thrown when caller does not have the redeemer role
+    error UnauthorizedRedeemer();
+
     /// @notice Error thrown when caller is not a registered minter
     error UnregisteredMinter();
 
@@ -116,7 +119,7 @@ interface IFxMintTicket721 {
      * @param _tokenId ID of the token
      * @param _newPrice New listing price of token
      */
-    function claim(uint256 _tokenId, uint128 _newPrice) external payable;
+    function claim(uint256 _tokenId, uint80 _newPrice) external payable;
 
     /**
      * @notice Deposits taxes for given token
@@ -185,7 +188,7 @@ interface IFxMintTicket721 {
         uint256 _dailyTax,
         uint256 _foreclosureTime,
         uint256 _taxPayment
-    ) external pure returns (uint128);
+    ) external pure returns (uint48);
 
     /**
      * @notice Gets the remaining amount of taxes to be deposited
@@ -242,12 +245,12 @@ interface IFxMintTicket721 {
      * @param _tokenId ID of the token
      * @param _newPrice New ether price of the token
      */
-    function setPrice(uint256 _tokenId, uint128 _newPrice) external;
+    function setPrice(uint256 _tokenId, uint80 _newPrice) external;
 
     /**
      * @notice Mapping of ticket ID to tax information
      */
-    function taxes(uint256) external returns (uint128, uint128, uint128, uint128);
+    function taxes(uint256) external returns (uint48, uint48, uint80, uint80);
 
     /**
      * @notice Returns the current total supply of tokens

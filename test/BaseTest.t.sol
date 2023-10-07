@@ -16,13 +16,15 @@ import {MockMinter} from "test/mocks/MockMinter.sol";
 import {MockMintPass} from "test/mocks/MockMintPass.sol";
 import {MockRoyaltyManager} from "test/mocks/MockRoyaltyManager.sol";
 
-import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
-import {IFxSplitsFactory} from "src/interfaces/IFxSplitsFactory.sol";
-import {IFxTicketFactory} from "src/interfaces/IFxTicketFactory.sol";
+import {IDutchAuction} from "src/interfaces/IDutchAuction.sol";
 import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
+import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
+import {IFxTicketFactory} from "src/interfaces/IFxTicketFactory.sol";
 import {IRoyaltyManager} from "src/interfaces/IRoyaltyManager.sol";
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
+import {ISplitsFactory} from "src/interfaces/ISplitsFactory.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
+import {ITicketRedeemer} from "src/interfaces/ITicketRedeemer.sol";
 
 contract BaseTest is Deploy, Test {
     // Mocks
@@ -42,6 +44,7 @@ contract BaseTest is Deploy, Test {
     bytes internal fxParams;
     bytes32 internal seed;
     uint96 internal projectId;
+    uint256 internal quantity;
 
     // Modifiers
     modifier prank(address _caller) {
@@ -87,6 +90,7 @@ contract BaseTest is Deploy, Test {
         vm.deal(bob, INITIAL_BALANCE);
         vm.deal(eve, INITIAL_BALANCE);
         vm.deal(susan, INITIAL_BALANCE);
+        vm.deal(address(this), INITIAL_BALANCE);
     }
 
     function _initializeState() internal virtual {
@@ -135,5 +139,9 @@ contract BaseTest is Deploy, Test {
 
     function _setRenderer(address _admin, address _renderer) internal prank(_admin) {
         FxGenArt721(fxGenArtProxy).setRenderer(_renderer);
+    }
+
+    function _toggleMint(address _creator) internal prank(_creator) {
+        IFxGenArt721(fxGenArtProxy).toggleMint();
     }
 }

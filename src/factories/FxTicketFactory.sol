@@ -18,6 +18,8 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
     /// @inheritdoc IFxTicketFactory
     address public implementation;
     /// @inheritdoc IFxTicketFactory
+    mapping(address => uint256) public nonces;
+    /// @inheritdoc IFxTicketFactory
     mapping(uint96 => address) public tickets;
 
     /// @dev Initializes FxMintTicket721 implementation contract
@@ -36,7 +38,8 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
         if (_genArt721 == address(0)) revert InvalidToken();
         if (_gracePeriod < ONE_DAY) revert InvalidGracePeriod();
 
-        mintTicket = Clones.clone(implementation);
+        mintTicket = Clones.cloneDeterministic(implementation, bytes32(nonces[msg.sender]));
+        nonces[msg.sender]++;
         tickets[++ticketId] = mintTicket;
 
         emit TicketCreated(ticketId, _owner, mintTicket);

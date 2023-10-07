@@ -19,6 +19,5 @@ interface ISeedConsumer {
      * @param _tokenId ID of the token
      * @param _seed Hash of the random seed
      */
-
     function fulfillSeedRequest(uint256 _tokenId, bytes32 _seed) external;
 }

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {IFxMinter} from "src/interfaces/IFxMinter.sol";
+import {IMinter} from "src/interfaces/IMinter.sol";
 import {ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 
 /**
@@ -36,7 +36,7 @@ struct RefundInfo {
     uint256 lastPrice;
 }
 
-interface IDutchAuction is IFxMinter {
+interface IDutchAuction is IMinter {
     /**
      * @notice Emitted when the mint details for a Dutch auction are set
      * @param _token The address of the token being minted

@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+/**
+ * @notice Struct to store the info for a royalty recipient
+ * @param The address that will receive the royalty payment.
+ * @param The basis points to calculate the royalty payment (1/100th of a percent).
+ */
 struct RoyaltyInfo {
     address payable receiver;
     uint96 basisPoints;
@@ -54,15 +59,39 @@ interface IRoyaltyManager {
     /// @notice Error thrown when the token royalties are not set
     error TokenRoyaltiesNotSet();
 
+    /**
+     * @notice Sets the base royalties for all tokens
+     * @param receivers The addresses that will receive royalties
+     * @param basisPoints The basis points to calculate royalty payments (1/100th of a percent) for each receiver
+     */
     function setBaseRoyalties(address payable[] memory receivers, uint96[] memory basisPoints) external;
 
+    /**
+     * @notice Sets the royalties for a specific token ID
+     * @param _tokenId The token ID for which the royalties are being set
+     * @param _receivers The addresses that will receive royalties
+     * @param _basisPoints The basis points to calculate royalty payments (1/100th of a percent) for each receiver
+     */
     function setTokenRoyalties(
         uint256 _tokenId,
-        address payable[] memory receivers,
-        uint96[] memory basisPoints
+        address payable[] memory _receivers,
+        uint96[] memory _basisPoints
     ) external;
 
-    function getRoyalties(uint256 tokenId) external view returns (address payable[] memory, uint256[] memory);
+    /**
+     * @notice Retrieves the royalties for a specific token ID
+     * @param _tokenId The token ID for which the royalties are being retrieved
+     * @return receivers The addresses that will receive royalties
+     * @return basisPoints The basis points to calculate royalty payments (1/100th of a percent) for each receiver
+     */
+    function getRoyalties(uint256 _tokenId) external view returns (address payable[] memory, uint256[] memory);
 
-    function royaltyInfo(uint256 _tokenId, uint256 salePrice) external view returns (address, uint256);
+    /**
+     * @notice Retrieves the royalty information for a specific token ID and sale price
+     * @param _tokenId The token ID for which the royalty information is being retrieved
+     * @param _salePrice The sale price of the token
+     * @return receiver The address that will receive the royalty payment
+     * @return royaltyAmount The royalty amount to be paid to the receiver
+     */
+    function royaltyInfo(uint256 _tokenId, uint256 _salePrice) external view returns (address, uint256);
 }
