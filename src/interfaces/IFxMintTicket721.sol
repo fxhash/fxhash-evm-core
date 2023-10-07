@@ -8,10 +8,10 @@ pragma solidity 0.8.20;
  * @param depositAmount Total amount of taxes deposited
  */
 struct TaxInfo {
-    uint128 gracePeriod; // uint256
-    uint128 foreclosureTime; // uint64
-    uint128 currentPrice; // uint96
-    uint128 depositAmount; // uint96
+    uint128 gracePeriod;
+    uint128 foreclosureTime;
+    uint128 currentPrice;
+    uint128 depositAmount;
 }
 
 /**
