@@ -3,11 +3,11 @@ pragma solidity 0.8.20;
 
 import "test/BaseTest.t.sol";
 
-contract FxScriptyRendererTest is BaseTest {
+contract ScriptyRendererTest is BaseTest {
     function setUp() public override {
         super.setUp();
+        _configureState(AMOUNT, PRICE, TOKEN_ID);
         _configureScripty();
-        _configureMetdata();
-        tokenId = 1;
+        _configureMetdata(BASE_URI, IMAGE_URI, animation);
     }
 }
