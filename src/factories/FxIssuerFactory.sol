@@ -3,8 +3,8 @@ pragma solidity 0.8.20;
 
 import {Clones} from "openzeppelin/contracts/proxy/Clones.sol";
 import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
-import {IFxGenArt721, MetadataInfo, MintInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
-import {IFxIssuerFactory, ConfigInfo} from "src/interfaces/IFxIssuerFactory.sol";
+import {IFxGenArt721, InitializeInfo, MetadataInfo, MintInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
+import {IFxIssuerFactory, ConfigInfo, InitializeInfo} from "src/interfaces/IFxIssuerFactory.sol";
 import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
 
 import {BANNED_USER_ROLE} from "src/utils/Constants.sol";
@@ -44,6 +44,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     function createProject(
         address _owner,
         address _primaryReceiver,
+        InitializeInfo calldata _initializeInfo,
         ProjectInfo calldata _projectInfo,
         MetadataInfo calldata _metadataInfo,
         MintInfo[] calldata _mintInfo,
@@ -61,6 +62,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
             _owner,
             _primaryReceiver,
             configInfo.lockTime,
+            _initializeInfo,
             _projectInfo,
             _metadataInfo,
             _mintInfo,

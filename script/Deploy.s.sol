@@ -22,7 +22,7 @@ import {TicketRedeemer} from "src/minters/TicketRedeemer.sol";
 
 import {Clones} from "openzeppelin-contracts/contracts/proxy/Clones.sol";
 import {HTMLRequest, HTMLTagType, HTMLTag} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
-import {IFxGenArt721, GenArtInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
+import {IFxGenArt721, InitializeInfo, GenArtInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxIssuerFactory, ConfigInfo} from "src/interfaces/IFxIssuerFactory.sol";
 import {IFxMintTicket721, TaxInfo} from "src/interfaces/IFxMintTicket721.sol";
 
@@ -81,6 +81,7 @@ contract Deploy is Script {
 
     // Structs
     ConfigInfo internal configInfo;
+    InitializeInfo internal initializeInfo;
     IssuerInfo internal issuerInfo;
     GenArtInfo internal genArtInfo;
     MetadataInfo internal metadataInfo;
@@ -137,6 +138,7 @@ contract Deploy is Script {
 
     function _run() internal virtual {
         _deployContracts();
+        _configureInitialize(NAME, SYMBOL, address(pseudoRandomizer), address(scriptyRenderer));
         _configureMinter(
             address(fixedPrice),
             uint64(block.timestamp) + RESERVE_START_TIME,
@@ -156,7 +158,6 @@ contract Deploy is Script {
         _createSplit();
         _createProject();
         _createTicket();
-        _setContracts();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -289,6 +290,18 @@ contract Deploy is Script {
         metadataInfo.animation = _animation;
     }
 
+    function _configureInitialize(
+        string memory _name,
+        string memory _symbol,
+        address _randomizer,
+        address _renderer
+    ) internal virtual {
+        initializeInfo.name = _name;
+        initializeInfo.symbol = _symbol;
+        initializeInfo.randomizer = _randomizer;
+        initializeInfo.renderer = _renderer;
+    }
+
     function _configureMinter(
         address _minter,
         uint64 _startTime,
@@ -395,6 +408,7 @@ contract Deploy is Script {
         fxGenArtProxy = fxIssuerFactory.createProject(
             creator,
             primaryReceiver,
+            initializeInfo,
             projectInfo,
             metadataInfo,
             mintInfo,
@@ -446,11 +460,6 @@ contract Deploy is Script {
         contracts.push(address(ticketRedeemer));
 
         fxContractRegistry.register(names, contracts);
-    }
-
-    function _setContracts() internal virtual {
-        FxGenArt721(fxGenArtProxy).setRandomizer(address(pseudoRandomizer));
-        FxGenArt721(fxGenArtProxy).setRenderer(address(scriptyRenderer));
     }
 
     /*//////////////////////////////////////////////////////////////////////////

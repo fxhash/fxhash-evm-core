@@ -8,6 +8,10 @@ uint256 constant INITIAL_BALANCE = 1000 ether;
 string constant DEFAULT_METADATA = "ipfs://QmZZVBKapDg2wXzwpDxdmL9Ah665h9ZzeJ9gYdbTZ4GBzf";
 uint256 constant LOCK_TIME = 3600; // 1 hour
 
+// Initialize
+string constant NAME = "FxHash";
+string constant SYMBOL = "FXHASH";
+
 // Metadata
 string constant BASE_URI = "ipfs://";
 string constant IMAGE_URI = "ipfs://";

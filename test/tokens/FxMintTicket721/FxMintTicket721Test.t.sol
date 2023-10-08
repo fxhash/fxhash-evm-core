@@ -34,6 +34,7 @@ contract FxMintTicket721Test is BaseTest {
         _mockMinter(admin);
         _configureSplits();
         _configureRoyalties();
+        _configureInitialize(NAME, SYMBOL, address(pseudoRandomizer), address(scriptyRenderer));
         _configureProject(ENABLED, ONCHAIN, MAX_SUPPLY, CONTRACT_URI);
         _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, abi.encode(PRICE));
         _configureMinter(

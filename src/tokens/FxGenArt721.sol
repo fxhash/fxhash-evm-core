@@ -4,7 +4,7 @@ pragma solidity 0.8.20;
 import {ERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
-import {IFxGenArt721, GenArtInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
+import {IFxGenArt721, InitializeInfo, GenArtInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IMinter} from "src/interfaces/IMinter.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
 import {IRandomizer} from "src/interfaces/IRandomizer.sol";
@@ -85,20 +85,24 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
         address _owner,
         address _primaryReceiver,
         uint256 _lockTime,
+        InitializeInfo calldata _initializeInfo,
         ProjectInfo calldata _projectInfo,
         MetadataInfo calldata _metadataInfo,
         MintInfo[] calldata _mintInfo,
         address payable[] calldata _royaltyReceivers,
         uint96[] calldata _basisPoints
     ) external initializer {
+        // _name = _initializeInfo.name;
+        // _symbol = _initializeInfo.symbol;
         issuerInfo.projectInfo = _projectInfo;
-
-        _registerMinters(_owner, _lockTime, _mintInfo);
-        _setBaseRoyalties(_royaltyReceivers, _basisPoints);
-        _transferOwnership(_owner);
-
         issuerInfo.primaryReceiver = _primaryReceiver;
         metadataInfo = _metadataInfo;
+
+        _registerMinters(_owner, _lockTime, _mintInfo);
+        _setRandomizer(_initializeInfo.randomizer);
+        _setRenderer(_initializeInfo.renderer);
+        _setBaseRoyalties(_royaltyReceivers, _basisPoints);
+        _transferOwnership(_owner);
 
         emit ProjectInitialized(_primaryReceiver, _projectInfo, _metadataInfo, _mintInfo);
     }
@@ -181,14 +185,12 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
 
     /// @inheritdoc IFxGenArt721
     function setRandomizer(address _randomizer) external onlyRole(ADMIN_ROLE) {
-        randomizer = _randomizer;
-        emit RandomizerUpdated(_randomizer);
+        _setRandomizer(_randomizer);
     }
 
     /// @inheritdoc IFxGenArt721
     function setRenderer(address _renderer) external onlyRole(ADMIN_ROLE) {
-        renderer = _renderer;
-        emit RendererUpdated(_renderer);
+        _setRenderer(_renderer);
     }
 
     /// @inheritdoc IFxGenArt721
@@ -268,6 +270,18 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
         if (totalAllocation > issuerInfo.projectInfo.supply) {
             revert AllocationExceeded();
         }
+    }
+
+    /// @dev Sets the Randomizer contract
+    function _setRandomizer(address _randomizer) internal {
+        randomizer = _randomizer;
+        emit RandomizerUpdated(_randomizer);
+    }
+
+    /// @dev Sets the Renderer contract
+    function _setRenderer(address _renderer) internal {
+        renderer = _renderer;
+        emit RendererUpdated(_renderer);
     }
 
     /**

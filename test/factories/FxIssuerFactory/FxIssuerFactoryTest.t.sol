@@ -25,6 +25,7 @@ contract FxIssuerFactoryTest is BaseTest {
         fxGenArtProxy = fxIssuerFactory.createProject(
             creator,
             address(this),
+            initializeInfo,
             projectInfo,
             metadataInfo,
             mintInfo,
@@ -42,6 +43,7 @@ contract FxIssuerFactoryTest is BaseTest {
         fxGenArtProxy = fxIssuerFactory.createProject(
             address(0),
             address(this),
+            initializeInfo,
             projectInfo,
             metadataInfo,
             mintInfo,
@@ -55,6 +57,7 @@ contract FxIssuerFactoryTest is BaseTest {
         fxGenArtProxy = fxIssuerFactory.createProject(
             creator,
             address(0),
+            initializeInfo,
             projectInfo,
             metadataInfo,
             mintInfo,
