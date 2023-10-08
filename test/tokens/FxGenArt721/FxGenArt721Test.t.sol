@@ -83,7 +83,7 @@ contract FxGenArt721Test is BaseTest {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _setGenArtInfo(uint256 _tokenId) internal {
-        (fxParams, seed) = IFxGenArt721(fxGenArtProxy).genArtInfo(_tokenId);
+        (seed, inputSize, fxParams) = IFxGenArt721(fxGenArtProxy).genArtInfo(_tokenId);
     }
 
     function _setIssuerInfo() internal {

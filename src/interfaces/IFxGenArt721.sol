@@ -42,12 +42,14 @@ struct MetadataInfo {
 }
 
 /**
- * @param fxParams Randon sequence of fixed-length bytes
  * @param seed Hash of revealed seed
+ * @param inputSize Input size of fxParams
+ * @param fxParams Random sequence of fixed-length bytes
  */
 struct GenArtInfo {
-    bytes fxParams;
     bytes32 seed;
+    uint256 inputSize;
+    bytes fxParams;
 }
 
 /**
@@ -264,7 +266,7 @@ interface IFxGenArt721 is ISeedConsumer {
      * @param _tokenId ID of the token
      * @return FxParams and Seed
      */
-    function genArtInfo(uint256 _tokenId) external view returns (bytes memory, bytes32);
+    function genArtInfo(uint256 _tokenId) external view returns (bytes32, uint256, bytes memory);
 
     /**
      * @notice Gets the authorization status for the given minter
