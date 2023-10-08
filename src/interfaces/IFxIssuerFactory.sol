@@ -5,10 +5,12 @@ import {MetadataInfo, MintInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.s
 
 /**
  * @param lockTime Locked time duration from mint start time for unverified users
- * @param defaultMetadata Default URI of metadata
+ * @param referrerShare Share amount for accounts referring tokens
+ * @param defaultMetadata Default URI of token metadata
  */
 struct ConfigInfo {
-    uint256 lockTime;
+    uint128 lockTime;
+    uint128 referrerShare;
     string defaultMetadata;
 }
 
@@ -80,8 +82,8 @@ interface IFxIssuerFactory {
      */
     function setImplementation(address _implementation) external;
 
-    /// @notice Returns the configuration values (lockTime, defaultMetadata)
-    function configInfo() external view returns (uint256, string memory);
+    /// @notice Returns the configuration values (lockTime, referrerShare, defaultMetadata)
+    function configInfo() external view returns (uint128, uint128, string memory);
 
     /// @notice Returns address of current FxGenArt721 implementation contract
     function implementation() external view returns (address);

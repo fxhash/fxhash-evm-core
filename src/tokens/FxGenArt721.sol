@@ -84,7 +84,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     function initialize(
         address _owner,
         address _primaryReceiver,
-        uint256 _lockTime,
+        uint128 _lockTime,
         ProjectInfo calldata _projectInfo,
         MetadataInfo calldata _metadataInfo,
         MintInfo[] calldata _mintInfo,
@@ -240,7 +240,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
      * @dev Registers arbitrary number of minter contracts
      * @param _mintInfo List of minter contracts and their reserves
      */
-    function _registerMinters(address _owner, uint256 _lockTime, MintInfo[] calldata _mintInfo) internal {
+    function _registerMinters(address _owner, uint128 _lockTime, MintInfo[] calldata _mintInfo) internal {
         address minter;
         uint128 totalAllocation;
         ReserveInfo memory reserveInfo;

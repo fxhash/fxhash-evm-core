@@ -50,7 +50,8 @@ contract Deploy is Script {
     // Project
     string internal contractURI;
     string internal defaultMetadata;
-    uint256 internal lockTime;
+    uint128 internal lockTime;
+    uint128 internal referrerShare;
 
     // Metadata
     string internal baseURI;
@@ -120,7 +121,7 @@ contract Deploy is Script {
         _configureRoyalties();
         _configureScripty();
         _configureState(AMOUNT, PRICE, TOKEN_ID);
-        _configureInfo(LOCK_TIME, DEFAULT_METADATA);
+        _configureInfo(LOCK_TIME, REFERRER_SHARE, DEFAULT_METADATA);
         _configureProject(ENABLED, ONCHAIN, MAX_SUPPLY, CONTRACT_URI);
         _configureMetdata(BASE_URI, IMAGE_URI, animation);
     }
@@ -262,8 +263,13 @@ contract Deploy is Script {
         tokenId = _tokenId;
     }
 
-    function _configureInfo(uint256 _lockTime, string memory _defaultMetadata) internal virtual {
+    function _configureInfo(
+        uint128 _lockTime,
+        uint128 _referrerShare,
+        string memory _defaultMetadata
+    ) internal virtual {
         configInfo.lockTime = _lockTime;
+        configInfo.referrerShare = _referrerShare;
         configInfo.defaultMetadata = _defaultMetadata;
     }
 
