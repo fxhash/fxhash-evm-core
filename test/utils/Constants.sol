@@ -9,7 +9,7 @@ string constant DEFAULT_METADATA = "ipfs://QmZZVBKapDg2wXzwpDxdmL9Ah665h9ZzeJ9gY
 uint256 constant LOCK_TIME = 3600; // 1 hour
 
 // Initialize
-string constant NAME = "FxHash";
+string constant NAME = "fxhash";
 string constant SYMBOL = "FXHASH";
 
 // Metadata
