@@ -4,7 +4,7 @@ pragma solidity 0.8.20;
 import {ERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
-import {IFxGenArt721, InitializeInfo, GenArtInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
+import {IFxGenArt721, GenArtInfo, InitInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IMinter} from "src/interfaces/IMinter.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
 import {IRandomizer} from "src/interfaces/IRandomizer.sol";
@@ -87,28 +87,27 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     /// @inheritdoc IFxGenArt721
     function initialize(
         address _owner,
-        address _primaryReceiver,
         uint256 _lockTime,
-        InitializeInfo calldata _initializeInfo,
+        InitInfo calldata _initInfo,
         ProjectInfo calldata _projectInfo,
         MetadataInfo calldata _metadataInfo,
         MintInfo[] calldata _mintInfo,
         address payable[] calldata _royaltyReceivers,
         uint96[] calldata _basisPoints
     ) external initializer {
-        name_ = _initializeInfo.name;
-        symbol_ = _initializeInfo.symbol;
+        name_ = _initInfo.name;
+        symbol_ = _initInfo.symbol;
+        issuerInfo.primaryReceiver = _initInfo.primaryReceiver;
         issuerInfo.projectInfo = _projectInfo;
-        issuerInfo.primaryReceiver = _primaryReceiver;
         metadataInfo = _metadataInfo;
 
         _registerMinters(_owner, _lockTime, _mintInfo);
-        _setRandomizer(_initializeInfo.randomizer);
-        _setRenderer(_initializeInfo.renderer);
+        _setRandomizer(_initInfo.randomizer);
+        _setRenderer(_initInfo.renderer);
         _setBaseRoyalties(_royaltyReceivers, _basisPoints);
         _transferOwnership(_owner);
 
-        emit ProjectInitialized(_primaryReceiver, _projectInfo, _metadataInfo, _mintInfo);
+        emit ProjectInitialized(_initInfo.primaryReceiver, _projectInfo, _metadataInfo, _mintInfo);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

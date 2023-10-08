@@ -42,11 +42,11 @@ contract DutchAuctionTest is BaseTest {
         _configureRoyalties();
         _configureState(AMOUNT, PRICE, TOKEN_ID);
         _configureReserve();
-        _configureInitialize(NAME, SYMBOL, address(pseudoRandomizer), address(scriptyRenderer));
         _configureMinters();
         _grantRole(admin, MINTER_ROLE, address(dutchAuction));
         _grantRole(admin, MINTER_ROLE, address(refundableDA));
         _createSplit();
+        _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(scriptyRenderer));
         _createProject();
         _toggleMint(creator);
     }

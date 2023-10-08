@@ -33,7 +33,6 @@ contract FixedPriceTest is BaseTest {
         _configureSplits();
         _configureRoyalties();
         _configureState(AMOUNT, PRICE, TOKEN_ID);
-        _configureInitialize(NAME, SYMBOL, address(pseudoRandomizer), address(scriptyRenderer));
         _configureProject(ENABLED, ONCHAIN, MAX_SUPPLY, CONTRACT_URI);
         _configureMinter(
             address(fixedPrice),
@@ -44,6 +43,7 @@ contract FixedPriceTest is BaseTest {
         );
         _grantRole(admin, MINTER_ROLE, address(fixedPrice));
         _createSplit();
+        _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(scriptyRenderer));
         _createProject();
     }
 

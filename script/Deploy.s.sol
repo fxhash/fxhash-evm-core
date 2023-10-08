@@ -22,7 +22,7 @@ import {TicketRedeemer} from "src/minters/TicketRedeemer.sol";
 
 import {Clones} from "openzeppelin-contracts/contracts/proxy/Clones.sol";
 import {HTMLRequest, HTMLTagType, HTMLTag} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
-import {IFxGenArt721, InitializeInfo, GenArtInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
+import {IFxGenArt721, GenArtInfo, InitInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxIssuerFactory, ConfigInfo} from "src/interfaces/IFxIssuerFactory.sol";
 import {IFxMintTicket721, TaxInfo} from "src/interfaces/IFxMintTicket721.sol";
 
@@ -81,9 +81,9 @@ contract Deploy is Script {
 
     // Structs
     ConfigInfo internal configInfo;
-    InitializeInfo internal initializeInfo;
-    IssuerInfo internal issuerInfo;
     GenArtInfo internal genArtInfo;
+    InitInfo internal initInfo;
+    IssuerInfo internal issuerInfo;
     MetadataInfo internal metadataInfo;
     MintInfo[] internal mintInfo;
     ProjectInfo internal projectInfo;
@@ -138,7 +138,6 @@ contract Deploy is Script {
 
     function _run() internal virtual {
         _deployContracts();
-        _configureInitialize(NAME, SYMBOL, address(pseudoRandomizer), address(scriptyRenderer));
         _configureMinter(
             address(fixedPrice),
             uint64(block.timestamp) + RESERVE_START_TIME,
@@ -156,6 +155,7 @@ contract Deploy is Script {
         _registerContracts();
         _grantRoles();
         _createSplit();
+        _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(scriptyRenderer));
         _createProject();
         _createTicket();
     }
@@ -290,16 +290,18 @@ contract Deploy is Script {
         metadataInfo.animation = _animation;
     }
 
-    function _configureInitialize(
+    function _configureInit(
         string memory _name,
         string memory _symbol,
+        address _primaryReceiver,
         address _randomizer,
         address _renderer
     ) internal virtual {
-        initializeInfo.name = _name;
-        initializeInfo.symbol = _symbol;
-        initializeInfo.randomizer = _randomizer;
-        initializeInfo.renderer = _renderer;
+        initInfo.name = _name;
+        initInfo.symbol = _symbol;
+        initInfo.primaryReceiver = _primaryReceiver;
+        initInfo.randomizer = _randomizer;
+        initInfo.renderer = _renderer;
     }
 
     function _configureMinter(
@@ -407,8 +409,7 @@ contract Deploy is Script {
     function _createProject() internal virtual {
         fxGenArtProxy = fxIssuerFactory.createProject(
             creator,
-            primaryReceiver,
-            initializeInfo,
+            initInfo,
             projectInfo,
             metadataInfo,
             mintInfo,

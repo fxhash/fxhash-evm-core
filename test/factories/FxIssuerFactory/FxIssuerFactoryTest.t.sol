@@ -24,8 +24,7 @@ contract FxIssuerFactoryTest is BaseTest {
     function test_createProject() public {
         fxGenArtProxy = fxIssuerFactory.createProject(
             creator,
-            address(this),
-            initializeInfo,
+            initInfo,
             projectInfo,
             metadataInfo,
             mintInfo,
@@ -42,8 +41,7 @@ contract FxIssuerFactoryTest is BaseTest {
         vm.expectRevert(INVALID_OWNER_ERROR);
         fxGenArtProxy = fxIssuerFactory.createProject(
             address(0),
-            address(this),
-            initializeInfo,
+            initInfo,
             projectInfo,
             metadataInfo,
             mintInfo,
@@ -53,11 +51,11 @@ contract FxIssuerFactoryTest is BaseTest {
     }
 
     function test_RevertsWhen_InvalidPrimaryReceiver() public {
+        initInfo.primaryReceiver = address(0);
         vm.expectRevert(INVALID_PRIMARY_RECEIVER_ERROR);
         fxGenArtProxy = fxIssuerFactory.createProject(
             creator,
-            address(0),
-            initializeInfo,
+            initInfo,
             projectInfo,
             metadataInfo,
             mintInfo,
@@ -97,5 +95,6 @@ contract FxIssuerFactoryTest is BaseTest {
     function _initializeState() internal override {
         super._initializeState();
         projectId = 1;
+        initInfo.primaryReceiver = address(this);
     }
 }
