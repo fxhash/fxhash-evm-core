@@ -25,6 +25,10 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     address public immutable contractRegistry;
     /// @inheritdoc IFxGenArt721
     address public immutable roleRegistry;
+    /// @dev Project name
+    string internal name_;
+    /// @dev Project string
+    string internal symbol_;
     /// @inheritdoc IFxGenArt721
     uint96 public totalSupply;
     /// @inheritdoc IFxGenArt721
@@ -92,8 +96,8 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
         address payable[] calldata _royaltyReceivers,
         uint96[] calldata _basisPoints
     ) external initializer {
-        // _name = _initializeInfo.name;
-        // _symbol = _initializeInfo.symbol;
+        name_ = _initializeInfo.name;
+        symbol_ = _initializeInfo.symbol;
         issuerInfo.projectInfo = _projectInfo;
         issuerInfo.primaryReceiver = _primaryReceiver;
         metadataInfo = _metadataInfo;
@@ -220,6 +224,16 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     /// @inheritdoc IFxGenArt721
     function isMinter(address _minter) public view returns (bool) {
         return issuerInfo.minters[_minter];
+    }
+
+    /// @inheritdoc ERC721
+    function name() public view override returns (string memory) {
+        return name_;
+    }
+
+    /// @inheritdoc ERC721
+    function symbol() public view override returns (string memory) {
+        return symbol_;
     }
 
     /// @inheritdoc ERC721

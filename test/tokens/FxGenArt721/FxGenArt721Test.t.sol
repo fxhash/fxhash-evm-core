@@ -47,6 +47,10 @@ contract FxGenArt721Test is BaseTest {
         _createProject();
         assertEq(IFxGenArt721(fxGenArtProxy).contractRegistry(), address(fxContractRegistry));
         assertEq(IFxGenArt721(fxGenArtProxy).roleRegistry(), address(fxRoleRegistry));
+        assertEq(FxGenArt721(fxGenArtProxy).name(), NAME);
+        assertEq(FxGenArt721(fxGenArtProxy).symbol(), SYMBOL);
+        assertEq(IFxGenArt721(fxGenArtProxy).randomizer(), address(pseudoRandomizer));
+        assertEq(IFxGenArt721(fxGenArtProxy).renderer(), address(scriptyRenderer));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
