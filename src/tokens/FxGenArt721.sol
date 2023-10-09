@@ -129,7 +129,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
         emit SeedFulfilled(randomizer, _tokenId, _seed);
     }
 
-    function emitTags(string[] calldata _tags, bool[] calldata _statuses) external onlyRole(USER_MODERATOR_ROLE) {
+    function emitTags(string[] calldata _tags, bool[] calldata _statuses) external onlyRole(TOKEN_MODERATOR_ROLE) {
         for (uint256 i; i < _tags.length; ++i) emit SetTag(_tags[i], _statuses[i]);
     }
 
