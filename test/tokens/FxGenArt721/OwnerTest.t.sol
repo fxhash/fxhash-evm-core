@@ -20,7 +20,7 @@ contract OwnerTest is FxGenArt721Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_ownerMint() public {
-        _ownerMint(creator, alice);
+        _ownerMintRandom(creator, alice);
         assertEq(FxGenArt721(fxGenArtProxy).ownerOf(1), alice);
         assertEq(IFxGenArt721(fxGenArtProxy).totalSupply(), 1);
         assertEq(IFxGenArt721(fxGenArtProxy).remainingSupply(), MAX_SUPPLY - 1);
@@ -45,7 +45,7 @@ contract OwnerTest is FxGenArt721Test {
 
     function test_RevertsWhen_UnderSupplyAmount() public {
         supply = 0;
-        _ownerMint(creator, alice);
+        _ownerMintRandom(creator, alice);
         vm.expectRevert(INVALID_AMOUNT_ERROR);
         _reduceSupply(creator, supply);
     }
@@ -76,12 +76,12 @@ contract OwnerTest is FxGenArt721Test {
                                     HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _ownerMint(address _creator, address _to) internal prank(_creator) {
-        IFxGenArt721(fxGenArtProxy).ownerMint(_to);
+    function _ownerMintRandom(address _creator, address _to) internal prank(_creator) {
+        IFxGenArt721(fxGenArtProxy).ownerMintRandom(_to);
     }
 
-    function _reduceSupply(address _creator, uint240 _amount) internal prank(_creator) {
-        IFxGenArt721(fxGenArtProxy).reduceSupply(_amount);
+    function _reduceSupply(address _creator, uint120 _supply) internal prank(_creator) {
+        IFxGenArt721(fxGenArtProxy).reduceSupply(_supply);
     }
 
     function _toggleOnchain(address _creator) internal prank(_creator) {

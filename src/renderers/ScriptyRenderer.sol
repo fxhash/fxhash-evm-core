@@ -2,10 +2,11 @@
 pragma solidity 0.8.20;
 
 import {Base64} from "openzeppelin/contracts/utils/Base64.sol";
+import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
+
 import {GenArtInfo, MetadataInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IScriptyBuilderV2, HTMLRequest, HTMLTagType, HTMLTag} from "scripty.sol/contracts/scripty/interfaces/IScriptyBuilderV2.sol";
 import {IScriptyRenderer} from "src/interfaces/IScriptyRenderer.sol";
-import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
 /**
  * @title ScriptyRenderer

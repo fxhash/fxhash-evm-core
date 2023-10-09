@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
 import {ISplitsFactory} from "src/interfaces/ISplitsFactory.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
-import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
-import {SPLITS_MAIN} from "script/utils/Constants.sol";
 
 /**
  * @title SplitsFactory

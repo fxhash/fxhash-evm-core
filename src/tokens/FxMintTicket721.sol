@@ -2,14 +2,15 @@
 pragma solidity 0.8.20;
 
 import {ERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
-import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
-import {IFxGenArt721, MintInfo} from "src/interfaces/IFxGenArt721.sol";
-import {IFxMintTicket721, TaxInfo} from "src/interfaces/IFxMintTicket721.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
 import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
 import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
+
+import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
+import {IFxGenArt721} from "src/interfaces/IFxGenArt721.sol";
+import {IFxMintTicket721, TaxInfo} from "src/interfaces/IFxMintTicket721.sol";
 
 import "src/utils/Constants.sol";
 
