@@ -97,6 +97,7 @@ contract Deploy is Script {
     address internal fxGenArtProxy;
     uint256 internal amount;
     uint256 internal price;
+    uint256 internal quantity;
     uint256 internal tokenId;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -120,7 +121,7 @@ contract Deploy is Script {
         _configureSplits();
         _configureRoyalties();
         _configureScripty();
-        _configureState(AMOUNT, PRICE, TOKEN_ID);
+        _configureState(AMOUNT, PRICE, QUANTITY, TOKEN_ID);
         _configureInfo(LOCK_TIME, DEFAULT_METADATA);
         _configureProject(ENABLED, ONCHAIN, MAX_SUPPLY, CONTRACT_URI);
         _configureMetdata(BASE_URI, IMAGE_URI, animation);
@@ -257,9 +258,10 @@ contract Deploy is Script {
         animation.bodyTags = bodyTags;
     }
 
-    function _configureState(uint256 _amount, uint256 _price, uint256 _tokenId) internal virtual {
+    function _configureState(uint256 _amount, uint256 _price, uint256 _quantity, uint256 _tokenId) internal virtual {
         amount = _amount;
         price = _price;
+        quantity = _quantity;
         tokenId = _tokenId;
     }
 

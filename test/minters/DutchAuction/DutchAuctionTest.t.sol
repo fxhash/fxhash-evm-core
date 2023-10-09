@@ -40,7 +40,7 @@ contract DutchAuctionTest is BaseTest {
         _deployRefundableDA();
         _configureSplits();
         _configureRoyalties();
-        _configureState(AMOUNT, PRICE, TOKEN_ID);
+        _configureState(AMOUNT, PRICE, QUANTITY, TOKEN_ID);
         _configureReserve();
         _configureMinters();
         _grantRole(admin, MINTER_ROLE, address(dutchAuction));
@@ -57,7 +57,6 @@ contract DutchAuctionTest is BaseTest {
 
     function _initializeState() internal override {
         super._initializeState();
-        quantity = 1;
         projectInfo.supply = MINTER_ALLOCATION * 2;
     }
 

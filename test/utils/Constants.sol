@@ -38,6 +38,7 @@ uint32 constant CREATOR_ALLOCATION = 900_000;
 // Token
 uint256 constant AMOUNT = 10;
 uint256 constant PRICE = 1 ether;
+uint256 constant QUANTITY = 1;
 uint256 constant TOKEN_ID = 1;
 
 // Ticket

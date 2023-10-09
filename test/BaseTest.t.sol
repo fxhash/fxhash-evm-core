@@ -44,7 +44,6 @@ contract BaseTest is Deploy, Test {
     bytes internal fxParams;
     bytes32 internal seed;
     uint96 internal projectId;
-    uint256 internal quantity;
 
     // Modifiers
     modifier prank(address _caller) {
