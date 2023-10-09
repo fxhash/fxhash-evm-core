@@ -22,14 +22,12 @@ import "src/utils/Constants.sol";
  * @notice See the documentation in {IFxGenArt721}
  */
 contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, RoyaltyManager {
-    /// @inheritdoc IFxGenArt721
-    address public immutable contractRegistry;
-    /// @inheritdoc IFxGenArt721
-    address public immutable roleRegistry;
     /// @dev Project name
     string internal name_;
     /// @dev Project string
     string internal symbol_;
+    /// @inheritdoc IFxGenArt721
+    address public immutable roleRegistry;
     /// @inheritdoc IFxGenArt721
     uint96 public totalSupply;
     /// @inheritdoc IFxGenArt721
@@ -46,14 +44,6 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     /*//////////////////////////////////////////////////////////////////////////
                                   MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /**
-     * @dev Modifier for restricting calls to only registered contracts
-     */
-    modifier onlyContract(bytes32 _name) {
-        if (msg.sender != IFxContractRegistry(contractRegistry).contracts(_name)) revert UnauthorizedContract();
-        _;
-    }
 
     /**
      * @dev Modifier for restricting calls to only registered minters
@@ -76,8 +66,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Sets core registry contracts
-    constructor(address _contractRegistry, address _roleRegistry) ERC721("FxGenArt721", "FXHASH") {
-        contractRegistry = _contractRegistry;
+    constructor(address _roleRegistry) ERC721("FxGenArt721", "FXHASH") {
         roleRegistry = _roleRegistry;
     }
 
@@ -317,7 +306,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
         }
     }
 
-    /// @dev Emits event for setting flag status for tag name
+    /// @dev Emits event for setting active status of tag name
     function _emitTags(string[] calldata _names, bool[] calldata _flags) internal {
         for (uint256 i; i < _names.length; ++i) emit TagUpdated(_names[i], _flags[i]);
     }

@@ -357,7 +357,7 @@ contract Deploy is Script {
 
         // FxGenArt721
         creationCode = type(FxGenArt721).creationCode;
-        constructorArgs = abi.encode(address(fxContractRegistry), address(fxRoleRegistry));
+        constructorArgs = abi.encode(address(fxRoleRegistry));
         fxGenArt721 = FxGenArt721(_deployCreate2(creationCode, constructorArgs, salt));
 
         // FxIssuerFactory

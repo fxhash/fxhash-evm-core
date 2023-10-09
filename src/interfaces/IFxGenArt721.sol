@@ -299,11 +299,6 @@ interface IFxGenArt721 is ISeedConsumer {
     function toggleMint() external;
 
     /**
-     * @notice Returns the address of the ContractRegistry contract
-     */
-    function contractRegistry() external view returns (address);
-
-    /**
      * @notice Returns contract-level metadata for storefront marketplaces
      */
     function contractURI() external view returns (string memory);
