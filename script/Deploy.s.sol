@@ -122,7 +122,7 @@ contract Deploy is Script {
         _configureSplits();
         _configureRoyalties();
         _configureScripty();
-        _configureState(AMOUNT, PRICE, TOKEN_ID);
+        _configureState(AMOUNT, PRICE, QUANTITY, TOKEN_ID);
         _configureInfo(LOCK_TIME, REFERRER_SHARE, DEFAULT_METADATA);
         _configureProject(ENABLED, ONCHAIN, MAX_SUPPLY, CONTRACT_URI);
         _configureMetdata(BASE_URI, IMAGE_URI, animation);
