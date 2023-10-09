@@ -9,7 +9,6 @@ contract Seed is Deploy {
         _initializeState();
         for (uint256 i; i < 20; i++) {
             _createProject();
-            _setContracts();
             _mint();
         }
     }

@@ -46,6 +46,7 @@ contract FxMintTicket721Test is BaseTest {
         _grantRole(admin, MINTER_ROLE, minter);
         _grantRole(admin, MINTER_ROLE, address(ticketRedeemer));
         _createSplit();
+        _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(scriptyRenderer));
         _createProject();
         _createTicket();
     }

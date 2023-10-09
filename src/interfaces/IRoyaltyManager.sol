@@ -3,8 +3,8 @@ pragma solidity 0.8.20;
 
 /**
  * @notice Struct to store the info for a royalty recipient
- * @param The address that will receive the royalty payment.
- * @param The basis points to calculate the royalty payment (1/100th of a percent).
+ * @param The address that will receive the royalty payment
+ * @param The basis points to calculate the royalty payment (1/100th of a percent)
  */
 struct RoyaltyInfo {
     address payable receiver;
