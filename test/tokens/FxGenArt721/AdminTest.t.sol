@@ -74,6 +74,21 @@ contract AdminTest is FxGenArt721Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
+                                    RECEIVER
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function test_setReceiver() public {
+        _setReceiver(admin, bob);
+        _setIssuerInfo();
+        assertEq(primarySplits, bob);
+    }
+
+    function test_setReceiver_RevertsWhen_NotAuthorized() public {
+        vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
+        _setReceiver(alice, bob);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                                     RENDERER
     //////////////////////////////////////////////////////////////////////////*/
 

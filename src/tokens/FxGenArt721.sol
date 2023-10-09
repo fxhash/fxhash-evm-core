@@ -186,6 +186,13 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     }
 
     /// @inheritdoc IFxGenArt721
+    function setReceiver(address _newReceiver) external onlyRole(ADMIN_ROLE) {
+        address prevReceiver = issuerInfo.primaryReceiver;
+        issuerInfo.primaryReceiver = _newReceiver;
+        emit ReceiverUpdated(_newReceiver, prevReceiver);
+    }
+
+    /// @inheritdoc IFxGenArt721
     function setRenderer(address _renderer) external onlyRole(ADMIN_ROLE) {
         renderer = _renderer;
         emit RendererUpdated(_renderer);

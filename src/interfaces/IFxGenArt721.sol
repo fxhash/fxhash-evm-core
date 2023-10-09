@@ -96,6 +96,13 @@ interface IFxGenArt721 is ISeedConsumer {
     event ImageURIUpdated(string indexed _uri);
 
     /**
+     * @notice Event emitted when a new receiver address is set for primary sales
+     * @param _newReciever Address of new receiver
+     * @param _prevReceiver Address of previous receiver
+     */
+    event ReceiverUpdated(address _newReciever, address _prevReceiver);
+
+    /**
      * @notice Event emitted when new project is initialized
      * @param _projectInfo Project information
      * @param _metadataInfo List of CIDs/attributes for token metadata
@@ -232,6 +239,12 @@ interface IFxGenArt721 is ISeedConsumer {
      * @param _randomizer Address of the Randomizer contract
      */
     function setRandomizer(address _randomizer) external;
+
+    /**
+     * @notice Sets the new receiver address for primary sales
+     * @param _receiver Address of the receiver
+     */
+    function setReceiver(address _receiver) external;
 
     /**
      * @notice Sets the new Renderer contract
