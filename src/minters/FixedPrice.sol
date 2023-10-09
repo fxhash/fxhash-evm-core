@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {IFixedPrice, IMinter} from "src/interfaces/IFixedPrice.sol";
-import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
+
+import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
+import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
+import {IMinter} from "src/interfaces/IMinter.sol";
 
 /**
  * @title FixedPrice

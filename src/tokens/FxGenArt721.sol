@@ -2,17 +2,18 @@
 pragma solidity 0.8.20;
 
 import {ERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
+import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
+import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
+import {RoyaltyManager} from "src/tokens/extensions/RoyaltyManager.sol";
+
 import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {IFxGenArt721, GenArtInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IMinter} from "src/interfaces/IMinter.sol";
-import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
 import {IRandomizer} from "src/interfaces/IRandomizer.sol";
 import {IRenderer} from "src/interfaces/IRenderer.sol";
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
-import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
-import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
-import {RoyaltyManager} from "src/tokens/extensions/RoyaltyManager.sol";
 
 import "src/utils/Constants.sol";
 
@@ -271,7 +272,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     }
 
     /**
-     * @dev Checks if user is verified on platform
+     * @dev Checks if user is verified on system
      */
     function _isVerified(address _user) internal view returns (bool) {
         return (IAccessControl(roleRegistry).hasRole(VERIFIED_USER_ROLE, _user));
