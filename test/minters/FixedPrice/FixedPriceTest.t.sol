@@ -32,14 +32,14 @@ contract FixedPriceTest is BaseTest {
         _initializeState();
         _configureSplits();
         _configureRoyalties();
-        _configureState(AMOUNT, PRICE, TOKEN_ID);
+        _configureState(AMOUNT, PRICE, TOKEN_ID, merkleRoot, mintPassSigner);
         _configureProject(ENABLED, ONCHAIN, MAX_SUPPLY, CONTRACT_URI);
         _configureMinter(
             address(fixedPrice),
             RESERVE_START_TIME,
             RESERVE_END_TIME,
             MINTER_ALLOCATION,
-            abi.encode(PRICE)
+            abi.encode(PRICE, merkleRoot, mintPassSigner)
         );
         _grantRole(admin, MINTER_ROLE, address(fixedPrice));
         _createSplit();

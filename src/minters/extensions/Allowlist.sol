@@ -12,7 +12,7 @@ abstract contract Allowlist {
     using BitMaps for BitMaps.BitMap;
 
     /// @notice Error thrown when an index in a merkle tree has already been claimed
-    error AlreadyClaimed();
+    error SlotAlreadyClaimed();
 
     /// @notice Error thrown when the proof provided for an index is invalid
     error InvalidProof();
@@ -32,7 +32,7 @@ abstract contract Allowlist {
         uint256 _price,
         bytes32[] memory _proof
     ) internal {
-        if (_bitmap.get(_index)) revert AlreadyClaimed();
+        if (_bitmap.get(_index)) revert SlotAlreadyClaimed();
         bytes32 root = _getMerkleRoot(_token);
         bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(_index, _price, msg.sender))));
         if (!MerkleProof.verify(_proof, root, leaf)) revert InvalidProof();

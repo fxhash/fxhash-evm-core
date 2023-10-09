@@ -15,7 +15,7 @@ abstract contract MintPass is EIP712 {
     using BitMaps for BitMaps.BitMap;
 
     /// @dev Error thrown when a mint pass has already been claimed
-    error AlreadyClaimed();
+    error PassAlreadyClaimed();
 
     /// @dev Error thrown when the signature of the mint pass claim is invalid
     error InvalidSig();
@@ -51,7 +51,7 @@ abstract contract MintPass is EIP712 {
         bytes calldata _mintCode,
         bytes calldata _signature
     ) internal {
-        if (_bitmap.get(_index)) revert AlreadyClaimed();
+        if (_bitmap.get(_index)) revert PassAlreadyClaimed();
         bytes32 hash = generateTypedDataHash(_index, msg.sender, _mintCode);
         (uint8 v, bytes32 r, bytes32 s) = abi.decode(_signature, (uint8, bytes32, bytes32));
         address signer = ECDSA.recover(hash, v, r, s);

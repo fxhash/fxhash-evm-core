@@ -40,7 +40,7 @@ contract DutchAuctionTest is BaseTest {
         _deployRefundableDA();
         _configureSplits();
         _configureRoyalties();
-        _configureState(AMOUNT, PRICE, TOKEN_ID);
+        _configureState(AMOUNT, PRICE, TOKEN_ID, merkleRoot, mintPassSigner);
         _configureReserve();
         _configureMinters();
         _grantRole(admin, MINTER_ROLE, address(dutchAuction));

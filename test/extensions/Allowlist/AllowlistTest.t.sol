@@ -6,13 +6,12 @@ import "test/BaseTest.t.sol";
 contract AllowlistTest is BaseTest, StandardMerkleTree {
     // State
     address internal token;
-    bytes32 internal merkleRoot;
     bytes32[] internal merkleTree;
     bytes32[] internal proof;
     uint256 internal index;
 
     // Errors
-    bytes4 internal ALREADY_CLAIMED_ERROR = Allowlist.AlreadyClaimed.selector;
+    bytes4 internal ALREADY_CLAIMED_ERROR = Allowlist.SlotAlreadyClaimed.selector;
     bytes4 internal INVALID_PROOF_ERROR = Allowlist.InvalidProof.selector;
 
     /*//////////////////////////////////////////////////////////////////////////

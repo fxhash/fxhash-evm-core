@@ -30,7 +30,7 @@ contract ClaimMintPassTest is MintPassTest {
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerPk, digest);
         mintPass.claimMintPass(claimIndex, "", abi.encode(v, r, s));
         assertTrue(mintPass.isClaimed(claimIndex), "Mint pass not claimed");
-        vm.expectRevert(abi.encodeWithSelector(MintPass.AlreadyClaimed.selector));
+        vm.expectRevert(abi.encodeWithSelector(MintPass.PassAlreadyClaimed.selector));
         mintPass.claimMintPass(claimIndex, "", abi.encode(v, r, s));
     }
 
