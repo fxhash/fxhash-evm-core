@@ -157,6 +157,10 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
         issuerInfo.projectInfo.onchain = !issuerInfo.projectInfo.onchain;
     }
 
+    function emitTags(string[] calldata _tags, bool[] calldata _statuses) external onlyOwner {
+        for (uint256 i; i < _tags.length; ++i) emit SetTag(_tags[i], _statuses[i]);
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                 ADMIN FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/

@@ -121,6 +121,8 @@ interface IFxGenArt721 is ISeedConsumer {
      */
     event RendererUpdated(address indexed _renderer);
 
+    event SetTag(string _tag, bool status);
+
     /// @notice Error thrown when total minter allocation exceeds maximum supply
     error AllocationExceeded();
 
