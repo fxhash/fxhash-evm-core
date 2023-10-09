@@ -122,7 +122,6 @@ interface IFxGenArt721 is ISeedConsumer {
      * @param _projectInfo Project information
      * @param _metadataInfo List of CIDs/attributes for token metadata
      * @param _mintInfo List of authorized minter contracts and their reserves
-
      */
     event ProjectInitialized(
         address indexed _primaryReceiver,
