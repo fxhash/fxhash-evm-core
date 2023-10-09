@@ -53,6 +53,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     ) external isBanned(_owner) returns (address genArtToken) {
         if (_owner == address(0)) revert InvalidOwner();
         if (_primaryReceiver == address(0)) revert InvalidPrimaryReceiver();
+        // if (_init.info.randomizer != address(0) && _projectInfo.inputSize == 0) revert InvalidInputSize();
         genArtToken = Clones.clone(implementation);
         projects[++projectId] = genArtToken;
 
