@@ -76,7 +76,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Sets core registry contracts
-    constructor(address _contractRegistry, address _roleRegistry) ERC721("FxGenArt721", "GENART") {
+    constructor(address _contractRegistry, address _roleRegistry) ERC721("FxGenArt721", "FXHASH") {
         contractRegistry = _contractRegistry;
         roleRegistry = _roleRegistry;
     }
@@ -102,6 +102,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
         issuerInfo.projectInfo = _projectInfo;
         metadataInfo = _metadataInfo;
 
+        _emitTags(_initInfo.tagNames, _initInfo.activeFlags);
         _registerMinters(_owner, _lockTime, _mintInfo);
         _setRandomizer(_initInfo.randomizer);
         _setRenderer(_initInfo.renderer);
@@ -142,10 +143,6 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
         emit SeedFulfilled(randomizer, _tokenId, _seed);
     }
 
-    function emitTags(string[] calldata _tags, bool[] calldata _statuses) external onlyRole(TOKEN_MODERATOR_ROLE) {
-        for (uint256 i; i < _tags.length; ++i) emit SetTag(_tags[i], _statuses[i]);
-    }
-
     /*//////////////////////////////////////////////////////////////////////////
                                 OWNER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -171,11 +168,6 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     /// @inheritdoc IFxGenArt721
     function toggleMint() external onlyOwner {
         issuerInfo.projectInfo.enabled = !issuerInfo.projectInfo.enabled;
-    }
-
-    /// @inheritdoc IFxGenArt721
-    function toggleOnchain() external onlyOwner {
-        issuerInfo.projectInfo.onchain = !issuerInfo.projectInfo.onchain;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -218,6 +210,15 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     /// @inheritdoc IFxGenArt721
     function unpause() external onlyRole(ADMIN_ROLE) {
         _unpause();
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                MODERATOR FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc IFxGenArt721
+    function emitTags(string[] calldata _names, bool[] calldata _flags) external onlyRole(TOKEN_MODERATOR_ROLE) {
+        _emitTags(_names, _flags);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -314,6 +315,11 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
         if (totalAllocation > issuerInfo.projectInfo.supply) {
             revert AllocationExceeded();
         }
+    }
+
+    /// @dev Emits event for setting flag status for tag name
+    function _emitTags(string[] calldata _names, bool[] calldata _flags) internal {
+        for (uint256 i; i < _names.length; ++i) emit TagUpdated(_names[i], _flags[i]);
     }
 
     /// @dev Sets the Randomizer contract

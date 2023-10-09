@@ -11,6 +11,8 @@ import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
  * @param primaryReceiver Address of splitter contract receiving primary sales
  * @param randomizer Address of Randomizer contract
  * @param renderer Address of Renderer contract
+ * @param tagNames List of tag names describing the project
+ * @param activeFlags List of flags representing active status of each tag name
  */
 struct InitInfo {
     string name;
@@ -18,6 +20,8 @@ struct InitInfo {
     address primaryReceiver;
     address randomizer;
     address renderer;
+    string[] tagNames;
+    bool[] activeFlags;
 }
 
 /**
@@ -140,7 +144,12 @@ interface IFxGenArt721 is ISeedConsumer {
      */
     event RendererUpdated(address indexed _renderer);
 
-    event SetTag(string _tag, bool status);
+    /**
+     * @notice Event emitted when a project tag name has been updated
+     * @param _name Name of tag describing the project
+     * @param _flag Active status of tag name
+     */
+    event TagUpdated(string indexed _name, bool indexed _flag);
 
     /// @notice Error thrown when total minter allocation exceeds maximum supply
     error AllocationExceeded();
@@ -248,6 +257,13 @@ interface IFxGenArt721 is ISeedConsumer {
     function unpause() external;
 
     /**
+     * @notice Emits an event for setting tag descriptions for a project
+     * @param _names List of tag names describing the project
+     * @param _flags List of flags representing active status of each tag name
+     */
+    function emitTags(string[] calldata _names, bool[] calldata _flags) external;
+
+    /**
      * @notice Sets the new URI of the token metadata
      * @param _uri Pointer of the metadata
      */
@@ -281,11 +297,6 @@ interface IFxGenArt721 is ISeedConsumer {
      * @notice Toggles public mint from enabled to disabled and vice versa
      */
     function toggleMint() external;
-
-    /**
-     * @notice Toggles token metadata from offchain to onchain and vice versa
-     */
-    function toggleOnchain() external;
 
     /**
      * @notice Returns the address of the ContractRegistry contract

@@ -7,7 +7,6 @@ contract FxGenArt721Test is BaseTest {
     // State
     ProjectInfo internal project;
     address internal primarySplits;
-    address internal splits;
     uint120 internal supply;
 
     // Errors
@@ -37,7 +36,15 @@ contract FxGenArt721Test is BaseTest {
         _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, abi.encode(PRICE));
         _grantRole(admin, MINTER_ROLE, minter);
         _createSplit();
-        _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(scriptyRenderer));
+        _configureInit(
+            NAME,
+            SYMBOL,
+            primaryReceiver,
+            address(pseudoRandomizer),
+            address(scriptyRenderer),
+            tagNames,
+            activeFlags
+        );
     }
 
     /*//////////////////////////////////////////////////////////////////////////

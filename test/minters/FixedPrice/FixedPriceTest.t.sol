@@ -43,7 +43,15 @@ contract FixedPriceTest is BaseTest {
         );
         _grantRole(admin, MINTER_ROLE, address(fixedPrice));
         _createSplit();
-        _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(scriptyRenderer));
+        _configureInit(
+            NAME,
+            SYMBOL,
+            primaryReceiver,
+            address(pseudoRandomizer),
+            address(scriptyRenderer),
+            tagNames,
+            activeFlags
+        );
         _createProject();
     }
 }

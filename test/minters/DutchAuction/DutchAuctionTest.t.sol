@@ -46,7 +46,15 @@ contract DutchAuctionTest is BaseTest {
         _grantRole(admin, MINTER_ROLE, address(dutchAuction));
         _grantRole(admin, MINTER_ROLE, address(refundableDA));
         _createSplit();
-        _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(scriptyRenderer));
+        _configureInit(
+            NAME,
+            SYMBOL,
+            primaryReceiver,
+            address(pseudoRandomizer),
+            address(scriptyRenderer),
+            tagNames,
+            activeFlags
+        );
         _createProject();
         _toggleMint(creator);
     }

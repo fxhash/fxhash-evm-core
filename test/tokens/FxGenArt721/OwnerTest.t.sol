@@ -61,17 +61,6 @@ contract OwnerTest is FxGenArt721Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  TOGGLE ONCHAIN
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function test_ToggleOnchain() public {
-        assertTrue(project.onchain);
-        _toggleOnchain(creator);
-        _setIssuerInfo();
-        assertFalse(project.onchain);
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                                     HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -81,9 +70,5 @@ contract OwnerTest is FxGenArt721Test {
 
     function _reduceSupply(address _creator, uint120 _supply) internal prank(_creator) {
         IFxGenArt721(fxGenArtProxy).reduceSupply(_supply);
-    }
-
-    function _toggleOnchain(address _creator) internal prank(_creator) {
-        IFxGenArt721(fxGenArtProxy).toggleOnchain();
     }
 }
