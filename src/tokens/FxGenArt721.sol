@@ -91,14 +91,14 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
         issuerInfo.projectInfo = _projectInfo;
         metadataInfo = _metadataInfo;
 
-        _emitTags(_initInfo.tagNames, _initInfo.activeFlags);
+        _emitTags(_initInfo.tagNames);
         _registerMinters(_owner, _lockTime, _mintInfo);
         _setRandomizer(_initInfo.randomizer);
         _setRenderer(_initInfo.renderer);
         _setBaseRoyalties(_royaltyReceivers, _basisPoints);
         _transferOwnership(_owner);
 
-        emit ProjectInitialized(name_, symbol_, _initInfo.primaryReceiver, _projectInfo, _mintInfo);
+        emit ProjectInitialized(_initInfo.primaryReceiver, _projectInfo, _metadataInfo, _mintInfo);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -206,8 +206,8 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IFxGenArt721
-    function emitTags(string[] calldata _names, bool[] calldata _flags) external onlyRole(TOKEN_MODERATOR_ROLE) {
-        _emitTags(_names, _flags);
+    function emitTags(string[] calldata _names) external onlyRole(TOKEN_MODERATOR_ROLE) {
+        _emitTags(_names);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -307,8 +307,8 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     }
 
     /// @dev Emits event for setting active status of tag name
-    function _emitTags(string[] calldata _names, bool[] calldata _flags) internal {
-        for (uint256 i; i < _names.length; ++i) emit TagUpdated(_names[i], _flags[i]);
+    function _emitTags(string[] calldata _names) internal {
+        for (uint256 i; i < _names.length; ++i) emit SetTag(_names[i]);
     }
 
     /// @dev Sets the Randomizer contract

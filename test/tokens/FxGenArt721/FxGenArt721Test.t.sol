@@ -36,15 +36,7 @@ contract FxGenArt721Test is BaseTest {
         _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, abi.encode(PRICE));
         _grantRole(admin, MINTER_ROLE, minter);
         _createSplit();
-        _configureInit(
-            NAME,
-            SYMBOL,
-            primaryReceiver,
-            address(pseudoRandomizer),
-            address(scriptyRenderer),
-            tagNames,
-            activeFlags
-        );
+        _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(scriptyRenderer), tagNames);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
