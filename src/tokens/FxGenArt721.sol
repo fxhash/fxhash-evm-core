@@ -98,7 +98,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
         _setBaseRoyalties(_royaltyReceivers, _basisPoints);
         _transferOwnership(_owner);
 
-        emit ProjectInitialized(_initInfo.primaryReceiver, _projectInfo, _mintInfo);
+        emit ProjectInitialized(name_, symbol_, _initInfo.primaryReceiver, _projectInfo, _mintInfo);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
