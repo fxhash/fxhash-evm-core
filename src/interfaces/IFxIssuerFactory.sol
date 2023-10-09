@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {MetadataInfo, MintInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
+import {InitInfo, MetadataInfo, MintInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
 
 /**
  * @param lockTime Locked time duration from mint start time for unverified users
@@ -39,6 +39,9 @@ interface IFxIssuerFactory {
      */
     event ProjectCreated(uint96 indexed _projectId, address indexed _owner, address indexed _genArtToken);
 
+    /// @notice Error thrown when input size does not match actual byte size of params data
+    error InvalidInputSize();
+
     /// @notice Error thrown when owner is zero address
     error InvalidOwner();
 
@@ -51,7 +54,7 @@ interface IFxIssuerFactory {
     /**
      * @notice Creates new Generative Art project
      * @param _owner Address of project owner
-     * @param _primaryReceiver Address of splitter contract receiving primary sales
+     * @param _initInfo Initialization information set on project creation
      * @param _projectInfo Project information
      * @param _metadataInfo Metadata information
      * @param _mintInfo List of authorized minter contracts and their reserves
@@ -60,7 +63,7 @@ interface IFxIssuerFactory {
      */
     function createProject(
         address _owner,
-        address _primaryReceiver,
+        InitInfo calldata _initInfo,
         ProjectInfo calldata _projectInfo,
         MetadataInfo calldata _metadataInfo,
         MintInfo[] calldata _mintInfo,

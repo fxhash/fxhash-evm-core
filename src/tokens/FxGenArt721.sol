@@ -9,7 +9,7 @@ import {RoyaltyManager} from "src/tokens/extensions/RoyaltyManager.sol";
 
 import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
-import {IFxGenArt721, GenArtInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
+import {IFxGenArt721, GenArtInfo, InitInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IMinter} from "src/interfaces/IMinter.sol";
 import {IRandomizer} from "src/interfaces/IRandomizer.sol";
 import {IRenderer} from "src/interfaces/IRenderer.sol";
@@ -26,6 +26,10 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     address public immutable contractRegistry;
     /// @inheritdoc IFxGenArt721
     address public immutable roleRegistry;
+    /// @dev Project name
+    string internal name_;
+    /// @dev Project string
+    string internal symbol_;
     /// @inheritdoc IFxGenArt721
     uint96 public totalSupply;
     /// @inheritdoc IFxGenArt721
@@ -84,24 +88,27 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     /// @inheritdoc IFxGenArt721
     function initialize(
         address _owner,
-        address _primaryReceiver,
         uint256 _lockTime,
+        InitInfo calldata _initInfo,
         ProjectInfo calldata _projectInfo,
         MetadataInfo calldata _metadataInfo,
         MintInfo[] calldata _mintInfo,
         address payable[] calldata _royaltyReceivers,
         uint96[] calldata _basisPoints
     ) external initializer {
+        name_ = _initInfo.name;
+        symbol_ = _initInfo.symbol;
+        issuerInfo.primaryReceiver = _initInfo.primaryReceiver;
         issuerInfo.projectInfo = _projectInfo;
+        metadataInfo = _metadataInfo;
 
         _registerMinters(_owner, _lockTime, _mintInfo);
+        _setRandomizer(_initInfo.randomizer);
+        _setRenderer(_initInfo.renderer);
         _setBaseRoyalties(_royaltyReceivers, _basisPoints);
         _transferOwnership(_owner);
 
-        issuerInfo.primaryReceiver = _primaryReceiver;
-        metadataInfo = _metadataInfo;
-
-        emit ProjectInitialized(_primaryReceiver, _projectInfo, _metadataInfo, _mintInfo);
+        emit ProjectInitialized(_initInfo.primaryReceiver, _projectInfo, _metadataInfo, _mintInfo);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -191,14 +198,12 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
 
     /// @inheritdoc IFxGenArt721
     function setRandomizer(address _randomizer) external onlyRole(ADMIN_ROLE) {
-        randomizer = _randomizer;
-        emit RandomizerUpdated(_randomizer);
+        _setRandomizer(_randomizer);
     }
 
     /// @inheritdoc IFxGenArt721
     function setRenderer(address _renderer) external onlyRole(ADMIN_ROLE) {
-        renderer = _renderer;
-        emit RendererUpdated(_renderer);
+        _setRenderer(_renderer);
     }
 
     /// @inheritdoc IFxGenArt721
@@ -228,6 +233,16 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     /// @inheritdoc IFxGenArt721
     function isMinter(address _minter) public view returns (bool) {
         return issuerInfo.minters[_minter];
+    }
+
+    /// @inheritdoc ERC721
+    function name() public view override returns (string memory) {
+        return name_;
+    }
+
+    /// @inheritdoc ERC721
+    function symbol() public view override returns (string memory) {
+        return symbol_;
     }
 
     /// @inheritdoc ERC721
@@ -295,6 +310,18 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
         if (totalAllocation > issuerInfo.projectInfo.supply) {
             revert AllocationExceeded();
         }
+    }
+
+    /// @dev Sets the Randomizer contract
+    function _setRandomizer(address _randomizer) internal {
+        randomizer = _randomizer;
+        emit RandomizerUpdated(_randomizer);
+    }
+
+    /// @dev Sets the Renderer contract
+    function _setRenderer(address _renderer) internal {
+        renderer = _renderer;
+        emit RendererUpdated(_renderer);
     }
 
     /**
