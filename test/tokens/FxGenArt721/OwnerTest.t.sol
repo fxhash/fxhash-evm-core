@@ -80,8 +80,8 @@ contract OwnerTest is FxGenArt721Test {
         IFxGenArt721(fxGenArtProxy).ownerMint(_to);
     }
 
-    function _reduceSupply(address _creator, uint240 _amount) internal prank(_creator) {
-        IFxGenArt721(fxGenArtProxy).reduceSupply(_amount);
+    function _reduceSupply(address _creator, uint120 _supply) internal prank(_creator) {
+        IFxGenArt721(fxGenArtProxy).reduceSupply(_supply);
     }
 
     function _toggleOnchain(address _creator) internal prank(_creator) {

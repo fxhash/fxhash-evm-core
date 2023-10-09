@@ -117,6 +117,13 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
         }
     }
 
+    function mintParams(address _to, bytes calldata _fxParams) external onlyMinter whenNotPaused {
+        if (!issuerInfo.projectInfo.enabled) revert MintInactive();
+        if (issuerInfo.projectInfo.inputSize < _fxParams.length) revert InvalidInputSize();
+        _mint(_to, ++totalSupply);
+        genArtInfo[totalSupply].fxParams = _fxParams;
+    }
+
     /// @inheritdoc IFxGenArt721
     function burn(uint256 _tokenId) external whenNotPaused {
         if (!_isApprovedOrOwner(msg.sender, _tokenId)) revert NotAuthorized();
@@ -141,7 +148,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     }
 
     /// @inheritdoc IFxGenArt721
-    function reduceSupply(uint240 _supply) external onlyOwner {
+    function reduceSupply(uint120 _supply) external onlyOwner {
         if (_supply >= issuerInfo.projectInfo.supply || _supply < totalSupply) {
             revert InvalidAmount();
         }

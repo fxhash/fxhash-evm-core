@@ -7,7 +7,7 @@ contract FxGenArt721Test is BaseTest {
     // State
     ProjectInfo internal project;
     address internal splits;
-    uint240 internal supply;
+    uint120 internal supply;
 
     // Errors
     bytes4 internal ALLOCATION_EXCEEDED_ERROR = IFxGenArt721.AllocationExceeded.selector;
@@ -83,7 +83,7 @@ contract FxGenArt721Test is BaseTest {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _setGenArtInfo(uint256 _tokenId) internal {
-        (seed, inputSize, fxParams) = IFxGenArt721(fxGenArtProxy).genArtInfo(_tokenId);
+        (seed, fxParams) = IFxGenArt721(fxGenArtProxy).genArtInfo(_tokenId);
     }
 
     function _setIssuerInfo() internal {

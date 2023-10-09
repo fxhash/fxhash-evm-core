@@ -18,13 +18,15 @@ struct IssuerInfo {
 /**
  * @param enabled Minting status of project
  * @param onchain Onchain status of project
+ * @param inputSize Maximum input size of fxParams bytes data
  * @param supply Maximum supply of tokens
  * @param contractURI Contract URI of project
  */
 struct ProjectInfo {
     bool enabled;
     bool onchain;
-    uint240 supply;
+    uint120 inputSize;
+    uint120 supply;
     string contractURI;
 }
 
@@ -43,12 +45,11 @@ struct MetadataInfo {
 
 /**
  * @param seed Hash of revealed seed
- * @param inputSize Input size of fxParams
+
  * @param fxParams Random sequence of fixed-length bytes
  */
 struct GenArtInfo {
     bytes32 seed;
-    uint256 inputSize;
     bytes fxParams;
 }
 
@@ -129,6 +130,9 @@ interface IFxGenArt721 is ISeedConsumer {
     /// @notice Error thrown when max supply amount is invalid
     error InvalidAmount();
 
+    /// @notice Error thrown when input size does not match actual byte size of params data
+    error InvalidInputSize();
+
     /// @notice Error thrown when reserve start time is invalid
     error InvalidStartTime();
 
@@ -189,6 +193,13 @@ interface IFxGenArt721 is ISeedConsumer {
     function mint(address _to, uint256 _amount) external;
 
     /**
+     * @notice Allows any minter contract to mint a single fxParams token
+     * @param _to Address being minted to
+     * @param _fxParams Random sequence of fixed-length bytes used as input
+     */
+    function mintParams(address _to, bytes calldata _fxParams) external;
+
+    /**
      * @notice Allows owner to mint tokens to given account
      * @dev Owner can mint at anytime up to supply cap
      * @param _to Address being minted to
@@ -199,7 +210,7 @@ interface IFxGenArt721 is ISeedConsumer {
      * @notice Reduces max supply of collection
      * @param _supply Max supply amount
      */
-    function reduceSupply(uint240 _supply) external;
+    function reduceSupply(uint120 _supply) external;
 
     /**
      * @notice Pauses all function executions where modifier is applied
@@ -266,7 +277,7 @@ interface IFxGenArt721 is ISeedConsumer {
      * @param _tokenId ID of the token
      * @return FxParams and Seed
      */
-    function genArtInfo(uint256 _tokenId) external view returns (bytes32, uint256, bytes memory);
+    function genArtInfo(uint256 _tokenId) external view returns (bytes32, bytes memory);
 
     /**
      * @notice Gets the authorization status for the given minter
