@@ -3,7 +3,8 @@ pragma solidity 0.8.20;
 
 import {FxMintTicket721} from "src/tokens/FxMintTicket721.sol";
 import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
-import {ITicketRedeemer, IMinter} from "src/interfaces/ITicketRedeemer.sol";
+import {IMinter} from "src/interfaces/IMinter.sol";
+import {ITicketRedeemer} from "src/interfaces/ITicketRedeemer.sol";
 
 /**
  * @title TicketRedeemer
@@ -23,7 +24,7 @@ contract TicketRedeemer is ITicketRedeemer {
     }
 
     /// @inheritdoc ITicketRedeemer
-    function redeem(address _ticket, uint256 _tokenId) external {
+    function redeem(address _ticket, uint256 _tokenId, bytes calldata _fxParams) external {
         // Reverts if caller is not owner of ticket
         address owner = FxMintTicket721(_ticket).ownerOf(_tokenId);
         if (msg.sender != owner) revert NotAuthorized();
@@ -33,8 +34,8 @@ contract TicketRedeemer is ITicketRedeemer {
 
         // Burns ticket
         FxMintTicket721(_ticket).burn(_tokenId);
-        // Mints new token to caller
-        IFxGenArt721(token).mint(owner, 1);
+        // Mints new fxParams token to caller
+        IFxGenArt721(token).mintParams(owner, _fxParams);
 
         // Emits event when token has been redeemed
         emit Redeemed(_ticket, _tokenId, owner, token);

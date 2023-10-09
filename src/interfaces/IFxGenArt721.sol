@@ -5,6 +5,22 @@ import {HTMLRequest} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
 
 /**
+ * @notice Struct of initialization information on project creation
+ * @param name Name of project
+ * @param symbol Symbol of project
+ * @param primaryReceiver Address of splitter contract receiving primary sales
+ * @param randomizer Address of Randomizer contract
+ * @param renderer Address of Renderer contract
+ */
+struct InitInfo {
+    string name;
+    string symbol;
+    address primaryReceiver;
+    address randomizer;
+    address renderer;
+}
+
+/**
  * @param projectInfo Project information
  * @param primaryReceiver Address of splitter contract receiving primary sales
  * @param minters Mapping of minter contract to authorization status
@@ -18,13 +34,15 @@ struct IssuerInfo {
 /**
  * @param enabled Minting status of project
  * @param onchain Onchain status of project
+ * @param inputSize Maximum input size of fxParams bytes data
  * @param supply Maximum supply of tokens
  * @param contractURI Contract URI of project
  */
 struct ProjectInfo {
     bool enabled;
     bool onchain;
-    uint240 supply;
+    uint120 inputSize;
+    uint120 supply;
     string contractURI;
 }
 
@@ -42,12 +60,13 @@ struct MetadataInfo {
 }
 
 /**
- * @param fxParams Randon sequence of fixed-length bytes
  * @param seed Hash of revealed seed
+
+ * @param fxParams Random sequence of fixed-length bytes
  */
 struct GenArtInfo {
-    bytes fxParams;
     bytes32 seed;
+    bytes fxParams;
 }
 
 /**
@@ -127,6 +146,9 @@ interface IFxGenArt721 is ISeedConsumer {
     /// @notice Error thrown when max supply amount is invalid
     error InvalidAmount();
 
+    /// @notice Error thrown when input size does not match actual byte size of params data
+    error InvalidInputSize();
+
     /// @notice Error thrown when reserve start time is invalid
     error InvalidStartTime();
 
@@ -160,8 +182,8 @@ interface IFxGenArt721 is ISeedConsumer {
     /**
      * @notice Initializes new generative art project
      * @param _owner Address of contract owner
-     * @param _primaryReceiver Address of splitter contract receiving primary sales
      * @param _lockTime Locked time duration from mint start time for unverified users
+     * @param _initInfo Initialization information set on project creation
      * @param _projectInfo Project information
      * @param _metadataInfo Metadata information
      * @param _mintInfo List of authorized minter contracts and their reserves
@@ -170,8 +192,8 @@ interface IFxGenArt721 is ISeedConsumer {
      */
     function initialize(
         address _owner,
-        address _primaryReceiver,
         uint256 _lockTime,
+        InitInfo calldata _initInfo,
         ProjectInfo calldata _projectInfo,
         MetadataInfo calldata _metadataInfo,
         MintInfo[] calldata _mintInfo,
@@ -184,20 +206,34 @@ interface IFxGenArt721 is ISeedConsumer {
      * @param _to Address being minted to
      * @param _amount Amount of tokens being minted
      */
-    function mint(address _to, uint256 _amount) external;
+    function mintRandom(address _to, uint256 _amount) external;
 
     /**
-     * @notice Allows owner to mint tokens to given account
+     * @notice Allows any minter contract to mint a single fxParams token
+     * @param _to Address being minted to
+     * @param _fxParams Random sequence of fixed-length bytes used as input
+     */
+    function mintParams(address _to, bytes calldata _fxParams) external;
+
+    /**
+     * @notice Allows owner to mint tokens with randomly generated seeds a to given account
      * @dev Owner can mint at anytime up to supply cap
      * @param _to Address being minted to
      */
-    function ownerMint(address _to) external;
+    function ownerMintRandom(address _to) external;
+
+    /**
+     * @notice Allows owner to mint a single fxParams token
+     * @param _to Address being minted to
+     * @param _fxParams Random sequence of fixed-length bytes used as input
+     */
+    function ownerMintParams(address _to, bytes calldata _fxParams) external;
 
     /**
      * @notice Reduces max supply of collection
      * @param _supply Max supply amount
      */
-    function reduceSupply(uint240 _supply) external;
+    function reduceSupply(uint120 _supply) external;
 
     /**
      * @notice Pauses all function executions where modifier is applied
@@ -264,7 +300,7 @@ interface IFxGenArt721 is ISeedConsumer {
      * @param _tokenId ID of the token
      * @return FxParams and Seed
      */
-    function genArtInfo(uint256 _tokenId) external view returns (bytes memory, bytes32);
+    function genArtInfo(uint256 _tokenId) external view returns (bytes32, bytes memory);
 
     /**
      * @notice Gets the authorization status for the given minter

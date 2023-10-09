@@ -7,7 +7,7 @@ contract FxGenArt721Test is BaseTest {
     // State
     ProjectInfo internal project;
     address internal splits;
-    uint240 internal supply;
+    uint120 internal supply;
 
     // Errors
     bytes4 internal ALLOCATION_EXCEEDED_ERROR = IFxGenArt721.AllocationExceeded.selector;
@@ -31,11 +31,12 @@ contract FxGenArt721Test is BaseTest {
         _mockMinter(admin);
         _configureSplits();
         _configureRoyalties();
-        _configureState(AMOUNT, PRICE, TOKEN_ID, merkleRoot, mintPassSigner);
+        _configureState(AMOUNT, PRICE, QUANTITY, TOKEN_ID, merkleRoot, mintPassSigner);
         _configureProject(ENABLED, ONCHAIN, MAX_SUPPLY, CONTRACT_URI);
         _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, abi.encode(PRICE));
         _grantRole(admin, MINTER_ROLE, minter);
         _createSplit();
+        _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(scriptyRenderer));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -46,6 +47,10 @@ contract FxGenArt721Test is BaseTest {
         _createProject();
         assertEq(IFxGenArt721(fxGenArtProxy).contractRegistry(), address(fxContractRegistry));
         assertEq(IFxGenArt721(fxGenArtProxy).roleRegistry(), address(fxRoleRegistry));
+        assertEq(FxGenArt721(fxGenArtProxy).name(), NAME);
+        assertEq(FxGenArt721(fxGenArtProxy).symbol(), SYMBOL);
+        assertEq(IFxGenArt721(fxGenArtProxy).randomizer(), address(pseudoRandomizer));
+        assertEq(IFxGenArt721(fxGenArtProxy).renderer(), address(scriptyRenderer));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -83,7 +88,7 @@ contract FxGenArt721Test is BaseTest {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _setGenArtInfo(uint256 _tokenId) internal {
-        (fxParams, seed) = IFxGenArt721(fxGenArtProxy).genArtInfo(_tokenId);
+        (seed, fxParams) = IFxGenArt721(fxGenArtProxy).genArtInfo(_tokenId);
     }
 
     function _setIssuerInfo() internal {

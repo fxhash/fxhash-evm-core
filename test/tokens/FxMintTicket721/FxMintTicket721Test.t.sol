@@ -46,6 +46,7 @@ contract FxMintTicket721Test is BaseTest {
         _grantRole(admin, MINTER_ROLE, minter);
         _grantRole(admin, MINTER_ROLE, address(ticketRedeemer));
         _createSplit();
+        _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(scriptyRenderer));
         _createProject();
         _createTicket();
     }
@@ -66,8 +67,13 @@ contract FxMintTicket721Test is BaseTest {
         MockMinter(minter).mintTicket(fxMintTicketProxy, _to, _amount, _payment);
     }
 
-    function _redeem(address _owner, address _ticket, uint256 _tokenId) internal prank(_owner) {
-        ITicketRedeemer(ticketRedeemer).redeem(_ticket, _tokenId);
+    function _redeem(
+        address _owner,
+        address _ticket,
+        uint256 _tokenId,
+        bytes storage _fxParams
+    ) internal prank(_owner) {
+        ITicketRedeemer(ticketRedeemer).redeem(_ticket, _tokenId, _fxParams);
     }
 
     function _deposit(address _depositer, uint256 _tokenId, uint256 _amount) internal prank(_depositer) {

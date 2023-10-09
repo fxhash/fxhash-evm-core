@@ -1,8 +1,8 @@
-# FxHash
+# fxhash
 
 ## Core Contracts
 
-1. **[FxContractRegistry](src/registries/FxContractRegistry.sol)**: Registry contract that manages all deployed and registered smart contracts by **FxHash**
+1. **[FxContractRegistry](src/registries/FxContractRegistry.sol)**: Registry contract that manages all deployed smart contracts registered by **[fxhash](https://www.fxhash.xyz)**
 
 2. **[FxGenArt721](src/tokens/FxGenArt721.sol)**: `ERC-721` implementation contract that allows for mintng of new tokens, burning of existing tokens and managing of token royalties
 

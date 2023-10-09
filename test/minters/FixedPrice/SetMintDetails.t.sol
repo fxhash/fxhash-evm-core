@@ -7,7 +7,7 @@ contract SetMintDetails is FixedPriceTest {
     function test_setMintDetails() public {
         fixedPrice.setMintDetails(
             ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
-            abi.encode(price)
+            abi.encode(price, merkleRoot, mintPassSigner)
         );
         (startTime, endTime, supply) = fixedPrice.reserves(address(this), 0);
         assertEq(fixedPrice.prices(address(this), 0), price, "price incorrectly set");
@@ -23,6 +23,9 @@ contract SetMintDetails is FixedPriceTest {
 
     function test_RevertsIf_Price0() public {
         vm.expectRevert(INVALID_PRICE_ERROR);
-        fixedPrice.setMintDetails(ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION), abi.encode(0));
+        fixedPrice.setMintDetails(
+            ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
+            abi.encode(0, merkleRoot, mintPassSigner)
+        );
     }
 }
