@@ -134,11 +134,11 @@ contract BaseTest is Deploy, Test {
     }
 
     function _setRandomizer(address _admin, address _randomizer) internal prank(_admin) {
-        FxGenArt721(fxGenArtProxy).setRandomizer(_randomizer);
+        IFxGenArt721(fxGenArtProxy).setRandomizer(_randomizer);
     }
 
     function _setRenderer(address _admin, address _renderer) internal prank(_admin) {
-        FxGenArt721(fxGenArtProxy).setRenderer(_renderer);
+        IFxGenArt721(fxGenArtProxy).setRenderer(_renderer);
     }
 
     function _toggleMint(address _creator) internal prank(_creator) {

@@ -6,7 +6,7 @@ import "test/BaseTest.t.sol";
 contract FxGenArt721Test is BaseTest {
     // State
     ProjectInfo internal project;
-    address internal splits;
+    address internal primarySplits;
     uint240 internal supply;
 
     // Errors
@@ -59,7 +59,7 @@ contract FxGenArt721Test is BaseTest {
         assertTrue(project.onchain, "project not onchain");
         assertEq(project.supply, MAX_SUPPLY, "max supply unequal");
         assertEq(project.contractURI, CONTRACT_URI, "contract URI mismatch");
-        assertEq(splits, primaryReceiver, "primary receiver not splits address");
+        assertEq(primarySplits, primaryReceiver, "primary receiver not splits address");
         assertEq(FxGenArt721(fxGenArtProxy).owner(), creator, "owner isn't creator");
         assertEq(IFxGenArt721(fxGenArtProxy).isMinter(minter), true, "minter isn't approved minter");
     }
@@ -87,7 +87,7 @@ contract FxGenArt721Test is BaseTest {
     }
 
     function _setIssuerInfo() internal {
-        (project, splits) = IFxGenArt721(fxGenArtProxy).issuerInfo();
+        (project, primarySplits) = IFxGenArt721(fxGenArtProxy).issuerInfo();
     }
 
     function _setMetadatInfo() internal {

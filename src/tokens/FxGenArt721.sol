@@ -71,7 +71,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Sets core registry contracts
-    constructor(address _contractRegistry, address _roleRegistry) ERC721("FxGenArt721", "FXHASH") {
+    constructor(address _contractRegistry, address _roleRegistry) ERC721("FxGenArt721", "GENART") {
         contractRegistry = _contractRegistry;
         roleRegistry = _roleRegistry;
     }
