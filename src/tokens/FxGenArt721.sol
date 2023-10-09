@@ -2,17 +2,18 @@
 pragma solidity 0.8.20;
 
 import {ERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
+import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
+import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
+import {RoyaltyManager} from "src/tokens/extensions/RoyaltyManager.sol";
+
 import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {IFxGenArt721, GenArtInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IMinter} from "src/interfaces/IMinter.sol";
-import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
 import {IRandomizer} from "src/interfaces/IRandomizer.sol";
 import {IRenderer} from "src/interfaces/IRenderer.sol";
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
-import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
-import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
-import {RoyaltyManager} from "src/tokens/extensions/RoyaltyManager.sol";
 
 import "src/utils/Constants.sol";
 
@@ -108,12 +109,17 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IFxGenArt721
-    function mint(address _to, uint256 _amount) external onlyMinter whenNotPaused {
+    function mintRandom(address _to, uint256 _amount) external onlyMinter whenNotPaused {
         if (!issuerInfo.projectInfo.enabled) revert MintInactive();
         for (uint256 i; i < _amount; ++i) {
-            _mint(_to, ++totalSupply);
-            IRandomizer(randomizer).requestRandomness(totalSupply);
+            _mintRandom(_to, ++totalSupply);
         }
+    }
+
+    /// @inheritdoc IFxGenArt721
+    function mintParams(address _to, bytes calldata _fxParams) external onlyMinter whenNotPaused {
+        if (!issuerInfo.projectInfo.enabled) revert MintInactive();
+        _mintParams(_to, ++totalSupply, _fxParams);
     }
 
     /// @inheritdoc IFxGenArt721
@@ -134,13 +140,17 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IFxGenArt721
-    function ownerMint(address _to) external onlyOwner whenNotPaused {
-        _mint(_to, ++totalSupply);
-        IRandomizer(randomizer).requestRandomness(totalSupply);
+    function ownerMintRandom(address _to) external onlyOwner whenNotPaused {
+        _mintRandom(_to, ++totalSupply);
     }
 
     /// @inheritdoc IFxGenArt721
-    function reduceSupply(uint240 _supply) external onlyOwner {
+    function ownerMintParams(address _to, bytes calldata _fxParams) external onlyMinter whenNotPaused {
+        _mintParams(_to, ++totalSupply, _fxParams);
+    }
+
+    /// @inheritdoc IFxGenArt721
+    function reduceSupply(uint120 _supply) external onlyOwner {
         if (_supply >= issuerInfo.projectInfo.supply || _supply < totalSupply) {
             revert InvalidAmount();
         }
@@ -237,6 +247,23 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
+     * @dev Mints a single token to given account and generates random seed
+     */
+    function _mintRandom(address _to, uint256 _tokenId) internal {
+        _mint(_to, _tokenId);
+        IRandomizer(randomizer).requestRandomness(_tokenId);
+    }
+
+    /**
+     * @dev Mints a single fxParams token to given account
+     */
+    function _mintParams(address _to, uint256 _tokenId, bytes calldata _fxParams) internal {
+        if (issuerInfo.projectInfo.inputSize < _fxParams.length) revert InvalidInputSize();
+        _mint(_to, _tokenId);
+        genArtInfo[_tokenId].fxParams = _fxParams;
+    }
+
+    /**
      * @dev Registers arbitrary number of minter contracts
      * @param _mintInfo List of minter contracts and their reserves
      */
@@ -271,7 +298,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     }
 
     /**
-     * @dev Checks if user is verified on platform
+     * @dev Checks if user is verified on system
      */
     function _isVerified(address _user) internal view returns (bool) {
         return (IAccessControl(roleRegistry).hasRole(VERIFIED_USER_ROLE, _user));

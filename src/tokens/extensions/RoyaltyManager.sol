@@ -2,7 +2,7 @@
 pragma solidity 0.8.20;
 
 import {IRoyaltyManager, RoyaltyInfo} from "src/interfaces/IRoyaltyManager.sol";
-import {MAX_ROYALTY_BPS, FEE_DENOMINATOR} from "src/utils/Constants.sol";
+import {FEE_DENOMINATOR, MAX_ROYALTY_BPS} from "src/utils/Constants.sol";
 
 /**
  * @title RoyaltyManager
