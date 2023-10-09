@@ -70,7 +70,7 @@ contract AdminTest is FxGenArt721Test {
 
     function test_setRandomizer_RevertsWhen_NotAuthorized() public {
         vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
-        _setRenderer(creator, address(pseudoRandomizer));
+        _setRandomizer(creator, address(pseudoRandomizer));
     }
 
     /*//////////////////////////////////////////////////////////////////////////

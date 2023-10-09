@@ -9,6 +9,10 @@ string constant DEFAULT_METADATA = "ipfs://QmZZVBKapDg2wXzwpDxdmL9Ah665h9ZzeJ9gY
 uint128 constant LOCK_TIME = 3600; // 1 hour
 uint128 constant REFERRER_SHARE = 200; // 2%
 
+// Initialize
+string constant NAME = "fxhash";
+string constant SYMBOL = "FXHASH";
+
 // Metadata
 string constant BASE_URI = "ipfs://";
 string constant IMAGE_URI = "ipfs://";
@@ -35,6 +39,7 @@ uint32 constant CREATOR_ALLOCATION = 900_000;
 // Token
 uint256 constant AMOUNT = 10;
 uint256 constant PRICE = 1 ether;
+uint256 constant QUANTITY = 1;
 uint256 constant TOKEN_ID = 1;
 
 // Ticket

@@ -5,6 +5,22 @@ import {HTMLRequest} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
 
 /**
+ * @notice Struct of initialization information on project creation
+ * @param name Name of project
+ * @param symbol Symbol of project
+ * @param primaryReceiver Address of splitter contract receiving primary sales
+ * @param randomizer Address of Randomizer contract
+ * @param renderer Address of Renderer contract
+ */
+struct InitInfo {
+    string name;
+    string symbol;
+    address primaryReceiver;
+    address randomizer;
+    address renderer;
+}
+
+/**
  * @param projectInfo Project information
  * @param primaryReceiver Address of splitter contract receiving primary sales
  * @param minters Mapping of minter contract to authorization status
@@ -166,8 +182,8 @@ interface IFxGenArt721 is ISeedConsumer {
     /**
      * @notice Initializes new generative art project
      * @param _owner Address of contract owner
-     * @param _primaryReceiver Address of splitter contract receiving primary sales
      * @param _lockTime Locked time duration from mint start time for unverified users
+     * @param _initInfo Initialization information set on project creation
      * @param _projectInfo Project information
      * @param _metadataInfo Metadata information
      * @param _mintInfo List of authorized minter contracts and their reserves
@@ -176,8 +192,8 @@ interface IFxGenArt721 is ISeedConsumer {
      */
     function initialize(
         address _owner,
-        address _primaryReceiver,
-        uint128 _lockTime,
+        uint256 _lockTime,
+        InitInfo calldata _initInfo,
         ProjectInfo calldata _projectInfo,
         MetadataInfo calldata _metadataInfo,
         MintInfo[] calldata _mintInfo,
