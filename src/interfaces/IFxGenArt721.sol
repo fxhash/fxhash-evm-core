@@ -190,7 +190,7 @@ interface IFxGenArt721 is ISeedConsumer {
      * @param _to Address being minted to
      * @param _amount Amount of tokens being minted
      */
-    function mint(address _to, uint256 _amount) external;
+    function mintRandom(address _to, uint256 _amount) external;
 
     /**
      * @notice Allows any minter contract to mint a single fxParams token
@@ -200,11 +200,18 @@ interface IFxGenArt721 is ISeedConsumer {
     function mintParams(address _to, bytes calldata _fxParams) external;
 
     /**
-     * @notice Allows owner to mint tokens to given account
+     * @notice Allows owner to mint tokens with randomly generated seeds a to given account
      * @dev Owner can mint at anytime up to supply cap
      * @param _to Address being minted to
      */
-    function ownerMint(address _to) external;
+    function ownerMintRandom(address _to) external;
+
+    /**
+     * @notice Allows owner to mint a single fxParams token
+     * @param _to Address being minted to
+     * @param _fxParams Random sequence of fixed-length bytes used as input
+     */
+    function ownerMintParams(address _to, bytes calldata _fxParams) external;
 
     /**
      * @notice Reduces max supply of collection

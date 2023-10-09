@@ -9,7 +9,7 @@ contract MockMinter {
     function setMintDetails(ReserveInfo calldata, bytes calldata) external {}
 
     function mintToken(address _token, address _to, uint256 _amount) external {
-        IFxGenArt721(_token).mint(_to, _amount);
+        IFxGenArt721(_token).mintRandom(_to, _amount);
     }
 
     function mintTicket(address _ticket, address _to, uint256 _amount, uint256 _payment) external {

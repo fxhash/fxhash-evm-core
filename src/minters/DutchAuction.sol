@@ -83,7 +83,7 @@ contract DutchAuction is IDutchAuction {
         saleProceeds[_token][_reserveId] += price * _amount;
         emit Purchase(_token, _reserveId, msg.sender, _to, _amount, price);
 
-        IFxGenArt721(_token).mint(_to, _amount);
+        IFxGenArt721(_token).mintRandom(_to, _amount);
     }
 
     /// @inheritdoc IDutchAuction

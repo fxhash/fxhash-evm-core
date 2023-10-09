@@ -109,19 +109,17 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IFxGenArt721
-    function mint(address _to, uint256 _amount) external onlyMinter whenNotPaused {
+    function mintRandom(address _to, uint256 _amount) external onlyMinter whenNotPaused {
         if (!issuerInfo.projectInfo.enabled) revert MintInactive();
         for (uint256 i; i < _amount; ++i) {
-            _mint(_to, ++totalSupply);
-            IRandomizer(randomizer).requestRandomness(totalSupply);
+            _mintRandom(_to, ++totalSupply);
         }
     }
 
+    /// @inheritdoc IFxGenArt721
     function mintParams(address _to, bytes calldata _fxParams) external onlyMinter whenNotPaused {
         if (!issuerInfo.projectInfo.enabled) revert MintInactive();
-        if (issuerInfo.projectInfo.inputSize < _fxParams.length) revert InvalidInputSize();
-        _mint(_to, ++totalSupply);
-        genArtInfo[totalSupply].fxParams = _fxParams;
+        _mintParams(_to, ++totalSupply, _fxParams);
     }
 
     /// @inheritdoc IFxGenArt721
@@ -142,9 +140,13 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IFxGenArt721
-    function ownerMint(address _to) external onlyOwner whenNotPaused {
-        _mint(_to, ++totalSupply);
-        IRandomizer(randomizer).requestRandomness(totalSupply);
+    function ownerMintRandom(address _to) external onlyOwner whenNotPaused {
+        _mintRandom(_to, ++totalSupply);
+    }
+
+    /// @inheritdoc IFxGenArt721
+    function ownerMintParams(address _to, bytes calldata _fxParams) external onlyMinter whenNotPaused {
+        _mintParams(_to, ++totalSupply, _fxParams);
     }
 
     /// @inheritdoc IFxGenArt721
@@ -243,6 +245,23 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     /*//////////////////////////////////////////////////////////////////////////
                                 INTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @dev Mints a single token to given account and generates random seed
+     */
+    function _mintRandom(address _to, uint256 _tokenId) internal {
+        _mint(_to, _tokenId);
+        IRandomizer(randomizer).requestRandomness(_tokenId);
+    }
+
+    /**
+     * @dev Mints a single fxParams token to given account
+     */
+    function _mintParams(address _to, uint256 _tokenId, bytes calldata _fxParams) internal {
+        if (issuerInfo.projectInfo.inputSize < _fxParams.length) revert InvalidInputSize();
+        _mint(_to, _tokenId);
+        genArtInfo[_tokenId].fxParams = _fxParams;
+    }
 
     /**
      * @dev Registers arbitrary number of minter contracts

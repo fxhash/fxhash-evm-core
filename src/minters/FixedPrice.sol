@@ -49,7 +49,7 @@ contract FixedPrice is IFixedPrice {
         if (msg.value != price) revert InvalidPayment();
         reserve.allocation -= _amount.safeCastTo128();
         saleProceeds[_token] += price;
-        IFxGenArt721(_token).mint(_to, _amount);
+        IFxGenArt721(_token).mintRandom(_to, _amount);
         emit Purchase(_token, _reserveId, msg.sender, _amount, _to, price);
     }
 
