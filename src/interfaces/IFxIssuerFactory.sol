@@ -69,7 +69,7 @@ interface IFxIssuerFactory {
     ) external returns (address);
 
     /**
-     * @notice Sets the platform configuration
+     * @notice Sets the system configuration
      * @param _config Struct of config info
      */
     function setConfig(ConfigInfo calldata _config) external;

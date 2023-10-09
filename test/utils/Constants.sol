@@ -20,7 +20,7 @@ string constant IMAGE_URI = "ipfs://";
 bool constant ENABLED = true;
 bool constant ONCHAIN = true;
 string constant CONTRACT_URI = "ipfs://";
-uint240 constant MAX_SUPPLY = 1000;
+uint120 constant MAX_SUPPLY = 1000;
 
 // Reserves
 uint64 constant MINTER_ALLOCATION = 500;

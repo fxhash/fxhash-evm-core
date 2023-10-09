@@ -2,9 +2,10 @@
 pragma solidity 0.8.20;
 
 import {Clones} from "openzeppelin/contracts/proxy/Clones.sol";
+import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
+
 import {IFxMintTicket721} from "src/interfaces/IFxMintTicket721.sol";
 import {IFxTicketFactory} from "src/interfaces/IFxTicketFactory.sol";
-import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
 
 import {ONE_DAY} from "src/utils/Constants.sol";
 

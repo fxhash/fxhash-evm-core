@@ -273,7 +273,7 @@ contract Deploy is Script {
     function _configureProject(
         bool _enabled,
         bool _onchain,
-        uint240 _supply,
+        uint120 _supply,
         string memory _contractURI
     ) internal virtual {
         projectInfo.enabled = _enabled;

@@ -20,7 +20,7 @@ contract PublicTest is FxGenArt721Test {
 
     function test_mint() public {
         amount = 3;
-        _mint(alice, amount);
+        _mintRandom(alice, amount);
         assertEq(FxGenArt721(fxGenArtProxy).ownerOf(1), alice);
         assertEq(FxGenArt721(fxGenArtProxy).ownerOf(2), alice);
         assertEq(FxGenArt721(fxGenArtProxy).ownerOf(3), alice);
@@ -32,12 +32,12 @@ contract PublicTest is FxGenArt721Test {
     function test_RevertsWhen_MintInactive() public {
         _toggleMint(creator);
         vm.expectRevert(MINT_INACTIVE_ERROR);
-        _mint(alice, 1);
+        _mintRandom(alice, 1);
     }
 
     function test_RevertsWhen_UnregisteredMinter() public {
         vm.expectRevert(UNREGISTERED_MINTER_ERROR);
-        IFxGenArt721(fxGenArtProxy).mint(alice, 1);
+        IFxGenArt721(fxGenArtProxy).mintRandom(alice, 1);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -81,7 +81,7 @@ contract PublicTest is FxGenArt721Test {
         IFxGenArt721(fxGenArtProxy).burn(_tokenId);
     }
 
-    function _mint(address _to, uint256 _amount) internal {
+    function _mintRandom(address _to, uint256 _amount) internal {
         MockMinter(minter).mintToken(fxGenArtProxy, _to, _amount);
     }
 

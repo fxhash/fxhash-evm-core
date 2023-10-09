@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {IDutchAuction, IMinter, AuctionInfo, RefundInfo, MinterInfo} from "src/interfaces/IDutchAuction.sol";
-import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
+
+import {IDutchAuction, AuctionInfo, MinterInfo, RefundInfo} from "src/interfaces/IDutchAuction.sol";
+import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
+import {IMinter} from "src/interfaces/IMinter.sol";
 
 /**
  * @title DutchAuction
@@ -81,7 +83,7 @@ contract DutchAuction is IDutchAuction {
         saleProceeds[_token][_reserveId] += price * _amount;
         emit Purchase(_token, _reserveId, msg.sender, _to, _amount, price);
 
-        IFxGenArt721(_token).mint(_to, _amount);
+        IFxGenArt721(_token).mintRandom(_to, _amount);
     }
 
     /// @inheritdoc IDutchAuction

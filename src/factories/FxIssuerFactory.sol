@@ -2,10 +2,11 @@
 pragma solidity 0.8.20;
 
 import {Clones} from "openzeppelin/contracts/proxy/Clones.sol";
+import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
+
 import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
 import {IFxGenArt721, InitInfo, MetadataInfo, MintInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxIssuerFactory, ConfigInfo} from "src/interfaces/IFxIssuerFactory.sol";
-import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
 
 import {BANNED_USER_ROLE} from "src/utils/Constants.sol";
 
@@ -26,7 +27,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     mapping(uint96 => address) public projects;
 
     /**
-     * @dev Modifier for checking if user is banned from platform
+     * @dev Modifier for checking if user is banned from system
      */
     modifier isBanned(address _user) {
         if (IAccessControl(roleRegistry).hasRole(BANNED_USER_ROLE, _user)) revert NotAuthorized();
@@ -52,6 +53,8 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     ) external isBanned(_owner) returns (address genArtToken) {
         if (_owner == address(0)) revert InvalidOwner();
         if (_initInfo.primaryReceiver == address(0)) revert InvalidPrimaryReceiver();
+        if (_primaryReceiver == address(0)) revert InvalidPrimaryReceiver();
+        if (_init.info.randomizer != address(0) && _projectInfo.inputSize == 0) revert InvalidInputSize();
         genArtToken = Clones.clone(implementation);
         projects[++projectId] = genArtToken;
 
