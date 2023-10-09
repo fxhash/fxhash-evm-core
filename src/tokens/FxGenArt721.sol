@@ -22,12 +22,12 @@ import "src/utils/Constants.sol";
  * @notice See the documentation in {IFxGenArt721}
  */
 contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, RoyaltyManager {
+    /// @inheritdoc IFxGenArt721
+    address public immutable roleRegistry;
     /// @dev Project name
     string internal name_;
     /// @dev Project string
     string internal symbol_;
-    /// @inheritdoc IFxGenArt721
-    address public immutable roleRegistry;
     /// @inheritdoc IFxGenArt721
     uint96 public totalSupply;
     /// @inheritdoc IFxGenArt721
@@ -98,7 +98,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
         _setBaseRoyalties(_royaltyReceivers, _basisPoints);
         _transferOwnership(_owner);
 
-        emit ProjectInitialized(_initInfo.primaryReceiver, _projectInfo, _metadataInfo, _mintInfo);
+        emit ProjectInitialized(_initInfo.primaryReceiver, _projectInfo, _mintInfo);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
