@@ -39,6 +39,9 @@ interface IFxIssuerFactory {
      */
     event ProjectCreated(uint96 indexed _projectId, address indexed _owner, address indexed _genArtToken);
 
+    /// @notice Error thrown when input size does not match actual byte size of params data
+    error InvalidInputSize();
+
     /// @notice Error thrown when owner is zero address
     error InvalidOwner();
 

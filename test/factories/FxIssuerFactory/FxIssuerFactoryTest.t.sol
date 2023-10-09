@@ -96,5 +96,7 @@ contract FxIssuerFactoryTest is BaseTest {
         super._initializeState();
         projectId = 1;
         initInfo.primaryReceiver = address(this);
+        initInfo.randomizer = address(pseudoRandomizer);
+        initInfo.renderer = address(scriptyRenderer);
     }
 }
