@@ -48,6 +48,8 @@ abstract contract MintPass is EIP712 {
      */
     function _claimMintPass(
         BitMaps.BitMap storage _bitmap,
+        address _token,
+        uint256 _reserveId,
         uint256 _index,
         bytes calldata _mintCode,
         bytes calldata _signature
@@ -56,9 +58,13 @@ abstract contract MintPass is EIP712 {
         bytes32 hash = generateTypedDataHash(_index, msg.sender, _mintCode);
         (uint8 v, bytes32 r, bytes32 s) = abi.decode(_signature, (uint8, bytes32, bytes32));
         address signer = ECDSA.recover(hash, v, r, s);
-        if (!_isSigningAuthority(signer)) revert InvalidSig();
+        if (!_isSigningAuthority(signer, _token, _reserveId)) revert InvalidSig();
         _bitmap.set(_index);
     }
 
-    function _isSigningAuthority(address _signer) internal view virtual returns (bool);
+    function _isSigningAuthority(
+        address _signer,
+        address _token,
+        uint256 _reserveId
+    ) internal view virtual returns (bool);
 }

@@ -11,7 +11,7 @@ contract MockAllowlist is Allowlist {
     bytes32 public merkleRoot;
 
     function claimSlot(address _token, uint256 _index, uint256 _price, bytes32[] memory _proof) external {
-        _claimSlot(_bitmap, _token, _index, _price, _proof);
+        _claimSlot(_bitmap, _token, 0, _index, _price, _proof);
     }
 
     function setMerkleRoot(bytes32 _merkleRoot) external {
@@ -22,7 +22,7 @@ contract MockAllowlist is Allowlist {
         return _bitmap.get(_index);
     }
 
-    function _getMerkleRoot(address) internal view override returns (bytes32) {
+    function _getMerkleRoot(address, uint256) internal view override returns (bytes32) {
         return merkleRoot;
     }
 }

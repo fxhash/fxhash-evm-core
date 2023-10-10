@@ -101,7 +101,11 @@ contract FixedPrice is MintPass, Allowlist, IFixedPrice {
 
     function _buy(address _token, uint256 _reserveId, uint256 _amount, address _to) internal {}
 
-    function _getMerkleRoot(address _token) internal view override returns (bytes32) {}
+    function _getMerkleRoot(address _token, uint256 _reserveId) internal view override returns (bytes32) {}
 
-    function _isSigningAuthority(address _signer) internal view override returns (bool) {}
+    function _isSigningAuthority(
+        address _signer,
+        address _token,
+        uint256 _reserveId
+    ) internal view override returns (bool) {}
 }

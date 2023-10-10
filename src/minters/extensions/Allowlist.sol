@@ -28,12 +28,13 @@ abstract contract Allowlist {
     function _claimSlot(
         BitMaps.BitMap storage _bitmap,
         address _token,
+        uint256 _reserveId,
         uint256 _index,
         uint256 _price,
         bytes32[] memory _proof
     ) internal {
         if (_bitmap.get(_index)) revert SlotAlreadyClaimed();
-        bytes32 root = _getMerkleRoot(_token);
+        bytes32 root = _getMerkleRoot(_token, _reserveId);
         bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(_index, _price, msg.sender))));
         if (!MerkleProof.verify(_proof, root, leaf)) revert InvalidProof();
         _bitmap.set(_index);
@@ -42,7 +43,8 @@ abstract contract Allowlist {
     /**
      * @dev Retrieves the merkle root of a token
      * @param _token The address of the token contract
+     * @param _reserveId The reserveId of the token to get the merkle root for
      * @return The merkle root of the token
      */
-    function _getMerkleRoot(address _token) internal view virtual returns (bytes32);
+    function _getMerkleRoot(address _token, uint256 _reserveId) internal view virtual returns (bytes32);
 }
