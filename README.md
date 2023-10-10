@@ -4,13 +4,13 @@
 
 1. **[FxContractRegistry](src/registries/FxContractRegistry.sol)**: Registry contract that manages all deployed smart contracts registered by **[fxhash](https://www.fxhash.xyz)**
 
-2. **[FxGenArt721](src/tokens/FxGenArt721.sol)**: `ERC-721` implementation contract that allows for mintng of new tokens, burning of existing tokens and managing of token royalties
+2. **[FxGenArt721](src/tokens/FxGenArt721.sol)**: `ERC-721` implementation contract that allows for minting of new tokens, burning of existing tokens and managing of token royalties
 
 3. **[FxIssuerFactory](src/factories/FxIssuerFactory.sol)**: Factory contract that clones the `FxGenArt721` implementation to create new Generative Art Projects
 
 4. **[FxMintTicket721](src/tokens/FxMintTicket721.sol)**: `ERC-721` implementation contract that allows for minting of new tickets, burning of exisiting tickets, and enforcing of harberger taxes over ticket ownership
 
-5. **[FxRoleRegistry](src/registries/FxRoleRegistry.sol)**: Registry contract that implements **[AccessControl](https://docs.openzeppelin.com/contracts/4.x/api/access)** to manage different roles within the system, such as `admin`, `creator`, `minter`, and `moderator`
+5. **[FxRoleRegistry](src/registries/FxRoleRegistry.sol)**: Registry contract that implements **[AccessControl](https://docs.openzeppelin.com/contracts/4.x/api/access)** to manage different roles within the system, such as admin, creator, minter, and moderator
 
 6. **[FxTicketFactory](src/factories/FxTicketFactory.sol)**: Factory contract that clones the `FxMintTicket721` implementation to create new Mint Tickets for an existing `FxGenArt721` project
 

@@ -20,7 +20,6 @@ contract FixedPrice is MintPass, Allowlist, IFixedPrice {
 
     /// @inheritdoc IFixedPrice
     mapping(address => uint256[]) public prices;
-
     /// @inheritdoc IFixedPrice
     mapping(address => mapping(uint256 => bytes32)) public merkleRoots;
 
@@ -31,7 +30,6 @@ contract FixedPrice is MintPass, Allowlist, IFixedPrice {
 
     /// @inheritdoc IFixedPrice
     mapping(address => ReserveInfo[]) public reserves;
-
     /// @inheritdoc IFixedPrice
     mapping(address => uint256) public saleProceeds;
 

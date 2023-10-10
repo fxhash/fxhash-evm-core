@@ -11,6 +11,7 @@ import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
  * @param primaryReceiver Address of splitter contract receiving primary sales
  * @param randomizer Address of Randomizer contract
  * @param renderer Address of Renderer contract
+ * @param tagNames List of tag names describing the project
  */
 struct InitInfo {
     string name;
@@ -18,6 +19,7 @@ struct InitInfo {
     address primaryReceiver;
     address randomizer;
     address renderer;
+    string[] tagNames;
 }
 
 /**
@@ -32,17 +34,19 @@ struct IssuerInfo {
 }
 
 /**
- * @param enabled Minting status of project
  * @param onchain Onchain status of project
+ * @param mintEnabled Minting status of project
+ * @param burnEnabled Burning status of project
  * @param inputSize Maximum input size of fxParams bytes data
- * @param supply Maximum supply of tokens
+ * @param maxSupply Maximum supply of tokens
  * @param contractURI Contract URI of project
  */
 struct ProjectInfo {
-    bool enabled;
     bool onchain;
+    bool mintEnabled;
+    bool burnEnabled;
+    uint120 maxSupply;
     uint120 inputSize;
-    uint120 supply;
     string contractURI;
 }
 
@@ -61,7 +65,6 @@ struct MetadataInfo {
 
 /**
  * @param seed Hash of revealed seed
-
  * @param fxParams Random sequence of fixed-length bytes
  */
 struct GenArtInfo {
@@ -116,10 +119,10 @@ interface IFxGenArt721 is ISeedConsumer {
 
     /**
      * @notice Event emitted when new project is initialized
+     * @param _primaryReceiver Address of splitter contract receiving primary sales
      * @param _projectInfo Project information
      * @param _metadataInfo List of CIDs/attributes for token metadata
      * @param _mintInfo List of authorized minter contracts and their reserves
-     * @param _primaryReceiver Address of splitter contract receiving primary sales
      */
     event ProjectInitialized(
         address indexed _primaryReceiver,
@@ -127,6 +130,12 @@ interface IFxGenArt721 is ISeedConsumer {
         MetadataInfo _metadataInfo,
         MintInfo[] _mintInfo
     );
+
+    /**
+     * @notice Event emitted when project tags are set
+     * @param _names List of tag names describing the project
+     */
+    event ProjectTags(string[] indexed _names);
 
     /**
      * @notice Event emitted when Randomizer contract is updated
@@ -155,6 +164,12 @@ interface IFxGenArt721 is ISeedConsumer {
     /// @notice Error thrown when reserve end time is invalid
     error InvalidEndTime();
 
+    /// @notice Error thrown when burning is inactive
+    error BurnInactive();
+
+    /// @notice Error thrown when minting is active
+    error MintActive();
+
     /// @notice Error thrown when minting is inactive
     error MintInactive();
 
@@ -177,7 +192,7 @@ interface IFxGenArt721 is ISeedConsumer {
      * @notice Burns token ID from the circulating supply
      * @param _tokenId ID of the token
      */
-    function burn(uint256 _tokenId) external;
+    // function burn(uint256 _tokenId) external;
 
     /**
      * @notice Initializes new generative art project
@@ -246,6 +261,12 @@ interface IFxGenArt721 is ISeedConsumer {
     function unpause() external;
 
     /**
+     * @notice Emits an event for setting tag descriptions for a project
+     * @param _names List of tag names describing the project
+     */
+    function emitTags(string[] calldata _names) external;
+
+    /**
      * @notice Sets the new URI of the token metadata
      * @param _uri Pointer of the metadata
      */
@@ -276,19 +297,14 @@ interface IFxGenArt721 is ISeedConsumer {
     function setRenderer(address _renderer) external;
 
     /**
+     * @notice Toggles public burn from disabled to enabled and vice versa
+     */
+    // function toggleBurn() external;
+
+    /**
      * @notice Toggles public mint from enabled to disabled and vice versa
      */
     function toggleMint() external;
-
-    /**
-     * @notice Toggles token metadata from offchain to onchain and vice versa
-     */
-    function toggleOnchain() external;
-
-    /**
-     * @notice Returns the address of the ContractRegistry contract
-     */
-    function contractRegistry() external view returns (address);
 
     /**
      * @notice Returns contract-level metadata for storefront marketplaces
