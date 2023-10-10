@@ -15,8 +15,8 @@ contract MockMintPass is MintPass {
         signer = _signer;
     }
 
-    function claimMintPass(uint256 _index, bytes calldata _mintCode, bytes calldata _signature) external {
-        _claimMintPass(_bitmap, address(0), 0, _index, _mintCode, _signature);
+    function claimMintPass(uint256 _index, bytes calldata _signature) external {
+        _claimMintPass(_bitmap, address(0), 0, _index, _signature);
     }
 
     function isClaimed(uint256 _index) external view returns (bool) {

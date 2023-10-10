@@ -18,7 +18,7 @@ string constant SPLITS_FACTORY = "SPLITS_FACTORY";
 string constant TICKET_REDEEMER = "TICKET_REDEEMER";
 
 // EIP-712
-bytes32 constant CLAIM_TYPEHASH = keccak256("Claim(uint256 index, address user, bytes mintCode)");
+bytes32 constant CLAIM_TYPEHASH = keccak256("Claim(uint256 index, address user)");
 
 // Ticket
 uint256 constant AUCTION_DECAY_RATE = 200; // 2%

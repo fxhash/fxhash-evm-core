@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+import {BitMaps} from "openzeppelin/contracts/utils/structs/BitMaps.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 
@@ -25,6 +26,8 @@ contract FixedPrice is MintPass, Allowlist, IFixedPrice {
 
     /// @inheritdoc IFixedPrice
     mapping(address => mapping(uint256 => address)) public signingAuthorities;
+
+    mapping(address => mapping(uint256 => BitMaps.BitMap)) internal claimedMintPasses;
 
     /// @inheritdoc IFixedPrice
     mapping(address => ReserveInfo[]) public reserves;
@@ -83,9 +86,18 @@ contract FixedPrice is MintPass, Allowlist, IFixedPrice {
         _buy(_token, _reserveId, amount, _to);
     }
 
-    function buyMintPass(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable {
+    function buyMintPass(
+        address _token,
+        uint256 _reserveId,
+        uint256 _amount,
+        address _to,
+        uint256 _index,
+        bytes calldata _signature
+    ) external payable {
         address signer = signingAuthorities[_token][_reserveId];
         if (signer == address(0)) revert NoSigningAuthority();
+        BitMaps.BitMap storage claimBitmap = claimedMintPasses[_token][_reserveId];
+        _claimMintPass(claimBitmap, _token, _reserveId, _index, _signature);
         _buy(_token, _reserveId, _amount, _to);
     }
 
