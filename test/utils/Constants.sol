@@ -6,7 +6,8 @@ uint256 constant INITIAL_BALANCE = 1000 ether;
 
 // Config
 string constant DEFAULT_METADATA = "ipfs://QmZZVBKapDg2wXzwpDxdmL9Ah665h9ZzeJ9gYdbTZ4GBzf";
-uint256 constant LOCK_TIME = 3600; // 1 hour
+uint128 constant LOCK_TIME = 3600; // 1 hour
+uint128 constant REFERRER_SHARE = 200; // 2%
 
 // Initialize
 string constant NAME = "fxhash";

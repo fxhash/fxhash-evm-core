@@ -70,11 +70,13 @@ contract FxIssuerFactoryTest is BaseTest {
 
     function testSetConfig() public {
         configInfo.lockTime = LOCK_TIME;
+        configInfo.referrerShare = REFERRER_SHARE;
         configInfo.defaultMetadata = DEFAULT_METADATA;
         vm.prank(fxIssuerFactory.owner());
         fxIssuerFactory.setConfig(configInfo);
-        (lockTime, defaultMetadata) = fxIssuerFactory.configInfo();
+        (lockTime, referrerShare, defaultMetadata) = fxIssuerFactory.configInfo();
         assertEq(lockTime, configInfo.lockTime);
+        assertEq(referrerShare, configInfo.referrerShare);
         assertEq(defaultMetadata, configInfo.defaultMetadata);
     }
 
