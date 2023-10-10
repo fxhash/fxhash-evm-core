@@ -181,12 +181,6 @@ interface IFxGenArt721 is ISeedConsumer {
     error UnregisteredMinter();
 
     /**
-     * @notice Burns token ID from the circulating supply
-     * @param _tokenId ID of the token
-     */
-    function burn(uint256 _tokenId) external;
-
-    /**
      * @notice Initializes new generative art project
      * @param _owner Address of contract owner
      * @param _lockTime Locked time duration from mint start time for unverified users

@@ -41,22 +41,6 @@ contract PublicTest is FxGenArt721Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                    BURN
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function test_burn() public {
-        test_mint();
-        _burn(alice, 1);
-        assertEq(FxGenArt721(fxGenArtProxy).balanceOf(alice), amount - 1);
-    }
-
-    function test_RevertsWhen_NotAuthorized() public {
-        test_mint();
-        vm.expectRevert(NOT_AUTHORIZED_ERROR);
-        _burn(bob, 1);
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                                 FULFILL SEED
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -76,10 +60,6 @@ contract PublicTest is FxGenArt721Test {
     /*//////////////////////////////////////////////////////////////////////////
                                     HELPERS
     //////////////////////////////////////////////////////////////////////////*/
-
-    function _burn(address _owner, uint256 _tokenId) internal prank(_owner) {
-        IFxGenArt721(fxGenArtProxy).burn(_tokenId);
-    }
 
     function _mintRandom(address _to, uint256 _amount) internal {
         MockMinter(minter).mintToken(fxGenArtProxy, _to, _amount);

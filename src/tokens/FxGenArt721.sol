@@ -119,12 +119,6 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
         _mintParams(_to, ++totalSupply, _fxParams);
     }
 
-    /// @inheritdoc IFxGenArt721
-    function burn(uint256 _tokenId) external whenNotPaused {
-        if (!_isApprovedOrOwner(msg.sender, _tokenId)) revert NotAuthorized();
-        _burn(_tokenId);
-    }
-
     /// @inheritdoc ISeedConsumer
     function fulfillSeedRequest(uint256 _tokenId, bytes32 _seed) external {
         if (msg.sender != randomizer) revert NotAuthorized();
@@ -240,11 +234,6 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     }
 
     /// @inheritdoc ERC721
-    function supportsInterface(bytes4 _interfaceId) public view override returns (bool) {
-        return super.supportsInterface(_interfaceId);
-    }
-
-    /// @inheritdoc ERC721
     function tokenURI(uint256 _tokenId) public view override returns (string memory) {
         _requireMinted(_tokenId);
         bytes memory data = abi.encode(issuerInfo.projectInfo, metadataInfo, genArtInfo[_tokenId]);
@@ -301,8 +290,9 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
             }
         }
 
-        if (totalAllocation > issuerInfo.projectInfo.supply - totalSupply) {
-            revert AllocationExceeded();
+        uint256 maxSupply = issuerInfo.projectInfo.supply;
+        if (maxSupply != OPEN_EDITION_SUPPLY) {
+            if (totalAllocation > maxSupply - totalSupply) revert AllocationExceeded();
         }
     }
 
