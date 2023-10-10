@@ -307,6 +307,11 @@ interface IFxGenArt721 is ISeedConsumer {
     function toggleMint() external;
 
     /**
+     * @notice Registers minter contracts with resereve info
+     */
+    function registerMinters(MintInfo[] calldata _mintInfo) external;
+
+    /**
      * @notice Returns contract-level metadata for storefront marketplaces
      */
     function contractURI() external view returns (string memory);

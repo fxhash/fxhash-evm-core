@@ -18,18 +18,22 @@ contract DutchAuction is IDutchAuction {
     /// @inheritdoc IDutchAuction
     mapping(address => ReserveInfo[]) public reserves;
     /// @inheritdoc IDutchAuction
+    mapping(address => uint256) public lastUpdated;
+    /// @inheritdoc IDutchAuction
     mapping(address => mapping(uint256 => uint256)) public saleProceeds;
     /// @inheritdoc IDutchAuction
     mapping(address => mapping(uint256 => RefundInfo)) public refundInfo;
 
     /// @inheritdoc IMinter
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintData) external {
-        AuctionInfo memory daInfo = abi.decode(_mintData, (AuctionInfo));
+        if (lastUpdated[msg.sender] != block.timestamp) delete reserves[msg.sender];
+        lastUpdated[msg.sender] = block.timestamp;
 
-        // Check if the step length evenly divides the duration of the auction
+        AuctionInfo memory daInfo = abi.decode(_mintData, (AuctionInfo));
+        // Checks if the step length evenly divides the duration of the auction
         if ((_reserve.endTime - _reserve.startTime) % daInfo.stepLength != 0) revert InvalidStep();
 
-        // Check if the price curve is descending
+        // Checks if the price curve is descending
         if (daInfo.prices.length < 2) revert InvalidPriceCurve();
         for (uint256 i = 1; i < daInfo.prices.length; i++) {
             if (!(daInfo.prices[i - 1] > daInfo.prices[i])) revert PricesOutOfOrder();
