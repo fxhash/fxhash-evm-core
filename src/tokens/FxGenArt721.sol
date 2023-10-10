@@ -107,7 +107,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
 
     /// @inheritdoc IFxGenArt721
     function mintRandom(address _to, uint256 _amount) external onlyMinter whenNotPaused {
-        if (!issuerInfo.projectInfo.enabled) revert MintInactive();
+        if (!issuerInfo.projectInfo.mintEnabled) revert MintInactive();
         for (uint256 i; i < _amount; ++i) {
             _mintRandom(_to, ++totalSupply);
         }
@@ -115,8 +115,15 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
 
     /// @inheritdoc IFxGenArt721
     function mintParams(address _to, bytes calldata _fxParams) external onlyMinter whenNotPaused {
-        if (!issuerInfo.projectInfo.enabled) revert MintInactive();
+        if (!issuerInfo.projectInfo.mintEnabled) revert MintInactive();
         _mintParams(_to, ++totalSupply, _fxParams);
+    }
+
+    /// @inheritdoc IFxGenArt721
+    function burn(uint256 _tokenId) external whenNotPaused {
+        if (!issuerInfo.projectInfo.burnEnabled) revert BurnInactive();
+        if (!_isApprovedOrOwner(msg.sender, _tokenId)) revert NotAuthorized();
+        _burn(_tokenId);
     }
 
     /// @inheritdoc ISeedConsumer
@@ -142,15 +149,21 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
 
     /// @inheritdoc IFxGenArt721
     function reduceSupply(uint120 _supply) external onlyOwner {
-        if (_supply >= issuerInfo.projectInfo.supply || _supply < totalSupply) {
+        if (_supply >= issuerInfo.projectInfo.maxSupply || _supply < totalSupply) {
             revert InvalidAmount();
         }
-        issuerInfo.projectInfo.supply = _supply;
+        issuerInfo.projectInfo.maxSupply = _supply;
     }
 
     /// @inheritdoc IFxGenArt721
     function toggleMint() external onlyOwner {
-        issuerInfo.projectInfo.enabled = !issuerInfo.projectInfo.enabled;
+        issuerInfo.projectInfo.mintEnabled = !issuerInfo.projectInfo.mintEnabled;
+    }
+
+    /// @inheritdoc IFxGenArt721
+    function toggleBurn() external onlyOwner {
+        if (issuerInfo.projectInfo.mintEnabled) revert MintActive();
+        issuerInfo.projectInfo.burnEnabled = !issuerInfo.projectInfo.burnEnabled;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -213,16 +226,6 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
         return issuerInfo.projectInfo.contractURI;
     }
 
-    /// @inheritdoc IFxGenArt721
-    function remainingSupply() external view returns (uint256) {
-        return issuerInfo.projectInfo.supply - totalSupply;
-    }
-
-    /// @inheritdoc IFxGenArt721
-    function isMinter(address _minter) public view returns (bool) {
-        return issuerInfo.minters[_minter];
-    }
-
     /// @inheritdoc ERC721
     function name() public view override returns (string memory) {
         return name_;
@@ -231,6 +234,16 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     /// @inheritdoc ERC721
     function symbol() public view override returns (string memory) {
         return symbol_;
+    }
+
+    /// @inheritdoc IFxGenArt721
+    function isMinter(address _minter) public view returns (bool) {
+        return issuerInfo.minters[_minter];
+    }
+
+    /// @inheritdoc IFxGenArt721
+    function remainingSupply() public view returns (uint256) {
+        return issuerInfo.projectInfo.maxSupply - totalSupply;
     }
 
     /// @inheritdoc ERC721
@@ -290,9 +303,8 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
             }
         }
 
-        uint256 maxSupply = issuerInfo.projectInfo.supply;
-        if (maxSupply != OPEN_EDITION_SUPPLY) {
-            if (totalAllocation > maxSupply - totalSupply) revert AllocationExceeded();
+        if (issuerInfo.projectInfo.maxSupply != OPEN_EDITION_SUPPLY) {
+            if (totalAllocation > remainingSupply()) revert AllocationExceeded();
         }
     }
 

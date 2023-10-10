@@ -15,10 +15,10 @@ contract PublicTest is FxGenArt721Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                    MINT
+                                    MINT RANDOM
     //////////////////////////////////////////////////////////////////////////*/
 
-    function test_mint() public {
+    function test_mintRandom() public {
         amount = 3;
         _mintRandom(alice, amount);
         assertEq(FxGenArt721(fxGenArtProxy).ownerOf(1), alice);
@@ -29,7 +29,7 @@ contract PublicTest is FxGenArt721Test {
         assertEq(IFxGenArt721(fxGenArtProxy).remainingSupply(), MAX_SUPPLY - amount);
     }
 
-    function test_RevertsWhen_MintInactive() public {
+    function test_MintRandom_RevertsWhen_MintInactive() public {
         _toggleMint(creator);
         vm.expectRevert(MINT_INACTIVE_ERROR);
         _mintRandom(alice, 1);
@@ -38,6 +38,32 @@ contract PublicTest is FxGenArt721Test {
     function test_RevertsWhen_UnregisteredMinter() public {
         vm.expectRevert(UNREGISTERED_MINTER_ERROR);
         IFxGenArt721(fxGenArtProxy).mintRandom(alice, 1);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    BURN
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function test_burn() public {
+        test_mintRandom();
+        _toggleMint(creator);
+        _toggleBurn(creator);
+        _burn(alice, 1);
+        assertEq(FxGenArt721(fxGenArtProxy).balanceOf(alice), amount - 1);
+    }
+
+    function test_Burn_RevertsWhen_BurnInactive() public {
+        test_mintRandom();
+        vm.expectRevert(BURN_INACTIVE_ERROR);
+        _burn(bob, 1);
+    }
+
+    function test_Burn_RevertsWhen_NotAuthorized() public {
+        test_mintRandom();
+        _toggleMint(creator);
+        _toggleBurn(creator);
+        vm.expectRevert(NOT_AUTHORIZED_ERROR);
+        _burn(bob, 1);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -60,6 +86,10 @@ contract PublicTest is FxGenArt721Test {
     /*//////////////////////////////////////////////////////////////////////////
                                     HELPERS
     //////////////////////////////////////////////////////////////////////////*/
+
+    function _burn(address _owner, uint256 _tokenId) internal prank(_owner) {
+        IFxGenArt721(fxGenArtProxy).burn(_tokenId);
+    }
 
     function _mintRandom(address _to, uint256 _amount) internal {
         MockMinter(minter).mintToken(fxGenArtProxy, _to, _amount);

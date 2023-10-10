@@ -124,7 +124,7 @@ contract Deploy is Script {
         _configureScripty();
         _configureState(AMOUNT, PRICE, QUANTITY, TOKEN_ID);
         _configureInfo(LOCK_TIME, DEFAULT_METADATA);
-        _configureProject(ENABLED, ONCHAIN, MAX_SUPPLY, CONTRACT_URI);
+        _configureProject(ONCHAIN, MINT_ENABLED, MAX_SUPPLY, CONTRACT_URI);
         _configureMetdata(BASE_URI, IMAGE_URI, animation);
     }
 
@@ -273,14 +273,14 @@ contract Deploy is Script {
     }
 
     function _configureProject(
-        bool _enabled,
         bool _onchain,
-        uint120 _supply,
+        bool _mintEnabled,
+        uint120 _maxSupply,
         string memory _contractURI
     ) internal virtual {
-        projectInfo.enabled = _enabled;
         projectInfo.onchain = _onchain;
-        projectInfo.supply = _supply;
+        projectInfo.mintEnabled = _mintEnabled;
+        projectInfo.maxSupply = _maxSupply;
         projectInfo.contractURI = _contractURI;
     }
 

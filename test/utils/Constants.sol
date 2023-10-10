@@ -18,7 +18,7 @@ string constant BASE_URI = "ipfs://";
 string constant IMAGE_URI = "ipfs://";
 
 // Project
-bool constant ENABLED = true;
+bool constant MINT_ENABLED = true;
 bool constant ONCHAIN = true;
 string constant CONTRACT_URI = "ipfs://";
 uint120 constant MAX_SUPPLY = 1000;

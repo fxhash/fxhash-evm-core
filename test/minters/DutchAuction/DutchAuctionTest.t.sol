@@ -57,7 +57,7 @@ contract DutchAuctionTest is BaseTest {
 
     function _initializeState() internal override {
         super._initializeState();
-        projectInfo.supply = MINTER_ALLOCATION * 2;
+        projectInfo.maxSupply = MINTER_ALLOCATION * 2;
     }
 
     function _deployRefundableDA() internal {

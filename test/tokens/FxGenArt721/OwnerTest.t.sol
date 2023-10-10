@@ -30,23 +30,23 @@ contract OwnerTest is FxGenArt721Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_ReduceSupply() public {
-        supply = MAX_SUPPLY / 2;
-        _reduceSupply(creator, supply);
+        maxSupply = MAX_SUPPLY / 2;
+        _reduceSupply(creator, maxSupply);
         _setIssuerInfo();
-        assertEq(project.supply, supply);
+        assertEq(project.maxSupply, maxSupply);
     }
 
     function test_RevertsWhen_OverSupplyAmount() public {
-        supply = MAX_SUPPLY + 1;
+        maxSupply = MAX_SUPPLY + 1;
         vm.expectRevert(INVALID_AMOUNT_ERROR);
-        _reduceSupply(creator, supply);
+        _reduceSupply(creator, maxSupply);
     }
 
     function test_RevertsWhen_UnderSupplyAmount() public {
-        supply = 0;
+        maxSupply = 0;
         _ownerMintRandom(creator, alice);
         vm.expectRevert(INVALID_AMOUNT_ERROR);
-        _reduceSupply(creator, supply);
+        _reduceSupply(creator, maxSupply);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -54,10 +54,27 @@ contract OwnerTest is FxGenArt721Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_ToggleMint() public {
-        assertTrue(project.enabled);
+        assertTrue(project.mintEnabled);
         _toggleMint(creator);
         _setIssuerInfo();
-        assertFalse(project.enabled);
+        assertFalse(project.mintEnabled);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                  TOGGLE BURN
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function test_ToggleBurn() public {
+        assertFalse(project.burnEnabled);
+        _toggleMint(creator);
+        _toggleBurn(creator);
+        _setIssuerInfo();
+        assertTrue(project.burnEnabled);
+    }
+
+    function test_ToggleBurn_RevertsWhenMintActive() public {
+        vm.expectRevert(MINT_ACTIVE_ERROR);
+        _toggleBurn(creator);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

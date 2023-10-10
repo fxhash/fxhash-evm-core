@@ -34,17 +34,19 @@ struct IssuerInfo {
 }
 
 /**
- * @param enabled Minting status of project
  * @param onchain Onchain status of project
+ * @param mintEnabled Minting status of project
+ * @param burnEnabled Burning status of project
  * @param inputSize Maximum input size of fxParams bytes data
- * @param supply Maximum supply of tokens
+ * @param maxSupply Maximum supply of tokens
  * @param contractURI Contract URI of project
  */
 struct ProjectInfo {
-    bool enabled;
     bool onchain;
+    bool mintEnabled;
+    bool burnEnabled;
+    uint120 maxSupply;
     uint120 inputSize;
-    uint120 supply;
     string contractURI;
 }
 
@@ -162,6 +164,12 @@ interface IFxGenArt721 is ISeedConsumer {
     /// @notice Error thrown when reserve end time is invalid
     error InvalidEndTime();
 
+    /// @notice Error thrown when burning is inactive
+    error BurnInactive();
+
+    /// @notice Error thrown when minting is active
+    error MintActive();
+
     /// @notice Error thrown when minting is inactive
     error MintInactive();
 
@@ -179,6 +187,12 @@ interface IFxGenArt721 is ISeedConsumer {
 
     /// @notice Error thrown when minter is not registered on token contract
     error UnregisteredMinter();
+
+    /**
+     * @notice Burns token ID from the circulating supply
+     * @param _tokenId ID of the token
+     */
+    function burn(uint256 _tokenId) external;
 
     /**
      * @notice Initializes new generative art project
@@ -281,6 +295,11 @@ interface IFxGenArt721 is ISeedConsumer {
      * @param _renderer Address of the Renderer contract
      */
     function setRenderer(address _renderer) external;
+
+    /**
+     * @notice Toggles public burn from disabled to enabled and vice versa
+     */
+    function toggleBurn() external;
 
     /**
      * @notice Toggles public mint from enabled to disabled and vice versa

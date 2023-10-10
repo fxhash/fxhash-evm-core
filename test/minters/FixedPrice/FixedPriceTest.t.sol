@@ -33,7 +33,7 @@ contract FixedPriceTest is BaseTest {
         _configureSplits();
         _configureRoyalties();
         _configureState(AMOUNT, PRICE, QUANTITY, TOKEN_ID);
-        _configureProject(ENABLED, ONCHAIN, MAX_SUPPLY, CONTRACT_URI);
+        _configureProject(ONCHAIN, MINT_ENABLED, MAX_SUPPLY, CONTRACT_URI);
         _configureMinter(
             address(fixedPrice),
             RESERVE_START_TIME,
