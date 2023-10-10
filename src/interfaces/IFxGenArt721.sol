@@ -11,7 +11,7 @@ import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
  * @param primaryReceiver Address of splitter contract receiving primary sales
  * @param randomizer Address of Randomizer contract
  * @param renderer Address of Renderer contract
- * @param tagNames List of tag names describing the project
+ * @param tagIds List of tag IDs describing the project
  */
 struct InitInfo {
     string name;
@@ -19,7 +19,7 @@ struct InitInfo {
     address primaryReceiver;
     address randomizer;
     address renderer;
-    string[] tagNames;
+    uint256[] tagIds;
 }
 
 /**
@@ -138,9 +138,9 @@ interface IFxGenArt721 is ISeedConsumer {
 
     /**
      * @notice Event emitted when project tags are set
-     * @param _names List of tag names describing the project
+     * @param _tagIds List of tag IDs describing the project
      */
-    event ProjectTags(string[] indexed _names);
+    event ProjectTags(uint256[] indexed _tagIds);
 
     /**
      * @notice Event emitted when Randomizer contract is updated
@@ -267,9 +267,9 @@ interface IFxGenArt721 is ISeedConsumer {
 
     /**
      * @notice Emits an event for setting tag descriptions for a project
-     * @param _names List of tag names describing the project
+     * @param _tagIds List of tag IDs describing the project
      */
-    function setTags(string[] calldata _names) external;
+    function setTags(uint256[] calldata _tagIds) external;
 
     /**
      * @notice Sets the new URI of the token metadata

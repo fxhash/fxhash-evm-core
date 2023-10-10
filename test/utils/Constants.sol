@@ -11,7 +11,7 @@ uint256 constant LOCK_TIME = 3600; // 1 hour
 // Initialize
 string constant NAME = "fxhash";
 string constant SYMBOL = "FXHASH";
-string constant TAG_NAME = "Generative Art";
+uint256 constant TAG_ID = 1;
 
 // Metadata
 string constant BASE_URI = "ipfs://";
