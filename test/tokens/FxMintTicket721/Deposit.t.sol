@@ -10,21 +10,21 @@ contract Deposit is FxMintTicket721Test {
         _setTaxInfo();
     }
 
-    function testDeposit() public {
+    function test_Deposit() public {
         _deposit(bob, tokenId, DEPOSIT_AMOUNT);
         _setTaxInfo();
         assertEq(foreclosureTime, block.timestamp + (ONE_DAY * 2));
         assertEq(depositAmount, DEPOSIT_AMOUNT);
     }
 
-    function testDeposit_ExcessAmount() public {
+    function test_ExcessAmount() public {
         _deposit(bob, tokenId, DEPOSIT_AMOUNT + excessAmount);
         _setTaxInfo();
         assertEq(foreclosureTime, block.timestamp + (ONE_DAY * 2));
         assertEq(depositAmount, DEPOSIT_AMOUNT);
     }
 
-    function testDeposit_RevertsWhen_InsufficientDeposit() public {
+    function test_RevertsWhen_InsufficientDeposit() public {
         vm.expectRevert(INSUFFICIENT_DEPOSIT_ERROR);
         _deposit(bob, tokenId, DEPOSIT_AMOUNT - 1);
     }

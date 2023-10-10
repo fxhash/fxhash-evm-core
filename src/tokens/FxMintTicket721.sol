@@ -56,7 +56,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
                                   CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor() ERC721("FxMintTicket721", "TICKET") {}
+    constructor() ERC721("FxMintTicket721", "FXTICKET") {}
 
     /*//////////////////////////////////////////////////////////////////////////
                                 INITIALIZATION

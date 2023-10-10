@@ -11,7 +11,7 @@ contract Claim is FxMintTicket721Test {
         _setTaxInfo();
     }
 
-    function testClaim_ListingPrice() public {
+    function test_Claim_ListingPrice() public {
         vm.warp(gracePeriod + 1);
         _claim(alice, tokenId, newPrice, PRICE + DEPOSIT_AMOUNT);
         _setTaxInfo();
@@ -21,7 +21,7 @@ contract Claim is FxMintTicket721Test {
         assertEq(depositAmount, DEPOSIT_AMOUNT);
     }
 
-    function testClaim_AuctionPrice() public {
+    function test_Claim_AuctionPrice() public {
         vm.warp(foreclosureTime + TEN_MINUTES);
         _setAuctionPrice();
         _claim(alice, tokenId, newPrice, auctionPrice + DEPOSIT_AMOUNT);
@@ -32,12 +32,12 @@ contract Claim is FxMintTicket721Test {
         assertEq(depositAmount, DEPOSIT_AMOUNT);
     }
 
-    function testClaim_RevertsWhen_GracePeriodActive() public {
+    function test_RevertsWhen_GracePeriodActive() public {
         vm.expectRevert(GRACE_PERIOD_ACTIVE_ERROR);
         _claim(alice, tokenId, newPrice, PRICE + DEPOSIT_AMOUNT);
     }
 
-    function testClaim_RevertsWhen_InsufficientPayment() public {
+    function test_RevertsWhen_InsufficientPayment() public {
         vm.warp(gracePeriod + 1);
         vm.expectRevert(INSUFFICIENT_PAYMENT_ERROR);
         _claim(alice, tokenId, newPrice, PRICE + (DEPOSIT_AMOUNT / 2) - 1);

@@ -6,14 +6,16 @@ import "test/BaseTest.t.sol";
 contract FxGenArt721Test is BaseTest {
     // State
     ProjectInfo internal project;
-    address internal splits;
-    uint120 internal supply;
+    address internal primarySplits;
+    uint120 internal maxSupply;
 
     // Errors
     bytes4 internal ALLOCATION_EXCEEDED_ERROR = IFxGenArt721.AllocationExceeded.selector;
     bytes4 internal INVALID_AMOUNT_ERROR = IFxGenArt721.InvalidAmount.selector;
     bytes4 internal INVALID_END_TIME_ERROR = IFxGenArt721.InvalidEndTime.selector;
     bytes4 internal INVALID_START_TIME_ERROR = IFxGenArt721.InvalidStartTime.selector;
+    bytes4 internal BURN_INACTIVE_ERROR = IFxGenArt721.BurnInactive.selector;
+    bytes4 internal MINT_ACTIVE_ERROR = IFxGenArt721.MintActive.selector;
     bytes4 internal MINT_INACTIVE_ERROR = IFxGenArt721.MintInactive.selector;
     bytes4 internal NOT_AUTHORIZED_ERROR = IFxGenArt721.NotAuthorized.selector;
     bytes4 internal UNAUTHORIZED_ACCOUNT_ERROR = IFxGenArt721.UnauthorizedAccount.selector;
@@ -32,11 +34,11 @@ contract FxGenArt721Test is BaseTest {
         _configureSplits();
         _configureRoyalties();
         _configureState(AMOUNT, PRICE, QUANTITY, TOKEN_ID);
-        _configureProject(ENABLED, ONCHAIN, MAX_SUPPLY, CONTRACT_URI);
+        _configureProject(ONCHAIN, MINT_ENABLED, MAX_SUPPLY, CONTRACT_URI);
         _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, abi.encode(PRICE));
         _grantRole(admin, MINTER_ROLE, minter);
         _createSplit();
-        _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(scriptyRenderer));
+        _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(scriptyRenderer), tagNames);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -45,7 +47,6 @@ contract FxGenArt721Test is BaseTest {
 
     function test_Implementation() public {
         _createProject();
-        assertEq(IFxGenArt721(fxGenArtProxy).contractRegistry(), address(fxContractRegistry));
         assertEq(IFxGenArt721(fxGenArtProxy).roleRegistry(), address(fxRoleRegistry));
         assertEq(FxGenArt721(fxGenArtProxy).name(), NAME);
         assertEq(FxGenArt721(fxGenArtProxy).symbol(), SYMBOL);
@@ -60,11 +61,11 @@ contract FxGenArt721Test is BaseTest {
     function test_Initialize() public {
         _createProject();
         _setIssuerInfo();
-        assertTrue(project.enabled, "project not enabled");
         assertTrue(project.onchain, "project not onchain");
-        assertEq(project.supply, MAX_SUPPLY, "max supply unequal");
+        assertTrue(project.mintEnabled, "project not enabled");
+        assertEq(project.maxSupply, MAX_SUPPLY, "max supply unequal");
         assertEq(project.contractURI, CONTRACT_URI, "contract URI mismatch");
-        assertEq(splits, primaryReceiver, "primary receiver not splits address");
+        assertEq(primarySplits, primaryReceiver, "primary receiver not splits address");
         assertEq(FxGenArt721(fxGenArtProxy).owner(), creator, "owner isn't creator");
         assertEq(IFxGenArt721(fxGenArtProxy).isMinter(minter), true, "minter isn't approved minter");
     }
@@ -87,12 +88,20 @@ contract FxGenArt721Test is BaseTest {
                                     HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
+    function _mintRandom(address _to, uint256 _amount) internal {
+        MockMinter(minter).mintToken(fxGenArtProxy, _to, _amount);
+    }
+
+    function _burn(address _owner, uint256 _tokenId) internal prank(_owner) {
+        // IFxGenArt721(fxGenArtProxy).burn(_tokenId);
+    }
+
     function _setGenArtInfo(uint256 _tokenId) internal {
         (seed, fxParams) = IFxGenArt721(fxGenArtProxy).genArtInfo(_tokenId);
     }
 
     function _setIssuerInfo() internal {
-        (project, splits) = IFxGenArt721(fxGenArtProxy).issuerInfo();
+        (project, primarySplits) = IFxGenArt721(fxGenArtProxy).issuerInfo();
     }
 
     function _setMetadatInfo() internal {

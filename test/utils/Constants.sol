@@ -12,13 +12,14 @@ uint128 constant REFERRER_SHARE = 200; // 2%
 // Initialize
 string constant NAME = "fxhash";
 string constant SYMBOL = "FXHASH";
+string constant TAG_NAME = "Generative Art";
 
 // Metadata
 string constant BASE_URI = "ipfs://";
 string constant IMAGE_URI = "ipfs://";
 
 // Project
-bool constant ENABLED = true;
+bool constant MINT_ENABLED = true;
 bool constant ONCHAIN = true;
 string constant CONTRACT_URI = "ipfs://";
 uint120 constant MAX_SUPPLY = 1000;

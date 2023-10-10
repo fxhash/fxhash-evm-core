@@ -52,6 +52,7 @@ contract Deploy is Script {
     string internal defaultMetadata;
     uint128 internal lockTime;
     uint128 internal referrerShare;
+    string[] internal tagNames;
 
     // Metadata
     string internal baseURI;
@@ -124,7 +125,7 @@ contract Deploy is Script {
         _configureScripty();
         _configureState(AMOUNT, PRICE, QUANTITY, TOKEN_ID);
         _configureInfo(LOCK_TIME, REFERRER_SHARE, DEFAULT_METADATA);
-        _configureProject(ENABLED, ONCHAIN, MAX_SUPPLY, CONTRACT_URI);
+        _configureProject(ONCHAIN, MINT_ENABLED, MAX_SUPPLY, CONTRACT_URI);
         _configureMetdata(BASE_URI, IMAGE_URI, animation);
     }
 
@@ -157,7 +158,7 @@ contract Deploy is Script {
         _registerContracts();
         _grantRoles();
         _createSplit();
-        _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(scriptyRenderer));
+        _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(scriptyRenderer), tagNames);
         _createProject();
         _createTicket();
     }
@@ -169,6 +170,7 @@ contract Deploy is Script {
     function _createAccounts() internal virtual {
         admin = msg.sender;
         creator = makeAddr("creator");
+        tagNames.push(TAG_NAME);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -277,14 +279,14 @@ contract Deploy is Script {
     }
 
     function _configureProject(
-        bool _enabled,
         bool _onchain,
-        uint120 _supply,
+        bool _mintEnabled,
+        uint120 _maxSupply,
         string memory _contractURI
     ) internal virtual {
-        projectInfo.enabled = _enabled;
         projectInfo.onchain = _onchain;
-        projectInfo.supply = _supply;
+        projectInfo.mintEnabled = _mintEnabled;
+        projectInfo.maxSupply = _maxSupply;
         projectInfo.contractURI = _contractURI;
     }
 
@@ -303,13 +305,15 @@ contract Deploy is Script {
         string memory _symbol,
         address _primaryReceiver,
         address _randomizer,
-        address _renderer
+        address _renderer,
+        string[] memory _tagNames
     ) internal virtual {
         initInfo.name = _name;
         initInfo.symbol = _symbol;
         initInfo.primaryReceiver = _primaryReceiver;
         initInfo.randomizer = _randomizer;
         initInfo.renderer = _renderer;
+        initInfo.tagNames = _tagNames;
     }
 
     function _configureMinter(
@@ -347,7 +351,7 @@ contract Deploy is Script {
 
         // FxGenArt721
         creationCode = type(FxGenArt721).creationCode;
-        constructorArgs = abi.encode(address(fxContractRegistry), address(fxRoleRegistry));
+        constructorArgs = abi.encode(address(fxRoleRegistry));
         fxGenArt721 = FxGenArt721(_deployCreate2(creationCode, constructorArgs, salt));
 
         // FxIssuerFactory
