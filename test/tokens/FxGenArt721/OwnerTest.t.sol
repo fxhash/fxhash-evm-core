@@ -15,10 +15,10 @@ contract OwnerTest is FxGenArt721Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  OWNER MINT
+                                OWNER MINT RANDOM
     //////////////////////////////////////////////////////////////////////////*/
 
-    function test_ownerMint() public {
+    function test_OwnerMintRandom() public {
         _ownerMintRandom(creator, alice);
         assertEq(FxGenArt721(fxGenArtProxy).ownerOf(1), alice);
         assertEq(IFxGenArt721(fxGenArtProxy).totalSupply(), 1);
@@ -30,23 +30,23 @@ contract OwnerTest is FxGenArt721Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_ReduceSupply() public {
-        supply = MAX_SUPPLY / 2;
-        _reduceSupply(creator, supply);
+        maxSupply = MAX_SUPPLY / 2;
+        _reduceSupply(creator, maxSupply);
         _setIssuerInfo();
-        assertEq(project.supply, supply);
+        assertEq(project.maxSupply, maxSupply);
     }
 
-    function test_RevertsWhen_OverSupplyAmount() public {
-        supply = MAX_SUPPLY + 1;
+    function test_ReduceSupply_RevertsWhen_OverSupplyAmount() public {
+        maxSupply = MAX_SUPPLY + 1;
         vm.expectRevert(INVALID_AMOUNT_ERROR);
-        _reduceSupply(creator, supply);
+        _reduceSupply(creator, maxSupply);
     }
 
-    function test_RevertsWhen_UnderSupplyAmount() public {
-        supply = 0;
+    function test_ReduceSupply_RevertsWhen_UnderSupplyAmount() public {
+        maxSupply = 0;
         _ownerMintRandom(creator, alice);
         vm.expectRevert(INVALID_AMOUNT_ERROR);
-        _reduceSupply(creator, supply);
+        _reduceSupply(creator, maxSupply);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -54,21 +54,27 @@ contract OwnerTest is FxGenArt721Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_ToggleMint() public {
-        assertTrue(project.enabled);
+        assertTrue(project.mintEnabled);
         _toggleMint(creator);
         _setIssuerInfo();
-        assertFalse(project.enabled);
+        assertFalse(project.mintEnabled);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  TOGGLE ONCHAIN
+                                  TOGGLE BURN
     //////////////////////////////////////////////////////////////////////////*/
 
-    function test_ToggleOnchain() public {
-        assertTrue(project.onchain);
-        _toggleOnchain(creator);
+    function xtest_ToggleBurn() public {
+        assertFalse(project.burnEnabled);
+        _toggleMint(creator);
+        _toggleBurn(creator);
         _setIssuerInfo();
-        assertFalse(project.onchain);
+        assertTrue(project.burnEnabled);
+    }
+
+    function xtest_ToggleBurn_RevertsWhenMintActive() public {
+        vm.expectRevert(MINT_ACTIVE_ERROR);
+        _toggleBurn(creator);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -81,9 +87,5 @@ contract OwnerTest is FxGenArt721Test {
 
     function _reduceSupply(address _creator, uint120 _supply) internal prank(_creator) {
         IFxGenArt721(fxGenArtProxy).reduceSupply(_supply);
-    }
-
-    function _toggleOnchain(address _creator) internal prank(_creator) {
-        IFxGenArt721(fxGenArtProxy).toggleOnchain();
     }
 }

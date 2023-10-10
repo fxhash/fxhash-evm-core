@@ -13,7 +13,6 @@ abstract contract Allowlist {
 
     /// @notice Error thrown when an index in a merkle tree has already been claimed
     error AlreadyClaimed();
-
     /// @notice Error thrown when the proof provided for an index is invalid
     error InvalidProof();
 

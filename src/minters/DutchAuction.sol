@@ -15,13 +15,10 @@ import {IMinter} from "src/interfaces/IMinter.sol";
 contract DutchAuction is IDutchAuction {
     /// @inheritdoc IDutchAuction
     mapping(address => AuctionInfo[]) public auctionInfo;
-
     /// @inheritdoc IDutchAuction
     mapping(address => ReserveInfo[]) public reserves;
-
     /// @inheritdoc IDutchAuction
     mapping(address => mapping(uint256 => uint256)) public saleProceeds;
-
     /// @inheritdoc IDutchAuction
     mapping(address => mapping(uint256 => RefundInfo)) public refundInfo;
 

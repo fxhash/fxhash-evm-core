@@ -11,7 +11,7 @@ contract SetPrice is FxMintTicket721Test {
         _setTaxInfo();
     }
 
-    function testSetPrice() public {
+    function test_SetPrice() public {
         _setPrice(bob, tokenId, newPrice);
         _setTaxInfo();
         assertEq(foreclosureTime, block.timestamp + (ONE_DAY * 4));
@@ -19,18 +19,18 @@ contract SetPrice is FxMintTicket721Test {
         assertEq(depositAmount, DEPOSIT_AMOUNT);
     }
 
-    function testSetPrice_RevertsWhen_NotAuthorized() public {
+    function test_RevertsWhen_NotAuthorized() public {
         vm.expectRevert(NOT_AUTHORIZED_TICKET_ERROR);
         _setPrice(alice, tokenId, newPrice);
     }
 
-    function testSetPrice_RevertsWhen_Foreclosure() public {
+    function test_RevertsWhen_Foreclosure() public {
         vm.warp(foreclosureTime);
         vm.expectRevert(FORECLOSURE_ERROR);
         _setPrice(bob, tokenId, newPrice);
     }
 
-    function testSetPrice_RevertsWhen_InvalidPrice() public {
+    function test_RevertsWhen_InvalidPrice() public {
         vm.expectRevert(INVALID_PRICE_ERROR);
         _setPrice(bob, tokenId, uint80(MINIMUM_PRICE - 1));
     }
