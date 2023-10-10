@@ -132,6 +132,12 @@ interface IFxGenArt721 is ISeedConsumer {
     );
 
     /**
+     * @notice Event emitted when project is deleted after supply is set to zero
+     * @param _creator Address of the creator
+     */
+    event ProjectDeleted(address indexed _creator);
+
+    /**
      * @notice Event emitted when project tags are set
      * @param _names List of tag names describing the project
      */
@@ -264,7 +270,7 @@ interface IFxGenArt721 is ISeedConsumer {
      * @notice Emits an event for setting tag descriptions for a project
      * @param _names List of tag names describing the project
      */
-    function emitTags(string[] calldata _names) external;
+    function setTags(string[] calldata _names) external;
 
     /**
      * @notice Sets the new URI of the token metadata
