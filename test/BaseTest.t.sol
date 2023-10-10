@@ -148,4 +148,12 @@ contract BaseTest is Deploy, Test {
     function _toggleMint(address _creator) internal prank(_creator) {
         IFxGenArt721(fxGenArtProxy).toggleMint();
     }
+
+    function _pause(address _admin) internal prank(_admin) {
+        IFxGenArt721(fxGenArtProxy).pause();
+    }
+
+    function _unpause(address _admin) internal prank(_admin) {
+        IFxGenArt721(fxGenArtProxy).unpause();
+    }
 }

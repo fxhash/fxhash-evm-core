@@ -88,6 +88,14 @@ contract FxGenArt721Test is BaseTest {
                                     HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
+    function _mintRandom(address _to, uint256 _amount) internal {
+        MockMinter(minter).mintToken(fxGenArtProxy, _to, _amount);
+    }
+
+    function _burn(address _owner, uint256 _tokenId) internal prank(_owner) {
+        // IFxGenArt721(fxGenArtProxy).burn(_tokenId);
+    }
+
     function _setGenArtInfo(uint256 _tokenId) internal {
         (seed, fxParams) = IFxGenArt721(fxGenArtProxy).genArtInfo(_tokenId);
     }

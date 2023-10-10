@@ -15,10 +15,10 @@ contract OwnerTest is FxGenArt721Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                  OWNER MINT
+                                OWNER MINT RANDOM
     //////////////////////////////////////////////////////////////////////////*/
 
-    function test_ownerMint() public {
+    function test_OwnerMintRandom() public {
         _ownerMintRandom(creator, alice);
         assertEq(FxGenArt721(fxGenArtProxy).ownerOf(1), alice);
         assertEq(IFxGenArt721(fxGenArtProxy).totalSupply(), 1);
@@ -36,13 +36,13 @@ contract OwnerTest is FxGenArt721Test {
         assertEq(project.maxSupply, maxSupply);
     }
 
-    function test_RevertsWhen_OverSupplyAmount() public {
+    function test_ReduceSupply_RevertsWhen_OverSupplyAmount() public {
         maxSupply = MAX_SUPPLY + 1;
         vm.expectRevert(INVALID_AMOUNT_ERROR);
         _reduceSupply(creator, maxSupply);
     }
 
-    function test_RevertsWhen_UnderSupplyAmount() public {
+    function test_ReduceSupply_RevertsWhen_UnderSupplyAmount() public {
         maxSupply = 0;
         _ownerMintRandom(creator, alice);
         vm.expectRevert(INVALID_AMOUNT_ERROR);

@@ -8,7 +8,7 @@ contract Mint is FxMintTicket721Test {
         super.setUp();
     }
 
-    function testMint() public {
+    function test_Mint() public {
         _mint(alice, bob, amount, PRICE);
         _setTaxInfo();
         assertEq(FxMintTicket721(fxMintTicketProxy).ownerOf(tokenId), bob);

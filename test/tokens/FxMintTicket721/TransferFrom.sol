@@ -11,13 +11,13 @@ contract TransferFrom is FxMintTicket721Test {
         _setTaxInfo();
     }
 
-    function testTransferFrom_RevertsWhen_ForeclosureActive() public {
+    function test_RevertsWhen_ForeclosureActive() public {
         vm.warp(foreclosureTime);
         vm.expectRevert(FORECLOSURE_ERROR);
         _transferFrom(bob, bob, alice, tokenId);
     }
 
-    function testTransferFrom_RevertsWhen_ForeclosureInactive() public {
+    function test_RevertsWhen_ForeclosureInactive() public {
         _setApprovalForAll(bob, alice, true);
         vm.expectRevert(NOT_AUTHORIZED_TICKET_ERROR);
         _transferFrom(alice, bob, alice, tokenId);
