@@ -91,12 +91,12 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
         issuerInfo.projectInfo = _projectInfo;
         metadataInfo = _metadataInfo;
 
+        _transferOwnership(_owner);
         _emitTags(_initInfo.tagNames);
-        _registerMinters(_owner, _lockTime, _mintInfo);
+        _registerMinters(_lockTime, _mintInfo);
         _setRandomizer(_initInfo.randomizer);
         _setRenderer(_initInfo.renderer);
         _setBaseRoyalties(_royaltyReceivers, _basisPoints);
-        _transferOwnership(_owner);
 
         emit ProjectInitialized(_initInfo.primaryReceiver, _projectInfo, _metadataInfo, _mintInfo);
     }
@@ -276,11 +276,11 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
      * @dev Registers arbitrary number of minter contracts
      * @param _mintInfo List of minter contracts and their reserves
      */
-    function _registerMinters(address _owner, uint256 _lockTime, MintInfo[] calldata _mintInfo) internal {
+    function _registerMinters(uint256 _lockTime, MintInfo[] calldata _mintInfo) internal {
         address minter;
         uint128 totalAllocation;
         ReserveInfo memory reserveInfo;
-        uint256 lockTime = _isVerified(_owner) ? 0 : _lockTime;
+        uint256 lockTime = _isVerified(owner()) ? 0 : _lockTime;
         unchecked {
             for (uint256 i; i < _mintInfo.length; ++i) {
                 minter = _mintInfo[i].minter;
@@ -301,7 +301,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
             }
         }
 
-        if (totalAllocation > issuerInfo.projectInfo.supply) {
+        if (totalAllocation > issuerInfo.projectInfo.supply - totalSupply) {
             revert AllocationExceeded();
         }
     }
