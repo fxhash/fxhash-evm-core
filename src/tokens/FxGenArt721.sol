@@ -148,7 +148,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
             revert InvalidAmount();
         }
         issuerInfo.projectInfo.maxSupply = _supply;
-        if (_supply == 0) emit ProjectDeleted(msg.sender);
+        if (_supply == 0) emit ProjectDeleted();
     }
 
     /// @inheritdoc IFxGenArt721

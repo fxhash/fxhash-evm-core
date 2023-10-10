@@ -133,9 +133,8 @@ interface IFxGenArt721 is ISeedConsumer {
 
     /**
      * @notice Event emitted when project is deleted after supply is set to zero
-     * @param _creator Address of the creator
      */
-    event ProjectDeleted(address indexed _creator);
+    event ProjectDeleted();
 
     /**
      * @notice Event emitted when project tags are set
