@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
+import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 
 /**
  * @title FxContractRegistry

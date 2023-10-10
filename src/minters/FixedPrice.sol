@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {IFixedPrice, IMinter} from "src/interfaces/IFixedPrice.sol";
-import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
+
+import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
+import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
+import {IMinter} from "src/interfaces/IMinter.sol";
 
 /**
  * @title FixedPrice
@@ -15,10 +17,8 @@ contract FixedPrice is IFixedPrice {
 
     /// @inheritdoc IFixedPrice
     mapping(address => uint256[]) public prices;
-
     /// @inheritdoc IFixedPrice
     mapping(address => ReserveInfo[]) public reserves;
-
     /// @inheritdoc IFixedPrice
     mapping(address => uint256) public saleProceeds;
 
@@ -47,7 +47,7 @@ contract FixedPrice is IFixedPrice {
         if (msg.value != price) revert InvalidPayment();
         reserve.allocation -= _amount.safeCastTo128();
         saleProceeds[_token] += price;
-        IFxGenArt721(_token).mint(_to, _amount);
+        IFxGenArt721(_token).mintRandom(_to, _amount);
         emit Purchase(_token, _reserveId, msg.sender, _amount, _to, price);
     }
 

@@ -18,13 +18,13 @@ contract AdminTest is FxGenArt721Test {
                                     BASE URI
     //////////////////////////////////////////////////////////////////////////*/
 
-    function test_setBaseURI() public {
+    function test_SetBaseURI() public {
         _setBaseURI(admin, BASE_URI);
         _setMetadatInfo();
         assertEq(baseURI, BASE_URI);
     }
 
-    function test_setBaseURI_RevertsWhen_UnauthorizedAccount() public {
+    function test_SetBaseURI_RevertsWhen_UnauthorizedAccount() public {
         vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
         _setBaseURI(creator, BASE_URI);
     }
@@ -33,13 +33,13 @@ contract AdminTest is FxGenArt721Test {
                                     CONTRACT URI
     //////////////////////////////////////////////////////////////////////////*/
 
-    function test_setContractURI() public {
+    function test_SetContractURI() public {
         _setContractURI(admin, CONTRACT_URI);
         _setIssuerInfo();
         assertEq(project.contractURI, CONTRACT_URI);
     }
 
-    function test_setContractURI_RevertsWhen_UnauthorizedAccount() public {
+    function test_SetContractURI_RevertsWhen_UnauthorizedAccount() public {
         vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
         _setContractURI(creator, CONTRACT_URI);
     }
@@ -48,13 +48,13 @@ contract AdminTest is FxGenArt721Test {
                                     IMAGE URI
     //////////////////////////////////////////////////////////////////////////*/
 
-    function test_setImageURI() public {
+    function test_SetImageURI() public {
         _setImageURI(admin, IMAGE_URI);
         _setMetadatInfo();
         assertEq(imageURI, IMAGE_URI);
     }
 
-    function test_setImageURI_RevertsWhen_UnauthorizedAccount() public {
+    function test_SetImageURI_RevertsWhen_UnauthorizedAccount() public {
         vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
         _setImageURI(creator, IMAGE_URI);
     }
@@ -63,28 +63,38 @@ contract AdminTest is FxGenArt721Test {
                                     RANDOMIZER
     //////////////////////////////////////////////////////////////////////////*/
 
-    function test_setRandomizer() public {
+    function test_SetRandomizer() public {
         _setRandomizer(admin, address(pseudoRandomizer));
         assertEq(IFxGenArt721(fxGenArtProxy).randomizer(), address(pseudoRandomizer));
     }
 
-    function test_setRandomizer_RevertsWhen_NotAuthorized() public {
+    function test_SetRandomizer_RevertsWhen_NotAuthorized() public {
         vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
-        _setRenderer(creator, address(pseudoRandomizer));
+        _setRandomizer(creator, address(pseudoRandomizer));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                     RENDERER
     //////////////////////////////////////////////////////////////////////////*/
 
-    function test_setRenderer() public {
+    function test_SetRenderer() public {
         _setRenderer(admin, address(scriptyRenderer));
         assertEq(IFxGenArt721(fxGenArtProxy).renderer(), address(scriptyRenderer));
     }
 
-    function test_setRenderer_RevertsWhen_UnauthorizedAccount() public {
+    function test_SetRenderer_RevertsWhen_UnauthorizedAccount() public {
         vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
         _setRenderer(creator, address(scriptyRenderer));
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    PAUSABLE
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function test_Pausable_MintRandom() public {
+        _pause(admin);
+        vm.expectRevert(bytes("Pausable: paused"));
+        _mintRandom(alice, amount);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

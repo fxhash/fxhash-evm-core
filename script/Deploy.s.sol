@@ -22,7 +22,7 @@ import {TicketRedeemer} from "src/minters/TicketRedeemer.sol";
 
 import {Clones} from "openzeppelin-contracts/contracts/proxy/Clones.sol";
 import {HTMLRequest, HTMLTagType, HTMLTag} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
-import {IFxGenArt721, GenArtInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
+import {IFxGenArt721, GenArtInfo, InitInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxIssuerFactory, ConfigInfo} from "src/interfaces/IFxIssuerFactory.sol";
 import {IFxMintTicket721, TaxInfo} from "src/interfaces/IFxMintTicket721.sol";
 
@@ -50,6 +50,7 @@ contract Deploy is Script {
     // Project
     string internal contractURI;
     string internal defaultMetadata;
+    string[] internal tagNames;
     uint256 internal lockTime;
 
     // Metadata
@@ -81,8 +82,9 @@ contract Deploy is Script {
 
     // Structs
     ConfigInfo internal configInfo;
-    IssuerInfo internal issuerInfo;
     GenArtInfo internal genArtInfo;
+    InitInfo internal initInfo;
+    IssuerInfo internal issuerInfo;
     MetadataInfo internal metadataInfo;
     MintInfo[] internal mintInfo;
     ProjectInfo internal projectInfo;
@@ -96,6 +98,7 @@ contract Deploy is Script {
     address internal fxGenArtProxy;
     uint256 internal amount;
     uint256 internal price;
+    uint256 internal quantity;
     uint256 internal tokenId;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -119,9 +122,9 @@ contract Deploy is Script {
         _configureSplits();
         _configureRoyalties();
         _configureScripty();
-        _configureState(AMOUNT, PRICE, TOKEN_ID);
+        _configureState(AMOUNT, PRICE, QUANTITY, TOKEN_ID);
         _configureInfo(LOCK_TIME, DEFAULT_METADATA);
-        _configureProject(ENABLED, ONCHAIN, MAX_SUPPLY, CONTRACT_URI);
+        _configureProject(ONCHAIN, MINT_ENABLED, MAX_SUPPLY, CONTRACT_URI);
         _configureMetdata(BASE_URI, IMAGE_URI, animation);
     }
 
@@ -154,9 +157,9 @@ contract Deploy is Script {
         _registerContracts();
         _grantRoles();
         _createSplit();
+        _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(scriptyRenderer), tagNames);
         _createProject();
         _createTicket();
-        _setContracts();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -166,6 +169,7 @@ contract Deploy is Script {
     function _createAccounts() internal virtual {
         admin = msg.sender;
         creator = makeAddr("creator");
+        tagNames.push(TAG_NAME);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -256,9 +260,10 @@ contract Deploy is Script {
         animation.bodyTags = bodyTags;
     }
 
-    function _configureState(uint256 _amount, uint256 _price, uint256 _tokenId) internal virtual {
+    function _configureState(uint256 _amount, uint256 _price, uint256 _quantity, uint256 _tokenId) internal virtual {
         amount = _amount;
         price = _price;
+        quantity = _quantity;
         tokenId = _tokenId;
     }
 
@@ -268,14 +273,14 @@ contract Deploy is Script {
     }
 
     function _configureProject(
-        bool _enabled,
         bool _onchain,
-        uint240 _supply,
+        bool _mintEnabled,
+        uint120 _maxSupply,
         string memory _contractURI
     ) internal virtual {
-        projectInfo.enabled = _enabled;
         projectInfo.onchain = _onchain;
-        projectInfo.supply = _supply;
+        projectInfo.mintEnabled = _mintEnabled;
+        projectInfo.maxSupply = _maxSupply;
         projectInfo.contractURI = _contractURI;
     }
 
@@ -287,6 +292,22 @@ contract Deploy is Script {
         metadataInfo.baseURI = _baseURI;
         metadataInfo.imageURI = _imageURI;
         metadataInfo.animation = _animation;
+    }
+
+    function _configureInit(
+        string memory _name,
+        string memory _symbol,
+        address _primaryReceiver,
+        address _randomizer,
+        address _renderer,
+        string[] memory _tagNames
+    ) internal virtual {
+        initInfo.name = _name;
+        initInfo.symbol = _symbol;
+        initInfo.primaryReceiver = _primaryReceiver;
+        initInfo.randomizer = _randomizer;
+        initInfo.renderer = _renderer;
+        initInfo.tagNames = _tagNames;
     }
 
     function _configureMinter(
@@ -324,7 +345,7 @@ contract Deploy is Script {
 
         // FxGenArt721
         creationCode = type(FxGenArt721).creationCode;
-        constructorArgs = abi.encode(address(fxContractRegistry), address(fxRoleRegistry));
+        constructorArgs = abi.encode(address(fxRoleRegistry));
         fxGenArt721 = FxGenArt721(_deployCreate2(creationCode, constructorArgs, salt));
 
         // FxIssuerFactory
@@ -394,7 +415,7 @@ contract Deploy is Script {
     function _createProject() internal virtual {
         fxGenArtProxy = fxIssuerFactory.createProject(
             creator,
-            primaryReceiver,
+            initInfo,
             projectInfo,
             metadataInfo,
             mintInfo,
@@ -446,11 +467,6 @@ contract Deploy is Script {
         contracts.push(address(ticketRedeemer));
 
         fxContractRegistry.register(names, contracts);
-    }
-
-    function _setContracts() internal virtual {
-        FxGenArt721(fxGenArtProxy).setRandomizer(address(pseudoRandomizer));
-        FxGenArt721(fxGenArtProxy).setRenderer(address(scriptyRenderer));
     }
 
     /*//////////////////////////////////////////////////////////////////////////

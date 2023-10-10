@@ -2,10 +2,11 @@
 pragma solidity 0.8.20;
 
 import {Clones} from "openzeppelin/contracts/proxy/Clones.sol";
-import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
-import {IFxGenArt721, MetadataInfo, MintInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
-import {IFxIssuerFactory, ConfigInfo} from "src/interfaces/IFxIssuerFactory.sol";
 import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
+
+import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
+import {IFxGenArt721, InitInfo, MetadataInfo, MintInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
+import {IFxIssuerFactory, ConfigInfo} from "src/interfaces/IFxIssuerFactory.sol";
 
 import {BANNED_USER_ROLE} from "src/utils/Constants.sol";
 
@@ -26,7 +27,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     mapping(uint96 => address) public projects;
 
     /**
-     * @dev Modifier for checking if user is banned from platform
+     * @dev Modifier for checking if user is banned from system
      */
     modifier isBanned(address _user) {
         if (IAccessControl(roleRegistry).hasRole(BANNED_USER_ROLE, _user)) revert NotAuthorized();
@@ -43,7 +44,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     /// @inheritdoc IFxIssuerFactory
     function createProject(
         address _owner,
-        address _primaryReceiver,
+        InitInfo calldata _initInfo,
         ProjectInfo calldata _projectInfo,
         MetadataInfo calldata _metadataInfo,
         MintInfo[] calldata _mintInfo,
@@ -51,7 +52,8 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
         uint96[] calldata _basisPoints
     ) external isBanned(_owner) returns (address genArtToken) {
         if (_owner == address(0)) revert InvalidOwner();
-        if (_primaryReceiver == address(0)) revert InvalidPrimaryReceiver();
+        if (_initInfo.primaryReceiver == address(0)) revert InvalidPrimaryReceiver();
+        if (_initInfo.randomizer == address(0) && _projectInfo.inputSize == 0) revert InvalidInputSize();
         genArtToken = Clones.clone(implementation);
         projects[++projectId] = genArtToken;
 
@@ -59,8 +61,8 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
 
         IFxGenArt721(genArtToken).initialize(
             _owner,
-            _primaryReceiver,
             configInfo.lockTime,
+            _initInfo,
             _projectInfo,
             _metadataInfo,
             _mintInfo,

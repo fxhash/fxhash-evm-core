@@ -32,8 +32,8 @@ contract FixedPriceTest is BaseTest {
         _initializeState();
         _configureSplits();
         _configureRoyalties();
-        _configureState(AMOUNT, PRICE, TOKEN_ID);
-        _configureProject(ENABLED, ONCHAIN, MAX_SUPPLY, CONTRACT_URI);
+        _configureState(AMOUNT, PRICE, QUANTITY, TOKEN_ID);
+        _configureProject(ONCHAIN, MINT_ENABLED, MAX_SUPPLY, CONTRACT_URI);
         _configureMinter(
             address(fixedPrice),
             RESERVE_START_TIME,
@@ -43,17 +43,7 @@ contract FixedPriceTest is BaseTest {
         );
         _grantRole(admin, MINTER_ROLE, address(fixedPrice));
         _createSplit();
+        _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(scriptyRenderer), tagNames);
         _createProject();
-        _setRandomizer(admin, address(pseudoRandomizer));
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                    HELPERS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function _initializeState() internal override {
-        super._initializeState();
-        mintId = 0;
-        quantity = 1;
     }
 }
