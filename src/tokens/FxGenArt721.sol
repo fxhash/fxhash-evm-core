@@ -306,9 +306,9 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
         }
     }
 
-    /// @dev Emits event for setting active status of tag name
+    /// @dev Emits event for setting the tag names for a project
     function _emitTags(string[] calldata _names) internal {
-        for (uint256 i; i < _names.length; ++i) emit SetTag(_names[i]);
+        emit ProjectTags(_names);
     }
 
     /// @dev Sets the Randomizer contract

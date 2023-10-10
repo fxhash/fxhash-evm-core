@@ -131,6 +131,12 @@ interface IFxGenArt721 is ISeedConsumer {
     );
 
     /**
+     * @notice Event emitted when project tags are set
+     * @param _names List of tag names describing the project
+     */
+    event ProjectTags(string[] indexed _names);
+
+    /**
      * @notice Event emitted when Randomizer contract is updated
      * @param _randomizer Address of new Randomizer contract
      */
@@ -141,12 +147,6 @@ interface IFxGenArt721 is ISeedConsumer {
      * @param _renderer Address of new Renderer contract
      */
     event RendererUpdated(address indexed _renderer);
-
-    /**
-     * @notice Event emitted when a project tag name has been set
-     * @param _name Name of tag describing the project
-     */
-    event SetTag(string indexed _name);
 
     /// @notice Error thrown when total minter allocation exceeds maximum supply
     error AllocationExceeded();
