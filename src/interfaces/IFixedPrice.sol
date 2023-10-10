@@ -74,6 +74,12 @@ interface IFixedPrice is IMinter {
     /// @notice Thrown when the sale has not started
     error NotStarted();
 
+    error NoPublicMint();
+
+    error NoAllowlist();
+
+    error NoSigningAuthority();
+
     /// @notice Thrown when amount purchased exceeds remaining allocation
     error TooMany();
 
@@ -94,6 +100,12 @@ interface IFixedPrice is IMinter {
 
     /// @notice Returns the price of a token for a reserveId
     function prices(address _token, uint256 _reserveId) external view returns (uint256);
+
+    /// @notice Returns the merkleRoot of a token for a reserveId
+    function merkleRoots(address _token, uint256 _reserveId) external view returns (bytes32);
+
+    /// @notice Returns the signing authority of mint passes of a token for a reserveId
+    function signingAuthorities(address _token, uint256 _reserveId) external view returns (address);
 
     /// @notice Returns the reserve of a token for a reserveId
     function reserves(address _token, uint256 _reserveId) external view returns (uint64, uint64, uint128);

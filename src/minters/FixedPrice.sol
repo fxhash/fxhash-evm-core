@@ -21,6 +21,12 @@ contract FixedPrice is MintPass, Allowlist, IFixedPrice {
     mapping(address => uint256[]) public prices;
 
     /// @inheritdoc IFixedPrice
+    mapping(address => mapping(uint256 => bytes32)) public merkleRoots;
+
+    /// @inheritdoc IFixedPrice
+    mapping(address => mapping(uint256 => address)) public signingAuthorities;
+
+    /// @inheritdoc IFixedPrice
     mapping(address => ReserveInfo[]) public reserves;
 
     /// @inheritdoc IFixedPrice
@@ -30,8 +36,15 @@ contract FixedPrice is MintPass, Allowlist, IFixedPrice {
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external {
         if (_reserve.allocation == 0) revert InvalidAllocation();
         (uint256 price, bytes32 merkleRoot, address signer) = abi.decode(_mintDetails, (uint256, bytes32, address));
+
         if (price == 0) revert InvalidPrice();
         uint256 reserveId = reserves[msg.sender].length;
+        if (merkleRoot != bytes32(0)) {
+            merkleRoots[msg.sender][reserveId] = merkleRoot;
+        }
+        if (signer != address(0)) {
+            signingAuthorities[msg.sender][reserveId] = signer;
+        }
         prices[msg.sender].push(price);
         reserves[msg.sender].push(_reserve);
         emit MintDetailsSet(msg.sender, reserveId, price, _reserve);
@@ -39,6 +52,9 @@ contract FixedPrice is MintPass, Allowlist, IFixedPrice {
 
     /// @inheritdoc IFixedPrice
     function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable {
+        bytes32 merkleRoot = merkleRoots[_token][_reserveId];
+        address signer = signingAuthorities[_token][_reserveId];
+        if (!(merkleRoot == bytes32(0) || signer == address(0))) revert NoPublicMint();
         uint256 length = reserves[_token].length;
         if (length == 0) revert InvalidToken();
         if (_reserveId >= length) revert InvalidReserve();
@@ -61,11 +77,15 @@ contract FixedPrice is MintPass, Allowlist, IFixedPrice {
         address _to,
         bytes32[][] calldata _proofs
     ) external payable {
+        bytes32 merkleRoot = merkleRoots[_token][_reserveId];
+        if (merkleRoot == bytes32(0)) revert NoAllowlist();
         uint256 amount = _proofs.length;
         _buy(_token, _reserveId, amount, _to);
     }
 
     function buyMintPass(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable {
+        address signer = signingAuthorities[_token][_reserveId];
+        if (signer == address(0)) revert NoSigningAuthority();
         _buy(_token, _reserveId, _amount, _to);
     }
 
