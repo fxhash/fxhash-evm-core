@@ -17,7 +17,6 @@ abstract contract MintPass is EIP712 {
 
     /// @dev Error thrown when a mint pass has already been claimed
     error AlreadyClaimed();
-
     /// @dev Error thrown when the signature of the mint pass claim is invalid
     error InvalidSig();
 
