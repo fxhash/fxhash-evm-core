@@ -21,7 +21,7 @@ import "src/utils/Constants.sol";
  * @title FxGenArt721
  * @notice See the documentation in {IFxGenArt721}
  */
-contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, RoyaltyManager {
+contract FxGenArt721 is IFxGenArt721, ERC721, Initializable, Ownable, Pausable, RoyaltyManager {
     /// @dev Project name
     string internal name_;
     /// @dev Project symbol
