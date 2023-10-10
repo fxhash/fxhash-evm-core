@@ -45,17 +45,13 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
                                   MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /**
-     * @dev Modifier for restricting calls to only registered minters
-     */
+    /// @dev Modifier for restricting calls to only registered minters
     modifier onlyMinter() {
         if (!isMinter(msg.sender)) revert UnregisteredMinter();
         _;
     }
 
-    /**
-     * @dev Modifier for restricting calls to only authorized accounts with given roles
-     */
+    /// @dev Modifier for restricting calls to only authorized accounts with given roles
     modifier onlyRole(bytes32 _role) {
         if (!IAccessControl(roleRegistry).hasRole(_role, msg.sender)) revert UnauthorizedAccount();
         _;
@@ -119,12 +115,11 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
         _mintParams(_to, ++totalSupply, _fxParams);
     }
 
-    /// @inheritdoc IFxGenArt721
-    function burn(uint256 _tokenId) external whenNotPaused {
-        if (!issuerInfo.projectInfo.burnEnabled) revert BurnInactive();
-        if (!_isApprovedOrOwner(msg.sender, _tokenId)) revert NotAuthorized();
-        _burn(_tokenId);
-    }
+    // function burn(uint256 _tokenId) external whenNotPaused {
+    //     if (!issuerInfo.projectInfo.burnEnabled) revert BurnInactive();
+    //     if (!_isApprovedOrOwner(msg.sender, _tokenId)) revert NotAuthorized();
+    //     _burn(_tokenId);
+    // }
 
     /// @inheritdoc ISeedConsumer
     function fulfillSeedRequest(uint256 _tokenId, bytes32 _seed) external {
@@ -160,11 +155,10 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
         issuerInfo.projectInfo.mintEnabled = !issuerInfo.projectInfo.mintEnabled;
     }
 
-    /// @inheritdoc IFxGenArt721
-    function toggleBurn() external onlyOwner {
-        if (issuerInfo.projectInfo.mintEnabled) revert MintActive();
-        issuerInfo.projectInfo.burnEnabled = !issuerInfo.projectInfo.burnEnabled;
-    }
+    // function toggleBurn() external onlyOwner {
+    //     if (issuerInfo.projectInfo.mintEnabled) revert MintActive();
+    //     issuerInfo.projectInfo.burnEnabled = !issuerInfo.projectInfo.burnEnabled;
+    // }
 
     /*//////////////////////////////////////////////////////////////////////////
                                 ADMIN FUNCTIONS
@@ -257,27 +251,20 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
                                 INTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /**
-     * @dev Mints a single token to given account and generates random seed
-     */
+    /// @dev Mints a single token to given account and generates random seed
     function _mintRandom(address _to, uint256 _tokenId) internal {
         _mint(_to, _tokenId);
         IRandomizer(randomizer).requestRandomness(_tokenId);
     }
 
-    /**
-     * @dev Mints a single fxParams token to given account
-     */
+    /// @dev Mints a single fxParams token to given account
     function _mintParams(address _to, uint256 _tokenId, bytes calldata _fxParams) internal {
         if (issuerInfo.projectInfo.inputSize < _fxParams.length) revert InvalidInputSize();
         _mint(_to, _tokenId);
         genArtInfo[_tokenId].fxParams = _fxParams;
     }
 
-    /**
-     * @dev Registers arbitrary number of minter contracts
-     * @param _mintInfo List of minter contracts and their reserves
-     */
+    /// @dev Registers arbitrary number of minter contracts
     function _registerMinters(uint256 _lockTime, MintInfo[] calldata _mintInfo) internal {
         address minter;
         uint128 totalAllocation;
@@ -325,9 +312,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
         emit RendererUpdated(_renderer);
     }
 
-    /**
-     * @dev Checks if user is verified on system
-     */
+    /// @dev Checks if user is verified on system
     function _isVerified(address _user) internal view returns (bool) {
         return (IAccessControl(roleRegistry).hasRole(VERIFIED_USER_ROLE, _user));
     }

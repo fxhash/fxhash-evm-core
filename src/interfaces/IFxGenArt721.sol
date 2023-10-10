@@ -192,7 +192,7 @@ interface IFxGenArt721 is ISeedConsumer {
      * @notice Burns token ID from the circulating supply
      * @param _tokenId ID of the token
      */
-    function burn(uint256 _tokenId) external;
+    // function burn(uint256 _tokenId) external;
 
     /**
      * @notice Initializes new generative art project
@@ -299,7 +299,7 @@ interface IFxGenArt721 is ISeedConsumer {
     /**
      * @notice Toggles public burn from disabled to enabled and vice versa
      */
-    function toggleBurn() external;
+    // function toggleBurn() external;
 
     /**
      * @notice Toggles public mint from enabled to disabled and vice versa
