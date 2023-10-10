@@ -63,7 +63,6 @@ struct MetadataInfo {
 
 /**
  * @param seed Hash of revealed seed
-
  * @param fxParams Random sequence of fixed-length bytes
  */
 struct GenArtInfo {
