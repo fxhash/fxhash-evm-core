@@ -98,6 +98,7 @@ contract Deploy is Script {
     uint256 internal amount;
     uint256 internal price;
     bytes32 internal merkleRoot;
+    uint256 internal mintPassSignerPk;
     address internal mintPassSigner;
     uint256 internal quantity;
     uint256 internal tokenId;

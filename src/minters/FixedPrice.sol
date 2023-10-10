@@ -57,7 +57,7 @@ contract FixedPrice is MintPass, Allowlist, IFixedPrice {
     function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable {
         bytes32 merkleRoot = merkleRoots[_token][_reserveId];
         address signer = signingAuthorities[_token][_reserveId];
-        if (!(merkleRoot == bytes32(0) || signer == address(0))) revert NoPublicMint();
+        if ((merkleRoot != bytes32(0) || signer != address(0))) revert NoPublicMint();
         uint256 length = reserves[_token].length;
         if (length == 0) revert InvalidToken();
         if (_reserveId >= length) revert InvalidReserve();
@@ -119,5 +119,7 @@ contract FixedPrice is MintPass, Allowlist, IFixedPrice {
         address _signer,
         address _token,
         uint256 _reserveId
-    ) internal view override returns (bool) {}
+    ) internal view override returns (bool) {
+        return _signer == signingAuthorities[_token][_reserveId];
+    }
 }
