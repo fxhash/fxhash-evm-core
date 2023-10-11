@@ -88,7 +88,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
         metadataInfo = _metadataInfo;
 
         _transferOwnership(_owner);
-        _emitTags(_initInfo.tagNames);
+        _setTags(_initInfo.tagIds);
         _registerMinters(_lockTime, _mintInfo);
         _setRandomizer(_initInfo.randomizer);
         _setRenderer(_initInfo.renderer);
@@ -148,6 +148,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
             revert InvalidAmount();
         }
         issuerInfo.projectInfo.maxSupply = _supply;
+        if (_supply == 0) emit ProjectDeleted();
     }
 
     /// @inheritdoc IFxGenArt721
@@ -207,8 +208,8 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IFxGenArt721
-    function emitTags(string[] calldata _names) external onlyRole(TOKEN_MODERATOR_ROLE) {
-        _emitTags(_names);
+    function setTags(uint256[] calldata _tagIds) external onlyRole(TOKEN_MODERATOR_ROLE) {
+        _setTags(_tagIds);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -295,9 +296,9 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
         }
     }
 
-    /// @dev Emits event for setting the tag names for a project
-    function _emitTags(string[] calldata _names) internal {
-        emit ProjectTags(_names);
+    /// @dev Emits event for setting the project tag descriptions
+    function _setTags(uint256[] calldata _tagIds) internal {
+        emit ProjectTags(_tagIds);
     }
 
     /// @dev Sets the Randomizer contract

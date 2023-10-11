@@ -11,6 +11,8 @@ import {IMinter} from "src/interfaces/IMinter.sol";
 import {Allowlist} from "src/minters/extensions/Allowlist.sol";
 import {MintPass} from "src/minters/extensions/MintPass.sol";
 
+import {OPEN_EDITION_SUPPLY} from "src/utils/Constants.sol";
+
 /**
  * @title FixedPrice
  * @notice See the documentation in {IFixedPrice}
@@ -48,7 +50,8 @@ contract FixedPrice is MintPass, Allowlist, IFixedPrice {
         }
         prices[msg.sender].push(price);
         reserves[msg.sender].push(_reserve);
-        emit MintDetailsSet(msg.sender, reserveId, price, _reserve);
+        bool openEdition = _reserve.allocation == OPEN_EDITION_SUPPLY ? true : false;
+        emit MintDetailsSet(msg.sender, reserveId, price, _reserve, openEdition);
     }
 
     /// @inheritdoc IFixedPrice

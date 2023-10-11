@@ -52,7 +52,7 @@ contract Deploy is Script {
     string internal defaultMetadata;
     uint128 internal lockTime;
     uint128 internal referrerShare;
-    string[] internal tagNames;
+    uint256[] internal tagIds;
 
     // Metadata
     string internal baseURI;
@@ -161,7 +161,7 @@ contract Deploy is Script {
         _registerContracts();
         _grantRoles();
         _createSplit();
-        _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(scriptyRenderer), tagNames);
+        _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(scriptyRenderer), tagIds);
         _createProject();
         _createTicket();
     }
@@ -173,7 +173,7 @@ contract Deploy is Script {
     function _createAccounts() internal virtual {
         admin = msg.sender;
         creator = makeAddr("creator");
-        tagNames.push(TAG_NAME);
+        tagIds.push(TAG_ID);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -318,14 +318,14 @@ contract Deploy is Script {
         address _primaryReceiver,
         address _randomizer,
         address _renderer,
-        string[] memory _tagNames
+        uint256[] memory _tagIds
     ) internal virtual {
         initInfo.name = _name;
         initInfo.symbol = _symbol;
         initInfo.primaryReceiver = _primaryReceiver;
         initInfo.randomizer = _randomizer;
         initInfo.renderer = _renderer;
-        initInfo.tagNames = _tagNames;
+        initInfo.tagIds = _tagIds;
     }
 
     function _configureMinter(
