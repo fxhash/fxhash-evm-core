@@ -16,7 +16,7 @@ interface IFixedPrice is IMinter {
      * @param price The fixed price for the mint
      * @param reserve The reserve information for the mint
      * @param openEdition The status of an open edition mint
-     * @param timeUnlimited The status of an open edition mint with unlimited time
+     * @param timeUnlimited The status of a mint with unlimited time
      */
     event MintDetailsSet(
         address indexed token,
