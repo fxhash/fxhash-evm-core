@@ -16,6 +16,16 @@ contract SetMintDetails is FixedPriceTest {
         assertEq(MINTER_ALLOCATION, supply, "supply incorrectly set");
     }
 
+    function test_RevertsWhen_BothSignerAndMerkleRoot() public {
+        merkleRoot = bytes32(uint256(1));
+        mintPassSigner = address(1);
+        vm.expectRevert();
+        fixedPrice.setMintDetails(
+            ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
+            abi.encode(price, merkleRoot, mintPassSigner)
+        );
+    }
+
     function test_RevertsIf_Allocation0() public {
         vm.expectRevert(INVALID_ALLOCATION_ERROR);
         fixedPrice.setMintDetails(ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, 0), abi.encode(price));

@@ -30,8 +30,11 @@ contract FixedPrice is MintPass, Allowlist, IFixedPrice {
 
     mapping(address => mapping(uint256 => BitMaps.BitMap)) internal claimedMintPasses;
 
+    mapping(address => mapping(uint256 => BitMaps.BitMap)) internal claimedMerkleTreeSlots;
+
     /// @inheritdoc IFixedPrice
     mapping(address => ReserveInfo[]) public reserves;
+
     /// @inheritdoc IFixedPrice
     mapping(address => uint256) public saleProceeds;
 
@@ -41,6 +44,7 @@ contract FixedPrice is MintPass, Allowlist, IFixedPrice {
         (uint256 price, bytes32 merkleRoot, address signer) = abi.decode(_mintDetails, (uint256, bytes32, address));
 
         if (price == 0) revert InvalidPrice();
+        if (merkleRoot != bytes32(0) && signer != address(0)) revert("Cant have both signer and merkle tree");
         uint256 reserveId = reserves[msg.sender].length;
         if (merkleRoot != bytes32(0)) {
             merkleRoots[msg.sender][reserveId] = merkleRoot;
@@ -80,11 +84,16 @@ contract FixedPrice is MintPass, Allowlist, IFixedPrice {
     function buyAllowlist(
         address _token,
         uint256 _reserveId,
+        uint256 _index,
         address _to,
         bytes32[][] calldata _proofs
     ) external payable {
         bytes32 merkleRoot = merkleRoots[_token][_reserveId];
         if (merkleRoot == bytes32(0)) revert NoAllowlist();
+        BitMaps.BitMap storage claimBitmap = claimedMerkleTreeSlots[_token][_reserveId];
+        for (uint256 i; i < _proofs.length; i++) {
+            _claimSlot(claimBitmap, _token, _reserveId, _index, _proofs[i]);
+        }
         uint256 amount = _proofs.length;
         _buy(_token, _reserveId, amount, _to);
     }

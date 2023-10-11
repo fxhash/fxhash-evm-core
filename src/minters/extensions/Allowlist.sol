@@ -22,7 +22,6 @@ abstract contract Allowlist {
      * @param _bitmap The bitmap to check if the index is already claimed
      * @param _token The address of the token contract
      * @param _index The index in the merkle tree
-     * @param _price The price associated with the claim
      * @param _proof The merkle proof
      */
     function _claimSlot(
@@ -30,12 +29,11 @@ abstract contract Allowlist {
         address _token,
         uint256 _reserveId,
         uint256 _index,
-        uint256 _price,
         bytes32[] memory _proof
     ) internal {
         if (_bitmap.get(_index)) revert SlotAlreadyClaimed();
         bytes32 root = _getMerkleRoot(_token, _reserveId);
-        bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(_index, _price, msg.sender))));
+        bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(_index, msg.sender))));
         if (!MerkleProof.verify(_proof, root, leaf)) revert InvalidProof();
         _bitmap.set(_index);
     }

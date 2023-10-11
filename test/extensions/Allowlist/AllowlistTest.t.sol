@@ -45,7 +45,7 @@ contract AllowlistTest is BaseTest, StandardMerkleTree {
     function _configureAllowlist() internal {
         address[5] memory users = [alice, bob, eve, susan, alice];
         for (uint256 i; i < users.length; ++i) {
-            merkleTree.push(keccak256(bytes.concat(keccak256(abi.encode(i + 1, PRICE, users[i])))));
+            merkleTree.push(keccak256(bytes.concat(keccak256(abi.encode(i + 1, users[i])))));
         }
         merkleRoot = getRoot(merkleTree);
         allowlist.setMerkleRoot(merkleRoot);
