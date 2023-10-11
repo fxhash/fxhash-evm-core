@@ -23,6 +23,7 @@ bytes32 constant CLAIM_TYPEHASH = keccak256("Claim(uint256 index, address user, 
 // Project
 uint64 constant TIME_UNLIMITED = type(uint64).max;
 uint120 constant OPEN_EDITION_SUPPLY = type(uint120).max;
+uint128 constant LOCK_TIME = 3600; // 1 hour
 
 // Roles
 bytes32 constant ADMIN_ROLE = keccak256("ADMIN_ROLE");

@@ -154,7 +154,7 @@ contract FxGenArt721 is IFxGenArt721, ERC721, Initializable, Ownable, Pausable, 
     /// @inheritdoc IFxGenArt721
     function registerMinters(MintInfo[] calldata _mintInfo) external onlyOwner {
         if (issuerInfo.projectInfo.mintEnabled) revert MintActive();
-        _registerMinters(0, _mintInfo);
+        _registerMinters(LOCK_TIME, _mintInfo);
     }
 
     /// @inheritdoc IFxGenArt721
