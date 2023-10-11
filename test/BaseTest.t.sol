@@ -142,7 +142,7 @@ contract BaseTest is Deploy, Test {
     }
 
     function _toggleBurn(address _creator) internal prank(_creator) {
-        // IFxGenArt721(fxGenArtProxy).toggleBurn();
+        IFxGenArt721(fxGenArtProxy).toggleBurn();
     }
 
     function _toggleMint(address _creator) internal prank(_creator) {

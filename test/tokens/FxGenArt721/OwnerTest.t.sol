@@ -64,17 +64,12 @@ contract OwnerTest is FxGenArt721Test {
                                   TOGGLE BURN
     //////////////////////////////////////////////////////////////////////////*/
 
-    function xtest_ToggleBurn() public {
+    function test_ToggleBurn() public {
         assertFalse(project.burnEnabled);
         _toggleMint(creator);
         _toggleBurn(creator);
         _setIssuerInfo();
         assertTrue(project.burnEnabled);
-    }
-
-    function xtest_ToggleBurn_RevertsWhenMintActive() public {
-        vm.expectRevert(MINT_ACTIVE_ERROR);
-        _toggleBurn(creator);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
