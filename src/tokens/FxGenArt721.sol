@@ -61,7 +61,7 @@ contract FxGenArt721 is IFxGenArt721, ERC721, Initializable, Ownable, Pausable, 
                                   CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Sets core registry contracts
+    /// @dev Sets RoleRegistry contract
     constructor(address _roleRegistry) ERC721("FxGenArt721", "FXHASH") {
         roleRegistry = _roleRegistry;
     }
@@ -88,11 +88,11 @@ contract FxGenArt721 is IFxGenArt721, ERC721, Initializable, Ownable, Pausable, 
         metadataInfo = _metadataInfo;
 
         _transferOwnership(_owner);
-        _setTags(_initInfo.tagIds);
-        _registerMinters(_lockTime, _mintInfo);
+        _setBaseRoyalties(_royaltyReceivers, _basisPoints);
         _setRandomizer(_initInfo.randomizer);
         _setRenderer(_initInfo.renderer);
-        _setBaseRoyalties(_royaltyReceivers, _basisPoints);
+        _setTags(_initInfo.tagIds);
+        _registerMinters(_lockTime, _mintInfo);
 
         emit ProjectInitialized(_initInfo.primaryReceiver, _projectInfo, _metadataInfo, _mintInfo);
     }
@@ -227,16 +227,6 @@ contract FxGenArt721 is IFxGenArt721, ERC721, Initializable, Ownable, Pausable, 
         return issuerInfo.projectInfo.contractURI;
     }
 
-    /// @inheritdoc ERC721
-    function name() public view override returns (string memory) {
-        return name_;
-    }
-
-    /// @inheritdoc ERC721
-    function symbol() public view override returns (string memory) {
-        return symbol_;
-    }
-
     /// @inheritdoc IFxGenArt721
     function isMinter(address _minter) public view returns (bool) {
         return issuerInfo.minters[_minter];
@@ -245,6 +235,16 @@ contract FxGenArt721 is IFxGenArt721, ERC721, Initializable, Ownable, Pausable, 
     /// @inheritdoc IFxGenArt721
     function remainingSupply() public view returns (uint256) {
         return issuerInfo.projectInfo.maxSupply - totalSupply;
+    }
+
+    /// @inheritdoc ERC721
+    function name() public view override returns (string memory) {
+        return name_;
+    }
+
+    /// @inheritdoc ERC721
+    function symbol() public view override returns (string memory) {
+        return symbol_;
     }
 
     /// @inheritdoc ERC721
@@ -297,11 +297,6 @@ contract FxGenArt721 is IFxGenArt721, ERC721, Initializable, Ownable, Pausable, 
         }
     }
 
-    /// @dev Emits event for setting the project tag descriptions
-    function _setTags(uint256[] calldata _tagIds) internal {
-        emit ProjectTags(_tagIds);
-    }
-
     /// @dev Sets the Randomizer contract
     function _setRandomizer(address _randomizer) internal {
         randomizer = _randomizer;
@@ -312,6 +307,11 @@ contract FxGenArt721 is IFxGenArt721, ERC721, Initializable, Ownable, Pausable, 
     function _setRenderer(address _renderer) internal {
         renderer = _renderer;
         emit RendererUpdated(_renderer);
+    }
+
+    /// @dev Emits event for setting the project tag descriptions
+    function _setTags(uint256[] calldata _tagIds) internal {
+        emit ProjectTags(_tagIds);
     }
 
     /// @dev Checks if user is verified on system
