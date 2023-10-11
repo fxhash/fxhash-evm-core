@@ -7,24 +7,25 @@ import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
 import {IFxMintTicket721} from "src/interfaces/IFxMintTicket721.sol";
 import {IFxTicketFactory} from "src/interfaces/IFxTicketFactory.sol";
 
-import {ONE_DAY} from "src/utils/Constants.sol";
-
 /**
  * @title FxTicketFactory
  * @notice See the documentation in {IFxTicketFactory}
  */
 contract FxTicketFactory is IFxTicketFactory, Ownable {
     /// @inheritdoc IFxTicketFactory
-    uint96 public ticketId;
-    /// @inheritdoc IFxTicketFactory
     address public implementation;
     /// @inheritdoc IFxTicketFactory
-    mapping(address => uint256) public nonces;
+    uint48 public minGracePeriod;
     /// @inheritdoc IFxTicketFactory
-    mapping(uint96 => address) public tickets;
+    uint48 public ticketId;
+    /// @inheritdoc IFxTicketFactory
+    mapping(uint48 => address) public tickets;
+    /// @inheritdoc IFxTicketFactory
+    mapping(address => uint256) public nonces;
 
     /// @dev Initializes FxMintTicket721 implementation contract
-    constructor(address _implementation) {
+    constructor(address _implementation, uint48 _gracePeriod) {
+        _setGracePeriod(_gracePeriod);
         _setImplementation(_implementation);
     }
 
@@ -37,7 +38,7 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
     ) external returns (address mintTicket) {
         if (_owner == address(0)) revert InvalidOwner();
         if (_genArt721 == address(0)) revert InvalidToken();
-        if (_gracePeriod < ONE_DAY) revert InvalidGracePeriod();
+        if (_gracePeriod < minGracePeriod) revert InvalidGracePeriod();
 
         mintTicket = Clones.cloneDeterministic(implementation, bytes32(nonces[msg.sender]));
         nonces[msg.sender]++;
@@ -57,5 +58,16 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
     function _setImplementation(address _implementation) internal {
         implementation = _implementation;
         emit ImplementationUpdated(msg.sender, _implementation);
+    }
+
+    /// @inheritdoc IFxTicketFactory
+    function setGracePeriod(uint48 _gracePeriod) external onlyOwner {
+        _setGracePeriod(_gracePeriod);
+    }
+
+    /// @dev Sets the minimum grace period
+    function _setGracePeriod(uint48 _gracePeriod) internal {
+        minGracePeriod = _gracePeriod;
+        emit GracePeriodUpdated(msg.sender, _gracePeriod);
     }
 }

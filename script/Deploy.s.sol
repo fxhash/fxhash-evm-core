@@ -93,7 +93,7 @@ contract Deploy is Script {
 
     // Ticket
     address internal fxMintTicketProxy;
-    uint96 internal ticketId;
+    uint48 internal ticketId;
 
     // Token
     address internal fxGenArtProxy;
@@ -365,7 +365,7 @@ contract Deploy is Script {
 
         // FxTicketFactory
         creationCode = type(FxTicketFactory).creationCode;
-        constructorArgs = abi.encode(address(fxMintTicket721));
+        constructorArgs = abi.encode(address(fxMintTicket721), ONE_DAY);
         fxTicketFactory = FxTicketFactory(_deployCreate2(creationCode, constructorArgs, salt));
 
         vm.label(address(fxContractRegistry), "FxContractRegistry");
