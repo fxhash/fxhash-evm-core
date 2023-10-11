@@ -16,11 +16,11 @@
 
 ## Periphery Contracts
 
-1. **[DutchAuction](src/minters/DutchAuction.sol)**: Minter contract that mints new `FxGenArt721` and `FxMintTicket721` tokens with a dutch auction pricing mechanism
+1. **[DutchAuction](src/minters/DutchAuction.sol)**: Minter contract that mints new `FxGenArt721` and `FxMintTicket721` tokens at a linear price over a fixed interval of time
 
 2. **[FixedPrice](src/minters/FixedPrice.sol)**: Minter contract that mints new `FxGenArt721` and `FxMintTicket721` tokens at a fixed price
 
-3. **[PseudoRandomizer](src/randomizers/PseudoRandomizer.sol)**: Randomizer contract that provides a pseudo-randomness `keccak256` hash using the token ID, the sender's address, the current block number, and the hash of the previous block
+3. **[PseudoRandomizer](src/randomizers/PseudoRandomizer.sol)**: Randomizer contract that provides a pseudo-randomness `keccak256` hash using the token ID, sender's address, current block number, and hash of the previous block
 
 4. **[ScriptyRenderer](src/renderers/ScriptyRenderer.sol)**: Renderer contract that generates and builds the metadata of a token fully onchain in `base64` format using **[Scripty.sol](https://int-art.gitbook.io/scripty.sol-v2)**
 
