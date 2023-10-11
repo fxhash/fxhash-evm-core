@@ -22,12 +22,12 @@ import "src/utils/Constants.sol";
  * @notice See the documentation in {IFxGenArt721}
  */
 contract FxGenArt721 is IFxGenArt721, ERC721, Initializable, Ownable, Pausable, RoyaltyManager {
+    /// @inheritdoc IFxGenArt721
+    address public immutable roleRegistry;
     /// @dev Project name
     string internal name_;
     /// @dev Project symbol
     string internal symbol_;
-    /// @inheritdoc IFxGenArt721
-    address public immutable roleRegistry;
     /// @inheritdoc IFxGenArt721
     uint96 public totalSupply;
     /// @inheritdoc IFxGenArt721
@@ -115,18 +115,18 @@ contract FxGenArt721 is IFxGenArt721, ERC721, Initializable, Ownable, Pausable, 
         _mintParams(_to, ++totalSupply, _fxParams);
     }
 
-    // function burn(uint256 _tokenId) external whenNotPaused {
-    //     if (!issuerInfo.projectInfo.burnEnabled) revert BurnInactive();
-    //     if (!_isApprovedOrOwner(msg.sender, _tokenId)) revert NotAuthorized();
-    //     _burn(_tokenId);
-    // }
-
     /// @inheritdoc ISeedConsumer
     function fulfillSeedRequest(uint256 _tokenId, bytes32 _seed) external {
         if (msg.sender != randomizer) revert NotAuthorized();
         genArtInfo[_tokenId].seed = _seed;
         emit SeedFulfilled(randomizer, _tokenId, _seed);
     }
+
+    // function burn(uint256 _tokenId) external whenNotPaused {
+    //     if (!issuerInfo.projectInfo.burnEnabled) revert BurnInactive();
+    //     if (!_isApprovedOrOwner(msg.sender, _tokenId)) revert NotAuthorized();
+    //     _burn(_tokenId);
+    // }
 
     /*//////////////////////////////////////////////////////////////////////////
                                 OWNER FUNCTIONS
@@ -152,6 +152,12 @@ contract FxGenArt721 is IFxGenArt721, ERC721, Initializable, Ownable, Pausable, 
     }
 
     /// @inheritdoc IFxGenArt721
+    function registerMinters(MintInfo[] calldata _mintInfo) external onlyOwner {
+        if (issuerInfo.projectInfo.mintEnabled) revert MintActive();
+        _registerMinters(0, _mintInfo);
+    }
+
+    /// @inheritdoc IFxGenArt721
     function toggleMint() external onlyOwner {
         issuerInfo.projectInfo.mintEnabled = !issuerInfo.projectInfo.mintEnabled;
     }
@@ -160,12 +166,6 @@ contract FxGenArt721 is IFxGenArt721, ERC721, Initializable, Ownable, Pausable, 
     //     if (issuerInfo.projectInfo.mintEnabled) revert MintActive();
     //     issuerInfo.projectInfo.burnEnabled = !issuerInfo.projectInfo.burnEnabled;
     // }
-
-    /// @inheritdoc IFxGenArt721
-    function registerMinters(MintInfo[] calldata _mintInfo) external onlyOwner {
-        if (issuerInfo.projectInfo.mintEnabled) revert MintActive();
-        _registerMinters(0, _mintInfo);
-    }
 
     /*//////////////////////////////////////////////////////////////////////////
                                 ADMIN FUNCTIONS
