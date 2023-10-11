@@ -13,15 +13,15 @@ import {IFxTicketFactory} from "src/interfaces/IFxTicketFactory.sol";
  */
 contract FxTicketFactory is IFxTicketFactory, Ownable {
     /// @inheritdoc IFxTicketFactory
-    uint48 public ticketId;
+    address public implementation;
     /// @inheritdoc IFxTicketFactory
     uint48 public minGracePeriod;
     /// @inheritdoc IFxTicketFactory
-    address public implementation;
-    /// @inheritdoc IFxTicketFactory
-    mapping(address => uint256) public nonces;
+    uint48 public ticketId;
     /// @inheritdoc IFxTicketFactory
     mapping(uint48 => address) public tickets;
+    /// @inheritdoc IFxTicketFactory
+    mapping(address => uint256) public nonces;
 
     /// @dev Initializes FxMintTicket721 implementation contract
     constructor(address _implementation, uint48 _gracePeriod) {
