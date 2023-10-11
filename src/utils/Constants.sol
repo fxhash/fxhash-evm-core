@@ -21,6 +21,7 @@ string constant TICKET_REDEEMER = "TICKET_REDEEMER";
 bytes32 constant CLAIM_TYPEHASH = keccak256("Claim(uint256 index, address user)");
 
 // Project
+uint64 constant TIME_UNLIMITED = type(uint64).max;
 uint120 constant OPEN_EDITION_SUPPLY = type(uint120).max;
 
 // Roles
