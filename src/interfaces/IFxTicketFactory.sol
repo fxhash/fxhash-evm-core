@@ -7,6 +7,13 @@ pragma solidity 0.8.20;
  */
 interface IFxTicketFactory {
     /**
+     * @notice Event emitted when the minimum grace period is updated
+     * @param _owner Address of the contract owner
+     * @param _gracePeriod Time duration of the new grace period
+     */
+    event GracePeriodUpdated(address indexed _owner, uint48 indexed _gracePeriod);
+
+    /**
      * @notice Event emitted when the FxMintTicket721 implementation contract is updated
      * @param _owner Address of the owner updating the implementation contract
      * @param _implementation Address of the new FxMintTicket721 implementation contract
@@ -50,15 +57,24 @@ interface IFxTicketFactory {
      */
     function setImplementation(address _implementation) external;
 
+    /**
+     * @notice Sets the new minimum grace period
+     * @param _gracePeriod Minimum time duration before a ticket enters harberger taxation
+     */
+    function setGracePeriod(uint48 _gracePeriod) external;
+
     /// @notice Returns address of current FxMintTicket721 implementation contract
     function implementation() external view returns (address);
 
     /// @notice Mapping of deployer address to nonce value for precomputing ticket address
     function nonces(address _deployer) external view returns (uint256);
 
+    /// @notice Returns the minimum duration of time before a ticket enters harberger taxation
+    function minGracePeriod() external view returns (uint48);
+
     /// @notice Returns counter of latest token ID
-    function ticketId() external view returns (uint96);
+    function ticketId() external view returns (uint48);
 
     /// @notice Mapping of token ID to address of FxMintTicket721 token contract
-    function tickets(uint96) external view returns (address);
+    function tickets(uint48 _ticketId) external view returns (address);
 }
