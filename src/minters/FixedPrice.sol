@@ -8,7 +8,7 @@ import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
 import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IMinter} from "src/interfaces/IMinter.sol";
 
-import {OPEN_EDITION_SUPPLY} from "src/utils/Constants.sol";
+import {OPEN_EDITION_SUPPLY, TIME_UNLIMITED} from "src/utils/Constants.sol";
 
 /**
  * @title FixedPrice
@@ -36,8 +36,10 @@ contract FixedPrice is IFixedPrice {
         uint256 reserveId = reserves[msg.sender].length;
         prices[msg.sender].push(price);
         reserves[msg.sender].push(_reserve);
+
         bool openEdition = _reserve.allocation == OPEN_EDITION_SUPPLY ? true : false;
-        emit MintDetailsSet(msg.sender, reserveId, price, _reserve, openEdition);
+        bool timeUnlimited = _reserve.endTime == TIME_UNLIMITED ? true : false;
+        emit MintDetailsSet(msg.sender, reserveId, price, _reserve, openEdition, timeUnlimited);
     }
 
     /// @inheritdoc IFixedPrice
