@@ -281,19 +281,14 @@ contract FxGenArt721 is IFxGenArt721, ERC721, Initializable, Ownable, Pausable, 
             for (uint256 i; i < _mintInfo.length; ++i) {
                 minter = _mintInfo[i].minter;
                 reserveInfo = _mintInfo[i].reserveInfo;
-                if (reserveInfo.startTime < block.timestamp + lockTime) {
-                    revert InvalidStartTime();
-                }
-                if (reserveInfo.endTime < reserveInfo.startTime) {
-                    revert InvalidEndTime();
-                }
-                if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) {
-                    revert UnauthorizedMinter();
-                }
-                IMinter(minter).setMintDetails(reserveInfo, _mintInfo[i].params);
+                if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) revert UnauthorizedMinter();
+                if (reserveInfo.startTime < block.timestamp + lockTime) revert InvalidStartTime();
+                if (reserveInfo.endTime < reserveInfo.startTime) revert InvalidEndTime();
 
                 issuerInfo.minters[minter] = true;
                 totalAllocation += reserveInfo.allocation;
+
+                IMinter(minter).setMintDetails(reserveInfo, _mintInfo[i].params);
             }
         }
 
