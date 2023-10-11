@@ -122,6 +122,7 @@ contract FxGenArt721 is IFxGenArt721, ERC721, Initializable, Ownable, Pausable, 
         emit SeedFulfilled(randomizer, _tokenId, _seed);
     }
 
+    /// @inheritdoc IFxGenArt721
     function burn(uint256 _tokenId) external whenNotPaused {
         if (!issuerInfo.projectInfo.burnEnabled) revert BurnInactive();
         if (!_isApprovedOrOwner(msg.sender, _tokenId)) revert NotAuthorized();
@@ -167,6 +168,7 @@ contract FxGenArt721 is IFxGenArt721, ERC721, Initializable, Ownable, Pausable, 
         issuerInfo.projectInfo.mintEnabled = !issuerInfo.projectInfo.mintEnabled;
     }
 
+    /// @inheritdoc IFxGenArt721
     function toggleBurn() external onlyOwner {
         issuerInfo.projectInfo.burnEnabled = !issuerInfo.projectInfo.burnEnabled;
     }
