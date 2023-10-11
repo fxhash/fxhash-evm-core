@@ -25,11 +25,13 @@ struct InitInfo {
 /**
  * @param projectInfo Project information
  * @param primaryReceiver Address of splitter contract receiving primary sales
+ * @param activeMinters List of authorized minter contracts used for enumeration
  * @param minters Mapping of minter contract to authorization status
  */
 struct IssuerInfo {
     ProjectInfo projectInfo;
     address primaryReceiver;
+    address[] activeMinters;
     mapping(address => bool) minters;
 }
 

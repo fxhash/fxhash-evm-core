@@ -61,7 +61,7 @@ contract FxGenArt721 is IFxGenArt721, ERC721, Initializable, Ownable, Pausable, 
                                   CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Sets RoleRegistry contract
+    /// @dev Sets FxRoleRegistry contract
     constructor(address _roleRegistry) ERC721("FxGenArt721", "FXHASH") {
         roleRegistry = _roleRegistry;
     }
@@ -154,6 +154,11 @@ contract FxGenArt721 is IFxGenArt721, ERC721, Initializable, Ownable, Pausable, 
     /// @inheritdoc IFxGenArt721
     function registerMinters(MintInfo[] calldata _mintInfo) external onlyOwner {
         if (issuerInfo.projectInfo.mintEnabled) revert MintActive();
+        // Unregisters all current minters
+        for (uint256 i; i < issuerInfo.activeMinters.length; ++i) {
+            address minter = issuerInfo.activeMinters[i];
+            issuerInfo.minters[minter] = false;
+        }
         _registerMinters(LOCK_TIME, _mintInfo);
     }
 
@@ -286,6 +291,7 @@ contract FxGenArt721 is IFxGenArt721, ERC721, Initializable, Ownable, Pausable, 
                 if (reserveInfo.endTime < reserveInfo.startTime) revert InvalidEndTime();
 
                 issuerInfo.minters[minter] = true;
+                issuerInfo.activeMinters.push(minter);
                 totalAllocation += reserveInfo.allocation;
 
                 IMinter(minter).setMintDetails(reserveInfo, _mintInfo[i].params);
