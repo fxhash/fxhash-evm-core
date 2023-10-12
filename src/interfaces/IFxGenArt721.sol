@@ -55,14 +55,12 @@ struct ProjectInfo {
 /**
  * @param baseURI CID hash of collection metadata
  * @param imageURI CID hash of collection images
- * @param animation List of HTML script tags for building token animations onchain
- * @param attributes List of HTML script tags for building token attributes onchain
+ * @param onchainData Bytes-encoded data rendered onchain
  */
 struct MetadataInfo {
     string baseURI;
     string imageURI;
-    HTMLRequest animation;
-    HTMLRequest attributes;
+    bytes onchainData;
 }
 
 /**
@@ -315,12 +313,9 @@ interface IFxGenArt721 is ISeedConsumer {
 
     /**
      * @notice Gets the MetadataInfo of the project
-     * @return baseURI, imageURI, animation and attributes
+     * @return baseURI, imageURI, onchainData
      */
-    function metadataInfo()
-        external
-        view
-        returns (string memory, string memory, HTMLRequest memory, HTMLRequest memory);
+    function metadataInfo() external view returns (string memory, string memory, bytes memory);
 
     /**
      * @notice Returns the remaining supply of tokens left to mint

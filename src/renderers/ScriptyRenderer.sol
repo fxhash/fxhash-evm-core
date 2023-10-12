@@ -2,6 +2,7 @@
 pragma solidity 0.8.20;
 
 import {Base64} from "openzeppelin/contracts/utils/Base64.sol";
+
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
 import {GenArtInfo, MetadataInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
@@ -40,8 +41,10 @@ contract ScriptyRenderer is IScriptyRenderer {
             string memory baseURI = metadataInfo.baseURI;
             return string.concat(baseURI, _tokenId.toString());
         } else {
-            HTMLRequest memory animation = metadataInfo.animation;
-            HTMLRequest memory attributes = metadataInfo.attributes;
+            (HTMLRequest memory animation, HTMLRequest memory attributes) = abi.decode(
+                metadataInfo.onchainData,
+                (HTMLRequest, HTMLRequest)
+            );
             bytes memory onchainData = renderOnchain(
                 _tokenId,
                 genArtInfo.seed,

@@ -57,6 +57,7 @@ contract Deploy is Script {
     // Metadata
     string internal baseURI;
     string internal imageURI;
+    bytes internal onchainData;
     HTMLRequest internal animation;
     HTMLRequest internal attributes;
     HTMLTag[] internal headTags;
@@ -126,7 +127,7 @@ contract Deploy is Script {
         _configureState(AMOUNT, PRICE, QUANTITY, TOKEN_ID);
         _configureInfo(LOCK_TIME, REFERRER_SHARE, DEFAULT_METADATA);
         _configureProject(ONCHAIN, MINT_ENABLED, MAX_SUPPLY, CONTRACT_URI);
-        _configureMetdata(BASE_URI, IMAGE_URI, animation);
+        _configureMetdata(BASE_URI, IMAGE_URI, onchainData);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -259,6 +260,7 @@ contract Deploy is Script {
 
         animation.headTags = headTags;
         animation.bodyTags = bodyTags;
+        onchainData = abi.encode(animation);
     }
 
     function _configureState(uint256 _amount, uint256 _price, uint256 _quantity, uint256 _tokenId) internal virtual {
@@ -293,11 +295,11 @@ contract Deploy is Script {
     function _configureMetdata(
         string memory _baseURI,
         string memory _imageURI,
-        HTMLRequest storage _animation
+        bytes memory _onchainData
     ) internal virtual {
         metadataInfo.baseURI = _baseURI;
         metadataInfo.imageURI = _imageURI;
-        metadataInfo.animation = _animation;
+        metadataInfo.onchainData = _onchainData;
     }
 
     function _configureInit(
