@@ -356,7 +356,7 @@ contract Deploy is Script {
 
         // FxIssuerFactory
         creationCode = type(FxIssuerFactory).creationCode;
-        constructorArgs = abi.encode(address(fxRoleRegistry), address(fxGenArt721), configInfo);
+        constructorArgs = abi.encode(admin, address(fxRoleRegistry), address(fxGenArt721), configInfo);
         fxIssuerFactory = FxIssuerFactory(_deployCreate2(creationCode, constructorArgs, salt));
 
         // FxMintTicket721
@@ -365,7 +365,7 @@ contract Deploy is Script {
 
         // FxTicketFactory
         creationCode = type(FxTicketFactory).creationCode;
-        constructorArgs = abi.encode(address(fxMintTicket721), ONE_DAY);
+        constructorArgs = abi.encode(admin, address(fxMintTicket721), ONE_DAY);
         fxTicketFactory = FxTicketFactory(_deployCreate2(creationCode, constructorArgs, salt));
 
         vm.label(address(fxContractRegistry), "FxContractRegistry");

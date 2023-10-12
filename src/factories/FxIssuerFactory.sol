@@ -35,10 +35,11 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     }
 
     /// @dev Initializes FxGenArt721 implementation and sets the initial config info
-    constructor(address _roleRegistry, address _implementation, ConfigInfo memory _configInfo) {
+    constructor(address _admin, address _roleRegistry, address _implementation, ConfigInfo memory _configInfo) {
         roleRegistry = _roleRegistry;
         _setConfigInfo(_configInfo);
         _setImplementation(_implementation);
+        _transferOwnership(_admin);
     }
 
     /// @inheritdoc IFxIssuerFactory

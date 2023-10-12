@@ -24,9 +24,10 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
     mapping(address => uint256) public nonces;
 
     /// @dev Initializes FxMintTicket721 implementation contract
-    constructor(address _implementation, uint48 _gracePeriod) {
+    constructor(address _admin, address _implementation, uint48 _gracePeriod) {
         _setGracePeriod(_gracePeriod);
         _setImplementation(_implementation);
+        _transferOwnership(_admin);
     }
 
     /// @inheritdoc IFxTicketFactory

@@ -102,24 +102,6 @@ struct ReserveInfo {
  */
 interface IFxGenArt721 is ISeedConsumer {
     /**
-     * @notice Event emitted when baseURI is updated
-     * @param _uri URI pointer of token metadata
-     */
-    event BaseURIUpdated(string indexed _uri);
-
-    /**
-     * @notice Event emitted when contractURI is updated
-     * @param _uri URI pointer of project metadata
-     */
-    event ContractURIUpdated(string indexed _uri);
-
-    /**
-     * @notice Event emitted when imageURI is updated
-     * @param _uri URI pointer of token images
-     */
-    event ImageURIUpdated(string indexed _uri);
-
-    /**
      * @notice Event emitted when new project is initialized
      * @param _primaryReceiver Address of splitter contract receiving primary sales
      * @param _projectInfo Project information
@@ -143,18 +125,6 @@ interface IFxGenArt721 is ISeedConsumer {
      * @param _tagIds List of tag IDs describing the project
      */
     event ProjectTags(uint256[] indexed _tagIds);
-
-    /**
-     * @notice Event emitted when Randomizer contract is updated
-     * @param _randomizer Address of new Randomizer contract
-     */
-    event RandomizerUpdated(address indexed _randomizer);
-
-    /**
-     * @notice Event emitted when Renderer contract is updated
-     * @param _renderer Address of new Renderer contract
-     */
-    event RendererUpdated(address indexed _renderer);
 
     /// @notice Error thrown when total minter allocation exceeds maximum supply
     error AllocationExceeded();

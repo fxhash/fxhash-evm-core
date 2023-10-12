@@ -86,12 +86,12 @@ contract FxGenArt721 is IFxGenArt721, ERC721, Initializable, Ownable, Pausable, 
         issuerInfo.primaryReceiver = _initInfo.primaryReceiver;
         issuerInfo.projectInfo = _projectInfo;
         metadataInfo = _metadataInfo;
+        randomizer = _initInfo.randomizer;
+        renderer = _initInfo.renderer;
 
         _transferOwnership(_owner);
-        _setBaseRoyalties(_royaltyReceivers, _basisPoints);
-        _setRandomizer(_initInfo.randomizer);
-        _setRenderer(_initInfo.renderer);
         _setTags(_initInfo.tagIds);
+        _setBaseRoyalties(_royaltyReceivers, _basisPoints);
         _registerMinters(_lockTime, _mintInfo);
 
         emit ProjectInitialized(_initInfo.primaryReceiver, _projectInfo, _metadataInfo, _mintInfo);
@@ -145,9 +145,7 @@ contract FxGenArt721 is IFxGenArt721, ERC721, Initializable, Ownable, Pausable, 
 
     /// @inheritdoc IFxGenArt721
     function reduceSupply(uint120 _supply) external onlyOwner {
-        if (_supply >= issuerInfo.projectInfo.maxSupply || _supply < totalSupply) {
-            revert InvalidAmount();
-        }
+        if (_supply >= issuerInfo.projectInfo.maxSupply || _supply < totalSupply) revert InvalidAmount();
         issuerInfo.projectInfo.maxSupply = _supply;
         if (_supply == 0) emit ProjectDeleted();
     }
@@ -183,29 +181,26 @@ contract FxGenArt721 is IFxGenArt721, ERC721, Initializable, Ownable, Pausable, 
     /// @inheritdoc IFxGenArt721
     function setBaseURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
         metadataInfo.baseURI = _uri;
-        emit BaseURIUpdated(_uri);
     }
 
     /// @inheritdoc IFxGenArt721
     function setContractURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
         issuerInfo.projectInfo.contractURI = _uri;
-        emit ContractURIUpdated(_uri);
     }
 
     /// @inheritdoc IFxGenArt721
     function setImageURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
         metadataInfo.imageURI = _uri;
-        emit ImageURIUpdated(_uri);
     }
 
     /// @inheritdoc IFxGenArt721
     function setRandomizer(address _randomizer) external onlyRole(ADMIN_ROLE) {
-        _setRandomizer(_randomizer);
+        randomizer = _randomizer;
     }
 
     /// @inheritdoc IFxGenArt721
     function setRenderer(address _renderer) external onlyRole(ADMIN_ROLE) {
-        _setRenderer(_renderer);
+        renderer = _renderer;
     }
 
     /// @inheritdoc IFxGenArt721
@@ -305,18 +300,6 @@ contract FxGenArt721 is IFxGenArt721, ERC721, Initializable, Ownable, Pausable, 
         if (issuerInfo.projectInfo.maxSupply != OPEN_EDITION_SUPPLY) {
             if (totalAllocation > remainingSupply()) revert AllocationExceeded();
         }
-    }
-
-    /// @dev Sets the Randomizer contract
-    function _setRandomizer(address _randomizer) internal {
-        randomizer = _randomizer;
-        emit RandomizerUpdated(_randomizer);
-    }
-
-    /// @dev Sets the Renderer contract
-    function _setRenderer(address _renderer) internal {
-        renderer = _renderer;
-        emit RendererUpdated(_renderer);
     }
 
     /// @dev Emits event for setting the project tag descriptions
