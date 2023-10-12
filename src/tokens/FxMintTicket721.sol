@@ -58,14 +58,6 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
         _;
     }
 
-    /**
-     * @dev Modifier for restricting calls to only registered minters
-     */
-    modifier onlyRedeemer() {
-        if (msg.sender != redeemer) revert UnauthorizedRedeemer();
-        _;
-    }
-
     modifier onlyRole(bytes32 _role) {
         if (!IAccessControl(roleRegistry).hasRole(_role, msg.sender)) revert UnauthorizedAccount();
         _;
@@ -150,7 +142,10 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
     }
 
     /// @inheritdoc IFxMintTicket721
-    function burn(uint256 _tokenId) external onlyRedeemer whenNotPaused {
+    function burn(uint256 _tokenId) external whenNotPaused {
+        // Reverts if caller is not TicketRedeemer contract
+        if (msg.sender != redeemer) revert UnauthorizedRedeemer();
+
         // Burns token
         _burn(_tokenId);
 
