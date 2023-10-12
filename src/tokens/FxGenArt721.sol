@@ -163,7 +163,7 @@ contract FxGenArt721 is IFxGenArt721, ERC721, Initializable, Ownable, Pausable, 
         }
 
         // Resets array state of active minters
-        issuerInfo.activeMinters = new address[](0);
+        delete issuerInfo.activeMinters;
 
         // Registers new minters
         _registerMinters(_mintInfo);

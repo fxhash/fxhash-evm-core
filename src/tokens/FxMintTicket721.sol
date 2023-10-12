@@ -110,7 +110,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
         }
 
         // Resets array state of active minters
-        activeMinters = new address[](0);
+        delete activeMinters;
 
         // Registers new minters
         _registerMinters(_mintInfo);
