@@ -9,8 +9,10 @@ import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
 import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
-import {IFxGenArt721} from "src/interfaces/IFxGenArt721.sol";
+import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
+import {IFxGenArt721, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxMintTicket721, TaxInfo} from "src/interfaces/IFxMintTicket721.sol";
+import {IMinter} from "src/interfaces/IMinter.sol";
 
 import "src/utils/Constants.sol";
 
@@ -22,13 +24,23 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
     using Strings for uint256;
 
     /// @inheritdoc IFxMintTicket721
+    address public immutable contractRegistry;
+    /// @inheritdoc IFxMintTicket721
+    address public immutable roleRegistry;
+    /// @inheritdoc IFxMintTicket721
     address public genArt721;
     /// @inheritdoc IFxMintTicket721
     uint48 public totalSupply;
     /// @inheritdoc IFxMintTicket721
     uint48 public gracePeriod;
     /// @inheritdoc IFxMintTicket721
+    address public redeemer;
+    /// @inheritdoc IFxMintTicket721
     string public baseURI;
+    /// @inheritdoc IFxMintTicket721
+    address[] public activeMinters;
+    /// @inheritdoc IFxMintTicket721
+    mapping(address => bool) public minters;
     /// @inheritdoc IFxMintTicket721
     mapping(address => uint256) public balances;
     /// @inheritdoc IFxMintTicket721
@@ -42,12 +54,19 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
      * @dev Modifier for restricting calls to only registered minters
      */
     modifier onlyMinter() {
-        if (!isMinter(msg.sender)) revert UnregisteredMinter();
+        if (!minters[msg.sender]) revert UnregisteredMinter();
+        _;
+    }
+
+    /**
+     * @dev Modifier for restricting calls to only registered minters
+     */
+    modifier onlyRedeemer() {
+        if (msg.sender != redeemer) revert UnauthorizedRedeemer();
         _;
     }
 
     modifier onlyRole(bytes32 _role) {
-        address roleRegistry = IFxGenArt721(genArt721).roleRegistry();
         if (!IAccessControl(roleRegistry).hasRole(_role, msg.sender)) revert UnauthorizedAccount();
         _;
     }
@@ -56,7 +75,10 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
                                   CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor() ERC721("FxMintTicket721", "FXTICKET") {}
+    constructor(address _contractRegistry, address _roleRegistry) ERC721("FxMintTicket721", "FXTICKET") {
+        contractRegistry = _contractRegistry;
+        roleRegistry = _roleRegistry;
+    }
 
     /*//////////////////////////////////////////////////////////////////////////
                                 INITIALIZATION
@@ -66,15 +88,40 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
     function initialize(
         address _owner,
         address _genArt721,
+        address _redeemer,
         uint48 _gracePeriod,
-        string calldata _baseURI
+        MintInfo[] calldata _mintInfo
     ) external initializer {
         genArt721 = _genArt721;
+        redeemer = _redeemer;
         gracePeriod = _gracePeriod;
-        baseURI = _baseURI;
-        _transferOwnership(_owner);
 
-        emit TicketInitialized(_genArt721, _gracePeriod);
+        _transferOwnership(_owner);
+        _registerMinters(_mintInfo);
+
+        emit TicketInitialized(_genArt721, _redeemer, _gracePeriod, _mintInfo);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                OWNER FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @inheritdoc IFxMintTicket721
+    function registerMinters(MintInfo[] calldata _mintInfo) external onlyOwner {
+        (, ProjectInfo memory projectInfo) = IFxGenArt721(genArt721).issuerInfo();
+        if (projectInfo.mintEnabled) revert MintActive();
+
+        // Unregisters all current minters
+        for (uint256 i; i < activeMinters.length; ++i) {
+            address minter = activeMinters[i];
+            minters[minter] = false;
+        }
+
+        // Resets array state of active minters
+        activeMinters = new address[](0);
+
+        // Registers new minters
+        _registerMinters(_mintInfo);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -103,7 +150,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
     }
 
     /// @inheritdoc IFxMintTicket721
-    function burn(uint256 _tokenId) external onlyMinter whenNotPaused {
+    function burn(uint256 _tokenId) external onlyRedeemer whenNotPaused {
         // Burns token
         _burn(_tokenId);
 
@@ -283,17 +330,12 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
 
     /// @inheritdoc ERC721
     function isApprovedForAll(address _owner, address _operator) public view override returns (bool) {
-        return _operator == address(this) || isMinter(_operator) || super.isApprovedForAll(_owner, _operator);
+        return _operator == address(this) || minters[_operator] || super.isApprovedForAll(_owner, _operator);
     }
 
     /// @inheritdoc IFxMintTicket721
     function isForeclosed(uint256 _tokenId) public view returns (bool) {
         return block.timestamp >= taxes[_tokenId].foreclosureTime;
-    }
-
-    /// @inheritdoc IFxMintTicket721
-    function isMinter(address _minter) public view returns (bool) {
-        return IFxGenArt721(genArt721).isMinter(_minter);
     }
 
     /// @inheritdoc IFxMintTicket721
@@ -352,6 +394,36 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
                                 INTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /// @dev Registers arbitrary number of minter contracts
+    function _registerMinters(MintInfo[] calldata _mintInfo) internal {
+        address minter;
+        uint128 totalAllocation;
+        ReserveInfo memory reserveInfo;
+        (uint256 lockTime, , ) = IFxContractRegistry(contractRegistry).configInfo();
+        lockTime = _isVerified(owner()) ? 0 : lockTime;
+        unchecked {
+            for (uint256 i; i < _mintInfo.length; ++i) {
+                minter = _mintInfo[i].minter;
+                reserveInfo = _mintInfo[i].reserveInfo;
+                if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) revert UnauthorizedMinter();
+                if (reserveInfo.startTime < block.timestamp + lockTime) revert InvalidStartTime();
+                if (reserveInfo.endTime < reserveInfo.startTime) revert InvalidEndTime();
+
+                minters[minter] = true;
+                activeMinters.push(minter);
+                totalAllocation += reserveInfo.allocation;
+
+                IMinter(minter).setMintDetails(reserveInfo, _mintInfo[i].params);
+            }
+        }
+
+        (, ProjectInfo memory projectInfo) = IFxGenArt721(genArt721).issuerInfo();
+        if (projectInfo.maxSupply != OPEN_EDITION_SUPPLY) {
+            uint256 remainingSupply = IFxGenArt721(genArt721).remainingSupply();
+            if (totalAllocation > remainingSupply) revert AllocationExceeded();
+        }
+    }
+
     /**
      * @dev Tokens can only be transferred when either of these conditions is met:
      * 1) This contract executes transfer when token is in foreclosure and claimed at auction price
@@ -367,12 +439,17 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
             // Checks if token is not foreclosed
             if (!isForeclosed(_tokenId)) {
                 // Returns if caller is this contract, current token owner or a registered minter
-                if (msg.sender == address(this) || msg.sender == _from || isMinter(msg.sender)) {
+                if (msg.sender == address(this) || msg.sender == _from || redeemer == msg.sender) {
                     return;
                 }
                 // Reverts otherwise
                 revert NotAuthorized();
             }
         }
+    }
+
+    /// @dev Checks if user is verified on system
+    function _isVerified(address _user) internal view returns (bool) {
+        return (IAccessControl(roleRegistry).hasRole(VERIFIED_USER_ROLE, _user));
     }
 }

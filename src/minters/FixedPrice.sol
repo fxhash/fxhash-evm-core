@@ -64,7 +64,7 @@ contract FixedPrice is IFixedPrice {
     function withdraw(address _token) external {
         uint256 proceeds = saleProceeds[_token];
         if (proceeds == 0) revert InsufficientFunds();
-        (, address saleReceiver) = IFxGenArt721(_token).issuerInfo();
+        (address saleReceiver, ) = IFxGenArt721(_token).issuerInfo();
         delete saleProceeds[_token];
         SafeTransferLib.safeTransferETH(saleReceiver, proceeds);
         emit Withdrawn(_token, saleReceiver, proceeds);

@@ -101,7 +101,7 @@ contract FxGenArt721Test is BaseTest {
     }
 
     function _setIssuerInfo() internal {
-        (project, primarySplits) = IFxGenArt721(fxGenArtProxy).issuerInfo();
+        (primarySplits, project) = IFxGenArt721(fxGenArtProxy).issuerInfo();
     }
 
     function _setMetadatInfo() internal {

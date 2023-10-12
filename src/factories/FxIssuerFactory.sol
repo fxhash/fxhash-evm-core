@@ -6,7 +6,7 @@ import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
 
 import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
 import {IFxGenArt721, InitInfo, MetadataInfo, MintInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
-import {IFxIssuerFactory, ConfigInfo} from "src/interfaces/IFxIssuerFactory.sol";
+import {IFxIssuerFactory} from "src/interfaces/IFxIssuerFactory.sol";
 
 import {BANNED_USER_ROLE} from "src/utils/Constants.sol";
 
@@ -16,13 +16,12 @@ import {BANNED_USER_ROLE} from "src/utils/Constants.sol";
  */
 contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     /// @inheritdoc IFxIssuerFactory
+    address public immutable roleRegistry;
+    /// @inheritdoc IFxIssuerFactory
     uint96 public projectId;
     /// @inheritdoc IFxIssuerFactory
     address public implementation;
-    /// @inheritdoc IFxIssuerFactory
-    address public roleRegistry;
-    /// @inheritdoc IFxIssuerFactory
-    ConfigInfo public configInfo;
+
     /// @inheritdoc IFxIssuerFactory
     mapping(uint96 => address) public projects;
 
@@ -35,11 +34,10 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     }
 
     /// @dev Initializes FxGenArt721 implementation and sets the initial config info
-    constructor(address _admin, address _roleRegistry, address _implementation, ConfigInfo memory _configInfo) {
+    constructor(address _admin, address _roleRegistry, address _implementation) {
         roleRegistry = _roleRegistry;
-        _setConfigInfo(_configInfo);
-        _setImplementation(_implementation);
         _transferOwnership(_admin);
+        _setImplementation(_implementation);
     }
 
     /// @inheritdoc IFxIssuerFactory
@@ -58,11 +56,10 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
         genArtToken = Clones.clone(implementation);
         projects[++projectId] = genArtToken;
 
-        emit ProjectCreated(projectId, _owner, genArtToken);
+        emit ProjectCreated(projectId, genArtToken, _owner);
 
         IFxGenArt721(genArtToken).initialize(
             _owner,
-            configInfo.lockTime,
             _initInfo,
             _projectInfo,
             _metadataInfo,
@@ -73,19 +70,8 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     }
 
     /// @inheritdoc IFxIssuerFactory
-    function setConfig(ConfigInfo calldata _configInfo) external onlyOwner {
-        _setConfigInfo(_configInfo);
-    }
-
-    /// @inheritdoc IFxIssuerFactory
     function setImplementation(address _implementation) external onlyOwner {
         _setImplementation(_implementation);
-    }
-
-    /// @dev Sets the configuration information
-    function _setConfigInfo(ConfigInfo memory _configInfo) internal {
-        configInfo = _configInfo;
-        emit ConfigUpdated(msg.sender, _configInfo);
     }
 
     /// @dev Sets the implementation address

@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+import {MintInfo} from "src/interfaces/IFxGenArt721.sol";
+
 /**
  * @title IFxTicketFactory
  * @notice Manages newly deployed FxMintTicket721 token contracts
@@ -23,16 +25,19 @@ interface IFxTicketFactory {
     /**
      * @notice Event emitted when new Mint Ticket is created
      * @param _ticketId ID of the ticket
-     * @param _owner Address of ticket owner
      * @param _mintTicket Address of newly deployed FxMintTicket721 token contract
+     * @param _owner Address of contract owner
      */
-    event TicketCreated(uint96 indexed _ticketId, address indexed _owner, address indexed _mintTicket);
+    event TicketCreated(uint96 indexed _ticketId, address indexed _mintTicket, address indexed _owner);
 
     /// @notice Error thrown when grace period is less than one day
     error InvalidGracePeriod();
 
     /// @notice Error thrown when owner is zero address
     error InvalidOwner();
+
+    /// @notice Error thrown when redeemer is zero address
+    error InvalidRedeemer();
 
     /// @notice Error thrown when token is zero address
     error InvalidToken();
@@ -41,14 +46,16 @@ interface IFxTicketFactory {
      * @notice Creates new Generative Art project
      * @param _owner Address of project owner
      * @param _genArt721 Address of GenArt721 token contract
+     * @param _redeemer Address of TicketRedeemer minter contract
      * @param _gracePeriod Period time before token enters harberger taxation
-     * @param _baseURI Base URI of the token metadata
+     * @param _mintInfo List of authorized minter contracts and their reserves
      */
     function createTicket(
         address _owner,
         address _genArt721,
+        address _redeemer,
         uint48 _gracePeriod,
-        string calldata _baseURI
+        MintInfo[] calldata _mintInfo
     ) external returns (address);
 
     /**

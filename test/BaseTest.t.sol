@@ -18,7 +18,7 @@ import {MockRoyaltyManager} from "test/mocks/MockRoyaltyManager.sol";
 
 import {IDutchAuction} from "src/interfaces/IDutchAuction.sol";
 import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
-import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
+import {IFxIssuerFactory} from "src/interfaces/IFxIssuerFactory.sol";
 import {IFxTicketFactory} from "src/interfaces/IFxTicketFactory.sol";
 import {IRoyaltyManager} from "src/interfaces/IRoyaltyManager.sol";
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
@@ -39,6 +39,7 @@ contract BaseTest is Deploy, Test {
     address internal susan;
 
     // State
+    address internal deployer;
     address internal minter;
     address internal owner;
     bytes internal fxParams;
@@ -94,6 +95,8 @@ contract BaseTest is Deploy, Test {
     }
 
     function _initializeState() internal virtual {
+        deployer = address(this);
+        vm.label(deployer, "Deployer");
         vm.warp(RESERVE_START_TIME);
     }
 

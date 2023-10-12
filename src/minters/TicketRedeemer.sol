@@ -5,6 +5,7 @@ import {FxMintTicket721} from "src/tokens/FxMintTicket721.sol";
 import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IMinter} from "src/interfaces/IMinter.sol";
 import {ITicketRedeemer} from "src/interfaces/ITicketRedeemer.sol";
+import "forge-std/Test.sol";
 
 /**
  * @title TicketRedeemer
@@ -27,6 +28,8 @@ contract TicketRedeemer is ITicketRedeemer {
     function redeem(address _ticket, uint256 _tokenId, bytes calldata _fxParams) external {
         // Reverts if caller is not owner of ticket
         address owner = FxMintTicket721(_ticket).ownerOf(_tokenId);
+        console.log("OWNER", owner);
+        console.log("CALLER", msg.sender);
         if (msg.sender != owner) revert NotAuthorized();
         // Reverts if token contract does not exist
         address token = tokens[_ticket];

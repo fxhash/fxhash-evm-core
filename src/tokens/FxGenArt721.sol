@@ -23,6 +23,8 @@ import "src/utils/Constants.sol";
  */
 contract FxGenArt721 is IFxGenArt721, ERC721, Initializable, Ownable, Pausable, RoyaltyManager {
     /// @inheritdoc IFxGenArt721
+    address public immutable contractRegistry;
+    /// @inheritdoc IFxGenArt721
     address public immutable roleRegistry;
     /// @dev Project name
     string internal name_;
@@ -62,7 +64,8 @@ contract FxGenArt721 is IFxGenArt721, ERC721, Initializable, Ownable, Pausable, 
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Sets FxRoleRegistry contract
-    constructor(address _roleRegistry) ERC721("FxGenArt721", "FXHASH") {
+    constructor(address _contractRegistry, address _roleRegistry) ERC721("FxGenArt721", "FXHASH") {
+        contractRegistry = _contractRegistry;
         roleRegistry = _roleRegistry;
     }
 
@@ -73,7 +76,6 @@ contract FxGenArt721 is IFxGenArt721, ERC721, Initializable, Ownable, Pausable, 
     /// @inheritdoc IFxGenArt721
     function initialize(
         address _owner,
-        uint256 _lockTime,
         InitInfo calldata _initInfo,
         ProjectInfo calldata _projectInfo,
         MetadataInfo calldata _metadataInfo,
@@ -92,7 +94,7 @@ contract FxGenArt721 is IFxGenArt721, ERC721, Initializable, Ownable, Pausable, 
         _transferOwnership(_owner);
         _setTags(_initInfo.tagIds);
         _setBaseRoyalties(_royaltyReceivers, _basisPoints);
-        _registerMinters(_lockTime, _mintInfo);
+        _registerMinters(_mintInfo);
 
         emit ProjectInitialized(_initInfo.primaryReceiver, _projectInfo, _metadataInfo, _mintInfo);
     }
@@ -153,15 +155,18 @@ contract FxGenArt721 is IFxGenArt721, ERC721, Initializable, Ownable, Pausable, 
     /// @inheritdoc IFxGenArt721
     function registerMinters(MintInfo[] calldata _mintInfo) external onlyOwner {
         if (issuerInfo.projectInfo.mintEnabled) revert MintActive();
+
         // Unregisters all current minters
         for (uint256 i; i < issuerInfo.activeMinters.length; ++i) {
             address minter = issuerInfo.activeMinters[i];
             issuerInfo.minters[minter] = false;
         }
+
         // Resets array state of active minters
         issuerInfo.activeMinters = new address[](0);
+
         // Registers new minters
-        _registerMinters(LOCK_TIME, _mintInfo);
+        _registerMinters(_mintInfo);
     }
 
     /// @inheritdoc IFxGenArt721
@@ -276,11 +281,12 @@ contract FxGenArt721 is IFxGenArt721, ERC721, Initializable, Ownable, Pausable, 
     }
 
     /// @dev Registers arbitrary number of minter contracts
-    function _registerMinters(uint256 _lockTime, MintInfo[] calldata _mintInfo) internal {
+    function _registerMinters(MintInfo[] calldata _mintInfo) internal {
         address minter;
         uint128 totalAllocation;
         ReserveInfo memory reserveInfo;
-        uint256 lockTime = _isVerified(owner()) ? 0 : _lockTime;
+        (uint256 lockTime, , ) = IFxContractRegistry(contractRegistry).configInfo();
+        lockTime = _isVerified(owner()) ? 0 : lockTime;
         unchecked {
             for (uint256 i; i < _mintInfo.length; ++i) {
                 minter = _mintInfo[i].minter;

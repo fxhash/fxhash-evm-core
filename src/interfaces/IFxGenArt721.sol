@@ -23,14 +23,14 @@ struct InitInfo {
 }
 
 /**
- * @param projectInfo Project information
  * @param primaryReceiver Address of splitter contract receiving primary sales
+ * @param projectInfo Project information
  * @param activeMinters List of authorized minter contracts used for enumeration
  * @param minters Mapping of minter contract to authorization status
  */
 struct IssuerInfo {
-    ProjectInfo projectInfo;
     address primaryReceiver;
+    ProjectInfo projectInfo;
     address[] activeMinters;
     mapping(address => bool) minters;
 }
@@ -172,7 +172,6 @@ interface IFxGenArt721 is ISeedConsumer {
     /**
      * @notice Initializes new generative art project
      * @param _owner Address of contract owner
-     * @param _lockTime Locked time duration from mint start time for unverified users
      * @param _initInfo Initialization information set on project creation
      * @param _projectInfo Project information
      * @param _metadataInfo Metadata information
@@ -182,7 +181,6 @@ interface IFxGenArt721 is ISeedConsumer {
      */
     function initialize(
         address _owner,
-        uint256 _lockTime,
         InitInfo calldata _initInfo,
         ProjectInfo calldata _projectInfo,
         MetadataInfo calldata _metadataInfo,
@@ -309,7 +307,7 @@ interface IFxGenArt721 is ISeedConsumer {
      * @notice Gets the IssuerInfo of the project
      * @return ProjectInfo and splitter contract address
      */
-    function issuerInfo() external view returns (ProjectInfo memory, address);
+    function issuerInfo() external view returns (address, ProjectInfo memory);
 
     /**
      * @notice Gets the MetadataInfo of the project
@@ -333,7 +331,12 @@ interface IFxGenArt721 is ISeedConsumer {
     function renderer() external view returns (address);
 
     /**
-     * @notice Returns the address of the RoleRegistry contract
+     * @notice Returns the address of the FxContractRegistry contract
+     */
+    function contractRegistry() external view returns (address);
+
+    /**
+     * @notice Returns the address of the FxRoleRegistry contract
      */
     function roleRegistry() external view returns (address);
 

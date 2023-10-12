@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+import {MintInfo} from "src/interfaces/IFxGenArt721.sol";
+
 /**
  * @param gracePeriod Timestamp of period before token entering harberger taxation
  * @param foreclosureTime Timestamp of token foreclosure
@@ -21,10 +23,14 @@ struct TaxInfo {
 interface IFxMintTicket721 {
     /**
      * @notice Event emitted when mint ticket is initialized
-     * @param _genArt721 Address of FxGenArt721 token
-     * @param _gracePeriod Period of time before token enters harberger taxation
+
      */
-    event TicketInitialized(address indexed _genArt721, uint48 indexed _gracePeriod);
+    event TicketInitialized(
+        address indexed _genArt721,
+        address indexed _redeemer,
+        uint48 indexed _gracePeriod,
+        MintInfo[] _mintInfo
+    );
 
     /**
      * @notice Event emitted when token is claimed at either listing or auction price
@@ -71,6 +77,9 @@ interface IFxMintTicket721 {
      */
     event Withdraw(address indexed _caller, address indexed _to, uint256 indexed _balance);
 
+    /// @notice Error thrown when total minter allocation exceeds maximum supply
+    error AllocationExceeded();
+
     /// @notice Error thrown when token is in foreclosure
     error Foreclosure();
 
@@ -86,17 +95,39 @@ interface IFxMintTicket721 {
     /// @notice Error thrown when new listing price is less than the mininmum amount
     error InvalidPrice();
 
+    /// @notice Error thrown when reserve start time is invalid
+    error InvalidStartTime();
+
+    /// @notice Error thrown when reserve end time is invalid
+    error InvalidEndTime();
+
+    /// @notice Error thrown when minting is active
+    error MintActive();
+
     /// @notice Error thrown when caller is not authorized to execute transaction
     error NotAuthorized();
 
     /// @notice Error thrown when caller does not have the specified role
     error UnauthorizedAccount();
 
+    /// @notice Error thrown when caller does not have minter role
+    error UnauthorizedMinter();
+
     /// @notice Error thrown when caller does not have the redeemer role
     error UnauthorizedRedeemer();
 
     /// @notice Error thrown when caller is not a registered minter
     error UnregisteredMinter();
+
+    /**
+     * @notice Returns the list of active minters
+     */
+    function activeMinters(uint256) external view returns (address);
+
+    /**
+     * @notice Returns the active status of a registered Minter contract
+     */
+    function minters(address) external view returns (bool);
 
     /**
      * @notice Mapping of wallet address to balance amount available for withdrawal
@@ -131,10 +162,17 @@ interface IFxMintTicket721 {
      * @notice Initializes new generative art project
      * @param _owner Address of contract owner
      * @param _genArt721 Address of GenArt721 token contract
+     * @param _redeemer Address of TicketRedeemer minter contract
      * @param _gracePeriod Period time before token enters harberger taxation
-     * @param _baseURI Base URI of the token metadata
+     * @param _mintInfo List of authorized minter contracts and their reserves
      */
-    function initialize(address _owner, address _genArt721, uint48 _gracePeriod, string calldata _baseURI) external;
+    function initialize(
+        address _owner,
+        address _genArt721,
+        address _redeemer,
+        uint48 _gracePeriod,
+        MintInfo[] calldata _mintInfo
+    ) external;
 
     /**
      * @notice Checks if token is foreclosed
@@ -142,13 +180,6 @@ interface IFxMintTicket721 {
      * @return Status of foreclosure
      */
     function isForeclosed(uint256 _tokenId) external view returns (bool);
-
-    /**
-     * @notice Checks if the specified minter is authorized to perform the action
-     * @param _minter Address of the minter contract
-     * @return Status of authorization
-     */
-    function isMinter(address _minter) external view returns (bool);
 
     /**
      * @notice Returns address of the FxGenArt721 token contract
@@ -233,6 +264,26 @@ interface IFxMintTicket721 {
      * @notice Unpauses all function executions where modifier is applied
      */
     function unpause() external;
+
+    /**
+     * @notice Returns the address of the FxContractRegistry contract
+     */
+    function contractRegistry() external view returns (address);
+
+    /**
+     * @notice Returns the address of the FxRoleRegistry contract
+     */
+    function roleRegistry() external view returns (address);
+
+    /**
+     * @notice Returns the address of the TickeRedeemer contract
+     */
+    function redeemer() external view returns (address);
+
+    /**
+     * @notice Registers minter contracts with resereve info
+     */
+    function registerMinters(MintInfo[] calldata _mintInfo) external;
 
     /**
      * @notice Sets the new URI of the token metadata

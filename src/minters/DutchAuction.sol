@@ -123,7 +123,7 @@ contract DutchAuction is IDutchAuction {
         ReserveInfo storage reserve = reserves[_token][_reserveId];
         // Check if the auction has ended and the reserve allocation is fully sold out
         if (block.timestamp < reserve.endTime && reserve.allocation > 0) revert NotEnded();
-        (, address saleReceiver) = IFxGenArt721(_token).issuerInfo();
+        (address saleReceiver, ) = IFxGenArt721(_token).issuerInfo();
 
         // Get the sale proceeds for the reserve
         uint256 proceeds = saleProceeds[_token][_reserveId];
