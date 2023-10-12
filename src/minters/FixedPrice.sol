@@ -22,6 +22,7 @@ contract FixedPrice is MintPass, Allowlist, IFixedPrice {
 
     /// @inheritdoc IFixedPrice
     mapping(address => uint256[]) public prices;
+
     /// @inheritdoc IFixedPrice
     mapping(address => mapping(uint256 => bytes32)) public merkleRoots;
 
@@ -62,7 +63,7 @@ contract FixedPrice is MintPass, Allowlist, IFixedPrice {
 
     /// @inheritdoc IFixedPrice
     function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable {
-        bytes32 merkleRoot = merkleRoots[_token][_reserveId];
+        bytes32 merkleRoot = _getMerkleRoot(_token, _reserveId);
         address signer = signingAuthorities[_token][_reserveId];
         if ((merkleRoot != bytes32(0) || signer != address(0))) revert NoPublicMint();
         uint256 length = reserves[_token].length;
@@ -88,7 +89,7 @@ contract FixedPrice is MintPass, Allowlist, IFixedPrice {
         address _to,
         bytes32[][] calldata _proofs
     ) external payable {
-        bytes32 merkleRoot = merkleRoots[_token][_reserveId];
+        bytes32 merkleRoot = _getMerkleRoot(_token, _reserveId);
         if (merkleRoot == bytes32(0)) revert NoAllowlist();
         BitMaps.BitMap storage claimBitmap = claimedMerkleTreeSlots[_token][_reserveId];
         for (uint256 i; i < _proofs.length; i++) {
@@ -125,7 +126,9 @@ contract FixedPrice is MintPass, Allowlist, IFixedPrice {
 
     function _buy(address _token, uint256 _reserveId, uint256 _amount, address _to) internal {}
 
-    function _getMerkleRoot(address _token, uint256 _reserveId) internal view override returns (bytes32) {}
+    function _getMerkleRoot(address _token, uint256 _reserveId) internal view override returns (bytes32) {
+        return merkleRoots[_token][_reserveId];
+    }
 
     function _isSigningAuthority(
         address _signer,
