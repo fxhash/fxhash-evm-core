@@ -24,9 +24,6 @@ import "src/utils/Constants.sol";
  * @notice See the documentation in {IFxGenArt721}
  */
 contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, EIP712, Ownable, Pausable, RoyaltyManager {
-    bytes32 private constant _SET_CONTRACT_URI_TYPEHASH = keccak256("SetContractURI(string uri)");
-    bytes32 private constant _SET_BASE_URI_TYPEHASH = keccak256("SetBaseURI(string uri)");
-    bytes32 private constant _SET_IMAGE_URI_TYPEHASH = keccak256("SetImageURI(string uri");
     /// @dev Project name
     string internal name_;
     /// @dev Project symbol
@@ -239,17 +236,17 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, EIP712, Ownable, Pa
     }
 
     function generateTypedDataHashBaseURI(string calldata _uri) public view returns (bytes32) {
-        bytes32 structHash = keccak256(abi.encode(_SET_BASE_URI_TYPEHASH, _uri));
+        bytes32 structHash = keccak256(abi.encode(SET_BASE_URI_TYPEHASH, _uri));
         return _hashTypedDataV4(structHash);
     }
 
     function generateTypedDataHashContractURI(string calldata _uri) public view returns (bytes32) {
-        bytes32 structHash = keccak256(abi.encode(_SET_CONTRACT_URI_TYPEHASH, _uri));
+        bytes32 structHash = keccak256(abi.encode(SET_CONTRACT_URI_TYPEHASH, _uri));
         return _hashTypedDataV4(structHash);
     }
 
     function generateTypedDataHashImageURI(string calldata _uri) public view returns (bytes32) {
-        bytes32 structHash = keccak256(abi.encode(_SET_IMAGE_URI_TYPEHASH, _uri));
+        bytes32 structHash = keccak256(abi.encode(SET_IMAGE_URI_TYPEHASH, _uri));
         return _hashTypedDataV4(structHash);
     }
 
