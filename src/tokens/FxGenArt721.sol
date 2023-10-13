@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+import {ECDSA} from "openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {EIP712} from "openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import {ERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
 import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
@@ -21,7 +23,10 @@ import "src/utils/Constants.sol";
  * @title FxGenArt721
  * @notice See the documentation in {IFxGenArt721}
  */
-contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, RoyaltyManager {
+contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, EIP712, Ownable, Pausable, RoyaltyManager {
+    bytes32 private constant _SET_CONTRACT_URI_TYPEHASH = keccak256("SetContractURI(string uri)");
+    bytes32 private constant _SET_BASE_URI_TYPEHASH = keccak256("SetBaseURI(string uri)");
+    bytes32 private constant _SET_IMAGE_URI_TYPEHASH = keccak256("SetImageURI(string uri");
     /// @dev Project name
     string internal name_;
     /// @dev Project symbol
@@ -62,7 +67,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Sets core registry contracts
-    constructor(address _roleRegistry) ERC721("FxGenArt721", "FXHASH") {
+    constructor(address _roleRegistry) ERC721("FxGenArt721", "FXHASH") EIP712("FxGenArt721", "1") {
         roleRegistry = _roleRegistry;
     }
 
@@ -166,19 +171,31 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IFxGenArt721
-    function setBaseURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
+    function setBaseURI(string calldata _uri, bytes calldata _signature) external onlyRole(ADMIN_ROLE) {
+        bytes32 hash = generateTypedDataHashBaseURI(_uri);
+        (uint8 v, bytes32 r, bytes32 s) = abi.decode(_signature, (uint8, bytes32, bytes32));
+        address signer = ECDSA.recover(hash, v, r, s);
+        if (signer != owner()) revert("Not Owner");
         metadataInfo.baseURI = _uri;
         emit BaseURIUpdated(_uri);
     }
 
     /// @inheritdoc IFxGenArt721
-    function setContractURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
+    function setContractURI(string calldata _uri, bytes calldata _signature) external onlyRole(ADMIN_ROLE) {
+        bytes32 hash = generateTypedDataHashContractURI(_uri);
+        (uint8 v, bytes32 r, bytes32 s) = abi.decode(_signature, (uint8, bytes32, bytes32));
+        address signer = ECDSA.recover(hash, v, r, s);
+        if (signer != owner()) revert("Not Owner");
         issuerInfo.projectInfo.contractURI = _uri;
         emit ContractURIUpdated(_uri);
     }
 
     /// @inheritdoc IFxGenArt721
-    function setImageURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
+    function setImageURI(string calldata _uri, bytes calldata _signature) external onlyRole(ADMIN_ROLE) {
+        bytes32 hash = generateTypedDataHashImageURI(_uri);
+        (uint8 v, bytes32 r, bytes32 s) = abi.decode(_signature, (uint8, bytes32, bytes32));
+        address signer = ECDSA.recover(hash, v, r, s);
+        if (signer != owner()) revert("Not Owner");
         metadataInfo.imageURI = _uri;
         emit ImageURIUpdated(_uri);
     }
@@ -219,6 +236,21 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, Ownable, Pausable, 
     /// @inheritdoc IFxGenArt721
     function contractURI() external view returns (string memory) {
         return issuerInfo.projectInfo.contractURI;
+    }
+
+    function generateTypedDataHashBaseURI(string calldata _uri) public view returns (bytes32) {
+        bytes32 structHash = keccak256(abi.encode(_SET_BASE_URI_TYPEHASH, _uri));
+        return _hashTypedDataV4(structHash);
+    }
+
+    function generateTypedDataHashContractURI(string calldata _uri) public view returns (bytes32) {
+        bytes32 structHash = keccak256(abi.encode(_SET_CONTRACT_URI_TYPEHASH, _uri));
+        return _hashTypedDataV4(structHash);
+    }
+
+    function generateTypedDataHashImageURI(string calldata _uri) public view returns (bytes32) {
+        bytes32 structHash = keccak256(abi.encode(_SET_IMAGE_URI_TYPEHASH, _uri));
+        return _hashTypedDataV4(structHash);
     }
 
     /// @inheritdoc ERC721
