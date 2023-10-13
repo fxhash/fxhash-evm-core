@@ -3,7 +3,7 @@ pragma solidity 0.8.20;
 
 import "test/minters/FixedPrice/FixedPriceTest.t.sol";
 
-contract BuyWithMintPass is FixedPriceTest {
+contract BuyTokens is FixedPriceTest {
     uint256 internal claimIndex;
 
     function setUp() public override {
