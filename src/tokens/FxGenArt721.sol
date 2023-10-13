@@ -169,30 +169,24 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, EIP712, Ownable, Pa
 
     /// @inheritdoc IFxGenArt721
     function setBaseURI(string calldata _uri, bytes calldata _signature) external onlyRole(ADMIN_ROLE) {
-        bytes32 hash = generateTypedDataHashBaseURI(_uri);
-        (uint8 v, bytes32 r, bytes32 s) = abi.decode(_signature, (uint8, bytes32, bytes32));
-        address signer = ECDSA.recover(hash, v, r, s);
-        if (signer != owner()) revert NotOwner();
+        bytes32 digest = generateTypedDataHashBaseURI(_uri);
+        _verifySignature(digest, _signature);
         metadataInfo.baseURI = _uri;
         emit BaseURIUpdated(_uri);
     }
 
     /// @inheritdoc IFxGenArt721
     function setContractURI(string calldata _uri, bytes calldata _signature) external onlyRole(ADMIN_ROLE) {
-        bytes32 hash = generateTypedDataHashContractURI(_uri);
-        (uint8 v, bytes32 r, bytes32 s) = abi.decode(_signature, (uint8, bytes32, bytes32));
-        address signer = ECDSA.recover(hash, v, r, s);
-        if (signer != owner()) revert NotOwner();
+        bytes32 digest = generateTypedDataHashContractURI(_uri);
+        _verifySignature(digest, _signature);
         issuerInfo.projectInfo.contractURI = _uri;
         emit ContractURIUpdated(_uri);
     }
 
     /// @inheritdoc IFxGenArt721
     function setImageURI(string calldata _uri, bytes calldata _signature) external onlyRole(ADMIN_ROLE) {
-        bytes32 hash = generateTypedDataHashImageURI(_uri);
-        (uint8 v, bytes32 r, bytes32 s) = abi.decode(_signature, (uint8, bytes32, bytes32));
-        address signer = ECDSA.recover(hash, v, r, s);
-        if (signer != owner()) revert NotOwner();
+        bytes32 digest = generateTypedDataHashImageURI(_uri);
+        _verifySignature(digest, _signature);
         metadataInfo.imageURI = _uri;
         emit ImageURIUpdated(_uri);
     }
@@ -363,6 +357,12 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, EIP712, Ownable, Pa
     /// @dev Checks if user is verified on system
     function _isVerified(address _user) internal view returns (bool) {
         return (IAccessControl(roleRegistry).hasRole(VERIFIED_USER_ROLE, _user));
+    }
+
+    function _verifySignature(bytes32 _digest, bytes calldata _signature) internal view {
+        (uint8 v, bytes32 r, bytes32 s) = abi.decode(_signature, (uint8, bytes32, bytes32));
+        address signer = ECDSA.recover(_digest, v, r, s);
+        if (signer != owner()) revert NotOwner();
     }
 
     /// @inheritdoc ERC721
