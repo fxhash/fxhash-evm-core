@@ -293,24 +293,6 @@ interface IFxGenArt721 is ISeedConsumer {
     function setImageURI(string calldata _uri, bytes calldata _signature) external;
 
     /**
-     * @notice Sets the new URI of the token metadata
-     * @param _uri Pointer of the metadata
-     */
-    function setBaseURI(string calldata _uri) external;
-
-    /**
-     * @notice Sets the new URI of the contract metadata
-     * @param _uri Pointer of the metadata
-     */
-    function setContractURI(string calldata _uri) external;
-
-    /**
-     * @notice Sets the new URI of the image metadata
-     * @param _uri Pointer of the metadata
-     */
-    function setImageURI(string calldata _uri) external;
-
-    /**
      * @notice Sets the new Randomizer contract
      * @param _randomizer Address of the Randomizer contract
      */

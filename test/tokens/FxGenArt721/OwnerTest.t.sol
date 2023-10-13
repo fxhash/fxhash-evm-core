@@ -78,51 +78,6 @@ contract OwnerTest is FxGenArt721Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                    BASE URI
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function test_SetBaseURI() public {
-        _setBaseURI(creator, BASE_URI);
-        _setMetadatInfo();
-        assertEq(baseURI, BASE_URI);
-    }
-
-    function test_SetBaseURI_RevertsWhen_UnauthorizedAccount() public {
-        vm.expectRevert("Ownable: caller is not the owner");
-        _setBaseURI(alice, BASE_URI);
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                    CONTRACT URI
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function test_SetContractURI() public {
-        _setContractURI(creator, CONTRACT_URI);
-        _setIssuerInfo();
-        assertEq(project.contractURI, CONTRACT_URI);
-    }
-
-    function test_SetContractURI_RevertsWhen_UnauthorizedAccount() public {
-        vm.expectRevert("Ownable: caller is not the owner");
-        _setContractURI(alice, CONTRACT_URI);
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                    IMAGE URI
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function test_SetImageURI() public {
-        _setImageURI(creator, IMAGE_URI);
-        _setMetadatInfo();
-        assertEq(imageURI, IMAGE_URI);
-    }
-
-    function test_SetImageURI_RevertsWhen_UnauthorizedAccount() public {
-        vm.expectRevert("Ownable: caller is not the owner");
-        _setImageURI(alice, IMAGE_URI);
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                                     HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -132,17 +87,5 @@ contract OwnerTest is FxGenArt721Test {
 
     function _reduceSupply(address _creator, uint120 _supply) internal prank(_creator) {
         IFxGenArt721(fxGenArtProxy).reduceSupply(_supply);
-    }
-
-    function _setBaseURI(address _admin, string memory _uri) internal prank(_admin) {
-        IFxGenArt721(fxGenArtProxy).setBaseURI(_uri);
-    }
-
-    function _setContractURI(address _admin, string memory _uri) internal prank(_admin) {
-        IFxGenArt721(fxGenArtProxy).setContractURI(_uri);
-    }
-
-    function _setImageURI(address _admin, string memory _uri) internal prank(_admin) {
-        IFxGenArt721(fxGenArtProxy).setImageURI(_uri);
     }
 }

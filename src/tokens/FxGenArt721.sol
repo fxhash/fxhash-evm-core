@@ -169,7 +169,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, EIP712, Ownable, Pa
 
     /// @inheritdoc IFxGenArt721
     function setBaseURI(string calldata _uri, bytes calldata _signature) external onlyRole(ADMIN_ROLE) {
-        bytes32 digest = generateTypedDataHashBaseURI(_uri);
+        bytes32 digest = generateTypedDataHash(SET_BASE_URI_TYPEHASH, _uri);
         _verifySignature(digest, _signature);
         metadataInfo.baseURI = _uri;
         emit BaseURIUpdated(_uri);
@@ -177,7 +177,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, EIP712, Ownable, Pa
 
     /// @inheritdoc IFxGenArt721
     function setContractURI(string calldata _uri, bytes calldata _signature) external onlyRole(ADMIN_ROLE) {
-        bytes32 digest = generateTypedDataHashContractURI(_uri);
+        bytes32 digest = generateTypedDataHash(SET_CONTRACT_URI_TYPEHASH, _uri);
         _verifySignature(digest, _signature);
         issuerInfo.projectInfo.contractURI = _uri;
         emit ContractURIUpdated(_uri);
@@ -185,26 +185,8 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, EIP712, Ownable, Pa
 
     /// @inheritdoc IFxGenArt721
     function setImageURI(string calldata _uri, bytes calldata _signature) external onlyRole(ADMIN_ROLE) {
-        bytes32 digest = generateTypedDataHashImageURI(_uri);
+        bytes32 digest = generateTypedDataHash(SET_IMAGE_URI_TYPEHASH, _uri);
         _verifySignature(digest, _signature);
-        metadataInfo.imageURI = _uri;
-        emit ImageURIUpdated(_uri);
-    }
-
-    /// @inheritdoc IFxGenArt721
-    function setBaseURI(string calldata _uri) external onlyOwner {
-        metadataInfo.baseURI = _uri;
-        emit BaseURIUpdated(_uri);
-    }
-
-    /// @inheritdoc IFxGenArt721
-    function setContractURI(string calldata _uri) external onlyOwner {
-        issuerInfo.projectInfo.contractURI = _uri;
-        emit ContractURIUpdated(_uri);
-    }
-
-    /// @inheritdoc IFxGenArt721
-    function setImageURI(string calldata _uri) external onlyOwner {
         metadataInfo.imageURI = _uri;
         emit ImageURIUpdated(_uri);
     }
@@ -247,18 +229,8 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, EIP712, Ownable, Pa
         return issuerInfo.projectInfo.contractURI;
     }
 
-    function generateTypedDataHashBaseURI(string calldata _uri) public view returns (bytes32) {
-        bytes32 structHash = keccak256(abi.encode(SET_BASE_URI_TYPEHASH, _uri));
-        return _hashTypedDataV4(structHash);
-    }
-
-    function generateTypedDataHashContractURI(string calldata _uri) public view returns (bytes32) {
-        bytes32 structHash = keccak256(abi.encode(SET_CONTRACT_URI_TYPEHASH, _uri));
-        return _hashTypedDataV4(structHash);
-    }
-
-    function generateTypedDataHashImageURI(string calldata _uri) public view returns (bytes32) {
-        bytes32 structHash = keccak256(abi.encode(SET_IMAGE_URI_TYPEHASH, _uri));
+    function generateTypedDataHash(bytes32 _typehash, string calldata _uri) public view returns (bytes32) {
+        bytes32 structHash = keccak256(abi.encode(_typehash, _uri));
         return _hashTypedDataV4(structHash);
     }
 
