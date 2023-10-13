@@ -25,12 +25,20 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     /// @inheritdoc IDutchAuction
     mapping(address => mapping(uint256 => RefundInfo)) public refundInfo;
 
+    /// @inheritdoc IDutchAuction
     mapping(address => mapping(uint256 => bytes32)) public merkleRoots;
 
+    /// @inheritdoc IDutchAuction
     mapping(address => mapping(uint256 => address)) public signingAuthorities;
 
+    /*
+     * Mapping of token => reserveId => claimedMintPasses BitMap
+     */
     mapping(address => mapping(uint256 => BitMaps.BitMap)) internal claimedMintPasses;
 
+    /*
+     * Mapping of token => reserveId => claimedMerkleTreeSlot BitMap
+     */
     mapping(address => mapping(uint256 => BitMaps.BitMap)) internal claimedMerkleTreeSlots;
 
     /// @inheritdoc IMinter

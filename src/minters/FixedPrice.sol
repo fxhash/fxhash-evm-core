@@ -29,15 +29,21 @@ contract FixedPrice is MintPass, Allowlist, IFixedPrice {
     /// @inheritdoc IFixedPrice
     mapping(address => mapping(uint256 => address)) public signingAuthorities;
 
-    mapping(address => mapping(uint256 => BitMaps.BitMap)) internal claimedMintPasses;
-
-    mapping(address => mapping(uint256 => BitMaps.BitMap)) internal claimedMerkleTreeSlots;
-
     /// @inheritdoc IFixedPrice
     mapping(address => ReserveInfo[]) public reserves;
 
     /// @inheritdoc IFixedPrice
     mapping(address => uint256) public saleProceeds;
+
+    /*
+     * Mapping of token => reserveId => claimedMintPasses BitMap
+     */
+    mapping(address => mapping(uint256 => BitMaps.BitMap)) internal claimedMintPasses;
+
+    /*
+     * Mapping of token => reserveId => claimedMerkleTreeSlot BitMap
+     */
+    mapping(address => mapping(uint256 => BitMaps.BitMap)) internal claimedMerkleTreeSlots;
 
     /// @inheritdoc IMinter
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external {

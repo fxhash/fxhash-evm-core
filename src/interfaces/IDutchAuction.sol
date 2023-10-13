@@ -212,6 +212,12 @@ interface IDutchAuction is IMinter {
      */
     function auctionInfo(address _token, uint256 _reserveId) external view returns (uint248, bool);
 
+    /// @notice Returns the merkleRoot of a token for a reserveId
+    function merkleRoots(address _token, uint256 _reserveId) external view returns (bytes32);
+
+    /// @notice Returns the signing authority of mint passes of a token for a reserveId
+    function signingAuthorities(address _token, uint256 _reserveId) external view returns (address);
+
     /**
      * @notice Mapping to store the Dutch auction info for each token
      * @param _reserveId The ID of the mint
