@@ -172,7 +172,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, EIP712, Ownable, Pa
         bytes32 hash = generateTypedDataHashBaseURI(_uri);
         (uint8 v, bytes32 r, bytes32 s) = abi.decode(_signature, (uint8, bytes32, bytes32));
         address signer = ECDSA.recover(hash, v, r, s);
-        if (signer != owner()) revert("Not Owner");
+        if (signer != owner()) revert NotOwner();
         metadataInfo.baseURI = _uri;
         emit BaseURIUpdated(_uri);
     }
@@ -182,7 +182,7 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, EIP712, Ownable, Pa
         bytes32 hash = generateTypedDataHashContractURI(_uri);
         (uint8 v, bytes32 r, bytes32 s) = abi.decode(_signature, (uint8, bytes32, bytes32));
         address signer = ECDSA.recover(hash, v, r, s);
-        if (signer != owner()) revert("Not Owner");
+        if (signer != owner()) revert NotOwner();
         issuerInfo.projectInfo.contractURI = _uri;
         emit ContractURIUpdated(_uri);
     }
@@ -192,7 +192,25 @@ contract FxGenArt721 is IFxGenArt721, Initializable, ERC721, EIP712, Ownable, Pa
         bytes32 hash = generateTypedDataHashImageURI(_uri);
         (uint8 v, bytes32 r, bytes32 s) = abi.decode(_signature, (uint8, bytes32, bytes32));
         address signer = ECDSA.recover(hash, v, r, s);
-        if (signer != owner()) revert("Not Owner");
+        if (signer != owner()) revert NotOwner();
+        metadataInfo.imageURI = _uri;
+        emit ImageURIUpdated(_uri);
+    }
+
+    /// @inheritdoc IFxGenArt721
+    function setBaseURI(string calldata _uri) external onlyOwner {
+        metadataInfo.baseURI = _uri;
+        emit BaseURIUpdated(_uri);
+    }
+
+    /// @inheritdoc IFxGenArt721
+    function setContractURI(string calldata _uri) external onlyOwner {
+        issuerInfo.projectInfo.contractURI = _uri;
+        emit ContractURIUpdated(_uri);
+    }
+
+    /// @inheritdoc IFxGenArt721
+    function setImageURI(string calldata _uri) external onlyOwner {
         metadataInfo.imageURI = _uri;
         emit ImageURIUpdated(_uri);
     }
