@@ -1,18 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+import {BitMaps} from "openzeppelin/contracts/utils/structs/BitMaps.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 
 import {IDutchAuction, AuctionInfo, MinterInfo, RefundInfo} from "src/interfaces/IDutchAuction.sol";
 import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IMinter} from "src/interfaces/IMinter.sol";
+import {Allowlist} from "src/minters/extensions/Allowlist.sol";
+import {MintPass} from "src/minters/extensions/MintPass.sol";
 
 /**
  * @title DutchAuction
  * @notice Minter contract for distributing tokens through a Dutch Auction pricing mechanism
  */
-contract DutchAuction is IDutchAuction {
+contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     /// @inheritdoc IDutchAuction
     mapping(address => AuctionInfo[]) public auctionInfo;
     /// @inheritdoc IDutchAuction
@@ -22,12 +25,31 @@ contract DutchAuction is IDutchAuction {
     /// @inheritdoc IDutchAuction
     mapping(address => mapping(uint256 => RefundInfo)) public refundInfo;
 
+    mapping(address => mapping(uint256 => bytes32)) public merkleRoots;
+
+    mapping(address => mapping(uint256 => address)) public signingAuthorities;
+
+    mapping(address => mapping(uint256 => BitMaps.BitMap)) internal claimedMintPasses;
+
+    mapping(address => mapping(uint256 => BitMaps.BitMap)) internal claimedMerkleTreeSlots;
+
     /// @inheritdoc IMinter
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintData) external {
-        AuctionInfo memory daInfo = abi.decode(_mintData, (AuctionInfo));
+        (AuctionInfo memory daInfo, bytes32 merkleRoot, address signer) = abi.decode(
+            _mintData,
+            (AuctionInfo, bytes32, address)
+        );
 
         // Check if the step length evenly divides the duration of the auction
         if ((_reserve.endTime - _reserve.startTime) % daInfo.stepLength != 0) revert InvalidStep();
+        if (merkleRoot != bytes32(0) && signer != address(0)) revert("Cant have both signer and merkle tree");
+        uint256 reserveId = reserves[msg.sender].length;
+        if (merkleRoot != bytes32(0)) {
+            merkleRoots[msg.sender][reserveId] = merkleRoot;
+        }
+        if (signer != address(0)) {
+            signingAuthorities[msg.sender][reserveId] = signer;
+        }
 
         // Check if the price curve is descending
         if (daInfo.prices.length < 2) revert InvalidPriceCurve();
@@ -35,7 +57,6 @@ contract DutchAuction is IDutchAuction {
             if (!(daInfo.prices[i - 1] > daInfo.prices[i])) revert PricesOutOfOrder();
         }
         if (_reserve.allocation == 0) revert InvalidAllocation();
-        uint256 reserveId = reserves[msg.sender].length;
 
         // Add the reserve and auction info to the mappings
         reserves[msg.sender].push(_reserve);
@@ -44,43 +65,44 @@ contract DutchAuction is IDutchAuction {
         emit MintDetailsSet(msg.sender, reserveId, _reserve, daInfo);
     }
 
+    function buyAllowlist(
+        address _token,
+        uint256 _reserveId,
+        uint256[] calldata _indexes,
+        address _to,
+        bytes32[][] calldata _proofs
+    ) external payable {
+        bytes32 merkleRoot = _getMerkleRoot(_token, _reserveId);
+        if (merkleRoot == bytes32(0)) revert NoAllowlist();
+        BitMaps.BitMap storage claimBitmap = claimedMerkleTreeSlots[_token][_reserveId];
+        for (uint256 i; i < _proofs.length; i++) {
+            _claimSlot(claimBitmap, _token, _reserveId, _indexes[i], _proofs[i]);
+        }
+        uint256 amount = _proofs.length;
+        _buy(_token, _reserveId, amount, _to);
+    }
+
+    function buyMintPass(
+        address _token,
+        uint256 _reserveId,
+        uint256 _amount,
+        address _to,
+        uint256 _index,
+        bytes calldata _signature
+    ) external payable {
+        address signer = signingAuthorities[_token][_reserveId];
+        if (signer == address(0)) revert NoSigningAuthority();
+        BitMaps.BitMap storage claimBitmap = claimedMintPasses[_token][_reserveId];
+        _claimMintPass(claimBitmap, _token, _reserveId, _index, _signature);
+        _buy(_token, _reserveId, _amount, _to);
+    }
+
     /// @inheritdoc IDutchAuction
     function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable {
-        // Input validation
-        _validateInput(_token, _reserveId, _to);
-        if (_amount == 0) revert InvalidAmount();
-
-        ReserveInfo storage reserve = reserves[_token][_reserveId];
-
-        // Check if the auction has started and not ended
-        if (block.timestamp < reserve.startTime) revert NotStarted();
-        if (block.timestamp > reserve.endTime) revert Ended();
-
-        // Check if the requested amount is within the available allocation for the reserve
-        if (_amount > reserve.allocation) revert InvalidAmount();
-
-        AuctionInfo storage daInfo = auctionInfo[_token][_reserveId];
-        uint256 price = _getPrice(reserve, daInfo);
-        if (msg.value != price * _amount) revert InvalidPayment();
-
-        // Update the allocation for the reserve
-        reserve.allocation -= SafeCastLib.safeCastTo128(_amount);
-
-        // If the reserve allocation is fully sold out and refunds are enabled, store the last price
-        if (reserve.allocation == 0 && daInfo.refunded) {
-            refundInfo[_token][_reserveId].lastPrice = price;
-        }
-
-        // Update the minter's total mints and total paid amounts
-        MinterInfo storage minterInfo = refundInfo[_token][_reserveId].minterInfo[msg.sender];
-        minterInfo.totalMints += SafeCastLib.safeCastTo128(_amount);
-        minterInfo.totalPaid += SafeCastLib.safeCastTo128(price * _amount);
-
-        // Add the sale proceeds to the total for the reserve
-        saleProceeds[_token][_reserveId] += price * _amount;
-        emit Purchase(_token, _reserveId, msg.sender, _to, _amount, price);
-
-        IFxGenArt721(_token).mintRandom(_to, _amount);
+        bytes32 merkleRoot = _getMerkleRoot(_token, _reserveId);
+        address signer = signingAuthorities[_token][_reserveId];
+        if ((merkleRoot != bytes32(0) || signer != address(0))) revert NoPublicMint();
+        _buy(_token, _reserveId, _amount, _to);
     }
 
     /// @inheritdoc IDutchAuction
@@ -140,6 +162,44 @@ contract DutchAuction is IDutchAuction {
         return _getPrice(reserve, daInfo);
     }
 
+    function _buy(address _token, uint256 _reserveId, uint256 _amount, address _to) internal {
+        // Input validation
+        _validateInput(_token, _reserveId, _to);
+        if (_amount == 0) revert InvalidAmount();
+
+        ReserveInfo storage reserve = reserves[_token][_reserveId];
+
+        // Check if the auction has started and not ended
+        if (block.timestamp < reserve.startTime) revert NotStarted();
+        if (block.timestamp > reserve.endTime) revert Ended();
+
+        // Check if the requested amount is within the available allocation for the reserve
+        if (_amount > reserve.allocation) revert InvalidAmount();
+
+        AuctionInfo storage daInfo = auctionInfo[_token][_reserveId];
+        uint256 price = _getPrice(reserve, daInfo);
+        if (msg.value != price * _amount) revert InvalidPayment();
+
+        // Update the allocation for the reserve
+        reserve.allocation -= SafeCastLib.safeCastTo128(_amount);
+
+        // If the reserve allocation is fully sold out and refunds are enabled, store the last price
+        if (reserve.allocation == 0 && daInfo.refunded) {
+            refundInfo[_token][_reserveId].lastPrice = price;
+        }
+
+        // Update the minter's total mints and total paid amounts
+        MinterInfo storage minterInfo = refundInfo[_token][_reserveId].minterInfo[msg.sender];
+        minterInfo.totalMints += SafeCastLib.safeCastTo128(_amount);
+        minterInfo.totalPaid += SafeCastLib.safeCastTo128(price * _amount);
+
+        // Add the sale proceeds to the total for the reserve
+        saleProceeds[_token][_reserveId] += price * _amount;
+        emit Purchase(_token, _reserveId, msg.sender, _to, _amount, price);
+
+        IFxGenArt721(_token).mintRandom(_to, _amount);
+    }
+
     /**
      * @dev Calculates the current price based on the reserve and auction information
      * @param _reserve The details for the reserve
@@ -161,5 +221,17 @@ contract DutchAuction is IDutchAuction {
         if (length == 0) revert InvalidToken();
         if (_reserveId >= length) revert InvalidReserve();
         if (_who == address(0)) revert AddressZero();
+    }
+
+    function _getMerkleRoot(address _token, uint256 _reserveId) internal view override returns (bytes32) {
+        return merkleRoots[_token][_reserveId];
+    }
+
+    function _isSigningAuthority(
+        address _signer,
+        address _token,
+        uint256 _reserveId
+    ) internal view override returns (bool) {
+        return _signer == signingAuthorities[_token][_reserveId];
     }
 }

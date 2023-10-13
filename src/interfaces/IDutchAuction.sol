@@ -167,6 +167,12 @@ interface IDutchAuction is IMinter {
      */
     error NotStarted();
 
+    error NoPublicMint();
+
+    error NoAllowlist();
+
+    error NoSigningAuthority();
+
     /**
      * @notice Allows a buyer to purchase tokens in the Dutch auction
      * @param _token The address of the token being purchased

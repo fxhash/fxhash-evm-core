@@ -15,7 +15,7 @@ contract SetMintDetails is DutchAuctionTest {
     function test_setMintDetails() public {
         dutchAuction.setMintDetails(
             ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
-            abi.encode(daInfo)
+            abi.encode(daInfo, merkleRoot, mintPassSigner)
         );
         vm.warp(RESERVE_START_TIME);
         (uint64 startTime_, uint64 endTime_, uint128 supply_) = dutchAuction.reserves(address(this), 0);
@@ -33,7 +33,10 @@ contract SetMintDetails is DutchAuctionTest {
 
     function test_RevertsIf_Allocation0() public {
         vm.expectRevert(INVALID_ALLOCATION_ERROR);
-        dutchAuction.setMintDetails(ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, 0), abi.encode(daInfo));
+        dutchAuction.setMintDetails(
+            ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, 0),
+            abi.encode(daInfo, merkleRoot, mintPassSigner)
+        );
     }
 
     function test_RevertsIf_InvalidStepLength() public {
@@ -41,7 +44,7 @@ contract SetMintDetails is DutchAuctionTest {
         vm.expectRevert();
         dutchAuction.setMintDetails(
             ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
-            abi.encode(daInfo)
+            abi.encode(daInfo, merkleRoot, mintPassSigner)
         );
     }
 
@@ -52,7 +55,7 @@ contract SetMintDetails is DutchAuctionTest {
         vm.expectRevert(INVALID_STEP_ERROR);
         dutchAuction.setMintDetails(
             ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
-            abi.encode(daInfo)
+            abi.encode(daInfo, merkleRoot, mintPassSigner)
         );
         assertTrue(remainder != 0, "duration was not even multiple of stepLength");
     }
@@ -62,7 +65,7 @@ contract SetMintDetails is DutchAuctionTest {
         vm.expectRevert(PRICES_OUT_OF_ORDER_ERROR);
         dutchAuction.setMintDetails(
             ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
-            abi.encode(daInfo)
+            abi.encode(daInfo, merkleRoot, mintPassSigner)
         );
     }
 }
