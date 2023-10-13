@@ -16,7 +16,7 @@ import {MockMinter} from "test/mocks/MockMinter.sol";
 import {MockMintPass} from "test/mocks/MockMintPass.sol";
 import {MockRoyaltyManager} from "test/mocks/MockRoyaltyManager.sol";
 
-import {IDutchAuction} from "src/interfaces/IDutchAuction.sol";
+import {IDutchAuction, AuctionInfo} from "src/interfaces/IDutchAuction.sol";
 import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
 import {IFxIssuerFactory} from "src/interfaces/IFxIssuerFactory.sol";
 import {IFxTicketFactory} from "src/interfaces/IFxTicketFactory.sol";
@@ -43,6 +43,7 @@ contract BaseTest is Deploy, Test {
     address internal minter;
     address internal owner;
     bytes internal fxParams;
+    bytes internal mintParams;
     bytes32 internal seed;
     uint96 internal projectId;
     uint120 internal inputSize;

@@ -20,6 +20,7 @@ contract FxMintTicket721Test is BaseTest {
     bytes4 internal INSUFFICIENT_DEPOSIT_ERROR = IFxMintTicket721.InsufficientDeposit.selector;
     bytes4 internal INSUFFICIENT_PAYMENT_ERROR = IFxMintTicket721.InsufficientPayment.selector;
     bytes4 internal INVALID_PRICE_ERROR = IFxMintTicket721.InvalidPrice.selector;
+    bytes4 internal MINT_ACTIVE_ERROR = IFxMintTicket721.MintActive.selector;
     bytes4 internal NOT_AUTHORIZED_TICKET_ERROR = IFxMintTicket721.NotAuthorized.selector;
     bytes4 internal UNAUTHORIZED_ACCOUNT_TICKET_ERROR = IFxMintTicket721.UnauthorizedAccount.selector;
     bytes4 internal UNREGISTERED_MINTER_TICKET_ERROR = IFxMintTicket721.UnregisteredMinter.selector;
@@ -101,6 +102,10 @@ contract FxMintTicket721Test is BaseTest {
         IFxMintTicket721(fxMintTicketProxy).withdraw(_to);
     }
 
+    function _registerMinters(address _creator, MintInfo[] memory _mintInfo) internal prank(_creator) {
+        IFxMintTicket721(fxMintTicketProxy).registerMinters(_mintInfo);
+    }
+
     function _setTaxInfo() internal {
         (gracePeriod, foreclosureTime, currentPrice, depositAmount) = FxMintTicket721(fxMintTicketProxy).taxes(tokenId);
     }
@@ -111,5 +116,9 @@ contract FxMintTicket721Test is BaseTest {
 
     function _setBalance(address _wallet) internal {
         balance = IFxMintTicket721(fxMintTicketProxy).balances(_wallet);
+    }
+
+    function _isMinter(address _minter) internal view returns (bool) {
+        return IFxMintTicket721(fxMintTicketProxy).minters(_minter);
     }
 }

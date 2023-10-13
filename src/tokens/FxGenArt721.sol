@@ -8,6 +8,7 @@ import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {RoyaltyManager} from "src/tokens/extensions/RoyaltyManager.sol";
 
 import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
+import {IERC4906} from "openzeppelin/contracts/interfaces/IERC4906.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {IFxGenArt721, GenArtInfo, InitInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IMinter} from "src/interfaces/IMinter.sol";
@@ -21,7 +22,7 @@ import "src/utils/Constants.sol";
  * @title FxGenArt721
  * @notice See the documentation in {IFxGenArt721}
  */
-contract FxGenArt721 is IFxGenArt721, ERC721, Initializable, Ownable, Pausable, RoyaltyManager {
+contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, Initializable, Ownable, Pausable, RoyaltyManager {
     /// @inheritdoc IFxGenArt721
     address public immutable contractRegistry;
     /// @inheritdoc IFxGenArt721
@@ -186,6 +187,7 @@ contract FxGenArt721 is IFxGenArt721, ERC721, Initializable, Ownable, Pausable, 
     /// @inheritdoc IFxGenArt721
     function setBaseURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
         metadataInfo.baseURI = _uri;
+        emit BatchMetadataUpdate(1, totalSupply);
     }
 
     /// @inheritdoc IFxGenArt721
