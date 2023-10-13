@@ -37,6 +37,7 @@ contract FxTicketFactoryTest is BaseTest {
             fxGenArtProxy,
             address(ticketRedeemer),
             uint48(ONE_DAY),
+            BASE_URI,
             mintInfo
         );
         assertEq(FxMintTicket721(fxMintTicketProxy).owner(), creator);
@@ -50,6 +51,7 @@ contract FxTicketFactoryTest is BaseTest {
             fxGenArtProxy,
             address(ticketRedeemer),
             uint48(ONE_DAY - 1),
+            BASE_URI,
             mintInfo
         );
     }
@@ -61,6 +63,7 @@ contract FxTicketFactoryTest is BaseTest {
             fxGenArtProxy,
             address(ticketRedeemer),
             uint48(ONE_DAY),
+            BASE_URI,
             mintInfo
         );
     }
@@ -72,6 +75,7 @@ contract FxTicketFactoryTest is BaseTest {
             address(0),
             address(ticketRedeemer),
             uint48(ONE_DAY),
+            BASE_URI,
             mintInfo
         );
     }

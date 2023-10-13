@@ -82,16 +82,18 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
         address _genArt721,
         address _redeemer,
         uint48 _gracePeriod,
+        string calldata _baseURI,
         MintInfo[] calldata _mintInfo
     ) external initializer {
         genArt721 = _genArt721;
         redeemer = _redeemer;
         gracePeriod = _gracePeriod;
+        baseURI = _baseURI;
 
         _transferOwnership(_owner);
         _registerMinters(_mintInfo);
 
-        emit TicketInitialized(_genArt721, _redeemer, _gracePeriod, _mintInfo);
+        emit TicketInitialized(_genArt721, _redeemer, _gracePeriod, _baseURI, _mintInfo);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

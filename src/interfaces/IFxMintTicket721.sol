@@ -23,12 +23,17 @@ struct TaxInfo {
 interface IFxMintTicket721 {
     /**
      * @notice Event emitted when mint ticket is initialized
-
+     * @param _genArt721 Address of FxGenArt721 token
+     * @param _redeemer Address of TicketRedeemer contract
+     * @param _gracePeriod Period of time before token enters harberger taxation
+     * @param _baseURI Base URI of the token metadata
+     * @param _mintInfo List of authorized minter contracts and their reserves
      */
     event TicketInitialized(
         address indexed _genArt721,
         address indexed _redeemer,
         uint48 indexed _gracePeriod,
+        string _baseURI,
         MintInfo[] _mintInfo
     );
 
@@ -164,6 +169,7 @@ interface IFxMintTicket721 {
      * @param _genArt721 Address of GenArt721 token contract
      * @param _redeemer Address of TicketRedeemer minter contract
      * @param _gracePeriod Period time before token enters harberger taxation
+     * @param _baseURI Base URI of the token metadata
      * @param _mintInfo List of authorized minter contracts and their reserves
      */
     function initialize(
@@ -171,6 +177,7 @@ interface IFxMintTicket721 {
         address _genArt721,
         address _redeemer,
         uint48 _gracePeriod,
+        string calldata _baseURI,
         MintInfo[] calldata _mintInfo
     ) external;
 

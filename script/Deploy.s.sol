@@ -443,6 +443,7 @@ contract Deploy is Script {
             fxGenArtProxy,
             address(ticketRedeemer),
             uint48(ONE_DAY),
+            BASE_URI,
             mintInfo
         );
 

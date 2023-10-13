@@ -36,6 +36,7 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
         address _genArt721,
         address _redeemer,
         uint48 _gracePeriod,
+        string calldata _baseURI,
         MintInfo[] calldata _mintInfo
     ) external returns (address mintTicket) {
         if (_owner == address(0)) revert InvalidOwner();
@@ -50,7 +51,7 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
 
         emit TicketCreated(ticketId, mintTicket, _owner);
 
-        IFxMintTicket721(mintTicket).initialize(_owner, _genArt721, _redeemer, _gracePeriod, _mintInfo);
+        IFxMintTicket721(mintTicket).initialize(_owner, _genArt721, _redeemer, _gracePeriod, _baseURI, _mintInfo);
     }
 
     /// @inheritdoc IFxTicketFactory
