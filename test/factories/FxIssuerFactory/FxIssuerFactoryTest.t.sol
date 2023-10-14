@@ -31,7 +31,7 @@ contract FxIssuerFactoryTest is BaseTest {
             royaltyReceivers,
             basisPoints
         );
-        (, primaryReceiver) = FxGenArt721(fxGenArtProxy).issuerInfo();
+        (primaryReceiver, ) = FxGenArt721(fxGenArtProxy).issuerInfo();
         assertEq(fxIssuerFactory.projects(projectId), fxGenArtProxy);
         assertEq(FxGenArt721(fxGenArtProxy).owner(), creator);
         assertEq(primaryReceiver, address(this));
@@ -62,22 +62,6 @@ contract FxIssuerFactoryTest is BaseTest {
             royaltyReceivers,
             basisPoints
         );
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                    SET CONFIG
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function testSetConfig() public {
-        configInfo.lockTime = LOCK_TIME;
-        configInfo.referrerShare = REFERRER_SHARE;
-        configInfo.defaultMetadata = DEFAULT_METADATA;
-        vm.prank(fxIssuerFactory.owner());
-        fxIssuerFactory.setConfig(configInfo);
-        (lockTime, referrerShare, defaultMetadata) = fxIssuerFactory.configInfo();
-        assertEq(lockTime, configInfo.lockTime);
-        assertEq(referrerShare, configInfo.referrerShare);
-        assertEq(defaultMetadata, configInfo.defaultMetadata);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

@@ -4,6 +4,9 @@ pragma solidity 0.8.20;
 import "test/tokens/FxGenArt721/FxGenArt721Test.t.sol";
 
 contract AdminTest is FxGenArt721Test {
+    uint256 internal signerPk = 1;
+    address internal signerAddr = vm.addr(signerPk);
+
     /*//////////////////////////////////////////////////////////////////////////
                                     SET UP
     //////////////////////////////////////////////////////////////////////////*/
@@ -12,6 +15,8 @@ contract AdminTest is FxGenArt721Test {
         super.setUp();
         _createProject();
         _setIssuerInfo();
+        vm.prank(FxGenArt721(fxGenArtProxy).owner());
+        FxGenArt721(fxGenArtProxy).transferOwnership(signerAddr);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -19,14 +24,18 @@ contract AdminTest is FxGenArt721Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_SetBaseURI() public {
-        _setBaseURI(admin, BASE_URI);
+        bytes32 digest = FxGenArt721(fxGenArtProxy).generateTypedDataHash(SET_BASE_URI_TYPEHASH, BASE_URI);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerPk, digest);
+        _setBaseURI(admin, BASE_URI, abi.encode(v, r, s));
         _setMetadatInfo();
         assertEq(baseURI, BASE_URI);
     }
 
     function test_SetBaseURI_RevertsWhen_UnauthorizedAccount() public {
+        bytes32 digest = FxGenArt721(fxGenArtProxy).generateTypedDataHash(SET_BASE_URI_TYPEHASH, BASE_URI);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerPk, digest);
         vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
-        _setBaseURI(creator, BASE_URI);
+        _setBaseURI(creator, BASE_URI, abi.encode(v, r, s));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -34,14 +43,18 @@ contract AdminTest is FxGenArt721Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_SetContractURI() public {
-        _setContractURI(admin, CONTRACT_URI);
+        bytes32 digest = FxGenArt721(fxGenArtProxy).generateTypedDataHash(SET_CONTRACT_URI_TYPEHASH, CONTRACT_URI);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerPk, digest);
+        _setContractURI(admin, CONTRACT_URI, abi.encode(v, r, s));
         _setIssuerInfo();
         assertEq(project.contractURI, CONTRACT_URI);
     }
 
     function test_SetContractURI_RevertsWhen_UnauthorizedAccount() public {
+        bytes32 digest = FxGenArt721(fxGenArtProxy).generateTypedDataHash(SET_CONTRACT_URI_TYPEHASH, CONTRACT_URI);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerPk, digest);
         vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
-        _setContractURI(creator, CONTRACT_URI);
+        _setContractURI(creator, CONTRACT_URI, abi.encode(v, r, s));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -49,14 +62,18 @@ contract AdminTest is FxGenArt721Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_SetImageURI() public {
-        _setImageURI(admin, IMAGE_URI);
+        bytes32 digest = FxGenArt721(fxGenArtProxy).generateTypedDataHash(SET_IMAGE_URI_TYPEHASH, IMAGE_URI);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerPk, digest);
+        _setImageURI(admin, IMAGE_URI, abi.encode(v, r, s));
         _setMetadatInfo();
         assertEq(imageURI, IMAGE_URI);
     }
 
     function test_SetImageURI_RevertsWhen_UnauthorizedAccount() public {
+        bytes32 digest = FxGenArt721(fxGenArtProxy).generateTypedDataHash(SET_IMAGE_URI_TYPEHASH, IMAGE_URI);
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerPk, digest);
         vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
-        _setImageURI(creator, IMAGE_URI);
+        _setImageURI(creator, IMAGE_URI, abi.encode(v, r, s));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -101,15 +118,15 @@ contract AdminTest is FxGenArt721Test {
                                     HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _setBaseURI(address _admin, string memory _uri) internal prank(_admin) {
-        IFxGenArt721(fxGenArtProxy).setBaseURI(_uri);
+    function _setBaseURI(address _admin, string memory _uri, bytes memory _signature) internal prank(_admin) {
+        IFxGenArt721(fxGenArtProxy).setBaseURI(_uri, _signature);
     }
 
-    function _setContractURI(address _admin, string memory _uri) internal prank(_admin) {
-        IFxGenArt721(fxGenArtProxy).setContractURI(_uri);
+    function _setContractURI(address _admin, string memory _uri, bytes memory _signature) internal prank(_admin) {
+        IFxGenArt721(fxGenArtProxy).setContractURI(_uri, _signature);
     }
 
-    function _setImageURI(address _admin, string memory _uri) internal prank(_admin) {
-        IFxGenArt721(fxGenArtProxy).setImageURI(_uri);
+    function _setImageURI(address _admin, string memory _uri, bytes memory _signature) internal prank(_admin) {
+        IFxGenArt721(fxGenArtProxy).setImageURI(_uri, _signature);
     }
 }

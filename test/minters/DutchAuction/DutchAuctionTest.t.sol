@@ -3,8 +3,6 @@ pragma solidity 0.8.20;
 
 import "test/BaseTest.t.sol";
 
-import {AuctionInfo} from "src/interfaces/IDutchAuction.sol";
-
 contract DutchAuctionTest is BaseTest {
     // Contracts
     DutchAuction internal refundableDA;
@@ -42,7 +40,10 @@ contract DutchAuctionTest is BaseTest {
         _configureRoyalties();
         _configureState(AMOUNT, PRICE, QUANTITY, TOKEN_ID, merkleRoot, mintPassSigner);
         _configureReserve();
-        _configureMinters();
+        _configureMintParams(stepLength, false, prices);
+        _configureMinter(address(dutchAuction), RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, mintParams);
+        _configureMintParams(stepLength, true, prices);
+        _configureMinter(address(refundableDA), RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, mintParams);
         _grantRole(admin, MINTER_ROLE, address(dutchAuction));
         _grantRole(admin, MINTER_ROLE, address(refundableDA));
         _createSplit();
@@ -86,5 +87,10 @@ contract DutchAuctionTest is BaseTest {
                 abi.encode(AuctionInfo(stepLength, refund, prices), merkleRoot, mintPassSigner)
             )
         );
+    }
+
+    function _configureMintParams(uint248 _stepLength, bool _refund, uint256[] storage _prices) internal {
+        refund = _refund;
+        mintParams = abi.encode(AuctionInfo(_stepLength, _refund, _prices), merkleRoot, mintPassSigner);
     }
 }

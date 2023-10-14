@@ -225,6 +225,9 @@ interface IDutchAuction is IMinter {
      */
     function refundInfo(address _token, uint256 _reserveId) external view returns (uint256);
 
+    /// @notice Returns the latest timestamp of reserve updates set for a token
+    function lastUpdated(address _token) external view returns (uint256);
+
     /**
      * @notice Retrieves the reserve info for a token
      * @param _token The address of the token

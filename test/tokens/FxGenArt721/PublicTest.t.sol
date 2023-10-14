@@ -44,23 +44,21 @@ contract PublicTest is FxGenArt721Test {
                                     BURN
     //////////////////////////////////////////////////////////////////////////*/
 
-    function xtest_Burn() public {
+    function test_Burn() public {
         test_MintRandom();
-        _toggleMint(creator);
         _toggleBurn(creator);
         _burn(alice, 1);
         assertEq(FxGenArt721(fxGenArtProxy).balanceOf(alice), amount - 1);
     }
 
-    function xtest_Burn_RevertsWhen_BurnInactive() public {
+    function test_Burn_RevertsWhen_BurnInactive() public {
         test_MintRandom();
         vm.expectRevert(BURN_INACTIVE_ERROR);
         _burn(bob, 1);
     }
 
-    function xtest_Burn_RevertsWhen_NotAuthorized() public {
+    function test_Burn_RevertsWhen_NotAuthorized() public {
         test_MintRandom();
-        _toggleMint(creator);
         _toggleBurn(creator);
         vm.expectRevert(NOT_AUTHORIZED_ERROR);
         _burn(bob, 1);

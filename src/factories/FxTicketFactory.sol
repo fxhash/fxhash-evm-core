@@ -4,7 +4,7 @@ pragma solidity 0.8.20;
 import {Clones} from "openzeppelin/contracts/proxy/Clones.sol";
 import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
 
-import {IFxMintTicket721} from "src/interfaces/IFxMintTicket721.sol";
+import {IFxMintTicket721, MintInfo} from "src/interfaces/IFxMintTicket721.sol";
 import {IFxTicketFactory} from "src/interfaces/IFxTicketFactory.sol";
 
 /**
@@ -24,29 +24,34 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
     mapping(address => uint256) public nonces;
 
     /// @dev Initializes FxMintTicket721 implementation contract
-    constructor(address _implementation, uint48 _gracePeriod) {
+    constructor(address _admin, address _implementation, uint48 _gracePeriod) {
         _setGracePeriod(_gracePeriod);
         _setImplementation(_implementation);
+        _transferOwnership(_admin);
     }
 
     /// @inheritdoc IFxTicketFactory
     function createTicket(
         address _owner,
         address _genArt721,
+        address _redeemer,
         uint48 _gracePeriod,
-        string calldata _baseURI
+        string calldata _baseURI,
+        MintInfo[] calldata _mintInfo
     ) external returns (address mintTicket) {
         if (_owner == address(0)) revert InvalidOwner();
         if (_genArt721 == address(0)) revert InvalidToken();
+        if (_redeemer == address(0)) revert InvalidRedeemer();
         if (_gracePeriod < minGracePeriod) revert InvalidGracePeriod();
 
-        mintTicket = Clones.cloneDeterministic(implementation, bytes32(nonces[msg.sender]));
+        bytes32 salt = keccak256(abi.encode(msg.sender, nonces[msg.sender]));
+        mintTicket = Clones.cloneDeterministic(implementation, salt);
         nonces[msg.sender]++;
         tickets[++ticketId] = mintTicket;
 
-        emit TicketCreated(ticketId, _owner, mintTicket);
+        emit TicketCreated(ticketId, mintTicket, _owner);
 
-        IFxMintTicket721(mintTicket).initialize(_owner, _genArt721, _gracePeriod, _baseURI);
+        IFxMintTicket721(mintTicket).initialize(_owner, _genArt721, _redeemer, _gracePeriod, _baseURI, _mintInfo);
     }
 
     /// @inheritdoc IFxTicketFactory

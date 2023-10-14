@@ -64,7 +64,7 @@ contract OwnerTest is FxGenArt721Test {
                                   TOGGLE BURN
     //////////////////////////////////////////////////////////////////////////*/
 
-    function xtest_ToggleBurn() public {
+    function test_ToggleBurn() public {
         assertFalse(project.burnEnabled);
         _toggleMint(creator);
         _toggleBurn(creator);
@@ -72,9 +72,40 @@ contract OwnerTest is FxGenArt721Test {
         assertTrue(project.burnEnabled);
     }
 
-    function xtest_ToggleBurn_RevertsWhenMintActive() public {
+    /*//////////////////////////////////////////////////////////////////////////
+                                  REGISTER MINTERS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function test_RegisterMinters() public {
+        assertTrue(IFxGenArt721(fxGenArtProxy).isMinter(minter));
+        assertFalse(IFxGenArt721(fxGenArtProxy).isMinter(address(fixedPrice)));
+        delete mintInfo;
+        _configureMinter(
+            address(fixedPrice),
+            RESERVE_START_TIME,
+            RESERVE_END_TIME,
+            MINTER_ALLOCATION,
+            abi.encode(PRICE, merkleRoot, mintPassSigner)
+        );
+        _grantRole(admin, MINTER_ROLE, address(fixedPrice));
+        _toggleMint(creator);
+        _registerMinters(creator, mintInfo);
+        assertFalse(IFxGenArt721(fxGenArtProxy).isMinter(minter));
+        assertTrue(IFxGenArt721(fxGenArtProxy).isMinter(address(fixedPrice)));
+    }
+
+    function test_RegisterMinters_RevertsWhen_MintActive() public {
+        delete mintInfo;
+        _configureMinter(
+            address(fixedPrice),
+            RESERVE_START_TIME,
+            RESERVE_END_TIME,
+            MINTER_ALLOCATION,
+            abi.encode(PRICE, merkleRoot, mintPassSigner)
+        );
+        _grantRole(admin, MINTER_ROLE, address(fixedPrice));
         vm.expectRevert(MINT_ACTIVE_ERROR);
-        _toggleBurn(creator);
+        _registerMinters(creator, mintInfo);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -87,5 +118,9 @@ contract OwnerTest is FxGenArt721Test {
 
     function _reduceSupply(address _creator, uint120 _supply) internal prank(_creator) {
         IFxGenArt721(fxGenArtProxy).reduceSupply(_supply);
+    }
+
+    function _registerMinters(address _creator, MintInfo[] memory _mintInfo) internal prank(_creator) {
+        IFxGenArt721(fxGenArtProxy).registerMinters(_mintInfo);
     }
 }
