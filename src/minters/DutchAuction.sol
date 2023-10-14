@@ -5,10 +5,10 @@ import {BitMaps} from "openzeppelin/contracts/utils/structs/BitMaps.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 
+import {Allowlist} from "src/minters/extensions/Allowlist.sol";
 import {IDutchAuction, AuctionInfo, MinterInfo, RefundInfo} from "src/interfaces/IDutchAuction.sol";
 import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IMinter} from "src/interfaces/IMinter.sol";
-import {Allowlist} from "src/minters/extensions/Allowlist.sol";
 import {MintPass} from "src/minters/extensions/MintPass.sol";
 
 /**
