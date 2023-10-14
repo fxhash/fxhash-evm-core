@@ -5,8 +5,8 @@ import {InitInfo, MetadataInfo, MintInfo, ProjectInfo} from "src/interfaces/IFxG
 
 /**
  * @title IFxIssuerFactory
- * @notice Manages newly deployed FxGenArt721 token contracts
  * @author fxhash
+ * @notice Manages newly deployed FxGenArt721 token contracts
  */
 interface IFxIssuerFactory {
     /*//////////////////////////////////////////////////////////////////////////
@@ -15,7 +15,7 @@ interface IFxIssuerFactory {
 
     /**
      * @notice Event emitted when the FxGenArt721 implementation contract is updated
-     * @param _owner Address of the contract owner
+     * @param _owner Address of the factory owner
      * @param _implementation Address of the new FxGenArt721 implementation contract
      */
     event ImplementationUpdated(address indexed _owner, address indexed _implementation);

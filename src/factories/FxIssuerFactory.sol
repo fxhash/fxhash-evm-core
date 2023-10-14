@@ -12,8 +12,8 @@ import {BANNED_USER_ROLE} from "src/utils/Constants.sol";
 
 /**
  * @title FxIssuerFactory
- * @notice See the documentation in {IFxIssuerFactory}
  * @author fxhash
+ * @dev See the documentation in {IFxIssuerFactory}
  */
 contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     /**
@@ -24,12 +24,12 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     /**
      * @inheritdoc IFxIssuerFactory
      */
-    uint96 public projectId;
+    address public implementation;
 
     /**
      * @inheritdoc IFxIssuerFactory
      */
-    address public implementation;
+    uint96 public projectId;
 
     /**
      * @inheritdoc IFxIssuerFactory
@@ -68,6 +68,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
         if (_owner == address(0)) revert InvalidOwner();
         if (_initInfo.primaryReceiver == address(0)) revert InvalidPrimaryReceiver();
         if (_initInfo.randomizer == address(0) && _projectInfo.inputSize == 0) revert InvalidInputSize();
+
         genArtToken = Clones.clone(implementation);
         projects[++projectId] = genArtToken;
 
