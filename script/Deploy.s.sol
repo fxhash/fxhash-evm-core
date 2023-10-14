@@ -171,7 +171,7 @@ contract Deploy is Script {
             uint64(block.timestamp) + RESERVE_START_TIME,
             uint64(block.timestamp) + RESERVE_END_TIME,
             MINTER_ALLOCATION,
-            abi.encode(PRICE)
+            abi.encode(PRICE, merkleRoot, mintPassSigner)
         );
         _createTicket();
     }
