@@ -13,16 +13,27 @@ import {BANNED_USER_ROLE} from "src/utils/Constants.sol";
 /**
  * @title FxIssuerFactory
  * @notice See the documentation in {IFxIssuerFactory}
+ * @author fxhash
  */
 contract FxIssuerFactory is IFxIssuerFactory, Ownable {
-    /// @inheritdoc IFxIssuerFactory
+    /**
+     * @inheritdoc IFxIssuerFactory
+     */
     address public immutable roleRegistry;
-    /// @inheritdoc IFxIssuerFactory
+
+    /**
+     * @inheritdoc IFxIssuerFactory
+     */
     uint96 public projectId;
-    /// @inheritdoc IFxIssuerFactory
+
+    /**
+     * @inheritdoc IFxIssuerFactory
+     */
     address public implementation;
 
-    /// @inheritdoc IFxIssuerFactory
+    /**
+     * @inheritdoc IFxIssuerFactory
+     */
     mapping(uint96 => address) public projects;
 
     /**
@@ -33,14 +44,18 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
         _;
     }
 
-    /// @dev Initializes FxGenArt721 implementation and sets the initial config info
+    /**
+     * @dev Sets FxRoleRegistry contract, transfers ownership to Admin and initializes FxGenArt721 implementation
+     */
     constructor(address _admin, address _roleRegistry, address _implementation) {
         roleRegistry = _roleRegistry;
         _transferOwnership(_admin);
         _setImplementation(_implementation);
     }
 
-    /// @inheritdoc IFxIssuerFactory
+    /**
+     * @inheritdoc IFxIssuerFactory
+     */
     function createProject(
         address _owner,
         InitInfo calldata _initInfo,
@@ -69,12 +84,16 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
         );
     }
 
-    /// @inheritdoc IFxIssuerFactory
+    /**
+     * @inheritdoc IFxIssuerFactory
+     */
     function setImplementation(address _implementation) external onlyOwner {
         _setImplementation(_implementation);
     }
 
-    /// @dev Sets the implementation address
+    /**
+     * @dev Sets the FxGenArt721 implementation contract
+     */
     function _setImplementation(address _implementation) internal {
         implementation = _implementation;
         emit ImplementationUpdated(msg.sender, _implementation);

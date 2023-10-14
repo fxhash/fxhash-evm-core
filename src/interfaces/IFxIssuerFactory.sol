@@ -6,11 +6,16 @@ import {InitInfo, MetadataInfo, MintInfo, ProjectInfo} from "src/interfaces/IFxG
 /**
  * @title IFxIssuerFactory
  * @notice Manages newly deployed FxGenArt721 token contracts
+ * @author fxhash
  */
 interface IFxIssuerFactory {
+    /*//////////////////////////////////////////////////////////////////////////
+                                  EVENTS
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
      * @notice Event emitted when the FxGenArt721 implementation contract is updated
-     * @param _owner Address of the owner updating the implementation contract
+     * @param _owner Address of the contract owner
      * @param _implementation Address of the new FxGenArt721 implementation contract
      */
     event ImplementationUpdated(address indexed _owner, address indexed _implementation);
@@ -23,17 +28,33 @@ interface IFxIssuerFactory {
      */
     event ProjectCreated(uint96 indexed _projectId, address indexed _genArtToken, address indexed _owner);
 
-    /// @notice Error thrown when input size does not match actual byte size of params data
+    /*//////////////////////////////////////////////////////////////////////////
+                                  ERRORS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @notice Error thrown when input size is zero
+     */
     error InvalidInputSize();
 
-    /// @notice Error thrown when owner is zero address
+    /**
+     * @notice Error thrown when owner is zero address
+     */
     error InvalidOwner();
 
-    /// @notice Error thrown when primary receiver is zero address
+    /**
+     * @notice Error thrown when primary receiver is zero address
+     */
     error InvalidPrimaryReceiver();
 
-    /// @notice Error thrown when caller is not authorized to execute transaction
+    /**
+     * @notice Error thrown when caller is not authorized to execute transaction
+     */
     error NotAuthorized();
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                  FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /**
      * @notice Creates new Generative Art project
@@ -56,20 +77,28 @@ interface IFxIssuerFactory {
     ) external returns (address);
 
     /**
-     * @notice Sets new FxGenArt721 implementation contract
-     * @param _implementation Address of the FxGenArt721 contract
+     * @notice Returns address of current FxGenArt721 implementation contract
      */
-    function setImplementation(address _implementation) external;
-
-    /// @notice Returns address of current FxGenArt721 implementation contract
     function implementation() external view returns (address);
 
-    /// @notice Returns counter of latest project ID
+    /**
+     * @notice Returns counter of latest project ID
+     */
     function projectId() external view returns (uint96);
 
-    /// @notice Mapping of project ID to address of FxGenArt721 token contract
+    /**
+     * @notice Mapping of project ID to address of FxGenArt721 token contract
+     */
     function projects(uint96) external view returns (address);
 
-    /// @notice Returns the address of the RoleRegistry contract
+    /**
+     * @notice Returns the address of the FxRoleRegistry contract
+     */
     function roleRegistry() external view returns (address);
+
+    /**
+     * @notice Sets new FxGenArt721 implementation contract
+     * @param _implementation Address of the new contract
+     */
+    function setImplementation(address _implementation) external;
 }
