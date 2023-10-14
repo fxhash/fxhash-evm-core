@@ -25,6 +25,10 @@ import "src/utils/Constants.sol";
  * @notice See the documentation in {IFxGenArt721}
  */
 contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, Ownable, Pausable, RoyaltyManager {
+    /*//////////////////////////////////////////////////////////////////////////
+                                    STORAGE
+    //////////////////////////////////////////////////////////////////////////*/
+
     /// @inheritdoc IFxGenArt721
     address public immutable contractRegistry;
     /// @inheritdoc IFxGenArt721

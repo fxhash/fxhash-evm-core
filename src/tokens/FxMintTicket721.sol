@@ -23,6 +23,10 @@ import "src/utils/Constants.sol";
 contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pausable {
     using Strings for uint256;
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                    STORAGE
+    //////////////////////////////////////////////////////////////////////////*/
+
     /// @inheritdoc IFxMintTicket721
     address public immutable contractRegistry;
     /// @inheritdoc IFxMintTicket721

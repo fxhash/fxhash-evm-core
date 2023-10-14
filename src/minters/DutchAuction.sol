@@ -17,6 +17,10 @@ import {IMinter} from "src/interfaces/IMinter.sol";
  * @dev See the documentation in {IDutchAuction}
  */
 contract DutchAuction is IDutchAuction, Allowlist, MintPass {
+    /*//////////////////////////////////////////////////////////////////////////
+                                    STORAGE
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
      * @inheritdoc IDutchAuction
      */
@@ -25,7 +29,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     /**
      * @inheritdoc IDutchAuction
      */
-    mapping(address => uint256) public lastUpdated;
+    mapping(address => uint256) public latestUpdates;
 
     /**
      * @inheritdoc IDutchAuction
@@ -53,14 +57,14 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     mapping(address => mapping(uint256 => address)) public signingAuthorities;
 
     /**
-     * @notice Mapping of token address to reserve ID to BitMap of claimed mint passes
-     */
-    mapping(address => mapping(uint256 => BitMaps.BitMap)) internal claimedMintPasses;
-
-    /**
-     * @notice Mapping of token address to reserve ID to BitMap of claimed merkle tree slots
+     * @dev Mapping of token address to reserve ID to BitMap of claimed merkle tree slots
      */
     mapping(address => mapping(uint256 => BitMaps.BitMap)) internal claimedMerkleTreeSlots;
+
+    /**
+     * @dev Mapping of token address to reserve ID to BitMap of claimed mint passes
+     */
+    mapping(address => mapping(uint256 => BitMaps.BitMap)) internal claimedMintPasses;
 
     /*//////////////////////////////////////////////////////////////////////////
                                 EXTERNAL FUNCTIONS
@@ -74,12 +78,11 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
             _mintData,
             (AuctionInfo, bytes32, address)
         );
-        if (lastUpdated[msg.sender] != block.timestamp) {
+        if (latestUpdates[msg.sender] != block.timestamp) {
             delete reserves[msg.sender];
             delete auctions[msg.sender];
+            latestUpdates[msg.sender] = block.timestamp;
         }
-
-        lastUpdated[msg.sender] = block.timestamp;
 
         // Checks if the step length evenly divides the duration of the auction
         if ((_reserve.endTime - _reserve.startTime) % daInfo.stepLength != 0) revert InvalidStep();
@@ -114,8 +117,8 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     function buyAllowlist(
         address _token,
         uint256 _reserveId,
-        uint256[] calldata _indexes,
         address _to,
+        uint256[] calldata _indexes,
         bytes32[][] calldata _proofs
     ) external payable {
         bytes32 merkleRoot = _getMerkleRoot(_token, _reserveId);
@@ -232,7 +235,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @dev Mints arbitrary amount of tokens at auction price to given account
+     * @dev Purchases arbitrary amount of tokens at auction price and mints tokens to given account
      */
     function _buy(address _token, uint256 _reserveId, uint256 _amount, address _to) internal {
         // Validates token address, reserve information and given account
@@ -273,7 +276,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     }
 
     /**
-     * @dev Gets the merkle root of a token and reserve
+     * @dev Gets the merkle root of a token reserve
      */
     function _getMerkleRoot(address _token, uint256 _reserveId) internal view override returns (bytes32) {
         return merkleRoots[_token][_reserveId];
@@ -295,7 +298,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     }
 
     /**
-     * @dev Calculates the current price based on the reserve and auction information
+     * @dev Checks if signer has signing authority
      */
     function _isSigningAuthority(
         address _signer,

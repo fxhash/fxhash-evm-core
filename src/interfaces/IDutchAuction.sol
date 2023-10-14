@@ -106,7 +106,7 @@ interface IDutchAuction is IMinter {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @notice Error thrown when an input address is zero
+     * @notice Error thrown when receiver is zero address
      */
     error AddressZero();
 
@@ -116,7 +116,7 @@ interface IDutchAuction is IMinter {
     error Ended();
 
     /**
-     * @notice Error thrown when trying to send an amount of zero
+     * @notice Error thrown when no funds available to withdraw
      */
     error InsufficientFunds();
 
@@ -126,12 +126,12 @@ interface IDutchAuction is IMinter {
     error InsufficientPrice();
 
     /**
-     * @notice Error thrown when the allocation is zero
+     * @notice Error thrown when the allocation amount is zero
      */
     error InvalidAllocation();
 
     /**
-     * @notice Error thrown when the amount is zero
+     * @notice Error thrown when the purchase amount is zero
      */
     error InvalidAmount();
 
@@ -151,12 +151,12 @@ interface IDutchAuction is IMinter {
     error InvalidPriceCurve();
 
     /**
-     * @notice Error thrown when a reserve doesnt exist
+     * @notice Error thrown when a reserve does not exist
      */
     error InvalidReserve();
 
     /**
-     * @notice Error thrown when the step length passed doesn't divide auction duration
+     * @notice Error thrown when the step length is not equally divisible by the auction duration
      */
     error InvalidStep();
 
@@ -186,7 +186,7 @@ interface IDutchAuction is IMinter {
     error NoSigningAuthority();
 
     /**
-     * @notice Error thrown on function only callable after an auction ends
+     * @notice Error thrown if auction has not ended
      */
     error NotEnded();
 
@@ -215,7 +215,7 @@ interface IDutchAuction is IMinter {
     function auctions(address, uint256) external view returns (bool, uint248);
 
     /**
-     * @notice Allows a buyer to purchase tokens in the Dutch auction
+     * @notice Buys tokens at a linear price over fixed amount of time
      * @param _token Address of the token being purchased
      * @param _reserveId ID of the reserve
      * @param _amount Amount of tokens to purchase
@@ -224,7 +224,7 @@ interface IDutchAuction is IMinter {
     function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable;
 
     /**
-     * @notice Allows a buyer to purchase tokens in the Dutch auction
+     * @notice Buys tokens through an allowlist at a linear price over fixed amount of time
      * @param _token Address of the token being purchased
      * @param _reserveId ID of the reserve
      * @param _to Address receiving the purchased tokens
@@ -240,7 +240,7 @@ interface IDutchAuction is IMinter {
     ) external payable;
 
     /**
-     * @notice Allows a buyer to purchase tokens in the Dutch auction
+     * @notice Buys tokens through a mint pass at a linear price over fixed amount of time
      * @param _token Address of the token being purchased
      * @param _reserveId ID of the reserve
      * @param _to Address receiving the purchased tokens
@@ -257,7 +257,7 @@ interface IDutchAuction is IMinter {
     ) external payable;
 
     /**
-     * @notice Retrieves the current price for of the auction
+     * @notice Retrieves the current price of the auction
      * @param _token Address of the token contract
      * @param _reserveId ID of the mint
      * @return price Current price of the token
@@ -267,15 +267,15 @@ interface IDutchAuction is IMinter {
     /**
      * @notice Mapping of token address to timestamp of latest update made for token reserves
      */
-    function lastUpdated(address) external view returns (uint256);
+    function latestUpdates(address) external view returns (uint256);
 
     /**
      * @notice Mapping of token address to reserve ID to merkle root
      */
-    function merkleRoots(address _token, uint256 _reserveId) external view returns (bytes32);
+    function merkleRoots(address, uint256) external view returns (bytes32);
 
     /**
-     * @notice Refunds an auction buyer with a rebate amount
+     * @notice Refunds an auction buyer with their rebate amount
      * @param _reserveId ID of the mint
      * @param _token Address of the token contract
      * @param _who Address of the buyer claiming the refund
@@ -288,25 +288,17 @@ interface IDutchAuction is IMinter {
     function refunds(address, uint256) external view returns (uint256);
 
     /**
-     * @notice Retrieves the reserve information of a token
-     * @param _token Address of the token contract
-     * @param _reserveId ID of the mint
-     * @return allocation Amount of tokens allocated for the reserve
-     * @return reservePrice Reserve price of the token
-     * @return maxMint Maximum number of tokens that can be minted
+     * @notice Mapping of token address to reserve ID to reserve information (allocation, price, max mint)
      */
     function reserves(address _token, uint256 _reserveId) external view returns (uint64, uint64, uint128);
 
     /**
-     * @notice Retrieves the sale proceeds for a token
-     * @param _token Address of the token
-     * @param _reserveId ID of the mint
-     * @return Amount of sale proceeds withdrawn
+     * @notice Mapping of token address to reserve ID to amount of sale proceeds
      */
     function saleProceeds(address _token, uint256 _reserveId) external view returns (uint256);
 
     /**
-     * @notice Mapping of token address to reserve ID to address of signing authority for mint pass
+     * @notice Mapping of token address to reserve ID to address of mint passes authorities
      */
     function signingAuthorities(address, uint256) external view returns (address);
 
