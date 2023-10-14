@@ -12,7 +12,8 @@ abstract contract Allowlist {
     using BitMaps for BitMaps.BitMap;
 
     /// @notice Error thrown when an index in a merkle tree has already been claimed
-    error AlreadyClaimed();
+    error SlotAlreadyClaimed();
+
     /// @notice Error thrown when the proof provided for an index is invalid
     error InvalidProof();
 
@@ -21,19 +22,18 @@ abstract contract Allowlist {
      * @param _bitmap The bitmap to check if the index is already claimed
      * @param _token The address of the token contract
      * @param _index The index in the merkle tree
-     * @param _price The price associated with the claim
      * @param _proof The merkle proof
      */
     function _claimSlot(
         BitMaps.BitMap storage _bitmap,
         address _token,
+        uint256 _reserveId,
         uint256 _index,
-        uint256 _price,
         bytes32[] memory _proof
     ) internal {
-        if (_bitmap.get(_index)) revert AlreadyClaimed();
-        bytes32 root = _getMerkleRoot(_token);
-        bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(_index, _price, msg.sender))));
+        if (_bitmap.get(_index)) revert SlotAlreadyClaimed();
+        bytes32 root = _getMerkleRoot(_token, _reserveId);
+        bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(_index, msg.sender))));
         if (!MerkleProof.verify(_proof, root, leaf)) revert InvalidProof();
         _bitmap.set(_index);
     }
@@ -41,7 +41,8 @@ abstract contract Allowlist {
     /**
      * @dev Retrieves the merkle root of a token
      * @param _token The address of the token contract
+     * @param _reserveId The reserveId of the token to get the merkle root for
      * @return The merkle root of the token
      */
-    function _getMerkleRoot(address _token) internal view virtual returns (bytes32);
+    function _getMerkleRoot(address _token, uint256 _reserveId) internal view virtual returns (bytes32);
 }

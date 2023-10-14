@@ -11,7 +11,28 @@ contract FxContractRegistryTest is BaseTest {
     bytes4 INPUT_EMPTY_ERROR = IFxContractRegistry.InputEmpty.selector;
     bytes4 LENGTH_MISMATCH_ERROR = IFxContractRegistry.LengthMismatch.selector;
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                    SETUP
+    //////////////////////////////////////////////////////////////////////////*/
+
     function setUp() public virtual override {
         super.setUp();
+        configInfo.lockTime = LOCK_TIME;
+        configInfo.referrerShare = REFERRER_SHARE;
+        configInfo.defaultMetadata = DEFAULT_METADATA;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    SET CONFIG
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function testSetConfig() public {
+        vm.prank(fxContractRegistry.owner());
+        fxContractRegistry.setConfig(configInfo);
+        (lockTime, referrerShare, defaultMetadata) = fxContractRegistry.configInfo();
+
+        assertEq(lockTime, configInfo.lockTime);
+        assertEq(referrerShare, configInfo.referrerShare);
+        assertEq(defaultMetadata, configInfo.defaultMetadata);
     }
 }

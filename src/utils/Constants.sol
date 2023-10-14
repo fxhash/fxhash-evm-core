@@ -18,11 +18,15 @@ string constant SPLITS_FACTORY = "SPLITS_FACTORY";
 string constant TICKET_REDEEMER = "TICKET_REDEEMER";
 
 // EIP-712
-bytes32 constant CLAIM_TYPEHASH = keccak256("Claim(uint256 index, address user, bytes mintCode)");
+bytes32 constant CLAIM_TYPEHASH = keccak256("Claim(uint256 index, address user)");
+bytes32 constant SET_CONTRACT_URI_TYPEHASH = keccak256("SetContractURI(string uri)");
+bytes32 constant SET_BASE_URI_TYPEHASH = keccak256("SetBaseURI(string uri)");
+bytes32 constant SET_IMAGE_URI_TYPEHASH = keccak256("SetImageURI(string uri");
 
 // Project
 uint64 constant TIME_UNLIMITED = type(uint64).max;
 uint120 constant OPEN_EDITION_SUPPLY = type(uint120).max;
+uint128 constant LOCK_TIME = 3600; // 1 hour
 
 // Roles
 bytes32 constant ADMIN_ROLE = keccak256("ADMIN_ROLE");

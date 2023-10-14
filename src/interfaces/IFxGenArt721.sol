@@ -23,13 +23,15 @@ struct InitInfo {
 }
 
 /**
- * @param projectInfo Project information
  * @param primaryReceiver Address of splitter contract receiving primary sales
+ * @param projectInfo Project information
+ * @param activeMinters List of authorized minter contracts used for enumeration
  * @param minters Mapping of minter contract to authorization status
  */
 struct IssuerInfo {
-    ProjectInfo projectInfo;
     address primaryReceiver;
+    ProjectInfo projectInfo;
+    address[] activeMinters;
     mapping(address => bool) minters;
 }
 
@@ -53,14 +55,12 @@ struct ProjectInfo {
 /**
  * @param baseURI CID hash of collection metadata
  * @param imageURI CID hash of collection images
- * @param animation List of HTML script tags for building token animations onchain
- * @param attributes List of HTML script tags for building token attributes onchain
+ * @param onchainData Bytes-encoded data rendered onchain
  */
 struct MetadataInfo {
     string baseURI;
     string imageURI;
-    HTMLRequest animation;
-    HTMLRequest attributes;
+    bytes onchainData;
 }
 
 /**
@@ -100,24 +100,6 @@ struct ReserveInfo {
  */
 interface IFxGenArt721 is ISeedConsumer {
     /**
-     * @notice Event emitted when baseURI is updated
-     * @param _uri URI pointer of token metadata
-     */
-    event BaseURIUpdated(string indexed _uri);
-
-    /**
-     * @notice Event emitted when contractURI is updated
-     * @param _uri URI pointer of project metadata
-     */
-    event ContractURIUpdated(string indexed _uri);
-
-    /**
-     * @notice Event emitted when imageURI is updated
-     * @param _uri URI pointer of token images
-     */
-    event ImageURIUpdated(string indexed _uri);
-
-    /**
      * @notice Event emitted when new project is initialized
      * @param _primaryReceiver Address of splitter contract receiving primary sales
      * @param _projectInfo Project information
@@ -141,18 +123,6 @@ interface IFxGenArt721 is ISeedConsumer {
      * @param _tagIds List of tag IDs describing the project
      */
     event ProjectTags(uint256[] indexed _tagIds);
-
-    /**
-     * @notice Event emitted when Randomizer contract is updated
-     * @param _randomizer Address of new Randomizer contract
-     */
-    event RandomizerUpdated(address indexed _randomizer);
-
-    /**
-     * @notice Event emitted when Renderer contract is updated
-     * @param _renderer Address of new Renderer contract
-     */
-    event RendererUpdated(address indexed _renderer);
 
     /// @notice Error thrown when total minter allocation exceeds maximum supply
     error AllocationExceeded();
@@ -181,6 +151,9 @@ interface IFxGenArt721 is ISeedConsumer {
     /// @notice Error thrown when caller is not authorized to execute transaction
     error NotAuthorized();
 
+    /// @notice Error Signer or Caller is not the owner
+    error NotOwner();
+
     /// @notice Error thrown when caller does not have the specified role
     error UnauthorizedAccount();
 
@@ -197,12 +170,11 @@ interface IFxGenArt721 is ISeedConsumer {
      * @notice Burns token ID from the circulating supply
      * @param _tokenId ID of the token
      */
-    // function burn(uint256 _tokenId) external;
+    function burn(uint256 _tokenId) external;
 
     /**
      * @notice Initializes new generative art project
      * @param _owner Address of contract owner
-     * @param _lockTime Locked time duration from mint start time for unverified users
      * @param _initInfo Initialization information set on project creation
      * @param _projectInfo Project information
      * @param _metadataInfo Metadata information
@@ -212,7 +184,6 @@ interface IFxGenArt721 is ISeedConsumer {
      */
     function initialize(
         address _owner,
-        uint256 _lockTime,
         InitInfo calldata _initInfo,
         ProjectInfo calldata _projectInfo,
         MetadataInfo calldata _metadataInfo,
@@ -275,19 +246,19 @@ interface IFxGenArt721 is ISeedConsumer {
      * @notice Sets the new URI of the token metadata
      * @param _uri Pointer of the metadata
      */
-    function setBaseURI(string calldata _uri) external;
+    function setBaseURI(string calldata _uri, bytes calldata _signature) external;
 
     /**
      * @notice Sets the new URI of the contract metadata
      * @param _uri Pointer of the metadata
      */
-    function setContractURI(string calldata _uri) external;
+    function setContractURI(string calldata _uri, bytes calldata _signature) external;
 
     /**
      * @notice Sets the new URI of the image metadata
      * @param _uri Pointer of the metadata
      */
-    function setImageURI(string calldata _uri) external;
+    function setImageURI(string calldata _uri, bytes calldata _signature) external;
 
     /**
      * @notice Sets the new Randomizer contract
@@ -304,12 +275,17 @@ interface IFxGenArt721 is ISeedConsumer {
     /**
      * @notice Toggles public burn from disabled to enabled and vice versa
      */
-    // function toggleBurn() external;
+    function toggleBurn() external;
 
     /**
      * @notice Toggles public mint from enabled to disabled and vice versa
      */
     function toggleMint() external;
+
+    /**
+     * @notice Registers minter contracts with resereve info
+     */
+    function registerMinters(MintInfo[] calldata _mintInfo) external;
 
     /**
      * @notice Returns contract-level metadata for storefront marketplaces
@@ -334,16 +310,13 @@ interface IFxGenArt721 is ISeedConsumer {
      * @notice Gets the IssuerInfo of the project
      * @return ProjectInfo and splitter contract address
      */
-    function issuerInfo() external view returns (ProjectInfo memory, address);
+    function issuerInfo() external view returns (address, ProjectInfo memory);
 
     /**
      * @notice Gets the MetadataInfo of the project
-     * @return baseURI, imageURI, animation and attributes
+     * @return baseURI, imageURI, onchainData
      */
-    function metadataInfo()
-        external
-        view
-        returns (string memory, string memory, HTMLRequest memory, HTMLRequest memory);
+    function metadataInfo() external view returns (string memory, string memory, bytes memory);
 
     /**
      * @notice Returns the remaining supply of tokens left to mint
@@ -361,7 +334,12 @@ interface IFxGenArt721 is ISeedConsumer {
     function renderer() external view returns (address);
 
     /**
-     * @notice Returns the address of the RoleRegistry contract
+     * @notice Returns the address of the FxContractRegistry contract
+     */
+    function contractRegistry() external view returns (address);
+
+    /**
+     * @notice Returns the address of the FxRoleRegistry contract
      */
     function roleRegistry() external view returns (address);
 

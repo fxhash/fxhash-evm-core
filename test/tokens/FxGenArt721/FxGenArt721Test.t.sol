@@ -34,6 +34,7 @@ contract FxGenArt721Test is BaseTest {
         _configureSplits();
         _configureRoyalties();
         _configureState(AMOUNT, PRICE, QUANTITY, TOKEN_ID);
+        _configureAllowlist(merkleRoot, mintPassSigner);
         _configureProject(ONCHAIN, MINT_ENABLED, MAX_SUPPLY, CONTRACT_URI);
         _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, abi.encode(PRICE));
         _grantRole(admin, MINTER_ROLE, minter);
@@ -93,7 +94,7 @@ contract FxGenArt721Test is BaseTest {
     }
 
     function _burn(address _owner, uint256 _tokenId) internal prank(_owner) {
-        // IFxGenArt721(fxGenArtProxy).burn(_tokenId);
+        IFxGenArt721(fxGenArtProxy).burn(_tokenId);
     }
 
     function _setGenArtInfo(uint256 _tokenId) internal {
@@ -101,10 +102,10 @@ contract FxGenArt721Test is BaseTest {
     }
 
     function _setIssuerInfo() internal {
-        (project, primarySplits) = IFxGenArt721(fxGenArtProxy).issuerInfo();
+        (primarySplits, project) = IFxGenArt721(fxGenArtProxy).issuerInfo();
     }
 
     function _setMetadatInfo() internal {
-        (baseURI, imageURI, , ) = IFxGenArt721(fxGenArtProxy).metadataInfo();
+        (baseURI, imageURI, ) = IFxGenArt721(fxGenArtProxy).metadataInfo();
     }
 }

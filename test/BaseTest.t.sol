@@ -16,9 +16,9 @@ import {MockMinter} from "test/mocks/MockMinter.sol";
 import {MockMintPass} from "test/mocks/MockMintPass.sol";
 import {MockRoyaltyManager} from "test/mocks/MockRoyaltyManager.sol";
 
-import {IDutchAuction} from "src/interfaces/IDutchAuction.sol";
+import {IDutchAuction, AuctionInfo} from "src/interfaces/IDutchAuction.sol";
 import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
-import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
+import {IFxIssuerFactory} from "src/interfaces/IFxIssuerFactory.sol";
 import {IFxTicketFactory} from "src/interfaces/IFxTicketFactory.sol";
 import {IRoyaltyManager} from "src/interfaces/IRoyaltyManager.sol";
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
@@ -39,9 +39,11 @@ contract BaseTest is Deploy, Test {
     address internal susan;
 
     // State
+    address internal deployer;
     address internal minter;
     address internal owner;
     bytes internal fxParams;
+    bytes internal mintParams;
     bytes32 internal seed;
     uint96 internal projectId;
     uint120 internal inputSize;
@@ -94,6 +96,8 @@ contract BaseTest is Deploy, Test {
     }
 
     function _initializeState() internal virtual {
+        deployer = address(this);
+        vm.label(deployer, "Deployer");
         vm.warp(RESERVE_START_TIME);
     }
 
@@ -142,7 +146,7 @@ contract BaseTest is Deploy, Test {
     }
 
     function _toggleBurn(address _creator) internal prank(_creator) {
-        // IFxGenArt721(fxGenArtProxy).toggleBurn();
+        IFxGenArt721(fxGenArtProxy).toggleBurn();
     }
 
     function _toggleMint(address _creator) internal prank(_creator) {
