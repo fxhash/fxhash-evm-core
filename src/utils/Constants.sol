@@ -19,6 +19,9 @@ string constant TICKET_REDEEMER = "TICKET_REDEEMER";
 
 // EIP-712
 bytes32 constant CLAIM_TYPEHASH = keccak256("Claim(uint256 index, address user, bytes mintCode)");
+bytes32 constant SET_CONTRACT_URI_TYPEHASH = keccak256("SetContractURI(string uri)");
+bytes32 constant SET_BASE_URI_TYPEHASH = keccak256("SetBaseURI(string uri)");
+bytes32 constant SET_IMAGE_URI_TYPEHASH = keccak256("SetImageURI(string uri");
 
 // Project
 uint64 constant TIME_UNLIMITED = type(uint64).max;

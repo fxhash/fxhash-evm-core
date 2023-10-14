@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+import {ECDSA} from "openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {EIP712} from "openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import {ERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
 import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
@@ -22,7 +24,7 @@ import "src/utils/Constants.sol";
  * @title FxGenArt721
  * @notice See the documentation in {IFxGenArt721}
  */
-contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, Initializable, Ownable, Pausable, RoyaltyManager {
+contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, Ownable, Pausable, RoyaltyManager {
     /// @inheritdoc IFxGenArt721
     address public immutable contractRegistry;
     /// @inheritdoc IFxGenArt721
@@ -64,8 +66,11 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, Initializable, Ownable, 
                                   CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Sets FxRoleRegistry contract
-    constructor(address _contractRegistry, address _roleRegistry) ERC721("FxGenArt721", "FXHASH") {
+    /// @dev Sets core registry contracts
+    constructor(
+        address _contractRegistry,
+        address _roleRegistry
+    ) ERC721("FxGenArt721", "FXHASH") EIP712("FxGenArt721", "1") {
         contractRegistry = _contractRegistry;
         roleRegistry = _roleRegistry;
     }
@@ -185,18 +190,24 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, Initializable, Ownable, 
     //////////////////////////////////////////////////////////////////////////*/
 
     /// @inheritdoc IFxGenArt721
-    function setBaseURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
+    function setBaseURI(string calldata _uri, bytes calldata _signature) external onlyRole(ADMIN_ROLE) {
+        bytes32 digest = generateTypedDataHash(SET_BASE_URI_TYPEHASH, _uri);
+        _verifySignature(digest, _signature);
         metadataInfo.baseURI = _uri;
         emit BatchMetadataUpdate(1, totalSupply);
     }
 
     /// @inheritdoc IFxGenArt721
-    function setContractURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
+    function setContractURI(string calldata _uri, bytes calldata _signature) external onlyRole(ADMIN_ROLE) {
+        bytes32 digest = generateTypedDataHash(SET_CONTRACT_URI_TYPEHASH, _uri);
+        _verifySignature(digest, _signature);
         issuerInfo.projectInfo.contractURI = _uri;
     }
 
     /// @inheritdoc IFxGenArt721
-    function setImageURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
+    function setImageURI(string calldata _uri, bytes calldata _signature) external onlyRole(ADMIN_ROLE) {
+        bytes32 digest = generateTypedDataHash(SET_IMAGE_URI_TYPEHASH, _uri);
+        _verifySignature(digest, _signature);
         metadataInfo.imageURI = _uri;
     }
 
@@ -236,6 +247,11 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, Initializable, Ownable, 
     /// @inheritdoc IFxGenArt721
     function contractURI() external view returns (string memory) {
         return issuerInfo.projectInfo.contractURI;
+    }
+
+    function generateTypedDataHash(bytes32 _typehash, string calldata _uri) public view returns (bytes32) {
+        bytes32 structHash = keccak256(abi.encode(_typehash, _uri));
+        return _hashTypedDataV4(structHash);
     }
 
     /// @inheritdoc IFxGenArt721
@@ -318,6 +334,12 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, Initializable, Ownable, 
     /// @dev Checks if user is verified on system
     function _isVerified(address _user) internal view returns (bool) {
         return (IAccessControl(roleRegistry).hasRole(VERIFIED_USER_ROLE, _user));
+    }
+
+    function _verifySignature(bytes32 _digest, bytes calldata _signature) internal view {
+        (uint8 v, bytes32 r, bytes32 s) = abi.decode(_signature, (uint8, bytes32, bytes32));
+        address signer = ECDSA.recover(_digest, v, r, s);
+        if (signer != owner()) revert NotOwner();
     }
 
     /// @inheritdoc ERC721
