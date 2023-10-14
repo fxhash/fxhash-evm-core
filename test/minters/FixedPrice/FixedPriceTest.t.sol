@@ -33,7 +33,8 @@ contract FixedPriceTest is BaseTest {
         _initializeState();
         _configureSplits();
         _configureRoyalties();
-        _configureState(AMOUNT, PRICE, QUANTITY, TOKEN_ID, merkleRoot, mintPassSigner);
+        _configureState(AMOUNT, PRICE, QUANTITY, TOKEN_ID);
+        _configureAllowlist(merkleRoot, mintPassSigner);
         _configureProject(ONCHAIN, MINT_ENABLED, MAX_SUPPLY, CONTRACT_URI);
         _configureMinter(
             address(fixedPrice),
