@@ -6,7 +6,7 @@ import {InitInfo, MetadataInfo, MintInfo, ProjectInfo} from "src/interfaces/IFxG
 /**
  * @title IFxIssuerFactory
  * @author fxhash
- * @notice Manages newly deployed FxGenArt721 token contracts
+ * @notice Factory for managing newly deployed FxGenArt721 tokens
  */
 interface IFxIssuerFactory {
     /*//////////////////////////////////////////////////////////////////////////
@@ -59,7 +59,7 @@ interface IFxIssuerFactory {
     /**
      * @notice Creates new Generative Art project
      * @param _owner Address of project owner
-     * @param _initInfo Initialization information set on project creation
+     * @param _initInfo Initialization information
      * @param _projectInfo Project information
      * @param _metadataInfo Metadata information
      * @param _mintInfo List of authorized minter contracts and their reserves

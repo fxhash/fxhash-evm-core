@@ -4,11 +4,10 @@ pragma solidity 0.8.20;
 import {Clones} from "openzeppelin/contracts/proxy/Clones.sol";
 import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
 
+import {BANNED_USER_ROLE} from "src/utils/Constants.sol";
 import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
 import {IFxGenArt721, InitInfo, MetadataInfo, MintInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxIssuerFactory} from "src/interfaces/IFxIssuerFactory.sol";
-
-import {BANNED_USER_ROLE} from "src/utils/Constants.sol";
 
 /**
  * @title FxIssuerFactory
@@ -45,7 +44,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     }
 
     /**
-     * @dev Sets FxRoleRegistry contract, transfers ownership to Admin and initializes FxGenArt721 implementation
+     * @dev Initializes factory owner, FxRoleRegistry and FxGenArt721 implementation
      */
     constructor(address _admin, address _roleRegistry, address _implementation) {
         roleRegistry = _roleRegistry;

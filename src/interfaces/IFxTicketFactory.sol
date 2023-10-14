@@ -6,7 +6,7 @@ import {MintInfo} from "src/interfaces/IFxGenArt721.sol";
 /**
  * @title IFxTicketFactory
  * @author fxhash
- * @notice Manages newly deployed FxMintTicket721 token contracts
+ * @notice Factory for managing newly deployed FxMintTicket721 tokens
  */
 interface IFxTicketFactory {
     /*//////////////////////////////////////////////////////////////////////////

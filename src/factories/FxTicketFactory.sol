@@ -39,7 +39,7 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
     mapping(uint48 => address) public tickets;
 
     /**
-     * @dev Transfers ownership to admin, sets FxMintTicket721 implementation and min grace period
+     * @dev Initializes factory owner, FxMintTicket721 implementation and minimum grace period
      */
     constructor(address _admin, address _implementation, uint48 _gracePeriod) {
         _transferOwnership(_admin);
