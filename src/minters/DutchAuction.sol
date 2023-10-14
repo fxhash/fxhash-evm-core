@@ -22,6 +22,16 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
+     * @dev Mapping of token address to reserve ID to BitMap of claimed merkle tree slots
+     */
+    mapping(address => mapping(uint256 => BitMaps.BitMap)) internal _claimedMerkleTreeSlots;
+
+    /**
+     * @dev Mapping of token address to reserve ID to BitMap of claimed mint passes
+     */
+    mapping(address => mapping(uint256 => BitMaps.BitMap)) internal _claimedMintPasses;
+
+    /**
      * @inheritdoc IDutchAuction
      */
     mapping(address => AuctionInfo[]) public auctions;
@@ -56,16 +66,6 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
      */
     mapping(address => mapping(uint256 => address)) public signingAuthorities;
 
-    /**
-     * @dev Mapping of token address to reserve ID to BitMap of claimed merkle tree slots
-     */
-    mapping(address => mapping(uint256 => BitMaps.BitMap)) internal claimedMerkleTreeSlots;
-
-    /**
-     * @dev Mapping of token address to reserve ID to BitMap of claimed mint passes
-     */
-    mapping(address => mapping(uint256 => BitMaps.BitMap)) internal claimedMintPasses;
-
     /*//////////////////////////////////////////////////////////////////////////
                                 EXTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -84,11 +84,12 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
             latestUpdates[msg.sender] = block.timestamp;
         }
 
-        // Checks if the step length evenly divides the duration of the auction
+        // Checks if the step length is evenly dividisbile by the auction duration
         if ((_reserve.endTime - _reserve.startTime) % daInfo.stepLength != 0) revert InvalidStep();
         uint256 reserveId = reserves[msg.sender].length;
         delete merkleRoots[msg.sender][reserveId];
         delete signingAuthorities[msg.sender][reserveId];
+
         if (merkleRoot != bytes32(0) && signer != address(0)) revert OnlyAuthorityOrAllowlist();
         if (merkleRoot != bytes32(0)) {
             merkleRoots[msg.sender][reserveId] = merkleRoot;
@@ -123,7 +124,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     ) external payable {
         bytes32 merkleRoot = _getMerkleRoot(_token, _reserveId);
         if (merkleRoot == bytes32(0)) revert NoAllowlist();
-        BitMaps.BitMap storage claimBitmap = claimedMerkleTreeSlots[_token][_reserveId];
+        BitMaps.BitMap storage claimBitmap = _claimedMerkleTreeSlots[_token][_reserveId];
         for (uint256 i; i < _proofs.length; i++) {
             _claimSlot(claimBitmap, _token, _reserveId, _indexes[i], _proofs[i]);
         }
@@ -144,7 +145,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     ) external payable {
         address signer = signingAuthorities[_token][_reserveId];
         if (signer == address(0)) revert NoSigningAuthority();
-        BitMaps.BitMap storage claimBitmap = claimedMintPasses[_token][_reserveId];
+        BitMaps.BitMap storage claimBitmap = _claimedMintPasses[_token][_reserveId];
         _claimMintPass(claimBitmap, _token, _reserveId, _index, _signature);
         _buy(_token, _reserveId, _amount, _to);
     }
@@ -185,7 +186,8 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         if (refundAmount == 0) revert NoRefund();
 
         emit RefundClaimed(_token, _reserveId, _who, refundAmount);
-        // send the refund to the user
+
+        // Sends refund to the user
         SafeTransferLib.safeTransferETH(_who, refundAmount);
     }
 
@@ -204,7 +206,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         if (block.timestamp < reserve.endTime && reserve.allocation > 0) revert NotEnded();
         (address saleReceiver, ) = IFxGenArt721(_token).issuerInfo();
 
-        // Get the sale proceeds for the reserve
+        // Gets the sale proceeds for the reserve
         uint256 proceeds = saleProceeds[_token][_reserveId];
         if (proceeds == 0) revert InsufficientFunds();
 
@@ -213,7 +215,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
 
         emit Withdrawn(_token, _reserveId, saleReceiver, proceeds);
 
-        // Transfer the sale proceeds to the sale receiver
+        // Transfers the sale proceeds to the sale receiver
         SafeTransferLib.safeTransferETH(saleReceiver, proceeds);
     }
 

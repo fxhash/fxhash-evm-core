@@ -63,7 +63,7 @@ interface IDutchAuction is IMinter {
     /**
      * @notice Event emitted when a purchase is made during the Dutch auction
      * @param _token Address of the token being purchased
-     * @param _reserveId ID of the mint
+     * @param _reserveId ID of the reserve
      * @param _buyer Address of the buyer
      * @param _to Address where the purchased tokens will be sent
      * @param _amount Amount of tokens purchased
@@ -81,7 +81,7 @@ interface IDutchAuction is IMinter {
     /**
      * @notice Event emitted when a refund is claimed by a buyer
      * @param _token Address of the token for which the refund is claimed
-     * @param _reserveId ID of the mint
+     * @param _reserveId ID of the reserve
      * @param _buyer Address of the buyer claiming the refund
      * @param _refundAmount Amount of refund claimed
      */
@@ -94,8 +94,8 @@ interface IDutchAuction is IMinter {
 
     /**
      * @notice Event emitted when the sale proceeds are withdrawn
-     * @param _token Address of the token for which the sale proceeds are withdrawn
-     * @param _reserveId ID of the mint
+     * @param _token Address of the token
+     * @param _reserveId ID of the reserve
      * @param _creator Address of the creator of the project
      * @param _proceeds Amount of sale proceeds withdrawn
      */

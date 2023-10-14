@@ -25,6 +25,16 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
+     * @dev Mapping of token address to reserve ID to BitMap of claimed merkle tree slots
+     */
+    mapping(address => mapping(uint256 => BitMaps.BitMap)) internal _claimedMerkleTreeSlots;
+
+    /**
+     * @dev Mapping of token address to reserve ID to BitMap of claimed mint passes
+     */
+    mapping(address => mapping(uint256 => BitMaps.BitMap)) internal _claimedMintPasses;
+
+    /**
      * @inheritdoc IFixedPrice
      */
     mapping(address => uint256) public latestUpdates;
@@ -53,16 +63,6 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
      * @inheritdoc IFixedPrice
      */
     mapping(address => mapping(uint256 => address)) public signingAuthorities;
-
-    /**
-     * @dev Mapping of token address to reserve ID to BitMap of claimed merkle tree slots
-     */
-    mapping(address => mapping(uint256 => BitMaps.BitMap)) internal claimedMerkleTreeSlots;
-
-    /**
-     * @dev Mapping of token address to reserve ID to BitMap of claimed mint passes
-     */
-    mapping(address => mapping(uint256 => BitMaps.BitMap)) internal claimedMintPasses;
 
     /*//////////////////////////////////////////////////////////////////////////
                                 EXTERNAL FUNCTIONS
@@ -122,7 +122,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
     ) external payable {
         bytes32 merkleRoot = _getMerkleRoot(_token, _reserveId);
         if (merkleRoot == bytes32(0)) revert NoAllowlist();
-        BitMaps.BitMap storage claimBitmap = claimedMerkleTreeSlots[_token][_reserveId];
+        BitMaps.BitMap storage claimBitmap = _claimedMerkleTreeSlots[_token][_reserveId];
         for (uint256 i; i < _proofs.length; i++) {
             _claimSlot(claimBitmap, _token, _reserveId, _indexes[i], _proofs[i]);
         }
@@ -143,7 +143,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
     ) external payable {
         address signer = signingAuthorities[_token][_reserveId];
         if (signer == address(0)) revert NoSigningAuthority();
-        BitMaps.BitMap storage claimBitmap = claimedMintPasses[_token][_reserveId];
+        BitMaps.BitMap storage claimBitmap = _claimedMintPasses[_token][_reserveId];
         _claimMintPass(claimBitmap, _token, _reserveId, _index, _signature);
         _buy(_token, _reserveId, _amount, _to);
     }
@@ -154,9 +154,12 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
     function withdraw(address _token) external {
         uint256 proceeds = saleProceeds[_token];
         if (proceeds == 0) revert InsufficientFunds();
+
         (address saleReceiver, ) = IFxGenArt721(_token).issuerInfo();
         delete saleProceeds[_token];
+
         SafeTransferLib.safeTransferETH(saleReceiver, proceeds);
+
         emit Withdrawn(_token, saleReceiver, proceeds);
     }
 
@@ -171,16 +174,21 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
         uint256 length = reserves[_token].length;
         if (length == 0) revert InvalidToken();
         if (_reserveId >= length) revert InvalidReserve();
+
         ReserveInfo storage reserve = reserves[_token][_reserveId];
         if (block.timestamp < reserve.startTime) revert NotStarted();
         if (block.timestamp > reserve.endTime) revert Ended();
         if (_amount > reserve.allocation) revert TooMany();
         if (_to == address(0)) revert AddressZero();
+
         uint256 price = _amount * prices[_token][_reserveId];
         if (msg.value != price) revert InvalidPayment();
+
         reserve.allocation -= _amount.safeCastTo128();
         saleProceeds[_token] += price;
+
         IFxGenArt721(_token).mintRandom(_to, _amount);
+
         emit Purchase(_token, _reserveId, msg.sender, _amount, _to, price);
     }
 
