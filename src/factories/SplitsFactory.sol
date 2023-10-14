@@ -11,9 +11,9 @@ import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
  */
 contract SplitsFactory is ISplitsFactory, Ownable {
     /// @inheritdoc ISplitsFactory
-    address public controller;
+    address public immutable splitsMain;
     /// @inheritdoc ISplitsFactory
-    address public splitsMain;
+    address public controller;
 
     /// @dev Initializes contract owner and 0xSplits contract
     constructor(address _admin, address _splitsMain) {

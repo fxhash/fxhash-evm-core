@@ -6,16 +6,28 @@ import "script/Deploy.s.sol";
 contract Seed is Deploy {
     function _run() internal override {
         super._run();
+        creator = msg.sender;
         for (uint256 i; i < 20; i++) {
-            _initializeState();
+            _initializeProject();
             _createProject();
+            _initializeTicket();
             _createTicket();
             _mint();
         }
     }
 
-    function _initializeState() internal {
-        creator = msg.sender;
+    function _initializeProject() internal {
+        delete mintInfo;
+        _configureMinter(
+            address(ticketRedeemer),
+            uint64(block.timestamp) + RESERVE_START_TIME,
+            uint64(block.timestamp) + RESERVE_END_TIME,
+            REDEEMER_ALLOCATION,
+            abi.encode(_computeTicketAddr(admin))
+        );
+    }
+
+    function _initializeTicket() internal {
         delete mintInfo;
         _configureMinter(
             address(fixedPrice),
@@ -23,13 +35,6 @@ contract Seed is Deploy {
             uint64(block.timestamp) + RESERVE_END_TIME,
             MINTER_ALLOCATION,
             abi.encode(PRICE)
-        );
-        _configureMinter(
-            address(ticketRedeemer),
-            uint64(block.timestamp) + RESERVE_START_TIME,
-            uint64(block.timestamp) + RESERVE_END_TIME,
-            REDEEMER_ALLOCATION,
-            abi.encode(_computeTicketAddr(msg.sender))
         );
     }
 

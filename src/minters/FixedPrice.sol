@@ -22,10 +22,14 @@ contract FixedPrice is IFixedPrice {
     /// @inheritdoc IFixedPrice
     mapping(address => ReserveInfo[]) public reserves;
     /// @inheritdoc IFixedPrice
+    mapping(address => uint256) public lastUpdated;
+    /// @inheritdoc IFixedPrice
     mapping(address => uint256) public saleProceeds;
 
     /// @inheritdoc IMinter
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external {
+        if (lastUpdated[msg.sender] != block.timestamp) delete reserves[msg.sender];
+        lastUpdated[msg.sender] = block.timestamp;
         if (_reserve.allocation == 0) revert InvalidAllocation();
         uint256 price = abi.decode(_mintDetails, (uint256));
         if (price == 0) revert InvalidPrice();
@@ -60,7 +64,7 @@ contract FixedPrice is IFixedPrice {
     function withdraw(address _token) external {
         uint256 proceeds = saleProceeds[_token];
         if (proceeds == 0) revert InsufficientFunds();
-        (, address saleReceiver) = IFxGenArt721(_token).issuerInfo();
+        (address saleReceiver, ) = IFxGenArt721(_token).issuerInfo();
         delete saleProceeds[_token];
         SafeTransferLib.safeTransferETH(saleReceiver, proceeds);
         emit Withdrawn(_token, saleReceiver, proceeds);

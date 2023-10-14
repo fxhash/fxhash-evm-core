@@ -18,18 +18,22 @@ contract DutchAuction is IDutchAuction {
     /// @inheritdoc IDutchAuction
     mapping(address => ReserveInfo[]) public reserves;
     /// @inheritdoc IDutchAuction
+    mapping(address => uint256) public lastUpdated;
+    /// @inheritdoc IDutchAuction
     mapping(address => mapping(uint256 => uint256)) public saleProceeds;
     /// @inheritdoc IDutchAuction
     mapping(address => mapping(uint256 => RefundInfo)) public refundInfo;
 
     /// @inheritdoc IMinter
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintData) external {
-        AuctionInfo memory daInfo = abi.decode(_mintData, (AuctionInfo));
+        if (lastUpdated[msg.sender] != block.timestamp) delete reserves[msg.sender];
+        lastUpdated[msg.sender] = block.timestamp;
 
-        // Check if the step length evenly divides the duration of the auction
+        AuctionInfo memory daInfo = abi.decode(_mintData, (AuctionInfo));
+        // Checks if the step length evenly divides the duration of the auction
         if ((_reserve.endTime - _reserve.startTime) % daInfo.stepLength != 0) revert InvalidStep();
 
-        // Check if the price curve is descending
+        // Checks if the price curve is descending
         if (daInfo.prices.length < 2) revert InvalidPriceCurve();
         for (uint256 i = 1; i < daInfo.prices.length; i++) {
             if (!(daInfo.prices[i - 1] > daInfo.prices[i])) revert PricesOutOfOrder();
@@ -119,7 +123,7 @@ contract DutchAuction is IDutchAuction {
         ReserveInfo storage reserve = reserves[_token][_reserveId];
         // Check if the auction has ended and the reserve allocation is fully sold out
         if (block.timestamp < reserve.endTime && reserve.allocation > 0) revert NotEnded();
-        (, address saleReceiver) = IFxGenArt721(_token).issuerInfo();
+        (address saleReceiver, ) = IFxGenArt721(_token).issuerInfo();
 
         // Get the sale proceeds for the reserve
         uint256 proceeds = saleProceeds[_token][_reserveId];

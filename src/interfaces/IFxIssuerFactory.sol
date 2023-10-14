@@ -4,28 +4,10 @@ pragma solidity 0.8.20;
 import {InitInfo, MetadataInfo, MintInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
 
 /**
- * @param lockTime Locked time duration from mint start time for unverified users
- * @param referrerShare Share amount for accounts referring tokens
- * @param defaultMetadata Default URI of token metadata
- */
-struct ConfigInfo {
-    uint128 lockTime;
-    uint128 referrerShare;
-    string defaultMetadata;
-}
-
-/**
  * @title IFxIssuerFactory
  * @notice Manages newly deployed FxGenArt721 token contracts
  */
 interface IFxIssuerFactory {
-    /**
-     * @notice Event emitted when the configuration is updated
-     * @param _owner Address of the owner updating the configuration
-     * @param _configInfo Updated configuration information
-     */
-    event ConfigUpdated(address indexed _owner, ConfigInfo _configInfo);
-
     /**
      * @notice Event emitted when the FxGenArt721 implementation contract is updated
      * @param _owner Address of the owner updating the implementation contract
@@ -36,10 +18,10 @@ interface IFxIssuerFactory {
     /**
      * @notice Event emitted when new Generative Art project is created
      * @param _projectId ID of the project
-     * @param _owner Address of project owner
      * @param _genArtToken Address of newly deployed FxGenArt721 token contract
+     * @param _owner Address of project owner
      */
-    event ProjectCreated(uint96 indexed _projectId, address indexed _owner, address indexed _genArtToken);
+    event ProjectCreated(uint96 indexed _projectId, address indexed _genArtToken, address indexed _owner);
 
     /// @notice Error thrown when input size does not match actual byte size of params data
     error InvalidInputSize();
@@ -74,19 +56,10 @@ interface IFxIssuerFactory {
     ) external returns (address);
 
     /**
-     * @notice Sets the system configuration
-     * @param _config Struct of config info
-     */
-    function setConfig(ConfigInfo calldata _config) external;
-
-    /**
      * @notice Sets new FxGenArt721 implementation contract
      * @param _implementation Address of the FxGenArt721 contract
      */
     function setImplementation(address _implementation) external;
-
-    /// @notice Returns the configuration values (lockTime, referrerShare, defaultMetadata)
-    function configInfo() external view returns (uint128, uint128, string memory);
 
     /// @notice Returns address of current FxGenArt721 implementation contract
     function implementation() external view returns (address);
