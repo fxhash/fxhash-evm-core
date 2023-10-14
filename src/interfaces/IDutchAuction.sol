@@ -167,6 +167,18 @@ interface IDutchAuction is IMinter {
      */
     error NotStarted();
 
+    /// @notice Thrown when calling buy when either an allowlist or signer exists
+    error NoPublicMint();
+
+    /// @notice Thrown when buyAllowlist and no allowlist exists
+    error NoAllowlist();
+
+    /// @notice Thrown when buyWithMintPass and no signing authority exists
+    error NoSigningAuthority();
+
+    /// @notice Thrown when setting both an allowlist and mint signer
+    error OnlyAuthorityOrAllowlist();
+
     /**
      * @notice Allows a buyer to purchase tokens in the Dutch auction
      * @param _token The address of the token being purchased
@@ -205,6 +217,12 @@ interface IDutchAuction is IMinter {
      * @param _token The address of the token
      */
     function auctionInfo(address _token, uint256 _reserveId) external view returns (uint248, bool);
+
+    /// @notice A mapping of merkle roots that returns the merkle root of a token for a reserveId
+    function merkleRoots(address _token, uint256 _reserveId) external view returns (bytes32);
+
+    /// @notice A mapping of signing authorities returns the signing authority of mint passes of a token for a reserveId
+    function signingAuthorities(address _token, uint256 _reserveId) external view returns (address);
 
     /**
      * @notice Mapping to store the Dutch auction info for each token

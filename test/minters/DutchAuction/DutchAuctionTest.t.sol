@@ -39,6 +39,7 @@ contract DutchAuctionTest is BaseTest {
         _configureSplits();
         _configureRoyalties();
         _configureState(AMOUNT, PRICE, QUANTITY, TOKEN_ID);
+        _configureAllowlist(merkleRoot, mintPassSigner);
         _configureReserve();
         _configureMintParams(stepLength, false, prices);
         _configureMinter(address(dutchAuction), RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, mintParams);
@@ -71,8 +72,26 @@ contract DutchAuctionTest is BaseTest {
         stepLength = uint248((RESERVE_END_TIME - RESERVE_START_TIME) / prices.length);
     }
 
+    function _configureMinters() internal {
+        mintInfo.push(
+            MintInfo(
+                address(dutchAuction),
+                ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
+                abi.encode(AuctionInfo(stepLength, refund, prices), merkleRoot, mintPassSigner)
+            )
+        );
+        refund = true;
+        mintInfo.push(
+            MintInfo(
+                address(refundableDA),
+                ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
+                abi.encode(AuctionInfo(stepLength, refund, prices), merkleRoot, mintPassSigner)
+            )
+        );
+    }
+
     function _configureMintParams(uint248 _stepLength, bool _refund, uint256[] storage _prices) internal {
         refund = _refund;
-        mintParams = abi.encode(AuctionInfo(_stepLength, _refund, _prices));
+        mintParams = abi.encode(AuctionInfo(_stepLength, _refund, _prices), merkleRoot, mintPassSigner);
     }
 }

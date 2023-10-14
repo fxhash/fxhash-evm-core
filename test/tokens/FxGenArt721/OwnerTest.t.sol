@@ -85,7 +85,7 @@ contract OwnerTest is FxGenArt721Test {
             RESERVE_START_TIME,
             RESERVE_END_TIME,
             MINTER_ALLOCATION,
-            abi.encode(PRICE)
+            abi.encode(PRICE, merkleRoot, mintPassSigner)
         );
         _grantRole(admin, MINTER_ROLE, address(fixedPrice));
         _toggleMint(creator);
@@ -101,7 +101,7 @@ contract OwnerTest is FxGenArt721Test {
             RESERVE_START_TIME,
             RESERVE_END_TIME,
             MINTER_ALLOCATION,
-            abi.encode(PRICE)
+            abi.encode(PRICE, merkleRoot, mintPassSigner)
         );
         _grantRole(admin, MINTER_ROLE, address(fixedPrice));
         vm.expectRevert(MINT_ACTIVE_ERROR);

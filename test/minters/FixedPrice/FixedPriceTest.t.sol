@@ -22,24 +22,26 @@ contract FixedPriceTest is BaseTest {
     bytes4 internal INVALID_TOKEN_ERROR = IFixedPrice.InvalidToken.selector;
     bytes4 internal NOT_STARTED_ERROR = IFixedPrice.NotStarted.selector;
     bytes4 internal TOO_MANY_ERROR = IFixedPrice.TooMany.selector;
+    bytes4 internal NO_PUBLIC_MINT_ERROR = IFixedPrice.NoPublicMint.selector;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      SETUP
     //////////////////////////////////////////////////////////////////////////*/
 
-    function setUp() public override {
+    function setUp() public virtual override {
         super.setUp();
         _initializeState();
         _configureSplits();
         _configureRoyalties();
         _configureState(AMOUNT, PRICE, QUANTITY, TOKEN_ID);
+        _configureAllowlist(merkleRoot, mintPassSigner);
         _configureProject(ONCHAIN, MINT_ENABLED, MAX_SUPPLY, CONTRACT_URI);
         _configureMinter(
             address(fixedPrice),
             RESERVE_START_TIME,
             RESERVE_END_TIME,
             MINTER_ALLOCATION,
-            abi.encode(PRICE)
+            abi.encode(PRICE, merkleRoot, mintPassSigner)
         );
         _grantRole(admin, MINTER_ROLE, address(fixedPrice));
         _createSplit();

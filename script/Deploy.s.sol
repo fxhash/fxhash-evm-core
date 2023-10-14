@@ -100,6 +100,9 @@ contract Deploy is Script {
     address internal fxGenArtProxy;
     uint256 internal amount;
     uint256 internal price;
+    bytes32 internal merkleRoot;
+    uint256 internal mintPassSignerPk;
+    address internal mintPassSigner;
     uint256 internal quantity;
     uint256 internal tokenId;
 
@@ -125,6 +128,7 @@ contract Deploy is Script {
         _configureRoyalties();
         _configureScripty();
         _configureState(AMOUNT, PRICE, QUANTITY, TOKEN_ID);
+        _configureAllowlist(merkleRoot, mintPassSigner);
         _configureInfo(LOCK_TIME, REFERRER_SHARE, DEFAULT_METADATA);
         _configureProject(ONCHAIN, MINT_ENABLED, MAX_SUPPLY, CONTRACT_URI);
         _configureMetdata(BASE_URI, IMAGE_URI, onchainData);
@@ -143,6 +147,13 @@ contract Deploy is Script {
     function _run() internal virtual {
         _deployContracts();
         _configureMinter(
+            address(fixedPrice),
+            uint64(block.timestamp) + RESERVE_START_TIME,
+            uint64(block.timestamp) + RESERVE_END_TIME,
+            MINTER_ALLOCATION,
+            abi.encode(PRICE, merkleRoot, mintPassSigner)
+        );
+        _configureMinter(
             address(ticketRedeemer),
             uint64(block.timestamp) + RESERVE_START_TIME,
             uint64(block.timestamp) + RESERVE_END_TIME,
@@ -160,7 +171,7 @@ contract Deploy is Script {
             uint64(block.timestamp) + RESERVE_START_TIME,
             uint64(block.timestamp) + RESERVE_END_TIME,
             MINTER_ALLOCATION,
-            abi.encode(PRICE)
+            abi.encode(PRICE, merkleRoot, mintPassSigner)
         );
         _createTicket();
     }
@@ -269,6 +280,11 @@ contract Deploy is Script {
         price = _price;
         quantity = _quantity;
         tokenId = _tokenId;
+    }
+
+    function _configureAllowlist(bytes32 _merkleRoot, address _mintPassSigner) internal virtual {
+        merkleRoot = _merkleRoot;
+        mintPassSigner = _mintPassSigner;
     }
 
     function _configureInfo(
