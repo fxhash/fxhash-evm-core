@@ -5,21 +5,21 @@ import {IMinter} from "src/interfaces/IMinter.sol";
 import {ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 
 /**
- * @notice Struct to store the Dutch auction information
- * @param prices The array of prices for each step of the auction
+ * @notice Struct of Dutch auction information
  * @param refunded Flag indicating if refunds are enabled
- * @param stepLength The duration (in seconds) of each auction step
+ * @param stepLength Duration (in seconds) of each auction step
+ * @param prices Array of prices for each step of the auction
  */
 struct AuctionInfo {
-    uint248 stepLength;
     bool refunded;
+    uint248 stepLength;
     uint256[] prices;
 }
 
 /**
- * @notice Struct to store information about a minter
- * @param totalMints The total number of mints performed by the minter
- * @param totalPaid The total amount paid by the minter
+ * @notice Struct of minter information
+ * @param totalMints Total number of mints performed by the minter
+ * @param totalPaid Total amount paid by the minter
  */
 struct MinterInfo {
     uint128 totalMints;
@@ -27,33 +27,47 @@ struct MinterInfo {
 }
 
 /**
- * @notice Struct to store information about refunds
- * @param minterInfo Mapping of minter address to MinterInfo struct
- * @param lastPrice The price for the last sale before selling out
+ * @notice Struct of refund information
+ * @param lastPrice Last sale price before selling out
+ * @param minterInfo Mapping of minter address to struct of MinterInfo
  */
 struct RefundInfo {
-    mapping(address minter => MinterInfo) minterInfo;
     uint256 lastPrice;
+    mapping(address minter => MinterInfo) minterInfo;
 }
 
+/**
+ * @title DutchAuction
+ * @author fxhash
+ * @notice Minter for distributing tokens at linear prices over fixed periods of time
+ */
 interface IDutchAuction is IMinter {
-    /**
-     * @notice Emitted when the mint details for a Dutch auction are set
-     * @param _token The address of the token being minted
-     * @param _reserveId The ID of the mint
-     * @param _reserve The reserve info of the Dutch auction
-     * @param _daInfo The Dutch auction info
-     */
-    event MintDetailsSet(address indexed _token, uint256 indexed _reserveId, ReserveInfo _reserve, AuctionInfo _daInfo);
+    /*//////////////////////////////////////////////////////////////////////////
+                                  EVENTS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @notice Emitted when a purchase is made in the Dutch auction
-     * @param _token The address of the token being purchased
-     * @param _reserveId The ID of the mint
-     * @param _buyer The address of the buyer
-     * @param _to The address where the purchased tokens will be sent
-     * @param _amount The amount of tokens purchased
-     * @param _price The price at which the tokens were purchased
+     * @notice Event emitted when the mint details for a Dutch auction are set
+     * @param _token Address of the token being minted
+     * @param _reserveId ID of the reserve
+     * @param _reserveInfo The reserve info of the Dutch auction
+     * @param _auctionInfo Dutch auction information
+     */
+    event MintDetailsSet(
+        address indexed _token,
+        uint256 indexed _reserveId,
+        ReserveInfo _reserveInfo,
+        AuctionInfo _auctionInfo
+    );
+
+    /**
+     * @notice Event emitted when a purchase is made during the Dutch auction
+     * @param _token Address of the token being purchased
+     * @param _reserveId ID of the mint
+     * @param _buyer Address of the buyer
+     * @param _to Address where the purchased tokens will be sent
+     * @param _amount Amount of tokens purchased
+     * @param _price Price at which the tokens were purchased
      */
     event Purchase(
         address indexed _token,
@@ -65,11 +79,11 @@ interface IDutchAuction is IMinter {
     );
 
     /**
-     * @notice Emitted when a refund is claimed by a buyer
-     * @param _token The address of the token for which the refund is claimed
-     * @param _reserveId The ID of the mint
-     * @param _buyer The address of the buyer claiming the refund
-     * @param _refundAmount The amount of refund claimed
+     * @notice Event emitted when a refund is claimed by a buyer
+     * @param _token Address of the token for which the refund is claimed
+     * @param _reserveId ID of the mint
+     * @param _buyer Address of the buyer claiming the refund
+     * @param _refundAmount Amount of refund claimed
      */
     event RefundClaimed(
         address indexed _token,
@@ -79,13 +93,17 @@ interface IDutchAuction is IMinter {
     );
 
     /**
-     * @notice Emitted when the sale proceeds are withdrawn
-     * @param _token The address of the token for which the sale proceeds are withdrawn
-     * @param _reserveId The ID of the mint
-     * @param _creator The address of the creator of the project
-     * @param _proceeds The amount of sale proceeds withdrawn
+     * @notice Event emitted when the sale proceeds are withdrawn
+     * @param _token Address of the token for which the sale proceeds are withdrawn
+     * @param _reserveId ID of the mint
+     * @param _creator Address of the creator of the project
+     * @param _proceeds Amount of sale proceeds withdrawn
      */
     event Withdrawn(address indexed _token, uint256 indexed _reserveId, address indexed _creator, uint256 _proceeds);
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                  ERRORS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /**
      * @notice Error thrown when an input address is zero
@@ -98,7 +116,7 @@ interface IDutchAuction is IMinter {
     error Ended();
 
     /**
-     * @notice Error thrown when trying to send an amount of 0
+     * @notice Error thrown when trying to send an amount of zero
      */
     error InsufficientFunds();
 
@@ -108,12 +126,12 @@ interface IDutchAuction is IMinter {
     error InsufficientPrice();
 
     /**
-     * @notice Error thrown when the allocation is 0
+     * @notice Error thrown when the allocation is zero
      */
     error InvalidAllocation();
 
     /**
-     * @notice Error thrown when the amount is 0
+     * @notice Error thrown when the amount is zero
      */
     error InvalidAmount();
 
@@ -123,9 +141,10 @@ interface IDutchAuction is IMinter {
     error InvalidPayment();
 
     /**
-     * @notice Error thrown when the price is 0
+     * @notice Error thrown when the price is zero
      */
     error InvalidPrice();
+
     /**
      * @notice Error thrown when the passing a price curve with less than 2 points
      */
@@ -137,8 +156,7 @@ interface IDutchAuction is IMinter {
     error InvalidReserve();
 
     /**
-     * @notice Error thrown when the step length passed doesn't divide auction duration isn't a
-     * discrete number of steps
+     * @notice Error thrown when the step length passed doesn't divide auction duration
      */
     error InvalidStep();
 
@@ -148,14 +166,24 @@ interface IDutchAuction is IMinter {
     error InvalidToken();
 
     /**
-     * @notice Error thrown when the prices are out of order
+     * @notice Error thrown when buying through allowlist and no allowlist exists
      */
-    error PricesOutOfOrder();
+    error NoAllowlist();
+
+    /**
+     * @notice Error thrown when calling buy when either an allowlist or signer exists
+     */
+    error NoPublicMint();
 
     /**
      * @notice Error thrown when there is no refund available
      */
     error NoRefund();
+
+    /**
+     * @notice Error thrown when buy with a mint pass and no signing authority exists
+     */
+    error NoSigningAuthority();
 
     /**
      * @notice Error thrown on function only callable after an auction ends
@@ -167,88 +195,125 @@ interface IDutchAuction is IMinter {
      */
     error NotStarted();
 
-    /// @notice Thrown when calling buy when either an allowlist or signer exists
-    error NoPublicMint();
-
-    /// @notice Thrown when buyAllowlist and no allowlist exists
-    error NoAllowlist();
-
-    /// @notice Thrown when buyWithMintPass and no signing authority exists
-    error NoSigningAuthority();
-
-    /// @notice Thrown when setting both an allowlist and mint signer
+    /**
+     * @notice Error thrown when setting both an allowlist and mint signer
+     */
     error OnlyAuthorityOrAllowlist();
 
     /**
+     * @notice Error thrown when the prices are out of order
+     */
+    error PricesOutOfOrder();
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                  FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @notice Mapping of token address to reserve ID to reserve information
+     */
+    function auctions(address, uint256) external view returns (bool, uint248);
+
+    /**
      * @notice Allows a buyer to purchase tokens in the Dutch auction
-     * @param _token The address of the token being purchased
-     * @param _reserveId The ID of the mint
-     * @param _amount The amount of tokens to purchase
-     * @param _to The address where the purchased tokens will be sent
+     * @param _token Address of the token being purchased
+     * @param _reserveId ID of the reserve
+     * @param _amount Amount of tokens to purchase
+     * @param _to Address receiving the purchased tokens
      */
     function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable;
 
     /**
-     * @notice Allows a buyer to claim a refund for a Dutch Auction configured with a rebate
-     * @param _reserveId The ID of the mint
-     * @param _token The address of the token for which the refund is claimed
-     * @param _who The address of the buyer claiming the refund
+     * @notice Allows a buyer to purchase tokens in the Dutch auction
+     * @param _token Address of the token being purchased
+     * @param _reserveId ID of the reserve
+     * @param _to Address receiving the purchased tokens
+     * @param _indexes Array of indices regarding purchase info inside the BitMap
+     * @param _proofs Array of merkle proofs used for verifying the purchase
      */
-    function refund(address _token, uint256 _reserveId, address _who) external;
+    function buyAllowlist(
+        address _token,
+        uint256 _reserveId,
+        address _to,
+        uint256[] calldata _indexes,
+        bytes32[][] calldata _proofs
+    ) external payable;
 
     /**
-     * @notice Allows the sale proceeds to be withdrawn to the primary sale receiver for a token
-     * @param _reserveId The ID of the mint
-     * @param _token The address of the token sold by the dutch auction
+     * @notice Allows a buyer to purchase tokens in the Dutch auction
+     * @param _token Address of the token being purchased
+     * @param _reserveId ID of the reserve
+     * @param _to Address receiving the purchased tokens
+     * @param _index Index of puchase info inside the BitMap
+     * @param _signature Array of merkle proofs used for verifying the purchase
      */
-    function withdraw(address _token, uint256 _reserveId) external;
+    function buyMintPass(
+        address _token,
+        uint256 _reserveId,
+        uint256 _amount,
+        address _to,
+        uint256 _index,
+        bytes calldata _signature
+    ) external payable;
 
     /**
-     * @notice Retrieves the current price for a Dutch auction
-     * @param _token The address of the token
-     * @param _reserveId The ID of the mint
-     * @return price The current price of the token
+     * @notice Retrieves the current price for of the auction
+     * @param _token Address of the token contract
+     * @param _reserveId ID of the mint
+     * @return price Current price of the token
      */
     function getPrice(address _token, uint256 _reserveId) external view returns (uint256);
 
     /**
-     * @notice Mapping to store the Dutch auction info for each token
-     * @param _reserveId The ID of the mint
-     * @param _token The address of the token
+     * @notice Mapping of token address to timestamp of latest update made for token reserves
      */
-    function auctionInfo(address _token, uint256 _reserveId) external view returns (uint248, bool);
+    function lastUpdated(address) external view returns (uint256);
 
-    /// @notice A mapping of merkle roots that returns the merkle root of a token for a reserveId
+    /**
+     * @notice Mapping of token address to reserve ID to merkle root
+     */
     function merkleRoots(address _token, uint256 _reserveId) external view returns (bytes32);
 
-    /// @notice A mapping of signing authorities returns the signing authority of mint passes of a token for a reserveId
-    function signingAuthorities(address _token, uint256 _reserveId) external view returns (address);
-
     /**
-     * @notice Mapping to store the Dutch auction info for each token
-     * @param _reserveId The ID of the mint
-     * @param _token The address of the token
+     * @notice Refunds an auction buyer with a rebate amount
+     * @param _reserveId ID of the mint
+     * @param _token Address of the token contract
+     * @param _who Address of the buyer claiming the refund
      */
-    function refundInfo(address _token, uint256 _reserveId) external view returns (uint256);
-
-    /// @notice Returns the latest timestamp of reserve updates set for a token
-    function lastUpdated(address _token) external view returns (uint256);
+    function refund(address _token, uint256 _reserveId, address _who) external;
 
     /**
-     * @notice Retrieves the reserve info for a token
-     * @param _token The address of the token
-     * @param _reserveId The ID of the mint
-     * @return allocation The allocation of the token in the reserve
-     * @return reservePrice The reserve price of the token
-     * @return maxMint The maximum number of tokens that can be minted in the Dutch auction
+     * @notice Mapping of token address to reserve ID to refund amount
+     */
+    function refunds(address, uint256) external view returns (uint256);
+
+    /**
+     * @notice Retrieves the reserve information of a token
+     * @param _token Address of the token contract
+     * @param _reserveId ID of the mint
+     * @return allocation Amount of tokens allocated for the reserve
+     * @return reservePrice Reserve price of the token
+     * @return maxMint Maximum number of tokens that can be minted
      */
     function reserves(address _token, uint256 _reserveId) external view returns (uint64, uint64, uint128);
 
     /**
      * @notice Retrieves the sale proceeds for a token
-     * @param _token The address of the token
-     * @param _reserveId The ID of the mint
-     * @return The amount of sale proceeds withdrawn
+     * @param _token Address of the token
+     * @param _reserveId ID of the mint
+     * @return Amount of sale proceeds withdrawn
      */
     function saleProceeds(address _token, uint256 _reserveId) external view returns (uint256);
+
+    /**
+     * @notice Mapping of token address to reserve ID to address of signing authority for mint pass
+     */
+    function signingAuthorities(address, uint256) external view returns (address);
+
+    /**
+     * @notice Allows the sale proceeds to be withdrawn to the primary sale receiver of a token
+     * @param _reserveId ID of the reserve
+     * @param _token Address of the token contract
+     */
+    function withdraw(address _token, uint256 _reserveId) external;
 }
