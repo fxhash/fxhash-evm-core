@@ -60,7 +60,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         uint256 reserveId = reserves[msg.sender].length;
         delete merkleRoots[msg.sender][reserveId];
         delete signingAuthorities[msg.sender][reserveId];
-        if (merkleRoot != bytes32(0) && signer != address(0)) revert("Cant have both signer and merkle tree");
+        if (merkleRoot != bytes32(0) && signer != address(0)) revert OnlyAuthorityOrAllowlist();
         if (merkleRoot != bytes32(0)) {
             merkleRoots[msg.sender][reserveId] = merkleRoot;
         }

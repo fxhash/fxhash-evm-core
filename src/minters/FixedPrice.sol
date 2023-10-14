@@ -58,7 +58,7 @@ contract FixedPrice is MintPass, Allowlist, IFixedPrice {
         (uint256 price, bytes32 merkleRoot, address signer) = abi.decode(_mintDetails, (uint256, bytes32, address));
 
         if (price == 0) revert InvalidPrice();
-        if (merkleRoot != bytes32(0) && signer != address(0)) revert("Cant have both signer and merkle tree");
+        if (merkleRoot != bytes32(0) && signer != address(0)) revert OnlyAuthorityOrAllowlist();
         uint256 reserveId = reserves[msg.sender].length;
         delete merkleRoots[msg.sender][reserveId];
         delete signingAuthorities[msg.sender][reserveId];
