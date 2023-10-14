@@ -104,6 +104,9 @@ interface IFixedPrice is IMinter {
     /// @notice Returns the price of a token for a reserveId
     function prices(address _token, uint256 _reserveId) external view returns (uint256);
 
+    /// @notice Returns the latest timestamp of reserve updates set for a token
+    function lastUpdated(address _token) external view returns (uint256);
+
     /// @notice Returns the reserve of a token for a reserveId
     function reserves(address _token, uint256 _reserveId) external view returns (uint64, uint64, uint128);
 

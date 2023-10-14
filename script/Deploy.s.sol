@@ -22,8 +22,8 @@ import {TicketRedeemer} from "src/minters/TicketRedeemer.sol";
 
 import {Clones} from "openzeppelin-contracts/contracts/proxy/Clones.sol";
 import {HTMLRequest, HTMLTagType, HTMLTag} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
+import {IFxContractRegistry, ConfigInfo} from "src/interfaces/IFxContractRegistry.sol";
 import {IFxGenArt721, GenArtInfo, InitInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
-import {IFxIssuerFactory, ConfigInfo} from "src/interfaces/IFxIssuerFactory.sol";
 import {IFxMintTicket721, TaxInfo} from "src/interfaces/IFxMintTicket721.sol";
 
 contract Deploy is Script {
@@ -57,6 +57,7 @@ contract Deploy is Script {
     // Metadata
     string internal baseURI;
     string internal imageURI;
+    bytes internal onchainData;
     HTMLRequest internal animation;
     HTMLRequest internal attributes;
     HTMLTag[] internal headTags;
@@ -126,7 +127,7 @@ contract Deploy is Script {
         _configureState(AMOUNT, PRICE, QUANTITY, TOKEN_ID);
         _configureInfo(LOCK_TIME, REFERRER_SHARE, DEFAULT_METADATA);
         _configureProject(ONCHAIN, MINT_ENABLED, MAX_SUPPLY, CONTRACT_URI);
-        _configureMetdata(BASE_URI, IMAGE_URI, animation);
+        _configureMetdata(BASE_URI, IMAGE_URI, onchainData);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -142,24 +143,25 @@ contract Deploy is Script {
     function _run() internal virtual {
         _deployContracts();
         _configureMinter(
-            address(fixedPrice),
-            uint64(block.timestamp) + RESERVE_START_TIME,
-            uint64(block.timestamp) + RESERVE_END_TIME,
-            MINTER_ALLOCATION,
-            abi.encode(PRICE)
-        );
-        _configureMinter(
             address(ticketRedeemer),
             uint64(block.timestamp) + RESERVE_START_TIME,
             uint64(block.timestamp) + RESERVE_END_TIME,
             REDEEMER_ALLOCATION,
-            abi.encode(_computeTicketAddr(msg.sender))
+            abi.encode(_computeTicketAddr(admin))
         );
         _registerContracts();
         _grantRoles();
         _createSplit();
         _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(scriptyRenderer), tagIds);
         _createProject();
+        delete mintInfo;
+        _configureMinter(
+            address(fixedPrice),
+            uint64(block.timestamp) + RESERVE_START_TIME,
+            uint64(block.timestamp) + RESERVE_END_TIME,
+            MINTER_ALLOCATION,
+            abi.encode(PRICE)
+        );
         _createTicket();
     }
 
@@ -259,6 +261,7 @@ contract Deploy is Script {
 
         animation.headTags = headTags;
         animation.bodyTags = bodyTags;
+        onchainData = abi.encode(animation);
     }
 
     function _configureState(uint256 _amount, uint256 _price, uint256 _quantity, uint256 _tokenId) internal virtual {
@@ -293,11 +296,11 @@ contract Deploy is Script {
     function _configureMetdata(
         string memory _baseURI,
         string memory _imageURI,
-        HTMLRequest storage _animation
+        bytes memory _onchainData
     ) internal virtual {
         metadataInfo.baseURI = _baseURI;
         metadataInfo.imageURI = _imageURI;
-        metadataInfo.animation = _animation;
+        metadataInfo.onchainData = _onchainData;
     }
 
     function _configureInit(
@@ -341,7 +344,7 @@ contract Deploy is Script {
 
         // FxContractRegistry
         bytes memory creationCode = type(FxContractRegistry).creationCode;
-        bytes memory constructorArgs = abi.encode(admin);
+        bytes memory constructorArgs = abi.encode(admin, configInfo);
         fxContractRegistry = FxContractRegistry(_deployCreate2(creationCode, constructorArgs, salt));
 
         // FxRoleRegistry
@@ -351,21 +354,22 @@ contract Deploy is Script {
 
         // FxGenArt721
         creationCode = type(FxGenArt721).creationCode;
-        constructorArgs = abi.encode(address(fxRoleRegistry));
+        constructorArgs = abi.encode(address(fxContractRegistry), address(fxRoleRegistry));
         fxGenArt721 = FxGenArt721(_deployCreate2(creationCode, constructorArgs, salt));
 
         // FxIssuerFactory
         creationCode = type(FxIssuerFactory).creationCode;
-        constructorArgs = abi.encode(address(fxRoleRegistry), address(fxGenArt721), configInfo);
+        constructorArgs = abi.encode(admin, address(fxRoleRegistry), address(fxGenArt721));
         fxIssuerFactory = FxIssuerFactory(_deployCreate2(creationCode, constructorArgs, salt));
 
         // FxMintTicket721
         creationCode = type(FxMintTicket721).creationCode;
-        fxMintTicket721 = FxMintTicket721(_deployCreate2(creationCode, salt));
+        constructorArgs = abi.encode(address(fxContractRegistry), address(fxRoleRegistry));
+        fxMintTicket721 = FxMintTicket721(_deployCreate2(creationCode, constructorArgs, salt));
 
         // FxTicketFactory
         creationCode = type(FxTicketFactory).creationCode;
-        constructorArgs = abi.encode(address(fxMintTicket721), ONE_DAY);
+        constructorArgs = abi.encode(admin, address(fxMintTicket721), ONE_DAY);
         fxTicketFactory = FxTicketFactory(_deployCreate2(creationCode, constructorArgs, salt));
 
         vm.label(address(fxContractRegistry), "FxContractRegistry");
@@ -416,6 +420,7 @@ contract Deploy is Script {
 
     function _createSplit() internal virtual {
         primaryReceiver = splitsFactory.createImmutableSplit(accounts, allocations);
+        vm.label(primaryReceiver, "PrimaryReceiver");
     }
 
     function _createProject() internal virtual {
@@ -428,10 +433,21 @@ contract Deploy is Script {
             royaltyReceivers,
             basisPoints
         );
+
+        vm.label(fxGenArtProxy, "FxGenArtProxy");
     }
 
     function _createTicket() internal {
-        fxMintTicketProxy = fxTicketFactory.createTicket(creator, fxGenArtProxy, uint48(ONE_DAY), BASE_URI);
+        fxMintTicketProxy = fxTicketFactory.createTicket(
+            creator,
+            fxGenArtProxy,
+            address(ticketRedeemer),
+            uint48(ONE_DAY),
+            BASE_URI,
+            mintInfo
+        );
+
+        vm.label(fxMintTicketProxy, "FxMintTicketProxy");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -506,12 +522,9 @@ contract Deploy is Script {
     }
 
     function _computeTicketAddr(address _deployer) internal view returns (address) {
-        return
-            Clones.predictDeterministicAddress(
-                address(fxMintTicket721),
-                bytes32(fxTicketFactory.nonces(_deployer)),
-                address(fxTicketFactory)
-            );
+        uint256 nonce = fxTicketFactory.nonces(_deployer);
+        bytes32 salt = keccak256(abi.encode(_deployer, nonce));
+        return Clones.predictDeterministicAddress(address(fxMintTicket721), salt, address(fxTicketFactory));
     }
 
     function _computeCreate2Addr(
