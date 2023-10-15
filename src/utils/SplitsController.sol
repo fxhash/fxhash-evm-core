@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
+
 abstract contract SplitsController {
     mapping(address => bool) public isFxHash;
     mapping(address => address) public splitCreator;
@@ -66,10 +68,17 @@ abstract contract SplitsController {
             /// sorts resulting accounts array
             (_accounts, _allocations) = sort(_accounts, _allocations);
         } else {
-            // to was in accounts
-            // simplification since allocations will always be > 0
-            // will come back to and create new array with from removed
-            (_allocations[toId], _allocations[fromId]) = (_allocations[fromId] - 1, 1);
+            address[] memory newAccounts = new address[](_accounts.length - 1);
+            uint32[] memory newAllocations = new uint32[](_accounts.length - 1);
+            _allocations[toId] += _allocations[fromId];
+            for (uint256 i; i < _accounts.length; i++) {
+                /// if fromId then we skip
+                if (i == fromId) continue;
+                newAccounts[i] = _accounts[i];
+                newAllocations[i] = _allocations[i];
+            }
+            _accounts = newAccounts;
+            _allocations = newAllocations;
         }
 
         /// calls update on splits main
