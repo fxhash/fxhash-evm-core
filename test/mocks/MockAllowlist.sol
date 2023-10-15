@@ -11,7 +11,7 @@ contract MockAllowlist is Allowlist {
     bytes32 public merkleRoot;
 
     function claimSlot(address _token, uint256 _index, bytes32[] memory _proof) external {
-        _claimSlot(_bitmap, _token, 0, _index, _proof);
+        _claimSlot(_token, 0, _index, _proof, _bitmap);
     }
 
     function setMerkleRoot(bytes32 _merkleRoot) external {

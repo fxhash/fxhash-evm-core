@@ -126,7 +126,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         if (merkleRoot == bytes32(0)) revert NoAllowlist();
         BitMaps.BitMap storage claimBitmap = _claimedMerkleTreeSlots[_token][_reserveId];
         for (uint256 i; i < _proofs.length; i++) {
-            _claimSlot(claimBitmap, _token, _reserveId, _indexes[i], _proofs[i]);
+            _claimSlot(_token, _reserveId, _indexes[i], _proofs[i], claimBitmap);
         }
         uint256 amount = _proofs.length;
         _buy(_token, _reserveId, amount, _to);
@@ -146,7 +146,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         address signer = signingAuthorities[_token][_reserveId];
         if (signer == address(0)) revert NoSigningAuthority();
         BitMaps.BitMap storage claimBitmap = _claimedMintPasses[_token][_reserveId];
-        _claimMintPass(claimBitmap, _token, _reserveId, _index, _signature);
+        _claimMintPass(_token, _reserveId, _index, _signature, claimBitmap);
         _buy(_token, _reserveId, _amount, _to);
     }
 
