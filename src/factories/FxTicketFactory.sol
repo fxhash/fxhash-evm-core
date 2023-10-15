@@ -13,6 +13,10 @@ import {IFxTicketFactory} from "src/interfaces/IFxTicketFactory.sol";
  * @dev See the documentation in {IFxTicketFactory}
  */
 contract FxTicketFactory is IFxTicketFactory, Ownable {
+    /*//////////////////////////////////////////////////////////////////////////
+                                    STORAGE
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
      * @inheritdoc IFxTicketFactory
      */
@@ -38,6 +42,10 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
      */
     mapping(uint48 => address) public tickets;
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                    CONSTRUCTOR
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
      * @dev Initializes factory owner, FxMintTicket721 implementation and minimum grace period
      */
@@ -46,6 +54,10 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
         _setImplementation(_implementation);
         _setGracePeriod(_gracePeriod);
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                EXTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /**
      * @inheritdoc IFxTicketFactory
@@ -86,6 +98,10 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
     function setImplementation(address _implementation) external onlyOwner {
         _setImplementation(_implementation);
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                INTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /**
      * @dev Sets the minimum grace period before a token enters harberger taxation

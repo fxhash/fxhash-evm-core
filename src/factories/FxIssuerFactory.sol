@@ -16,6 +16,10 @@ import {BANNED_USER_ROLE} from "src/utils/Constants.sol";
  * @dev See the documentation in {IFxIssuerFactory}
  */
 contract FxIssuerFactory is IFxIssuerFactory, Ownable {
+    /*//////////////////////////////////////////////////////////////////////////
+                                    STORAGE
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
      * @inheritdoc IFxIssuerFactory
      */
@@ -36,6 +40,10 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
      */
     mapping(uint96 => address) public projects;
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                    MODIFIERS
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
      * @dev Modifier for checking if user is banned from system
      */
@@ -43,6 +51,10 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
         if (IAccessControl(roleRegistry).hasRole(BANNED_USER_ROLE, _user)) revert NotAuthorized();
         _;
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    CONSTRUCTOR
+    //////////////////////////////////////////////////////////////////////////*/
 
     /**
      * @dev Initializes factory owner, FxRoleRegistry and FxGenArt721 implementation
@@ -52,6 +64,10 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
         _transferOwnership(_admin);
         _setImplementation(_implementation);
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                EXTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /**
      * @inheritdoc IFxIssuerFactory
@@ -91,6 +107,10 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     function setImplementation(address _implementation) external onlyOwner {
         _setImplementation(_implementation);
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                INTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /**
      * @dev Sets the FxGenArt721 implementation contract

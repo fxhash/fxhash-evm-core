@@ -12,6 +12,10 @@ import "src/utils/Constants.sol";
  * @dev See the documentation in {IFxRoleRegistry}
  */
 contract FxRoleRegistry is AccessControl, IFxRoleRegistry {
+    /*//////////////////////////////////////////////////////////////////////////
+                                CONSTRUCTOR
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
      * @dev Initializes registry owner and role admins
      */
@@ -27,6 +31,10 @@ contract FxRoleRegistry is AccessControl, IFxRoleRegistry {
         _grantRole(TOKEN_MODERATOR_ROLE, _admin);
         _grantRole(USER_MODERATOR_ROLE, _admin);
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                EXTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /**
      * @inheritdoc IFxRoleRegistry

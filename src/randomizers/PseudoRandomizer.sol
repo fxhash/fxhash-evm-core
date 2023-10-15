@@ -10,6 +10,10 @@ import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
  * @dev See the documentation in {IPseudoRandomizer}
  */
 contract PseudoRandomizer is IPseudoRandomizer {
+    /*//////////////////////////////////////////////////////////////////////////
+                                EXTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
      * @inheritdoc IPseudoRandomizer
      */
@@ -17,6 +21,10 @@ contract PseudoRandomizer is IPseudoRandomizer {
         bytes32 seed = generateSeed(_tokenId);
         ISeedConsumer(msg.sender).fulfillSeedRequest(_tokenId, seed);
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                PUBLIC FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /**
      * @inheritdoc IPseudoRandomizer

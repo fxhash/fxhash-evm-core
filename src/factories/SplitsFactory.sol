@@ -12,6 +12,10 @@ import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
  * @dev See the documentation in {ISplitsFactory}
  */
 contract SplitsFactory is ISplitsFactory, Ownable {
+    /*//////////////////////////////////////////////////////////////////////////
+                                    STORAGE
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
      * @inheritdoc ISplitsFactory
      */
@@ -22,6 +26,10 @@ contract SplitsFactory is ISplitsFactory, Ownable {
      */
     address public controller;
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                    CONSTRUCTOR
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
      * @dev Initializes factory owner and SplitsMain
      */
@@ -29,6 +37,10 @@ contract SplitsFactory is ISplitsFactory, Ownable {
         splits = _splits;
         _transferOwnership(_admin);
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                EXTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /**
      * @inheritdoc ISplitsFactory

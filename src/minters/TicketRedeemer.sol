@@ -12,10 +12,18 @@ import {ITicketRedeemer} from "src/interfaces/ITicketRedeemer.sol";
  * @dev See the documentation in {ITicketRedeemer}
  */
 contract TicketRedeemer is ITicketRedeemer {
+    /*//////////////////////////////////////////////////////////////////////////
+                                    STORAGE
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
      * @inheritdoc ITicketRedeemer
      */
     mapping(address => address) public tokens;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                EXTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /**
      * @inheritdoc ITicketRedeemer

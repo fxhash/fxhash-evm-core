@@ -10,6 +10,10 @@ import {IFxContractRegistry, ConfigInfo} from "src/interfaces/IFxContractRegistr
  * @dev See the documentation in {IFxContractRegistry}
  */
 contract FxContractRegistry is IFxContractRegistry, Ownable {
+    /*//////////////////////////////////////////////////////////////////////////
+                                    STORAGE
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
      * @inheritdoc IFxContractRegistry
      */
@@ -20,6 +24,10 @@ contract FxContractRegistry is IFxContractRegistry, Ownable {
      */
     mapping(bytes32 => address) public contracts;
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                CONSTRUCTOR
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
      * @dev Initializes registry owner and system config information
      */
@@ -27,6 +35,10 @@ contract FxContractRegistry is IFxContractRegistry, Ownable {
         _transferOwnership(_admin);
         _setConfigInfo(_configInfo);
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                EXTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /**
      * @inheritdoc IFxContractRegistry
@@ -56,6 +68,10 @@ contract FxContractRegistry is IFxContractRegistry, Ownable {
     function setConfig(ConfigInfo calldata _configInfo) external onlyOwner {
         _setConfigInfo(_configInfo);
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                INTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /// @dev Sets the system config information
     function _setConfigInfo(ConfigInfo memory _configInfo) internal {

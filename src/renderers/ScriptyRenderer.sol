@@ -16,6 +16,10 @@ import {IScriptyRenderer} from "src/interfaces/IScriptyRenderer.sol";
 contract ScriptyRenderer is IScriptyRenderer {
     using Strings for uint256;
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                    STORAGE
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
      * @inheritdoc IScriptyRenderer
      */
@@ -31,14 +35,22 @@ contract ScriptyRenderer is IScriptyRenderer {
      */
     address public immutable scriptyStorage;
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                    CONSTRUCTOR
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
-     * @dev Initializes ETHFSFileStorage, ScriptyStorage and ScriptyBuilder contracts
+     * @dev Initializes ETHFSFileStorage, ScriptyStorage and ScriptyBuilder
      */
     constructor(address _ethfsFileStorage, address _scriptyStorage, address _scriptyBuilder) {
         ethfsFileStorage = _ethfsFileStorage;
         scriptyStorage = _scriptyStorage;
         scriptyBuilder = _scriptyBuilder;
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                EXTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /**
      * @inheritdoc IScriptyRenderer
@@ -68,6 +80,10 @@ contract ScriptyRenderer is IScriptyRenderer {
             return string(abi.encodePacked("data:application/json;base64,", Base64.encode(onchainData)));
         }
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                PUBLIC FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /**
      * @inheritdoc IScriptyRenderer
@@ -121,6 +137,10 @@ contract ScriptyRenderer is IScriptyRenderer {
 
         return IScriptyBuilderV2(scriptyBuilder).getEncodedHTML(htmlRequest);
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                INTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /**
      * @dev Gets the params content for tokens minted with fxParams

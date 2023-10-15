@@ -16,6 +16,10 @@ abstract contract MintPass is EIP712 {
     using ECDSA for bytes32;
     using BitMaps for BitMaps.BitMap;
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                    ERRORS
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
      * @notice Error thrown when a mint pass has already been claimed
      */
@@ -26,10 +30,18 @@ abstract contract MintPass is EIP712 {
      */
     error InvalidSignature();
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                CONSTRUCTOR
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
      * @dev Initializes EIP-712
      */
     constructor() EIP712("MINT_PASS", "1") {}
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                PUBLIC FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /**
      * @notice Generates the typed data hash for a mint pass claim
@@ -41,6 +53,10 @@ abstract contract MintPass is EIP712 {
         bytes32 structHash = keccak256(abi.encode(CLAIM_TYPEHASH, _index, _claimer));
         return _hashTypedDataV4(structHash);
     }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                INTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /**
      * @notice Validates a mint pass claim

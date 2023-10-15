@@ -12,6 +12,10 @@ import {MerkleProof} from "openzeppelin/contracts/utils/cryptography/MerkleProof
 abstract contract Allowlist {
     using BitMaps for BitMaps.BitMap;
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                    ERRORS
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
      * @notice Error thrown when the merkle proof of index is invalid
      */
@@ -21,6 +25,10 @@ abstract contract Allowlist {
      * @notice Error thrown when index in merkle tree has already been claimed
      */
     error SlotAlreadyClaimed();
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                INTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /**
      * @notice Claims a merkle tree slot
