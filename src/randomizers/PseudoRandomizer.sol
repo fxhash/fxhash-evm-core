@@ -6,16 +6,21 @@ import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
 
 /**
  * @title PseudoRandomizer
+ * @author fxhash
  * @notice See documentation in {IPseudoRandomizer}
  */
 contract PseudoRandomizer is IPseudoRandomizer {
-    /// @inheritdoc IPseudoRandomizer
+    /**
+     * @inheritdoc IPseudoRandomizer
+     */
     function requestRandomness(uint256 _tokenId) external {
         bytes32 seed = generateSeed(_tokenId);
         ISeedConsumer(msg.sender).fulfillSeedRequest(_tokenId, seed);
     }
 
-    /// @inheritdoc IPseudoRandomizer
+    /**
+     * @inheritdoc IPseudoRandomizer
+     */
     function generateSeed(uint256 _tokenId) public view returns (bytes32) {
         return keccak256(abi.encodePacked(_tokenId, msg.sender, block.number, blockhash(block.number - 1)));
     }

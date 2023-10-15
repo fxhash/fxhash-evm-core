@@ -2,7 +2,6 @@
 pragma solidity 0.8.20;
 
 import {Base64} from "openzeppelin/contracts/utils/Base64.sol";
-
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
 import {GenArtInfo, MetadataInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
@@ -11,6 +10,7 @@ import {IScriptyRenderer} from "src/interfaces/IScriptyRenderer.sol";
 
 /**
  * @title ScriptyRenderer
+ * @author fxhash
  * @notice See the documentation in {IScriptyRenderer}
  */
 contract ScriptyRenderer is IScriptyRenderer {

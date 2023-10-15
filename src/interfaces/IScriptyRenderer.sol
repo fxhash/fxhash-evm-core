@@ -6,7 +6,8 @@ import {IRenderer} from "src/interfaces/IRenderer.sol";
 
 /**
  * @title IScriptyRenderer
- * @notice Renders token metadata using onchain generative scripts
+ * @author fxhash
+ * @notice Renders onchain metadata of FxGenArt721 tokens using Scripty.sol
  */
 interface IScriptyRenderer is IRenderer {
     /**
