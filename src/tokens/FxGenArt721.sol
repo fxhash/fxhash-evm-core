@@ -16,12 +16,12 @@ import {IFxGenArt721, GenArtInfo, InitInfo, IssuerInfo, MetadataInfo, MintInfo, 
 import {IMinter} from "src/interfaces/IMinter.sol";
 import {IRandomizer} from "src/interfaces/IRandomizer.sol";
 import {IRenderer} from "src/interfaces/IRenderer.sol";
-import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
 
 import "src/utils/Constants.sol";
 
 /**
  * @title FxGenArt721
+ * @author fx(hash)
  * @notice See the documentation in {IFxGenArt721}
  */
 contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, Ownable, Pausable, RoyaltyManager {
@@ -29,38 +29,71 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
                                     STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc IFxGenArt721
+    /**
+     * @inheritdoc IFxGenArt721
+     */
     address public immutable contractRegistry;
-    /// @inheritdoc IFxGenArt721
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
     address public immutable roleRegistry;
-    /// @dev Project name
+
+    /**
+     * @dev Project name
+     */
     string internal name_;
-    /// @dev Project symbol
+
+    /**
+     * @dev Project symbol
+     */
     string internal symbol_;
-    /// @inheritdoc IFxGenArt721
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
     uint96 public totalSupply;
-    /// @inheritdoc IFxGenArt721
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
     address public randomizer;
-    /// @inheritdoc IFxGenArt721
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
     address public renderer;
-    /// @inheritdoc IFxGenArt721
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
     IssuerInfo public issuerInfo;
-    /// @inheritdoc IFxGenArt721
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
     MetadataInfo public metadataInfo;
-    /// @inheritdoc IFxGenArt721
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
     mapping(uint256 => GenArtInfo) public genArtInfo;
 
     /*//////////////////////////////////////////////////////////////////////////
                                   MODIFIERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Modifier for restricting calls to only registered minters
+    /**
+     * @dev Modifier for restricting calls to only registered minters
+     */
     modifier onlyMinter() {
         if (!isMinter(msg.sender)) revert UnregisteredMinter();
         _;
     }
 
-    /// @dev Modifier for restricting calls to only authorized accounts with given roles
+    /**
+     * @dev Modifier for restricting calls to only authorized accounts with given roles
+     */
     modifier onlyRole(bytes32 _role) {
         if (!IAccessControl(roleRegistry).hasRole(_role, msg.sender)) revert UnauthorizedAccount();
         _;
@@ -70,7 +103,9 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
                                   CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Sets core registry contracts
+    /**
+     * @dev Initializes FxContractRegistry and FxRoleRegistry
+     */
     constructor(
         address _contractRegistry,
         address _roleRegistry
@@ -83,7 +118,9 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
                                 INITIALIZATION
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc IFxGenArt721
+    /**
+     * @inheritdoc IFxGenArt721
+     */
     function initialize(
         address _owner,
         InitInfo calldata _initInfo,
@@ -113,7 +150,26 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
                                 PUBLIC FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc IFxGenArt721
+    /**
+     * @inheritdoc IFxGenArt721
+     */
+    function burn(uint256 _tokenId) external whenNotPaused {
+        if (!issuerInfo.projectInfo.burnEnabled) revert BurnInactive();
+        if (!_isApprovedOrOwner(msg.sender, _tokenId)) revert NotAuthorized();
+        _burn(_tokenId);
+    }
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
+    function mintParams(address _to, bytes calldata _fxParams) external onlyMinter whenNotPaused {
+        if (!issuerInfo.projectInfo.mintEnabled) revert MintInactive();
+        _mintParams(_to, ++totalSupply, _fxParams);
+    }
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
     function mintRandom(address _to, uint256 _amount) external onlyMinter whenNotPaused {
         if (!issuerInfo.projectInfo.mintEnabled) revert MintInactive();
         for (uint256 i; i < _amount; ++i) {
@@ -121,48 +177,45 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         }
     }
 
-    /// @inheritdoc IFxGenArt721
-    function mintParams(address _to, bytes calldata _fxParams) external onlyMinter whenNotPaused {
-        if (!issuerInfo.projectInfo.mintEnabled) revert MintInactive();
-        _mintParams(_to, ++totalSupply, _fxParams);
-    }
-
-    /// @inheritdoc ISeedConsumer
+    /**
+     * @inheritdoc IFxGenArt721
+     */
     function fulfillSeedRequest(uint256 _tokenId, bytes32 _seed) external {
         if (msg.sender != randomizer) revert NotAuthorized();
         genArtInfo[_tokenId].seed = _seed;
         emit SeedFulfilled(randomizer, _tokenId, _seed);
     }
 
-    /// @inheritdoc IFxGenArt721
-    function burn(uint256 _tokenId) external whenNotPaused {
-        if (!issuerInfo.projectInfo.burnEnabled) revert BurnInactive();
-        if (!_isApprovedOrOwner(msg.sender, _tokenId)) revert NotAuthorized();
-        _burn(_tokenId);
-    }
-
     /*//////////////////////////////////////////////////////////////////////////
                                 OWNER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc IFxGenArt721
-    function ownerMintRandom(address _to) external onlyOwner whenNotPaused {
-        _mintRandom(_to, ++totalSupply);
-    }
-
-    /// @inheritdoc IFxGenArt721
+    /**
+     * @inheritdoc IFxGenArt721
+     */
     function ownerMintParams(address _to, bytes calldata _fxParams) external onlyMinter whenNotPaused {
         _mintParams(_to, ++totalSupply, _fxParams);
     }
 
-    /// @inheritdoc IFxGenArt721
+    /**
+     * @inheritdoc IFxGenArt721
+     */
+    function ownerMintRandom(address _to) external onlyOwner whenNotPaused {
+        _mintRandom(_to, ++totalSupply);
+    }
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
     function reduceSupply(uint120 _supply) external onlyOwner {
         if (_supply >= issuerInfo.projectInfo.maxSupply || _supply < totalSupply) revert InvalidAmount();
         issuerInfo.projectInfo.maxSupply = _supply;
         if (_supply == 0) emit ProjectDeleted();
     }
 
-    /// @inheritdoc IFxGenArt721
+    /**
+     * @inheritdoc IFxGenArt721
+     */
     function registerMinters(MintInfo[] calldata _mintInfo) external onlyOwner {
         if (issuerInfo.projectInfo.mintEnabled) revert MintActive();
 
@@ -179,21 +232,34 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         _registerMinters(_mintInfo);
     }
 
-    /// @inheritdoc IFxGenArt721
-    function toggleMint() external onlyOwner {
-        issuerInfo.projectInfo.mintEnabled = !issuerInfo.projectInfo.mintEnabled;
-    }
-
-    /// @inheritdoc IFxGenArt721
+    /**
+     * @inheritdoc IFxGenArt721
+     */
     function toggleBurn() external onlyOwner {
         issuerInfo.projectInfo.burnEnabled = !issuerInfo.projectInfo.burnEnabled;
+    }
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
+    function toggleMint() external onlyOwner {
+        issuerInfo.projectInfo.mintEnabled = !issuerInfo.projectInfo.mintEnabled;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                 ADMIN FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc IFxGenArt721
+    /**
+     * @inheritdoc IFxGenArt721
+     */
+    function pause() external onlyRole(ADMIN_ROLE) {
+        _pause();
+    }
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
     function setBaseURI(string calldata _uri, bytes calldata _signature) external onlyRole(ADMIN_ROLE) {
         bytes32 digest = generateTypedDataHash(SET_BASE_URI_TYPEHASH, _uri);
         _verifySignature(digest, _signature);
@@ -201,36 +267,41 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         emit BatchMetadataUpdate(1, totalSupply);
     }
 
-    /// @inheritdoc IFxGenArt721
+    /**
+     * @inheritdoc IFxGenArt721
+     */
     function setContractURI(string calldata _uri, bytes calldata _signature) external onlyRole(ADMIN_ROLE) {
         bytes32 digest = generateTypedDataHash(SET_CONTRACT_URI_TYPEHASH, _uri);
         _verifySignature(digest, _signature);
         issuerInfo.projectInfo.contractURI = _uri;
     }
 
-    /// @inheritdoc IFxGenArt721
+    /**
+     * @inheritdoc IFxGenArt721
+     */
     function setImageURI(string calldata _uri, bytes calldata _signature) external onlyRole(ADMIN_ROLE) {
         bytes32 digest = generateTypedDataHash(SET_IMAGE_URI_TYPEHASH, _uri);
         _verifySignature(digest, _signature);
         metadataInfo.imageURI = _uri;
     }
 
-    /// @inheritdoc IFxGenArt721
+    /**
+     * @inheritdoc IFxGenArt721
+     */
     function setRandomizer(address _randomizer) external onlyRole(ADMIN_ROLE) {
         randomizer = _randomizer;
     }
 
-    /// @inheritdoc IFxGenArt721
+    /**
+     * @inheritdoc IFxGenArt721
+     */
     function setRenderer(address _renderer) external onlyRole(ADMIN_ROLE) {
         renderer = _renderer;
     }
 
-    /// @inheritdoc IFxGenArt721
-    function pause() external onlyRole(ADMIN_ROLE) {
-        _pause();
-    }
-
-    /// @inheritdoc IFxGenArt721
+    /**
+     * @inheritdoc IFxGenArt721
+     */
     function unpause() external onlyRole(ADMIN_ROLE) {
         _unpause();
     }
@@ -239,7 +310,9 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
                                 MODERATOR FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc IFxGenArt721
+    /**
+     * @inheritdoc IFxGenArt721
+     */
     function setTags(uint256[] calldata _tagIds) external onlyRole(TOKEN_MODERATOR_ROLE) {
         _setTags(_tagIds);
     }
@@ -248,37 +321,52 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
                                 READ FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc IFxGenArt721
+    /**
+     * @inheritdoc IFxGenArt721
+     */
     function contractURI() external view returns (string memory) {
         return issuerInfo.projectInfo.contractURI;
     }
 
-    function generateTypedDataHash(bytes32 _typehash, string calldata _uri) public view returns (bytes32) {
-        bytes32 structHash = keccak256(abi.encode(_typehash, _uri));
+    /**
+     * @inheritdoc IFxGenArt721
+     */
+    function generateTypedDataHash(bytes32 _typeHash, string calldata _uri) public view returns (bytes32) {
+        bytes32 structHash = keccak256(abi.encode(_typeHash, _uri));
         return _hashTypedDataV4(structHash);
     }
 
-    /// @inheritdoc IFxGenArt721
+    /**
+     * @inheritdoc IFxGenArt721
+     */
     function isMinter(address _minter) public view returns (bool) {
         return issuerInfo.minters[_minter];
     }
 
-    /// @inheritdoc IFxGenArt721
+    /**
+     * @inheritdoc IFxGenArt721
+     */
     function remainingSupply() public view returns (uint256) {
         return issuerInfo.projectInfo.maxSupply - totalSupply;
     }
 
-    /// @inheritdoc ERC721
+    /**
+     * @inheritdoc ERC721
+     */
     function name() public view override returns (string memory) {
         return name_;
     }
 
-    /// @inheritdoc ERC721
+    /**
+     * @inheritdoc ERC721
+     */
     function symbol() public view override returns (string memory) {
         return symbol_;
     }
 
-    /// @inheritdoc ERC721
+    /**
+     * @inheritdoc ERC721
+     */
     function tokenURI(uint256 _tokenId) public view override returns (string memory) {
         _requireMinted(_tokenId);
         bytes memory data = abi.encode(issuerInfo.projectInfo, metadataInfo, genArtInfo[_tokenId]);
@@ -289,20 +377,26 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
                                 INTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Mints a single token to given account and generates random seed
-    function _mintRandom(address _to, uint256 _tokenId) internal {
-        _mint(_to, _tokenId);
-        IRandomizer(randomizer).requestRandomness(_tokenId);
-    }
-
-    /// @dev Mints a single fxParams token to given account
+    /**
+     * @dev Mints single token to given account using fxParams as input
+     */
     function _mintParams(address _to, uint256 _tokenId, bytes calldata _fxParams) internal {
         if (issuerInfo.projectInfo.inputSize < _fxParams.length) revert InvalidInputSize();
         _mint(_to, _tokenId);
         genArtInfo[_tokenId].fxParams = _fxParams;
     }
 
-    /// @dev Registers arbitrary number of minter contracts
+    /**
+     * @dev Mints single token to given account using randomly generated seed
+     */
+    function _mintRandom(address _to, uint256 _tokenId) internal {
+        _mint(_to, _tokenId);
+        IRandomizer(randomizer).requestRandomness(_tokenId);
+    }
+
+    /**
+     * @dev Registers arbitrary number of minter contracts and sets their reserves
+     */
     function _registerMinters(MintInfo[] calldata _mintInfo) internal {
         address minter;
         uint128 totalAllocation;
@@ -330,23 +424,32 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         }
     }
 
-    /// @dev Emits event for setting the project tag descriptions
+    /**
+     * @dev Emits event for setting the project tag descriptions
+     */
     function _setTags(uint256[] calldata _tagIds) internal {
         emit ProjectTags(_tagIds);
     }
 
-    /// @dev Checks if user is verified on system
-    function _isVerified(address _user) internal view returns (bool) {
-        return (IAccessControl(roleRegistry).hasRole(VERIFIED_USER_ROLE, _user));
+    /**
+     * @dev Checks if creator is verified by the system
+     */
+    function _isVerified(address _creator) internal view returns (bool) {
+        return (IAccessControl(roleRegistry).hasRole(VERIFIED_USER_ROLE, _creator));
     }
 
+    /**
+     * @dev Verifies creator signature for metadata updates
+     */
     function _verifySignature(bytes32 _digest, bytes calldata _signature) internal view {
         (uint8 v, bytes32 r, bytes32 s) = abi.decode(_signature, (uint8, bytes32, bytes32));
         address signer = ECDSA.recover(_digest, v, r, s);
         if (signer != owner()) revert NotOwner();
     }
 
-    /// @inheritdoc ERC721
+    /**
+     * @inheritdoc ERC721
+     */
     function _exists(uint256 _tokenId) internal view override(ERC721, RoyaltyManager) returns (bool) {
         return super._exists(_tokenId);
     }
