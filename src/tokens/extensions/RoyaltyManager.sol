@@ -10,110 +10,109 @@ import {FEE_DENOMINATOR, MAX_ROYALTY_BPS} from "src/utils/Constants.sol";
  * @notice See the documentation in {IRoyaltyManager}
  */
 abstract contract RoyaltyManager is IRoyaltyManager {
-    /// @notice List of basis points and receiver addresses for base royalty info
+    /*//////////////////////////////////////////////////////////////////////////
+                                    STORAGE
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @notice Returns royalty information of index in array
+     */
     RoyaltyInfo[] public baseRoyalties;
-    /// @notice Mapping of token ID to token-specific royalty info
+
+    /**
+     * @notice Mapping of token ID to array of royalty information
+     */
     mapping(uint256 => RoyaltyInfo[]) public tokenRoyalties;
 
-    /**
-     * @notice Sets the base royalties for the contract
-     * @param _receivers The addresses that will receive royalties
-     * @param _basisPoints The basis points to calculate royalty payments (1/100th of a percent) for
-     * each receiver
-     */
-    function setBaseRoyalties(address payable[] calldata _receivers, uint96[] calldata _basisPoints) external {
-        _setBaseRoyalties(_receivers, _basisPoints);
-    }
+    /*//////////////////////////////////////////////////////////////////////////
+                                EXTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @notice Sets the token-specific royalties for a given token ID
-     * @param _tokenId The token ID for which the royalties are being set
-     * @param _receivers The addresses that will receive royalties
-     * @param _basisPoints The basis points to calculate royalty payments (1/100th of a percent) for
-     * each receiver
-     */
-    function setTokenRoyalties(
-        uint256 _tokenId,
-        address payable[] calldata _receivers,
-        uint96[] calldata _basisPoints
-    ) external {
-        _setTokenRoyalties(_tokenId, _receivers, _basisPoints);
-    }
-
-    /**
-     * @notice Gets the royalty information for a given token ID and sale price
-     * @param _tokenId The token ID for which the royalty information is being retrieved
-     * @param _salePrice The sale price of the token
-     * @return receiver The address that will receive the royalty payment
-     * @return amount The amount of royalty payment
+     * @inheritdoc IRoyaltyManager
      */
     function royaltyInfo(
         uint256 _tokenId,
         uint256 _salePrice
     ) external view returns (address receiver, uint256 amount) {
         RoyaltyInfo[] storage tokenRoyalties_ = tokenRoyalties[_tokenId];
-        RoyaltyInfo[] storage baseRoyalties_ = baseRoyalties;
+        uint256 baseLength = baseRoyalties.length;
+        uint256 tokenLength = tokenRoyalties_.length;
+        if (tokenLength + baseLength > 1) revert MoreThanOneRoyaltyReceiver();
+        if (tokenLength + baseLength == 0) return (receiver, amount);
 
-        if (tokenRoyalties_.length + baseRoyalties.length > 1) revert MoreThanOneRoyaltyReceiver();
-        if (tokenRoyalties_.length + baseRoyalties.length == 0) return (receiver, amount);
         uint96 basisPoints;
         (receiver, basisPoints) = tokenRoyalties_.length > 0
             ? (tokenRoyalties_[0].receiver, tokenRoyalties_[0].basisPoints)
-            : (baseRoyalties_[0].receiver, baseRoyalties_[0].basisPoints);
+            : (baseRoyalties[0].receiver, baseRoyalties[0].basisPoints);
         amount = (_salePrice * basisPoints) / FEE_DENOMINATOR;
     }
 
     /**
-     * @notice Gets the royalty information for a given token ID
-     * @param _tokenId The token ID for which the royalty information is being retrieved
-     * @return allReceivers The addresses that will receive royalties
-     * @return allBasisPoints The basis points to calculate royalty payments (1/100th of a percent)
-     * for each receiver.
+     * @inheritdoc IRoyaltyManager
      */
     function getRoyalties(
         uint256 _tokenId
-    ) external view returns (address payable[] memory allReceivers, uint256[] memory allBasisPoints) {
+    ) external view returns (address payable[] memory receivers, uint256[] memory basisPoints) {
         RoyaltyInfo[] storage tokenRoyalties_ = tokenRoyalties[_tokenId];
-        RoyaltyInfo[] storage royalties_ = baseRoyalties;
-        uint256 baseLength = royalties_.length;
+        uint256 baseLength = baseRoyalties.length;
         uint256 tokenLength = tokenRoyalties_.length;
-        uint256 length = baseLength + tokenLength;
-        allReceivers = new address payable[](length);
-        allBasisPoints = new uint256[](length);
+        uint256 totalLength = baseLength + tokenLength;
+
+        receivers = new address payable[](totalLength);
+        basisPoints = new uint256[](totalLength);
+
         for (uint256 i; i < baseLength; i++) {
-            allReceivers[i] = royalties_[i].receiver;
-            allBasisPoints[i] = royalties_[i].basisPoints;
+            receivers[i] = baseRoyalties[i].receiver;
+            basisPoints[i] = baseRoyalties[i].basisPoints;
         }
 
         for (uint256 i; i < tokenLength; i++) {
-            allReceivers[i + baseLength] = tokenRoyalties_[i].receiver;
-            allBasisPoints[i + baseLength] = tokenRoyalties_[i].basisPoints;
+            receivers[i + baseLength] = tokenRoyalties_[i].receiver;
+            basisPoints[i + baseLength] = tokenRoyalties_[i].basisPoints;
         }
     }
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                PUBLIC FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
-     * @dev Sets the token-specific royalties for a given token ID
-     * @param _tokenId The token ID for which the royalties are being set
-     * @param _receivers The addresses that will receive royalties
-     * @param _basisPoints The basis points to calculate royalty payments (1/100th of a percent) for
-     * each receiver
+     * @inheritdoc IRoyaltyManager
      */
-    function _setTokenRoyalties(
+    function setBaseRoyalties(address payable[] calldata _receivers, uint96[] calldata _basisPoints) public {
+        delete baseRoyalties;
+        uint256 tokenLength = _basisPoints.length;
+        if (_receivers.length != tokenLength) revert LengthMismatch();
+
+        _checkRoyalties(_basisPoints);
+
+        for (uint256 i; i < tokenLength; i++) {
+            baseRoyalties.push(RoyaltyInfo(_receivers[i], _basisPoints[i]));
+        }
+
+        emit TokenRoyaltiesUpdated(_receivers, _basisPoints);
+    }
+
+    /**
+     * @inheritdoc IRoyaltyManager
+     */
+    function setTokenRoyalties(
         uint256 _tokenId,
         address payable[] calldata _receivers,
         uint96[] calldata _basisPoints
-    ) internal {
+    ) public {
         if (!_exists(_tokenId)) revert NonExistentToken();
-        if (_receivers.length != _basisPoints.length) revert LengthMismatch();
-        /// Deleting first, so this could be used to reset royalties to a new config
+        uint256 tokenLength = _basisPoints.length;
+        if (_receivers.length != tokenLength) revert LengthMismatch();
+
         delete tokenRoyalties[_tokenId];
         RoyaltyInfo[] storage tokenRoyalties_ = tokenRoyalties[_tokenId];
-        RoyaltyInfo[] memory royalties_ = baseRoyalties;
         uint256 baseLength = baseRoyalties.length;
-        uint256 tokenLength = _basisPoints.length;
-        uint96[] memory totalBasisPoints = new uint96[](baseLength + _basisPoints.length);
+        uint96[] memory totalBasisPoints = new uint96[](baseLength + tokenLength);
+
         for (uint256 i; i < baseLength; i++) {
-            totalBasisPoints[i] = royalties_[i].basisPoints;
+            totalBasisPoints[i] = baseRoyalties[i].basisPoints;
         }
 
         for (uint256 i; i < tokenLength; i++) {
@@ -129,21 +128,18 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         emit TokenIdRoyaltiesUpdated(_tokenId, _receivers, _basisPoints);
     }
 
-    /// @dev Sets the base royalties for the contract
-    function _setBaseRoyalties(address payable[] calldata _receivers, uint96[] calldata _basisPoints) internal {
-        delete baseRoyalties;
-        if (_receivers.length != _basisPoints.length) revert LengthMismatch();
-        _checkRoyalties(_basisPoints);
-        for (uint256 i; i < _basisPoints.length; i++) {
-            baseRoyalties.push(RoyaltyInfo(_receivers[i], _basisPoints[i]));
-        }
-        emit TokenRoyaltiesUpdated(_receivers, _basisPoints);
-    }
+    /*//////////////////////////////////////////////////////////////////////////
+                                INTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
-    /// @dev Checks if the token ID exists
-    function _exists(uint256) internal view virtual returns (bool);
+    /**
+     * @dev Checks if given token ID exists
+     */
+    function _exists(uint256 _tokenId) internal view virtual returns (bool);
 
-    /// @dev Checks that the total basis points for the royalties do not exceed 10000 (100%)
+    /**
+     * @dev Checks if total basis points of royalties exceeds 10,000 (100%)
+     */
     function _checkRoyalties(uint96[] memory _basisPoints) internal pure {
         uint256 totalBasisPoints;
         for (uint256 i; i < _basisPoints.length; i++) {

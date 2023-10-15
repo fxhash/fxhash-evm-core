@@ -347,7 +347,7 @@ interface IFxMintTicket721 {
     function setPrice(uint256 _tokenId, uint80 _newPrice) external;
 
     /**
-     * @notice Mapping of ticket ID to tax information (gracePeriod, foreclosureTime, currentPrice, depositAmount)
+     * @notice Mapping of ticket ID to tax information (grace period, foreclosure time, current price, deposit amount)
      */
     function taxes(uint256) external returns (uint48, uint48, uint80, uint80);
 
