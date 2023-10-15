@@ -18,7 +18,7 @@ struct RoyaltyInfo {
 /**
  * @title IRoyaltyManager
  * @author fx(hash)
- * @notice Extension that manages secondary royalties of FxGenArt721 tokens
+ * @notice Extension for managing secondary royalties of FxGenArt721 tokens
  */
 interface IRoyaltyManager {
     /*//////////////////////////////////////////////////////////////////////////

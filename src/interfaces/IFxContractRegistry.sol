@@ -1,7 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+/*//////////////////////////////////////////////////////////////////////////
+                                  STRUCTS
+//////////////////////////////////////////////////////////////////////////*/
+
 /**
+ * @notice Struct of system config information
  * @param lockTime Locked time duration added to mint start time for unverified creators
  * @param referrerShare Share amount distributed to accounts referring tokens
  * @param defaultMetadata Default metadata URI of all unrevealed tokens
@@ -18,6 +23,10 @@ struct ConfigInfo {
  * @notice Registry for managing smart contracts deployed by fxhash
  */
 interface IFxContractRegistry {
+    /*//////////////////////////////////////////////////////////////////////////
+                                  EVENTS
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
      * @notice Event emitted when contract gets registered
      * @param _contractName Name of the contract
@@ -33,6 +42,10 @@ interface IFxContractRegistry {
      */
     event ConfigUpdated(address indexed _owner, ConfigInfo _configInfo);
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                  ERRORS
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
      * @notice Error thrown when either array is empty
      */
@@ -43,8 +56,12 @@ interface IFxContractRegistry {
      */
     error LengthMismatch();
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                  FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
-     * @notice Returns the system config information (lockTime, referrerShare, defaultMetadata)
+     * @notice Returns the system config information (lock time, referrer share, default metadata)
      */
     function configInfo() external view returns (uint128, uint128, string memory);
 
@@ -62,7 +79,7 @@ interface IFxContractRegistry {
 
     /**
      * @notice Sets the system config information
-     * @param _configInfo Config information (lockTime, referrerShare, defaultMetadata)
+     * @param _configInfo Config information (lock time, referrer share, default metadata)
      */
     function setConfig(ConfigInfo calldata _configInfo) external;
 }

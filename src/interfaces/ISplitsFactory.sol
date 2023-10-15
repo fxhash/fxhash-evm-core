@@ -12,15 +12,15 @@ interface ISplitsFactory {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @notice Event emitted when the Controller address is updated
+     * @notice Event emitted when the controller address is updated
      * @param _oldController Address of the previous controller
-     * @param _newController Address of the current controller
+     * @param _newController Address of the new controller
      */
     event ControllerUpdated(address indexed _oldController, address indexed _newController);
 
     /**
-     * @notice Event emitted to indicate a split was created or where it will be deployed to
-     * @param _split Address the split contract will be deployed to
+     * @notice Event emitted to indicate a splits wallet was created or where it will be deployed to
+     * @param _split Address the splits contract will be deployed to
      * @param _controller Address of the controller contract
      * @param _accounts Array of addresses that participate in the split
      * @param _allocations Array of allocations for each account
@@ -39,12 +39,12 @@ interface ISplitsFactory {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @notice Error thrown if predictedSplit doesn't match deployment
+     * @notice Error thrown if predicted split address does not match deployment
      */
     error InvalidSplit();
 
     /**
-     * @notice Error thrown if split already was deployed
+     * @notice Error thrown if splits wallet was already deployed
      */
     error SplitsExists();
 
@@ -88,13 +88,13 @@ interface ISplitsFactory {
     function emitVirtualSplit(address[] calldata _accounts, uint32[] calldata _allocations) external returns (address);
 
     /**
-     * @notice Sets the new 0xSplits Controller address
+     * @notice Sets the new 0xSplits controller address
      * @param _controller Address of the new controller
      */
     function setController(address _controller) external;
 
     /**
-     * @notice Returns the main 0xSplits contract
+     * @notice Returns the SplitsMain contract
      */
     function splits() external view returns (address);
 }
