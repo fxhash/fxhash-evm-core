@@ -4,6 +4,10 @@ pragma solidity 0.8.20;
 import {IMinter} from "src/interfaces/IMinter.sol";
 import {ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 
+/*//////////////////////////////////////////////////////////////////////////
+                                  STRUCTS
+//////////////////////////////////////////////////////////////////////////*/
+
 /**
  * @notice Struct of Dutch auction information
  * @param refunded Flag indicating if refunds are enabled

@@ -9,6 +9,7 @@ import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
 //////////////////////////////////////////////////////////////////////////*/
 
 /**
+ * @notice Struct of generative art information
  * @param seed Hash of seed generated for randomly minted tokens
  * @param fxParams Random sequence of fixed-length bytes used as token input
  */
@@ -36,6 +37,7 @@ struct InitInfo {
 }
 
 /**
+ * @notice Struct of issuer information
  * @param primaryReceiver Address of splitter contract receiving primary sales
  * @param projectInfo Project information
  * @param activeMinters Array of authorized minter contracts used for enumeration
@@ -49,6 +51,7 @@ struct IssuerInfo {
 }
 
 /**
+ * @notice Struct of metadata information
  * @param baseURI CID hash of collection metadata
  * @param imageURI CID hash of collection images
  * @param onchainData Bytes-encoded data rendered onchain
@@ -60,6 +63,7 @@ struct MetadataInfo {
 }
 
 /**
+ * @notice Struct of mint information
  * @param minter Address of the minter contract
  * @param reserveInfo Reserve information
  * @param params Optional bytes data decoded inside minter
@@ -71,12 +75,13 @@ struct MintInfo {
 }
 
 /**
+ * @notice Struct of project information
  * @param onchain Flag inidicated if project metadata is rendered onchain
  * @param mintEnabled Flag inidicating if minting is enabled
  * @param burnEnabled Flag inidicating if burning is enabled
  * @param inputSize Maximum input size of fxParams bytes data
  * @param maxSupply Maximum supply of tokens
- * @param contractURI Contract URI of project
+ * @param contractURI Contract URI pointer of project metadata
  */
 struct ProjectInfo {
     bool onchain;
@@ -88,6 +93,7 @@ struct ProjectInfo {
 }
 
 /**
+ * @notice Struct of reserve information
  * @param startTime Start timestamp of minter
  * @param endTime End timestamp of minter
  * @param allocation Allocation amount for minter
@@ -101,7 +107,7 @@ struct ReserveInfo {
 /**
  * @title IFxGenArt721
  * @author fx(hash)
- * @notice ERC-721 token for Generative Art projects created on fxhash
+ * @notice ERC-721 token for generative art projects created on fxhash
  */
 interface IFxGenArt721 is ISeedConsumer {
     /*//////////////////////////////////////////////////////////////////////////
@@ -109,7 +115,7 @@ interface IFxGenArt721 is ISeedConsumer {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @notice Event emitted when project is deleted after supply is set to zero
+     * @notice Event emitted when project is deleted only once supply is set to zero
      */
     event ProjectDeleted();
 

@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+/*//////////////////////////////////////////////////////////////////////////
+                                  STRUCTS
+//////////////////////////////////////////////////////////////////////////*/
+
 /**
  * @notice Struct to store the info for a royalty recipient
  * @param The address that will receive the royalty payment
@@ -13,9 +17,14 @@ struct RoyaltyInfo {
 
 /**
  * @title IRoyaltyManager
- * @notice Manages royalty payments for secondary sales
+ * @author fx(hash)
+ * @notice Extension that manages secondary royalties of FxGenArt721 tokens
  */
 interface IRoyaltyManager {
+    /*//////////////////////////////////////////////////////////////////////////
+                                  EVENTS
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
      * @notice Emitted when the royalties for a set of receivers have been updated.
      * @param receivers the addressaddress that will receive royalties.

@@ -6,7 +6,8 @@ import {FEE_DENOMINATOR, MAX_ROYALTY_BPS} from "src/utils/Constants.sol";
 
 /**
  * @title RoyaltyManager
- * @notice Manages the royalty inforamtion for generative art collections
+ * @author fx(hash)
+ * @notice See the documentation in {IRoyaltyManager}
  */
 abstract contract RoyaltyManager is IRoyaltyManager {
     /// @notice List of basis points and receiver addresses for base royalty info
