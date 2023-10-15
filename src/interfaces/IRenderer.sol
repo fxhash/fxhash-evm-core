@@ -10,8 +10,8 @@ interface IRenderer {
     /**
      * @notice Gets the metadata for a token
      * @param _tokenId ID of the token
-     * @param _data Additional data used to construct the URI
-     * @return URI of the token
+     * @param _data Additional data used to construct onchain metadata
+     * @return URI of the token metadata
      */
     function tokenURI(uint256 _tokenId, bytes calldata _data) external view returns (string memory);
 }

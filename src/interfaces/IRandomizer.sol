@@ -8,7 +8,7 @@ pragma solidity 0.8.20;
  */
 interface IRandomizer {
     /**
-     * @notice Requests random seed for a token
+     * @notice Requests random seed for a given token
      * @param _tokenId ID of the token
      */
     function requestRandomness(uint256 _tokenId) external;

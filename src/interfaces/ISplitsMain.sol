@@ -4,7 +4,7 @@ pragma solidity 0.8.20;
 /**
  * @title ISplitsMain
  * @author 0xSplits
- * @notice Interface for external contracts to interact with SplitsMain
+ * @notice Interface for SplitsFactory to interact with SplitsMain
  */
 interface ISplitsMain {
     function createSplit(

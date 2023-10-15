@@ -23,7 +23,7 @@ contract SplitsFactory is ISplitsFactory, Ownable {
     address public controller;
 
     /**
-     * @dev Initializes factory owner and main 0xSplits
+     * @dev Initializes factory owner and SplitsMain
      */
     constructor(address _admin, address _splits) {
         splits = _splits;

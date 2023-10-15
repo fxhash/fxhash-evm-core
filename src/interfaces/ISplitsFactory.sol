@@ -4,7 +4,7 @@ pragma solidity 0.8.20;
 /**
  * @title ISplitsFactory
  * @author fx(hash)
- * @notice Factory for managing newly deployed 0xSplits wallets
+ * @notice Factory for managing newly deployed SplitsMain wallets
  */
 interface ISplitsFactory {
     /*//////////////////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@ interface ISplitsFactory {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @notice Error thrown if predicted split address does not match deployment
+     * @notice Error thrown if predicted splits address does not match deployment
      */
     error InvalidSplit();
 
@@ -53,12 +53,12 @@ interface ISplitsFactory {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @notice Returns the 0xSplits controller contract
+     * @notice Returns address of SplitsMain controller contract
      */
     function controller() external view returns (address);
 
     /**
-     * @notice Creates a new immutable 0xSplits wallet
+     * @notice Creates a new immutable SplitsMain wallet
      * @param _accounts Array of addresses that participate in the split
      * @param _allocations Array of allocations for each account
      * @return split Address of the deployed splits contract
@@ -69,7 +69,7 @@ interface ISplitsFactory {
     ) external returns (address);
 
     /**
-     * @notice Creates a new mutable 0xSplits wallet
+     * @notice Creates a new mutable SplitsMain wallet
      * @param _accounts Array of addresses that participate in the split
      * @param _allocations Array of allocations for each account
      * @return split Address of the deployed splits contract
@@ -80,7 +80,7 @@ interface ISplitsFactory {
     ) external returns (address);
 
     /**
-     * @notice Creates a deterministic 0xSplits wallet
+     * @notice Creates a deterministic SplitsMain wallet
      * @param _accounts Array of addresses that participate in the split
      * @param _allocations Array array of allocations for each account
      * @return split Address of the deployed splits contract
@@ -88,13 +88,13 @@ interface ISplitsFactory {
     function emitVirtualSplit(address[] calldata _accounts, uint32[] calldata _allocations) external returns (address);
 
     /**
-     * @notice Sets the new 0xSplits controller address
+     * @notice Sets the new SplitsMain controller address
      * @param _controller Address of the new controller
      */
     function setController(address _controller) external;
 
     /**
-     * @notice Returns the SplitsMain contract
+     * @notice Returns address of the SplitsMain contract
      */
     function splits() external view returns (address);
 }
