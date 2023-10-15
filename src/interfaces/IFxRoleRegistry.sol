@@ -4,7 +4,7 @@ pragma solidity 0.8.20;
 /**
  * @title IFxRoleRegistry
  * @author fx(hash)
- * @notice Registry of AccessControl roles enfored by fxhash
+ * @notice Registry of AccessControl roles enforced by fxhash
  */
 interface IFxRoleRegistry {
     /**

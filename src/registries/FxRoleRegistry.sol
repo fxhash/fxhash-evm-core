@@ -12,6 +12,9 @@ import "src/utils/Constants.sol";
  * @dev See the documentation in {IFxRoleRegistry}
  */
 contract FxRoleRegistry is AccessControl, IFxRoleRegistry {
+    /**
+     * @dev Initializes registry owner and role admins
+     */
     constructor(address _admin) {
         _setRoleAdmin(ADMIN_ROLE, ADMIN_ROLE);
         _setRoleAdmin(CREATOR_ROLE, ADMIN_ROLE);
@@ -25,6 +28,9 @@ contract FxRoleRegistry is AccessControl, IFxRoleRegistry {
         _grantRole(USER_MODERATOR_ROLE, _admin);
     }
 
+    /**
+     * @inheritdoc IFxRoleRegistry
+     */
     function setRoleAdmin(bytes32 _role) external onlyRole(ADMIN_ROLE) {
         _setRoleAdmin(_role, ADMIN_ROLE);
     }

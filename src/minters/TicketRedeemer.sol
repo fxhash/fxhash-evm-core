@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {FxMintTicket721} from "src/tokens/FxMintTicket721.sol";
-
+import {IERC721} from "openzeppelin/contracts/interfaces/IERC721.sol";
 import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
+import {IFxMintTicket721} from "src/interfaces/IFxMintTicket721.sol";
 import {ITicketRedeemer} from "src/interfaces/ITicketRedeemer.sol";
 
 /**
@@ -36,14 +36,14 @@ contract TicketRedeemer is ITicketRedeemer {
      */
     function redeem(address _ticket, uint256 _tokenId, bytes calldata _fxParams) external {
         // Reverts if caller is not owner of ticket
-        address owner = FxMintTicket721(_ticket).ownerOf(_tokenId);
+        address owner = IERC721(_ticket).ownerOf(_tokenId);
         if (msg.sender != owner) revert NotAuthorized();
         // Reverts if token contract does not exist
         address token = tokens[_ticket];
         if (token == address(0)) revert InvalidToken();
 
         // Burns ticket
-        FxMintTicket721(_ticket).burn(_tokenId);
+        IFxMintTicket721(_ticket).burn(_tokenId);
         // Mints new fxParams token to caller
         IFxGenArt721(token).mintParams(owner, _fxParams);
 
