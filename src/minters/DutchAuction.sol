@@ -9,11 +9,10 @@ import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 
 import {IDutchAuction, AuctionInfo, MinterInfo, RefundInfo} from "src/interfaces/IDutchAuction.sol";
 import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
-import {IMinter} from "src/interfaces/IMinter.sol";
 
 /**
  * @title DutchAuction
- * @author fxhash
+ * @author fx(hash)
  * @dev See the documentation in {IDutchAuction}
  */
 contract DutchAuction is IDutchAuction, Allowlist, MintPass {

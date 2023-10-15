@@ -9,7 +9,7 @@ import {CLAIM_TYPEHASH} from "src/utils/Constants.sol";
 
 /**
  * @title MintPass
- * @author fxhash
+ * @author fx(hash)
  * @notice Extension for claiming tokens through mint passes
  */
 abstract contract MintPass is EIP712 {

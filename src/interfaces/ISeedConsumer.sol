@@ -3,6 +3,7 @@ pragma solidity 0.8.20;
 
 /**
  * @title ISeedConsumer
+ * @author fx(hash)
  * @notice Interface for fullfilling random seed requests
  */
 interface ISeedConsumer {

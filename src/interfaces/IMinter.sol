@@ -5,7 +5,7 @@ import {ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 
 /**
  * @title IMinter
- * @author fxhash
+ * @author fx(hash)
  * @notice Interface for FxGenArt721 Tokens to interact with minters
  */
 interface IMinter {

@@ -38,7 +38,7 @@ struct RefundInfo {
 
 /**
  * @title DutchAuction
- * @author fxhash
+ * @author fx(hash)
  * @notice Minter for distributing tokens at linear prices over fixed periods of time
  */
 interface IDutchAuction is IMinter {

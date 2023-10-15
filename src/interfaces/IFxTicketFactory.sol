@@ -5,7 +5,7 @@ import {MintInfo} from "src/interfaces/IFxGenArt721.sol";
 
 /**
  * @title IFxTicketFactory
- * @author fxhash
+ * @author fx(hash)
  * @notice Factory for managing newly deployed FxMintTicket721 tokens
  */
 interface IFxTicketFactory {

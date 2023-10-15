@@ -4,12 +4,11 @@ pragma solidity 0.8.20;
 import {FxMintTicket721} from "src/tokens/FxMintTicket721.sol";
 
 import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
-import {IMinter} from "src/interfaces/IMinter.sol";
 import {ITicketRedeemer} from "src/interfaces/ITicketRedeemer.sol";
 
 /**
  * @title TicketRedeemer
- * @author fxhash
+ * @author fx(hash)
  * @dev See the documentation in {ITicketRedeemer}
  */
 contract TicketRedeemer is ITicketRedeemer {

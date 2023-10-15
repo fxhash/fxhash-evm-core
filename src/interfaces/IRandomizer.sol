@@ -3,7 +3,7 @@ pragma solidity 0.8.20;
 
 /**
  * @title IRandomizer
- * @author fxhash
+ * @author fx(hash)
  * @notice Interface for FxGenArt721 Tokens to interact with Randomizers
  */
 interface IRandomizer {

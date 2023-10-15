@@ -5,13 +5,12 @@ import {Base64} from "openzeppelin/contracts/utils/Base64.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
 import {GenArtInfo, MetadataInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
-import {IRenderer} from "src/interfaces/IRenderer.sol";
 import {IScriptyBuilderV2, HTMLRequest, HTMLTagType, HTMLTag} from "scripty.sol/contracts/scripty/interfaces/IScriptyBuilderV2.sol";
 import {IScriptyRenderer} from "src/interfaces/IScriptyRenderer.sol";
 
 /**
  * @title ScriptyRenderer
- * @author fxhash
+ * @author fx(hash)
  * @dev See the documentation in {IScriptyRenderer}
  */
 contract ScriptyRenderer is IScriptyRenderer {

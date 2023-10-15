@@ -5,7 +5,7 @@ import {IRandomizer} from "src/interfaces/IRandomizer.sol";
 
 /**
  * @title IPseudoRandomizer
- * @author fxhash
+ * @author fx(hash)
  * @notice Generates psuedo-random seeds for newly minted tokens
  */
 interface IPseudoRandomizer is IRandomizer {

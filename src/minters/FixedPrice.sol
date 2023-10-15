@@ -9,12 +9,11 @@ import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 
 import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
 import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
-import {IMinter} from "src/interfaces/IMinter.sol";
 import {OPEN_EDITION_SUPPLY, TIME_UNLIMITED} from "src/utils/Constants.sol";
 
 /**
  * @title FixedPrice
- * @author fxhash
+ * @author fx(hash)
  * @dev See the documentation in {IFixedPrice}
  */
 contract FixedPrice is IFixedPrice, Allowlist, MintPass {

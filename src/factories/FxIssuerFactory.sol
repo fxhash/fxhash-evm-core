@@ -11,7 +11,7 @@ import {IFxIssuerFactory} from "src/interfaces/IFxIssuerFactory.sol";
 
 /**
  * @title FxIssuerFactory
- * @author fxhash
+ * @author fx(hash)
  * @dev See the documentation in {IFxIssuerFactory}
  */
 contract FxIssuerFactory is IFxIssuerFactory, Ownable {

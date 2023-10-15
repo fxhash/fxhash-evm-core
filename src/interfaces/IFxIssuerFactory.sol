@@ -5,7 +5,7 @@ import {InitInfo, MetadataInfo, MintInfo, ProjectInfo} from "src/interfaces/IFxG
 
 /**
  * @title IFxIssuerFactory
- * @author fxhash
+ * @author fx(hash)
  * @notice Factory for managing newly deployed FxGenArt721 tokens
  */
 interface IFxIssuerFactory {

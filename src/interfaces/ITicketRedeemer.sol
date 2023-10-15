@@ -6,7 +6,7 @@ import {ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 
 /**
  * @title ITicketRedeemer
- * @author fxhash
+ * @author fx(hash)
  * @notice Minter for redeeming FxGenArt721 tokens by burning FxMintTicket721 tokens
  */
 interface ITicketRedeemer is IMinter {

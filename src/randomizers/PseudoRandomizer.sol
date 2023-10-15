@@ -6,7 +6,7 @@ import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
 
 /**
  * @title PseudoRandomizer
- * @author fxhash
+ * @author fx(hash)
  * @dev See the documentation in {IPseudoRandomizer}
  */
 contract PseudoRandomizer is IPseudoRandomizer {

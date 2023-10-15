@@ -3,7 +3,7 @@ pragma solidity 0.8.20;
 
 /**
  * @title ISplitsFactory
- * @author fxhash
+ * @author fx(hash)
  * @notice Factory for managing newly deployed 0xSplits wallets
  */
 interface ISplitsFactory {

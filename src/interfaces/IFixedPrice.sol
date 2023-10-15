@@ -6,7 +6,7 @@ import {ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 
 /**
  * @title IFixedPrice
- * @author fxhash
+ * @author fx(hash)
  * @notice Minter for distributing tokens at fixed prices
  */
 interface IFixedPrice is IMinter {

@@ -9,7 +9,7 @@ import {IFxTicketFactory} from "src/interfaces/IFxTicketFactory.sol";
 
 /**
  * @title FxTicketFactory
- * @author fxhash
+ * @author fx(hash)
  * @dev See the documentation in {IFxTicketFactory}
  */
 contract FxTicketFactory is IFxTicketFactory, Ownable {

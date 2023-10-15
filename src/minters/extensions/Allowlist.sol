@@ -6,7 +6,7 @@ import {MerkleProof} from "openzeppelin/contracts/utils/cryptography/MerkleProof
 
 /**
  * @title Allowlist
- * @author fxhash
+ * @author fx(hash)
  * @notice Extension for claiming tokens through merkle trees
  */
 abstract contract Allowlist {

@@ -8,7 +8,7 @@ import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
 
 /**
  * @title SplitsFactory
- * @author fxhash
+ * @author fx(hash)
  * @dev See the documentation in {ISplitsFactory}
  */
 contract SplitsFactory is ISplitsFactory, Ownable {
