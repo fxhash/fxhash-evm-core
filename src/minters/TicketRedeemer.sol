@@ -10,7 +10,7 @@ import {ITicketRedeemer} from "src/interfaces/ITicketRedeemer.sol";
 /**
  * @title TicketRedeemer
  * @author fxhash
- * @notice See the documentation in {ITicketRedeemer}
+ * @dev See the documentation in {ITicketRedeemer}
  */
 contract TicketRedeemer is ITicketRedeemer {
     /**

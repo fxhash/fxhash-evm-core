@@ -6,8 +6,11 @@ import {IFxRoleRegistry} from "src/interfaces/IFxRoleRegistry.sol";
 
 import "src/utils/Constants.sol";
 
-/// @title FxRoleRegistry
-/// @notice See the documentation in {IFxRoleRegistry}
+/**
+ * @title FxRoleRegistry
+ * @author fxhash
+ * @dev See the documentation in {IFxRoleRegistry}
+ */
 contract FxRoleRegistry is AccessControl, IFxRoleRegistry {
     constructor(address _admin) {
         _setRoleAdmin(ADMIN_ROLE, ADMIN_ROLE);

@@ -15,7 +15,7 @@ import {OPEN_EDITION_SUPPLY, TIME_UNLIMITED} from "src/utils/Constants.sol";
 /**
  * @title FixedPrice
  * @author fxhash
- * @notice See the documentation in {IFixedPrice}
+ * @dev See the documentation in {IFixedPrice}
  */
 contract FixedPrice is IFixedPrice, Allowlist, MintPass {
     using SafeCastLib for uint256;
