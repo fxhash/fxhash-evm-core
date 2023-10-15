@@ -28,8 +28,8 @@ interface IFxTicketFactory {
     event ImplementationUpdated(address indexed _owner, address indexed _implementation);
 
     /**
-     * @notice Event emitted when new Mint Ticket is created
-     * @param _ticketId ID of the ticket
+     * @notice Event emitted when new FxMintTicket721 is created
+     * @param _ticketId ID of the ticket contract
      * @param _mintTicket Address of newly deployed FxMintTicket721 token contract
      * @param _owner Address of ticket owner
      */
@@ -68,9 +68,9 @@ interface IFxTicketFactory {
      * @param _owner Address of project owner
      * @param _genArt721 Address of GenArt721 token contract
      * @param _redeemer Address of TicketRedeemer minter contract
-     * @param _gracePeriod Period time before token enters harberger taxation
+     * @param _gracePeriod Duration of time before token enters harberger taxation
      * @param _baseURI Base URI of the token metadata
-     * @param _mintInfo List of authorized minter contracts and their reserves
+     * @param _mintInfo Array of authorized minter contracts and their reserves
      */
     function createTicket(
         address _owner,

@@ -92,7 +92,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     }
 
     /**
-     * @dev Modifier for restricting calls to only authorized accounts with given roles
+     * @dev Modifier for restricting calls to only authorized accounts with given role
      */
     modifier onlyRole(bytes32 _role) {
         if (!IAccessControl(roleRegistry).hasRole(_role, msg.sender)) revert UnauthorizedAccount();

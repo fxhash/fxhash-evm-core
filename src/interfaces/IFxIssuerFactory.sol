@@ -21,7 +21,7 @@ interface IFxIssuerFactory {
     event ImplementationUpdated(address indexed _owner, address indexed _implementation);
 
     /**
-     * @notice Event emitted when new Generative Art project is created
+     * @notice Event emitted when a new generative art project is created
      * @param _projectId ID of the project
      * @param _genArtToken Address of newly deployed FxGenArt721 token contract
      * @param _owner Address of project owner
@@ -57,14 +57,14 @@ interface IFxIssuerFactory {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @notice Creates new Generative Art project
+     * @notice Creates new generative art project
      * @param _owner Address of project owner
      * @param _initInfo Initialization information
      * @param _projectInfo Project information
      * @param _metadataInfo Metadata information
-     * @param _mintInfo List of authorized minter contracts and their reserves
-     * @param _royaltyReceivers List of addresses receiving royalties
-     * @param _basisPoints List of basis points for calculating royalty shares
+     * @param _mintInfo Array of authorized minter contracts and their reserves
+     * @param _royaltyReceivers Array of addresses receiving royalties
+     * @param _basisPoints Array of basis points for calculating royalty shares
      */
     function createProject(
         address _owner,
@@ -98,7 +98,7 @@ interface IFxIssuerFactory {
 
     /**
      * @notice Sets new FxGenArt721 implementation contract
-     * @param _implementation Address of the new contract
+     * @param _implementation Address of the implementation contract
      */
     function setImplementation(address _implementation) external;
 }
