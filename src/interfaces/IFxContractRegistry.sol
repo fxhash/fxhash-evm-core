@@ -14,7 +14,8 @@ struct ConfigInfo {
 
 /**
  * @title IFxContractRegistry
- * @notice Registry of FxHash Smart Contracts
+ * @author fx(hash)
+ * @notice Registry of smart contracts deployed by fxhash
  */
 interface IFxContractRegistry {
     /**

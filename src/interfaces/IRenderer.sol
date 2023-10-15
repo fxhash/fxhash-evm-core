@@ -4,7 +4,7 @@ pragma solidity 0.8.20;
 /**
  * @title IRenderer
  * @author fx(hash)
- * @notice Interface for FxGenArt721 Tokens to interact with renderers
+ * @notice Interface for FxGenArt721 tokens to interact with renderers
  */
 interface IRenderer {
     /**

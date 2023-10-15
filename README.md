@@ -1,4 +1,4 @@
-# fxhash
+# fx(hash)
 
 ## Core Contracts
 

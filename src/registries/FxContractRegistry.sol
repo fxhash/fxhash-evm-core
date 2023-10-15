@@ -6,7 +6,7 @@ import {IFxContractRegistry, ConfigInfo} from "src/interfaces/IFxContractRegistr
 
 /**
  * @title FxContractRegistry
- * @author fxhash
+ * @author fx(hash)
  * @dev See the documentation in {IFxContractRegistry}
  */
 contract FxContractRegistry is IFxContractRegistry, Ownable {

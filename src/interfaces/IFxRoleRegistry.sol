@@ -3,11 +3,12 @@ pragma solidity 0.8.20;
 
 /**
  * @title IFxRoleRegistry
- * @notice Registry of FxHash Access Control roles
+ * @author fx(hash)
+ * @notice Registry of AccessControl roles enfored by fxhash
  */
 interface IFxRoleRegistry {
     /**
-     * @notice Sets the admin of a new or current role
+     * @notice Sets the admin of a new or existing role
      * @param _role Hash of the role name
      */
     function setRoleAdmin(bytes32 _role) external;

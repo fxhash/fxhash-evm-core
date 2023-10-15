@@ -8,7 +8,7 @@ import "src/utils/Constants.sol";
 
 /**
  * @title FxRoleRegistry
- * @author fxhash
+ * @author fx(hash)
  * @dev See the documentation in {IFxRoleRegistry}
  */
 contract FxRoleRegistry is AccessControl, IFxRoleRegistry {
