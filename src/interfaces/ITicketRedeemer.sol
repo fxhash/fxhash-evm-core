@@ -16,16 +16,16 @@ interface ITicketRedeemer is IMinter {
     /**
      * @notice Event emitted when the mint details are set for a ticket contract
      * @param _ticket Address of the ticket contract
-     * @param _token Address of the token that can be minted by the ticket contract
+     * @param _token Address of the token contract that can be redeemed through the ticket
      */
     event MintDetailsSet(address indexed _ticket, address indexed _token);
 
     /**
-     * @notice Event emitted when a ticket is redeemed and a new token is minted
-     * @param _ticket The address of the ticket contract
-     * @param _tokenId The ID of the ticket token that is burned
-     * @param _owner The address of the owner of the new token
-     * @param _token The address of the token that is minted
+     * @notice Event emitted when a ticket is burned and a new token is minted
+     * @param _ticket Address of the ticket contract
+     * @param _tokenId ID of the token being burned
+     * @param _owner Address of the owner receiving the token
+     * @param _token Address of the token being minted
      */
     event Redeemed(address indexed _ticket, uint256 indexed _tokenId, address indexed _owner, address _token);
 
