@@ -298,6 +298,11 @@ interface IDutchAuction is IMinter {
     function saleProceeds(address _token, uint256 _reserveId) external view returns (uint256);
 
     /**
+     * @inheritdoc IMinter
+     */
+    function setMintDetails(ReserveInfo calldata, bytes calldata _mintData) external;
+
+    /**
      * @notice Mapping of token address to reserve ID to address of mint passes authorities
      */
     function signingAuthorities(address, uint256) external view returns (address);

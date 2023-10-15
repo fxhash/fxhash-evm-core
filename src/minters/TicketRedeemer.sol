@@ -19,7 +19,7 @@ contract TicketRedeemer is ITicketRedeemer {
     mapping(address => address) public tokens;
 
     /**
-     * @inheritdoc IMinter
+     * @inheritdoc ITicketRedeemer
      */
     function setMintDetails(ReserveInfo calldata, bytes calldata _mintData) external {
         // Decodes ticket address from mint data

@@ -71,7 +71,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @inheritdoc IMinter
+     * @inheritdoc IDutchAuction
      */
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintData) external {
         (AuctionInfo memory daInfo, bytes32 merkleRoot, address signer) = abi.decode(

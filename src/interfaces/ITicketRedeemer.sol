@@ -2,6 +2,7 @@
 pragma solidity 0.8.20;
 
 import {IMinter} from "src/interfaces/IMinter.sol";
+import {ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 
 /**
  * @title ITicketRedeemer
@@ -59,6 +60,11 @@ interface ITicketRedeemer is IMinter {
      * @param _fxParams Random sequence of fixed-length bytes used for token input
      */
     function redeem(address _ticket, uint256 _tokenId, bytes calldata _fxParams) external;
+
+    /**
+     * @inheritdoc IMinter
+     */
+    function setMintDetails(ReserveInfo calldata, bytes calldata _mintData) external;
 
     /**
      * @notice Mapping of FxGenArt721 token address to FxMintTicket721 token address

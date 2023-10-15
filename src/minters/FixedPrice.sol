@@ -69,7 +69,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @inheritdoc IMinter
+     * @inheritdoc IFixedPrice
      */
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external {
         if (latestUpdates[msg.sender] != block.timestamp) {
