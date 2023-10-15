@@ -84,7 +84,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
             latestUpdates[msg.sender] = block.timestamp;
         }
 
-        // Checks if the step length is evenly dividisbile by the auction duration
+        // Checks if the step length is evenly divisible by the auction duration
         if ((_reserve.endTime - _reserve.startTime) % daInfo.stepLength != 0) revert InvalidStep();
         uint256 reserveId = reserves[msg.sender].length;
         delete merkleRoots[msg.sender][reserveId];
