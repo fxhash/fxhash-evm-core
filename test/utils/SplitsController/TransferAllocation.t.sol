@@ -19,7 +19,7 @@ contract TransferAllocation is SplitsControllerTest {
     function test_When_Creator_TransferAllocation() public {
         vm.prank(alice);
         controller.transferAllocation(split, accounts, allocations, transferTo);
-        /// need to move creator status
+        // need to move creator status
     }
 
     function test_When_SplitCreator_TransferAllocationFrom() public {

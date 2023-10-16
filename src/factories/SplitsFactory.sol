@@ -12,7 +12,7 @@ import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
  * @author fx(hash)
  * @dev See the documentation in {ISplitsFactory}
  */
-contract SplitsFactory is ISplitsFactory, Ownable {
+contract SplitsFactory is ISplitsFactory, Ownable, SplitsController {
     /*//////////////////////////////////////////////////////////////////////////
                                     STORAGE
     //////////////////////////////////////////////////////////////////////////*/

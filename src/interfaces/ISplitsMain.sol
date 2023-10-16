@@ -21,7 +21,7 @@ interface ISplitsMain {
         uint32 distributorFee,
         address distributorAddress
     ) external;
-    
+
     function getHash(address split) external view returns (bytes32);
 
     function predictImmutableSplitAddress(
