@@ -120,9 +120,9 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     /**
      * @inheritdoc IDutchAuction
      */
-    function refund(address _token, uint256 _reserveId, address _who) external {
+    function refund(address _token, uint256 _reserveId, address _buyer) external {
         // Validates token address, reserve information and given account
-        _validateInput(_token, _reserveId, _who);
+        _validateInput(_token, _reserveId, _buyer);
 
         ReserveInfo storage reserve = reserves[_token][_reserveId];
         uint256 lastPrice = refunds[_token][_reserveId].lastPrice;
@@ -135,17 +135,17 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         if (block.timestamp < reserve.endTime && reserve.allocation > 0) revert NotEnded();
 
         // Get the user's refund information
-        MinterInfo memory minterInfo = refunds[_token][_reserveId].minterInfo[_who];
+        MinterInfo memory minterInfo = refunds[_token][_reserveId].minterInfo[_buyer];
         uint128 refundAmount = SafeCastLib.safeCastTo128(minterInfo.totalPaid - minterInfo.totalMints * lastPrice);
 
         // Deletes the minter's refund information
-        delete refunds[_token][_reserveId].minterInfo[_who];
+        delete refunds[_token][_reserveId].minterInfo[_buyer];
         if (refundAmount == 0) revert NoRefund();
 
-        emit RefundClaimed(_token, _reserveId, _who, refundAmount);
+        emit RefundClaimed(_token, _reserveId, _buyer, refundAmount);
 
         // Sends refund to the user
-        SafeTransferLib.safeTransferETH(_who, refundAmount);
+        SafeTransferLib.safeTransferETH(_buyer, refundAmount);
     }
 
     /**
@@ -312,10 +312,10 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     /**
      * @dev Validates token address, reserve information and given account
      */
-    function _validateInput(address _token, uint256 _reserveId, address _who) internal view {
+    function _validateInput(address _token, uint256 _reserveId, address _buyer) internal view {
         uint256 length = reserves[_token].length;
         if (length == 0) revert InvalidToken();
         if (_reserveId >= length) revert InvalidReserve();
-        if (_who == address(0)) revert AddressZero();
+        if (_buyer == address(0)) revert AddressZero();
     }
 }

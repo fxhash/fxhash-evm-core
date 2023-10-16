@@ -283,9 +283,9 @@ interface IDutchAuction is IMinter {
      * @notice Refunds an auction buyer with their rebate amount
      * @param _reserveId ID of the mint
      * @param _token Address of the token contract
-     * @param _who Address of the buyer claiming the refund
+     * @param _buyer Address of the buyer receiving the refund
      */
-    function refund(address _token, uint256 _reserveId, address _who) external;
+    function refund(address _token, uint256 _reserveId, address _buyer) external;
 
     /**
      * @notice Mapping of token address to reserve ID to refund amount
