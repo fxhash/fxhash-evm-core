@@ -5,6 +5,10 @@ import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
 import {ISplitsFactory} from "src/interfaces/ISplitsFactory.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
 
+interface IController {
+    function addCreator(address, address) external;
+}
+
 /**
  * @title SplitsFactory
  * @notice A factory contract for creating split wallets and easier event tracking
@@ -39,6 +43,16 @@ contract SplitsFactory is ISplitsFactory, Ownable {
         uint32[] calldata _allocations
     ) external returns (address split) {
         split = ISplitsMain(splitsMain).createSplit(_accounts, _allocations, 0, controller);
+        emit SplitsInfo(split, controller, _accounts, _allocations, 0);
+    }
+
+    function createMutableSplit(
+        address[] calldata _accounts,
+        uint32[] calldata _allocations,
+        address _creator
+    ) external returns (address split) {
+        split = ISplitsMain(splitsMain).createSplit(_accounts, _allocations, 0, controller);
+        IController(controller).addCreator(split, _creator);
         emit SplitsInfo(split, controller, _accounts, _allocations, 0);
     }
 

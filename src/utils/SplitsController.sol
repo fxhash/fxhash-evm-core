@@ -11,12 +11,20 @@ abstract contract SplitsController {
     error CantTransferFxHash();
     error AccountNotInAccounts();
     error AccountsIdentical();
+    error NotValidSplitHash();
 
-    function _updateSplitsAllocation(
-        address _split,
-        address[] memory _accounts,
-        uint32[] memory _allocations
-    ) internal {}
+    /** @notice Hashes a split
+     *  @param accounts Ordered, unique list of addresses with ownership in the split
+     *  @param percentAllocations Percent allocations associated with each address
+     *  @return computedHash Hash of the split.
+     */
+    function _hashSplit(address[] memory accounts, uint32[] memory percentAllocations) internal pure returns (bytes32) {
+        return keccak256(abi.encodePacked(accounts, percentAllocations, uint32(0)));
+    }
+
+    function _addCreator(address _split, address _creator) internal {
+        splitCreator[_split] = _creator;
+    }
 
     function _transferAllocation(
         address _split,
@@ -24,6 +32,9 @@ abstract contract SplitsController {
         uint32[] memory _allocations,
         address _to
     ) internal {
+        /// need to verify the previous accounts and allocations == split stored hash
+        if (_hashSplit(_accounts, _allocations) != ISplitsMain(splitsMain()).getHash(_split))
+            revert NotValidSplitHash();
         /// moves allocation of msg.sender in _accounts list -> _to account
         _transferAllocationFrom(_split, _accounts, _allocations, msg.sender, _to);
     }
@@ -116,4 +127,6 @@ abstract contract SplitsController {
         }
         return (_accounts, _allocations);
     }
+
+    function splitsMain() public virtual returns (address);
 }

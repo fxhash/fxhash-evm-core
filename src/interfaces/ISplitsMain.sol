@@ -2,6 +2,8 @@
 pragma solidity 0.8.20;
 
 interface ISplitsMain {
+    function getHash(address split) external view returns (bytes32);
+
     function distributeETH(
         address split,
         address[] calldata accounts,
