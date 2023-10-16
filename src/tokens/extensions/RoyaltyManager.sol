@@ -133,12 +133,12 @@ abstract contract RoyaltyManager is IRoyaltyManager {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @dev Checks if given token ID exists
+     * @dev Checks if the token ID exists
      */
     function _exists(uint256 _tokenId) internal view virtual returns (bool);
 
     /**
-     * @dev Checks if total basis points of royalties exceeds 10,000 (100%)
+     * @dev Checks if the total basis points of royalties exceeds 10,000 (100%)
      */
     function _checkRoyalties(uint96[] memory _basisPoints) internal pure {
         uint256 totalBasisPoints;

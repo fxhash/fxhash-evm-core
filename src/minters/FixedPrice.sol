@@ -80,23 +80,27 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
 
         if (_reserve.allocation == 0) revert InvalidAllocation();
         (uint256 price, bytes32 merkleRoot, address signer) = abi.decode(_mintDetails, (uint256, bytes32, address));
-
         if (price == 0) revert InvalidPrice();
         if (merkleRoot != bytes32(0) && signer != address(0)) revert OnlyAuthorityOrAllowlist();
+
         uint256 reserveId = reserves[msg.sender].length;
         delete merkleRoots[msg.sender][reserveId];
         delete signingAuthorities[msg.sender][reserveId];
+
         if (merkleRoot != bytes32(0)) {
             merkleRoots[msg.sender][reserveId] = merkleRoot;
         }
+
         if (signer != address(0)) {
             signingAuthorities[msg.sender][reserveId] = signer;
         }
+
         prices[msg.sender].push(price);
         reserves[msg.sender].push(_reserve);
 
         bool openEdition = _reserve.allocation == OPEN_EDITION_SUPPLY ? true : false;
         bool timeUnlimited = _reserve.endTime == TIME_UNLIMITED ? true : false;
+
         emit MintDetailsSet(msg.sender, reserveId, price, _reserve, openEdition, timeUnlimited);
     }
 

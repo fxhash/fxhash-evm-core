@@ -210,8 +210,9 @@ interface IFixedPrice is IMinter {
 
     /**
      * @inheritdoc IMinter
+     * @dev Mint details: token price, merkle root, and signer address
      */
-    function setMintDetails(ReserveInfo calldata, bytes calldata _mintData) external;
+    function setMintDetails(ReserveInfo calldata, bytes calldata _mintDetails) external;
 
     /**
      * @notice Mapping of token address to reserve ID to address of mint passes authorities

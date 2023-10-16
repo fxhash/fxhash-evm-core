@@ -12,7 +12,7 @@ interface IMinter {
     /**
      * @notice Sets the mint details for token reserves
      * @param _reserveInfo Reserve information for the token
-     * @param _mintDetails Mint details pertaining to the minter
+     * @param _mintDetails Details of the mint pertaining to the minter
      */
     function setMintDetails(ReserveInfo calldata _reserveInfo, bytes calldata _mintDetails) external;
 }

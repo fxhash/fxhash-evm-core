@@ -9,7 +9,7 @@ import {ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 //////////////////////////////////////////////////////////////////////////*/
 
 /**
- * @notice Struct of Dutch auction information
+ * @notice Struct of dutch auction information
  * @param refunded Flag indicating if refunds are enabled
  * @param stepLength Duration (in seconds) of each auction step
  * @param prices Array of prices for each step of the auction
@@ -32,7 +32,7 @@ struct MinterInfo {
 
 /**
  * @notice Struct of refund information
- * @param lastPrice Last sale price before selling out
+ * @param lastPrice Price of last sale before selling out
  * @param minterInfo Mapping of minter address to struct of MinterInfo
  */
 struct RefundInfo {
@@ -65,7 +65,7 @@ interface IDutchAuction is IMinter {
     );
 
     /**
-     * @notice Event emitted when a purchase is made during the Dutch auction
+     * @notice Event emitted when a purchase is made during the auction
      * @param _token Address of the token being purchased
      * @param _reserveId ID of the reserve
      * @param _buyer Address of the buyer
@@ -261,10 +261,10 @@ interface IDutchAuction is IMinter {
     ) external payable;
 
     /**
-     * @notice Retrieves the current price of the auction
+     * @notice Gets the current auction price
      * @param _token Address of the token contract
-     * @param _reserveId ID of the mint
-     * @return price Current price of the token
+     * @param _reserveId ID of the reserve
+     * @return price Price of the token
      */
     function getPrice(address _token, uint256 _reserveId) external view returns (uint256);
 
@@ -303,8 +303,9 @@ interface IDutchAuction is IMinter {
 
     /**
      * @inheritdoc IMinter
+     * @dev Mint details: auction information, merkle root, and signer address
      */
-    function setMintDetails(ReserveInfo calldata, bytes calldata _mintData) external;
+    function setMintDetails(ReserveInfo calldata, bytes calldata _mintDetails) external;
 
     /**
      * @notice Mapping of token address to reserve ID to address of mint passes authorities
@@ -312,7 +313,7 @@ interface IDutchAuction is IMinter {
     function signingAuthorities(address, uint256) external view returns (address);
 
     /**
-     * @notice Allows the sale proceeds to be withdrawn to the primary sale receiver of a token
+     * @notice Withdraws sale processed of primary sales to receiver
      * @param _reserveId ID of the reserve
      * @param _token Address of the token contract
      */

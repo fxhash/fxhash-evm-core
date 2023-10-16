@@ -17,12 +17,12 @@ abstract contract Allowlist {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @notice Error thrown when the merkle proof of index is invalid
+     * @notice Error thrown when the merkle proof for an index is invalid
      */
     error InvalidProof();
 
     /**
-     * @notice Error thrown when index in merkle tree has already been claimed
+     * @notice Error thrown when an index in the merkle tree has already been claimed
      */
     error SlotAlreadyClaimed();
 
