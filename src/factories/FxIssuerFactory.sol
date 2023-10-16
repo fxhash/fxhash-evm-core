@@ -12,18 +12,37 @@ import {BANNED_USER_ROLE} from "src/utils/Constants.sol";
 
 /**
  * @title FxIssuerFactory
- * @notice See the documentation in {IFxIssuerFactory}
+ * @author fx(hash)
+ * @dev See the documentation in {IFxIssuerFactory}
  */
 contract FxIssuerFactory is IFxIssuerFactory, Ownable {
-    /// @inheritdoc IFxIssuerFactory
+    /*//////////////////////////////////////////////////////////////////////////
+                                    STORAGE
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc IFxIssuerFactory
+     */
     address public immutable roleRegistry;
-    /// @inheritdoc IFxIssuerFactory
-    uint96 public projectId;
-    /// @inheritdoc IFxIssuerFactory
+
+    /**
+     * @inheritdoc IFxIssuerFactory
+     */
     address public implementation;
 
-    /// @inheritdoc IFxIssuerFactory
+    /**
+     * @inheritdoc IFxIssuerFactory
+     */
+    uint96 public projectId;
+
+    /**
+     * @inheritdoc IFxIssuerFactory
+     */
     mapping(uint96 => address) public projects;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    MODIFIERS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /**
      * @dev Modifier for checking if user is banned from system
@@ -33,14 +52,26 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
         _;
     }
 
-    /// @dev Initializes FxGenArt721 implementation and sets the initial config info
+    /*//////////////////////////////////////////////////////////////////////////
+                                    CONSTRUCTOR
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @dev Initializes factory owner, FxRoleRegistry and FxGenArt721 implementation
+     */
     constructor(address _admin, address _roleRegistry, address _implementation) {
         roleRegistry = _roleRegistry;
         _transferOwnership(_admin);
         _setImplementation(_implementation);
     }
 
-    /// @inheritdoc IFxIssuerFactory
+    /*//////////////////////////////////////////////////////////////////////////
+                                EXTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc IFxIssuerFactory
+     */
     function createProject(
         address _owner,
         InitInfo calldata _initInfo,
@@ -53,6 +84,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
         if (_owner == address(0)) revert InvalidOwner();
         if (_initInfo.primaryReceiver == address(0)) revert InvalidPrimaryReceiver();
         if (_initInfo.randomizer == address(0) && _projectInfo.inputSize == 0) revert InvalidInputSize();
+
         genArtToken = Clones.clone(implementation);
         projects[++projectId] = genArtToken;
 
@@ -69,12 +101,20 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
         );
     }
 
-    /// @inheritdoc IFxIssuerFactory
+    /**
+     * @inheritdoc IFxIssuerFactory
+     */
     function setImplementation(address _implementation) external onlyOwner {
         _setImplementation(_implementation);
     }
 
-    /// @dev Sets the implementation address
+    /*//////////////////////////////////////////////////////////////////////////
+                                INTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @dev Sets the FxGenArt721 implementation contract
+     */
     function _setImplementation(address _implementation) internal {
         implementation = _implementation;
         emit ImplementationUpdated(msg.sender, _implementation);
