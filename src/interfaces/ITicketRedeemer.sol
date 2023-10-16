@@ -63,9 +63,9 @@ interface ITicketRedeemer is IMinter {
 
     /**
      * @inheritdoc IMinter
-     * @dev Mint details: ticket contract address
+     * @dev Mint Details: ticket contract address
      */
-    function setMintDetails(ReserveInfo calldata, bytes calldata _mintDetails) external;
+    function setMintDetails(ReserveInfo calldata _reserveInfo, bytes calldata _mintDetails) external;
 
     /**
      * @notice Mapping of FxGenArt721 token address to FxMintTicket721 token address

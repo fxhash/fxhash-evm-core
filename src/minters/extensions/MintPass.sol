@@ -59,7 +59,7 @@ abstract contract MintPass is EIP712 {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @notice Validates a mint pass claim
+     * @dev Validates a mint pass claim
      * @param _token Address of the token contract
      * @param _reserveId ID of the reserve
      * @param _index Index of the mint pass
@@ -83,6 +83,9 @@ abstract contract MintPass is EIP712 {
 
     /**
      * @dev Checks if signer has signing authority
+     * @param _signer Address of the signer
+     * @param _token Address of the token contract
+     * @param _reserveId ID of the reserve
      */
     function _isSigningAuthority(
         address _signer,

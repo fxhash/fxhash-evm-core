@@ -142,7 +142,7 @@ interface IFixedPrice is IMinter {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @notice Buys tokens at a fixed price
+     * @notice Purchases tokens at a fixed price
      * @param _token Address of the token contract
      * @param _reserveId ID of the reserve
      * @param _amount Amount of tokens being purchased
@@ -151,7 +151,7 @@ interface IFixedPrice is IMinter {
     function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable;
 
     /**
-     * @notice Buys tokens through an allowlist at a fixed price
+     * @notice Purchases tokens through an allowlist at a fixed price
      * @param _token Address of the token being purchased
      * @param _reserveId ID of the reserve
      * @param _to Address receiving the purchased tokens
@@ -167,9 +167,10 @@ interface IFixedPrice is IMinter {
     ) external payable;
 
     /**
-     * @notice Buys tokens through a mint pass at a fixed price
+     * @notice Purchases tokens through a mint pass at a fixed price
      * @param _token Address of the token being purchased
      * @param _reserveId ID of the reserve
+     * @param _amount Number of tokens being purchased
      * @param _to Address receiving the purchased tokens
      * @param _index Index of puchase info inside the BitMap
      * @param _signature Array of merkle proofs used for verifying the purchase
@@ -210,9 +211,9 @@ interface IFixedPrice is IMinter {
 
     /**
      * @inheritdoc IMinter
-     * @dev Mint details: token price, merkle root, and signer address
+     * @dev Mint Details: token price, merkle root, and signer address
      */
-    function setMintDetails(ReserveInfo calldata, bytes calldata _mintDetails) external;
+    function setMintDetails(ReserveInfo calldata _reserveInfo, bytes calldata _mintDetails) external;
 
     /**
      * @notice Mapping of token address to reserve ID to address of mint pass authority

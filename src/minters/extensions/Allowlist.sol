@@ -31,8 +31,9 @@ abstract contract Allowlist {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @notice Claims a merkle tree slot
+     * @dev Claims a merkle tree slot
      * @param _token Address of the token contract
+     * @param _reserveId ID of the reserve
      * @param _index Index in the merkle tree
      * @param _proof Merkle proof used for validating claim
      * @param _bitmap Bitmap used for checking if index is already claimed
@@ -53,6 +54,8 @@ abstract contract Allowlist {
 
     /**
      * @dev Gets the merkle root of a token reserve
+     * @param _token Address of the token contract
+     * @param _reserveId ID of the reserve
      */
     function _getMerkleRoot(address _token, uint256 _reserveId) internal view virtual returns (bytes32);
 }

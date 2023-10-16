@@ -81,3 +81,8 @@ npm run prettier
 ```
 forge script script/Deploy.s.sol --rpc-url $GOERLI_RPC_URL --private-key $DEPLOYER_PRIVATE_KEY --verify --etherscan-api-key $ETHERSCAN_API_KEY --broadcast
 ```
+
+7. View documentation locally
+```
+forge doc --serve --port 3000
+```

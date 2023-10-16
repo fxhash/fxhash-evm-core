@@ -1,14 +1,17 @@
-node_modules
 .env
+.deps
+node_modules
 coverage
 coverage.json
 lcov.info
-.deps
-# Hardhat files
-cache
-artifacts
-# Foundry files
+
+# Foundry
 broadcast
+data
+docs
 out
 out-optimized
-data
+
+# Hardhat
+artifacts
+cache

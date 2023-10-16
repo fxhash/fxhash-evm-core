@@ -387,7 +387,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     }
 
     /**
-     * @dev Mints single token to given account using randomly generated seed
+     * @dev Mints single token to given account using randomly generated seed as input
      */
     function _mintRandom(address _to, uint256 _tokenId) internal {
         _mint(_to, _tokenId);
