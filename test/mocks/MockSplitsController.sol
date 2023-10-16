@@ -9,30 +9,30 @@ contract MockSplitsController is SplitsController {
         _addCreator(_split, _creator);
     }
 
+    function transferAllocation(
+        address _to,
+        address _split,
+        address[] memory _accounts,
+        uint32[] memory _allocations
+    ) external {
+        _transferAllocation(_to, _split, _accounts, _allocations);
+    }
+
+    function transferAllocationFrom(
+        address _from,
+        address _to,
+        address _split,
+        address[] memory _accounts,
+        uint32[] memory _allocations
+    ) external {
+        _transferAllocationFrom(_from, _to, _split, _accounts, _allocations);
+    }
+
     function updateFxHash(address _fxHash, bool _active) external {
         _updateFxHash(_fxHash, _active);
     }
 
-    function transferAllocation(
-        address _split,
-        address[] memory _accounts,
-        uint32[] memory _allocations,
-        address _to
-    ) external {
-        _transferAllocation(_split, _accounts, _allocations, _to);
-    }
-
-    function transferAllocationFrom(
-        address _split,
-        address[] memory _accounts,
-        uint32[] memory _allocations,
-        address _from,
-        address _to
-    ) external {
-        _transferAllocationFrom(_split, _accounts, _allocations, _from, _to);
-    }
-
-    function _splitsMain() internal override returns (address) {
+    function _splitsMain() internal view override returns (address) {
         return SPLITS_MAIN;
     }
 }

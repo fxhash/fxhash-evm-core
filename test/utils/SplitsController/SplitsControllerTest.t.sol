@@ -16,7 +16,7 @@ contract SplitsControllerTest is BaseTest {
         controller = new MockSplitsController();
         vm.prank(splitsFactory.owner());
         splitsFactory.setController(address(controller));
-        split = splitsFactory.createMutableSplit(accounts, allocations, address(controller));
+        split = splitsFactory.createMutableSplit(address(controller), accounts, allocations);
         controller.addCreator(split, alice);
         controller.updateFxHash(fxHash, true);
     }

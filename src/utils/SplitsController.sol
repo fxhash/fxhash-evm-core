@@ -3,67 +3,117 @@ pragma solidity 0.8.20;
 
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
 
+/**
+ * @title SplitsController
+ * @author fx(hash)
+ * @notice Extension for controlling 0xSplits wallets deployed through SplitsFactory
+ */
 abstract contract SplitsController {
-    mapping(address => bool) public isFxHash;
-    mapping(address => address) public splitCreator;
+    /*//////////////////////////////////////////////////////////////////////////
+                                    STORAGE
+    //////////////////////////////////////////////////////////////////////////*/
 
-    error NotAuthorized();
-    error CantTransferFxHash();
+    /**
+     * @notice Mapping of splits wallet address to flag indicating if wallet is fxhash
+     */
+    mapping(address => bool) public isFxHash;
+
+    /**
+     * @notice Mapping of splits wallet address to address of creator
+     */
+    mapping(address => address) public splitCreators;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    ERRORS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @notice Error thrown when account is not in list of accounts
+     */
     error AccountNotInAccounts();
+
+    /**
+     * @notice Error thrown when accounts are identical
+     */
     error AccountsIdentical();
+
+    /**
+     * @notice Error thrown when caller is not fxhash
+     */
+    error CantTransferFxHash();
+
+    /**
+     * @notice Error thrown when caller is not authorized to execute transaction
+     */
+    error NotAuthorized();
+
+    /**
+     * @notice Error thrown when the split hash is invalid
+     */
     error NotValidSplitHash();
 
-    /** @notice Hashes a split
-     *  @param accounts Ordered, unique list of addresses with ownership in the split
-     *  @param percentAllocations Percent allocations associated with each address
-     *  @return computedHash Hash of the split.
+    /*//////////////////////////////////////////////////////////////////////////
+                                INTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @dev Adds a new creator to the split
+     * @param _split Address of the splits wallet
+     * @param _creator Address of the new creator
      */
-    function _hashSplit(address[] memory accounts, uint32[] memory percentAllocations) internal pure returns (bytes32) {
-        return keccak256(abi.encodePacked(accounts, percentAllocations, uint32(0)));
-    }
-
     function _addCreator(address _split, address _creator) internal {
-        splitCreator[_split] = _creator;
+        splitCreators[_split] = _creator;
     }
 
-    function _updateFxHash(address _fxHash, bool active) internal {
-        isFxHash[_fxHash] = active;
-    }
-
+    /**
+     * @dev Transfers allocation amount of the split to given account
+     * @param _to Address of the receiver
+     * @param _split Address of the splits wallet
+     * @param _accounts Array of addresses included in the splits
+     * @param _allocations Array of allocation amounts for each account
+     */
     function _transferAllocation(
+        address _to,
         address _split,
         address[] memory _accounts,
-        uint32[] memory _allocations,
-        address _to
+        uint32[] memory _allocations
     ) internal {
-        /// verify the previous accounts and allocations == split stored hash
+        // verify the previous accounts and allocations == split stored hash
         if (_hashSplit(_accounts, _allocations) != ISplitsMain(_splitsMain()).getHash(_split))
             revert NotValidSplitHash();
-        /// moves allocation of msg.sender in _accounts list -> _to account
-        _transferAllocationFrom(_split, _accounts, _allocations, msg.sender, _to);
+        // moves allocation of msg.sender in _accounts list -> _to account
+        _transferAllocationFrom(msg.sender, _to, _split, _accounts, _allocations);
     }
 
+    /**
+     * @dev Transfers allocation amount of the split from given account to given account
+     * @param _from Address of the sender
+     * @param _to Address of the receiver
+     * @param _split Address of the splits wallet
+     * @param _accounts Array of addresses included in the splits
+     * @param _allocations Array of allocation amounts for each account
+     */
     function _transferAllocationFrom(
+        address _from,
+        address _to,
         address _split,
         address[] memory _accounts,
-        uint32[] memory _allocations,
-        address _from,
-        address _to
+        uint32[] memory _allocations
     ) internal {
-        /// moves allocation of _from in _accounts list -> _to account
+        // moves allocation of _from in _accounts list -> _to account
         if (_from == _to) revert AccountsIdentical();
-
-        /// checks that msg.sender has privilege to do so
-        if (msg.sender != splitCreator[_split] && !isFxHash[msg.sender]) revert NotAuthorized();
-        /// checks that from isn't fxhash receiver
+        // checks that msg.sender has privilege to do so
+        if (msg.sender != splitCreators[_split] && !isFxHash[msg.sender]) revert NotAuthorized();
+        // checks that from isn't fxhash receiver
         if (isFxHash[_from] && !isFxHash[msg.sender]) revert CantTransferFxHash();
-        /// verifies account is in array and gets id
+
+        // verifies account is in array and gets id
         bool fromFound;
         uint256 fromId;
         bool toFound;
         uint256 toId;
         for (uint256 i; i < _accounts.length; i++) {
-            /// check if from is in the array
+            // check if from is in the array
             if (_from == _accounts[i]) {
                 fromFound = true;
                 fromId = i;
@@ -79,16 +129,15 @@ abstract contract SplitsController {
         // if to not already in accounts replace from with to
         if (!toFound) {
             _accounts[fromId] = _to;
-
-            /// sorts resulting accounts array
-            (_accounts, _allocations) = sort(_accounts, _allocations);
+            // sorts resulting accounts array
+            (_accounts, _allocations) = _sort(0, _accounts.length, _accounts, _allocations);
         } else {
             address[] memory newAccounts = new address[](_accounts.length - 1);
             uint32[] memory newAllocations = new uint32[](_accounts.length - 1);
             _allocations[toId] += _allocations[fromId];
             uint256 offset;
             for (uint256 i; i < _accounts.length; i++) {
-                /// if fromId then we skip
+                // if fromId then we skip
                 if (i == fromId) {
                     offset = 1;
                 } else {
@@ -102,38 +151,61 @@ abstract contract SplitsController {
         ISplitsMain(_splitsMain()).updateSplit(_split, _accounts, _allocations, uint32(0));
     }
 
-    function sort(
+    /**
+     * @dev Updates the active flag status of an fxhash account
+     * @param _fxHash Address of the fxhash account
+     * @param _active Flag indicating active status
+     */
+    function _updateFxHash(address _fxHash, bool _active) internal {
+        isFxHash[_fxHash] = _active;
+    }
+
+    /**
+     * @dev Returns the address of the SplitsMain contract
+     */
+    function _splitsMain() internal view virtual returns (address);
+
+    /**
+     * @dev Returns the computed hash of a splits wallet
+     * @param _accounts Unique list of ordered addresses with ownership in the split
+     * @param _percentAllocations Percent allocations associated with each address
+     */
+    function _hashSplit(
+        address[] memory _accounts,
+        uint32[] memory _percentAllocations
+    ) internal pure returns (bytes32) {
+        return keccak256(abi.encodePacked(_accounts, _percentAllocations, uint32(0)));
+    }
+
+    /**
+     * @dev Sorts arrays of accounts and allocations
+     */
+    function _sort(
+        uint256 _begin,
+        uint256 _last,
         address[] memory _accounts,
         uint32[] memory _allocations
     ) internal pure returns (address[] memory, uint32[] memory) {
-        return _sort(_accounts, _allocations, 0, _accounts.length);
-    }
-
-    function _swap(address[] memory _accounts, uint32[] memory _allocations, uint256 i, uint256 j) internal pure {
-        (_accounts[i], _accounts[j]) = (_accounts[j], _accounts[i]);
-        (_allocations[i], _allocations[j]) = (_allocations[j], _allocations[i]);
-    }
-
-    function _sort(
-        address[] memory _accounts,
-        uint32[] memory _allocations,
-        uint256 begin,
-        uint256 last
-    ) internal pure returns (address[] memory, uint32[] memory) {
-        if (begin < last) {
-            uint256 j = begin;
+        if (_begin < _last) {
+            uint256 j = _begin;
             address pivot = _accounts[j];
-            for (uint256 i = begin + 1; i < last; ++i) {
+            for (uint256 i = _begin + 1; i < _last; ++i) {
                 if (_accounts[i] < pivot) {
-                    _swap(_accounts, _allocations, i, ++j);
+                    _swap(i, ++j, _accounts, _allocations);
                 }
             }
-            _swap(_accounts, _allocations, begin, j);
-            _sort(_accounts, _allocations, begin, j);
-            _sort(_accounts, _allocations, j + 1, last);
+            _swap(_begin, j, _accounts, _allocations);
+            _sort(_begin, j, _accounts, _allocations);
+            _sort(j + 1, _last, _accounts, _allocations);
         }
         return (_accounts, _allocations);
     }
 
-    function _splitsMain() internal virtual returns (address);
+    /**
+     * @dev Swaps two elements in the arrays
+     */
+    function _swap(uint256 i, uint256 j, address[] memory _accounts, uint32[] memory _allocations) internal pure {
+        (_accounts[i], _accounts[j]) = (_accounts[j], _accounts[i]);
+        (_allocations[i], _allocations[j]) = (_allocations[j], _allocations[i]);
+    }
 }

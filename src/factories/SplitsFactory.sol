@@ -70,10 +70,13 @@ contract SplitsFactory is ISplitsFactory, Ownable, SplitsController {
         emit SplitsInfo(split, controller, _accounts, _allocations, 0);
     }
 
+    /**
+     * @inheritdoc ISplitsFactory
+     */
     function createMutableSplit(
+        address _creator,
         address[] calldata _accounts,
-        uint32[] calldata _allocations,
-        address _creator
+        uint32[] calldata _allocations
     ) external returns (address split) {
         split = ISplitsMain(splits).createSplit(_accounts, _allocations, 0, controller);
         _addCreator(split, _creator);
