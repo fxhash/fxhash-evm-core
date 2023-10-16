@@ -10,9 +10,9 @@ import {ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 
 /**
  * @notice Struct of dutch auction information
- * @param refunded Flag indicating if refunds are enabled
- * @param stepLength Duration (in seconds) of each auction step
- * @param prices Array of prices for each step of the auction
+ * - `refunded` Flag indicating if refunds are enabled
+ * - `stepLength` Duration (in seconds) of each auction step
+ * - `prices` Array of prices for each step of the auction
  */
 struct AuctionInfo {
     bool refunded;
@@ -22,8 +22,8 @@ struct AuctionInfo {
 
 /**
  * @notice Struct of minter information
- * @param totalMints Total number of mints executed by the minter
- * @param totalPaid Total amount paid by the minter
+ * - `totalMints` Total number of mints executed by the minter
+ * - `totalPaid` Total amount paid by the minter
  */
 struct MinterInfo {
     uint128 totalMints;
@@ -32,8 +32,8 @@ struct MinterInfo {
 
 /**
  * @notice Struct of refund information
- * @param lastPrice Price of last sale before selling out
- * @param minterInfo Mapping of minter address to struct of minter information
+ * - `lastPrice` Price of last sale before selling out
+ * - `minterInfo` Mapping of minter address to struct of minter information
  */
 struct RefundInfo {
     uint256 lastPrice;

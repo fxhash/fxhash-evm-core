@@ -11,8 +11,8 @@ import {IToken} from "src/interfaces/IToken.sol";
 
 /**
  * @notice Struct of generative art information
- * @param seed Hash of seed generated for randomly minted tokens
- * @param fxParams Random sequence of fixed-length bytes used as token input
+ * - `seed` Hash of seed generated for randomly minted tokens
+ * - `fxParams` Random sequence of fixed-length bytes used as token input
  */
 struct GenArtInfo {
     bytes32 seed;
@@ -21,12 +21,12 @@ struct GenArtInfo {
 
 /**
  * @notice Struct of initialization information on project creation
- * @param name Name of project
- * @param symbol Symbol of project
- * @param primaryReceiver Address of splitter contract receiving primary sales
- * @param randomizer Address of Randomizer contract
- * @param renderer Address of Renderer contract
- * @param tagIds Array of tag IDs describing the project
+ * - `name` Name of project
+ * - `symbol` Symbol of project
+ * - `primaryReceiver` Address of splitter contract receiving primary sales
+ * - `randomizer` Address of Randomizer contract
+ * - `renderer` Address of Renderer contract
+ * - `tagIds` Array of tag IDs describing the project
  */
 struct InitInfo {
     string name;
@@ -39,10 +39,10 @@ struct InitInfo {
 
 /**
  * @notice Struct of issuer information
- * @param primaryReceiver Address of splitter contract receiving primary sales
- * @param projectInfo Project information
- * @param activeMinters Array of authorized minter contracts used for enumeration
- * @param minters Mapping of minter contract to authorization status
+ * - `primaryReceiver` Address of splitter contract receiving primary sales
+ * - `projectInfo` Project information
+ * - `activeMinters` Array of authorized minter contracts used for enumeration
+ * - `minters` Mapping of minter contract to authorization status
  */
 struct IssuerInfo {
     address primaryReceiver;
@@ -53,9 +53,9 @@ struct IssuerInfo {
 
 /**
  * @notice Struct of metadata information
- * @param baseURI CID hash of collection metadata
- * @param imageURI CID hash of collection images
- * @param onchainData Bytes-encoded data rendered onchain
+ * - `baseURI` CID hash of token metadata
+ * - `imageURI` CID hash of token images
+ * - `onchainData` Bytes-encoded data rendered onchain
  */
 struct MetadataInfo {
     string baseURI;
@@ -65,9 +65,9 @@ struct MetadataInfo {
 
 /**
  * @notice Struct of mint information
- * @param minter Address of the minter contract
- * @param reserveInfo Reserve information
- * @param params Optional bytes data decoded inside minter
+ * - `minter` Address of the minter contract
+ * - `reserveInfo` Reserve information
+ * - `params` Optional bytes data decoded inside minter
  */
 struct MintInfo {
     address minter;
@@ -77,12 +77,12 @@ struct MintInfo {
 
 /**
  * @notice Struct of project information
- * @param onchain Flag inidicated if project metadata is rendered onchain
- * @param mintEnabled Flag inidicating if minting is enabled
- * @param burnEnabled Flag inidicating if burning is enabled
- * @param inputSize Maximum input size of fxParams bytes data
- * @param maxSupply Maximum supply of tokens
- * @param contractURI Contract URI pointer of project metadata
+ * - `onchain` Flag inidicated if project metadata is rendered onchain
+ * - `mintEnabled` Flag inidicating if minting is enabled
+ * - `burnEnabled` Flag inidicating if burning is enabled
+ * - `inputSize` Maximum input size of fxParams bytes data
+ * - `maxSupply` Maximum supply of tokens
+ * - `contractURI` CID hash of collection metadata
  */
 struct ProjectInfo {
     bool onchain;
@@ -95,9 +95,9 @@ struct ProjectInfo {
 
 /**
  * @notice Struct of reserve information
- * @param startTime Start timestamp of minter
- * @param endTime End timestamp of minter
- * @param allocation Allocation amount for minter
+ * - `startTime` Start timestamp of minter
+ * - `endTime` End timestamp of minter
+ * - `allocation` Allocation amount for minter
  */
 struct ReserveInfo {
     uint64 startTime;

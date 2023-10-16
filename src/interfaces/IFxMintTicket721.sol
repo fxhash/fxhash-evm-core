@@ -10,10 +10,10 @@ import {MintInfo} from "src/interfaces/IFxGenArt721.sol";
 
 /**
  * @notice Struct of tax information
- * @param gracePeriod Timestamp of period before token entering harberger taxation
- * @param foreclosureTime Timestamp of token foreclosure
- * @param currentPrice Current ether price of token
- * @param depositAmount Total amount of taxes deposited
+ * - `gracePeriod` Timestamp of period before token entering harberger taxation
+ * - `foreclosureTime` Timestamp of token foreclosure
+ * - `currentPrice` Current ether price of token
+ * - `depositAmount` Total amount of taxes deposited
  */
 struct TaxInfo {
     uint48 gracePeriod;

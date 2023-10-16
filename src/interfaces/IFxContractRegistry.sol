@@ -7,9 +7,9 @@ pragma solidity 0.8.20;
 
 /**
  * @notice Struct of system config information
- * @param lockTime Locked time duration added to mint start time for unverified creators
- * @param referrerShare Share amount distributed to accounts referring tokens
- * @param defaultMetadata Default metadata URI of all unrevealed tokens
+ * - `lockTime` Locked time duration added to mint start time for unverified creators
+ * - `referrerShare` Share amount distributed to accounts referring tokens
+ * - `defaultMetadata` Default metadata URI of all unrevealed tokens
  */
 struct ConfigInfo {
     uint128 lockTime;

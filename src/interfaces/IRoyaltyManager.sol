@@ -7,8 +7,8 @@ pragma solidity 0.8.20;
 
 /**
  * @notice Struct of royalty information
- * @param receiver Address receiving royalties
- * @param basisPoints Points used to calculate the royalty payment (0.01%)
+ * - `receiver` Address receiving royalties
+ * - `basisPoints` Points used to calculate the royalty payment (0.01%)
  */
 struct RoyaltyInfo {
     address payable receiver;
