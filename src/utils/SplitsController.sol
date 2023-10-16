@@ -86,17 +86,20 @@ abstract contract SplitsController {
             address[] memory newAccounts = new address[](_accounts.length - 1);
             uint32[] memory newAllocations = new uint32[](_accounts.length - 1);
             _allocations[toId] += _allocations[fromId];
+            uint256 offset;
             for (uint256 i; i < _accounts.length; i++) {
                 /// if fromId then we skip
-                if (i == fromId) continue;
-                newAccounts[i] = _accounts[i];
-                newAllocations[i] = _allocations[i];
+                if (i == fromId) {
+                    offset = 1;
+                } else {
+                    newAccounts[i - offset] = _accounts[i];
+                    newAllocations[i - offset] = _allocations[i];
+                }
             }
             _accounts = newAccounts;
             _allocations = newAllocations;
         }
-
-        /// calls update on splits main
+        ISplitsMain(splitsMain()).updateSplit(_split, _accounts, _allocations, uint32(0));
     }
 
     function sort(

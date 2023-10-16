@@ -11,7 +11,7 @@ contract TransferAllocation is SplitsControllerTest {
         controller.transferAllocation(split, accounts, allocations, transferTo);
     }
 
-    function test_When_EntireCreatorAllocation_TransferAllocation() public {
+    function test_When_Creator_TransferAllocation() public {
         vm.prank(alice);
         controller.transferAllocation(split, accounts, allocations, transferTo);
         /// need to move creator status
@@ -41,10 +41,26 @@ contract TransferAllocation is SplitsControllerTest {
 
     function test_RevertsWhen_TwoAccounts() public {
         vm.startPrank(alice);
-        controller.transferAllocationFrom(split, accounts, allocations, bob, transferTo);
-        controller.transferAllocationFrom(split, accounts, allocations, eve, transferTo);
-        // vm.expectRevert();
-        controller.transferAllocation(split, accounts, allocations, transferTo);
+        controller.transferAllocationFrom(split, accounts, allocations, bob, alice);
+        delete accounts;
+        accounts.push(alice);
+        accounts.push(eve);
+        accounts.push(fxHash);
+
+        delete allocations;
+        allocations.push(allocationAmount * 2);
+        allocations.push(allocationAmount);
+        allocations.push(allocationAmount);
+        controller.transferAllocationFrom(split, accounts, allocations, eve, alice);
+
+        delete accounts;
+        accounts.push(alice);
+        accounts.push(fxHash);
+        delete allocations;
+        allocations.push(allocationAmount * 3);
+        allocations.push(allocationAmount);
+        vm.expectRevert();
+        controller.transferAllocation(split, accounts, allocations, fxHash);
         vm.stopPrank();
     }
 
@@ -61,6 +77,4 @@ contract TransferAllocation is SplitsControllerTest {
         vm.expectRevert();
         controller.transferAllocationFrom(split, accounts, allocations, fxHash, transferTo);
     }
-
-    function test_RevertsWhen_TransferringMoreThanAllocation() public {}
 }

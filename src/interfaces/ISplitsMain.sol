@@ -28,4 +28,11 @@ interface ISplitsMain {
         uint32[] calldata percentAllocations,
         uint32 distributorFee
     ) external view returns (address);
+
+    function updateSplit(
+        address split,
+        address[] calldata accounts,
+        uint32[] calldata percentAllocations,
+        uint32 distributorFee
+    ) external;
 }
