@@ -31,26 +31,6 @@ abstract contract RoyaltyManager is IRoyaltyManager {
     /**
      * @inheritdoc IRoyaltyManager
      */
-    function royaltyInfo(
-        uint256 _tokenId,
-        uint256 _salePrice
-    ) external view returns (address receiver, uint256 amount) {
-        RoyaltyInfo[] storage tokenRoyalties_ = tokenRoyalties[_tokenId];
-        uint256 baseLength = baseRoyalties.length;
-        uint256 tokenLength = tokenRoyalties_.length;
-        if (tokenLength + baseLength > 1) revert MoreThanOneRoyaltyReceiver();
-        if (tokenLength + baseLength == 0) return (receiver, amount);
-
-        uint96 basisPoints;
-        (receiver, basisPoints) = tokenRoyalties_.length > 0
-            ? (tokenRoyalties_[0].receiver, tokenRoyalties_[0].basisPoints)
-            : (baseRoyalties[0].receiver, baseRoyalties[0].basisPoints);
-        amount = (_salePrice * basisPoints) / FEE_DENOMINATOR;
-    }
-
-    /**
-     * @inheritdoc IRoyaltyManager
-     */
     function getRoyalties(
         uint256 _tokenId
     ) external view returns (address payable[] memory receivers, uint256[] memory basisPoints) {
@@ -71,6 +51,26 @@ abstract contract RoyaltyManager is IRoyaltyManager {
             receivers[i + baseLength] = tokenRoyalties_[i].receiver;
             basisPoints[i + baseLength] = tokenRoyalties_[i].basisPoints;
         }
+    }
+
+    /**
+     * @inheritdoc IRoyaltyManager
+     */
+    function royaltyInfo(
+        uint256 _tokenId,
+        uint256 _salePrice
+    ) external view returns (address receiver, uint256 amount) {
+        RoyaltyInfo[] storage tokenRoyalties_ = tokenRoyalties[_tokenId];
+        uint256 baseLength = baseRoyalties.length;
+        uint256 tokenLength = tokenRoyalties_.length;
+        if (tokenLength + baseLength > 1) revert MoreThanOneRoyaltyReceiver();
+        if (tokenLength + baseLength == 0) return (receiver, amount);
+
+        uint96 basisPoints;
+        (receiver, basisPoints) = tokenRoyalties_.length > 0
+            ? (tokenRoyalties_[0].receiver, tokenRoyalties_[0].basisPoints)
+            : (baseRoyalties[0].receiver, baseRoyalties[0].basisPoints);
+        amount = (_salePrice * basisPoints) / FEE_DENOMINATOR;
     }
 
     /*//////////////////////////////////////////////////////////////////////////

@@ -303,7 +303,7 @@ interface IDutchAuction is IMinter {
 
     /**
      * @inheritdoc IMinter
-     * @dev Mint details: auction information, merkle root, and signer address
+     * @dev Mint details: auction info struct, merkle root, and signer address
      */
     function setMintDetails(ReserveInfo calldata, bytes calldata _mintDetails) external;
 

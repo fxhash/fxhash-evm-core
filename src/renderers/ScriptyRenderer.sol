@@ -88,21 +88,6 @@ contract ScriptyRenderer is IScriptyRenderer {
     /**
      * @inheritdoc IScriptyRenderer
      */
-    function renderOnchain(
-        uint256 _tokenId,
-        bytes32 _seed,
-        bytes memory _fxParams,
-        HTMLRequest memory _animation,
-        HTMLRequest memory _attributes
-    ) public view returns (bytes memory) {
-        bytes memory animation = getEncodedHTML(_tokenId, _seed, _fxParams, _animation);
-        bytes memory attributes = getEncodedHTML(_tokenId, _seed, _fxParams, _attributes);
-        return abi.encodePacked('"animation_url":"', animation, '","attributes":["', attributes, '"]}');
-    }
-
-    /**
-     * @inheritdoc IScriptyRenderer
-     */
     function getEncodedHTML(
         uint256 _tokenId,
         bytes32 _seed,
@@ -136,6 +121,21 @@ contract ScriptyRenderer is IScriptyRenderer {
         htmlRequest.bodyTags = bodyTags;
 
         return IScriptyBuilderV2(scriptyBuilder).getEncodedHTML(htmlRequest);
+    }
+
+    /**
+     * @inheritdoc IScriptyRenderer
+     */
+    function renderOnchain(
+        uint256 _tokenId,
+        bytes32 _seed,
+        bytes memory _fxParams,
+        HTMLRequest memory _animation,
+        HTMLRequest memory _attributes
+    ) public view returns (bytes memory) {
+        bytes memory animation = getEncodedHTML(_tokenId, _seed, _fxParams, _animation);
+        bytes memory attributes = getEncodedHTML(_tokenId, _seed, _fxParams, _attributes);
+        return abi.encodePacked('"animation_url":"', animation, '","attributes":["', attributes, '"]}');
     }
 
     /*//////////////////////////////////////////////////////////////////////////

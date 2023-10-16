@@ -28,20 +28,6 @@ contract TicketRedeemer is ITicketRedeemer {
     /**
      * @inheritdoc ITicketRedeemer
      */
-    function setMintDetails(ReserveInfo calldata, bytes calldata _mintData) external {
-        // Decodes ticket address from mint data
-        address ticket = abi.decode(_mintData, (address));
-        // Reverts if ticket address has alread been set
-        if (tokens[ticket] != address(0)) revert AlreadySet();
-        tokens[ticket] = msg.sender;
-
-        // Emits event when mint details have been set
-        emit MintDetailsSet(ticket, msg.sender);
-    }
-
-    /**
-     * @inheritdoc ITicketRedeemer
-     */
     function redeem(address _ticket, uint256 _tokenId, bytes calldata _fxParams) external {
         // Reverts if caller is not owner of ticket
         address owner = IERC721(_ticket).ownerOf(_tokenId);
@@ -57,5 +43,19 @@ contract TicketRedeemer is ITicketRedeemer {
 
         // Emits event when token has been redeemed
         emit Redeemed(_ticket, _tokenId, owner, token);
+    }
+
+    /**
+     * @inheritdoc ITicketRedeemer
+     */
+    function setMintDetails(ReserveInfo calldata, bytes calldata _mintDetails) external {
+        // Decodes ticket address from mint data
+        address ticket = abi.decode(_mintDetails, (address));
+        // Reverts if ticket address has alread been set
+        if (tokens[ticket] != address(0)) revert AlreadySet();
+        tokens[ticket] = msg.sender;
+
+        // Emits event when mint details have been set
+        emit MintDetailsSet(ticket, msg.sender);
     }
 }

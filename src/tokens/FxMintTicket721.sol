@@ -88,14 +88,6 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @dev Modifier for restricting calls to only registered minters
-     */
-    modifier onlyMinter() {
-        if (!minters[msg.sender]) revert UnregisteredMinter();
-        _;
-    }
-
-    /**
      * @dev Modifier for restricting calls to only callers with the specified role
      */
     modifier onlyRole(bytes32 _role) {
@@ -116,7 +108,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                INITIALIZER
+                                    INITIALIZER
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
@@ -142,7 +134,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                PUBLIC FUNCTIONS
+                                EXTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
@@ -233,6 +225,47 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
     /**
      * @inheritdoc IFxMintTicket721
      */
+    function mint(address _to, uint256 _amount, uint256 _payment) external whenNotPaused {
+        // Reverts if caller is not a registered minter contract
+        if (!minters[msg.sender]) revert UnregisteredMinter();
+
+        // Calculates listing price per token
+        uint256 listingPrice = _payment / _amount;
+
+        unchecked {
+            for (uint256 i; i < _amount; ++i) {
+                // Increments supply and mints token to given wallet
+                _mint(_to, ++totalSupply);
+
+                // Sets initial tax info of token
+                taxes[totalSupply] = TaxInfo(
+                    uint48(block.timestamp) + gracePeriod,
+                    uint48(block.timestamp) + gracePeriod,
+                    uint80(listingPrice),
+                    0
+                );
+            }
+        }
+    }
+
+    /**
+     * @inheritdoc IFxMintTicket721
+     */
+    function withdraw(address _to) external {
+        uint256 balance = balances[_to];
+        delete balances[_to];
+        SafeTransferLib.safeTransferETH(_to, balance);
+
+        emit Withdraw(msg.sender, _to, balance);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                PUBLIC FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc IFxMintTicket721
+     */
     function deposit(uint256 _tokenId) public payable {
         // Loads current tax info
         TaxInfo storage taxInfo = taxes[_tokenId];
@@ -257,29 +290,6 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
 
         // Transfers any excess tax amount back to depositer
         if (excessAmount > 0) SafeTransferLib.safeTransferETH(msg.sender, excessAmount);
-    }
-
-    /**
-     * @inheritdoc IFxMintTicket721
-     */
-    function mint(address _to, uint256 _amount, uint256 _payment) external onlyMinter whenNotPaused {
-        // Calculates listing price per token
-        uint256 listingPrice = _payment / _amount;
-
-        unchecked {
-            for (uint256 i; i < _amount; ++i) {
-                // Increments supply and mints token to given wallet
-                _mint(_to, ++totalSupply);
-
-                // Sets initial tax info of token
-                taxes[totalSupply] = TaxInfo(
-                    uint48(block.timestamp) + gracePeriod,
-                    uint48(block.timestamp) + gracePeriod,
-                    uint80(listingPrice),
-                    0
-                );
-            }
-        }
     }
 
     /**
@@ -320,17 +330,6 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
         emit SetPrice(_tokenId, _newPrice, taxInfo.foreclosureTime, taxInfo.depositAmount);
     }
 
-    /**
-     * @inheritdoc IFxMintTicket721
-     */
-    function withdraw(address _to) external {
-        uint256 balance = balances[_to];
-        delete balances[_to];
-        SafeTransferLib.safeTransferETH(_to, balance);
-
-        emit Withdraw(msg.sender, _to, balance);
-    }
-
     /*//////////////////////////////////////////////////////////////////////////
                                 OWNER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -362,15 +361,15 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
     /**
      * @inheritdoc IFxMintTicket721
      */
-    function setBaseURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
-        baseURI = _uri;
+    function pause() external onlyRole(ADMIN_ROLE) {
+        _pause();
     }
 
     /**
      * @inheritdoc IFxMintTicket721
      */
-    function pause() external onlyRole(ADMIN_ROLE) {
-        _pause();
+    function setBaseURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
+        baseURI = _uri;
     }
 
     /**

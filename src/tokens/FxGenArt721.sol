@@ -115,7 +115,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                INITIALIZER
+                                    INITIALIZER
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
@@ -147,7 +147,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                PUBLIC FUNCTIONS
+                                EXTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
@@ -157,6 +157,15 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         if (!issuerInfo.projectInfo.burnEnabled) revert BurnInactive();
         if (!_isApprovedOrOwner(msg.sender, _tokenId)) revert NotAuthorized();
         _burn(_tokenId);
+    }
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
+    function fulfillSeedRequest(uint256 _tokenId, bytes32 _seed) external {
+        if (msg.sender != randomizer) revert NotAuthorized();
+        genArtInfo[_tokenId].seed = _seed;
+        emit SeedFulfilled(randomizer, _tokenId, _seed);
     }
 
     /**
@@ -175,15 +184,6 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         for (uint256 i; i < _amount; ++i) {
             _mintRandom(_to, ++totalSupply);
         }
-    }
-
-    /**
-     * @inheritdoc IFxGenArt721
-     */
-    function fulfillSeedRequest(uint256 _tokenId, bytes32 _seed) external {
-        if (msg.sender != randomizer) revert NotAuthorized();
-        genArtInfo[_tokenId].seed = _seed;
-        emit SeedFulfilled(randomizer, _tokenId, _seed);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

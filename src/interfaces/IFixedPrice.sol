@@ -215,7 +215,7 @@ interface IFixedPrice is IMinter {
     function setMintDetails(ReserveInfo calldata, bytes calldata _mintDetails) external;
 
     /**
-     * @notice Mapping of token address to reserve ID to address of mint passes authorities
+     * @notice Mapping of token address to reserve ID to address of mint pass authority
      */
     function signingAuthorities(address, uint256) external view returns (address);
 
