@@ -111,7 +111,7 @@ contract AdminTest is FxGenArt721Test {
     function test_Pausable_MintRandom() public {
         _pause(admin);
         vm.expectRevert(bytes("Pausable: paused"));
-        _mintRandom(alice, amount);
+        _mint(alice, amount, PRICE);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

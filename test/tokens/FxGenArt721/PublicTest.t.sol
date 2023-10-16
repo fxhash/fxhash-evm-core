@@ -15,12 +15,12 @@ contract PublicTest is FxGenArt721Test {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                    MINT RANDOM
+                                    MINT
     //////////////////////////////////////////////////////////////////////////*/
 
-    function test_MintRandom() public {
+    function test_Mint() public {
         amount = 3;
-        _mintRandom(alice, amount);
+        _mint(alice, amount, PRICE);
         assertEq(FxGenArt721(fxGenArtProxy).ownerOf(1), alice);
         assertEq(FxGenArt721(fxGenArtProxy).ownerOf(2), alice);
         assertEq(FxGenArt721(fxGenArtProxy).ownerOf(3), alice);
@@ -29,15 +29,15 @@ contract PublicTest is FxGenArt721Test {
         assertEq(IFxGenArt721(fxGenArtProxy).remainingSupply(), MAX_SUPPLY - amount);
     }
 
-    function test_MintRandom_RevertsWhen_MintInactive() public {
+    function test_Mint_RevertsWhen_MintInactive() public {
         _toggleMint(creator);
         vm.expectRevert(MINT_INACTIVE_ERROR);
-        _mintRandom(alice, 1);
+        _mint(alice, amount, PRICE);
     }
 
-    function test_MintRandom_RevertsWhen_UnregisteredMinter() public {
+    function test_Mint_RevertsWhen_UnregisteredMinter() public {
         vm.expectRevert(UNREGISTERED_MINTER_ERROR);
-        IFxGenArt721(fxGenArtProxy).mintRandom(alice, 1);
+        IFxGenArt721(fxGenArtProxy).mint(alice, amount, PRICE);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -45,23 +45,23 @@ contract PublicTest is FxGenArt721Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_Burn() public {
-        test_MintRandom();
+        test_Mint();
         _toggleBurn(creator);
-        _burn(alice, 1);
+        _burn(alice, tokenId);
         assertEq(FxGenArt721(fxGenArtProxy).balanceOf(alice), amount - 1);
     }
 
     function test_Burn_RevertsWhen_BurnInactive() public {
-        test_MintRandom();
+        test_Mint();
         vm.expectRevert(BURN_INACTIVE_ERROR);
-        _burn(bob, 1);
+        _burn(bob, tokenId);
     }
 
     function test_Burn_RevertsWhen_NotAuthorized() public {
-        test_MintRandom();
+        test_Mint();
         _toggleBurn(creator);
         vm.expectRevert(NOT_AUTHORIZED_ERROR);
-        _burn(bob, 1);
+        _burn(bob, tokenId);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -69,7 +69,6 @@ contract PublicTest is FxGenArt721Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_FulfillSeedRequest() public {
-        tokenId = 1;
         genArtInfo.seed = keccak256("seed");
         _fulfillSeedRequest(address(pseudoRandomizer), tokenId, genArtInfo.seed);
         _setGenArtInfo(tokenId);

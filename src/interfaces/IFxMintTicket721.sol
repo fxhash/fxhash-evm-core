@@ -1,13 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+import {IToken} from "src/interfaces/IToken.sol";
 import {MintInfo} from "src/interfaces/IFxGenArt721.sol";
 
+/*//////////////////////////////////////////////////////////////////////////
+                                  STRUCTS
+//////////////////////////////////////////////////////////////////////////*/
+
 /**
- * @param gracePeriod Timestamp of period before token entering harberger taxation
- * @param foreclosureTime Timestamp of token foreclosure
- * @param currentPrice Current ether price of token
- * @param depositAmount Total amount of taxes deposited
+ * @notice Struct of tax information
+ * - `gracePeriod` Timestamp of period before token entering harberger taxation
+ * - `foreclosureTime` Timestamp of token foreclosure
+ * - `currentPrice` Current ether price of token
+ * - `depositAmount` Total amount of taxes deposited
  */
 struct TaxInfo {
     uint48 gracePeriod;
@@ -18,16 +24,21 @@ struct TaxInfo {
 
 /**
  * @title IFxMintTicket721
- * @notice ERC-721 proxy token for Gen Art mint tickets
+ * @author fx(hash)
+ * @notice ERC-721 token for mint tickets used to redeem FxGenArt721 tokens
  */
-interface IFxMintTicket721 {
+interface IFxMintTicket721 is IToken {
+    /*//////////////////////////////////////////////////////////////////////////
+                                  EVENTS
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
      * @notice Event emitted when mint ticket is initialized
      * @param _genArt721 Address of FxGenArt721 token
      * @param _redeemer Address of TicketRedeemer contract
-     * @param _gracePeriod Period of time before token enters harberger taxation
+     * @param _gracePeriod Time period before token enters harberger taxation
      * @param _baseURI Base URI of the token metadata
-     * @param _mintInfo List of authorized minter contracts and their reserves
+     * @param _mintInfo Array of authorized minter contracts and their reserves
      */
     event TicketInitialized(
         address indexed _genArt721,
@@ -82,57 +93,88 @@ interface IFxMintTicket721 {
      */
     event Withdraw(address indexed _caller, address indexed _to, uint256 indexed _balance);
 
-    /// @notice Error thrown when total minter allocation exceeds maximum supply
+    /*//////////////////////////////////////////////////////////////////////////
+                                  ERRORS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @notice Error thrown when total minter allocation exceeds maximum supply
+     */
     error AllocationExceeded();
 
-    /// @notice Error thrown when token is in foreclosure
+    /**
+     * @notice Error thrown when token is in foreclosure
+     */
     error Foreclosure();
 
-    /// @notice Error thrown when token is being claimed within the grace period
+    /**
+     * @notice Error thrown when token is being claimed within the grace period
+     */
     error GracePeriodActive();
 
-    /// @notice Error thrown when deposit amount is not for at least one day
+    /**
+     * @notice Error thrown when deposit amount is not for at least one day
+     */
     error InsufficientDeposit();
 
-    /// @notice Error thrown when payment amount does not meet price plus daily tax amount
+    /**
+     * @notice Error thrown when payment amount does not meet price plus daily tax amount
+     */
     error InsufficientPayment();
 
-    /// @notice Error thrown when new listing price is less than the mininmum amount
-    error InvalidPrice();
-
-    /// @notice Error thrown when reserve start time is invalid
-    error InvalidStartTime();
-
-    /// @notice Error thrown when reserve end time is invalid
+    /**
+     * @notice Error thrown when reserve end time is invalid
+     */
     error InvalidEndTime();
 
-    /// @notice Error thrown when minting is active
+    /**
+     * @notice Error thrown when new listing price is less than the mininmum amount
+     */
+    error InvalidPrice();
+
+    /**
+     * @notice Error thrown when reserve start time is invalid
+     */
+    error InvalidStartTime();
+
+    /**
+     * @notice Error thrown when minting is active
+     */
     error MintActive();
 
-    /// @notice Error thrown when caller is not authorized to execute transaction
+    /**
+     * @notice Error thrown when caller is not authorized to execute transaction
+     */
     error NotAuthorized();
 
-    /// @notice Error thrown when caller does not have the specified role
+    /**
+     * @notice Error thrown when caller does not have the specified role
+     */
     error UnauthorizedAccount();
 
-    /// @notice Error thrown when caller does not have minter role
+    /**
+     * @notice Error thrown when caller does not have minter role
+     */
     error UnauthorizedMinter();
 
-    /// @notice Error thrown when caller does not have the redeemer role
+    /**
+     * @notice Error thrown when caller does not have the redeemer role
+     */
     error UnauthorizedRedeemer();
 
-    /// @notice Error thrown when caller is not a registered minter
+    /**
+     * @notice Error thrown when caller is not a registered minter
+     */
     error UnregisteredMinter();
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                  FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /**
      * @notice Returns the list of active minters
      */
     function activeMinters(uint256) external view returns (address);
-
-    /**
-     * @notice Returns the active status of a registered Minter contract
-     */
-    function minters(address) external view returns (bool);
 
     /**
      * @notice Mapping of wallet address to balance amount available for withdrawal
@@ -158,6 +200,11 @@ interface IFxMintTicket721 {
     function claim(uint256 _tokenId, uint80 _newPrice) external payable;
 
     /**
+     * @notice Returns the address of the FxContractRegistry contract
+     */
+    function contractRegistry() external view returns (address);
+
+    /**
      * @notice Deposits taxes for given token
      * @param _tokenId ID of the token
      */
@@ -170,7 +217,7 @@ interface IFxMintTicket721 {
      * @param _redeemer Address of TicketRedeemer minter contract
      * @param _gracePeriod Period time before token enters harberger taxation
      * @param _baseURI Base URI of the token metadata
-     * @param _mintInfo List of authorized minter contracts and their reserves
+     * @param _mintInfo Array of authorized minter contracts and their reserves
      */
     function initialize(
         address _owner,
@@ -255,32 +302,19 @@ interface IFxMintTicket721 {
     function gracePeriod() external view returns (uint48);
 
     /**
-     * @notice Allows any minter contract to mint an arbitrary amount of tokens to a given account
-     * @param _to Address being minted to
-     * @param _amount Amount of tokens being minted
-     * @param _payment Payment amount of transaction
+     * @inheritdoc IToken
      */
     function mint(address _to, uint256 _amount, uint256 _payment) external;
 
     /**
-     * @notice Pauses all function executions where modifier is applied
+     * @notice Returns the active status of a registered minter contract
+     */
+    function minters(address) external view returns (bool);
+
+    /**
+     * @notice Pauses all function executions where modifier is set
      */
     function pause() external;
-
-    /**
-     * @notice Unpauses all function executions where modifier is applied
-     */
-    function unpause() external;
-
-    /**
-     * @notice Returns the address of the FxContractRegistry contract
-     */
-    function contractRegistry() external view returns (address);
-
-    /**
-     * @notice Returns the address of the FxRoleRegistry contract
-     */
-    function roleRegistry() external view returns (address);
 
     /**
      * @notice Returns the address of the TickeRedeemer contract
@@ -293,27 +327,37 @@ interface IFxMintTicket721 {
     function registerMinters(MintInfo[] calldata _mintInfo) external;
 
     /**
+     * @notice Returns the address of the FxRoleRegistry contract
+     */
+    function roleRegistry() external view returns (address);
+
+    /**
      * @notice Sets the new URI of the token metadata
-     * @param _uri Pointer of the metadata
+     * @param _uri Base URI pointer of the metadata
      */
     function setBaseURI(string calldata _uri) external;
 
     /**
      * @notice Sets new price for given token
      * @param _tokenId ID of the token
-     * @param _newPrice New ether price of the token
+     * @param _newPrice New price of the token
      */
     function setPrice(uint256 _tokenId, uint80 _newPrice) external;
 
     /**
-     * @notice Mapping of ticket ID to tax information
+     * @notice Mapping of ticket ID to tax information (grace period, foreclosure time, current price, deposit amount)
      */
     function taxes(uint256) external returns (uint48, uint48, uint80, uint80);
 
     /**
-     * @notice Returns the current total supply of tokens
+     * @notice Returns the current circulating supply of tokens
      */
     function totalSupply() external returns (uint48);
+
+    /**
+     * @notice Unpauses all function executions where modifier is set
+     */
+    function unpause() external;
 
     /**
      * @notice Withdraws available balance amount to given address

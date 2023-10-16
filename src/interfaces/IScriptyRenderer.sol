@@ -6,9 +6,19 @@ import {IRenderer} from "src/interfaces/IRenderer.sol";
 
 /**
  * @title IScriptyRenderer
- * @notice Renders token metadata using onchain generative scripts
+ * @author fx(hash)
+ * @notice Renderer for building onchain metadata of FxGenArt721 tokens using Scripty.sol
  */
 interface IScriptyRenderer is IRenderer {
+    /*//////////////////////////////////////////////////////////////////////////
+                                  FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @notice Returns the address of ETHFSFileStorage contract
+     */
+    function ethfsFileStorage() external view returns (address);
+
     /**
      * @notice Builds the encoded HTML request for header and body tags
      * @param _tokenId ID of the token
@@ -40,18 +50,17 @@ interface IScriptyRenderer is IRenderer {
     ) external view returns (bytes memory);
 
     /**
-     * @notice Returns the metadata for a given token
-     * @param _tokenId ID of the token
-     * @param _data Bytes-encoded data
+     * @notice Returns the address of ScriptyBuilder contract
      */
-    function tokenURI(uint256 _tokenId, bytes calldata _data) external view returns (string memory);
+    function scriptyBuilder() external view returns (address);
 
-    /// @notice Returns the address of ETHFSFileStorage contract
-    function ethfsFileStorage() external view returns (address);
-
-    /// @notice Returns the address of ScriptyStorage contract
+    /**
+     * @notice Returns the address of ScriptyStorage contract
+     */
     function scriptyStorage() external view returns (address);
 
-    /// @notice Returns the address of ScriptyBuilder contract
-    function scriptyBuilder() external view returns (address);
+    /**
+     * @inheritdoc IRenderer
+     */
+    function tokenURI(uint256 _tokenId, bytes calldata _data) external view returns (string memory);
 }

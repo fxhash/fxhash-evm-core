@@ -9,28 +9,59 @@ import {IFxTicketFactory} from "src/interfaces/IFxTicketFactory.sol";
 
 /**
  * @title FxTicketFactory
- * @notice See the documentation in {IFxTicketFactory}
+ * @author fx(hash)
+ * @dev See the documentation in {IFxTicketFactory}
  */
 contract FxTicketFactory is IFxTicketFactory, Ownable {
-    /// @inheritdoc IFxTicketFactory
+    /*//////////////////////////////////////////////////////////////////////////
+                                    STORAGE
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc IFxTicketFactory
+     */
     address public implementation;
-    /// @inheritdoc IFxTicketFactory
+
+    /**
+     * @inheritdoc IFxTicketFactory
+     */
     uint48 public minGracePeriod;
-    /// @inheritdoc IFxTicketFactory
+
+    /**
+     * @inheritdoc IFxTicketFactory
+     */
     uint48 public ticketId;
-    /// @inheritdoc IFxTicketFactory
-    mapping(uint48 => address) public tickets;
-    /// @inheritdoc IFxTicketFactory
+
+    /**
+     * @inheritdoc IFxTicketFactory
+     */
     mapping(address => uint256) public nonces;
 
-    /// @dev Initializes FxMintTicket721 implementation contract
+    /**
+     * @inheritdoc IFxTicketFactory
+     */
+    mapping(uint48 => address) public tickets;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    CONSTRUCTOR
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @dev Initializes factory owner, FxMintTicket721 implementation and minimum grace period
+     */
     constructor(address _admin, address _implementation, uint48 _gracePeriod) {
-        _setGracePeriod(_gracePeriod);
-        _setImplementation(_implementation);
         _transferOwnership(_admin);
+        _setImplementation(_implementation);
+        _setGracePeriod(_gracePeriod);
     }
 
-    /// @inheritdoc IFxTicketFactory
+    /*//////////////////////////////////////////////////////////////////////////
+                                EXTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc IFxTicketFactory
+     */
     function createTicket(
         address _owner,
         address _genArt721,
@@ -54,25 +85,37 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
         IFxMintTicket721(mintTicket).initialize(_owner, _genArt721, _redeemer, _gracePeriod, _baseURI, _mintInfo);
     }
 
-    /// @inheritdoc IFxTicketFactory
-    function setImplementation(address _implementation) external onlyOwner {
-        _setImplementation(_implementation);
-    }
-
-    /// @dev Sets the implementation address
-    function _setImplementation(address _implementation) internal {
-        implementation = _implementation;
-        emit ImplementationUpdated(msg.sender, _implementation);
-    }
-
-    /// @inheritdoc IFxTicketFactory
+    /**
+     * @inheritdoc IFxTicketFactory
+     */
     function setGracePeriod(uint48 _gracePeriod) external onlyOwner {
         _setGracePeriod(_gracePeriod);
     }
 
-    /// @dev Sets the minimum grace period
+    /**
+     * @inheritdoc IFxTicketFactory
+     */
+    function setImplementation(address _implementation) external onlyOwner {
+        _setImplementation(_implementation);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                INTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @dev Sets the minimum grace period of time for when token enters harberger taxation
+     */
     function _setGracePeriod(uint48 _gracePeriod) internal {
         minGracePeriod = _gracePeriod;
         emit GracePeriodUpdated(msg.sender, _gracePeriod);
+    }
+
+    /**
+     * @dev Sets the FxMintTicket721 implementation contract
+     */
+    function _setImplementation(address _implementation) internal {
+        implementation = _implementation;
+        emit ImplementationUpdated(msg.sender, _implementation);
     }
 }

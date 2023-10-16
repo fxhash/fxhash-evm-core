@@ -6,20 +6,43 @@ import {IFxContractRegistry, ConfigInfo} from "src/interfaces/IFxContractRegistr
 
 /**
  * @title FxContractRegistry
- * @notice See the documentation in {IFxContractRegistry}
+ * @author fx(hash)
+ * @dev See the documentation in {IFxContractRegistry}
  */
 contract FxContractRegistry is IFxContractRegistry, Ownable {
-    /// @inheritdoc IFxContractRegistry
+    /*//////////////////////////////////////////////////////////////////////////
+                                    STORAGE
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc IFxContractRegistry
+     */
     ConfigInfo public configInfo;
-    /// @inheritdoc IFxContractRegistry
+
+    /**
+     * @inheritdoc IFxContractRegistry
+     */
     mapping(bytes32 => address) public contracts;
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                CONSTRUCTOR
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @dev Initializes registry owner and system config information
+     */
     constructor(address _admin, ConfigInfo memory _configInfo) Ownable() {
         _transferOwnership(_admin);
         _setConfigInfo(_configInfo);
     }
 
-    /// @inheritdoc IFxContractRegistry
+    /*//////////////////////////////////////////////////////////////////////////
+                                EXTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc IFxContractRegistry
+     */
     function register(string[] calldata _names, address[] calldata _contracts) external onlyOwner {
         address contractAddr;
         bytes32 contractName;
@@ -39,12 +62,18 @@ contract FxContractRegistry is IFxContractRegistry, Ownable {
         }
     }
 
-    /// @inheritdoc IFxContractRegistry
+    /**
+     * @inheritdoc IFxContractRegistry
+     */
     function setConfig(ConfigInfo calldata _configInfo) external onlyOwner {
         _setConfigInfo(_configInfo);
     }
 
-    /// @dev Sets the configuration information
+    /*//////////////////////////////////////////////////////////////////////////
+                                INTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /// @dev Sets the system config information
     function _setConfigInfo(ConfigInfo memory _configInfo) internal {
         configInfo = _configInfo;
         emit ConfigUpdated(msg.sender, _configInfo);

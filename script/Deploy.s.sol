@@ -128,10 +128,10 @@ contract Deploy is Script {
         _configureRoyalties();
         _configureScripty();
         _configureState(AMOUNT, PRICE, QUANTITY, TOKEN_ID);
-        _configureAllowlist(merkleRoot, mintPassSigner);
         _configureInfo(LOCK_TIME, REFERRER_SHARE, DEFAULT_METADATA);
         _configureProject(ONCHAIN, MINT_ENABLED, MAX_SUPPLY, CONTRACT_URI);
         _configureMetdata(BASE_URI, IMAGE_URI, onchainData);
+        _configureAllowlist(merkleRoot, mintPassSigner);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -282,11 +282,6 @@ contract Deploy is Script {
         tokenId = _tokenId;
     }
 
-    function _configureAllowlist(bytes32 _merkleRoot, address _mintPassSigner) internal virtual {
-        merkleRoot = _merkleRoot;
-        mintPassSigner = _mintPassSigner;
-    }
-
     function _configureInfo(
         uint128 _lockTime,
         uint128 _referrerShare,
@@ -317,6 +312,11 @@ contract Deploy is Script {
         metadataInfo.baseURI = _baseURI;
         metadataInfo.imageURI = _imageURI;
         metadataInfo.onchainData = _onchainData;
+    }
+
+    function _configureAllowlist(bytes32 _merkleRoot, address _mintPassSigner) internal virtual {
+        merkleRoot = _merkleRoot;
+        mintPassSigner = _mintPassSigner;
     }
 
     function _configureInit(

@@ -5,13 +5,14 @@ import {ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 
 /**
  * @title IMinter
- * @notice Interface for FxGenArt721 Tokens to interact with Minters
+ * @author fx(hash)
+ * @notice Interface for FxGenArt721 tokens to interact with minters
  */
 interface IMinter {
     /**
-     * @dev Sets the mint details for a token's reserves
-     * @param _reserve The reserve information for the token
-     * @param _mintDetails The mint details, abi.encoded price
+     * @notice Sets the mint details for token reserves
+     * @param _reserveInfo Reserve information for the token
+     * @param _mintDetails Details of the mint pertaining to the minter
      */
-    function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external;
+    function setMintDetails(ReserveInfo calldata _reserveInfo, bytes calldata _mintDetails) external;
 }
