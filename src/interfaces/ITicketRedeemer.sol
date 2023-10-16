@@ -2,52 +2,73 @@
 pragma solidity 0.8.20;
 
 import {IMinter} from "src/interfaces/IMinter.sol";
+import {ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 
 /**
  * @title ITicketRedeemer
- * @notice Minter contract for redeeming mint tickets to mint a FxGenArt721 token
+ * @author fx(hash)
+ * @notice Minter for redeeming FxGenArt721 tokens by burning FxMintTicket721 tokens
  */
 interface ITicketRedeemer is IMinter {
+    /*//////////////////////////////////////////////////////////////////////////
+                                  EVENTS
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
-     * @dev Emitted when the mint details are set for a ticket contract
-     * @param _ticket The address of the ticket contract
-     * @param _token The address of the token that can be minted by the ticket contract
+     * @notice Event emitted when the mint details are set for a ticket contract
+     * @param _ticket Address of the ticket contract
+     * @param _token Address of the token contract that can be redeemed through the ticket
      */
     event MintDetailsSet(address indexed _ticket, address indexed _token);
 
     /**
-     * @dev Emitted when a ticket is redeemed and a new token is minted
-     * @param _ticket The address of the ticket contract
-     * @param _tokenId The ID of the ticket token that is burned
-     * @param _owner The address of the owner of the new token
-     * @param _token The address of the token that is minted
+     * @notice Event emitted when a ticket is burned and a new token is minted
+     * @param _ticket Address of the ticket contract
+     * @param _tokenId ID of the token being burned
+     * @param _owner Address of the owner receiving the token
+     * @param _token Address of the token being minted
      */
     event Redeemed(address indexed _ticket, uint256 indexed _tokenId, address indexed _owner, address _token);
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                  ERRORS
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
-     * @dev Throws an error indicating that the mint details are already set for a ticket contract
+     * @notice Error thrown when mint details are already set for a ticket contract
      */
     error AlreadySet();
+
     /**
-     * @dev Throws an error indicating that the token is invalid
+     * @notice Error thrown when token address is invalid
      */
     error InvalidToken();
+
     /**
-     * @dev Throws an error indicating that the caller is not authorized
+     * @notice Error thrown when the caller is not authorized
      */
     error NotAuthorized();
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                  FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
      * @notice Burns a ticket and mints a new token to the caller
-     * @param _ticket The address of the ticket contract
-     * @param _tokenId The ID of the ticket token to burn
-     * @param _fxParams Random sequence of fixed-length bytes used as input
+     * @param _ticket Address of the ticket contract
+     * @param _tokenId ID of the ticket token to burn
+     * @param _fxParams Random sequence of fixed-length bytes used for token input
      */
     function redeem(address _ticket, uint256 _tokenId, bytes calldata _fxParams) external;
 
     /**
-     * @notice A mapping of tickets to the tokens they can mint
-     * @param _ticket The address of the ticket contract
+     * @inheritdoc IMinter
+     * @dev Mint Details: ticket contract address
      */
-    function tokens(address _ticket) external view returns (address);
+    function setMintDetails(ReserveInfo calldata _reserveInfo, bytes calldata _mintDetails) external;
+
+    /**
+     * @notice Mapping of FxGenArt721 token address to FxMintTicket721 token address
+     */
+    function tokens(address) external view returns (address);
 }

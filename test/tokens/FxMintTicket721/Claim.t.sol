@@ -37,6 +37,12 @@ contract Claim is FxMintTicket721Test {
         _claim(alice, tokenId, newPrice, PRICE + DEPOSIT_AMOUNT);
     }
 
+    function test_RevertsWhen_InvalidPrice() public {
+        vm.warp(gracePeriod + 1);
+        vm.expectRevert(INVALID_PRICE_ERROR);
+        _claim(alice, tokenId, uint80(MINIMUM_PRICE - 1), PRICE + DEPOSIT_AMOUNT);
+    }
+
     function test_RevertsWhen_InsufficientPayment() public {
         vm.warp(gracePeriod + 1);
         vm.expectRevert(INSUFFICIENT_PAYMENT_ERROR);

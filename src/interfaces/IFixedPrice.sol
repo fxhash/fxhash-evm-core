@@ -6,128 +6,223 @@ import {ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 
 /**
  * @title IFixedPrice
- * @notice Minter contract for purchasing tokens at a fixed price
+ * @author fx(hash)
+ * @notice Minter for distributing tokens at fixed prices
  */
 interface IFixedPrice is IMinter {
+    /*//////////////////////////////////////////////////////////////////////////
+                                  EVENTS
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
-     * @notice Emitted when a new fixed price mint is added
-     * @param token The address of the token being minted
-     * @param reserveId The ID of the reserve
-     * @param price The fixed price for the mint
-     * @param reserve The reserve information for the mint
-     * @param openEdition The status of an open edition mint
-     * @param timeUnlimited The status of a mint with unlimited time
+     * @notice Event emitted when a new fixed price mint has been set
+     * @param _token Address of the token being minted
+     * @param _reserveId ID of the reserve
+     * @param _price Amount of fixed price mint
+     * @param _reserveInfo Reserve information for the mint
+     * @param _openEdition Status of an open edition mint
+     * @param _timeUnlimited Status of a mint with unlimited time
      */
     event MintDetailsSet(
-        address indexed token,
-        uint256 indexed reserveId,
-        uint256 price,
-        ReserveInfo reserve,
-        bool openEdition,
-        bool timeUnlimited
+        address indexed _token,
+        uint256 indexed _reserveId,
+        uint256 _price,
+        ReserveInfo _reserveInfo,
+        bool _openEdition,
+        bool _timeUnlimited
     );
 
     /**
-     * @notice Emitted when a purchase is made
-     * @param token The address of the token being purchased
-     * @param reserveId The ID of the mint
-     * @param buyer The address to purchasing the tokens
-     * @param amount The amount of tokens being purchased
-     * @param to The address to which the tokens are being transferred
-     * @param price The price of the purchase
+     * @notice Event emitted when a purchase is made
+     * @param _token Address of the token being purchased
+     * @param _reserveId ID of the mint
+     * @param _buyer Address purchasing the tokens
+     * @param _amount Amount of tokens being purchased
+     * @param _to Address to which the tokens are being transferred
+     * @param _price Price of the purchase
      */
     event Purchase(
-        address indexed token,
-        uint256 indexed reserveId,
-        address indexed buyer,
-        uint256 amount,
-        address to,
-        uint256 price
+        address indexed _token,
+        uint256 indexed _reserveId,
+        address indexed _buyer,
+        uint256 _amount,
+        address _to,
+        uint256 _price
     );
 
     /**
-     * @notice Emitted when proceeds are withdrawn
-     * @param token The address of the token
-     * @param creator The address of the creator of the project
-     * @param proceeds The amount of proceeds being withdrawn
+     * @notice Event emitted when sale proceeds are withdrawn
+     * @param _token Address of the token
+     * @param _creator Address of the project creator
+     * @param _proceeds Amount of proceeds being withdrawn
      */
-    event Withdrawn(address indexed token, address indexed creator, uint256 proceeds);
+    event Withdrawn(address indexed _token, address indexed _creator, uint256 _proceeds);
 
-    /// @notice Thrown when *to* address is the zero address
-    error AddressZero();
-
-    /// @notice Thrown when the sale has already ended
-    error Ended();
-
-    /// @notice Thrown when there is no funds from a sale to withdraw
-    error InsufficientFunds();
-
-    /// @notice Thrown when the allocation is zero
-    error InvalidAllocation();
-
-    /// @notice Thrown when payment doesn't equal price
-    error InvalidPayment();
-
-    /// @notice Thrown when an invalid price is provided
-    error InvalidPrice();
-
-    /// @notice Thrown when invalid times are provided for reserve
-    error InvalidTimes();
-
-    /// @notice Thrown when an invalid token address is provided
-    error InvalidToken();
-
-    /// @notice Error thrown when a reserve doesnt exist
-    error InvalidReserve();
-
-    /// @notice Thrown when the sale has not started
-    error NotStarted();
-
-    /// @notice Thrown when calling buy when either an allowlist or signer exists
-    error NoPublicMint();
-
-    /// @notice Thrown when buyAllowlist and no allowlist exists
-    error NoAllowlist();
-
-    /// @notice Thrown when buyWithMintPass and no signing authority exists
-    error NoSigningAuthority();
-
-    /// @notice Thrown when setting both an allowlist and mint signer
-    error OnlyAuthorityOrAllowlist();
-
-    /// @notice Thrown when amount purchased exceeds remaining allocation
-    error TooMany();
+    /*//////////////////////////////////////////////////////////////////////////
+                                  ERRORS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @notice Buys tokens by sending payment to the contract
-     * @param _token The address of the token to buy
-     * @param _reserveId The mint ID of the reserve for the token
-     * @param _amount The number of tokens to buy
-     * @param _to The address to receive the tokens
+     * @notice Error thrown when receiver is zero address
+     */
+    error AddressZero();
+
+    /**
+     * @notice Error thrown when the sale has already ended
+     */
+    error Ended();
+
+    /**
+     * @notice Error thrown when no funds available to withdraw
+     */
+    error InsufficientFunds();
+
+    /**
+     * @notice Error thrown when the allocation amount is zero
+     */
+    error InvalidAllocation();
+
+    /**
+     * @notice Error thrown when payment does not equal price
+     */
+    error InvalidPayment();
+
+    /**
+     * @notice Error thrown when an invalid price is provided
+     */
+    error InvalidPrice();
+
+    /**
+     * @notice Error thrown thrown when reserve does not exist
+     */
+    error InvalidReserve();
+
+    /**
+     * @notice Error thrown when reserve start and end times are invalid
+     */
+    error InvalidTimes();
+
+    /**
+     * @notice Error thrown when token address is invalid
+     */
+    error InvalidToken();
+
+    /**
+     * @notice Error thrown when buying through allowlist and no allowlist exists
+     */
+    error NoAllowlist();
+
+    /**
+     * @notice Error thrown when calling buy when either an allowlist or signer exists
+     */
+    error NoPublicMint();
+
+    /**
+     * @notice Error thrown when buy with a mint pass and no signing authority exists
+     */
+    error NoSigningAuthority();
+
+    /**
+     * @notice Error thrown when the auction has not started
+     */
+    error NotStarted();
+
+    /**
+     * @notice Error thrown when setting both an allowlist and mint signer
+     */
+    error OnlyAuthorityOrAllowlist();
+
+    /**
+     * @notice Error thrown when amount purchased exceeds remaining allocation
+     */
+    error TooMany();
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                  FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @notice Purchases tokens at a fixed price
+     * @param _token Address of the token contract
+     * @param _reserveId ID of the reserve
+     * @param _amount Amount of tokens being purchased
+     * @param _to Address receiving the purchased tokens
      */
     function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable;
 
     /**
+     * @notice Purchases tokens through an allowlist at a fixed price
+     * @param _token Address of the token being purchased
+     * @param _reserveId ID of the reserve
+     * @param _to Address receiving the purchased tokens
+     * @param _indexes Array of indices regarding purchase info inside the BitMap
+     * @param _proofs Array of merkle proofs used for verifying the purchase
+     */
+    function buyAllowlist(
+        address _token,
+        uint256 _reserveId,
+        address _to,
+        uint256[] calldata _indexes,
+        bytes32[][] calldata _proofs
+    ) external payable;
+
+    /**
+     * @notice Purchases tokens through a mint pass at a fixed price
+     * @param _token Address of the token being purchased
+     * @param _reserveId ID of the reserve
+     * @param _amount Number of tokens being purchased
+     * @param _to Address receiving the purchased tokens
+     * @param _index Index of puchase info inside the BitMap
+     * @param _signature Array of merkle proofs used for verifying the purchase
+     */
+    function buyMintPass(
+        address _token,
+        uint256 _reserveId,
+        uint256 _amount,
+        address _to,
+        uint256 _index,
+        bytes calldata _signature
+    ) external payable;
+
+    /**
+     * @notice Mapping of token address to reserve ID to merkle roots
+     */
+    function merkleRoots(address, uint256) external view returns (bytes32);
+
+    /**
+     * @notice Mapping of token address to timestamp of latest update made for token reserves
+     */
+    function latestUpdates(address) external view returns (uint256);
+
+    /**
+     * @notice Mapping of token address to reserve ID to prices
+     */
+    function prices(address, uint256) external view returns (uint256);
+
+    /**
+     * @notice Mapping of token address to reserve ID to reserve information
+     */
+    function reserves(address, uint256) external view returns (uint64, uint64, uint128);
+
+    /**
+     * @notice Mapping of token address to sale proceeds
+     */
+    function saleProceeds(address) external view returns (uint256);
+
+    /**
+     * @inheritdoc IMinter
+     * @dev Mint Details: token price, merkle root, and signer address
+     */
+    function setMintDetails(ReserveInfo calldata _reserveInfo, bytes calldata _mintDetails) external;
+
+    /**
+     * @notice Mapping of token address to reserve ID to address of mint pass authority
+     */
+    function signingAuthorities(address, uint256) external view returns (address);
+
+    /**
      * @notice Withdraws the sale proceeds to the sale receiver
-     * @param _token The address of the token to withdraw proceeds for
+     * @param _token Address of the token withdrawing proceeds from
      */
     function withdraw(address _token) external;
-
-    /// @notice Returns the price of a token for a reserveId
-    function prices(address _token, uint256 _reserveId) external view returns (uint256);
-
-    /// @notice A mapping of merkle roots that returns the merkle root of a token for a reserveId
-    function merkleRoots(address _token, uint256 _reserveId) external view returns (bytes32);
-
-    /// @notice A mapping of signing authorities returns the signing authority of mint passes of a token for a reserveId
-    function signingAuthorities(address _token, uint256 _reserveId) external view returns (address);
-
-    /// @notice Returns the latest timestamp of reserve updates set for a token
-    function lastUpdated(address _token) external view returns (uint256);
-
-    /// @notice Returns the reserve of a token for a reserveId
-    function reserves(address _token, uint256 _reserveId) external view returns (uint64, uint64, uint128);
-
-    /// @notice Returns the amount of saleProceeds of a token
-    function saleProceeds(address _token) external view returns (uint256);
 }

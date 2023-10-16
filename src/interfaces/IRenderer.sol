@@ -3,14 +3,15 @@ pragma solidity 0.8.20;
 
 /**
  * @title IRenderer
- * @notice Interface for FxGenArt721 Tokens to interact with Renderers
+ * @author fx(hash)
+ * @notice Interface for FxGenArt721 tokens to interact with renderers
  */
 interface IRenderer {
     /**
-     * @notice Returns the URI for a given token ID
-     * @param _tokenId The token ID
-     * @param _data Additional data that may be used to construct the token URI
-     * @return The URI for the token
+     * @notice Gets the metadata for a token
+     * @param _tokenId ID of the token
+     * @param _data Additional data used to construct onchain metadata
+     * @return URI of the token metadata
      */
     function tokenURI(uint256 _tokenId, bytes calldata _data) external view returns (string memory);
 }

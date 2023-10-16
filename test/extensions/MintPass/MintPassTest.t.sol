@@ -10,6 +10,10 @@ contract MintPassTest is BaseTest {
     uint256 internal signerPk = 1;
     address internal signerAddr = vm.addr(signerPk);
 
+    // Errors
+    bytes4 internal INVALID_SIGNATURE_ERROR = MintPass.InvalidSignature.selector;
+    bytes4 internal PASS_ALREADY_CLAIMED_ERROR = MintPass.PassAlreadyClaimed.selector;
+
     function setUp() public override {
         _mockMintPass(admin, signerAddr);
     }
