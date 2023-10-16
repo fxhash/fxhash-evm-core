@@ -1,8 +1,9 @@
 # fx(hash)
 
-[![Docs][docs-badge]][https://fxhash-evm-docs.vercel.app/]
+[![Docs][docs-badge]][docs-link]
 
-[docs-link]: https://img.shields.io/badge/fxhash-documentation-informational
+[docs-badge]: https://img.shields.io/badge/fxhash-documentation-informational
+[docs-link]: https://fxhash-evm-docs.vercel.app
 
 ## Core Contracts
 
