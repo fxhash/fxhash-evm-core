@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {MockSplitsController} from "test/mocks/MockSplitsController.sol";
 import "test/BaseTest.t.sol";
 
 contract SplitsControllerTest is BaseTest {

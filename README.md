@@ -1,5 +1,9 @@
 # fx(hash)
 
+[![Docs][docs-badge]][docs-link]
+
+[docs-link]: https://fxhash-evm-docs.vercel.app/
+
 ## Core Contracts
 
 1. **[FxContractRegistry](https://github.com/fxhash/fxhash-core/blob/main/src/registries/FxContractRegistry.sol)**: Registry contract that manages all deployed smart contracts registered by **[fxhash](https://www.fxhash.xyz)**
@@ -24,7 +28,7 @@
 
 4. **[ScriptyRenderer](https://github.com/fxhash/fxhash-core/blob/main/src/renderers/ScriptyRenderer.sol)**: Renderer contract that generates and builds the metadata of a token fully onchain in `base64` format using **[Scripty.sol](https://int-art.gitbook.io/scripty.sol-v2)**
 
-5. **[SplitsFactory](https://github.com/fxhash/fxhash-core/blob/main/src/factories/SplitsFactory.sol)**: Factory contract that creates and manages **[0xSplits](https://docs.splits.org)** contracts for distributing token royalties on primary and secondary sales
+5. **[SplitsFactory](https://github.com/fxhash/fxhash-core/blob/main/src/splits/SplitsFactory.sol)**: Factory contract that creates and manages **[0xSplits](https://docs.splits.org)** contracts for distributing token royalties on primary and secondary sales
 
 6. **[TicketRedeemer](https://github.com/fxhash/fxhash-core/blob/main/src/minters/TicketRedeemer.sol)**: Minter contract that burns an existing `FxMintTicket721` token and mints a new `FxGenArt721` token
 
