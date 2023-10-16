@@ -13,6 +13,10 @@ contract MockSplitsController is SplitsController {
         _addCreator(_split, _creator);
     }
 
+    function updateFxHash(address _fxHash, bool _active) external {
+        _updateFxHash(_fxHash, _active);
+    }
+
     function transferAllocation(
         address _split,
         address[] memory _accounts,
@@ -22,7 +26,7 @@ contract MockSplitsController is SplitsController {
         _transferAllocation(_split, _accounts, _allocations, _to);
     }
 
-    function trasnferAllocationFrom(
+    function transferAllocationFrom(
         address _split,
         address[] memory _accounts,
         uint32[] memory _allocations,

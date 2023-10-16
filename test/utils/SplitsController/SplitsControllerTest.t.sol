@@ -6,6 +6,7 @@ import "test/BaseTest.t.sol";
 
 contract SplitsControllerTest is BaseTest {
     MockSplitsController internal controller;
+    address internal fxHash;
     address internal split;
     uint32 internal allocationAmount = 250000;
 
@@ -16,6 +17,8 @@ contract SplitsControllerTest is BaseTest {
         vm.prank(splitsFactory.owner());
         splitsFactory.updateController(address(controller));
         split = splitsFactory.createMutableSplit(accounts, allocations, address(controller));
+        controller.addCreator(split, alice);
+        controller.updateFxHash(fxHash, true);
     }
 
     function _configureSplits() internal virtual override {
@@ -23,12 +26,12 @@ contract SplitsControllerTest is BaseTest {
         alice = address(1);
         bob = address(2);
         eve = address(3);
-        susan = address(4);
+        fxHash = address(4);
 
         accounts.push(alice);
         accounts.push(bob);
         accounts.push(eve);
-        accounts.push(susan);
+        accounts.push(fxHash);
         allocations.push(allocationAmount);
         allocations.push(allocationAmount);
         allocations.push(allocationAmount);

@@ -26,6 +26,10 @@ abstract contract SplitsController {
         splitCreator[_split] = _creator;
     }
 
+    function _updateFxHash(address _fxHash, bool active) internal {
+        isFxHash[_fxHash] = active;
+    }
+
     function _transferAllocation(
         address _split,
         address[] memory _accounts,
