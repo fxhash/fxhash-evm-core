@@ -7,9 +7,13 @@ import {IRenderer} from "src/interfaces/IRenderer.sol";
 /**
  * @title IScriptyRenderer
  * @author fx(hash)
- * @notice Renderer for onchain metadata of FxGenArt721 tokens using Scripty.sol
+ * @notice Renderer for building onchain metadata of FxGenArt721 tokens using Scripty.sol
  */
 interface IScriptyRenderer is IRenderer {
+    /*//////////////////////////////////////////////////////////////////////////
+                                  FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
      * @notice Returns the address of ETHFSFileStorage contract
      */

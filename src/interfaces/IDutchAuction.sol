@@ -22,7 +22,7 @@ struct AuctionInfo {
 
 /**
  * @notice Struct of minter information
- * @param totalMints Total number of mints performed by the minter
+ * @param totalMints Total number of mints executed by the minter
  * @param totalPaid Total amount paid by the minter
  */
 struct MinterInfo {
@@ -33,7 +33,7 @@ struct MinterInfo {
 /**
  * @notice Struct of refund information
  * @param lastPrice Price of last sale before selling out
- * @param minterInfo Mapping of minter address to struct of MinterInfo
+ * @param minterInfo Mapping of minter address to struct of minter information
  */
 struct RefundInfo {
     uint256 lastPrice;
@@ -303,7 +303,7 @@ interface IDutchAuction is IMinter {
 
     /**
      * @inheritdoc IMinter
-     * @dev Mint details: auction info struct, merkle root, and signer address
+     * @dev Mint details: struct of auction information, merkle root, and signer address
      */
     function setMintDetails(ReserveInfo calldata, bytes calldata _mintDetails) external;
 

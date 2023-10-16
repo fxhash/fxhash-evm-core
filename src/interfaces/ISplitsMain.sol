@@ -28,7 +28,5 @@ interface ISplitsMain {
         uint32 distributorFee
     ) external view returns (address);
 
-    function walletImplementation() external returns (address);
-
     function withdraw(address account, uint256 withdrawETH, address[] calldata tokens) external;
 }
