@@ -11,6 +11,11 @@ contract TransferAllocation is SplitsControllerTest {
         controller.transferAllocation(split, accounts, allocations, transferTo);
     }
 
+    function test_WhenFxHash_TransferFxHashAllocation() public {
+        vm.prank(fxHash);
+        controller.transferAllocation(split, accounts, allocations, transferTo);
+    }
+
     function test_When_Creator_TransferAllocation() public {
         vm.prank(alice);
         controller.transferAllocation(split, accounts, allocations, transferTo);

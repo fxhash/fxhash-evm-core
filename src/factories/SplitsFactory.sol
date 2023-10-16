@@ -4,16 +4,13 @@ pragma solidity 0.8.20;
 import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
 import {ISplitsFactory} from "src/interfaces/ISplitsFactory.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
-
-interface IController {
-    function addCreator(address, address) external;
-}
+import {SplitsController} from "src/utils/SplitsController.sol";
 
 /**
  * @title SplitsFactory
  * @notice A factory contract for creating split wallets and easier event tracking
  */
-contract SplitsFactory is ISplitsFactory, Ownable {
+contract SplitsFactory is ISplitsFactory, SplitsController, Ownable {
     /// @inheritdoc ISplitsFactory
     address public immutable splitsMain;
     /// @inheritdoc ISplitsFactory
@@ -52,7 +49,7 @@ contract SplitsFactory is ISplitsFactory, Ownable {
         address _creator
     ) external returns (address split) {
         split = ISplitsMain(splitsMain).createSplit(_accounts, _allocations, 0, controller);
-        IController(controller).addCreator(split, _creator);
+        _addCreator(split, _creator);
         emit SplitsInfo(split, controller, _accounts, _allocations, 0);
     }
 
@@ -70,5 +67,9 @@ contract SplitsFactory is ISplitsFactory, Ownable {
         address oldController = controller;
         controller = _newController;
         emit UpdateController(oldController, _newController);
+    }
+
+    function _splitsMain() internal view override returns (address) {
+        return splitsMain;
     }
 }

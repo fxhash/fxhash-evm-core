@@ -5,10 +5,6 @@ import {SplitsController} from "src/utils/SplitsController.sol";
 import {SPLITS_MAIN} from "script/utils/Constants.sol";
 
 contract MockSplitsController is SplitsController {
-    function splitsMain() public override returns (address) {
-        return SPLITS_MAIN;
-    }
-
     function addCreator(address _split, address _creator) external {
         _addCreator(_split, _creator);
     }
@@ -34,5 +30,9 @@ contract MockSplitsController is SplitsController {
         address _to
     ) external {
         _transferAllocationFrom(_split, _accounts, _allocations, _from, _to);
+    }
+
+    function _splitsMain() internal override returns (address) {
+        return SPLITS_MAIN;
     }
 }

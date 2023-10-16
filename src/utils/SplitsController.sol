@@ -7,7 +7,7 @@ abstract contract SplitsController {
     mapping(address => bool) public isFxHash;
     mapping(address => address) public splitCreator;
 
-    error NotSplitCreator();
+    error NotAuthorized();
     error CantTransferFxHash();
     error AccountNotInAccounts();
     error AccountsIdentical();
@@ -36,8 +36,8 @@ abstract contract SplitsController {
         uint32[] memory _allocations,
         address _to
     ) internal {
-        /// need to verify the previous accounts and allocations == split stored hash
-        if (_hashSplit(_accounts, _allocations) != ISplitsMain(splitsMain()).getHash(_split))
+        /// verify the previous accounts and allocations == split stored hash
+        if (_hashSplit(_accounts, _allocations) != ISplitsMain(_splitsMain()).getHash(_split))
             revert NotValidSplitHash();
         /// moves allocation of msg.sender in _accounts list -> _to account
         _transferAllocationFrom(_split, _accounts, _allocations, msg.sender, _to);
@@ -54,9 +54,9 @@ abstract contract SplitsController {
         if (_from == _to) revert AccountsIdentical();
 
         /// checks that msg.sender has privilege to do so
-        if (msg.sender != splitCreator[_split]) revert NotSplitCreator();
+        if (msg.sender != splitCreator[_split] && !isFxHash[msg.sender]) revert NotAuthorized();
         /// checks that from isn't fxhash receiver
-        if (isFxHash[_from]) revert CantTransferFxHash();
+        if (isFxHash[_from] && !isFxHash[msg.sender]) revert CantTransferFxHash();
         /// verifies account is in array and gets id
         bool fromFound;
         uint256 fromId;
@@ -99,7 +99,7 @@ abstract contract SplitsController {
             _accounts = newAccounts;
             _allocations = newAllocations;
         }
-        ISplitsMain(splitsMain()).updateSplit(_split, _accounts, _allocations, uint32(0));
+        ISplitsMain(_splitsMain()).updateSplit(_split, _accounts, _allocations, uint32(0));
     }
 
     function sort(
@@ -135,5 +135,5 @@ abstract contract SplitsController {
         return (_accounts, _allocations);
     }
 
-    function splitsMain() public virtual returns (address);
+    function _splitsMain() internal virtual returns (address);
 }
