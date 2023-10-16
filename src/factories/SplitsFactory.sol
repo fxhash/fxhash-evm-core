@@ -105,6 +105,9 @@ contract SplitsFactory is ISplitsFactory, Ownable, SplitsController {
         emit ControllerUpdated(oldController, _controller);
     }
 
+    /**
+     * @inheritdoc SplitsController
+     */
     function _splitsMain() internal view override returns (address) {
         return splits;
     }
