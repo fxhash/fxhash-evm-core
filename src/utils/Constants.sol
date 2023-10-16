@@ -44,7 +44,7 @@ uint96 constant MAX_ROYALTY_BPS = 2500; // 25%
 // Ticket
 uint256 constant AUCTION_DECAY_RATE = 200; // 2%
 uint256 constant DAILY_TAX_RATE = 27; // 0.274%
-uint256 constant MINIMUM_PRICE = 0.01 ether;
+uint256 constant MINIMUM_PRICE = 0.001 ether;
 uint256 constant ONE_DAY = 86_400;
 uint256 constant SCALING_FACTOR = 10_000;
 uint256 constant TEN_MINUTES = 600;

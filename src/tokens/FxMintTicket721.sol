@@ -172,6 +172,8 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
         TaxInfo storage taxInfo = taxes[_tokenId];
         // Reverts if grace period of token is still active
         if (block.timestamp <= taxInfo.gracePeriod) revert GracePeriodActive();
+        // Reverts if new price is less than the minimum price
+        if (_newPrice < MINIMUM_PRICE) revert InvalidPrice();
 
         // Loads current tax information
         uint256 currentPrice = taxInfo.currentPrice;
