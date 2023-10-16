@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+import {IToken} from "src/interfaces/IToken.sol";
 import {MintInfo} from "src/interfaces/IFxGenArt721.sol";
 
 /*//////////////////////////////////////////////////////////////////////////
@@ -26,7 +27,7 @@ struct TaxInfo {
  * @author fx(hash)
  * @notice ERC-721 token for mint tickets used to redeem FxGenArt721 tokens
  */
-interface IFxMintTicket721 {
+interface IFxMintTicket721 is IToken {
     /*//////////////////////////////////////////////////////////////////////////
                                   EVENTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -301,10 +302,7 @@ interface IFxMintTicket721 {
     function gracePeriod() external view returns (uint48);
 
     /**
-     * @notice Allows any minter contract to mint an arbitrary amount of tokens to a given account
-     * @param _to Address being minted to
-     * @param _amount Amount of tokens being minted
-     * @param _payment Payment amount of transaction
+     * @inheritdoc IToken
      */
     function mint(address _to, uint256 _amount, uint256 _payment) external;
 

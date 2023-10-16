@@ -66,7 +66,7 @@ contract FxMintTicket721Test is BaseTest {
     }
 
     function _mint(address _minter, address _to, uint256 _amount, uint256 _payment) internal prank(_minter) {
-        MockMinter(minter).mintTicket(fxMintTicketProxy, _to, _amount, _payment);
+        MockMinter(minter).mint(fxMintTicketProxy, _to, _amount, _payment);
     }
 
     function _redeem(

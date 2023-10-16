@@ -9,6 +9,7 @@ import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 
 import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
 import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
+import {IToken} from "src/interfaces/IToken.sol";
 
 import {OPEN_EDITION_SUPPLY, TIME_UNLIMITED} from "src/utils/Constants.sol";
 
@@ -191,7 +192,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
         reserve.allocation -= _amount.safeCastTo128();
         saleProceeds[_token] += price;
 
-        IFxGenArt721(_token).mintRandom(_to, _amount);
+        IToken(_token).mint(_to, _amount, price);
 
         emit Purchase(_token, _reserveId, msg.sender, _amount, _to, price);
     }

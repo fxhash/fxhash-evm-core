@@ -3,6 +3,7 @@ pragma solidity 0.8.20;
 
 import {HTMLRequest} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
+import {IToken} from "src/interfaces/IToken.sol";
 
 /*//////////////////////////////////////////////////////////////////////////
                                   STRUCTS
@@ -109,7 +110,7 @@ struct ReserveInfo {
  * @author fx(hash)
  * @notice ERC-721 token for generative art projects created on fxhash
  */
-interface IFxGenArt721 is ISeedConsumer {
+interface IFxGenArt721 is ISeedConsumer, IToken {
     /*//////////////////////////////////////////////////////////////////////////
                                   EVENTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -289,31 +290,32 @@ interface IFxGenArt721 is ISeedConsumer {
     function metadataInfo() external view returns (string memory, string memory, bytes memory);
 
     /**
-     * @notice Allows any registered minter contract to mint single fxParams token
+     * @inheritdoc IToken
+     */
+    function mint(address _to, uint256 _amount, uint256 _payment) external;
+
+    /**
+     * @notice Mints single fxParams token
+     * @dev Only callable by registered minter contracts
      * @param _to Address receiving minted token
      * @param _fxParams Random sequence of fixed-length bytes used as input
      */
     function mintParams(address _to, bytes calldata _fxParams) external;
 
     /**
-     * @notice Allows any registered minter contract to mint arbitrary amount of tokens
-     * @param _to Address receiving minted tokens
-     * @param _amount Amount of tokens being minted
+     * @notice Mints single token with randomly generated seed
+     * @dev Only callable by contract owner
+     * @param _to Address receiving token
      */
-    function mintRandom(address _to, uint256 _amount) external;
+    function ownerMint(address _to) external;
 
     /**
-     * @notice Allows owner to mint a single fxParams token
+     * @notice Mints single fxParams token
+     * @dev Only callable by contract owner
      * @param _to Address receiving minted token
      * @param _fxParams Random sequence of fixed-length bytes used as input
      */
     function ownerMintParams(address _to, bytes calldata _fxParams) external;
-
-    /**
-     * @notice Allows owner to mint tokens with randomly generated seeds
-     * @param _to Address receiving minted token
-     */
-    function ownerMintRandom(address _to) external;
 
     /**
      * @notice Pauses all function executions where modifier is applied

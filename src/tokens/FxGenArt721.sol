@@ -171,19 +171,19 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function mintParams(address _to, bytes calldata _fxParams) external onlyMinter whenNotPaused {
+    function mint(address _to, uint256 _amount, uint256 /* _payment */) external onlyMinter whenNotPaused {
         if (!issuerInfo.projectInfo.mintEnabled) revert MintInactive();
-        _mintParams(_to, ++totalSupply, _fxParams);
+        for (uint256 i; i < _amount; ++i) {
+            _mintRandom(_to, ++totalSupply);
+        }
     }
 
     /**
      * @inheritdoc IFxGenArt721
      */
-    function mintRandom(address _to, uint256 _amount) external onlyMinter whenNotPaused {
+    function mintParams(address _to, bytes calldata _fxParams) external onlyMinter whenNotPaused {
         if (!issuerInfo.projectInfo.mintEnabled) revert MintInactive();
-        for (uint256 i; i < _amount; ++i) {
-            _mintRandom(_to, ++totalSupply);
-        }
+        _mintParams(_to, ++totalSupply, _fxParams);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -193,15 +193,15 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function ownerMintParams(address _to, bytes calldata _fxParams) external onlyMinter whenNotPaused {
-        _mintParams(_to, ++totalSupply, _fxParams);
+    function ownerMint(address _to) external onlyOwner whenNotPaused {
+        _mintRandom(_to, ++totalSupply);
     }
 
     /**
      * @inheritdoc IFxGenArt721
      */
-    function ownerMintRandom(address _to) external onlyOwner whenNotPaused {
-        _mintRandom(_to, ++totalSupply);
+    function ownerMintParams(address _to, bytes calldata _fxParams) external onlyMinter whenNotPaused {
+        _mintParams(_to, ++totalSupply, _fxParams);
     }
 
     /**

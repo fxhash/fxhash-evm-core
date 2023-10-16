@@ -41,7 +41,7 @@ contract Seed is Deploy {
     function _mint() internal {
         IFxGenArt721(fxGenArtProxy).toggleMint();
         for (uint256 i; i < 20; i++) {
-            IFxGenArt721(fxGenArtProxy).ownerMintRandom(creator);
+            IFxGenArt721(fxGenArtProxy).ownerMint(creator);
         }
     }
 }

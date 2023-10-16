@@ -9,6 +9,7 @@ import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 
 import {IDutchAuction, AuctionInfo, MinterInfo, RefundInfo} from "src/interfaces/IDutchAuction.sol";
 import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
+import {IToken} from "src/interfaces/IToken.sol";
 
 /**
  * @title DutchAuction
@@ -265,15 +266,16 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         }
 
         // Updates the minter's total mints and total paid amounts
+        uint128 totalPayment = SafeCastLib.safeCastTo128(price * _amount);
         MinterInfo storage minterInfo = refunds[_token][_reserveId].minterInfo[msg.sender];
         minterInfo.totalMints += SafeCastLib.safeCastTo128(_amount);
-        minterInfo.totalPaid += SafeCastLib.safeCastTo128(price * _amount);
+        minterInfo.totalPaid += totalPayment;
 
         // Adds the sale proceeds to the total for the reserve
-        saleProceeds[_token][_reserveId] += price * _amount;
+        saleProceeds[_token][_reserveId] += totalPayment;
         emit Purchase(_token, _reserveId, msg.sender, _to, _amount, price);
 
-        IFxGenArt721(_token).mintRandom(_to, _amount);
+        IToken(_token).mint(_to, _amount, totalPayment);
     }
 
     /**
