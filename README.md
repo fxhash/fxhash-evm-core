@@ -16,9 +16,9 @@
 
 ## Periphery Contracts
 
-1. **[DutchAuction](https://github.com/fxhash/fxhash-core/blob/main/src/minters/DutchAuction.sol)**: Minter contract that mints new `FxGenArt721` and `FxMintTicket721` tokens at a linear price over a fixed interval of time
+1. **[DutchAuction](https://github.com/fxhash/fxhash-core/blob/main/src/minters/DutchAuction.sol)**: Minter contract that distributes new `FxGenArt721` and `FxMintTicket721` tokens at a linear price over a fixed interval of time
 
-2. **[FixedPrice](https://github.com/fxhash/fxhash-core/blob/main/rc/minters/FixedPrice.sol)**: Minter contract that mints new `FxGenArt721` and `FxMintTicket721` tokens at a fixed price
+2. **[FixedPrice](https://github.com/fxhash/fxhash-core/blob/main/rc/minters/FixedPrice.sol)**: Minter contract that distributes new `FxGenArt721` and `FxMintTicket721` tokens at a fixed price
 
 3. **[PseudoRandomizer](https://github.com/fxhash/fxhash-core/blob/main/src/randomizers/PseudoRandomizer.sol)**: Randomizer contract that provides a pseudo-randomness `keccak256` hash using the token ID, sender's address, current block number, and hash of the previous block
 

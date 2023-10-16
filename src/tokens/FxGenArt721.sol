@@ -225,7 +225,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
             issuerInfo.minters[minter] = false;
         }
 
-        // Resets array state of active minters
+        // Deletes list of current active minters
         delete issuerInfo.activeMinters;
 
         // Registers new minters
