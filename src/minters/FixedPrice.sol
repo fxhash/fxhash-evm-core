@@ -2,7 +2,7 @@
 pragma solidity 0.8.20;
 
 import {Allowlist} from "src/minters/extensions/Allowlist.sol";
-import {BitMaps} from "openzeppelin/contracts/utils/structs/BitMaps.sol";
+import {LibBitmap} from "solady/src/utils/LibBitmap.sol";
 import {MintPass} from "src/minters/extensions/MintPass.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
@@ -28,12 +28,12 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
     /**
      * @dev Mapping of token address to reserve ID to BitMap of claimed merkle tree slots
      */
-    mapping(address => mapping(uint256 => BitMaps.BitMap)) internal _claimedMerkleTreeSlots;
+    mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal _claimedMerkleTreeSlots;
 
     /**
      * @dev Mapping of token address to reserve ID to BitMap of claimed mint passes
      */
-    mapping(address => mapping(uint256 => BitMaps.BitMap)) internal _claimedMintPasses;
+    mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal _claimedMintPasses;
 
     /**
      * @inheritdoc IFixedPrice
@@ -91,7 +91,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
     ) external payable {
         bytes32 merkleRoot = _getMerkleRoot(_token, _reserveId);
         if (merkleRoot == bytes32(0)) revert NoAllowlist();
-        BitMaps.BitMap storage claimBitmap = _claimedMerkleTreeSlots[_token][_reserveId];
+        LibBitmap.Bitmap storage claimBitmap = _claimedMerkleTreeSlots[_token][_reserveId];
         for (uint256 i; i < _proofs.length; i++) {
             _claimSlot(_token, _reserveId, _indexes[i], _proofs[i], claimBitmap);
         }
@@ -112,7 +112,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
     ) external payable {
         address signer = signingAuthorities[_token][_reserveId];
         if (signer == address(0)) revert NoSigningAuthority();
-        BitMaps.BitMap storage claimBitmap = _claimedMintPasses[_token][_reserveId];
+        LibBitmap.Bitmap storage claimBitmap = _claimedMintPasses[_token][_reserveId];
         _claimMintPass(_token, _reserveId, _index, _signature, claimBitmap);
         _buy(_token, _reserveId, _amount, _to);
     }

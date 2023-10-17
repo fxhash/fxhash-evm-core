@@ -2,7 +2,7 @@
 pragma solidity 0.8.20;
 
 import {Allowlist} from "src/minters/extensions/Allowlist.sol";
-import {BitMaps} from "openzeppelin/contracts/utils/structs/BitMaps.sol";
+import {LibBitmap} from "solady/src/utils/LibBitmap.sol";
 import {MintPass} from "src/minters/extensions/MintPass.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
@@ -24,12 +24,12 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     /**
      * @dev Mapping of token address to reserve ID to BitMap of claimed merkle tree slots
      */
-    mapping(address => mapping(uint256 => BitMaps.BitMap)) internal _claimedMerkleTreeSlots;
+    mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal _claimedMerkleTreeSlots;
 
     /**
      * @dev Mapping of token address to reserve ID to BitMap of claimed mint passes
      */
-    mapping(address => mapping(uint256 => BitMaps.BitMap)) internal _claimedMintPasses;
+    mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal _claimedMintPasses;
 
     /**
      * @inheritdoc IDutchAuction
@@ -76,7 +76,8 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable {
         bytes32 merkleRoot = _getMerkleRoot(_token, _reserveId);
         address signer = signingAuthorities[_token][_reserveId];
-        if ((merkleRoot != bytes32(0) || signer != address(0))) revert NoPublicMint();
+        if (merkleRoot != bytes32(0)) revert NoPublicMint();
+        if (signer != address(0)) revert AddressZero();
         _buy(_token, _reserveId, _amount, _to);
     }
 
@@ -92,11 +93,15 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     ) external payable {
         bytes32 merkleRoot = _getMerkleRoot(_token, _reserveId);
         if (merkleRoot == bytes32(0)) revert NoAllowlist();
-        BitMaps.BitMap storage claimBitmap = _claimedMerkleTreeSlots[_token][_reserveId];
-        for (uint256 i; i < _proofs.length; i++) {
-            _claimSlot(_token, _reserveId, _indexes[i], _proofs[i], claimBitmap);
-        }
+        LibBitmap.Bitmap storage claimBitmap = _claimedMerkleTreeSlots[_token][_reserveId];
         uint256 amount = _proofs.length;
+        for (uint256 i; i < amount; ) {
+            _claimSlot(_token, _reserveId, _indexes[i], _proofs[i], claimBitmap);
+            unchecked {
+                ++i;
+            }
+        }
+
         _buy(_token, _reserveId, amount, _to);
     }
 
@@ -113,7 +118,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     ) external payable {
         address signer = signingAuthorities[_token][_reserveId];
         if (signer == address(0)) revert NoSigningAuthority();
-        BitMaps.BitMap storage claimBitmap = _claimedMintPasses[_token][_reserveId];
+        LibBitmap.Bitmap storage claimBitmap = _claimedMintPasses[_token][_reserveId];
         _claimMintPass(_token, _reserveId, _index, _signature, claimBitmap);
         _buy(_token, _reserveId, _amount, _to);
     }
@@ -132,7 +137,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         if (!(auctions[_token][_reserveId].refunded && lastPrice > 0)) {
             revert NoRefund();
         }
-        // Checks if the auction has ended and the reserve allocation is fully sold out
+        // Checks if the auction has ended and if the reserve allocation is fully sold out
         if (block.timestamp < reserve.endTime && reserve.allocation > 0) revert NotEnded();
 
         // Get the user's refund information
@@ -140,8 +145,8 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         uint128 refundAmount = SafeCastLib.safeCastTo128(minterInfo.totalPaid - minterInfo.totalMints * lastPrice);
 
         // Deletes the minter's refund information
-        delete refunds[_token][_reserveId].minterInfo[_buyer];
         if (refundAmount == 0) revert NoRefund();
+        delete refunds[_token][_reserveId].minterInfo[_buyer];
 
         emit RefundClaimed(_token, _reserveId, _buyer, refundAmount);
 
@@ -179,8 +184,10 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
 
         // Checks if the price curve is descending
         if (daInfo.prices.length < 2) revert InvalidPriceCurve();
-        for (uint256 i = 1; i < daInfo.prices.length; i++) {
-            if (!(daInfo.prices[i - 1] > daInfo.prices[i])) revert PricesOutOfOrder();
+        unchecked {
+            for (uint256 i = 1; i < daInfo.prices.length; i++) {
+                if (!(daInfo.prices[i - 1] > daInfo.prices[i])) revert PricesOutOfOrder();
+            }
         }
         if (_reserve.allocation == 0) revert InvalidAllocation();
 

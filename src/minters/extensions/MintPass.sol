@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {BitMaps} from "openzeppelin/contracts/utils/structs/BitMaps.sol";
 import {ECDSA} from "openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {EIP712} from "openzeppelin/contracts/utils/cryptography/EIP712.sol";
+import {LibBitmap} from "solady/src/utils/LibBitmap.sol";
 
 import {CLAIM_TYPEHASH} from "src/utils/Constants.sol";
 
@@ -14,7 +14,6 @@ import {CLAIM_TYPEHASH} from "src/utils/Constants.sol";
  */
 abstract contract MintPass is EIP712 {
     using ECDSA for bytes32;
-    using BitMaps for BitMaps.BitMap;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     ERRORS
@@ -71,14 +70,14 @@ abstract contract MintPass is EIP712 {
         uint256 _reserveId,
         uint256 _index,
         bytes calldata _signature,
-        BitMaps.BitMap storage _bitmap
+        LibBitmap.Bitmap storage _bitmap
     ) internal {
-        if (_bitmap.get(_index)) revert PassAlreadyClaimed();
+        if (LibBitmap.get(_bitmap, _index)) revert PassAlreadyClaimed();
         bytes32 hash = generateTypedDataHash(_index, msg.sender);
         (uint8 v, bytes32 r, bytes32 s) = abi.decode(_signature, (uint8, bytes32, bytes32));
         address signer = ECDSA.recover(hash, v, r, s);
         if (!_isSigningAuthority(signer, _token, _reserveId)) revert InvalidSignature();
-        _bitmap.set(_index);
+        LibBitmap.set(_bitmap, _index);
     }
 
     /**
