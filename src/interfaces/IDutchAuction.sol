@@ -232,7 +232,7 @@ interface IDutchAuction is IMinter {
      * @param _token Address of the token being purchased
      * @param _reserveId ID of the reserve
      * @param _to Address receiving the purchased tokens
-     * @param _indexes Array of indices regarding purchase info inside the BitMap
+     * @param _indexes Array of indices containing purchase info inside the BitMap
      * @param _proofs Array of merkle proofs used for verifying the purchase
      */
     function buyAllowlist(
