@@ -262,17 +262,19 @@ interface IDutchAuction is IMinter {
     ) external payable;
 
     /**
+     * @notice Gets the latest timestamp update made to token reserves
+     * @param _token Address of the token contract
+     * @return Timestamp of latest update
+     */
+    function getLatestUpdates(address _token) external view returns (uint40);
+
+    /**
      * @notice Gets the current auction price
      * @param _token Address of the token contract
      * @param _reserveId ID of the reserve
      * @return price Price of the token
      */
     function getPrice(address _token, uint256 _reserveId) external view returns (uint256);
-
-    /**
-     * @notice Mapping of token address to timestamp of latest update made for token reserves
-     */
-    function latestUpdates(address) external view returns (uint256);
 
     /**
      * @notice Mapping of token address to reserve ID to merkle root

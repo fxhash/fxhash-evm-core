@@ -3,6 +3,7 @@ pragma solidity 0.8.20;
 
 import {Allowlist} from "src/minters/extensions/Allowlist.sol";
 import {LibBitmap} from "solady/src/utils/LibBitmap.sol";
+import {LibMap} from "solady/src/utils/LibMap.sol";
 import {MintPass} from "src/minters/extensions/MintPass.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
@@ -36,9 +37,9 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
     mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal _claimedMintPasses;
 
     /**
-     * @inheritdoc IFixedPrice
+     * @dev Mapping of token address to timestamp of latest update made for token reserves
      */
-    mapping(address => uint256) public latestUpdates;
+    LibMap.Uint40Map internal _latestUpdates;
 
     /**
      * @inheritdoc IFixedPrice
@@ -121,10 +122,10 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
      * @inheritdoc IFixedPrice
      */
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external {
-        if (latestUpdates[msg.sender] != block.timestamp) {
+        if (getLatestUpdates(msg.sender) != block.timestamp) {
             delete prices[msg.sender];
             delete reserves[msg.sender];
-            latestUpdates[msg.sender] = block.timestamp;
+            _setLatestUpdate(msg.sender, block.timestamp);
         }
 
         if (_reserve.allocation == 0) revert InvalidAllocation();
@@ -169,6 +170,17 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
+                                READ FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc IFixedPrice
+     */
+    function getLatestUpdates(address _token) public view returns (uint40) {
+        return LibMap.get(_latestUpdates, uint256(uint160(_token)));
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                                 INTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -195,6 +207,13 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
         IToken(_token).mint(_to, _amount, price);
 
         emit Purchase(_token, _reserveId, msg.sender, _amount, _to, price);
+    }
+
+    /**
+     * @dev Sets timestamp of the latest update to token reserves
+     */
+    function _setLatestUpdate(address _token, uint256 _timestamp) internal {
+        LibMap.set(_latestUpdates, uint256(uint160(_token)), uint40(_timestamp));
     }
 
     /**

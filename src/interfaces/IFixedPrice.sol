@@ -185,14 +185,16 @@ interface IFixedPrice is IMinter {
     ) external payable;
 
     /**
+     * @notice Gets the latest timestamp update made to token reserves
+     * @param _token Address of the token contract
+     * @return Timestamp of latest update
+     */
+    function getLatestUpdates(address _token) external view returns (uint40);
+
+    /**
      * @notice Mapping of token address to reserve ID to merkle roots
      */
     function merkleRoots(address, uint256) external view returns (bytes32);
-
-    /**
-     * @notice Mapping of token address to timestamp of latest update made for token reserves
-     */
-    function latestUpdates(address) external view returns (uint256);
 
     /**
      * @notice Mapping of token address to reserve ID to prices

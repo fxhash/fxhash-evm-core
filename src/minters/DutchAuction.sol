@@ -3,6 +3,7 @@ pragma solidity 0.8.20;
 
 import {Allowlist} from "src/minters/extensions/Allowlist.sol";
 import {LibBitmap} from "solady/src/utils/LibBitmap.sol";
+import {LibMap} from "solady/src/utils/LibMap.sol";
 import {MintPass} from "src/minters/extensions/MintPass.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
@@ -32,14 +33,14 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal _claimedMintPasses;
 
     /**
-     * @inheritdoc IDutchAuction
+     * @dev Mapping of token address to timestamp of latest update made for token reserves
      */
-    mapping(address => AuctionInfo[]) public auctions;
+    LibMap.Uint40Map internal _latestUpdates;
 
     /**
      * @inheritdoc IDutchAuction
      */
-    mapping(address => uint256) public latestUpdates;
+    mapping(address => AuctionInfo[]) public auctions;
 
     /**
      * @inheritdoc IDutchAuction
@@ -162,10 +163,10 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
             _mintDetails,
             (AuctionInfo, bytes32, address)
         );
-        if (latestUpdates[msg.sender] != block.timestamp) {
+        if (getLatestUpdates(msg.sender) != block.timestamp) {
             delete reserves[msg.sender];
             delete auctions[msg.sender];
-            latestUpdates[msg.sender] = block.timestamp;
+            _setLatestUpdate(msg.sender, block.timestamp);
         }
 
         // Checks if the step length is evenly divisible by the auction duration
@@ -233,6 +234,13 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     /**
      * @inheritdoc IDutchAuction
      */
+    function getLatestUpdates(address _token) public view returns (uint40) {
+        return LibMap.get(_latestUpdates, uint256(uint160(_token)));
+    }
+
+    /**
+     * @inheritdoc IDutchAuction
+     */
     function getPrice(address _token, uint256 _reserveId) public view returns (uint256) {
         ReserveInfo memory reserve = reserves[_token][_reserveId];
         AuctionInfo storage daInfo = auctions[_token][_reserveId];
@@ -283,6 +291,13 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         emit Purchase(_token, _reserveId, msg.sender, _to, _amount, price);
 
         IToken(_token).mint(_to, _amount, totalPayment);
+    }
+
+    /**
+     * @dev Sets timestamp of the latest update to token reserves
+     */
+    function _setLatestUpdate(address _token, uint256 _timestamp) internal {
+        LibMap.set(_latestUpdates, uint256(uint160(_token)), uint40(_timestamp));
     }
 
     /**
