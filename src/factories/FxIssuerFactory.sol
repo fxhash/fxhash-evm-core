@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {Clones} from "openzeppelin/contracts/proxy/Clones.sol";
-import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
+import {LibClone} from "solady/src/utils/LibClone.sol";
+import {Ownable} from "solady/src/auth/Ownable.sol";
 
 import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
 import {IFxGenArt721, InitInfo, MetadataInfo, MintInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
@@ -61,7 +61,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
      */
     constructor(address _admin, address _roleRegistry, address _implementation) {
         roleRegistry = _roleRegistry;
-        _transferOwnership(_admin);
+        _initializeOwner(_admin);
         _setImplementation(_implementation);
     }
 
@@ -85,7 +85,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
         if (_initInfo.primaryReceiver == address(0)) revert InvalidPrimaryReceiver();
         if (_initInfo.randomizer == address(0) && _projectInfo.inputSize == 0) revert InvalidInputSize();
 
-        genArtToken = Clones.clone(implementation);
+        genArtToken = LibClone.clone(implementation);
         projects[++projectId] = genArtToken;
 
         emit ProjectCreated(projectId, genArtToken, _owner);

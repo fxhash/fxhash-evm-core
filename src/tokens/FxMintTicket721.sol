@@ -3,7 +3,7 @@ pragma solidity 0.8.20;
 
 import {ERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
-import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
+import {Ownable} from "solady/src/auth/Ownable.sol";
 import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
@@ -127,7 +127,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
         gracePeriod = _gracePeriod;
         baseURI = _baseURI;
 
-        _transferOwnership(_owner);
+        _initializeOwner(_owner);
         _registerMinters(_mintInfo);
 
         emit TicketInitialized(_genArt721, _redeemer, _gracePeriod, _baseURI, _mintInfo);

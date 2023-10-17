@@ -5,7 +5,7 @@ import {ECDSA} from "openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {EIP712} from "openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import {ERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
-import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
+import {Ownable} from "solady/src/auth/Ownable.sol";
 import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {RoyaltyManager} from "src/tokens/extensions/RoyaltyManager.sol";
 
@@ -138,7 +138,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         randomizer = _initInfo.randomizer;
         renderer = _initInfo.renderer;
 
-        _transferOwnership(_owner);
+        _initializeOwner(_owner);
         _setTags(_initInfo.tagIds);
         _registerMinters(_mintInfo);
         setBaseRoyalties(_royaltyReceivers, _basisPoints);

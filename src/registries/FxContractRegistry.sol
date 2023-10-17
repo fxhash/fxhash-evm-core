@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
+import {Ownable} from "solady/src/auth/Ownable.sol";
 import {IFxContractRegistry, ConfigInfo} from "src/interfaces/IFxContractRegistry.sol";
 
 /**
@@ -32,7 +32,7 @@ contract FxContractRegistry is IFxContractRegistry, Ownable {
      * @dev Initializes registry owner and system config information
      */
     constructor(address _admin, ConfigInfo memory _configInfo) Ownable() {
-        _transferOwnership(_admin);
+        _initializeOwner(_admin);
         _setConfigInfo(_configInfo);
     }
 

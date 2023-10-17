@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
+import {Ownable} from "solady/src/auth/Ownable.sol";
 
 import {ISplitsFactory} from "src/interfaces/ISplitsFactory.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
@@ -35,7 +35,7 @@ contract SplitsFactory is ISplitsFactory, Ownable {
      */
     constructor(address _admin, address _splits) {
         splits = _splits;
-        _transferOwnership(_admin);
+        _initializeOwner(_admin);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

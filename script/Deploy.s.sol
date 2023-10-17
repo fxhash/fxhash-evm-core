@@ -20,11 +20,11 @@ import {ScriptyRenderer} from "src/renderers/ScriptyRenderer.sol";
 import {SplitsFactory} from "src/factories/SplitsFactory.sol";
 import {TicketRedeemer} from "src/minters/TicketRedeemer.sol";
 
-import {Clones} from "openzeppelin-contracts/contracts/proxy/Clones.sol";
 import {HTMLRequest, HTMLTagType, HTMLTag} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
 import {IFxContractRegistry, ConfigInfo} from "src/interfaces/IFxContractRegistry.sol";
 import {IFxGenArt721, GenArtInfo, InitInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxMintTicket721, TaxInfo} from "src/interfaces/IFxMintTicket721.sol";
+import {LibClone} from "solady/src/utils/LibClone.sol";
 
 contract Deploy is Script {
     // Core
@@ -540,7 +540,7 @@ contract Deploy is Script {
     function _computeTicketAddr(address _deployer) internal view returns (address) {
         uint256 nonce = fxTicketFactory.nonces(_deployer);
         bytes32 salt = keccak256(abi.encode(_deployer, nonce));
-        return Clones.predictDeterministicAddress(address(fxMintTicket721), salt, address(fxTicketFactory));
+        return LibClone.predictDeterministicAddress(address(fxMintTicket721), salt, address(fxTicketFactory));
     }
 
     function _computeCreate2Addr(
