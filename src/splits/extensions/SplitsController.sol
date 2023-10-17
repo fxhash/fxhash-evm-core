@@ -2,13 +2,14 @@
 pragma solidity 0.8.20;
 
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
+import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @title SplitsController
  * @author fx(hash)
  * @notice Extension for controlling 0xSplits wallets deployed through SplitsFactory
  */
-abstract contract SplitsController {
+contract SplitsController is Ownable {
     /*//////////////////////////////////////////////////////////////////////////
                                     STORAGE
     //////////////////////////////////////////////////////////////////////////*/
@@ -23,6 +24,9 @@ abstract contract SplitsController {
      */
     mapping(address => address) public splitCreators;
 
+    address public splitsFactory;
+
+    address public splitsMain;
     /*//////////////////////////////////////////////////////////////////////////
                                     ERRORS
     //////////////////////////////////////////////////////////////////////////*/
@@ -52,6 +56,12 @@ abstract contract SplitsController {
      */
     error NotValidSplitHash();
 
+    constructor(address _splitsMain, address _splitsFactory, address _fxHash) {
+        _transferOwnership(_fxHash);
+        splitsMain = _splitsMain;
+        splitsFactory = _splitsFactory;
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                 INTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -61,7 +71,8 @@ abstract contract SplitsController {
      * @param _split Address of the splits wallet
      * @param _creator Address of the new creator
      */
-    function _addCreator(address _split, address _creator) internal {
+    function addCreator(address _split, address _creator) external {
+        if (msg.sender != splitsFactory) revert NotAuthorized();
         splitCreators[_split] = _creator;
     }
 
@@ -72,17 +83,14 @@ abstract contract SplitsController {
      * @param _accounts Array of addresses included in the splits
      * @param _allocations Array of allocation amounts for each account
      */
-    function _transferAllocation(
+    function transferAllocation(
         address _to,
         address _split,
         address[] memory _accounts,
         uint32[] memory _allocations
-    ) internal {
-        // verify the previous accounts and allocations == split stored hash
-        if (_hashSplit(_accounts, _allocations) != ISplitsMain(_splitsMain()).getHash(_split))
-            revert NotValidSplitHash();
+    ) external {
         // moves allocation of msg.sender in _accounts list -> _to account
-        _transferAllocationFrom(msg.sender, _to, _split, _accounts, _allocations);
+        transferAllocationFrom(msg.sender, _to, _split, _accounts, _allocations);
     }
 
     /**
@@ -93,13 +101,15 @@ abstract contract SplitsController {
      * @param _accounts Array of addresses included in the splits
      * @param _allocations Array of allocation amounts for each account
      */
-    function _transferAllocationFrom(
+    function transferAllocationFrom(
         address _from,
         address _to,
         address _split,
         address[] memory _accounts,
         uint32[] memory _allocations
-    ) internal {
+    ) public {
+        // verify the previous accounts and allocations == split stored hash
+        if (_hashSplit(_accounts, _allocations) != ISplitsMain(splitsMain).getHash(_split)) revert NotValidSplitHash();
         // moves allocation of _from in _accounts list -> _to account
         if (_from == _to) revert AccountsIdentical();
         // checks that msg.sender has privilege to do so
@@ -148,7 +158,7 @@ abstract contract SplitsController {
             _accounts = newAccounts;
             _allocations = newAllocations;
         }
-        ISplitsMain(_splitsMain()).updateSplit(_split, _accounts, _allocations, uint32(0));
+        ISplitsMain(splitsMain).updateSplit(_split, _accounts, _allocations, uint32(0));
     }
 
     /**
@@ -156,14 +166,9 @@ abstract contract SplitsController {
      * @param _fxHash Address of the fxhash account
      * @param _active Flag indicating active status
      */
-    function _updateFxHash(address _fxHash, bool _active) internal {
+    function updateFxHash(address _fxHash, bool _active) external onlyOwner {
         isFxHash[_fxHash] = _active;
     }
-
-    /**
-     * @dev Returns the address of the SplitsMain contract
-     */
-    function _splitsMain() internal view virtual returns (address);
 
     /**
      * @dev Returns the computed hash of a splits wallet

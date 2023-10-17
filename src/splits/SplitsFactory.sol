@@ -7,12 +7,16 @@ import {SplitsController} from "src/splits/extensions/SplitsController.sol";
 import {ISplitsFactory} from "src/interfaces/ISplitsFactory.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
 
+interface IController {
+    function addCreator(address, address) external;
+}
+
 /**
  * @title SplitsFactory
  * @author fx(hash)
  * @dev See the documentation in {ISplitsFactory}
  */
-contract SplitsFactory is ISplitsFactory, Ownable, SplitsController {
+contract SplitsFactory is ISplitsFactory, Ownable {
     /*//////////////////////////////////////////////////////////////////////////
                                     STORAGE
     //////////////////////////////////////////////////////////////////////////*/
@@ -79,7 +83,7 @@ contract SplitsFactory is ISplitsFactory, Ownable, SplitsController {
         uint32[] calldata _allocations
     ) external returns (address split) {
         split = ISplitsMain(splits).createSplit(_accounts, _allocations, 0, controller);
-        _addCreator(split, _creator);
+        IController(controller).addCreator(split, _creator);
         emit SplitsInfo(split, controller, _accounts, _allocations, 0);
     }
 
@@ -103,12 +107,5 @@ contract SplitsFactory is ISplitsFactory, Ownable, SplitsController {
         address oldController = controller;
         controller = _controller;
         emit ControllerUpdated(oldController, _controller);
-    }
-
-    /**
-     * @inheritdoc SplitsController
-     */
-    function _splitsMain() internal view override returns (address) {
-        return splits;
     }
 }
