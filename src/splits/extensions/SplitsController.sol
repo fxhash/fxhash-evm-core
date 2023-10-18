@@ -197,7 +197,7 @@ contract SplitsController is Ownable {
     }
 
     /**
-     * @dev Sorts arrays of accounts and allocations
+     * @dev Sorts arrays of accounts in descending order and their associated allocations
      */
     function _sort(
         uint256 _begin,
@@ -209,11 +209,14 @@ contract SplitsController is Ownable {
             uint256 j = _begin;
             address pivot = _accounts[j];
             for (uint256 i = _begin + 1; i < _last; ++i) {
+                // If the current account is less than the pivot, swap it with the element at index j+1
                 if (_accounts[i] < pivot) {
                     _swap(i, ++j, _accounts, _allocations);
                 }
             }
+            // Swap the pivot with the element at index j to ensure it's in the correct position
             _swap(_begin, j, _accounts, _allocations);
+            // Recursively sort the elements before and after the pivot
             _sort(_begin, j, _accounts, _allocations);
             _sort(j + 1, _last, _accounts, _allocations);
         }
@@ -224,6 +227,7 @@ contract SplitsController is Ownable {
      * @dev Swaps two elements in the arrays
      */
     function _swap(uint256 i, uint256 j, address[] memory _accounts, uint32[] memory _allocations) internal pure {
+        // swap accounts and allocations in place at indexes i and j
         (_accounts[i], _accounts[j]) = (_accounts[j], _accounts[i]);
         (_allocations[i], _allocations[j]) = (_allocations[j], _allocations[i]);
     }
