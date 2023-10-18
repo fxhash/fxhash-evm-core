@@ -138,42 +138,16 @@ contract Deploy is Script {
                                       RUN
     //////////////////////////////////////////////////////////////////////////*/
     function run() public virtual {
-        _mockSplits();
         vm.startBroadcast();
+        _mockSplits();
         _run();
         vm.stopBroadcast();
     }
 
     function _run() internal virtual {
         _deployContracts();
-        _configureMinter(
-            address(fixedPrice),
-            uint64(block.timestamp) + RESERVE_START_TIME,
-            uint64(block.timestamp) + RESERVE_END_TIME,
-            MINTER_ALLOCATION,
-            abi.encode(PRICE, merkleRoot, mintPassSigner)
-        );
-        _configureMinter(
-            address(ticketRedeemer),
-            uint64(block.timestamp) + RESERVE_START_TIME,
-            uint64(block.timestamp) + RESERVE_END_TIME,
-            REDEEMER_ALLOCATION,
-            abi.encode(_computeTicketAddr(admin))
-        );
         _registerContracts();
         _grantRoles();
-        _createSplit();
-        _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(scriptyRenderer), tagIds);
-        _createProject();
-        delete mintInfo;
-        _configureMinter(
-            address(fixedPrice),
-            uint64(block.timestamp) + RESERVE_START_TIME,
-            uint64(block.timestamp) + RESERVE_END_TIME,
-            MINTER_ALLOCATION,
-            abi.encode(PRICE, merkleRoot, mintPassSigner)
-        );
-        _createTicket();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
