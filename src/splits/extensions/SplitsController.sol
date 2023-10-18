@@ -24,8 +24,14 @@ contract SplitsController is Ownable {
      */
     mapping(address => address) public splitCreators;
 
+    /**
+     * @notice Address of the SplitsFactory contract
+     */
     address public splitsFactory;
 
+    /**
+     * @notice Address of the SplitsMain contract
+     */
     address public splitsMain;
     /*//////////////////////////////////////////////////////////////////////////
                                     ERRORS
@@ -56,8 +62,11 @@ contract SplitsController is Ownable {
      */
     error NotValidSplitHash();
 
-    constructor(address _splitsMain, address _splitsFactory, address _fxHash) {
-        _transferOwnership(_fxHash);
+    /**
+     * @notice Initializes the splitsMain, splitsFactory, and owner that can update fxHash addresses
+     */
+    constructor(address _splitsMain, address _splitsFactory, address _owner) {
+        _transferOwnership(_owner);
         splitsMain = _splitsMain;
         splitsFactory = _splitsFactory;
     }
@@ -67,7 +76,7 @@ contract SplitsController is Ownable {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @dev Adds a new creator to the split
+     * @notice Adds a new creator to the split
      * @param _split Address of the splits wallet
      * @param _creator Address of the new creator
      */
@@ -77,7 +86,7 @@ contract SplitsController is Ownable {
     }
 
     /**
-     * @dev Transfers allocation amount of the split to given account
+     * @notice Transfers allocation amount of the split to given account
      * @param _to Address of the receiver
      * @param _split Address of the splits wallet
      * @param _accounts Array of addresses included in the splits
@@ -94,7 +103,7 @@ contract SplitsController is Ownable {
     }
 
     /**
-     * @dev Transfers allocation amount of the split from given account to given account
+     * @notice Transfers allocation amount of the split from given account to given account
      * @param _from Address of the sender
      * @param _to Address of the receiver
      * @param _split Address of the splits wallet
@@ -162,7 +171,7 @@ contract SplitsController is Ownable {
     }
 
     /**
-     * @dev Updates the active flag status of an fxhash account
+     * @notice Updates the active flag status of an fxhash account
      * @param _fxHash Address of the fxhash account
      * @param _active Flag indicating active status
      */
