@@ -8,8 +8,8 @@ contract FxContractRegistryTest is BaseTest {
     bytes32 internal hashedName;
 
     // Errors
-    bytes4 INPUT_EMPTY_ERROR = IFxContractRegistry.InputEmpty.selector;
     bytes4 LENGTH_MISMATCH_ERROR = IFxContractRegistry.LengthMismatch.selector;
+    bytes4 LENGTH_ZERO_ERROR = IFxContractRegistry.LengthZero.selector;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     SETUP
