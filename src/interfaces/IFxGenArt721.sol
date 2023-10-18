@@ -190,7 +190,7 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     error NotAuthorized();
 
     /**
-     * @notice Error thrown when signer or caller is not the owner
+     * @notice Error thrown when signer is not the owner
      */
     error NotOwner();
 
@@ -198,11 +198,6 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @notice Error thrown when caller does not have the specified role
      */
     error UnauthorizedAccount();
-
-    /**
-     * @notice Error thrown when caller is not a registered contract
-     */
-    error UnauthorizedContract();
 
     /**
      * @notice Error thrown when caller does not have minter role

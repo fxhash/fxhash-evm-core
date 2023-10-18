@@ -192,6 +192,13 @@ interface IFixedPrice is IMinter {
     function getLatestUpdates(address _token) external view returns (uint40);
 
     /**
+     * @notice Gets the proceed amount from a token sale
+     * @param _token Address of the token contract
+     * @return Amount of proceeds
+     */
+    function getSaleProceeds(address _token) external view returns (uint128);
+
+    /**
      * @notice Mapping of token address to reserve ID to merkle roots
      */
     function merkleRoots(address, uint256) external view returns (bytes32);
@@ -205,11 +212,6 @@ interface IFixedPrice is IMinter {
      * @notice Mapping of token address to reserve ID to reserve information
      */
     function reserves(address, uint256) external view returns (uint64, uint64, uint128);
-
-    /**
-     * @notice Mapping of token address to sale proceeds
-     */
-    function saleProceeds(address) external view returns (uint256);
 
     /**
      * @inheritdoc IMinter

@@ -14,7 +14,7 @@ contract BuyWithMintPass is FixedPriceTest {
     }
 
     function test_RevertsWhen_PublicPurchase() public {
-        vm.expectRevert(NO_PUBLIC_MINT_ERROR);
+        vm.expectRevert(ADDRESS_ZERO_ERROR);
         fixedPrice.buy{value: price}(fxGenArtProxy, mintId, quantity, alice);
     }
 

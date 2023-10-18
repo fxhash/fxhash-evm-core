@@ -140,7 +140,7 @@ interface IDutchAuction is IMinter {
     error InvalidAmount();
 
     /**
-     * @notice Error thrown when the payment sent with purchase doesnt equal the required payment
+     * @notice Error thrown when payment does not equal price
      */
     error InvalidPayment();
 

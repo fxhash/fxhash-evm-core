@@ -11,15 +11,14 @@ contract FxGenArt721Test is BaseTest {
 
     // Errors
     bytes4 internal ALLOCATION_EXCEEDED_ERROR = IFxGenArt721.AllocationExceeded.selector;
+    bytes4 internal BURN_INACTIVE_ERROR = IFxGenArt721.BurnInactive.selector;
     bytes4 internal INVALID_AMOUNT_ERROR = IFxGenArt721.InvalidAmount.selector;
     bytes4 internal INVALID_END_TIME_ERROR = IFxGenArt721.InvalidEndTime.selector;
     bytes4 internal INVALID_START_TIME_ERROR = IFxGenArt721.InvalidStartTime.selector;
-    bytes4 internal BURN_INACTIVE_ERROR = IFxGenArt721.BurnInactive.selector;
     bytes4 internal MINT_ACTIVE_ERROR = IFxGenArt721.MintActive.selector;
     bytes4 internal MINT_INACTIVE_ERROR = IFxGenArt721.MintInactive.selector;
     bytes4 internal NOT_AUTHORIZED_ERROR = IFxGenArt721.NotAuthorized.selector;
     bytes4 internal UNAUTHORIZED_ACCOUNT_ERROR = IFxGenArt721.UnauthorizedAccount.selector;
-    bytes4 internal UNAUTHORIZED_CONTRACT_ERROR = IFxGenArt721.UnauthorizedContract.selector;
     bytes4 internal UNAUTHORIZED_MINTER_ERROR = IFxGenArt721.UnauthorizedMinter.selector;
     bytes4 internal UNREGISTERED_MINTER_ERROR = IFxGenArt721.UnregisteredMinter.selector;
 

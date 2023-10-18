@@ -23,12 +23,12 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @dev Mapping of token address to reserve ID to BitMap of claimed merkle tree slots
+     * @dev Mapping of token address to reserve ID to Bitmap of claimed merkle tree slots
      */
     mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal _claimedMerkleTreeSlots;
 
     /**
-     * @dev Mapping of token address to reserve ID to BitMap of claimed mint passes
+     * @dev Mapping of token address to reserve ID to Bitmap of claimed mint passes
      */
     mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal _claimedMintPasses;
 
