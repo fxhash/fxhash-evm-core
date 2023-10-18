@@ -58,6 +58,11 @@ contract SplitsController is Ownable {
     error NotAuthorized();
 
     /**
+     * @notice Error thrown when caller is not the splitsFactory
+     */
+    error NotSplitsFactory();
+
+    /**
      * @notice Error thrown when the split hash is invalid
      */
     error NotValidSplitHash();
@@ -81,7 +86,7 @@ contract SplitsController is Ownable {
      * @param _creator Address of the new creator
      */
     function addCreator(address _split, address _creator) external {
-        if (msg.sender != splitsFactory) revert NotAuthorized();
+        if (msg.sender != splitsFactory) revert NotSplitsFactory();
         splitCreators[_split] = _creator;
     }
 
