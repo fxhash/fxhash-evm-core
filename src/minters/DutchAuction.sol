@@ -206,7 +206,8 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     function withdraw(address _token, uint256 _reserveId) external {
         // Validates token address, reserve information and given account
         uint256 length = reserves[_token].length;
-        if (length == 0 || _token == address(0)) revert InvalidToken();
+        if (length == 0) revert InvalidToken();
+        if (_token == address(0)) revert AddressZero();
         if (_reserveId >= length) revert InvalidReserve();
 
         ReserveInfo storage reserve = reserves[_token][_reserveId];
