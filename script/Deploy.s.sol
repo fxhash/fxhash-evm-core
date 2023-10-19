@@ -138,8 +138,8 @@ contract Deploy is Script {
                                       RUN
     //////////////////////////////////////////////////////////////////////////*/
     function run() public virtual {
-        vm.startBroadcast();
         _mockSplits();
+        vm.startBroadcast();
         _run();
         vm.stopBroadcast();
     }
