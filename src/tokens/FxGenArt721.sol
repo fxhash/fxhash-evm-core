@@ -173,9 +173,13 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      */
     function mint(address _to, uint256 _amount, uint256 /* _payment */) external onlyMinter whenNotPaused {
         if (!issuerInfo.projectInfo.mintEnabled) revert MintInactive();
-        for (uint256 i; i < _amount; ++i) {
-            _mintRandom(_to, ++totalSupply);
+        uint96 currentId = totalSupply;
+        unchecked {
+            for (uint256 i; i < _amount; ++i) {
+                _mintRandom(_to, ++currentId);
+            }
         }
+        totalSupply = currentId;
     }
 
     /**
@@ -218,11 +222,15 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      */
     function registerMinters(MintInfo[] calldata _mintInfo) external onlyOwner {
         if (issuerInfo.projectInfo.mintEnabled) revert MintActive();
+        uint256 length = issuerInfo.activeMinters.length;
 
         // Unregisters all current minters
-        for (uint256 i; i < issuerInfo.activeMinters.length; ++i) {
+        for (uint256 i; i < length; ) {
             address minter = issuerInfo.activeMinters[i];
             issuerInfo.minters[minter] = false;
+            unchecked {
+                ++i;
+            }
         }
 
         // Deletes list of current active minters
