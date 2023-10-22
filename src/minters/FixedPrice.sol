@@ -127,7 +127,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
      * @inheritdoc IFixedPrice
      */
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external {
-        if (getLatestUpdates(msg.sender) != block.timestamp) {
+        if (getLatestUpdate(msg.sender) != block.timestamp) {
             delete prices[msg.sender];
             delete reserves[msg.sender];
             _setLatestUpdate(msg.sender, block.timestamp);
@@ -163,7 +163,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
      * @inheritdoc IFixedPrice
      */
     function withdraw(address _token) external {
-        uint256 proceeds = getSaleProceeds(_token);
+        uint256 proceeds = getSaleProceed(_token);
         if (proceeds == 0) revert InsufficientFunds();
 
         (address saleReceiver, ) = IFxGenArt721(_token).issuerInfo();
@@ -181,14 +181,14 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
     /**
      * @inheritdoc IFixedPrice
      */
-    function getLatestUpdates(address _token) public view returns (uint40) {
+    function getLatestUpdate(address _token) public view returns (uint40) {
         return LibMap.get(_latestUpdates, uint256(uint160(_token)));
     }
 
     /**
      * @inheritdoc IFixedPrice
      */
-    function getSaleProceeds(address _token) public view returns (uint128) {
+    function getSaleProceed(address _token) public view returns (uint128) {
         return LibMap.get(_saleProceeds, uint256(uint160(_token)));
     }
 
@@ -214,7 +214,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
         if (msg.value != price) revert InvalidPayment();
 
         reserve.allocation -= _amount.safeCastTo128();
-        _setSaleProceeds(_token, getSaleProceeds(_token) + price);
+        _setSaleProceeds(_token, getSaleProceed(_token) + price);
 
         IToken(_token).mint(_to, _amount, price);
 

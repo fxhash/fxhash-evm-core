@@ -266,7 +266,7 @@ interface IDutchAuction is IMinter {
      * @param _token Address of the token contract
      * @return Timestamp of latest update
      */
-    function getLatestUpdates(address _token) external view returns (uint40);
+    function getLatestUpdate(address _token) external view returns (uint40);
 
     /**
      * @notice Gets the current auction price

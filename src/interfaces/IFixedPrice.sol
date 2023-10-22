@@ -189,14 +189,14 @@ interface IFixedPrice is IMinter {
      * @param _token Address of the token contract
      * @return Timestamp of latest update
      */
-    function getLatestUpdates(address _token) external view returns (uint40);
+    function getLatestUpdate(address _token) external view returns (uint40);
 
     /**
      * @notice Gets the proceed amount from a token sale
      * @param _token Address of the token contract
      * @return Amount of proceeds
      */
-    function getSaleProceeds(address _token) external view returns (uint128);
+    function getSaleProceed(address _token) external view returns (uint128);
 
     /**
      * @notice Mapping of token address to reserve ID to merkle roots

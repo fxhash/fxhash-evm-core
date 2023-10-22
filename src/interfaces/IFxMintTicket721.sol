@@ -177,11 +177,6 @@ interface IFxMintTicket721 is IToken {
     function activeMinters(uint256) external view returns (address);
 
     /**
-     * @notice Mapping of wallet address to balance amount available for withdrawal
-     */
-    function balances(address) external view returns (uint256);
-
-    /**
      * @notice Returns the URI of the token metadata
      */
     function baseURI() external view returns (string memory);
@@ -246,6 +241,13 @@ interface IFxMintTicket721 is IToken {
      * @param _foreclosureTime Timestamp of the foreclosure
      */
     function getAuctionPrice(uint256 _currentPrice, uint256 _foreclosureTime) external view returns (uint256);
+
+    /**
+     * @notice Gets the pending balance amount available for a given wallet
+     * @param _account Address of the wallet
+     * @return Balance amount available for withdrawal
+     */
+    function getBalance(address _account) external view returns (uint128);
 
     /**
      * @notice Gets the daily tax amount based on current price

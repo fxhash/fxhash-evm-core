@@ -10,8 +10,8 @@ contract FxMintTicket721Test is BaseTest {
     uint80 currentPrice;
     uint80 depositAmount;
     uint80 newPrice;
+    uint128 balance;
     uint256 auctionPrice;
-    uint256 balance;
     uint256 excessAmount;
 
     // Errors
@@ -115,7 +115,7 @@ contract FxMintTicket721Test is BaseTest {
     }
 
     function _setBalance(address _wallet) internal {
-        balance = IFxMintTicket721(fxMintTicketProxy).balances(_wallet);
+        balance = IFxMintTicket721(fxMintTicketProxy).getBalance(_wallet);
     }
 
     function _isMinter(address _minter) internal view returns (bool) {

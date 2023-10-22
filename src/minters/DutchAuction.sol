@@ -163,7 +163,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
             _mintDetails,
             (AuctionInfo, bytes32, address)
         );
-        if (getLatestUpdates(msg.sender) != block.timestamp) {
+        if (getLatestUpdate(msg.sender) != block.timestamp) {
             delete reserves[msg.sender];
             delete auctions[msg.sender];
             _setLatestUpdate(msg.sender, block.timestamp);
@@ -236,7 +236,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     /**
      * @inheritdoc IDutchAuction
      */
-    function getLatestUpdates(address _token) public view returns (uint40) {
+    function getLatestUpdate(address _token) public view returns (uint40) {
         return LibMap.get(_latestUpdates, uint256(uint160(_token)));
     }
 
