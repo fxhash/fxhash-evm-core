@@ -48,7 +48,7 @@ struct IssuerInfo {
     address primaryReceiver;
     ProjectInfo projectInfo;
     address[] activeMinters;
-    mapping(address => bool) minters;
+    mapping(address => uint8) minters;
 }
 
 /**
@@ -272,7 +272,7 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @param _minter Address of the minter contract
      * @return Authorization status
      */
-    function isMinter(address _minter) external view returns (bool);
+    function isMinter(address _minter) external view returns (uint8);
 
     /**
      * @notice Returns the issuer information of the project (primaryReceiver, ProjectInfo)

@@ -9,8 +9,8 @@ contract RegisterMinters is FxMintTicket721Test {
     }
 
     function test_RegisterMinters() public {
-        assertTrue(_isMinter(minter));
-        assertFalse(_isMinter(address(fixedPrice)));
+        assertEq(_isMinter(minter), TRUE);
+        assertEq(_isMinter(address(fixedPrice)), UNINITIALIZED);
         delete mintInfo;
         _configureMinter(
             address(fixedPrice),
@@ -22,8 +22,8 @@ contract RegisterMinters is FxMintTicket721Test {
         _grantRole(admin, MINTER_ROLE, address(fixedPrice));
         _toggleMint(creator);
         _registerMinters(creator, mintInfo);
-        assertFalse(_isMinter(minter));
-        assertTrue(_isMinter(address(fixedPrice)));
+        assertEq(_isMinter(minter), FALSE);
+        assertEq(_isMinter(address(fixedPrice)), TRUE);
     }
 
     function test_RevertsWhen_MintActive() public {

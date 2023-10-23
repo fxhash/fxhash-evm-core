@@ -77,8 +77,8 @@ contract OwnerTest is FxGenArt721Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_RegisterMinters() public {
-        assertTrue(IFxGenArt721(fxGenArtProxy).isMinter(minter));
-        assertFalse(IFxGenArt721(fxGenArtProxy).isMinter(address(fixedPrice)));
+        assertEq(IFxGenArt721(fxGenArtProxy).isMinter(minter), TRUE);
+        assertEq(IFxGenArt721(fxGenArtProxy).isMinter(address(fixedPrice)), UNINITIALIZED);
         delete mintInfo;
         _configureMinter(
             address(fixedPrice),
@@ -90,8 +90,8 @@ contract OwnerTest is FxGenArt721Test {
         _grantRole(admin, MINTER_ROLE, address(fixedPrice));
         _toggleMint(creator);
         _registerMinters(creator, mintInfo);
-        assertFalse(IFxGenArt721(fxGenArtProxy).isMinter(minter));
-        assertTrue(IFxGenArt721(fxGenArtProxy).isMinter(address(fixedPrice)));
+        assertEq(IFxGenArt721(fxGenArtProxy).isMinter(minter), FALSE);
+        assertEq(IFxGenArt721(fxGenArtProxy).isMinter(address(fixedPrice)), TRUE);
     }
 
     function test_RegisterMinters_RevertsWhen_MintActive() public {

@@ -87,7 +87,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      * @dev Modifier for restricting calls to only registered minters
      */
     modifier onlyMinter() {
-        if (!isMinter(msg.sender)) revert UnregisteredMinter();
+        if (isMinter(msg.sender) != TRUE) revert UnregisteredMinter();
         _;
     }
 
@@ -204,7 +204,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function ownerMintParams(address _to, bytes calldata _fxParams) external onlyMinter whenNotPaused {
+    function ownerMintParams(address _to, bytes calldata _fxParams) external onlyOwner whenNotPaused {
         _mintParams(_to, ++totalSupply, _fxParams);
     }
 
@@ -229,7 +229,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         // Unregisters all current minters
         for (uint256 i; i < length; ) {
             address minter = issuerInfo.activeMinters[i];
-            issuerInfo.minters[minter] = false;
+            issuerInfo.minters[minter] = FALSE;
             unchecked {
                 ++i;
             }
@@ -349,7 +349,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function isMinter(address _minter) public view returns (bool) {
+    function isMinter(address _minter) public view returns (uint8) {
         return issuerInfo.minters[_minter];
     }
 
@@ -421,7 +421,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
                 if (reserveInfo.startTime < block.timestamp + lockTime) revert InvalidStartTime();
                 if (reserveInfo.endTime < reserveInfo.startTime) revert InvalidEndTime();
 
-                issuerInfo.minters[minter] = true;
+                issuerInfo.minters[minter] = TRUE;
                 issuerInfo.activeMinters.push(minter);
                 totalAllocation += reserveInfo.allocation;
 

@@ -311,7 +311,7 @@ interface IFxMintTicket721 is IToken {
     /**
      * @notice Returns the active status of a registered minter contract
      */
-    function minters(address) external view returns (bool);
+    function minters(address) external view returns (uint8);
 
     /**
      * @notice Pauses all function executions where modifier is set

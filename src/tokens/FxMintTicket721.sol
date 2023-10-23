@@ -77,7 +77,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
     /**
      * @inheritdoc IFxMintTicket721
      */
-    mapping(address => bool) public minters;
+    mapping(address => uint8) public minters;
 
     /**
      * @inheritdoc IFxMintTicket721
@@ -230,7 +230,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
      */
     function mint(address _to, uint256 _amount, uint256 _payment) external whenNotPaused {
         // Reverts if caller is not a registered minter contract
-        if (!minters[msg.sender]) revert UnregisteredMinter();
+        if (minters[msg.sender] != TRUE) revert UnregisteredMinter();
 
         // Calculates listing price per token
         uint256 listingPrice = _payment / _amount;
@@ -355,7 +355,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
         // Unregisters all current minters
         for (uint256 i; i < length; ) {
             address minter = activeMinters[i];
-            minters[minter] = false;
+            minters[minter] = FALSE;
             unchecked {
                 ++i;
             }
@@ -401,7 +401,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
      * @inheritdoc ERC721
      */
     function isApprovedForAll(address _owner, address _operator) public view override returns (bool) {
-        return _operator == address(this) || minters[_operator] || super.isApprovedForAll(_owner, _operator);
+        return _operator == address(this) || minters[_operator] == TRUE || super.isApprovedForAll(_owner, _operator);
     }
 
     /**
@@ -511,7 +511,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
                 if (reserveInfo.startTime < block.timestamp + lockTime) revert InvalidStartTime();
                 if (reserveInfo.endTime < reserveInfo.startTime) revert InvalidEndTime();
 
-                minters[minter] = true;
+                minters[minter] = TRUE;
                 activeMinters.push(minter);
                 totalAllocation += reserveInfo.allocation;
 

@@ -118,7 +118,7 @@ contract FxMintTicket721Test is BaseTest {
         balance = IFxMintTicket721(fxMintTicketProxy).getBalance(_wallet);
     }
 
-    function _isMinter(address _minter) internal view returns (bool) {
+    function _isMinter(address _minter) internal view returns (uint8) {
         return IFxMintTicket721(fxMintTicketProxy).minters(_minter);
     }
 }
