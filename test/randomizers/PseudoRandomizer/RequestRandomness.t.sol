@@ -2,6 +2,7 @@
 pragma solidity 0.8.20;
 
 import "test/randomizers/PseudoRandomizer/PseudoRandomizerTest.t.sol";
+import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
 
 contract RequestRandomness is ISeedConsumer, PseudoRandomizerTest {
     function fulfillSeedRequest(uint256, bytes32 _seed) external {

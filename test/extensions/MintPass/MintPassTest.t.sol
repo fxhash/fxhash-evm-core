@@ -2,6 +2,8 @@
 pragma solidity 0.8.20;
 
 import "test/BaseTest.t.sol";
+import {MintPass} from "src/minters/extensions/MintPass.sol";
+import {ECDSA} from "openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol";
 
 contract MintPassTest is BaseTest {
     // State

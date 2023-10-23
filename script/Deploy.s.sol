@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import "forge-std/Script.sol";
+import {Script} from "forge-std/Script.sol";
 import "script/utils/Constants.sol";
 import "src/utils/Constants.sol";
 import "test/utils/Constants.sol";
@@ -124,14 +124,6 @@ contract Deploy is Script {
 
     function setUp() public virtual {
         _createAccounts();
-        _configureSplits();
-        _configureRoyalties();
-        _configureScripty();
-        _configureState(AMOUNT, PRICE, QUANTITY, TOKEN_ID);
-        _configureInfo(LOCK_TIME, REFERRER_SHARE, DEFAULT_METADATA);
-        _configureProject(ONCHAIN, MINT_ENABLED, MAX_SUPPLY, CONTRACT_URI);
-        _configureMetdata(BASE_URI, IMAGE_URI, onchainData);
-        _configureAllowlist(merkleRoot, mintPassSigner);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

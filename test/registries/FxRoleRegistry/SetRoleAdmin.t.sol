@@ -2,6 +2,7 @@
 pragma solidity 0.8.20;
 
 import "test/registries/FxRoleRegistry/FxRoleRegistryTest.sol";
+import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
 
 contract SetRoleAdmin is FxRoleRegistryTest {
     function test_SetRoleAdmin() public {

@@ -2,6 +2,8 @@
 pragma solidity 0.8.20;
 
 import "test/BaseTest.t.sol";
+import {IDutchAuction, AuctionInfo} from "src/interfaces/IDutchAuction.sol";
+import {StandardMerkleTree} from "test/utils/StandardMerkleTree.sol";
 
 contract DutchAuctionTest is BaseTest {
     // Contracts

@@ -2,6 +2,7 @@
 pragma solidity 0.8.20;
 
 import "test/BaseTest.t.sol";
+import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
 
 contract FixedPriceTest is BaseTest {
     // State

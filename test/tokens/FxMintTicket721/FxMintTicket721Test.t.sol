@@ -2,6 +2,7 @@
 pragma solidity 0.8.20;
 
 import "test/BaseTest.t.sol";
+import {ITicketRedeemer} from "src/interfaces/ITicketRedeemer.sol";
 
 contract FxMintTicket721Test is BaseTest {
     // State

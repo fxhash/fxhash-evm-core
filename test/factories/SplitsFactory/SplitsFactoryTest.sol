@@ -2,6 +2,8 @@
 pragma solidity 0.8.20;
 
 import "test/BaseTest.t.sol";
+import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
+import {ISplitsFactory} from "src/interfaces/ISplitsFactory.sol";
 
 contract SplitsFactoryTest is BaseTest {
     // Errors

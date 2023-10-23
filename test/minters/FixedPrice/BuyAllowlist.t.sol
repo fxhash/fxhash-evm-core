@@ -2,6 +2,7 @@
 pragma solidity 0.8.20;
 
 import "test/minters/FixedPrice/FixedPriceTest.t.sol";
+import {StandardMerkleTree} from "test/utils/StandardMerkleTree.sol";
 
 contract BuyAllowlist is FixedPriceTest, StandardMerkleTree {
     uint256[] internal claimIndexes;

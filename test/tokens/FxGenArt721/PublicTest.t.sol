@@ -2,6 +2,7 @@
 pragma solidity 0.8.20;
 
 import "test/tokens/FxGenArt721/FxGenArt721Test.t.sol";
+import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
 
 contract PublicTest is FxGenArt721Test {
     /*//////////////////////////////////////////////////////////////////////////

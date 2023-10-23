@@ -2,6 +2,7 @@
 pragma solidity 0.8.20;
 
 import "test/BaseTest.t.sol";
+import {IRoyaltyManager} from "src/interfaces/IRoyaltyManager.sol";
 
 contract RoyaltyManagerTest is BaseTest {
     // Errors
