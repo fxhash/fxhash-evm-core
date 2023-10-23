@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MITBuyWith
 pragma solidity 0.8.20;
 
 import "test/minters/DutchAuction/DutchAuctionTest.t.sol";
@@ -19,7 +19,7 @@ contract BuyWithMintPass is DutchAuctionTest {
     }
 
     function test_BuyWithMintPass() public {
-        bytes32 digest = dutchAuction.generateTypedDataHash(claimIndex, alice);
+        bytes32 digest = dutchAuction.generateTypedDataHash(fxGenArtProxy, reserveId, claimIndex, alice);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(mintPassSignerPk, digest);
         vm.prank(alice);
         dutchAuction.buyMintPass{value: quantity * price}(
@@ -33,7 +33,7 @@ contract BuyWithMintPass is DutchAuctionTest {
     }
 
     function test_RevertsWhen_NotClaimer_BuyWithMintPass() public {
-        bytes32 digest = dutchAuction.generateTypedDataHash(claimIndex, alice);
+        bytes32 digest = dutchAuction.generateTypedDataHash(fxGenArtProxy, reserveId, claimIndex, alice);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(mintPassSignerPk, digest);
         vm.prank(bob);
         vm.expectRevert();
@@ -48,7 +48,7 @@ contract BuyWithMintPass is DutchAuctionTest {
     }
 
     function test_RevertsWhen_SignatureInvalid_BuyWithMintPass() public {
-        bytes32 digest = dutchAuction.generateTypedDataHash(claimIndex, alice);
+        bytes32 digest = dutchAuction.generateTypedDataHash(fxGenArtProxy, reserveId, claimIndex, alice);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(2, digest);
         vm.prank(alice);
         vm.expectRevert();
@@ -63,7 +63,7 @@ contract BuyWithMintPass is DutchAuctionTest {
     }
 
     function test_RevertsWhen_MintPassAlreadyClaimed_BuyWithMintPass() public {
-        bytes32 digest = dutchAuction.generateTypedDataHash(claimIndex, alice);
+        bytes32 digest = dutchAuction.generateTypedDataHash(fxGenArtProxy, reserveId, claimIndex, alice);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(mintPassSignerPk, digest);
         vm.prank(alice);
         dutchAuction.buyMintPass{value: quantity * price}(

@@ -45,12 +45,20 @@ abstract contract MintPass is EIP712 {
 
     /**
      * @notice Generates the typed data hash for a mint pass claim
+     * @param _token the token address for the reserve
+     * @param _reserveId The reserveId of the reserve to mint the token from 
      * @param _index Index of the mint pass
      * @param _claimer Address of mint pass
+
      * @return Digest of typed data hash claimer
      */
-    function generateTypedDataHash(uint256 _index, address _claimer) public view returns (bytes32) {
-        bytes32 structHash = keccak256(abi.encode(CLAIM_TYPEHASH, _index, _claimer));
+    function generateTypedDataHash(
+        address _token,
+        uint256 _reserveId,
+        uint256 _index,
+        address _claimer
+    ) public view returns (bytes32) {
+        bytes32 structHash = keccak256(abi.encode(CLAIM_TYPEHASH, _token, _reserveId, _index, _claimer));
         return _hashTypedDataV4(structHash);
     }
 
@@ -74,7 +82,7 @@ abstract contract MintPass is EIP712 {
         BitMaps.BitMap storage _bitmap
     ) internal {
         if (_bitmap.get(_index)) revert PassAlreadyClaimed();
-        bytes32 hash = generateTypedDataHash(_index, msg.sender);
+        bytes32 hash = generateTypedDataHash(_token, _reserveId, _index, msg.sender);
         (uint8 v, bytes32 r, bytes32 s) = abi.decode(_signature, (uint8, bytes32, bytes32));
         address signer = ECDSA.recover(hash, v, r, s);
         if (!_isSigningAuthority(signer, _token, _reserveId)) revert InvalidSignature();
