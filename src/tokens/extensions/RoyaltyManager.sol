@@ -51,7 +51,7 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         }
 
         unchecked {
-            for (uint256 i; i < tokenLength; i++) {
+            for (uint256 i; i < tokenLength; ++i) {
                 receivers[i + baseLength] = tokenRoyalties_[i].receiver;
                 basisPoints[i + baseLength] = tokenRoyalties_[i].basisPoints;
             }
@@ -124,7 +124,7 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         }
 
         unchecked {
-            for (uint256 i; i < tokenLength; i++) {
+            for (uint256 i; i < tokenLength; ++i) {
                 totalBasisPoints[i + baseLength] = _basisPoints[i];
             }
         }
@@ -158,7 +158,7 @@ abstract contract RoyaltyManager is IRoyaltyManager {
     function _checkRoyalties(uint96[] memory _basisPoints, uint256 _length) internal pure {
         uint256 totalBasisPoints;
         unchecked {
-            for (uint256 i; i < _length; i++) {
+            for (uint256 i; i < _length; ++i) {
                 if (_basisPoints[i] > MAX_ROYALTY_BPS) revert OverMaxBasisPointsAllowed();
                 totalBasisPoints += _basisPoints[i];
             }

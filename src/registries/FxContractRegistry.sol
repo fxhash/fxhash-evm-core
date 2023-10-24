@@ -44,15 +44,14 @@ contract FxContractRegistry is IFxContractRegistry, Ownable {
      * @inheritdoc IFxContractRegistry
      */
     function register(string[] calldata _names, address[] calldata _contracts) external onlyOwner {
-        address contractAddr;
-        bytes32 contractName;
         uint256 namesLength = _names.length;
-
         // Reverts if array lengths are not equal
         if (namesLength != _contracts.length) revert LengthMismatch();
         // Reverts if array is empty
         if (namesLength == 0) revert LengthZero();
 
+        address contractAddr;
+        bytes32 contractName;
         for (uint256 i; i < namesLength; ) {
             contractAddr = _contracts[i];
             contractName = keccak256(abi.encode(_names[i]));

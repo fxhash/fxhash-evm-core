@@ -188,7 +188,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         uint256 pricesLength = daInfo.prices.length;
         if (pricesLength < 2) revert InvalidPriceCurve();
         unchecked {
-            for (uint256 i = 1; i < pricesLength; i++) {
+            for (uint256 i = 1; i < pricesLength; ++i) {
                 if (!(daInfo.prices[i - 1] > daInfo.prices[i])) revert PricesOutOfOrder();
             }
         }
