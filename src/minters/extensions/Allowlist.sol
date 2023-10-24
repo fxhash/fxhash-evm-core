@@ -13,6 +13,19 @@ abstract contract Allowlist {
     using BitMaps for BitMaps.BitMap;
 
     /*//////////////////////////////////////////////////////////////////////////
+                                    EVENTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @notice Event emitted when allowlist slot is claimed
+     * @param _token Address of the token
+     * @param _reserveId ID of the reserve
+     * @param _claimer Address of the claimer
+     * @param _index Index of puchase info inside the BitMap
+     */
+    event SlotClaimed(address indexed _token, uint256 indexed _reserveId, address indexed _claimer, uint256 _index);
+
+    /*//////////////////////////////////////////////////////////////////////////
                                     ERRORS
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -50,6 +63,8 @@ abstract contract Allowlist {
         bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(_index, msg.sender))));
         if (!MerkleProof.verify(_proof, root, leaf)) revert InvalidProof();
         _bitmap.set(_index);
+
+        emit SlotClaimed(_token, _reserveId, msg.sender, _index);
     }
 
     /**
