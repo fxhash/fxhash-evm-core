@@ -159,6 +159,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
      * @inheritdoc IDutchAuction
      */
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external {
+        if (_reserve.allocation == 0) revert InvalidAllocation();
         (AuctionInfo memory daInfo, bytes32 merkleRoot, address signer) = abi.decode(
             _mintDetails,
             (AuctionInfo, bytes32, address)
@@ -191,7 +192,6 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
                 if (!(daInfo.prices[i - 1] > daInfo.prices[i])) revert PricesOutOfOrder();
             }
         }
-        if (_reserve.allocation == 0) revert InvalidAllocation();
 
         // Adds the reserve and auction info to the mappings
         reserves[msg.sender].push(_reserve);
