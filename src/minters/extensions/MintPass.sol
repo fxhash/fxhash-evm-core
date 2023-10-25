@@ -17,6 +17,19 @@ abstract contract MintPass is EIP712 {
     using BitMaps for BitMaps.BitMap;
 
     /*//////////////////////////////////////////////////////////////////////////
+                                    EVENTS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @notice Event emitted when mint pass is claimed
+     * @param _token Address of the token
+     * @param _reserveId ID of the reserve
+     * @param _claimer Address of the claimer
+     * @param _index Index of purchase info inside the BitMap
+     */
+    event PassClaimed(address indexed _token, uint256 indexed _reserveId, address indexed _claimer, uint256 _index);
+
+    /*//////////////////////////////////////////////////////////////////////////
                                     ERRORS
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -78,6 +91,8 @@ abstract contract MintPass is EIP712 {
         address signer = _signingAuthority(_token, _reserveId);
         if (!signer.isValidSignatureNow(hash, _signature)) revert InvalidSignature();
         _bitmap.set(_index);
+
+        emit PassClaimed(_token, _reserveId, msg.sender, _index);
     }
 
     /**
