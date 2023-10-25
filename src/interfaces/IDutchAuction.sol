@@ -1,44 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+import {AuctionInfo, MinterInfo, RefundInfo, ReserveInfo} from "src/utils/Structs.sol";
 import {IMinter} from "src/interfaces/IMinter.sol";
-import {ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
-
-/*//////////////////////////////////////////////////////////////////////////
-                                  STRUCTS
-//////////////////////////////////////////////////////////////////////////*/
-
-/**
- * @notice Struct of dutch auction information
- * - `refunded` Flag indicating if refunds are enabled
- * - `stepLength` Duration (in seconds) of each auction step
- * - `prices` Array of prices for each step of the auction
- */
-struct AuctionInfo {
-    bool refunded;
-    uint248 stepLength;
-    uint256[] prices;
-}
-
-/**
- * @notice Struct of minter information
- * - `totalMints` Total number of mints executed by the minter
- * - `totalPaid` Total amount paid by the minter
- */
-struct MinterInfo {
-    uint128 totalMints;
-    uint128 totalPaid;
-}
-
-/**
- * @notice Struct of refund information
- * - `lastPrice` Price of last sale before selling out
- * - `minterInfo` Mapping of minter address to struct of minter information
- */
-struct RefundInfo {
-    uint256 lastPrice;
-    mapping(address minter => MinterInfo) minterInfo;
-}
 
 /**
  * @title DutchAuction

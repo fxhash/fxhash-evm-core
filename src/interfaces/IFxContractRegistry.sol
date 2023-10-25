@@ -1,21 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-/*//////////////////////////////////////////////////////////////////////////
-                                  STRUCTS
-//////////////////////////////////////////////////////////////////////////*/
-
-/**
- * @notice Struct of system config information
- * - `lockTime` Locked time duration added to mint start time for unverified creators
- * - `referrerShare` Share amount distributed to accounts referring tokens
- * - `defaultMetadata` Default metadata URI of all unrevealed tokens
- */
-struct ConfigInfo {
-    uint128 lockTime;
-    uint128 referrerShare;
-    string defaultMetadata;
-}
+import {ConfigInfo} from "src/utils/Structs.sol";
 
 /**
  * @title IFxContractRegistry

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
+import {ReserveInfo} from "src/utils/Structs.sol";
 
 /**
  * @title IMinter

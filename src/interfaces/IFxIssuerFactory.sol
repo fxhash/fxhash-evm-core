@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {InitInfo, MetadataInfo, MintInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
+import {InitInfo, MetadataInfo, MintInfo, ProjectInfo} from "src/utils/Structs.sol";
 
 /**
  * @title IFxIssuerFactory
