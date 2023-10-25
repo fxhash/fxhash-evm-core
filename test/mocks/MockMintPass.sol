@@ -27,7 +27,7 @@ contract MockMintPass is MintPass {
         return CLAIM_TYPEHASH;
     }
 
-    function _isSigningAuthority(address _signer, address, uint256) internal view override returns (bool) {
-        return _signer == signer;
+    function _signingAuthority(address, uint256) internal view override returns (address) {
+        return signer;
     }
 }

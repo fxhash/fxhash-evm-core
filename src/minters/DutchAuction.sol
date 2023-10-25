@@ -303,12 +303,8 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     /**
      * @dev Checks if signer has signing authority
      */
-    function _isSigningAuthority(
-        address _signer,
-        address _token,
-        uint256 _reserveId
-    ) internal view override returns (bool) {
-        return _signer == signingAuthorities[_token][_reserveId];
+    function _signingAuthority(address _token, uint256 _reserveId) internal view override returns (address) {
+        return signingAuthorities[_token][_reserveId];
     }
 
     /**
