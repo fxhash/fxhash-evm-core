@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {InitInfo, MetadataInfo, MintInfo, ProjectInfo} from "src/utils/Structs.sol";
+import {InitInfo, MetadataInfo, MintInfo, ProjectInfo} from "src/lib/Structs.sol";
 
 /**
  * @title IFxIssuerFactory

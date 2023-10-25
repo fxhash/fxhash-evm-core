@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {ConfigInfo} from "src/utils/Structs.sol";
+import {ConfigInfo} from "src/lib/Structs.sol";
 
 /**
  * @title IFxContractRegistry

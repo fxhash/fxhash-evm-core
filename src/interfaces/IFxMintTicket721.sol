@@ -2,7 +2,7 @@
 pragma solidity 0.8.20;
 
 import {IToken} from "src/interfaces/IToken.sol";
-import {MintInfo, TaxInfo} from "src/utils/Structs.sol";
+import {MintInfo, TaxInfo} from "src/lib/Structs.sol";
 
 /**
  * @title IFxMintTicket721

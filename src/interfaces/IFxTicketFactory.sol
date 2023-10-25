@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {MintInfo} from "src/utils/Structs.sol";
+import {MintInfo} from "src/lib/Structs.sol";
 
 /**
  * @title IFxTicketFactory

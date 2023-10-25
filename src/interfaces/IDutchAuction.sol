@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {AuctionInfo, MinterInfo, RefundInfo, ReserveInfo} from "src/utils/Structs.sol";
+import {AuctionInfo, MinterInfo, RefundInfo, ReserveInfo} from "src/lib/Structs.sol";
 import {IMinter} from "src/interfaces/IMinter.sol";
 
 /**
