@@ -25,7 +25,7 @@ abstract contract MintPass is EIP712 {
      * @param _token Address of the token
      * @param _reserveId ID of the reserve
      * @param _claimer Address of the claimer
-     * @param _index Index of puchase info inside the BitMap
+     * @param _index Index of purchase info inside the BitMap
      */
     event PassClaimed(address indexed _token, uint256 indexed _reserveId, address indexed _claimer, uint256 _index);
 
