@@ -71,7 +71,7 @@ contract SplitsController is Ownable {
      *@dev Initializes controller owner, SplitsMain, and FxSplitsFactory
      */
     constructor(address _splitsMain, address _splitsFactory, address _owner) {
-        _transferOwnership(_owner);
+        _initializeOwner(_owner);
         splitsMain = _splitsMain;
         splitsFactory = _splitsFactory;
     }
@@ -136,7 +136,8 @@ contract SplitsController is Ownable {
         uint256 fromId;
         bool toFound;
         uint256 toId;
-        for (uint256 i; i < _accounts.length; i++) {
+        uint256 length = _accounts.length;
+        for (uint256 i; i < length; i++) {
             // check if from is in the array
             if (_from == _accounts[i]) {
                 fromFound = true;
@@ -154,13 +155,13 @@ contract SplitsController is Ownable {
         if (!toFound) {
             _accounts[fromId] = _to;
             // sorts resulting accounts array
-            (_accounts, _allocations) = _sort(0, _accounts.length, _accounts, _allocations);
+            (_accounts, _allocations) = _sort(0, length, _accounts, _allocations);
         } else {
-            address[] memory newAccounts = new address[](_accounts.length - 1);
-            uint32[] memory newAllocations = new uint32[](_accounts.length - 1);
+            address[] memory newAccounts = new address[](length - 1);
+            uint32[] memory newAllocations = new uint32[](length - 1);
             _allocations[toId] += _allocations[fromId];
             uint256 offset;
-            for (uint256 i; i < _accounts.length; i++) {
+            for (uint256 i; i < length; i++) {
                 // if fromId then we skip
                 if (i == fromId) {
                     offset = 1;
