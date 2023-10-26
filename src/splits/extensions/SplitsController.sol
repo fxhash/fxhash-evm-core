@@ -172,7 +172,7 @@ contract SplitsController is Ownable {
             _accounts = newAccounts;
             _allocations = newAllocations;
         }
-        ISplitsMain(splitsMain).updateSplit(_split, _accounts, _allocations, uint32(0));
+        ISplitsMain(splitsMain).updateSplit(_split, _accounts, _allocations, 0);
     }
 
     /**
