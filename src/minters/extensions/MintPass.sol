@@ -2,8 +2,8 @@
 pragma solidity 0.8.20;
 
 import {BitMaps} from "openzeppelin/contracts/utils/structs/BitMaps.sol";
-import {ECDSA} from "openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {EIP712} from "openzeppelin/contracts/utils/cryptography/EIP712.sol";
+import {SignatureChecker} from "openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
 
 import {CLAIM_TYPEHASH} from "src/utils/Constants.sol";
 
@@ -13,8 +13,13 @@ import {CLAIM_TYPEHASH} from "src/utils/Constants.sol";
  * @notice Extension for claiming tokens through mint passes
  */
 abstract contract MintPass is EIP712 {
-    using ECDSA for bytes32;
+    using SignatureChecker for address;
     using BitMaps for BitMaps.BitMap;
+
+    /**
+     * @notice Mapping of token address to reserve ID to address of mint pass authority
+     */
+    mapping(address => mapping(uint256 => address)) public signingAuthorities;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     EVENTS
@@ -95,23 +100,10 @@ abstract contract MintPass is EIP712 {
     ) internal {
         if (_bitmap.get(_index)) revert PassAlreadyClaimed();
         bytes32 hash = generateTypedDataHash(_token, _reserveId, _index, msg.sender);
-        (uint8 v, bytes32 r, bytes32 s) = abi.decode(_signature, (uint8, bytes32, bytes32));
-        address signer = ECDSA.recover(hash, v, r, s);
-        if (!_isSigningAuthority(signer, _token, _reserveId)) revert InvalidSignature();
+        address signer = signingAuthorities[_token][_reserveId];
+        if (!signer.isValidSignatureNow(hash, _signature)) revert InvalidSignature();
         _bitmap.set(_index);
 
         emit PassClaimed(_token, _reserveId, msg.sender, _index);
     }
-
-    /**
-     * @dev Checks if signer has signing authority
-     * @param _signer Address of the signer
-     * @param _token Address of the token contract
-     * @param _reserveId ID of the reserve
-     */
-    function _isSigningAuthority(
-        address _signer,
-        address _token,
-        uint256 _reserveId
-    ) internal view virtual returns (bool);
 }
