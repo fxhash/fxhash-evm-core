@@ -2,8 +2,8 @@
 pragma solidity 0.8.20;
 
 import {BitMaps} from "openzeppelin/contracts/utils/structs/BitMaps.sol";
-import {SignatureChecker} from "openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
 import {EIP712} from "openzeppelin/contracts/utils/cryptography/EIP712.sol";
+import {SignatureChecker} from "openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
 
 import {CLAIM_TYPEHASH} from "src/utils/Constants.sol";
 
