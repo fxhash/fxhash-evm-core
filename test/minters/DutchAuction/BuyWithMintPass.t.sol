@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MITBuyWith
+// SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
 import "test/minters/DutchAuction/DutchAuctionTest.t.sol";
