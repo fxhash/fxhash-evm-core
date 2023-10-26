@@ -24,7 +24,7 @@ abstract contract MintPass is EIP712 {
      * @notice Event emitted when mint pass is claimed
      * @param _token Address of the token
      * @param _reserveId ID of the reserve
-     * @param _claimer Address of the claimer
+     * @param _claimer Address of the mint pass claimer
      * @param _index Index of purchase info inside the BitMap
      */
     event PassClaimed(address indexed _token, uint256 indexed _reserveId, address indexed _claimer, uint256 _index);
@@ -58,12 +58,19 @@ abstract contract MintPass is EIP712 {
 
     /**
      * @notice Generates the typed data hash for a mint pass claim
+     * @param _token address of token for the reserve
+     * @param _reserveId Id of the reserve to mint the token from
      * @param _index Index of the mint pass
-     * @param _claimer Address of mint pass
+     * @param _claimer Address of mint pass claimer
      * @return Digest of typed data hash claimer
      */
-    function generateTypedDataHash(uint256 _index, address _claimer) public view returns (bytes32) {
-        bytes32 structHash = keccak256(abi.encode(CLAIM_TYPEHASH, _index, _claimer));
+    function generateTypedDataHash(
+        address _token,
+        uint256 _reserveId,
+        uint256 _index,
+        address _claimer
+    ) public view returns (bytes32) {
+        bytes32 structHash = keccak256(abi.encode(CLAIM_TYPEHASH, _token, _reserveId, _index, _claimer));
         return _hashTypedDataV4(structHash);
     }
 
@@ -87,7 +94,7 @@ abstract contract MintPass is EIP712 {
         BitMaps.BitMap storage _bitmap
     ) internal {
         if (_bitmap.get(_index)) revert PassAlreadyClaimed();
-        bytes32 hash = generateTypedDataHash(_index, msg.sender);
+        bytes32 hash = generateTypedDataHash(_token, _reserveId, _index, msg.sender);
         address signer = _signingAuthority(_token, _reserveId);
         if (!signer.isValidSignatureNow(hash, _signature)) revert InvalidSignature();
         _bitmap.set(_index);
