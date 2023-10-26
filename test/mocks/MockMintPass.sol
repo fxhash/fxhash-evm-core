@@ -8,10 +8,9 @@ import {CLAIM_TYPEHASH} from "src/utils/Constants.sol";
 
 contract MockMintPass is MintPass {
     LibBitmap.Bitmap internal _bitmap;
-    address internal signer;
 
     constructor(address _signer) MintPass() {
-        signer = _signer;
+        signingAuthorities[address(0)][0] = _signer;
     }
 
     function claimMintPass(uint256 _index, bytes calldata _signature) external {
@@ -24,9 +23,5 @@ contract MockMintPass is MintPass {
 
     function claimTypeHash() external pure returns (bytes32) {
         return CLAIM_TYPEHASH;
-    }
-
-    function _isSigningAuthority(address _signer, address, uint256) internal view override returns (bool) {
-        return _signer == signer;
     }
 }

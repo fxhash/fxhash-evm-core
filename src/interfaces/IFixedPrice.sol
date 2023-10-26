@@ -220,11 +220,6 @@ interface IFixedPrice is IMinter {
     function setMintDetails(ReserveInfo calldata _reserveInfo, bytes calldata _mintDetails) external;
 
     /**
-     * @notice Mapping of token address to reserve ID to address of mint pass authority
-     */
-    function signingAuthorities(address, uint256) external view returns (address);
-
-    /**
      * @notice Withdraws the sale proceeds to the sale receiver
      * @param _token Address of the token withdrawing proceeds from
      */
