@@ -61,11 +61,6 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
      */
     mapping(address => mapping(uint256 => uint256)) public saleProceeds;
 
-    /**
-     * @inheritdoc IDutchAuction
-     */
-    mapping(address => mapping(uint256 => address)) public signingAuthorities;
-
     /*//////////////////////////////////////////////////////////////////////////
                                 EXTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -298,13 +293,6 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         // Checks if the step is within the range of prices
         if (step >= _daInfo.prices.length) revert InvalidStep();
         return _daInfo.prices[step];
-    }
-
-    /**
-     * @dev Checks if signer has signing authority
-     */
-    function _signingAuthority(address _token, uint256 _reserveId) internal view override returns (address) {
-        return signingAuthorities[_token][_reserveId];
     }
 
     /**

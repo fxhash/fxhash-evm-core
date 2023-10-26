@@ -16,6 +16,11 @@ abstract contract MintPass is EIP712 {
     using SignatureChecker for address;
     using BitMaps for BitMaps.BitMap;
 
+    /**
+     * @notice Mapping of token address to reserve ID to address of mint pass authority
+     */
+    mapping(address => mapping(uint256 => address)) public signingAuthorities;
+
     /*//////////////////////////////////////////////////////////////////////////
                                     EVENTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -95,17 +100,10 @@ abstract contract MintPass is EIP712 {
     ) internal {
         if (_bitmap.get(_index)) revert PassAlreadyClaimed();
         bytes32 hash = generateTypedDataHash(_token, _reserveId, _index, msg.sender);
-        address signer = _signingAuthority(_token, _reserveId);
+        address signer = signingAuthorities[_token][_reserveId];
         if (!signer.isValidSignatureNow(hash, _signature)) revert InvalidSignature();
         _bitmap.set(_index);
 
         emit PassClaimed(_token, _reserveId, msg.sender, _index);
     }
-
-    /**
-     * @dev Returns the signing authority
-     * @param _token Address of the token contract
-     * @param _reserveId ID of the reserve
-     */
-    function _signingAuthority(address _token, uint256 _reserveId) internal view virtual returns (address);
 }
