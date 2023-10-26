@@ -2,7 +2,7 @@
 pragma solidity 0.8.20;
 
 import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
-import {SplitsController} from "src/splits/extensions/SplitsController.sol";
+import {SplitsController} from "src/splits/SplitsController.sol";
 
 import {ISplitsFactory} from "src/interfaces/ISplitsFactory.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";

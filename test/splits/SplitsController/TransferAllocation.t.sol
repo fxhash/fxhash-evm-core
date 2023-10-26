@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import "test/extensions/SplitsController/SplitsControllerTest.t.sol";
+import "test/splits/SplitsController/SplitsControllerTest.t.sol";
 
 contract TransferAllocation is SplitsControllerTest {
     address internal transferTo = address(9);
