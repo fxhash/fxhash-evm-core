@@ -68,7 +68,7 @@ contract SplitsController is Ownable {
     error NotValidSplitHash();
 
     /**
-     * @notice Initializes the splitsMain, splitsFactory, and owner that can update fxHash addresses
+     *@dev Initializes controller owner, SplitsMain, and FxSplitsFactory
      */
     constructor(address _splitsMain, address _splitsFactory, address _owner) {
         _transferOwnership(_owner);
