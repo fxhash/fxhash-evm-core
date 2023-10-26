@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+import {ISplitsController} from "src/interfaces/ISplitsController.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
 import {Ownable} from "solady/src/auth/Ownable.sol";
 
@@ -9,7 +10,7 @@ import {Ownable} from "solady/src/auth/Ownable.sol";
  * @author fx(hash)
  * @notice Extension for controlling 0xSplits wallets deployed through SplitsFactory
  */
-contract SplitsController is Ownable {
+contract SplitsController is ISplitsController, Ownable {
     /*//////////////////////////////////////////////////////////////////////////
                                     STORAGE
     //////////////////////////////////////////////////////////////////////////*/
@@ -33,39 +34,6 @@ contract SplitsController is Ownable {
      * @notice Address of the SplitsMain contract
      */
     address public splitsMain;
-    /*//////////////////////////////////////////////////////////////////////////
-                                    ERRORS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /**
-     * @notice Error thrown when account is not in list of accounts
-     */
-    error AccountNotFound();
-
-    /**
-     * @notice Error thrown when accounts are identical
-     */
-    error AccountsIdentical();
-
-    /**
-     * @notice Error thrown when caller is not fxhash
-     */
-    error UnauthorizedTransfer();
-
-    /**
-     * @notice Error thrown when caller is not authorized to execute transaction
-     */
-    error NotAuthorized();
-
-    /**
-     * @notice Error thrown when caller is not the splitsFactory
-     */
-    error NotSplitsFactory();
-
-    /**
-     * @notice Error thrown when the split hash is invalid
-     */
-    error NotValidSplitHash();
 
     /**
      *@dev Initializes controller owner, SplitsMain, and FxSplitsFactory
@@ -186,7 +154,7 @@ contract SplitsController is Ownable {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                EXTERNAL FUNCTIONS
+                                INTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
