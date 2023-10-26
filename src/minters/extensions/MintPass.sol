@@ -58,8 +58,8 @@ abstract contract MintPass is EIP712 {
 
     /**
      * @notice Generates the typed data hash for a mint pass claim
-     * @param _token the token address for the reserve
-     * @param _reserveId The reserveId of the reserve to mint the token from
+     * @param _token address of token for the reserve
+     * @param _reserveId Id of the reserve to mint the token from
      * @param _index Index of the mint pass
      * @param _claimer Address of mint pass claimer
      * @return Digest of typed data hash claimer
