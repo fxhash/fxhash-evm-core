@@ -5,28 +5,28 @@ import "test/extensions/MintPass/MintPassTest.t.sol";
 
 contract ClaimMintPassTest is MintPassTest {
     function test_SignMintPass() public {
-        bytes32 digest = mintPass.generateTypedDataHash(claimIndex, claimerAddr);
+        bytes32 digest = mintPass.generateTypedDataHash(address(0), 0, claimIndex, claimerAddr);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerPk, digest);
         address signer = ECDSA.recover(digest, v, r, s);
         assertTrue(signer == signerAddr, "Invalid Sig");
     }
 
     function test_SignMintPass_RevertsWhen_SignatureInvalid() public {
-        bytes32 digest = mintPass.generateTypedDataHash(claimIndex, claimerAddr);
+        bytes32 digest = mintPass.generateTypedDataHash(address(0), 0, claimIndex, claimerAddr);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerPk + 1, digest);
         address signer = ECDSA.recover(digest, v, r, s);
         assertFalse(signer == signerAddr, "Signature was Valid");
     }
 
     function test_ClaimMintPass() public {
-        bytes32 digest = mintPass.generateTypedDataHash(claimIndex, claimerAddr);
+        bytes32 digest = mintPass.generateTypedDataHash(address(0), 0, claimIndex, claimerAddr);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerPk, digest);
         mintPass.claimMintPass(claimIndex, abi.encode(v, r, s));
         assertTrue(mintPass.isClaimed(claimIndex), "Mint pass not claimed");
     }
 
     function test_ClaimMintPass_RevertsWhen_AlreadyClaimed() public {
-        bytes32 digest = mintPass.generateTypedDataHash(claimIndex, claimerAddr);
+        bytes32 digest = mintPass.generateTypedDataHash(address(0), 0, claimIndex, claimerAddr);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerPk, digest);
         mintPass.claimMintPass(claimIndex, abi.encode(v, r, s));
         assertTrue(mintPass.isClaimed(claimIndex), "Mint pass not claimed");
@@ -35,7 +35,7 @@ contract ClaimMintPassTest is MintPassTest {
     }
 
     function test_ClaimMintPass_RevertsWhen_NotClaimer() public {
-        bytes32 digest = mintPass.generateTypedDataHash(claimIndex, claimerAddr);
+        bytes32 digest = mintPass.generateTypedDataHash(address(0), 0, claimIndex, claimerAddr);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerPk, digest);
         vm.prank(address(bob));
         vm.expectRevert(INVALID_SIGNATURE_ERROR);
