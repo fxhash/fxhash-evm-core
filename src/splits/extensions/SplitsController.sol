@@ -184,6 +184,10 @@ contract SplitsController is Ownable {
         isFxHash[_fxHash] = _active;
     }
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                EXTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
      * @dev Returns the computed hash of a splits wallet
      * @param _accounts Unique list of ordered addresses with ownership in the split
