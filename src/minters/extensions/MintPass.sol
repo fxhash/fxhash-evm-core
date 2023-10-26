@@ -24,7 +24,7 @@ abstract contract MintPass is EIP712 {
      * @notice Event emitted when mint pass is claimed
      * @param _token Address of the token
      * @param _reserveId ID of the reserve
-     * @param _claimer Address of the claimer
+     * @param _claimer Address of the mint pass claimer
      * @param _index Index of purchase info inside the BitMap
      */
     event PassClaimed(address indexed _token, uint256 indexed _reserveId, address indexed _claimer, uint256 _index);
@@ -59,10 +59,9 @@ abstract contract MintPass is EIP712 {
     /**
      * @notice Generates the typed data hash for a mint pass claim
      * @param _token the token address for the reserve
-     * @param _reserveId The reserveId of the reserve to mint the token from 
+     * @param _reserveId The reserveId of the reserve to mint the token from
      * @param _index Index of the mint pass
-     * @param _claimer Address of mint pass
-
+     * @param _claimer Address of mint pass claimer
      * @return Digest of typed data hash claimer
      */
     function generateTypedDataHash(
