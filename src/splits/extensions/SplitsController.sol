@@ -40,7 +40,7 @@ contract SplitsController is Ownable {
     /**
      * @notice Error thrown when account is not in list of accounts
      */
-    error AccountNotInAccounts();
+    error AccountNotFound();
 
     /**
      * @notice Error thrown when accounts are identical
@@ -50,7 +50,7 @@ contract SplitsController is Ownable {
     /**
      * @notice Error thrown when caller is not fxhash
      */
-    error CantTransferFxHash();
+    error UnauthorizedTransfer();
 
     /**
      * @notice Error thrown when caller is not authorized to execute transaction
@@ -129,7 +129,7 @@ contract SplitsController is Ownable {
         // checks that msg.sender has privilege to do so
         if (msg.sender != splitCreators[_split] && !isFxHash[msg.sender]) revert NotAuthorized();
         // checks that from isn't fxhash receiver
-        if (isFxHash[_from] && !isFxHash[msg.sender]) revert CantTransferFxHash();
+        if (isFxHash[_from] && !isFxHash[msg.sender]) revert UnauthorizedTransfer();
 
         // verifies account is in array and gets id
         bool fromFound;
@@ -148,7 +148,7 @@ contract SplitsController is Ownable {
                 toId = i;
             }
         }
-        if (!fromFound) revert AccountNotInAccounts();
+        if (!fromFound) revert AccountNotFound();
 
         // if to not already in accounts replace from with to
         if (!toFound) {
