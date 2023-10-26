@@ -2,7 +2,7 @@
 pragma solidity 0.8.20;
 
 import {IMinter} from "src/interfaces/IMinter.sol";
-import {ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
+import {ReserveInfo} from "src/lib/Structs.sol";
 
 /**
  * @title IFixedPrice
