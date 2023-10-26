@@ -60,11 +60,6 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
      */
     mapping(address => uint256) public saleProceeds;
 
-    /**
-     * @inheritdoc IFixedPrice
-     */
-    mapping(address => mapping(uint256 => address)) public signingAuthorities;
-
     /*//////////////////////////////////////////////////////////////////////////
                                 EXTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -202,16 +197,5 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
      */
     function _getMerkleRoot(address _token, uint256 _reserveId) internal view override returns (bytes32) {
         return merkleRoots[_token][_reserveId];
-    }
-
-    /**
-     * @dev Checks if signer has signing authority
-     */
-    function _isSigningAuthority(
-        address _signer,
-        address _token,
-        uint256 _reserveId
-    ) internal view override returns (bool) {
-        return _signer == signingAuthorities[_token][_reserveId];
     }
 }

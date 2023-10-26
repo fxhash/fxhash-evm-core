@@ -273,11 +273,6 @@ interface IDutchAuction is IMinter {
     function setMintDetails(ReserveInfo calldata _reserveInfo, bytes calldata _mintDetails) external;
 
     /**
-     * @notice Mapping of token address to reserve ID to address of mint passes authorities
-     */
-    function signingAuthorities(address, uint256) external view returns (address);
-
-    /**
      * @notice Withdraws sale processed of primary sales to receiver
      * @param _reserveId ID of the reserve
      * @param _token Address of the token contract
