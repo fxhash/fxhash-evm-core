@@ -69,25 +69,37 @@ SEPOLIA_RPC_URL=
 forge install
 ```
 
-4. Run tests
+```
+npm ci
+```
+
+4. Activate husky and commitlinting
+
+```
+npx husky install
+npx husky add .husky/commit-msg  'npx --no -- commitlint --edit ${1}'
+```
+
+5. Run tests
 
 ```
 npm run test
 ```
 
-5. Run prettier
+6. Run prettier
 
 ```
 npm run prettier
 ```
 
-6. Deploy contracts
+7. Deploy contracts
 
 ```
 forge script script/Deploy.s.sol --rpc-url $GOERLI_RPC_URL --private-key $DEPLOYER_PRIVATE_KEY --verify --etherscan-api-key $ETHERSCAN_API_KEY --broadcast
 ```
 
-7. View documentation locally
+8. View documentation locally
+
 ```
 forge doc --serve --port 3000
 ```
