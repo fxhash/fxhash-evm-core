@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import "test/factories/SplitsFactory/SplitsFactoryTest.sol";
+import "test/splits/SplitsFactory/SplitsFactoryTest.sol";
 
 contract SetController is SplitsFactoryTest {
     function test_SetController() public {
