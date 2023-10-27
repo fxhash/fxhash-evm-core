@@ -15,10 +15,6 @@ library TicketHelperLib {
         IFxMintTicket721(_proxy).deposit{value: _amount}(_tokenId);
     }
 
-    function _isMinter(address _proxy, address _minter) internal view returns (bool) {
-        return IFxMintTicket721(_proxy).minters(_minter);
-    }
-
     function _mint(address _minter, address _proxy, address _to, uint256 _amount, uint256 _payment) internal {
         MockMinter(_minter).mint(_proxy, _to, _amount, _payment);
     }
@@ -45,5 +41,9 @@ library TicketHelperLib {
 
     function _withdraw(address _proxy, address _to) internal {
         IFxMintTicket721(_proxy).withdraw(_to);
+    }
+
+    function _isMinter(address _proxy, address _minter) internal view returns (bool) {
+        return IFxMintTicket721(_proxy).minters(_minter);
     }
 }
