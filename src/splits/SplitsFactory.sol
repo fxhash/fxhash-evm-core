@@ -2,7 +2,9 @@
 pragma solidity 0.8.20;
 
 import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
+import {SplitsController} from "src/splits/SplitsController.sol";
 
+import {ISplitsController} from "src/interfaces/ISplitsController.sol";
 import {ISplitsFactory} from "src/interfaces/ISplitsFactory.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
 
@@ -66,6 +68,19 @@ contract SplitsFactory is ISplitsFactory, Ownable {
         uint32[] calldata _allocations
     ) external returns (address split) {
         split = ISplitsMain(splits).createSplit(_accounts, _allocations, 0, controller);
+        emit SplitsInfo(split, controller, _accounts, _allocations, 0);
+    }
+
+    /**
+     * @inheritdoc ISplitsFactory
+     */
+    function createMutableSplit(
+        address _creator,
+        address[] calldata _accounts,
+        uint32[] calldata _allocations
+    ) external returns (address split) {
+        split = ISplitsMain(splits).createSplit(_accounts, _allocations, 0, controller);
+        ISplitsController(controller).addCreator(split, _creator);
         emit SplitsInfo(split, controller, _accounts, _allocations, 0);
     }
 

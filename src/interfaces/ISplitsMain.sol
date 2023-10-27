@@ -22,11 +22,20 @@ interface ISplitsMain {
         address distributorAddress
     ) external;
 
+    function getHash(address split) external view returns (bytes32);
+
     function predictImmutableSplitAddress(
         address[] calldata accounts,
         uint32[] calldata percentAllocations,
         uint32 distributorFee
     ) external view returns (address);
+
+    function updateSplit(
+        address split,
+        address[] calldata accounts,
+        uint32[] calldata percentAllocations,
+        uint32 distributorFee
+    ) external;
 
     function withdraw(address account, uint256 withdrawETH, address[] calldata tokens) external;
 }

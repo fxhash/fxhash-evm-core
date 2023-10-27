@@ -219,13 +219,13 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     function registerMinters(MintInfo[] calldata _mintInfo) external onlyOwner {
         if (issuerInfo.projectInfo.mintEnabled) revert MintActive();
 
-        // Unregisters all current minters
+        // Unregisters all active minters
         for (uint256 i; i < issuerInfo.activeMinters.length; ++i) {
             address minter = issuerInfo.activeMinters[i];
             issuerInfo.minters[minter] = false;
         }
 
-        // Deletes list of current active minters
+        // Deletes current list of active minters
         delete issuerInfo.activeMinters;
 
         // Registers new minters
