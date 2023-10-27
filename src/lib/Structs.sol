@@ -68,7 +68,7 @@ struct IssuerInfo {
     address primaryReceiver;
     ProjectInfo projectInfo;
     address[] activeMinters;
-    mapping(address => bool) minters;
+    mapping(address => uint8) minters;
 }
 
 /**

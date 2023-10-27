@@ -68,7 +68,7 @@ forge install
 npm ci
 ```
 
-4. Activate husky and commitlinting
+4. Activate husky and commitlint
 
 ```
 npx husky install
