@@ -2,25 +2,7 @@
 pragma solidity 0.8.20;
 
 import {IToken} from "src/interfaces/IToken.sol";
-import {MintInfo} from "src/interfaces/IFxGenArt721.sol";
-
-/*//////////////////////////////////////////////////////////////////////////
-                                  STRUCTS
-//////////////////////////////////////////////////////////////////////////*/
-
-/**
- * @notice Struct of tax information
- * - `gracePeriod` Timestamp of period before token entering harberger taxation
- * - `foreclosureTime` Timestamp of token foreclosure
- * - `currentPrice` Current ether price of token
- * - `depositAmount` Total amount of taxes deposited
- */
-struct TaxInfo {
-    uint48 gracePeriod;
-    uint48 foreclosureTime;
-    uint80 currentPrice;
-    uint80 depositAmount;
-}
+import {MintInfo, TaxInfo} from "src/lib/Structs.sol";
 
 /**
  * @title IFxMintTicket721

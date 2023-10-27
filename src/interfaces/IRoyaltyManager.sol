@@ -1,19 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-/*//////////////////////////////////////////////////////////////////////////
-                                  STRUCTS
-//////////////////////////////////////////////////////////////////////////*/
-
-/**
- * @notice Struct of royalty information
- * - `receiver` Address receiving royalties
- * - `basisPoints` Points used to calculate the royalty payment (0.01%)
- */
-struct RoyaltyInfo {
-    address payable receiver;
-    uint96 basisPoints;
-}
+import {RoyaltyInfo} from "src/lib/Structs.sol";
 
 /**
  * @title IRoyaltyManager
