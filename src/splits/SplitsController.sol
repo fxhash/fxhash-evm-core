@@ -89,10 +89,15 @@ contract SplitsController is ISplitsController, Ownable {
     ) internal {
         // verify the previous accounts and allocations == split stored hash
         if (_hashSplit(_accounts, _allocations) != ISplitsMain(splitsMain).getHash(_split)) revert NotValidSplitHash();
-        // moves allocation of _from in _accounts list -> _to account
+        // moves allocation of _from in _accounts list -> _to account, assumes they're not equal
         if (_from == _to) revert AccountsIdentical();
         // checks that msg.sender has privilege to do so
-        if (msg.sender != splitCreators[_split] && !isFxHash[msg.sender]) revert NotAuthorized();
+        address creator = splitCreators[_split];
+        if (msg.sender != creator && !isFxHash[msg.sender]) revert NotAuthorized();
+        // if the creator is transferring their allocation they also transfer their authorization
+        if (_from == creator) {
+            splitCreators[_split] = _to;
+        }
         // checks that from isn't fxhash receiver
         if (isFxHash[_from] && !isFxHash[msg.sender]) revert UnauthorizedTransfer();
 
