@@ -85,4 +85,24 @@ interface ISplitsController {
      * @param _active Flag indicating active status
      */
     function updateFxHash(address _fxHash, bool _active) external;
+
+    /**
+     * @notice Mapping of splits wallet address to flag indicating if wallet is fxhash
+     */
+    function isFxHash(address _account) external view returns (bool);
+
+    /**
+     * @notice Mapping of splits wallet address to address of creator
+     */
+    function splitCreators(address _split) external view returns (address);
+
+    /**
+     * @notice Address of the SplitsFactory contract
+     */
+    function splitsFactory() external view returns (address);
+
+    /**
+     * @notice Address of the SplitsMain contract
+     */
+    function splitsMain() external view returns (address);
 }

@@ -15,24 +15,16 @@ contract SplitsController is ISplitsController, Ownable {
                                     STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
-    /**
-     * @notice Mapping of splits wallet address to flag indicating if wallet is fxhash
-     */
+    /// @inheritdoc ISplitsController
     mapping(address => bool) public isFxHash;
 
-    /**
-     * @notice Mapping of splits wallet address to address of creator
-     */
+    /// @inheritdoc ISplitsController
     mapping(address => address) public splitCreators;
 
-    /**
-     * @notice Address of the SplitsFactory contract
-     */
+    /// @inheritdoc ISplitsController
     address public splitsFactory;
 
-    /**
-     * @notice Address of the SplitsMain contract
-     */
+    /// @inheritdoc ISplitsController
     address public splitsMain;
 
     /**
@@ -48,23 +40,13 @@ contract SplitsController is ISplitsController, Ownable {
                                 EXTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /**
-     * @notice Adds a new creator to the split
-     * @param _split Address of the splits wallet
-     * @param _creator Address of the new creator
-     */
+    /// @inheritdoc ISplitsController
     function addCreator(address _split, address _creator) external {
         if (msg.sender != splitsFactory) revert NotSplitsFactory();
         splitCreators[_split] = _creator;
     }
 
-    /**
-     * @notice Transfers allocation amount of the split to given account
-     * @param _to Address of the receiver
-     * @param _split Address of the splits wallet
-     * @param _accounts Array of addresses included in the splits
-     * @param _allocations Array of allocation amounts for each account
-     */
+    /// @inheritdoc ISplitsController
     function transferAllocation(
         address _to,
         address _split,
@@ -72,24 +54,39 @@ contract SplitsController is ISplitsController, Ownable {
         uint32[] memory _allocations
     ) external {
         // moves allocation of msg.sender in _accounts list -> _to account
-        transferAllocationFrom(msg.sender, _to, _split, _accounts, _allocations);
+        _transferAllocationFrom(msg.sender, _to, _split, _accounts, _allocations);
     }
 
-    /**
-     * @notice Transfers allocation amount of the split from given account to given account
-     * @param _from Address of the sender
-     * @param _to Address of the receiver
-     * @param _split Address of the splits wallet
-     * @param _accounts Array of addresses included in the splits
-     * @param _allocations Array of allocation amounts for each account
-     */
+    /// @inheritdoc ISplitsController
     function transferAllocationFrom(
         address _from,
         address _to,
         address _split,
         address[] memory _accounts,
         uint32[] memory _allocations
-    ) public {
+    ) external {
+        _transferAllocationFrom(_from, _to, _split, _accounts, _allocations);
+    }
+
+    /// @inheritdoc ISplitsController
+    function updateFxHash(address _fxHash, bool _active) external onlyOwner {
+        isFxHash[_fxHash] = _active;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                INTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @dev Transfers allocation of split from given account to given account
+     */
+    function _transferAllocationFrom(
+        address _from,
+        address _to,
+        address _split,
+        address[] memory _accounts,
+        uint32[] memory _allocations
+    ) internal {
         // verify the previous accounts and allocations == split stored hash
         if (_hashSplit(_accounts, _allocations) != ISplitsMain(splitsMain).getHash(_split)) revert NotValidSplitHash();
         // moves allocation of _from in _accounts list -> _to account
@@ -143,19 +140,6 @@ contract SplitsController is ISplitsController, Ownable {
         }
         ISplitsMain(splitsMain).updateSplit(_split, _accounts, _allocations, 0);
     }
-
-    /**
-     * @notice Updates the active flag status of an fxhash account
-     * @param _fxHash Address of the fxhash account
-     * @param _active Flag indicating active status
-     */
-    function updateFxHash(address _fxHash, bool _active) external onlyOwner {
-        isFxHash[_fxHash] = _active;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                INTERNAL FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
 
     /**
      * @dev Returns the computed hash of a splits wallet
