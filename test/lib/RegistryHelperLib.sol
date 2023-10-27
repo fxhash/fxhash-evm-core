@@ -6,7 +6,7 @@ import "forge-std/Test.sol";
 import {FxContractRegistry} from "src/registries/FxContractRegistry.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 
-contract RegistryHelpers is Test {
+library RegistryHelperLib is Test {
     modifier prank(address _caller) {
         vm.startPrank(_caller);
         _;

@@ -8,7 +8,7 @@ import {IFxMintTicket721, MintInfo} from "src/interfaces/IFxMintTicket721.sol";
 import {ITicketRedeemer} from "src/interfaces/ITicketRedeemer.sol";
 import {MockMinter} from "test/mocks/MockMinter.sol";
 
-contract TicketHelpers is Test {
+library TicketHelperLib is Test {
     modifier prank(address _caller) {
         vm.startPrank(_caller);
         _;

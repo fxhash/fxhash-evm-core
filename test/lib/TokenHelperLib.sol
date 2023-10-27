@@ -7,7 +7,7 @@ import {IFxGenArt721, MintInfo} from "src/interfaces/IFxGenArt721.sol";
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
 import {MockMinter} from "test/mocks/MockMinter.sol";
 
-contract TokenHelpers is Test {
+library TokenHelperLib is Test {
     modifier prank(address _caller) {
         vm.startPrank(_caller);
         _;
