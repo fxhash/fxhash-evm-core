@@ -7,10 +7,13 @@ contract Seed is Deploy {
     function _run() internal override {
         super._run();
         creator = msg.sender;
+        primaryReceiver = msg.sender;
         for (uint256 i; i < 20; i++) {
+            _configureInit("", "", msg.sender, address(pseudoRandomizer), address(scriptyRenderer), tagIds);
             _initializeProject();
-            _createProject();
             _initializeTicket();
+            _configureProject(false, true, MINTER_ALLOCATION + 20, "");
+            _createProject();
             _createTicket();
             _mint();
         }
