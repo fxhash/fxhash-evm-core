@@ -36,13 +36,7 @@ contract FixedPriceTest is BaseTest {
         _configureState(AMOUNT, PRICE, QUANTITY, TOKEN_ID);
         _configureAllowlist(merkleRoot, mintPassSigner);
         _configureProject(ONCHAIN, MINT_ENABLED, MAX_SUPPLY, CONTRACT_URI);
-        _configureMinter(
-            address(fixedPrice),
-            RESERVE_START_TIME,
-            RESERVE_END_TIME,
-            MINTER_ALLOCATION,
-            abi.encode(PRICE, merkleRoot, mintPassSigner)
-        );
+        _configureMinter(address(fixedPrice), RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, mintDetails);
         _grantRole(admin, MINTER_ROLE, address(fixedPrice));
         _createSplit();
         _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(scriptyRenderer), tagIds);

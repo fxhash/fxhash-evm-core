@@ -10,6 +10,7 @@ import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
 import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IToken} from "src/interfaces/IToken.sol";
+import {BitFlags, BitFlagsLibrary} from "src/types/BitFlags.sol";
 
 import {MINIMUM_PRICE, OPEN_EDITION_SUPPLY, TIME_UNLIMITED} from "src/utils/Constants.sol";
 
@@ -20,6 +21,8 @@ import {MINIMUM_PRICE, OPEN_EDITION_SUPPLY, TIME_UNLIMITED} from "src/utils/Cons
  */
 contract FixedPrice is IFixedPrice, Allowlist, MintPass {
     using SafeCastLib for uint256;
+    using BitFlagsLibrary for uint16;
+    using BitFlagsLibrary for BitFlags;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     STORAGE
@@ -68,10 +71,14 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
      * @inheritdoc IFixedPrice
      */
     function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable {
-        bytes32 merkleRoot = _getMerkleRoot(_token, _reserveId);
-        address signer = signingAuthorities[_token][_reserveId];
-        if ((merkleRoot != bytes32(0) || signer != address(0))) revert NoPublicMint();
-        _buy(_token, _reserveId, _amount, _to);
+        uint256 length = reserves[_token].length;
+        if (length == 0) revert InvalidToken();
+        if (_reserveId >= length) revert InvalidReserve();
+
+        ReserveInfo storage reserve = reserves[_token][_reserveId];
+        BitFlags flags = BitFlags.wrap(reserve.flags);
+        if (flags.isAllowlisted() || flags.isMintWithPass()) revert NoPublicMint();
+        _buy(reserve, _token, _reserveId, _amount, _to);
     }
 
     /**
@@ -84,14 +91,18 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
         uint256[] calldata _indexes,
         bytes32[][] calldata _proofs
     ) external payable {
-        bytes32 merkleRoot = _getMerkleRoot(_token, _reserveId);
-        if (merkleRoot == bytes32(0)) revert NoAllowlist();
+        uint256 length = reserves[_token].length;
+        if (length == 0) revert InvalidToken();
+        if (_reserveId >= length) revert InvalidReserve();
+
+        ReserveInfo storage reserve = reserves[_token][_reserveId];
+        if (!BitFlags.wrap(reserve.flags).isAllowlisted()) revert NoAllowlist();
         BitMaps.BitMap storage claimBitmap = _claimedMerkleTreeSlots[_token][_reserveId];
         for (uint256 i; i < _proofs.length; i++) {
             _claimSlot(_token, _reserveId, _indexes[i], _proofs[i], claimBitmap);
         }
         uint256 amount = _proofs.length;
-        _buy(_token, _reserveId, amount, _to);
+        _buy(reserve, _token, _reserveId, amount, _to);
     }
 
     /**
@@ -105,11 +116,16 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
         uint256 _index,
         bytes calldata _signature
     ) external payable {
+        uint256 length = reserves[_token].length;
+        if (length == 0) revert InvalidToken();
+        if (_reserveId >= length) revert InvalidReserve();
+
+        ReserveInfo storage reserve = reserves[_token][_reserveId];
+        if (!BitFlags.wrap(reserve.flags).isMintWithPass()) revert NoSigningAuthority();
         address signer = signingAuthorities[_token][_reserveId];
-        if (signer == address(0)) revert NoSigningAuthority();
         BitMaps.BitMap storage claimBitmap = _claimedMintPasses[_token][_reserveId];
         _claimMintPass(_token, _reserveId, _index, _signature, claimBitmap);
-        _buy(_token, _reserveId, _amount, _to);
+        _buy(reserve, _token, _reserveId, _amount, _to);
     }
 
     /**
@@ -123,29 +139,9 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
         }
 
         if (_reserve.allocation == 0) revert InvalidAllocation();
-        (uint256 price, bytes32 merkleRoot, address signer) = abi.decode(_mintDetails, (uint256, bytes32, address));
-        if (price < MINIMUM_PRICE) revert InvalidPrice();
-        if (merkleRoot != bytes32(0) && signer != address(0)) revert OnlyAuthorityOrAllowlist();
-
         uint256 reserveId = reserves[msg.sender].length;
-        delete merkleRoots[msg.sender][reserveId];
-        delete signingAuthorities[msg.sender][reserveId];
-
-        if (merkleRoot != bytes32(0)) {
-            merkleRoots[msg.sender][reserveId] = merkleRoot;
-        }
-
-        if (signer != address(0)) {
-            signingAuthorities[msg.sender][reserveId] = signer;
-        }
-
-        prices[msg.sender].push(price);
+        _saveMintDetails(reserveId, BitFlags.wrap(_reserve.flags), _mintDetails);
         reserves[msg.sender].push(_reserve);
-
-        bool openEdition = _reserve.allocation == OPEN_EDITION_SUPPLY ? true : false;
-        bool timeUnlimited = _reserve.endTime == TIME_UNLIMITED ? true : false;
-
-        emit MintDetailsSet(msg.sender, reserveId, price, _reserve, openEdition, timeUnlimited);
     }
 
     /**
@@ -170,26 +166,44 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
     /**
      * @dev Purchases arbitrary amount of tokens at auction price and mints tokens to given account
      */
-    function _buy(address _token, uint256 _reserveId, uint256 _amount, address _to) internal {
-        uint256 length = reserves[_token].length;
-        if (length == 0) revert InvalidToken();
-        if (_reserveId >= length) revert InvalidReserve();
-
-        ReserveInfo storage reserve = reserves[_token][_reserveId];
-        if (block.timestamp < reserve.startTime) revert NotStarted();
-        if (block.timestamp > reserve.endTime) revert Ended();
-        if (_amount > reserve.allocation) revert TooMany();
+    function _buy(
+        ReserveInfo storage _reserve,
+        address _token,
+        uint256 _reserveId,
+        uint256 _amount,
+        address _to
+    ) internal {
+        if (block.timestamp < _reserve.startTime) revert NotStarted();
+        if (block.timestamp > _reserve.endTime) revert Ended();
+        if (_amount > _reserve.allocation) revert TooMany();
         if (_to == address(0)) revert AddressZero();
 
         uint256 price = _amount * prices[_token][_reserveId];
         if (msg.value != price) revert InvalidPayment();
 
-        reserve.allocation -= _amount.safeCastTo128();
+        _reserve.allocation -= _amount.safeCastTo128();
         saleProceeds[_token] += price;
 
         IToken(_token).mint(_to, _amount, price);
 
         emit Purchase(_token, _reserveId, msg.sender, _amount, _to, price);
+    }
+
+    function _saveMintDetails(uint256 reserveId, BitFlags _flags, bytes memory _mintDetails) internal {
+        uint256 price;
+        if (_flags.isAllowlisted()) {
+            bytes32 merkleRoot;
+            (price, merkleRoot) = abi.decode(_mintDetails, (uint256, bytes32));
+            merkleRoots[msg.sender][reserveId] = merkleRoot;
+        } else if (_flags.isMintWithPass()) {
+            address signer;
+            (price, signer) = abi.decode(_mintDetails, (uint256, address));
+            signingAuthorities[msg.sender][reserveId] = signer;
+        } else {
+            price = abi.decode(_mintDetails, (uint256));
+        }
+        if (price < MINIMUM_PRICE) revert InvalidPrice();
+        prices[msg.sender].push(price);
     }
 
     /**

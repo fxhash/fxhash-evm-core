@@ -48,6 +48,7 @@ contract BaseTest is Deploy, Test {
     bytes32 internal seed;
     uint96 internal projectId;
     uint120 internal inputSize;
+    bytes internal mintDetails;
 
     // Modifiers
     modifier prank(address _caller) {

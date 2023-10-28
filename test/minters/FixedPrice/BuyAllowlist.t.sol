@@ -19,6 +19,8 @@ contract BuyAllowlist is FixedPriceTest, StandardMerkleTree {
         aliceProofs.push(getProof(merkleTree, 0));
         assertEq(aliceProofs.length, 1);
         claimIndexes.push(1);
+        mintDetails = abi.encode(PRICE, merkleRoot);
+        flags = ALLOWLISTED_FLAG;
         super.setUp();
     }
 

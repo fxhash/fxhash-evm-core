@@ -4,6 +4,11 @@ pragma solidity 0.8.20;
 import "test/minters/FixedPrice/FixedPriceTest.t.sol";
 
 contract BuyTokens is FixedPriceTest {
+    function setUp() public override {
+        mintDetails = abi.encode(PRICE);
+        super.setUp();
+    }
+
     function test_buy() public {
         fixedPrice.buy{value: price}(fxGenArtProxy, mintId, quantity, alice);
         assertEq(FxGenArt721(fxGenArtProxy).balanceOf(alice), 1);

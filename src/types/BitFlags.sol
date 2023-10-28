@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+import "src/utils/Constants.sol";
 type BitFlags is uint16;
 
 using {add as +, equals as ==} for BitFlags global;
@@ -18,15 +19,6 @@ function add(BitFlags bitFlags, BitFlags other) pure returns (BitFlags) {
 library BitFlagsLibrary {
     using BitFlagsLibrary for BitFlags;
     using BitFlagsLibrary for uint16;
-    /// supply related
-    uint16 internal constant OPEN_EDITION_FLAG = 1 << 0;
-    uint16 internal constant SUPPLY_CAPPED_FLAG = 1 << 1;
-    /// presale validation
-    uint16 internal constant ALLOWLISTED_FLAG = 1 << 4;
-    uint16 internal constant MINT_WITH_PASS_FLAG = 1 << 5;
-    uint16 internal constant MINT_WITH_TICKET_FLAG = 1 << 6;
-    /// post sale considerations
-    uint16 internal constant REFUNDABLE_FLAG = 1 << 8;
 
     function isOpenEdition(BitFlags self) internal pure returns (bool) {
         return self.fromBitFlags() & OPEN_EDITION_FLAG != 0;

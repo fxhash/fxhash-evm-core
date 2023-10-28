@@ -13,6 +13,7 @@ import {FxMintTicket721} from "src/tokens/FxMintTicket721.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 import {FxTicketFactory} from "src/factories/FxTicketFactory.sol";
 
+import {BitFlags, BitFlagsLibrary} from "src/types/BitFlags.sol";
 import {DutchAuction} from "src/minters/DutchAuction.sol";
 import {FixedPrice} from "src/minters/FixedPrice.sol";
 import {PseudoRandomizer} from "src/randomizers/PseudoRandomizer.sol";
@@ -107,6 +108,7 @@ contract Deploy is Script {
     address internal mintPassSigner;
     uint256 internal quantity;
     uint256 internal tokenId;
+    uint16 internal flags;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      MODIFIERS
@@ -351,7 +353,7 @@ contract Deploy is Script {
                     startTime: _startTime,
                     endTime: _endTime,
                     allocation: _allocation,
-                    flags: FLAGS
+                    flags: flags
                 }),
                 params: _params
             })

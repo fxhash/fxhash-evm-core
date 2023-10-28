@@ -10,6 +10,8 @@ contract BuyWithMintPass is FixedPriceTest {
         quantity = 1;
         mintPassSignerPk = 1;
         mintPassSigner = vm.addr(mintPassSignerPk);
+        mintDetails = abi.encode(PRICE, mintPassSigner);
+        flags = MINT_WITH_PASS_FLAG;
         super.setUp();
     }
 

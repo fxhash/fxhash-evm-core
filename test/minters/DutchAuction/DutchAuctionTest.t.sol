@@ -76,7 +76,7 @@ contract DutchAuctionTest is BaseTest {
         mintInfo.push(
             MintInfo(
                 address(dutchAuction),
-                ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, FLAGS),
+                ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, flags),
                 abi.encode(AuctionInfo(refund, stepLength, prices), merkleRoot, mintPassSigner)
             )
         );
@@ -84,7 +84,7 @@ contract DutchAuctionTest is BaseTest {
         mintInfo.push(
             MintInfo(
                 address(refundableDA),
-                ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, FLAGS),
+                ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, flags),
                 abi.encode(AuctionInfo(refund, stepLength, prices), merkleRoot, mintPassSigner)
             )
         );

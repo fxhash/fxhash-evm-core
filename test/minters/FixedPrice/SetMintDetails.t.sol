@@ -4,10 +4,15 @@ pragma solidity 0.8.20;
 import "test/minters/FixedPrice/FixedPriceTest.t.sol";
 
 contract SetMintDetails is FixedPriceTest {
+    function setUp() public override {
+        mintDetails = abi.encode(PRICE);
+        super.setUp();
+    }
+
     function test_setMintDetails() public {
         fixedPrice.setMintDetails(
-            ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, FLAGS),
-            abi.encode(price, merkleRoot, mintPassSigner)
+            ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, flags),
+            abi.encode(price)
         );
         (startTime, endTime, supply, ) = fixedPrice.reserves(address(this), 0);
         assertEq(fixedPrice.prices(address(this), 0), price, "price incorrectly set");
@@ -16,26 +21,16 @@ contract SetMintDetails is FixedPriceTest {
         assertEq(MINTER_ALLOCATION, supply, "supply incorrectly set");
     }
 
-    function test_RevertsWhen_SignerAndMerkleRootExist() public {
-        merkleRoot = bytes32(uint256(1));
-        mintPassSigner = address(1);
-        vm.expectRevert();
-        fixedPrice.setMintDetails(
-            ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, FLAGS),
-            abi.encode(price, merkleRoot, mintPassSigner)
-        );
-    }
-
     function test_RevertsIf_AllocationZero() public {
         vm.expectRevert(INVALID_ALLOCATION_ERROR);
-        fixedPrice.setMintDetails(ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, 0, FLAGS), abi.encode(price));
+        fixedPrice.setMintDetails(ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, 0, flags), abi.encode(price));
     }
 
     function test_RevertsIf_Price() public {
         vm.expectRevert(INVALID_PRICE_ERROR);
         fixedPrice.setMintDetails(
-            ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, FLAGS),
-            abi.encode(MINIMUM_PRICE - 1, merkleRoot, mintPassSigner)
+            ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, flags),
+            abi.encode(MINIMUM_PRICE - 1)
         );
     }
 }

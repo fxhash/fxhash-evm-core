@@ -48,3 +48,13 @@ uint256 constant MINIMUM_PRICE = 0.001 ether;
 uint256 constant ONE_DAY = 86_400;
 uint256 constant SCALING_FACTOR = 10_000;
 uint256 constant TEN_MINUTES = 600;
+
+// supply related
+uint16 constant OPEN_EDITION_FLAG = 1 << 0;
+uint16 constant SUPPLY_CAPPED_FLAG = 1 << 1;
+// presale validation
+uint16 constant ALLOWLISTED_FLAG = 1 << 4;
+uint16 constant MINT_WITH_PASS_FLAG = 1 << 5;
+uint16 constant MINT_WITH_TICKET_FLAG = 1 << 6;
+// post sale considerations
+uint16 constant REFUNDABLE_FLAG = 1 << 8;
