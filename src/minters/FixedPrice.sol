@@ -181,7 +181,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
         uint256 price = _amount * prices[_token][_reserveId];
         if (msg.value != price) revert InvalidPayment();
 
-        _reserve.allocation -= _amount.safeCastTo128();
+        _reserve.allocation -= _amount.safeCastTo112();
         saleProceeds[_token] += price;
 
         IToken(_token).mint(_to, _amount, price);

@@ -142,7 +142,7 @@ struct RefundInfo {
 struct ReserveInfo {
     uint64 startTime;
     uint64 endTime;
-    uint128 allocation;
+    uint112 allocation;
     uint16 flags;
 }
 

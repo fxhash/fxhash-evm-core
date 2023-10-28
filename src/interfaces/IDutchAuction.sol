@@ -259,7 +259,7 @@ interface IDutchAuction is IMinter {
     /**
      * @notice Mapping of token address to reserve ID to reserve information (allocation, price, max mint)
      */
-    function reserves(address _token, uint256 _reserveId) external view returns (uint64, uint64, uint128, uint16);
+    function reserves(address _token, uint256 _reserveId) external view returns (uint64, uint64, uint112, uint16);
 
     /**
      * @notice Mapping of token address to reserve ID to amount of sale proceeds
