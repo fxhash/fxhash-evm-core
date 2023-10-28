@@ -347,7 +347,12 @@ contract Deploy is Script {
         mintInfo.push(
             MintInfo({
                 minter: _minter,
-                reserveInfo: ReserveInfo({startTime: _startTime, endTime: _endTime, allocation: _allocation}),
+                reserveInfo: ReserveInfo({
+                    startTime: _startTime,
+                    endTime: _endTime,
+                    allocation: _allocation,
+                    flags: FLAGS
+                }),
                 params: _params
             })
         );

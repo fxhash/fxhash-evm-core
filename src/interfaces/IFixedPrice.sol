@@ -202,7 +202,7 @@ interface IFixedPrice is IMinter {
     /**
      * @notice Mapping of token address to reserve ID to reserve information
      */
-    function reserves(address, uint256) external view returns (uint64, uint64, uint128);
+    function reserves(address, uint256) external view returns (uint64, uint64, uint128, uint16);
 
     /**
      * @notice Mapping of token address to sale proceeds

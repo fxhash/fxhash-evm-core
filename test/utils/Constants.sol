@@ -28,6 +28,7 @@ uint64 constant MINTER_ALLOCATION = 500;
 uint64 constant REDEEMER_ALLOCATION = 0;
 uint64 constant RESERVE_START_TIME = 86_400; // 1 day
 uint64 constant RESERVE_END_TIME = 604_800; // 1 week
+uint16 constant FLAGS = 0; // 1 week
 
 // Royalties
 uint96 constant ROYALTY_BPS = 500; // 5%

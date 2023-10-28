@@ -143,6 +143,7 @@ struct ReserveInfo {
     uint64 startTime;
     uint64 endTime;
     uint128 allocation;
+    uint16 flags;
 }
 
 /**
