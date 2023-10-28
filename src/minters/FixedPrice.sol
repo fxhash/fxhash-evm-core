@@ -71,11 +71,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
      * @inheritdoc IFixedPrice
      */
     function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable {
-        uint256 length = reserves[_token].length;
-        if (length == 0) revert InvalidToken();
-        if (_reserveId >= length) revert InvalidReserve();
-
-        ReserveInfo storage reserve = reserves[_token][_reserveId];
+        ReserveInfo storage reserve = _getReserveInfo(_token, _reserveId);
         BitFlags flags = BitFlags.wrap(reserve.flags);
         if (flags.isAllowlisted() || flags.isMintWithPass()) revert NoPublicMint();
         _buy(reserve, _token, _reserveId, _amount, _to);
@@ -91,11 +87,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
         uint256[] calldata _indexes,
         bytes32[][] calldata _proofs
     ) external payable {
-        uint256 length = reserves[_token].length;
-        if (length == 0) revert InvalidToken();
-        if (_reserveId >= length) revert InvalidReserve();
-
-        ReserveInfo storage reserve = reserves[_token][_reserveId];
+        ReserveInfo storage reserve = _getReserveInfo(_token, _reserveId);
         if (!BitFlags.wrap(reserve.flags).isAllowlisted()) revert NoAllowlist();
         BitMaps.BitMap storage claimBitmap = _claimedMerkleTreeSlots[_token][_reserveId];
         for (uint256 i; i < _proofs.length; i++) {
@@ -116,11 +108,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
         uint256 _index,
         bytes calldata _signature
     ) external payable {
-        uint256 length = reserves[_token].length;
-        if (length == 0) revert InvalidToken();
-        if (_reserveId >= length) revert InvalidReserve();
-
-        ReserveInfo storage reserve = reserves[_token][_reserveId];
+        ReserveInfo storage reserve = _getReserveInfo(_token, _reserveId);
         if (!BitFlags.wrap(reserve.flags).isMintWithPass()) revert NoSigningAuthority();
         address signer = signingAuthorities[_token][_reserveId];
         BitMaps.BitMap storage claimBitmap = _claimedMintPasses[_token][_reserveId];
@@ -173,9 +161,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
         uint256 _amount,
         address _to
     ) internal {
-        if (block.timestamp < _reserve.startTime) revert NotStarted();
-        if (block.timestamp > _reserve.endTime) revert Ended();
-        if (_amount > _reserve.allocation) revert TooMany();
+        _validatePurchase(_amount, _reserve);
         if (_to == address(0)) revert AddressZero();
 
         uint256 price = _amount * prices[_token][_reserveId];
@@ -211,5 +197,19 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
      */
     function _getMerkleRoot(address _token, uint256 _reserveId) internal view override returns (bytes32) {
         return merkleRoots[_token][_reserveId];
+    }
+
+    function _getReserveInfo(address _token, uint256 _reserveId) internal view returns (ReserveInfo storage) {
+        uint256 length = reserves[_token].length;
+        if (length == 0) revert InvalidToken();
+        if (_reserveId >= length) revert InvalidReserve();
+        return reserves[_token][_reserveId];
+    }
+
+    function _validatePurchase(uint256 _amount, ReserveInfo storage _reserve) internal view {
+        if (block.timestamp < _reserve.startTime) revert NotStarted();
+        if (block.timestamp > _reserve.endTime) revert Ended();
+        if (_amount > _reserve.allocation) revert TooMany();
+        if (_amount == 0) revert InvalidAmount();
     }
 }

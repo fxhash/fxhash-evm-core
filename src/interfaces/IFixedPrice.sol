@@ -83,6 +83,11 @@ interface IFixedPrice is IMinter {
     error InvalidAllocation();
 
     /**
+     * @notice Error thrown when purchasing 0 tokens
+     */
+    error InvalidAmount();
+
+    /**
      * @notice Error thrown when payment does not equal price
      */
     error InvalidPayment();
