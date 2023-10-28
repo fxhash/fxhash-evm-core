@@ -8,6 +8,7 @@ import {MockAllowlist} from "test/mocks/MockAllowlist.sol";
 import {MockMinter} from "test/mocks/MockMinter.sol";
 import {MockMintPass} from "test/mocks/MockMintPass.sol";
 import {MockRoyaltyManager} from "test/mocks/MockRoyaltyManager.sol";
+import {MockSplitsController} from "test/mocks/MockSplitsController.sol";
 
 import {IFxGenArt721} from "src/interfaces/IFxGenArt721.sol";
 
