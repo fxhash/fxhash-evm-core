@@ -7,8 +7,12 @@ contract SetMintDetails is DutchAuctionTest {
     AuctionInfo internal daInfo;
 
     function setUp() public override {
+        _configureReserve();
+        mintParams = abi.encode(AuctionInfo(false, stepLength, prices));
+        refundMintParams = abi.encode(AuctionInfo(true, stepLength, prices));
         super.setUp();
         daInfo = AuctionInfo(refund, stepLength, prices);
+
         vm.warp(RESERVE_START_TIME - 1);
     }
 

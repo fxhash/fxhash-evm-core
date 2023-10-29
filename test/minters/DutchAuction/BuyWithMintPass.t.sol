@@ -9,7 +9,11 @@ contract BuyWithMintPass is DutchAuctionTest {
     function setUp() public override {
         quantity = 1;
         mintPassSignerPk = 1;
+        flags = MINT_WITH_PASS_FLAG;
+        _configureReserve();
         mintPassSigner = vm.addr(mintPassSignerPk);
+        mintParams = abi.encode(AuctionInfo(false, stepLength, prices), mintPassSigner);
+        refundMintParams = abi.encode(AuctionInfo(true, stepLength, prices), mintPassSigner);
         super.setUp();
     }
 

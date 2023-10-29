@@ -4,6 +4,13 @@ pragma solidity 0.8.20;
 import "test/minters/DutchAuction/DutchAuctionTest.t.sol";
 
 contract Buy is DutchAuctionTest {
+    function setUp() public override {
+        _configureReserve();
+        mintParams = abi.encode(AuctionInfo(false, stepLength, prices));
+        refundMintParams = abi.encode(AuctionInfo(true, stepLength, prices));
+        super.setUp();
+    }
+
     function test_buy() public {
         uint256 price = dutchAuction.getPrice(fxGenArtProxy, reserveId);
         dutchAuction.buy{value: price}(fxGenArtProxy, reserveId, quantity, alice);

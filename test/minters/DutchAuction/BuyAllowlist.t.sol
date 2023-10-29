@@ -19,6 +19,10 @@ contract BuyAllowlist is DutchAuctionTest, StandardMerkleTree {
         aliceProofs.push(getProof(merkleTree, 0));
         assertEq(aliceProofs.length, 1);
         claimIndexes.push(1);
+        flags = ALLOWLISTED_FLAG;
+        _configureReserve();
+        mintParams = abi.encode(AuctionInfo(false, stepLength, prices), merkleRoot);
+        refundMintParams = abi.encode(AuctionInfo(true, stepLength, prices), merkleRoot);
         super.setUp();
     }
 
