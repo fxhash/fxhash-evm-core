@@ -44,17 +44,6 @@ library BitFlagsLibrary {
         return self.fromBitFlags() & REFUNDABLE_FLAG != 0;
     }
 
-    function validateBitFlags(BitFlags self) internal pure returns (bool) {
-        if (self == OPEN_EDITION_FLAG.toBitFlags()) return true;
-        if (self == SUPPLY_CAPPED_FLAG.toBitFlags()) return true;
-        if (self == (SUPPLY_CAPPED_FLAG.toBitFlags() + ALLOWLISTED_FLAG.toBitFlags())) return true;
-        if (self == (OPEN_EDITION_FLAG.toBitFlags() + ALLOWLISTED_FLAG.toBitFlags())) return true;
-        if (self == (SUPPLY_CAPPED_FLAG.toBitFlags() + MINT_WITH_PASS_FLAG.toBitFlags())) return true;
-        if (self == (OPEN_EDITION_FLAG.toBitFlags() + MINT_WITH_PASS_FLAG.toBitFlags())) return true;
-        if (self == (SUPPLY_CAPPED_FLAG.toBitFlags() + MINT_WITH_TICKET_FLAG.toBitFlags())) return true;
-        return false;
-    }
-
     function fromBitFlags(BitFlags self) internal pure returns (uint16) {
         return BitFlags.unwrap(self);
     }

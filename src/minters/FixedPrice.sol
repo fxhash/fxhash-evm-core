@@ -110,7 +110,6 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
     ) external payable {
         ReserveInfo storage reserve = _getReserveInfo(_token, _reserveId);
         if (!BitFlags.wrap(reserve.flags).isMintWithPass()) revert NoSigningAuthority();
-        address signer = signingAuthorities[_token][_reserveId];
         BitMaps.BitMap storage claimBitmap = _claimedMintPasses[_token][_reserveId];
         _claimMintPass(_token, _reserveId, _index, _signature, claimBitmap);
         _buy(reserve, _token, _reserveId, _amount, _to);
