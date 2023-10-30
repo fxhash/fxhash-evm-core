@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import "test/factories/SplitsFactory/SplitsFactoryTest.sol";
+import "test/splits/SplitsFactory/SplitsFactoryTest.sol";
 
 contract SetController is SplitsFactoryTest {
     bytes4 UNAUTHORIZED_ERROR = bytes4(keccak256("Unauthorized()"));

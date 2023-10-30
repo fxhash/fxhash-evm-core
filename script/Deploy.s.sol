@@ -17,7 +17,8 @@ import {DutchAuction} from "src/minters/DutchAuction.sol";
 import {FixedPrice} from "src/minters/FixedPrice.sol";
 import {PseudoRandomizer} from "src/randomizers/PseudoRandomizer.sol";
 import {ScriptyRenderer} from "src/renderers/ScriptyRenderer.sol";
-import {SplitsFactory} from "src/factories/SplitsFactory.sol";
+import {SplitsController} from "src/splits/SplitsController.sol";
+import {SplitsFactory} from "src/splits/SplitsFactory.sol";
 import {TicketRedeemer} from "src/minters/TicketRedeemer.sol";
 
 import {HTMLRequest, HTMLTagType, HTMLTag} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
@@ -40,6 +41,7 @@ contract Deploy is Script {
     FixedPrice internal fixedPrice;
     PseudoRandomizer internal pseudoRandomizer;
     ScriptyRenderer internal scriptyRenderer;
+    SplitsController internal splitsController;
     SplitsFactory internal splitsFactory;
     TicketRedeemer internal ticketRedeemer;
 
@@ -401,6 +403,10 @@ contract Deploy is Script {
         constructorArgs = abi.encode(admin, splitsMain);
         splitsFactory = SplitsFactory(_deployCreate2(creationCode, constructorArgs, salt));
 
+        creationCode = type(SplitsFactory).creationCode;
+        constructorArgs = abi.encode(splitsMain, splitsFactory, admin);
+        splitsController = SplitsController(_deployCreate2(creationCode, constructorArgs, salt));
+
         // PseudoRandomizer
         creationCode = type(PseudoRandomizer).creationCode;
         pseudoRandomizer = PseudoRandomizer(_deployCreate2(creationCode, salt));
@@ -426,6 +432,7 @@ contract Deploy is Script {
         vm.label(address(fixedPrice), "FixedPrice");
         vm.label(address(pseudoRandomizer), "PseudoRandomizer");
         vm.label(address(scriptyRenderer), "ScriptyRenderer");
+        vm.label(address(splitsController), "splitsController");
         vm.label(address(splitsFactory), "SplitsFactory");
         vm.label(address(ticketRedeemer), "TicketRedeemer");
     }
