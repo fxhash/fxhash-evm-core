@@ -2,6 +2,7 @@
 pragma solidity 0.8.20;
 
 import "src/utils/Constants.sol";
+
 type BitFlags is uint16;
 
 using {add as +, equals as ==} for BitFlags global;
@@ -21,11 +22,15 @@ library BitFlagsLibrary {
     using BitFlagsLibrary for uint16;
 
     function isOpenEdition(BitFlags self) internal pure returns (bool) {
-        return self.fromBitFlags() & OPEN_EDITION_FLAG != 0;
+        return self.fromBitFlags() & SUPPLY_CAPPED_FLAG == 0;
     }
 
     function isSupplyCapped(BitFlags self) internal pure returns (bool) {
         return self.fromBitFlags() & SUPPLY_CAPPED_FLAG != 0;
+    }
+
+    function isPublic(BitFlags self) internal pure returns (bool) {
+        return self.fromBitFlags() & PUBLIC_FLAG != 0;
     }
 
     function isAllowlisted(BitFlags self) internal pure returns (bool) {
@@ -41,7 +46,7 @@ library BitFlagsLibrary {
     }
 
     function isRefundable(BitFlags self) internal pure returns (bool) {
-        return self.fromBitFlags() & REFUNDABLE_FLAG != 0;
+        return self.fromBitFlags() & REBATE_FLAG != 0;
     }
 
     function fromBitFlags(BitFlags self) internal pure returns (uint16) {
