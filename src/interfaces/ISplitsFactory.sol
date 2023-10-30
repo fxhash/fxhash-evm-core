@@ -80,6 +80,19 @@ interface ISplitsFactory {
     ) external returns (address);
 
     /**
+     * @notice Creates a new mutable 0xSplits wallet
+     * @param _creator Address of the creator being added to the split
+     * @param _accounts Array of addresses that participate in the split
+     * @param _allocations Array of allocations for each account
+     * @return split Address of the deployed splits contract
+     */
+    function createMutableSplit(
+        address _creator,
+        address[] calldata _accounts,
+        uint32[] calldata _allocations
+    ) external returns (address);
+
+    /**
      * @notice Emits a deterministic 0xSplits wallet address
      * @param _accounts Array of addresses that participate in the split
      * @param _allocations Array array of allocations for each account
