@@ -26,7 +26,7 @@ contract AdminTest is FxGenArt721Test {
     function test_SetBaseURI() public {
         bytes32 digest = FxGenArt721(fxGenArtProxy).generateTypedDataHash(SET_BASE_URI_TYPEHASH, BASE_URI);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerPk, digest);
-        _setBaseURI(admin, BASE_URI, abi.encode(v, r, s));
+        _setBaseURI(admin, BASE_URI, abi.encodePacked(r, s, v));
         _setMetadatInfo();
         assertEq(baseURI, BASE_URI);
     }
@@ -35,7 +35,7 @@ contract AdminTest is FxGenArt721Test {
         bytes32 digest = FxGenArt721(fxGenArtProxy).generateTypedDataHash(SET_BASE_URI_TYPEHASH, BASE_URI);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerPk, digest);
         vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
-        _setBaseURI(creator, BASE_URI, abi.encode(v, r, s));
+        _setBaseURI(creator, BASE_URI, abi.encodePacked(r, s, v));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ contract AdminTest is FxGenArt721Test {
     function test_SetContractURI() public {
         bytes32 digest = FxGenArt721(fxGenArtProxy).generateTypedDataHash(SET_CONTRACT_URI_TYPEHASH, CONTRACT_URI);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerPk, digest);
-        _setContractURI(admin, CONTRACT_URI, abi.encode(v, r, s));
+        _setContractURI(admin, CONTRACT_URI, abi.encodePacked(r, s, v));
         _setIssuerInfo();
         assertEq(project.contractURI, CONTRACT_URI);
     }
@@ -54,7 +54,7 @@ contract AdminTest is FxGenArt721Test {
         bytes32 digest = FxGenArt721(fxGenArtProxy).generateTypedDataHash(SET_CONTRACT_URI_TYPEHASH, CONTRACT_URI);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerPk, digest);
         vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
-        _setContractURI(creator, CONTRACT_URI, abi.encode(v, r, s));
+        _setContractURI(creator, CONTRACT_URI, abi.encodePacked(r, s, v));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -64,7 +64,7 @@ contract AdminTest is FxGenArt721Test {
     function test_SetImageURI() public {
         bytes32 digest = FxGenArt721(fxGenArtProxy).generateTypedDataHash(SET_IMAGE_URI_TYPEHASH, IMAGE_URI);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerPk, digest);
-        _setImageURI(admin, IMAGE_URI, abi.encode(v, r, s));
+        _setImageURI(admin, IMAGE_URI, abi.encodePacked(r, s, v));
         _setMetadatInfo();
         assertEq(imageURI, IMAGE_URI);
     }
@@ -73,7 +73,7 @@ contract AdminTest is FxGenArt721Test {
         bytes32 digest = FxGenArt721(fxGenArtProxy).generateTypedDataHash(SET_IMAGE_URI_TYPEHASH, IMAGE_URI);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerPk, digest);
         vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
-        _setImageURI(creator, IMAGE_URI, abi.encode(v, r, s));
+        _setImageURI(creator, IMAGE_URI, abi.encodePacked(r, s, v));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
