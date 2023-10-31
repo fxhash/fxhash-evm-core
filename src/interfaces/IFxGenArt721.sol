@@ -17,6 +17,18 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
+     * @notice Event emitted when burn is toggled
+     * @param _enabled Flag status of burn
+     */
+    event BurnEnabled(bool _enabled);
+
+    /**
+     * @notice Event emitted when minted is toggled
+     * @param _enabled Flag status of mint
+     */
+    event MintEnabled(bool _enabled);
+
+    /**
      * @notice Event emitted when project is deleted only once supply is set to zero
      */
     event ProjectDeleted();
@@ -41,6 +53,25 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      */
     event ProjectTags(uint256[] indexed _tagIds);
 
+    /**
+     * @notice Event emitted when Randomizer contract is updated
+     * @param _randomizer Address of new Randomizer contract
+     */
+    event RandomizerUpdated(address _randomizer);
+
+    /**
+     * @notice Event emitted when Renderer contract is updated
+     * @param _renderer Address of new Renderer contract
+     */
+    event RendererUpdated(address _renderer);
+
+    /**
+     * @notice Event emitted when maximum supply is reduced
+     * @param _prevSupply Amount of previous supply
+     * @param _newSupply Amount of new supply
+     */
+    event SupplyReduced(uint120 _prevSupply, uint120 _newSupply);
+
     /*//////////////////////////////////////////////////////////////////////////
                                   ERRORS
     //////////////////////////////////////////////////////////////////////////*/
@@ -54,6 +85,11 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      *  @notice Error thrown when burning is inactive
      */
     error BurnInactive();
+
+    /**
+     * @notice Error thrown when remaining supply is zero
+     */
+    error InsufficientSupply();
 
     /**
      * @notice Error thrown when max supply amount is invalid
