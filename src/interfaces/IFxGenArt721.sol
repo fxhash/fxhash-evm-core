@@ -132,6 +132,11 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     error NotOwner();
 
     /**
+     * @notice Error thrown when supply is remaining
+     */
+    error SupplyRemaining();
+
+    /**
      * @notice Error thrown when caller does not have the specified role
      */
     error UnauthorizedAccount();

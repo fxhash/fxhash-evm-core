@@ -158,6 +158,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         if (!issuerInfo.projectInfo.burnEnabled) revert BurnInactive();
         if (!_isApprovedOrOwner(msg.sender, _tokenId)) revert NotAuthorized();
         _burn(_tokenId);
+        --totalSupply;
     }
 
     /**
@@ -241,6 +242,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      * @inheritdoc IFxGenArt721
      */
     function toggleBurn() external onlyOwner {
+        if (remainingSupply() == 0) revert SupplyRemaining();
         issuerInfo.projectInfo.burnEnabled = !issuerInfo.projectInfo.burnEnabled;
         emit BurnEnabled(issuerInfo.projectInfo.burnEnabled);
     }
