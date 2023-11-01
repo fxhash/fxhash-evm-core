@@ -20,13 +20,13 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @notice Event emitted when burn is toggled
      * @param _enabled Flag status of burn
      */
-    event BurnEnabled(bool _enabled);
+    event BurnEnabled(bool indexed _enabled);
 
     /**
      * @notice Event emitted when minted is toggled
      * @param _enabled Flag status of mint
      */
-    event MintEnabled(bool _enabled);
+    event MintEnabled(bool indexed _enabled);
 
     /**
      * @notice Event emitted when project is deleted only once supply is set to zero
@@ -57,20 +57,20 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @notice Event emitted when Randomizer contract is updated
      * @param _randomizer Address of new Randomizer contract
      */
-    event RandomizerUpdated(address _randomizer);
+    event RandomizerUpdated(address indexed _randomizer);
 
     /**
      * @notice Event emitted when Renderer contract is updated
      * @param _renderer Address of new Renderer contract
      */
-    event RendererUpdated(address _renderer);
+    event RendererUpdated(address indexed _renderer);
 
     /**
      * @notice Event emitted when maximum supply is reduced
      * @param _prevSupply Amount of previous supply
      * @param _newSupply Amount of new supply
      */
-    event SupplyReduced(uint120 _prevSupply, uint120 _newSupply);
+    event SupplyReduced(uint120 indexed _prevSupply, uint120 indexed _newSupply);
 
     /*//////////////////////////////////////////////////////////////////////////
                                   ERRORS
