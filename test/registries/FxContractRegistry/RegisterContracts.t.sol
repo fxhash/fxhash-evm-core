@@ -3,7 +3,11 @@ pragma solidity 0.8.20;
 
 import "test/registries/FxContractRegistry/FxContractRegistryTest.sol";
 
-contract Register is FxContractRegistryTest {
+contract RegisterContracts is FxContractRegistryTest {
+    function setUp() public virtual override {
+        super.setUp();
+    }
+
     function test_Register() public {
         names.push(FX_CONTRACT_REGISTRY);
         contracts.push(address(fxContractRegistry));

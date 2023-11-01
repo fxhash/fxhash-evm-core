@@ -17,9 +17,7 @@ contract FxContractRegistryTest is BaseTest {
 
     function setUp() public virtual override {
         super.setUp();
-        configInfo.lockTime = LOCK_TIME;
-        configInfo.referrerShare = REFERRER_SHARE;
-        configInfo.defaultMetadata = DEFAULT_METADATA;
+        _initializeState();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -33,5 +31,16 @@ contract FxContractRegistryTest is BaseTest {
         assertEq(lockTime, configInfo.lockTime);
         assertEq(referrerShare, configInfo.referrerShare);
         assertEq(defaultMetadata, configInfo.defaultMetadata);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    HELPERS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function _initializeState() internal override {
+        super._initializeState();
+        configInfo.lockTime = LOCK_TIME;
+        configInfo.referrerShare = REFERRER_SHARE;
+        configInfo.defaultMetadata = DEFAULT_METADATA;
     }
 }

@@ -4,6 +4,10 @@ pragma solidity 0.8.20;
 import "test/registries/FxRoleRegistry/FxRoleRegistryTest.sol";
 
 contract SetRoleAdmin is FxRoleRegistryTest {
+    function setUp() public virtual override {
+        super.setUp();
+    }
+
     function test_SetRoleAdmin() public {
         RegistryLib.setRoleAdmin(admin, fxRoleRegistry, NEW_ROLE);
         RegistryLib.grantRole(admin, fxRoleRegistry, NEW_ROLE, admin);
