@@ -6,20 +6,20 @@ import "test/tokens/FxMintTicket721/FxMintTicket721Test.t.sol";
 contract TransferFrom is FxMintTicket721Test {
     function setUp() public virtual override {
         super.setUp();
-        _mint(alice, bob, amount, PRICE);
-        _deposit(bob, tokenId, DEPOSIT_AMOUNT);
+        TicketLib.mint(alice, minter, fxMintTicketProxy, bob, amount, PRICE);
+        TicketLib.deposit(bob, fxMintTicketProxy, tokenId, DEPOSIT_AMOUNT);
         _setTaxInfo();
     }
 
     function test_RevertsWhen_ForeclosureActive() public {
         vm.warp(foreclosureTime);
         vm.expectRevert(FORECLOSURE_ERROR);
-        _transferFrom(bob, bob, alice, tokenId);
+        TicketLib.transferFrom(bob, fxMintTicketProxy, bob, alice, tokenId);
     }
 
     function test_RevertsWhen_ForeclosureInactive() public {
-        _setApprovalForAll(bob, alice, true);
+        TicketLib.setApprovalForAll(bob, fxMintTicketProxy, alice, true);
         vm.expectRevert(NOT_AUTHORIZED_TICKET_ERROR);
-        _transferFrom(alice, bob, alice, tokenId);
+        TicketLib.transferFrom(alice, fxMintTicketProxy, bob, alice, tokenId);
     }
 }
