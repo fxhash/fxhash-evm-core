@@ -20,17 +20,17 @@ contract PublicTest is FxGenArt721Test {
 
     function test_Mint() public {
         amount = 3;
-        _mint(alice, amount, PRICE);
-        assertEq(FxGenArt721(fxGenArtProxy).ownerOf(1), alice);
-        assertEq(FxGenArt721(fxGenArtProxy).ownerOf(2), alice);
-        assertEq(FxGenArt721(fxGenArtProxy).ownerOf(3), alice);
-        assertEq(FxGenArt721(fxGenArtProxy).balanceOf(alice), amount);
+        TokenLib.mint(alice, minter, fxGenArtProxy, bob, amount, PRICE);
+        assertEq(FxGenArt721(fxGenArtProxy).ownerOf(1), bob);
+        assertEq(FxGenArt721(fxGenArtProxy).ownerOf(2), bob);
+        assertEq(FxGenArt721(fxGenArtProxy).ownerOf(3), bob);
+        assertEq(FxGenArt721(fxGenArtProxy).balanceOf(bob), amount);
         assertEq(IFxGenArt721(fxGenArtProxy).totalSupply(), amount);
         assertEq(IFxGenArt721(fxGenArtProxy).remainingSupply(), MAX_SUPPLY - amount);
     }
 
     function test_Mint_RevertsWhen_MintInactive() public {
-        _toggleMint(creator);
+        TokenLib.toggleMint(creator, fxGenArtProxy);
         vm.expectRevert(MINT_INACTIVE_ERROR);
         _mint(alice, amount, PRICE);
     }
@@ -46,25 +46,25 @@ contract PublicTest is FxGenArt721Test {
 
     function test_Burn() public {
         test_Mint();
-        _toggleBurn(creator);
-        _burn(alice, tokenId);
-        assertEq(FxGenArt721(fxGenArtProxy).balanceOf(alice), amount - 1);
+        TokenLib.toggleBurn(creator, fxGenArtProxy);
+        TokenLib.burn(bob, fxGenArtProxy, tokenId);
+        assertEq(FxGenArt721(fxGenArtProxy).balanceOf(bob), amount - 1);
     }
 
     function test_Burn_RevertsWhen_BurnInactive() public {
         test_Mint();
         vm.expectRevert(BURN_INACTIVE_ERROR);
-        _burn(bob, tokenId);
+        TokenLib.burn(bob, fxGenArtProxy, tokenId);
     }
 
     function test_Burn_RevertsWhen_NotAuthorized() public {
         test_Mint();
-        _toggleBurn(creator);
+        TokenLib.toggleBurn(creator, fxGenArtProxy);
         vm.expectRevert(NOT_AUTHORIZED_ERROR);
-        _burn(bob, tokenId);
+        TokenLib.burn(alice, fxGenArtProxy, tokenId);
     }
 
-    /*//////////////////////////////////////////////////////////////////////////
+    /*/////////////////s/////////////////////////////////////////////////////////
                                 FULFILL SEED
     //////////////////////////////////////////////////////////////////////////*/
 

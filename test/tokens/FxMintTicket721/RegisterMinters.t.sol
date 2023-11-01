@@ -19,8 +19,8 @@ contract RegisterMinters is FxMintTicket721Test {
             MINTER_ALLOCATION,
             abi.encode(PRICE, merkleRoot, mintPassSigner)
         );
-        _grantRole(admin, MINTER_ROLE, address(fixedPrice));
-        _toggleMint(creator);
+        RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, address(fixedPrice));
+        TokenLib.toggleMint(creator, fxGenArtProxy);
         _registerMinters(creator, mintInfo);
         assertFalse(_isMinter(minter));
         assertTrue(_isMinter(address(fixedPrice)));
@@ -35,7 +35,7 @@ contract RegisterMinters is FxMintTicket721Test {
             MINTER_ALLOCATION,
             abi.encode(PRICE)
         );
-        _grantRole(admin, MINTER_ROLE, address(fixedPrice));
+        RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, address(fixedPrice));
         vm.expectRevert(MINT_ACTIVE_ERROR);
         _registerMinters(creator, mintInfo);
     }

@@ -4,8 +4,13 @@ pragma solidity 0.8.20;
 import "test/tokens/FxGenArt721/FxGenArt721Test.t.sol";
 
 contract AdminTest is FxGenArt721Test {
-    uint256 internal signerPk = 1;
-    address internal signerAddr = vm.addr(signerPk);
+    address internal signerAddr;
+    bytes internal signature;
+    bytes32 internal digest;
+    bytes32 internal r;
+    bytes32 internal s;
+    uint8 internal v;
+    uint256 internal signerPk;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     SET UP
@@ -13,10 +18,11 @@ contract AdminTest is FxGenArt721Test {
 
     function setUp() public virtual override {
         super.setUp();
+        signerPk = 1;
+        signerAddr = vm.addr(signerPk);
         _createProject();
         _setIssuerInfo();
-        vm.prank(FxGenArt721(fxGenArtProxy).owner());
-        FxGenArt721(fxGenArtProxy).transferOwnership(signerAddr);
+        TokenLib.transferOwnership(creator, fxGenArtProxy, signerAddr);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -24,18 +30,16 @@ contract AdminTest is FxGenArt721Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_SetBaseURI() public {
-        bytes32 digest = FxGenArt721(fxGenArtProxy).generateTypedDataHash(SET_BASE_URI_TYPEHASH, BASE_URI);
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerPk, digest);
-        _setBaseURI(admin, BASE_URI, abi.encodePacked(r, s, v));
+        _setSignature(SET_BASE_URI_TYPEHASH, IMAGE_URI);
+        TokenLib.setBaseURI(admin, fxGenArtProxy, BASE_URI, signature);
         _setMetadatInfo();
         assertEq(baseURI, BASE_URI);
     }
 
     function test_SetBaseURI_RevertsWhen_UnauthorizedAccount() public {
-        bytes32 digest = FxGenArt721(fxGenArtProxy).generateTypedDataHash(SET_BASE_URI_TYPEHASH, BASE_URI);
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerPk, digest);
+        _setSignature(SET_BASE_URI_TYPEHASH, IMAGE_URI);
         vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
-        _setBaseURI(creator, BASE_URI, abi.encodePacked(r, s, v));
+        TokenLib.setBaseURI(creator, fxGenArtProxy, BASE_URI, signature);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -43,18 +47,16 @@ contract AdminTest is FxGenArt721Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_SetContractURI() public {
-        bytes32 digest = FxGenArt721(fxGenArtProxy).generateTypedDataHash(SET_CONTRACT_URI_TYPEHASH, CONTRACT_URI);
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerPk, digest);
-        _setContractURI(admin, CONTRACT_URI, abi.encodePacked(r, s, v));
+        _setSignature(SET_CONTRACT_URI_TYPEHASH, IMAGE_URI);
+        TokenLib.setContractURI(admin, fxGenArtProxy, CONTRACT_URI, signature);
         _setIssuerInfo();
         assertEq(project.contractURI, CONTRACT_URI);
     }
 
     function test_SetContractURI_RevertsWhen_UnauthorizedAccount() public {
-        bytes32 digest = FxGenArt721(fxGenArtProxy).generateTypedDataHash(SET_CONTRACT_URI_TYPEHASH, CONTRACT_URI);
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerPk, digest);
+        _setSignature(SET_CONTRACT_URI_TYPEHASH, IMAGE_URI);
         vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
-        _setContractURI(creator, CONTRACT_URI, abi.encodePacked(r, s, v));
+        TokenLib.setContractURI(creator, fxGenArtProxy, CONTRACT_URI, signature);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -62,18 +64,16 @@ contract AdminTest is FxGenArt721Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_SetImageURI() public {
-        bytes32 digest = FxGenArt721(fxGenArtProxy).generateTypedDataHash(SET_IMAGE_URI_TYPEHASH, IMAGE_URI);
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerPk, digest);
-        _setImageURI(admin, IMAGE_URI, abi.encodePacked(r, s, v));
+        _setSignature(SET_IMAGE_URI_TYPEHASH, IMAGE_URI);
+        TokenLib.setImageURI(admin, fxGenArtProxy, IMAGE_URI, signature);
         _setMetadatInfo();
         assertEq(imageURI, IMAGE_URI);
     }
 
     function test_SetImageURI_RevertsWhen_UnauthorizedAccount() public {
-        bytes32 digest = FxGenArt721(fxGenArtProxy).generateTypedDataHash(SET_IMAGE_URI_TYPEHASH, IMAGE_URI);
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerPk, digest);
+        _setSignature(SET_IMAGE_URI_TYPEHASH, IMAGE_URI);
         vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
-        _setImageURI(creator, IMAGE_URI, abi.encodePacked(r, s, v));
+        TokenLib.setImageURI(creator, fxGenArtProxy, IMAGE_URI, signature);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -81,13 +81,13 @@ contract AdminTest is FxGenArt721Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_SetRandomizer() public {
-        _setRandomizer(admin, address(pseudoRandomizer));
+        TokenLib.setRandomizer(admin, fxGenArtProxy, address(pseudoRandomizer));
         assertEq(IFxGenArt721(fxGenArtProxy).randomizer(), address(pseudoRandomizer));
     }
 
     function test_SetRandomizer_RevertsWhen_NotAuthorized() public {
         vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
-        _setRandomizer(creator, address(pseudoRandomizer));
+        TokenLib.setRandomizer(creator, fxGenArtProxy, address(pseudoRandomizer));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -95,13 +95,13 @@ contract AdminTest is FxGenArt721Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_SetRenderer() public {
-        _setRenderer(admin, address(scriptyRenderer));
+        TokenLib.setRenderer(admin, fxGenArtProxy, address(scriptyRenderer));
         assertEq(IFxGenArt721(fxGenArtProxy).renderer(), address(scriptyRenderer));
     }
 
     function test_SetRenderer_RevertsWhen_UnauthorizedAccount() public {
         vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
-        _setRenderer(creator, address(scriptyRenderer));
+        TokenLib.setRenderer(creator, fxGenArtProxy, address(scriptyRenderer));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -109,24 +109,18 @@ contract AdminTest is FxGenArt721Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_Pausable_MintRandom() public {
-        _pause(admin);
+        TokenLib.pause(admin, fxGenArtProxy);
         vm.expectRevert(bytes("Pausable: paused"));
-        _mint(alice, amount, PRICE);
+        TokenLib.mint(alice, minter, fxGenArtProxy, bob, amount, PRICE);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                     HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _setBaseURI(address _admin, string memory _uri, bytes memory _signature) internal prank(_admin) {
-        IFxGenArt721(fxGenArtProxy).setBaseURI(_uri, _signature);
-    }
-
-    function _setContractURI(address _admin, string memory _uri, bytes memory _signature) internal prank(_admin) {
-        IFxGenArt721(fxGenArtProxy).setContractURI(_uri, _signature);
-    }
-
-    function _setImageURI(address _admin, string memory _uri, bytes memory _signature) internal prank(_admin) {
-        IFxGenArt721(fxGenArtProxy).setImageURI(_uri, _signature);
+    function _setSignature(bytes32 _typeHash, string memory _uri) internal {
+        digest = IFxGenArt721(fxGenArtProxy).generateTypedDataHash(_typeHash, _uri);
+        (v, r, s) = vm.sign(signerPk, digest);
+        signature = abi.encodePacked(r, s, v);
     }
 }

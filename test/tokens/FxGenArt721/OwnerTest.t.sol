@@ -19,7 +19,7 @@ contract OwnerTest is FxGenArt721Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_OwnerMint() public {
-        _ownerMint(creator, alice);
+        TokenLib.ownerMint(creator, fxGenArtProxy, alice);
         assertEq(FxGenArt721(fxGenArtProxy).ownerOf(1), alice);
         assertEq(IFxGenArt721(fxGenArtProxy).totalSupply(), 1);
         assertEq(IFxGenArt721(fxGenArtProxy).remainingSupply(), MAX_SUPPLY - 1);
@@ -31,7 +31,7 @@ contract OwnerTest is FxGenArt721Test {
 
     function test_ReduceSupply() public {
         maxSupply = MAX_SUPPLY / 2;
-        _reduceSupply(creator, maxSupply);
+        TokenLib.reduceSupply(creator, fxGenArtProxy, maxSupply);
         _setIssuerInfo();
         assertEq(project.maxSupply, maxSupply);
     }
@@ -39,14 +39,14 @@ contract OwnerTest is FxGenArt721Test {
     function test_ReduceSupply_RevertsWhen_OverSupplyAmount() public {
         maxSupply = MAX_SUPPLY + 1;
         vm.expectRevert(INVALID_AMOUNT_ERROR);
-        _reduceSupply(creator, maxSupply);
+        TokenLib.reduceSupply(creator, fxGenArtProxy, maxSupply);
     }
 
     function test_ReduceSupply_RevertsWhen_UnderSupplyAmount() public {
         maxSupply = 0;
-        _ownerMint(creator, alice);
+        TokenLib.ownerMint(creator, fxGenArtProxy, alice);
         vm.expectRevert(INVALID_AMOUNT_ERROR);
-        _reduceSupply(creator, maxSupply);
+        TokenLib.reduceSupply(creator, fxGenArtProxy, maxSupply);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -55,7 +55,7 @@ contract OwnerTest is FxGenArt721Test {
 
     function test_ToggleMint() public {
         assertTrue(project.mintEnabled);
-        _toggleMint(creator);
+        TokenLib.toggleMint(creator, fxGenArtProxy);
         _setIssuerInfo();
         assertFalse(project.mintEnabled);
     }
@@ -66,8 +66,8 @@ contract OwnerTest is FxGenArt721Test {
 
     function test_ToggleBurn() public {
         assertFalse(project.burnEnabled);
-        _toggleMint(creator);
-        _toggleBurn(creator);
+        TokenLib.toggleMint(creator, fxGenArtProxy);
+        TokenLib.toggleBurn(creator, fxGenArtProxy);
         _setIssuerInfo();
         assertTrue(project.burnEnabled);
     }
@@ -77,8 +77,8 @@ contract OwnerTest is FxGenArt721Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function test_RegisterMinters() public {
-        assertTrue(IFxGenArt721(fxGenArtProxy).isMinter(minter));
-        assertFalse(IFxGenArt721(fxGenArtProxy).isMinter(address(fixedPrice)));
+        assertTrue(TokenLib.isMinter(fxGenArtProxy, minter));
+        assertFalse(TokenLib.isMinter(fxGenArtProxy, address(fixedPrice)));
         delete mintInfo;
         _configureMinter(
             address(fixedPrice),
@@ -87,11 +87,11 @@ contract OwnerTest is FxGenArt721Test {
             MINTER_ALLOCATION,
             abi.encode(PRICE, merkleRoot, mintPassSigner)
         );
-        _grantRole(admin, MINTER_ROLE, address(fixedPrice));
-        _toggleMint(creator);
-        _registerMinters(creator, mintInfo);
-        assertFalse(IFxGenArt721(fxGenArtProxy).isMinter(minter));
-        assertTrue(IFxGenArt721(fxGenArtProxy).isMinter(address(fixedPrice)));
+        RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, address(fixedPrice));
+        TokenLib.toggleMint(creator, fxGenArtProxy);
+        TokenLib.registerMinters(creator, fxGenArtProxy, mintInfo);
+        assertFalse(TokenLib.isMinter(fxGenArtProxy, minter));
+        assertTrue(TokenLib.isMinter(fxGenArtProxy, address(fixedPrice)));
     }
 
     function test_RegisterMinters_RevertsWhen_MintActive() public {
@@ -103,24 +103,8 @@ contract OwnerTest is FxGenArt721Test {
             MINTER_ALLOCATION,
             abi.encode(PRICE, merkleRoot, mintPassSigner)
         );
-        _grantRole(admin, MINTER_ROLE, address(fixedPrice));
+        RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, address(fixedPrice));
         vm.expectRevert(MINT_ACTIVE_ERROR);
-        _registerMinters(creator, mintInfo);
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                    HELPERS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function _ownerMint(address _creator, address _to) internal prank(_creator) {
-        IFxGenArt721(fxGenArtProxy).ownerMint(_to);
-    }
-
-    function _reduceSupply(address _creator, uint120 _supply) internal prank(_creator) {
-        IFxGenArt721(fxGenArtProxy).reduceSupply(_supply);
-    }
-
-    function _registerMinters(address _creator, MintInfo[] memory _mintInfo) internal prank(_creator) {
-        IFxGenArt721(fxGenArtProxy).registerMinters(_mintInfo);
+        TokenLib.registerMinters(creator, fxGenArtProxy, mintInfo);
     }
 }

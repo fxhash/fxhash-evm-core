@@ -37,7 +37,7 @@ contract FxGenArt721Test is BaseTest {
         _configureAllowlist(merkleRoot, mintPassSigner);
         _configureProject(ONCHAIN, MINT_ENABLED, MAX_SUPPLY, CONTRACT_URI);
         _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, abi.encode(PRICE));
-        _grantRole(admin, MINTER_ROLE, minter);
+        RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, minter);
         _createSplit();
         _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(scriptyRenderer), tagIds);
     }
