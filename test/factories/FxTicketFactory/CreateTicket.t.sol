@@ -57,7 +57,7 @@ contract CreateTicket is FxTicketFactoryTest {
         );
     }
 
-    function test_RevertsWhen_InvalidRedeemer) public {
+    function test_RevertsWhen_InvalidRedeemer() public {
         vm.expectRevert(INVALID_REDEEMER_ERROR);
         fxMintTicketProxy = fxTicketFactory.createTicket(
             creator,

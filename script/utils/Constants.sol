@@ -22,7 +22,7 @@ bytes32 constant MERKLE_ROOT = bytes32(0);
 address constant MINT_PASS_SIGNER = address(0);
 
 // Metadata
-bytes constant ONCHAIN_DATA = bytes(0);
+bytes constant ONCHAIN_DATA = bytes("");
 
 // Scripty JS Libraries
 string constant CSS_CANVAS_SCRIPT = "fullSizeCanvas.css";

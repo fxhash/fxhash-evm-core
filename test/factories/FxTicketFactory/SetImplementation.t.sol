@@ -9,8 +9,8 @@ contract SetImplementation is FxTicketFactoryTest {
     }
 
     function test_setImplementation() public {
-        vm.prank(fxIssuerFactory.owner());
-        fxIssuerFactory.setImplementation(address(fxMintTicket721));
-        assertEq(fxIssuerFactory.implementation(), address(fxMintTicket721));
+        vm.prank(admin);
+        fxTicketFactory.setImplementation(address(fxMintTicket721));
+        assertEq(fxTicketFactory.implementation(), address(fxMintTicket721));
     }
 }
