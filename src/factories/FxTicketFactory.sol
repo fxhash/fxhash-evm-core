@@ -52,7 +52,7 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
     constructor(address _admin, address _implementation, uint48 _gracePeriod) {
         _transferOwnership(_admin);
         _setImplementation(_implementation);
-        _setGracePeriod(_gracePeriod);
+        _setMinGracePeriod(_gracePeriod);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -88,8 +88,8 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
     /**
      * @inheritdoc IFxTicketFactory
      */
-    function setGracePeriod(uint48 _gracePeriod) external onlyOwner {
-        _setGracePeriod(_gracePeriod);
+    function setMinGracePeriod(uint48 _gracePeriod) external onlyOwner {
+        _setMinGracePeriod(_gracePeriod);
     }
 
     /**
@@ -106,7 +106,8 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
     /**
      * @dev Sets the minimum grace period of time for when token enters harberger taxation
      */
-    function _setGracePeriod(uint48 _gracePeriod) internal {
+    function _setMinGracePeriod(uint48 _gracePeriod) internal {
+        if (_gracePeriod < minGracePeriod) revert InvalidGracePeriod();
         minGracePeriod = _gracePeriod;
         emit GracePeriodUpdated(msg.sender, _gracePeriod);
     }

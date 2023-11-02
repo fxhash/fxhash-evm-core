@@ -56,4 +56,16 @@ contract CreateTicket is FxTicketFactoryTest {
             mintInfo
         );
     }
+
+    function test_RevertsWhen_InvalidRedeemer) public {
+        vm.expectRevert(INVALID_REDEEMER_ERROR);
+        fxMintTicketProxy = fxTicketFactory.createTicket(
+            creator,
+            fxGenArtProxy,
+            address(0),
+            uint48(ONE_DAY),
+            BASE_URI,
+            mintInfo
+        );
+    }
 }

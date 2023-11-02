@@ -8,9 +8,9 @@ contract SetImplementation is FxTicketFactoryTest {
         super.setUp();
     }
 
-    function test_setImplementation() public {
+    function test_setMinGracePeriod() public {
         vm.prank(fxIssuerFactory.owner());
-        fxIssuerFactory.setImplementation(address(fxMintTicket721));
-        assertEq(fxIssuerFactory.implementation(), address(fxMintTicket721));
+        fxIssuerFactory.setMinGracePeriod(ONE_DAY * 2);
+        assertEq(fxIssuerFactory.minGracePeriod(), ONE_DAY * 2);
     }
 }

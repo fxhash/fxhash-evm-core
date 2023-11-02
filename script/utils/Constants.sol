@@ -17,6 +17,13 @@ address constant SEPOLIA_ETHFS_FILE_STORAGE = 0x2E85be2893d9a0c8B4426DcB7C1359a4
 address constant SEPOLIA_SCRIPTY_STORAGE_V2 = 0x6683D9DF2e1F3e079cdeCf119C33a88fAd71Db7b;
 address constant SEPOLIA_SCRIPTY_BUILDER_V2 = 0x7a165B3e808DfBA9c378c7545EF77E336BF9944e;
 
+// Allowlist
+bytes32 constant MERKLE_ROOT = bytes32(0);
+address constant MINT_PASS_SIGNER = address(0);
+
+// Metadata
+bytes constant ONCHAIN_DATA = bytes(0);
+
 // Scripty JS Libraries
 string constant CSS_CANVAS_SCRIPT = "fullSizeCanvas.css";
 string constant GUNZIP_JS_SCRIPT = "gunzipScripts-0.0.1.js";
