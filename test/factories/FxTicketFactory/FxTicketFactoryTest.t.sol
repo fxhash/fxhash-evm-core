@@ -8,6 +8,7 @@ contract FxTicketFactoryTest is BaseTest {
     bytes4 INVALID_GRACE_PERIOD_ERROR = IFxTicketFactory.InvalidGracePeriod.selector;
     bytes4 INVALID_OWNER_ERROR = IFxTicketFactory.InvalidOwner.selector;
     bytes4 INVALID_TOKEN_ERROR = IFxTicketFactory.InvalidToken.selector;
+    bytes4 INVALID_REDEEMER_ERROR = IFxTicketFactory.InvalidRedeemer.selector;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      SETUP
