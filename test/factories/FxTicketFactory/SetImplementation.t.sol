@@ -5,8 +5,13 @@ import "test/factories/FxTicketFactory/FxTicketFactoryTest.t.sol";
 
 contract SetImplementation is FxTicketFactoryTest {
     function test_SetImplementation() public {
-        vm.prank(fxIssuerFactory.owner());
+        vm.prank(fxTicketFactory.owner());
         fxTicketFactory.setImplementation(address(fxMintTicket721));
         assertEq(fxTicketFactory.implementation(), address(fxMintTicket721));
+    }
+
+    function test_RevertsWhen_NotOwner() public {
+        vm.expectRevert("Ownable: caller is not the owner");
+        fxTicketFactory.setImplementation(address(fxMintTicket721));
     }
 }
