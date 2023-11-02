@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {ERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {ERC721, IERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
 import {LibMap} from "solady/src/utils/LibMap.sol";
 import {Ownable} from "solady/src/auth/Ownable.sol";
@@ -10,6 +10,7 @@ import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
 import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
+import {IERC4906} from "openzeppelin/contracts/interfaces/IERC4906.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {IFxGenArt721, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxMintTicket721, TaxInfo} from "src/interfaces/IFxMintTicket721.sol";
@@ -22,7 +23,7 @@ import "src/utils/Constants.sol";
  * @author fx(hash)
  * @notice See the documentation in {IFxMintTicket721}
  */
-contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pausable {
+contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, Ownable, Pausable {
     using Strings for uint256;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -384,6 +385,7 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
      */
     function setBaseURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
         baseURI = _uri;
+        emit BatchMetadataUpdate(1, totalSupply);
     }
 
     /**
@@ -396,19 +398,12 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
     /*//////////////////////////////////////////////////////////////////////////
                                 READ FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
+    
     /**
      * @inheritdoc ERC721
      */
-    function isApprovedForAll(address _owner, address _operator) public view override returns (bool) {
-        return _operator == address(this) || minters[_operator] == TRUE || super.isApprovedForAll(_owner, _operator);
-    }
-
-    /**
-     * @inheritdoc IFxMintTicket721
-     */
-    function getBalance(address _account) public view returns (uint128) {
-        return LibMap.get(_balances, uint256(uint160(_account)));
+    function isApprovedForAll(address _owner, address _operator) public view override(ERC721, IERC721) returns (bool) {
+        return _operator == address(this) || minters[_operator] || super.isApprovedForAll(_owner, _operator);
     }
 
     /**
@@ -430,6 +425,13 @@ contract FxMintTicket721 is IFxMintTicket721, Initializable, ERC721, Ownable, Pa
         uint256 totalDecay = _currentPrice - restingPrice;
         uint256 decayedAmount = (totalDecay / ONE_DAY) * timeElapsed;
         return _currentPrice - decayedAmount;
+    }
+    
+    /**
+     * @inheritdoc IFxMintTicket721
+     */
+    function getBalance(address _account) public view returns (uint128) {
+        return LibMap.get(_balances, uint256(uint160(_account)));
     }
 
     /**
