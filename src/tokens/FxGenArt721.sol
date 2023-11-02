@@ -158,6 +158,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         if (!issuerInfo.projectInfo.burnEnabled) revert BurnInactive();
         if (!_isApprovedOrOwner(msg.sender, _tokenId)) revert NotAuthorized();
         _burn(_tokenId);
+        --totalSupply;
     }
 
     /**
@@ -209,9 +210,13 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      * @inheritdoc IFxGenArt721
      */
     function reduceSupply(uint120 _supply) external onlyOwner {
-        if (_supply >= issuerInfo.projectInfo.maxSupply || _supply < totalSupply) revert InvalidAmount();
+        uint120 prevSupply = issuerInfo.projectInfo.maxSupply;
+        if (_supply >= prevSupply || _supply < totalSupply) revert InvalidAmount();
         issuerInfo.projectInfo.maxSupply = _supply;
+
         if (_supply == 0) emit ProjectDeleted();
+
+        emit SupplyReduced(prevSupply, _supply);
     }
 
     /**
@@ -237,7 +242,9 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      * @inheritdoc IFxGenArt721
      */
     function toggleBurn() external onlyOwner {
+        if (remainingSupply() == 0) revert SupplyRemaining();
         issuerInfo.projectInfo.burnEnabled = !issuerInfo.projectInfo.burnEnabled;
+        emit BurnEnabled(issuerInfo.projectInfo.burnEnabled);
     }
 
     /**
@@ -245,6 +252,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      */
     function toggleMint() external onlyOwner {
         issuerInfo.projectInfo.mintEnabled = !issuerInfo.projectInfo.mintEnabled;
+        emit MintEnabled(issuerInfo.projectInfo.mintEnabled);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -291,6 +299,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      */
     function setRandomizer(address _randomizer) external onlyRole(ADMIN_ROLE) {
         randomizer = _randomizer;
+        emit RandomizerUpdated(_randomizer);
     }
 
     /**
@@ -298,6 +307,8 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      */
     function setRenderer(address _renderer) external onlyRole(ADMIN_ROLE) {
         renderer = _renderer;
+        emit RendererUpdated(_renderer);
+        emit BatchMetadataUpdate(1, totalSupply);
     }
 
     /**
@@ -382,6 +393,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      * @dev Mints single token to given account using fxParams as input
      */
     function _mintParams(address _to, uint256 _tokenId, bytes calldata _fxParams) internal {
+        if (remainingSupply() == 0) revert InsufficientSupply();
         if (issuerInfo.projectInfo.inputSize < _fxParams.length) revert InvalidInputSize();
         _mint(_to, _tokenId);
         genArtInfo[_tokenId].fxParams = _fxParams;
@@ -391,6 +403,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      * @dev Mints single token to given account using randomly generated seed as input
      */
     function _mintRandom(address _to, uint256 _tokenId) internal {
+        if (remainingSupply() == 0) revert InsufficientSupply();
         _mint(_to, _tokenId);
         IRandomizer(randomizer).requestRandomness(_tokenId);
     }
