@@ -6,7 +6,7 @@ import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 
 import {Allowlist} from "src/minters/extensions/Allowlist.sol";
-import {BitFlags, BitFlagsLibrary} from "src/types/BitFlags.sol";
+import {BitFlagsLib} from "src/lib/BitFlagsLib.sol";
 import {IDutchAuction, AuctionInfo, MinterInfo, RefundInfo} from "src/interfaces/IDutchAuction.sol";
 import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IToken} from "src/interfaces/IToken.sol";
@@ -18,8 +18,7 @@ import {MintPass} from "src/minters/extensions/MintPass.sol";
  * @dev See the documentation in {IDutchAuction}
  */
 contract DutchAuction is IDutchAuction, Allowlist, MintPass {
-    using BitFlagsLibrary for uint16;
-    using BitFlagsLibrary for BitFlags;
+    using BitFlagsLib for uint16;
     /*//////////////////////////////////////////////////////////////////////////
                                     STORAGE
     //////////////////////////////////////////////////////////////////////////*/
@@ -73,7 +72,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
      */
     function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable {
         ReserveInfo storage reserve = _getReserveInfo(_token, _reserveId);
-        BitFlags flags = BitFlags.wrap(reserve.flags);
+        uint16 flags = reserve.flags;
         if (flags.isAllowlisted() || flags.isMintWithPass()) revert NoPublicMint();
         _buy(_token, _reserveId, _amount, _to, reserve);
     }
@@ -89,7 +88,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         bytes32[][] calldata _proofs
     ) external payable {
         ReserveInfo storage reserve = _getReserveInfo(_token, _reserveId);
-        if (!BitFlags.wrap(reserve.flags).isAllowlisted()) revert NoAllowlist();
+        if (!reserve.flags.isAllowlisted()) revert NoAllowlist();
         BitMaps.BitMap storage claimBitmap = _claimedMerkleTreeSlots[_token][_reserveId];
         for (uint256 i; i < _proofs.length; i++) {
             _claimSlot(_token, _reserveId, _indexes[i], _proofs[i], claimBitmap);
@@ -110,7 +109,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         bytes calldata _signature
     ) external payable {
         ReserveInfo storage reserve = _getReserveInfo(_token, _reserveId);
-        if (!BitFlags.wrap(reserve.flags).isMintWithPass()) revert NoSigningAuthority();
+        if (!reserve.flags.isMintWithPass()) revert NoSigningAuthority();
         BitMaps.BitMap storage claimBitmap = _claimedMintPasses[_token][_reserveId];
         _claimMintPass(_token, _reserveId, _index, _signature, claimBitmap);
         _buy(_token, _reserveId, _amount, _to, reserve);
@@ -160,7 +159,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         // Checks if the step length is evenly divisible by the auction duration
         uint256 reserveId = reserves[msg.sender].length;
 
-        AuctionInfo memory daInfo = _saveMintDetails(_reserve, reserveId, BitFlags.wrap(_reserve.flags), _mintDetails);
+        AuctionInfo memory daInfo = _saveMintDetails(_reserve, reserveId, _reserve.flags, _mintDetails);
 
         if (_reserve.allocation == 0) revert InvalidAllocation();
 
@@ -264,7 +263,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     function _saveMintDetails(
         ReserveInfo calldata _reserve,
         uint256 reserveId,
-        BitFlags _flags,
+        uint16 _flags,
         bytes memory _mintDetails
     ) internal returns (AuctionInfo memory auctionInfo) {
         if (_flags.isAllowlisted()) {

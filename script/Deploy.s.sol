@@ -13,7 +13,7 @@ import {FxMintTicket721} from "src/tokens/FxMintTicket721.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 import {FxTicketFactory} from "src/factories/FxTicketFactory.sol";
 
-import {BitFlags, BitFlagsLibrary} from "src/types/BitFlags.sol";
+import {BitFlagsLib} from "src/lib/BitFlagsLib.sol";
 import {DutchAuction} from "src/minters/DutchAuction.sol";
 import {FixedPrice} from "src/minters/FixedPrice.sol";
 import {PseudoRandomizer} from "src/randomizers/PseudoRandomizer.sol";

@@ -10,7 +10,7 @@ import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
 import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IToken} from "src/interfaces/IToken.sol";
-import {BitFlags, BitFlagsLibrary} from "src/types/BitFlags.sol";
+import {BitFlagsLib} from "src/lib/BitFlagsLib.sol";
 
 import {MINIMUM_PRICE, OPEN_EDITION_SUPPLY, TIME_UNLIMITED} from "src/utils/Constants.sol";
 
@@ -21,8 +21,7 @@ import {MINIMUM_PRICE, OPEN_EDITION_SUPPLY, TIME_UNLIMITED} from "src/utils/Cons
  */
 contract FixedPrice is IFixedPrice, Allowlist, MintPass {
     using SafeCastLib for uint256;
-    using BitFlagsLibrary for uint16;
-    using BitFlagsLibrary for BitFlags;
+    using BitFlagsLib for uint16;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     STORAGE
@@ -72,7 +71,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
      */
     function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable {
         ReserveInfo storage reserve = _getReserveInfo(_token, _reserveId);
-        BitFlags flags = BitFlags.wrap(reserve.flags);
+        uint16 flags = reserve.flags;
         if (flags.isAllowlisted() || flags.isMintWithPass()) revert NoPublicMint();
         _buy(reserve, _token, _reserveId, _amount, _to);
     }
@@ -88,7 +87,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
         bytes32[][] calldata _proofs
     ) external payable {
         ReserveInfo storage reserve = _getReserveInfo(_token, _reserveId);
-        if (!BitFlags.wrap(reserve.flags).isAllowlisted()) revert NoAllowlist();
+        if (!reserve.flags.isAllowlisted()) revert NoAllowlist();
         BitMaps.BitMap storage claimBitmap = _claimedMerkleTreeSlots[_token][_reserveId];
         for (uint256 i; i < _proofs.length; i++) {
             _claimSlot(_token, _reserveId, _indexes[i], _proofs[i], claimBitmap);
@@ -109,7 +108,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
         bytes calldata _signature
     ) external payable {
         ReserveInfo storage reserve = _getReserveInfo(_token, _reserveId);
-        if (!BitFlags.wrap(reserve.flags).isMintWithPass()) revert NoSigningAuthority();
+        if (!reserve.flags.isMintWithPass()) revert NoSigningAuthority();
         BitMaps.BitMap storage claimBitmap = _claimedMintPasses[_token][_reserveId];
         _claimMintPass(_token, _reserveId, _index, _signature, claimBitmap);
         _buy(reserve, _token, _reserveId, _amount, _to);
@@ -127,7 +126,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
 
         if (_reserve.allocation == 0) revert InvalidAllocation();
         uint256 reserveId = reserves[msg.sender].length;
-        _saveMintDetails(reserveId, BitFlags.wrap(_reserve.flags), _mintDetails);
+        _saveMintDetails(reserveId, _reserve.flags, _mintDetails);
         reserves[msg.sender].push(_reserve);
     }
 
@@ -174,7 +173,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
         emit Purchase(_token, _reserveId, msg.sender, _amount, _to, price);
     }
 
-    function _saveMintDetails(uint256 reserveId, BitFlags _flags, bytes memory _mintDetails) internal {
+    function _saveMintDetails(uint256 reserveId, uint16 _flags, bytes memory _mintDetails) internal {
         uint256 price;
         if (_flags.isAllowlisted()) {
             bytes32 merkleRoot;
