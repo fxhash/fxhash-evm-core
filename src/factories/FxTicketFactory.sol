@@ -7,6 +7,8 @@ import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
 import {IFxMintTicket721, MintInfo} from "src/interfaces/IFxMintTicket721.sol";
 import {IFxTicketFactory} from "src/interfaces/IFxTicketFactory.sol";
 
+import {ONE_DAY} from "src/utils/Constants.sol";
+
 /**
  * @title FxTicketFactory
  * @author fx(hash)
