@@ -398,12 +398,12 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
     /*//////////////////////////////////////////////////////////////////////////
                                 READ FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-    
+
     /**
      * @inheritdoc ERC721
      */
     function isApprovedForAll(address _owner, address _operator) public view override(ERC721, IERC721) returns (bool) {
-        return _operator == address(this) || minters[_operator] || super.isApprovedForAll(_owner, _operator);
+        return _operator == address(this) || minters[_operator] == TRUE || super.isApprovedForAll(_owner, _operator);
     }
 
     /**
@@ -426,7 +426,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
         uint256 decayedAmount = (totalDecay / ONE_DAY) * timeElapsed;
         return _currentPrice - decayedAmount;
     }
-    
+
     /**
      * @inheritdoc IFxMintTicket721
      */
