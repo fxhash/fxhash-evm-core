@@ -8,8 +8,8 @@ contract CreateSplit is SplitsFactoryTest {
         super.setUp();
         accounts.push(bob);
         accounts.push(alice);
-        allocations.push(uint32(600_000));
-        allocations.push(uint32(400_000));
+        allocations.push(CREATOR_SPLITS_ALLOCATION);
+        allocations.push(ADMIN_SPLITS_ALLOCATION);
     }
 
     function test_createImmutableSplit() public {

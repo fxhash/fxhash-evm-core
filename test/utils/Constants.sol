@@ -47,3 +47,6 @@ uint256 constant TOKEN_ID = 1;
 
 // Ticket
 uint256 constant DEPOSIT_AMOUNT = 0.0027 ether;
+
+uint32 constant ADMIN_SPLITS_ALLOCATION = 400_000;
+uint32 constant CREATOR_SPLITS_ALLOCATION = 600_000;

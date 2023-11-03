@@ -60,6 +60,9 @@ contract SplitsFactory is ISplitsFactory, Ownable {
         if (actual != split) revert InvalidSplit();
     }
 
+    /**
+     * @inheritdoc ISplitsFactory
+     */
     function createMutableSplit(
         address[] calldata _accounts,
         uint32[] calldata _allocations
