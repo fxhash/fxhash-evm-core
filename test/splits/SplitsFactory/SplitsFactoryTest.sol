@@ -16,7 +16,7 @@ contract SplitsFactoryTest is BaseTest {
         super.setUp();
         splitsController = new MockSplitsController(SPLITS_MAIN, address(splitsFactory), admin);
 
-        vm.prank(admin);
+        vm.prank(splitsFactory.owner());
         splitsFactory.setController(address(splitsController));
         _initializeState();
     }
