@@ -202,7 +202,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function ownerMintParams(address _to, bytes calldata _fxParams) external onlyMinter whenNotPaused {
+    function ownerMintParams(address _to, bytes calldata _fxParams) external onlyOwner whenNotPaused {
         _mintParams(_to, ++totalSupply, _fxParams);
     }
 
