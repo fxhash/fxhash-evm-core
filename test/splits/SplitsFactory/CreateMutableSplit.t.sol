@@ -20,10 +20,10 @@ contract CreateMutableSplit is SplitsFactoryTest {
         address split = splitsFactory.createMutableSplit(accounts, allocations);
         vm.deal(split, 1 ether);
         ISplitsMain(SPLITS_MAIN).distributeETH(split, accounts, allocations, 0, address(0));
-        ISplitsMain(SPLITS_MAIN).withdraw(alice, 0.4 ether, new address[](0));
-        ISplitsMain(SPLITS_MAIN).withdraw(bob, 0.6 ether, new address[](0));
-        assertGt(alice.balance, 0.3999999 ether);
-        assertGt(bob.balance, 0.5999999 ether);
+        ISplitsMain(SPLITS_MAIN).withdraw(alice, 0.1 ether, new address[](0));
+        ISplitsMain(SPLITS_MAIN).withdraw(bob, 0.9 ether, new address[](0));
+        assertGt(alice.balance, 0.0999999 ether);
+        assertGt(bob.balance, 0.8999999 ether);
     }
 
     function test_RevertsWhen_LengthMismatch() public {
