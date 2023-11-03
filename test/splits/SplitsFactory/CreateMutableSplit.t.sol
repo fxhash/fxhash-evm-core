@@ -3,7 +3,7 @@ pragma solidity 0.8.20;
 
 import "test/splits/SplitsFactory/SplitsFactoryTest.sol";
 
-contract CreateSplit is SplitsFactoryTest {
+contract CreateMutableSplit is SplitsFactoryTest {
     function setUp() public virtual override {
         super.setUp();
         accounts.push(bob);
@@ -14,6 +14,10 @@ contract CreateSplit is SplitsFactoryTest {
 
     function test_createMutableSplit() public {
         splitsFactory.createMutableSplit(accounts, allocations);
+    }
+
+    function test_createMutableSplitFor() public {
+        splitsFactory.createMutableSplit(admin, accounts, allocations);
     }
 
     function test_Withdraw() public {

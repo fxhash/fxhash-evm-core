@@ -60,15 +60,11 @@ contract SplitsFactory is ISplitsFactory, Ownable {
         if (actual != split) revert InvalidSplit();
     }
 
-    /**
-     * @inheritdoc ISplitsFactory
-     */
     function createMutableSplit(
         address[] calldata _accounts,
         uint32[] calldata _allocations
     ) external returns (address split) {
-        split = ISplitsMain(splits).createSplit(_accounts, _allocations, 0, controller);
-        emit SplitsInfo(split, controller, _accounts, _allocations, 0);
+        split = _createMutableSplit(msg.sender, _accounts, _allocations);
     }
 
     /**
@@ -79,9 +75,7 @@ contract SplitsFactory is ISplitsFactory, Ownable {
         address[] calldata _accounts,
         uint32[] calldata _allocations
     ) external returns (address split) {
-        split = ISplitsMain(splits).createSplit(_accounts, _allocations, 0, controller);
-        ISplitsController(controller).addCreator(split, _creator);
-        emit SplitsInfo(split, controller, _accounts, _allocations, 0);
+        split = _createMutableSplit(_creator, _accounts, _allocations);
     }
 
     /**
@@ -104,5 +98,15 @@ contract SplitsFactory is ISplitsFactory, Ownable {
         address oldController = controller;
         controller = _controller;
         emit ControllerUpdated(oldController, _controller);
+    }
+
+    function _createMutableSplit(
+        address _creator,
+        address[] calldata _accounts,
+        uint32[] calldata _allocations
+    ) internal returns (address split) {
+        split = ISplitsMain(splits).createSplit(_accounts, _allocations, 0, controller);
+        ISplitsController(controller).addCreator(split, _creator);
+        emit SplitsInfo(split, controller, _accounts, _allocations, 0);
     }
 }
