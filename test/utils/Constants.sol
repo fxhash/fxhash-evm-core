@@ -29,6 +29,9 @@ uint64 constant REDEEMER_ALLOCATION = 0;
 uint64 constant RESERVE_START_TIME = 86_400; // 1 day
 uint64 constant RESERVE_END_TIME = 604_800; // 1 week
 
+// Roles
+bytes32 constant NEW_ROLE = keccak256("NEW_ROLE");
+
 // Royalties
 uint96 constant ROYALTY_BPS = 500; // 5%
 
