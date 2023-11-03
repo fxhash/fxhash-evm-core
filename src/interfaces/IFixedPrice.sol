@@ -20,17 +20,8 @@ interface IFixedPrice is IMinter {
      * @param _reserveId ID of the reserve
      * @param _price Amount of fixed price mint
      * @param _reserveInfo Reserve information for the mint
-     * @param _openEdition Status of an open edition mint
-     * @param _timeUnlimited Status of a mint with unlimited time
      */
-    event MintDetailsSet(
-        address indexed _token,
-        uint256 indexed _reserveId,
-        uint256 _price,
-        ReserveInfo _reserveInfo,
-        bool _openEdition,
-        bool _timeUnlimited
-    );
+    event MintDetailsSet(address indexed _token, uint256 indexed _reserveId, uint256 _price, ReserveInfo _reserveInfo);
 
     /**
      * @notice Event emitted when a purchase is made

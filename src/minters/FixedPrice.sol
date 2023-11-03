@@ -126,8 +126,9 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
 
         if (_reserve.allocation == 0) revert InvalidAllocation();
         uint256 reserveId = reserves[msg.sender].length;
-        _saveMintDetails(reserveId, _reserve.flags, _mintDetails);
+        uint256 price = _saveMintDetails(reserveId, _reserve.flags, _mintDetails);
         reserves[msg.sender].push(_reserve);
+        emit MintDetailsSet(msg.sender, reserveId, price, _reserve);
     }
 
     /**
@@ -173,8 +174,11 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
         emit Purchase(_token, _reserveId, msg.sender, _amount, _to, price);
     }
 
-    function _saveMintDetails(uint256 reserveId, uint16 _flags, bytes memory _mintDetails) internal {
-        uint256 price;
+    function _saveMintDetails(
+        uint256 reserveId,
+        uint16 _flags,
+        bytes memory _mintDetails
+    ) internal returns (uint256 price) {
         if (_flags.isAllowlisted()) {
             bytes32 merkleRoot;
             (price, merkleRoot) = abi.decode(_mintDetails, (uint256, bytes32));
