@@ -43,8 +43,8 @@ contract FxMintTicket721Test is BaseTest {
             REDEEMER_ALLOCATION,
             abi.encode(_computeTicketAddr(deployer))
         );
-        _grantRole(admin, MINTER_ROLE, minter);
-        _grantRole(admin, MINTER_ROLE, address(ticketRedeemer));
+        RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, minter);
+        RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, address(ticketRedeemer));
         _createSplit();
         _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(scriptyRenderer), tagIds);
         _createProject();
@@ -65,51 +65,6 @@ contract FxMintTicket721Test is BaseTest {
         newPrice = uint80(PRICE / 2);
     }
 
-    function _mint(address _minter, address _to, uint256 _amount, uint256 _payment) internal prank(_minter) {
-        MockMinter(minter).mint(fxMintTicketProxy, _to, _amount, _payment);
-    }
-
-    function _redeem(
-        address _owner,
-        address _ticket,
-        uint256 _tokenId,
-        bytes storage _fxParams
-    ) internal prank(_owner) {
-        ITicketRedeemer(ticketRedeemer).redeem(_ticket, _tokenId, _fxParams);
-    }
-
-    function _deposit(address _depositer, uint256 _tokenId, uint256 _amount) internal prank(_depositer) {
-        IFxMintTicket721(fxMintTicketProxy).deposit{value: _amount}(_tokenId);
-    }
-
-    function _setPrice(address _owner, uint256 _tokenId, uint80 _newPrice) internal prank(_owner) {
-        IFxMintTicket721(fxMintTicketProxy).setPrice(_tokenId, _newPrice);
-    }
-
-    function _claim(address _claimer, uint256 _tokenId, uint80 _newPrice, uint256 _payment) internal prank(_claimer) {
-        IFxMintTicket721(fxMintTicketProxy).claim{value: _payment}(_tokenId, _newPrice);
-    }
-
-    function _setApprovalForAll(address _owner, address _operator, bool _approval) internal prank(_owner) {
-        FxMintTicket721(fxMintTicketProxy).setApprovalForAll(_operator, _approval);
-    }
-
-    function _transferFrom(address _sender, address _from, address _to, uint256 _tokenId) internal prank(_sender) {
-        FxMintTicket721(fxMintTicketProxy).transferFrom(_from, _to, _tokenId);
-    }
-
-    function _withdraw(address _caller, address _to) internal prank(_caller) {
-        IFxMintTicket721(fxMintTicketProxy).withdraw(_to);
-    }
-
-    function _registerMinters(address _creator, MintInfo[] memory _mintInfo) internal prank(_creator) {
-        IFxMintTicket721(fxMintTicketProxy).registerMinters(_mintInfo);
-    }
-
-    function _setTaxInfo() internal {
-        (gracePeriod, foreclosureTime, currentPrice, depositAmount) = FxMintTicket721(fxMintTicketProxy).taxes(tokenId);
-    }
-
     function _setAuctionPrice() internal {
         auctionPrice = IFxMintTicket721(fxMintTicketProxy).getAuctionPrice(PRICE, foreclosureTime);
     }
@@ -118,7 +73,7 @@ contract FxMintTicket721Test is BaseTest {
         balance = IFxMintTicket721(fxMintTicketProxy).getBalance(_wallet);
     }
 
-    function _isMinter(address _minter) internal view returns (uint8) {
-        return IFxMintTicket721(fxMintTicketProxy).minters(_minter);
+    function _setTaxInfo() internal {
+        (gracePeriod, foreclosureTime, currentPrice, depositAmount) = FxMintTicket721(fxMintTicketProxy).taxes(tokenId);
     }
 }

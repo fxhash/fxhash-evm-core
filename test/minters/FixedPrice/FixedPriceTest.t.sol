@@ -43,7 +43,7 @@ contract FixedPriceTest is BaseTest {
             MINTER_ALLOCATION,
             abi.encode(PRICE, merkleRoot, mintPassSigner)
         );
-        _grantRole(admin, MINTER_ROLE, address(fixedPrice));
+        RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, address(fixedPrice));
         _createSplit();
         _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(scriptyRenderer), tagIds);
         _createProject();

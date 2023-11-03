@@ -9,6 +9,15 @@ contract FxGenArt721Test is BaseTest {
     address internal primarySplits;
     uint120 internal maxSupply;
 
+    // Signature
+    address internal signerAddr;
+    bytes internal signature;
+    bytes32 internal digest;
+    bytes32 internal r;
+    bytes32 internal s;
+    uint8 internal v;
+    uint256 internal signerPk;
+
     // Errors
     bytes4 internal ALLOCATION_EXCEEDED_ERROR = IFxGenArt721.AllocationExceeded.selector;
     bytes4 internal BURN_INACTIVE_ERROR = IFxGenArt721.BurnInactive.selector;
@@ -36,7 +45,7 @@ contract FxGenArt721Test is BaseTest {
         _configureAllowlist(merkleRoot, mintPassSigner);
         _configureProject(ONCHAIN, MINT_ENABLED, MAX_SUPPLY, CONTRACT_URI);
         _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, abi.encode(PRICE));
-        _grantRole(admin, MINTER_ROLE, minter);
+        RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, minter);
         _createSplit();
         _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(scriptyRenderer), tagIds);
     }
@@ -88,14 +97,6 @@ contract FxGenArt721Test is BaseTest {
                                     HELPERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _mint(address _to, uint256 _amount, uint256 _payment) internal {
-        MockMinter(minter).mint(fxGenArtProxy, _to, _amount, _payment);
-    }
-
-    function _burn(address _owner, uint256 _tokenId) internal prank(_owner) {
-        IFxGenArt721(fxGenArtProxy).burn(_tokenId);
-    }
-
     function _setGenArtInfo(uint256 _tokenId) internal {
         (seed, fxParams) = IFxGenArt721(fxGenArtProxy).genArtInfo(_tokenId);
     }
@@ -106,5 +107,11 @@ contract FxGenArt721Test is BaseTest {
 
     function _setMetadatInfo() internal {
         (baseURI, imageURI, ) = IFxGenArt721(fxGenArtProxy).metadataInfo();
+    }
+
+    function _setSignature(bytes32 _typeHash, string memory _uri) internal {
+        digest = IFxGenArt721(fxGenArtProxy).generateTypedDataHash(_typeHash, _uri);
+        (v, r, s) = vm.sign(signerPk, digest);
+        signature = abi.encodePacked(r, s, v);
     }
 }
