@@ -27,6 +27,8 @@ import {IFxContractRegistry, ConfigInfo} from "src/interfaces/IFxContractRegistr
 import {IFxGenArt721, GenArtInfo, InitInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxMintTicket721, TaxInfo} from "src/interfaces/IFxMintTicket721.sol";
 
+import {ConfigureLib} from "script/lib/helpers/ConfigureLib.s.sol";
+
 contract Deploy is Script {
     // Core
     FxContractRegistry internal fxContractRegistry;
@@ -47,66 +49,6 @@ contract Deploy is Script {
 
     // Accounts
     address internal admin;
-    address internal creator;
-
-    // Project
-    string internal contractURI;
-    string internal defaultMetadata;
-    uint128 internal lockTime;
-    uint128 internal referrerShare;
-    uint256[] internal tagIds;
-
-    // Metadata
-    string internal baseURI;
-    string internal imageURI;
-    bytes internal onchainData;
-    HTMLRequest internal animation;
-    HTMLRequest internal attributes;
-    HTMLTag[] internal headTags;
-    HTMLTag[] internal bodyTags;
-
-    // Registries
-    address[] internal contracts;
-    string[] internal names;
-
-    // Royalties
-    address payable[] internal royaltyReceivers;
-    uint96[] internal basisPoints;
-
-    // Splits
-    address internal splitsMain;
-    address internal primaryReceiver;
-    address[] internal accounts;
-    uint32[] internal allocations;
-
-    // Scripty
-    address internal ethFSFileStorage;
-    address internal scriptyBuilderV2;
-    address internal scriptyStorageV2;
-
-    // Structs
-    ConfigInfo internal configInfo;
-    GenArtInfo internal genArtInfo;
-    InitInfo internal initInfo;
-    IssuerInfo internal issuerInfo;
-    MetadataInfo internal metadataInfo;
-    MintInfo[] internal mintInfo;
-    ProjectInfo internal projectInfo;
-    ReserveInfo internal reserveInfo;
-
-    // Ticket
-    address internal fxMintTicketProxy;
-    uint48 internal ticketId;
-
-    // Token
-    address internal fxGenArtProxy;
-    uint256 internal amount;
-    uint256 internal price;
-    bytes32 internal merkleRoot;
-    uint256 internal mintPassSignerPk;
-    address internal mintPassSigner;
-    uint256 internal quantity;
-    uint256 internal tokenId;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      MODIFIERS
@@ -126,14 +68,27 @@ contract Deploy is Script {
 
     function setUp() public virtual {
         _createAccounts();
-        _configureSplits();
-        _configureRoyalties();
-        _configureScripty();
-        _configureState(AMOUNT, PRICE, QUANTITY, TOKEN_ID);
-        _configureInfo(LOCK_TIME, REFERRER_SHARE, DEFAULT_METADATA);
-        _configureProject(ONCHAIN, MINT_ENABLED, MAX_SUPPLY, CONTRACT_URI);
-        _configureMetdata(BASE_URI, IMAGE_URI, onchainData);
-        _configureAllowlist(merkleRoot, mintPassSigner);
+        ConfigureLib.splits(admin, creator, accounts, allocations);
+        ConfigureLib.royalties(admin, creator, royaltyReceivers, basisPoints);
+        ConfigureLib.scripty(
+            ethFSFileStorage,
+            scriptyBuilderV2,
+            scriptyStorageV2,
+            animation,
+            headTags,
+            bodyTags,
+            onchainData
+        );
+        ConfigureLib.state(amount, price, quantity, tokenId);
+        ConfigureLib.configInfo(configInfo.lockTime, configInfo.referrerShare, configInfo.defaultMetadata);
+        ConfigureLib.projectInfo(
+            projectInfo.onchain,
+            projectInfo.mintEnabled,
+            projectInfo.maxSupply,
+            projectInfo.contractURI
+        );
+        ConfigureLib.metdataInfo(metadataInfo.baseURI, metadataInfo.imageURI, metadataInfo.onchainData);
+        ConfigureLib.allowlist(merkleRoot, mintPassSigner);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -184,142 +139,11 @@ contract Deploy is Script {
 
     function _createAccounts() internal virtual {
         admin = msg.sender;
-        creator = makeAddr("creator");
-        tagIds.push(TAG_ID);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                 CONFIGURATIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    function _configureSplits() internal virtual {
-        if (creator < admin) {
-            accounts.push(creator);
-            accounts.push(admin);
-            allocations.push(CREATOR_ALLOCATION);
-            allocations.push(ADMIN_ALLOCATION);
-        } else {
-            accounts.push(admin);
-            accounts.push(creator);
-            allocations.push(ADMIN_ALLOCATION);
-            allocations.push(CREATOR_ALLOCATION);
-        }
-    }
-
-    function _configureRoyalties() internal virtual {
-        royaltyReceivers.push(payable(admin));
-        royaltyReceivers.push(payable(creator));
-        basisPoints.push(ROYALTY_BPS);
-        basisPoints.push(ROYALTY_BPS * 2);
-    }
-
-    function _configureScripty() internal virtual {
-        if (block.chainid == SEPOLIA) {
-            ethFSFileStorage = SEPOLIA_ETHFS_FILE_STORAGE;
-            scriptyBuilderV2 = SEPOLIA_SCRIPTY_BUILDER_V2;
-            scriptyStorageV2 = SEPOLIA_SCRIPTY_STORAGE_V2;
-        } else {
-            ethFSFileStorage = GOERLI_ETHFS_FILE_STORAGE;
-            scriptyBuilderV2 = GOERLI_SCRIPTY_BUILDER_V2;
-            scriptyStorageV2 = GOERLI_SCRIPTY_STORAGE_V2;
-        }
-
-        headTags.push(
-            HTMLTag({
-                name: CSS_CANVAS_SCRIPT,
-                contractAddress: ethFSFileStorage,
-                contractData: bytes(""),
-                tagType: HTMLTagType.useTagOpenAndClose,
-                tagOpen: TAG_OPEN,
-                tagClose: TAG_CLOSE,
-                tagContent: bytes("")
-            })
-        );
-
-        bodyTags.push(
-            HTMLTag({
-                name: P5_JS_SCRIPT,
-                contractAddress: ethFSFileStorage,
-                contractData: bytes(""),
-                tagType: HTMLTagType.scriptGZIPBase64DataURI,
-                tagOpen: bytes(""),
-                tagClose: bytes(""),
-                tagContent: bytes("")
-            })
-        );
-
-        bodyTags.push(
-            HTMLTag({
-                name: GUNZIP_JS_SCRIPT,
-                contractAddress: ethFSFileStorage,
-                contractData: bytes(""),
-                tagType: HTMLTagType.scriptBase64DataURI,
-                tagOpen: bytes(""),
-                tagClose: bytes(""),
-                tagContent: bytes("")
-            })
-        );
-
-        bodyTags.push(
-            HTMLTag({
-                name: POINTS_AND_LINES_SCRIPT,
-                contractAddress: scriptyStorageV2,
-                contractData: bytes(""),
-                tagType: HTMLTagType.script,
-                tagOpen: bytes(""),
-                tagClose: bytes(""),
-                tagContent: bytes("")
-            })
-        );
-
-        animation.headTags = headTags;
-        animation.bodyTags = bodyTags;
-        onchainData = abi.encode(animation);
-    }
-
-    function _configureState(uint256 _amount, uint256 _price, uint256 _quantity, uint256 _tokenId) internal virtual {
-        amount = _amount;
-        price = _price;
-        quantity = _quantity;
-        tokenId = _tokenId;
-    }
-
-    function _configureInfo(
-        uint128 _lockTime,
-        uint128 _referrerShare,
-        string memory _defaultMetadata
-    ) internal virtual {
-        configInfo.lockTime = _lockTime;
-        configInfo.referrerShare = _referrerShare;
-        configInfo.defaultMetadata = _defaultMetadata;
-    }
-
-    function _configureProject(
-        bool _onchain,
-        bool _mintEnabled,
-        uint120 _maxSupply,
-        string memory _contractURI
-    ) internal virtual {
-        projectInfo.onchain = _onchain;
-        projectInfo.mintEnabled = _mintEnabled;
-        projectInfo.maxSupply = _maxSupply;
-        projectInfo.contractURI = _contractURI;
-    }
-
-    function _configureMetdata(
-        string memory _baseURI,
-        string memory _imageURI,
-        bytes memory _onchainData
-    ) internal virtual {
-        metadataInfo.baseURI = _baseURI;
-        metadataInfo.imageURI = _imageURI;
-        metadataInfo.onchainData = _onchainData;
-    }
-
-    function _configureAllowlist(bytes32 _merkleRoot, address _mintPassSigner) internal virtual {
-        merkleRoot = _merkleRoot;
-        mintPassSigner = _mintPassSigner;
-    }
 
     function _configureInit(
         string memory _name,
@@ -435,42 +259,6 @@ contract Deploy is Script {
         vm.label(address(splitsController), "splitsController");
         vm.label(address(splitsFactory), "SplitsFactory");
         vm.label(address(ticketRedeemer), "TicketRedeemer");
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                    CREATE
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function _createSplit() internal virtual {
-        primaryReceiver = splitsFactory.createImmutableSplit(accounts, allocations);
-        vm.label(primaryReceiver, "PrimaryReceiver");
-    }
-
-    function _createProject() internal virtual {
-        fxGenArtProxy = fxIssuerFactory.createProject(
-            creator,
-            initInfo,
-            projectInfo,
-            metadataInfo,
-            mintInfo,
-            royaltyReceivers,
-            basisPoints
-        );
-
-        vm.label(fxGenArtProxy, "FxGenArtProxy");
-    }
-
-    function _createTicket() internal {
-        fxMintTicketProxy = fxTicketFactory.createTicket(
-            creator,
-            fxGenArtProxy,
-            address(ticketRedeemer),
-            uint48(ONE_DAY),
-            BASE_URI,
-            mintInfo
-        );
-
-        vm.label(fxMintTicketProxy, "FxMintTicketProxy");
     }
 
     /*//////////////////////////////////////////////////////////////////////////

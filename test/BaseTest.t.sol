@@ -38,20 +38,79 @@ contract BaseTest is Deploy, Test {
     MockRoyaltyManager internal royaltyManager;
 
     // Accounts
+    address internal creator;
+    address internal deployer;
+    address internal minter;
+    address internal owner;
     address internal alice;
     address internal bob;
     address internal eve;
     address internal susan;
 
-    // State
-    address internal deployer;
-    address internal minter;
-    address internal owner;
+    // Allowlist
+    bytes32 internal merkleRoot;
+    uint256 internal mintPassSignerPk;
+
+    // Metadata
     bytes internal fxParams;
-    bytes internal mintParams;
+    bytes internal onchainData;
     bytes32 internal seed;
-    uint96 internal projectId;
+    string internal baseURI;
+    string internal imageURI;
     uint120 internal inputSize;
+    HTMLRequest internal animation;
+    HTMLRequest internal attributes;
+    HTMLTag[] internal headTags;
+    HTMLTag[] internal bodyTags;
+
+    // Project
+    string internal contractURI;
+    string internal defaultMetadata;
+    uint96 internal projectId;
+    uint128 internal lockTime;
+    uint128 internal referrerShare;
+    uint256[] internal tagIds;
+
+    // Registries
+    address[] internal contracts;
+    string[] internal names;
+
+    // Royalties
+    address payable[] internal royaltyReceivers;
+    uint96[] internal basisPoints;
+
+    // Scripty
+    address internal ethFSFileStorage;
+    address internal scriptyBuilderV2;
+    address internal scriptyStorageV2;
+
+    // Splits
+    address internal splitsMain;
+    address internal primaryReceiver;
+    address[] internal accounts;
+    uint32[] internal allocations;
+
+    // Structs
+    ConfigInfo internal configInfo;
+    GenArtInfo internal genArtInfo;
+    InitInfo internal initInfo;
+    IssuerInfo internal issuerInfo;
+    MetadataInfo internal metadataInfo;
+    MintInfo[] internal mintInfo;
+    ProjectInfo internal projectInfo;
+    ReserveInfo internal reserveInfo;
+
+    // Ticket
+    address internal fxMintTicketProxy;
+    uint48 internal ticketId;
+
+    // Token
+    address internal fxGenArtProxy;
+    bytes internal mintParams;
+    uint256 internal amount;
+    uint256 internal price;
+    uint256 internal quantity;
+    uint256 internal tokenId;
 
     // Modifiers
     modifier prank(address _caller) {
@@ -80,6 +139,7 @@ contract BaseTest is Deploy, Test {
 
     function _createAccounts() internal virtual override {
         super._createAccounts();
+        creator = makeAddr("creator");
         alice = makeAddr("alice");
         bob = makeAddr("bob");
         eve = makeAddr("eve");
@@ -101,6 +161,7 @@ contract BaseTest is Deploy, Test {
     }
 
     function _initializeState() internal virtual {
+        tagIds.push(TAG_ID);
         deployer = address(this);
         vm.label(deployer, "Deployer");
         vm.warp(RESERVE_START_TIME);
@@ -124,5 +185,41 @@ contract BaseTest is Deploy, Test {
 
     function _mockRoyaltyManager(address _admin) internal prank(_admin) {
         royaltyManager = new MockRoyaltyManager();
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    CREATE
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function _createSplit() internal virtual {
+        primaryReceiver = splitsFactory.createImmutableSplit(accounts, allocations);
+        vm.label(primaryReceiver, "PrimaryReceiver");
+    }
+
+    function _createProject() internal virtual {
+        fxGenArtProxy = fxIssuerFactory.createProject(
+            creator,
+            initInfo,
+            projectInfo,
+            metadataInfo,
+            mintInfo,
+            royaltyReceivers,
+            basisPoints
+        );
+
+        vm.label(fxGenArtProxy, "FxGenArtProxy");
+    }
+
+    function _createTicket() internal {
+        fxMintTicketProxy = fxTicketFactory.createTicket(
+            creator,
+            fxGenArtProxy,
+            address(ticketRedeemer),
+            uint48(ONE_DAY),
+            BASE_URI,
+            mintInfo
+        );
+
+        vm.label(fxMintTicketProxy, "FxMintTicketProxy");
     }
 }
