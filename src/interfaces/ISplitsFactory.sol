@@ -86,7 +86,7 @@ interface ISplitsFactory {
      * @param _allocations Array of allocations for each account
      * @return split Address of the deployed splits contract
      */
-    function createMutableSplit(
+    function createMutableSplitFor(
         address _creator,
         address[] calldata _accounts,
         uint32[] calldata _allocations

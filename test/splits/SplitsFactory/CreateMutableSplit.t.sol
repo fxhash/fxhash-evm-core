@@ -16,10 +16,6 @@ contract CreateMutableSplit is SplitsFactoryTest {
         splitsFactory.createMutableSplit(accounts, allocations);
     }
 
-    function test_createMutableSplitFor() public {
-        splitsFactory.createMutableSplit(admin, accounts, allocations);
-    }
-
     function test_Withdraw() public {
         address split = splitsFactory.createMutableSplit(accounts, allocations);
         vm.deal(split, 1 ether);

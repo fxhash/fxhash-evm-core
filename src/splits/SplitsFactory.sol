@@ -70,7 +70,7 @@ contract SplitsFactory is ISplitsFactory, Ownable {
     /**
      * @inheritdoc ISplitsFactory
      */
-    function createMutableSplit(
+    function createMutableSplitFor(
         address _creator,
         address[] calldata _accounts,
         uint32[] calldata _allocations
