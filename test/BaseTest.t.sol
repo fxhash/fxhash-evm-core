@@ -80,6 +80,7 @@ contract BaseTest is Deploy, Test {
 
     function _createAccounts() internal virtual override {
         super._createAccounts();
+        admin = address(this);
         alice = makeAddr("alice");
         bob = makeAddr("bob");
         eve = makeAddr("eve");
