@@ -39,7 +39,14 @@ interface IFxMintTicket721 is IToken {
      * @param _newDepositAmount New total deposit for the ticket
      * @param _payment Current price of token in addition to taxes deposited
      */
-    event Claimed(uint256 indexed _tokenId, address indexed _claimer, uint128 indexed _newPrice, uint48 _newForeclosureTime, uint80 _newDepositAmount, uint256 _payment);
+    event Claimed(
+        uint256 indexed _tokenId,
+        address indexed _claimer,
+        uint128 indexed _newPrice,
+        uint48 _newForeclosureTime,
+        uint80 _newDepositAmount,
+        uint256 _payment
+    );
 
     /**
      * @notice Event emitted when additional taxes are deposited
