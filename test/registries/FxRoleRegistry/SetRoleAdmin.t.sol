@@ -4,26 +4,17 @@ pragma solidity 0.8.20;
 import "test/registries/FxRoleRegistry/FxRoleRegistryTest.sol";
 
 contract SetRoleAdmin is FxRoleRegistryTest {
-    function test_SetRoleAdmin() public {
-        assertTrue(fxRoleRegistry.hasRole(ADMIN_ROLE, admin));
+    function setUp() public virtual override {
+        super.setUp();
     }
 
-    function test_RevertsWhen_NotDefaultAdmin() public {
-        vm.prank(alice);
-        vm.expectRevert(
-            abi.encodePacked(
-                "AccessControl: account ",
-                Strings.toHexString(alice),
-                " is missing role ",
-                Strings.toHexString(uint256(ADMIN_ROLE), 32)
-            )
-        );
-        fxRoleRegistry.setRoleAdmin(ADMIN_ROLE);
-        assertFalse(fxRoleRegistry.hasRole(ADMIN_ROLE, alice));
+    function test_SetRoleAdmin() public {
+        RegistryLib.setRoleAdmin(admin, fxRoleRegistry, NEW_ROLE);
+        RegistryLib.grantRole(admin, fxRoleRegistry, NEW_ROLE, admin);
+        assertTrue(fxRoleRegistry.hasRole(NEW_ROLE, admin));
     }
 
     function test_RevertsWhen_NotRoleAdmin() public {
-        vm.prank(alice);
         vm.expectRevert(
             abi.encodePacked(
                 "AccessControl: account ",
@@ -32,7 +23,6 @@ contract SetRoleAdmin is FxRoleRegistryTest {
                 Strings.toHexString(uint256(ADMIN_ROLE), 32)
             )
         );
-        fxRoleRegistry.setRoleAdmin(ADMIN_ROLE);
-        assertFalse(fxRoleRegistry.hasRole(ADMIN_ROLE, alice));
+        RegistryLib.setRoleAdmin(alice, fxRoleRegistry, NEW_ROLE);
     }
 }

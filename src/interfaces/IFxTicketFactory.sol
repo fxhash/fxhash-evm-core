@@ -100,7 +100,7 @@ interface IFxTicketFactory {
      * @notice Sets the new minimum grace period
      * @param _gracePeriod Minimum time duration before a ticket enters harberger taxation
      */
-    function setGracePeriod(uint48 _gracePeriod) external;
+    function setMinGracePeriod(uint48 _gracePeriod) external;
 
     /**
      * @notice Sets new FxMintTicket721 implementation contract
