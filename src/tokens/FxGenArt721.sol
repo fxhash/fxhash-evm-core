@@ -262,7 +262,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function pause() external onlyRole(ADMIN_ROLE) {
+    function pause() external onlyRole(TOKEN_MODERATOR_ROLE) {
         _pause();
     }
 
@@ -314,7 +314,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function unpause() external onlyRole(ADMIN_ROLE) {
+    function unpause() external onlyRole(TOKEN_MODERATOR_ROLE) {
         _unpause();
     }
 
