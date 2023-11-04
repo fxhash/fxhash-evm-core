@@ -222,7 +222,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
         this.transferFrom(previousOwner, msg.sender, _tokenId);
 
         // Emits event for claiming ticket
-        emit Claimed(_tokenId, msg.sender, _newPrice, msg.value);
+        emit Claimed(_tokenId, msg.sender, _newPrice, taxInfo.foreclosureTime, taxInfo.depositAmount, msg.value);
     }
 
     /**
@@ -289,7 +289,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
         taxInfo.depositAmount += uint80(depositAmount);
 
         // Emits event for depositing taxes
-        emit Deposited(_tokenId, msg.sender, depositAmount, newForeclosure);
+        emit Deposited(_tokenId, msg.sender, newForeclosure, taxInfo.depositAmount);
 
         // Transfers any excess tax amount back to depositer
         if (excessAmount > 0) SafeTransferLib.safeTransferETH(msg.sender, excessAmount);
