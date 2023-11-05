@@ -42,7 +42,7 @@ interface IFxMintTicket721 is IToken {
     event Claimed(
         uint256 indexed _tokenId,
         address indexed _claimer,
-        uint128 indexed _newPrice,
+        uint128 _newPrice,
         uint48 _newForeclosureTime,
         uint80 _newDepositAmount,
         uint256 _payment
@@ -59,7 +59,7 @@ interface IFxMintTicket721 is IToken {
     event Deposited(
         uint256 indexed _tokenId,
         address indexed _depositer,
-        uint48 indexed _newForeclosure,
+        uint48 _newForeclosure,
         uint80 _newTotalDeposit
     );
 
@@ -72,8 +72,8 @@ interface IFxMintTicket721 is IToken {
      */
     event SetPrice(
         uint256 indexed _tokenId,
-        uint128 indexed _newPrice,
-        uint128 indexed _newForeclosure,
+        uint128 _newPrice,
+        uint128 _newForeclosure,
         uint128 _depositAmount
     );
 
