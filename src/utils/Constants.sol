@@ -18,7 +18,9 @@ string constant SPLITS_FACTORY = "SPLITS_FACTORY";
 string constant TICKET_REDEEMER = "TICKET_REDEEMER";
 
 // EIP-712
-bytes32 constant CLAIM_TYPEHASH = keccak256("Claim(address token, uint256 reserveId, uint256 index, address user)");
+bytes32 constant CLAIM_TYPEHASH = keccak256(
+    "Claim(address token, uint256 reserveId, uint96 nonce, uint256 index, address user)"
+);
 bytes32 constant SET_BASE_URI_TYPEHASH = keccak256("SetBaseURI(string uri)");
 bytes32 constant SET_CONTRACT_URI_TYPEHASH = keccak256("SetContractURI(string uri)");
 bytes32 constant SET_IMAGE_URI_TYPEHASH = keccak256("SetImageURI(string uri");
