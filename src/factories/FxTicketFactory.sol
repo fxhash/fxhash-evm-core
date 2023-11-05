@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {Clones} from "openzeppelin/contracts/proxy/Clones.sol";
-import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
+import {LibClone} from "solady/src/utils/LibClone.sol";
+import {Ownable} from "solady/src/auth/Ownable.sol";
 
 import {IFxMintTicket721, MintInfo} from "src/interfaces/IFxMintTicket721.sol";
 import {IFxTicketFactory} from "src/interfaces/IFxTicketFactory.sol";
@@ -52,7 +52,7 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
      * @dev Initializes factory owner, FxMintTicket721 implementation and minimum grace period
      */
     constructor(address _admin, address _implementation, uint48 _gracePeriod) {
-        _transferOwnership(_admin);
+        _initializeOwner(_admin);
         _setImplementation(_implementation);
         _setMinGracePeriod(_gracePeriod);
     }
@@ -78,7 +78,7 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
         if (_gracePeriod < minGracePeriod) revert InvalidGracePeriod();
 
         bytes32 salt = keccak256(abi.encode(msg.sender, nonces[msg.sender]));
-        mintTicket = Clones.cloneDeterministic(implementation, salt);
+        mintTicket = LibClone.cloneDeterministic(implementation, salt);
         nonces[msg.sender]++;
         tickets[++ticketId] = mintTicket;
 

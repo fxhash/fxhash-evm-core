@@ -21,11 +21,11 @@ import {SplitsController} from "src/splits/SplitsController.sol";
 import {SplitsFactory} from "src/splits/SplitsFactory.sol";
 import {TicketRedeemer} from "src/minters/TicketRedeemer.sol";
 
-import {Clones} from "openzeppelin-contracts/contracts/proxy/Clones.sol";
 import {HTMLRequest, HTMLTagType, HTMLTag} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
 import {IFxContractRegistry, ConfigInfo} from "src/interfaces/IFxContractRegistry.sol";
 import {IFxGenArt721, GenArtInfo, InitInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxMintTicket721, TaxInfo} from "src/interfaces/IFxMintTicket721.sol";
+import {LibClone} from "solady/src/utils/LibClone.sol";
 
 contract Deploy is Script {
     // Core
@@ -164,6 +164,7 @@ contract Deploy is Script {
         );
         _registerContracts();
         _grantRoles();
+        _setController();
         _createSplit();
         _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(scriptyRenderer), tagIds);
         _createProject();
@@ -185,7 +186,9 @@ contract Deploy is Script {
     function _createAccounts() internal virtual {
         admin = msg.sender;
         creator = makeAddr("creator");
-        tagIds.push(TAG_ID);
+
+        vm.label(admin, "Admin");
+        vm.label(creator, "Creator");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -282,6 +285,7 @@ contract Deploy is Script {
         price = _price;
         quantity = _quantity;
         tokenId = _tokenId;
+        tagIds.push(TAG_ID);
     }
 
     function _configureInfo(
@@ -403,10 +407,10 @@ contract Deploy is Script {
         constructorArgs = abi.encode(admin, splitsMain);
         splitsFactory = SplitsFactory(_deployCreate2(creationCode, constructorArgs, salt));
 
+        // SplitsController
         creationCode = type(SplitsController).creationCode;
         constructorArgs = abi.encode(splitsMain, splitsFactory, admin);
         splitsController = SplitsController(_deployCreate2(creationCode, constructorArgs, salt));
-        splitsFactory.setController(address(splitsController));
 
         // PseudoRandomizer
         creationCode = type(PseudoRandomizer).creationCode;
@@ -433,7 +437,7 @@ contract Deploy is Script {
         vm.label(address(fixedPrice), "FixedPrice");
         vm.label(address(pseudoRandomizer), "PseudoRandomizer");
         vm.label(address(scriptyRenderer), "ScriptyRenderer");
-        vm.label(address(splitsController), "splitsController");
+        vm.label(address(splitsController), "SplitsController");
         vm.label(address(splitsFactory), "SplitsFactory");
         vm.label(address(ticketRedeemer), "TicketRedeemer");
     }
@@ -496,6 +500,7 @@ contract Deploy is Script {
         names.push(FIXED_PRICE);
         names.push(PSEUDO_RANDOMIZER);
         names.push(SCRIPTY_RENDERER);
+        names.push(SPLITS_CONTROLLER);
         names.push(SPLITS_FACTORY);
         names.push(TICKET_REDEEMER);
 
@@ -509,10 +514,15 @@ contract Deploy is Script {
         contracts.push(address(fixedPrice));
         contracts.push(address(pseudoRandomizer));
         contracts.push(address(scriptyRenderer));
+        contracts.push(address(splitsController));
         contracts.push(address(splitsFactory));
         contracts.push(address(ticketRedeemer));
 
         fxContractRegistry.register(names, contracts);
+    }
+
+    function _setController() internal virtual {
+        splitsFactory.setController(address(splitsController));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -548,7 +558,7 @@ contract Deploy is Script {
     function _computeTicketAddr(address _deployer) internal view returns (address) {
         uint256 nonce = fxTicketFactory.nonces(_deployer);
         bytes32 salt = keccak256(abi.encode(_deployer, nonce));
-        return Clones.predictDeterministicAddress(address(fxMintTicket721), salt, address(fxTicketFactory));
+        return LibClone.predictDeterministicAddress(address(fxMintTicket721), salt, address(fxTicketFactory));
     }
 
     function _computeCreate2Addr(

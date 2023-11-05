@@ -2,12 +2,10 @@
 pragma solidity 0.8.20;
 
 import {Allowlist} from "src/minters/extensions/Allowlist.sol";
-import {BitMaps} from "openzeppelin/contracts/utils/structs/BitMaps.sol";
+import {LibBitmap} from "solady/src/utils/LibBitmap.sol";
 
 contract MockAllowlist is Allowlist {
-    using BitMaps for BitMaps.BitMap;
-
-    BitMaps.BitMap internal _bitmap;
+    LibBitmap.Bitmap internal _bitmap;
     bytes32 public merkleRoot;
 
     function claimSlot(address _token, uint256 _index, bytes32[] memory _proof) external {
@@ -19,7 +17,7 @@ contract MockAllowlist is Allowlist {
     }
 
     function isClaimed(uint256 _index) external view returns (bool) {
-        return _bitmap.get(_index);
+        return LibBitmap.get(_bitmap, _index);
     }
 
     function _getMerkleRoot(address, uint256) internal view override returns (bytes32) {

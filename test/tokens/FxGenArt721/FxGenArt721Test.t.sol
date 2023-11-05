@@ -28,7 +28,6 @@ contract FxGenArt721Test is BaseTest {
     bytes4 internal MINT_INACTIVE_ERROR = IFxGenArt721.MintInactive.selector;
     bytes4 internal NOT_AUTHORIZED_ERROR = IFxGenArt721.NotAuthorized.selector;
     bytes4 internal UNAUTHORIZED_ACCOUNT_ERROR = IFxGenArt721.UnauthorizedAccount.selector;
-    bytes4 internal UNAUTHORIZED_CONTRACT_ERROR = IFxGenArt721.UnauthorizedContract.selector;
     bytes4 internal UNAUTHORIZED_MINTER_ERROR = IFxGenArt721.UnauthorizedMinter.selector;
     bytes4 internal UNREGISTERED_MINTER_ERROR = IFxGenArt721.UnregisteredMinter.selector;
 
@@ -77,7 +76,7 @@ contract FxGenArt721Test is BaseTest {
         assertEq(project.contractURI, CONTRACT_URI, "contract URI mismatch");
         assertEq(primarySplits, primaryReceiver, "primary receiver not splits address");
         assertEq(FxGenArt721(fxGenArtProxy).owner(), creator, "owner isn't creator");
-        assertEq(IFxGenArt721(fxGenArtProxy).isMinter(minter), true, "minter isn't approved minter");
+        assertEq(IFxGenArt721(fxGenArtProxy).isMinter(minter), TRUE, "minter isn't approved minter");
     }
 
     function test_Initialize_RevertsWhen_InvalidStartTime() public {

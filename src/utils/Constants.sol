@@ -14,6 +14,7 @@ string constant DUTCH_AUCTION = "DUTCH_AUCTION";
 string constant FIXED_PRICE = "FIXED_PRICE";
 string constant PSEUDO_RANDOMIZER = "PSEUDO_RANDOMIZER";
 string constant SCRIPTY_RENDERER = "SCRIPTY_RENDERER";
+string constant SPLITS_CONTROLLER = "SPLITS_CONTROLLER";
 string constant SPLITS_FACTORY = "SPLITS_FACTORY";
 string constant TICKET_REDEEMER = "TICKET_REDEEMER";
 
@@ -24,6 +25,11 @@ bytes32 constant CLAIM_TYPEHASH = keccak256(
 bytes32 constant SET_BASE_URI_TYPEHASH = keccak256("SetBaseURI(string uri)");
 bytes32 constant SET_CONTRACT_URI_TYPEHASH = keccak256("SetContractURI(string uri)");
 bytes32 constant SET_IMAGE_URI_TYPEHASH = keccak256("SetImageURI(string uri");
+
+// Minters
+uint8 constant UNINITIALIZED = 0;
+uint8 constant FALSE = 1;
+uint8 constant TRUE = 2;
 
 // Project
 uint64 constant TIME_UNLIMITED = type(uint64).max;

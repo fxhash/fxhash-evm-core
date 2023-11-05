@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {BitMaps} from "openzeppelin/contracts/utils/structs/BitMaps.sol";
 import {EIP712} from "openzeppelin/contracts/utils/cryptography/EIP712.sol";
+import {LibBitmap} from "solady/src/utils/LibBitmap.sol";
 import {SignatureChecker} from "openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
 
 import {CLAIM_TYPEHASH} from "src/utils/Constants.sol";
@@ -14,7 +14,6 @@ import {CLAIM_TYPEHASH} from "src/utils/Constants.sol";
  */
 abstract contract MintPass is EIP712 {
     using SignatureChecker for address;
-    using BitMaps for BitMaps.BitMap;
 
     /**
      * @notice Mapping of token address to reserve ID to address of mint pass authority
@@ -44,14 +43,14 @@ abstract contract MintPass is EIP712 {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @notice Error thrown when a mint pass has already been claimed
-     */
-    error PassAlreadyClaimed();
-
-    /**
      * @notice Error thrown when the signature of mint pass claimer is invalid
      */
     error InvalidSignature();
+
+    /**
+     * @notice Error thrown when a mint pass has already been claimed
+     */
+    error PassAlreadyClaimed();
 
     /*//////////////////////////////////////////////////////////////////////////
                                 CONSTRUCTOR
@@ -102,14 +101,14 @@ abstract contract MintPass is EIP712 {
         uint256 _reserveId,
         uint256 _index,
         bytes calldata _signature,
-        BitMaps.BitMap storage _bitmap
+        LibBitmap.Bitmap storage _bitmap
     ) internal {
-        if (_bitmap.get(_index)) revert PassAlreadyClaimed();
+        if (LibBitmap.get(_bitmap, _index)) revert PassAlreadyClaimed();
         uint256 nonce = reserveNonce[_token][_reserveId];
         bytes32 hash = generateTypedDataHash(_token, _reserveId, nonce, _index, msg.sender);
         address signer = signingAuthorities[_token][_reserveId];
         if (!signer.isValidSignatureNow(hash, _signature)) revert InvalidSignature();
-        _bitmap.set(_index);
+        LibBitmap.set(_bitmap, _index);
 
         emit PassClaimed(_token, _reserveId, msg.sender, _index);
     }
