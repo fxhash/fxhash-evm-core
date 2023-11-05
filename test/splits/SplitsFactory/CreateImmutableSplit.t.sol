@@ -8,8 +8,8 @@ contract CreateSplit is SplitsFactoryTest {
         super.setUp();
         accounts.push(bob);
         accounts.push(alice);
-        allocations.push(uint32(600_000));
-        allocations.push(uint32(400_000));
+        allocations.push(CREATOR_ALLOCATION);
+        allocations.push(ADMIN_ALLOCATION);
     }
 
     function test_createImmutableSplit() public {
@@ -27,10 +27,10 @@ contract CreateSplit is SplitsFactoryTest {
         vm.deal(libPredicted, 1 ether);
         splitsFactory.createImmutableSplit(accounts, allocations);
         ISplitsMain(SPLITS_MAIN).distributeETH(libPredicted, accounts, allocations, 0, address(0));
-        ISplitsMain(SPLITS_MAIN).withdraw(alice, 0.4 ether, new address[](0));
-        ISplitsMain(SPLITS_MAIN).withdraw(bob, 0.6 ether, new address[](0));
-        assertGt(alice.balance, 0.3999999 ether);
-        assertGt(bob.balance, 0.5999999 ether);
+        ISplitsMain(SPLITS_MAIN).withdraw(alice, 0.1 ether, new address[](0));
+        ISplitsMain(SPLITS_MAIN).withdraw(bob, 0.9 ether, new address[](0));
+        assertGt(alice.balance, 0.0999999 ether);
+        assertGt(bob.balance, 0.8999999 ether);
     }
 
     function test_2ndWithdraw() public {
@@ -40,10 +40,10 @@ contract CreateSplit is SplitsFactoryTest {
         ISplitsMain(SPLITS_MAIN).distributeETH(computedAddress, accounts, allocations, 0, address(0));
         uint256 cachedBalance2 = alice.balance;
         uint256 cachedBalance3 = bob.balance;
-        ISplitsMain(SPLITS_MAIN).withdraw(alice, 0.4 ether, new address[](0));
-        ISplitsMain(SPLITS_MAIN).withdraw(bob, 0.6 ether, new address[](0));
-        assertEq(alice.balance - cachedBalance2, 0.4 ether);
-        assertEq(bob.balance - cachedBalance3, 0.6 ether);
+        ISplitsMain(SPLITS_MAIN).withdraw(alice, 0.1 ether, new address[](0));
+        ISplitsMain(SPLITS_MAIN).withdraw(bob, 0.9 ether, new address[](0));
+        assertEq(alice.balance - cachedBalance2, 0.1 ether);
+        assertEq(bob.balance - cachedBalance3, 0.9 ether);
     }
 
     function test_RevertsWhen_LengthMismatch() public {

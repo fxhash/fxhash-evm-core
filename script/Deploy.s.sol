@@ -164,6 +164,7 @@ contract Deploy is Script {
         );
         _registerContracts();
         _grantRoles();
+        _setController();
         _createSplit();
         _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(scriptyRenderer), tagIds);
         _createProject();
@@ -185,7 +186,9 @@ contract Deploy is Script {
     function _createAccounts() internal virtual {
         admin = msg.sender;
         creator = makeAddr("creator");
-        tagIds.push(TAG_ID);
+
+        vm.label(admin, "Admin");
+        vm.label(creator, "Creator");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -282,6 +285,7 @@ contract Deploy is Script {
         price = _price;
         quantity = _quantity;
         tokenId = _tokenId;
+        tagIds.push(TAG_ID);
     }
 
     function _configureInfo(
@@ -403,7 +407,8 @@ contract Deploy is Script {
         constructorArgs = abi.encode(admin, splitsMain);
         splitsFactory = SplitsFactory(_deployCreate2(creationCode, constructorArgs, salt));
 
-        creationCode = type(SplitsFactory).creationCode;
+        // SplitsController
+        creationCode = type(SplitsController).creationCode;
         constructorArgs = abi.encode(splitsMain, splitsFactory, admin);
         splitsController = SplitsController(_deployCreate2(creationCode, constructorArgs, salt));
 
@@ -432,7 +437,7 @@ contract Deploy is Script {
         vm.label(address(fixedPrice), "FixedPrice");
         vm.label(address(pseudoRandomizer), "PseudoRandomizer");
         vm.label(address(scriptyRenderer), "ScriptyRenderer");
-        vm.label(address(splitsController), "splitsController");
+        vm.label(address(splitsController), "SplitsController");
         vm.label(address(splitsFactory), "SplitsFactory");
         vm.label(address(ticketRedeemer), "TicketRedeemer");
     }
@@ -495,6 +500,7 @@ contract Deploy is Script {
         names.push(FIXED_PRICE);
         names.push(PSEUDO_RANDOMIZER);
         names.push(SCRIPTY_RENDERER);
+        names.push(SPLITS_CONTROLLER);
         names.push(SPLITS_FACTORY);
         names.push(TICKET_REDEEMER);
 
@@ -508,10 +514,15 @@ contract Deploy is Script {
         contracts.push(address(fixedPrice));
         contracts.push(address(pseudoRandomizer));
         contracts.push(address(scriptyRenderer));
+        contracts.push(address(splitsController));
         contracts.push(address(splitsFactory));
         contracts.push(address(ticketRedeemer));
 
         fxContractRegistry.register(names, contracts);
+    }
+
+    function _setController() internal virtual {
+        splitsFactory.setController(address(splitsController));
     }
 
     /*//////////////////////////////////////////////////////////////////////////

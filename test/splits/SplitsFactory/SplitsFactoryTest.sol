@@ -14,6 +14,9 @@ contract SplitsFactoryTest is BaseTest {
 
     function setUp() public virtual override {
         super.setUp();
+        splitsController = new MockSplitsController(SPLITS_MAIN, address(splitsFactory), admin);
+        vm.prank(splitsFactory.owner());
+        splitsFactory.setController(address(splitsController));
         _initializeState();
     }
 }

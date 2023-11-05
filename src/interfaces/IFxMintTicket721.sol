@@ -35,22 +35,32 @@ interface IFxMintTicket721 is IToken {
      * @param _tokenId ID of the token
      * @param _claimer Address of the token claimer
      * @param _newPrice New listing price of token
+     * @param _newForeclosureTime New forecluse time of the ticket
+     * @param _newDepositAmount New total deposit for the ticket
      * @param _payment Current price of token in addition to taxes deposited
      */
-    event Claimed(uint256 indexed _tokenId, address indexed _claimer, uint128 indexed _newPrice, uint256 _payment);
+    event Claimed(
+        uint256 indexed _tokenId,
+        address indexed _claimer,
+        uint128 _newPrice,
+        uint48 _newForeclosureTime,
+        uint80 _newDepositAmount,
+        uint256 _payment
+    );
 
     /**
      * @notice Event emitted when additional taxes are deposited
      * @param _tokenId ID of the token
      * @param _depositer Address of tax depositer
-     * @param _amount Total amount of taxes deposited
      * @param _newForeclosure Timestmap of new foreclosure date
+     * @param _newTotalDeposit New total deposit amount for the ticket
+
      */
     event Deposited(
         uint256 indexed _tokenId,
         address indexed _depositer,
-        uint256 indexed _amount,
-        uint256 _newForeclosure
+        uint48 _newForeclosure,
+        uint80 _newTotalDeposit
     );
 
     /**
@@ -60,12 +70,7 @@ interface IFxMintTicket721 is IToken {
      * @param _newForeclosure Timestmap of new foreclosure date
      * @param _depositAmount Adjusted amount of taxes deposited due to price change
      */
-    event SetPrice(
-        uint256 indexed _tokenId,
-        uint128 indexed _newPrice,
-        uint128 indexed _newForeclosure,
-        uint128 _depositAmount
-    );
+    event SetPrice(uint256 indexed _tokenId, uint128 _newPrice, uint128 _newForeclosure, uint128 _depositAmount);
 
     /**
      * @notice Event emitted when balance is withdrawn

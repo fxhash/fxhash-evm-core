@@ -8,7 +8,8 @@ contract SetController is SplitsFactoryTest {
 
     function test_SetController() public {
         vm.prank(admin);
-        splitsFactory.setController(alice);
+        splitsFactory.setController(address(splitsController));
+        assertEq(splitsFactory.controller(), address(splitsController));
     }
 
     function test_RevertsWhen_NotOwner() public {

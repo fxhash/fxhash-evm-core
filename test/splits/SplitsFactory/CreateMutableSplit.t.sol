@@ -3,13 +3,13 @@ pragma solidity 0.8.20;
 
 import "test/splits/SplitsFactory/SplitsFactoryTest.sol";
 
-contract CreateSplit is SplitsFactoryTest {
+contract CreateMutableSplit is SplitsFactoryTest {
     function setUp() public virtual override {
         super.setUp();
         accounts.push(bob);
         accounts.push(alice);
-        allocations.push(uint32(600_000));
-        allocations.push(uint32(400_000));
+        allocations.push(CREATOR_ALLOCATION);
+        allocations.push(ADMIN_ALLOCATION);
     }
 
     function test_createMutableSplit() public {
@@ -20,10 +20,10 @@ contract CreateSplit is SplitsFactoryTest {
         address split = splitsFactory.createMutableSplit(accounts, allocations);
         vm.deal(split, 1 ether);
         ISplitsMain(SPLITS_MAIN).distributeETH(split, accounts, allocations, 0, address(0));
-        ISplitsMain(SPLITS_MAIN).withdraw(alice, 0.4 ether, new address[](0));
-        ISplitsMain(SPLITS_MAIN).withdraw(bob, 0.6 ether, new address[](0));
-        assertGt(alice.balance, 0.3999999 ether);
-        assertGt(bob.balance, 0.5999999 ether);
+        ISplitsMain(SPLITS_MAIN).withdraw(alice, 0.1 ether, new address[](0));
+        ISplitsMain(SPLITS_MAIN).withdraw(bob, 0.9 ether, new address[](0));
+        assertGt(alice.balance, 0.0999999 ether);
+        assertGt(bob.balance, 0.8999999 ether);
     }
 
     function test_RevertsWhen_LengthMismatch() public {
