@@ -23,5 +23,6 @@ contract SetMintDetails is TicketRedeemerTest {
 
     function test_RevertsWhen_RegisteringTicketNotAssociatedWithToken() public {
         /// this seems like an issue
+        /// Redeem should say what token they want to redeem for, so that can be used as the key in the tickets[] mapping
     }
 }
