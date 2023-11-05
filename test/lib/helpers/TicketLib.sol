@@ -45,11 +45,11 @@ library TicketLib {
     function redeem(
         address _owner,
         address _redeemer,
-        address _ticket,
-        uint256 _tokenId,
+        address _token,
+        uint256 _ticketId,
         bytes storage _fxParams
     ) internal prank(_owner) {
-        ITicketRedeemer(_redeemer).redeem(_ticket, _tokenId, _fxParams);
+        ITicketRedeemer(_redeemer).redeem(_token, _ticketId, _fxParams);
     }
 
     function registerMinters(address _creator, address _proxy, MintInfo[] memory _mintInfo) internal prank(_creator) {

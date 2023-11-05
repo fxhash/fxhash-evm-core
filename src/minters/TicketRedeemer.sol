@@ -19,7 +19,7 @@ contract TicketRedeemer is ITicketRedeemer {
     /**
      * @inheritdoc ITicketRedeemer
      */
-    mapping(address => address) public tokens;
+    mapping(address => address) public tickets;
 
     /*//////////////////////////////////////////////////////////////////////////
                                 EXTERNAL FUNCTIONS
@@ -28,21 +28,21 @@ contract TicketRedeemer is ITicketRedeemer {
     /**
      * @inheritdoc ITicketRedeemer
      */
-    function redeem(address _ticket, uint256 _tokenId, bytes calldata _fxParams) external {
+    function redeem(address _token, uint256 _ticketId, bytes calldata _fxParams) external {
+        address ticket = tickets[_token];
         // Reverts if caller is not owner of ticket
-        address owner = IERC721(_ticket).ownerOf(_tokenId);
+        address owner = IERC721(ticket).ownerOf(_ticketId);
         if (msg.sender != owner) revert NotAuthorized();
         // Reverts if token contract does not exist
-        address token = tokens[_ticket];
-        if (token == address(0)) revert InvalidToken();
+        if (ticket == address(0)) revert InvalidToken();
 
         // Burns ticket
-        IFxMintTicket721(_ticket).burn(_tokenId);
+        IFxMintTicket721(ticket).burn(_ticketId);
         // Mints new fxParams token to caller
-        IFxGenArt721(token).mintParams(owner, _fxParams);
+        IFxGenArt721(_token).mintParams(owner, _fxParams);
 
         // Emits event when token has been redeemed
-        emit Redeemed(_ticket, _tokenId, owner, token);
+        emit Redeemed(ticket, _ticketId, owner, _token);
     }
 
     /**
@@ -52,8 +52,8 @@ contract TicketRedeemer is ITicketRedeemer {
         // Decodes ticket address from mint data
         address ticket = abi.decode(_mintDetails, (address));
         // Reverts if ticket address has alread been set
-        if (tokens[ticket] != address(0)) revert AlreadySet();
-        tokens[ticket] = msg.sender;
+        if (tickets[msg.sender] != address(0)) revert AlreadySet();
+        tickets[msg.sender] = ticket;
 
         // Emits event when mint details have been set
         emit MintDetailsSet(ticket, msg.sender);
