@@ -287,15 +287,13 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
         uint256 excessAmount = getExcessTax(msg.value, dailyTax);
         // Calculates total deposit amount
         uint256 depositAmount = msg.value - excessAmount;
-        // Gets new foreclosure time based on deposit amount
-        uint48 newForeclosure = getForeclosureTime(dailyTax, taxInfo.foreclosureTime, depositAmount);
 
         // Sets new tax info
-        taxInfo.foreclosureTime = newForeclosure;
+        taxInfo.foreclosureTime = getForeclosureTime(dailyTax, taxInfo.foreclosureTime, depositAmount);
         taxInfo.depositAmount += uint80(depositAmount);
 
         // Emits event for depositing taxes
-        emit Deposited(_tokenId, msg.sender, newForeclosure, taxInfo.depositAmount);
+        emit Deposited(_tokenId, msg.sender, taxInfo.foreclosureTime, taxInfo.depositAmount);
 
         // Transfers any excess tax amount back to depositer
         if (excessAmount > 0) SafeTransferLib.safeTransferETH(msg.sender, excessAmount);
