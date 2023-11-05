@@ -403,9 +403,10 @@ contract Deploy is Script {
         constructorArgs = abi.encode(admin, splitsMain);
         splitsFactory = SplitsFactory(_deployCreate2(creationCode, constructorArgs, salt));
 
-        creationCode = type(SplitsFactory).creationCode;
+        creationCode = type(SplitsController).creationCode;
         constructorArgs = abi.encode(splitsMain, splitsFactory, admin);
         splitsController = SplitsController(_deployCreate2(creationCode, constructorArgs, salt));
+        splitsFactory.setController(address(splitsController));
 
         // PseudoRandomizer
         creationCode = type(PseudoRandomizer).creationCode;

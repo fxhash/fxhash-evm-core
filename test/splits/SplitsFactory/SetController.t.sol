@@ -10,6 +10,7 @@ contract SetController is SplitsFactoryTest {
     }
 
     function test_RevertsWhen_NotOwner() public {
+        vm.prank(alice);
         vm.expectRevert("Ownable: caller is not the owner");
         splitsFactory.setController(alice);
     }

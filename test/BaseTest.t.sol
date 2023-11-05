@@ -27,6 +27,10 @@ import {ISplitsFactory} from "src/interfaces/ISplitsFactory.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
 import {ITicketRedeemer} from "src/interfaces/ITicketRedeemer.sol";
 
+import {RegistryLib} from "test/lib/helpers/RegistryLib.sol";
+import {TicketLib} from "test/lib/helpers/TicketLib.sol";
+import {TokenLib} from "test/lib/helpers/TokenLib.sol";
+
 contract BaseTest is Deploy, Test {
     // Mocks
     MockAllowlist internal allowlist;
@@ -76,6 +80,7 @@ contract BaseTest is Deploy, Test {
 
     function _createAccounts() internal virtual override {
         super._createAccounts();
+        admin = address(this);
         alice = makeAddr("alice");
         bob = makeAddr("bob");
         eve = makeAddr("eve");
@@ -120,45 +125,5 @@ contract BaseTest is Deploy, Test {
 
     function _mockRoyaltyManager(address _admin) internal prank(_admin) {
         royaltyManager = new MockRoyaltyManager();
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                     SETTERS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function _grantRole(address _admin, bytes32 _role, address _account) internal prank(_admin) {
-        fxRoleRegistry.grantRole(_role, _account);
-    }
-
-    function _registerContracts(
-        address _admin,
-        string[] storage _names,
-        address[] storage _contracts
-    ) internal prank(_admin) {
-        fxContractRegistry.register(_names, _contracts);
-    }
-
-    function _setRandomizer(address _admin, address _randomizer) internal prank(_admin) {
-        IFxGenArt721(fxGenArtProxy).setRandomizer(_randomizer);
-    }
-
-    function _setRenderer(address _admin, address _renderer) internal prank(_admin) {
-        IFxGenArt721(fxGenArtProxy).setRenderer(_renderer);
-    }
-
-    function _toggleBurn(address _creator) internal prank(_creator) {
-        IFxGenArt721(fxGenArtProxy).toggleBurn();
-    }
-
-    function _toggleMint(address _creator) internal prank(_creator) {
-        IFxGenArt721(fxGenArtProxy).toggleMint();
-    }
-
-    function _pause(address _admin) internal prank(_admin) {
-        IFxGenArt721(fxGenArtProxy).pause();
-    }
-
-    function _unpause(address _admin) internal prank(_admin) {
-        IFxGenArt721(fxGenArtProxy).unpause();
     }
 }

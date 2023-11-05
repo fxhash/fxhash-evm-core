@@ -6,14 +6,14 @@ import "test/tokens/FxMintTicket721/FxMintTicket721Test.t.sol";
 contract Claim is FxMintTicket721Test {
     function setUp() public virtual override {
         super.setUp();
-        _mint(alice, bob, amount, PRICE);
-        _deposit(bob, tokenId, DEPOSIT_AMOUNT);
+        TicketLib.mint(alice, minter, fxMintTicketProxy, bob, amount, PRICE);
+        TicketLib.deposit(bob, fxMintTicketProxy, tokenId, DEPOSIT_AMOUNT);
         _setTaxInfo();
     }
 
     function test_Claim_ListingPrice() public {
         vm.warp(gracePeriod + 1);
-        _claim(alice, tokenId, newPrice, PRICE + DEPOSIT_AMOUNT);
+        TicketLib.claim(alice, fxMintTicketProxy, tokenId, newPrice, PRICE + DEPOSIT_AMOUNT);
         _setTaxInfo();
         assertEq(FxMintTicket721(fxMintTicketProxy).ownerOf(tokenId), alice);
         assertEq(foreclosureTime, block.timestamp + (ONE_DAY * 2));
@@ -24,7 +24,7 @@ contract Claim is FxMintTicket721Test {
     function test_Claim_AuctionPrice() public {
         vm.warp(foreclosureTime + TEN_MINUTES);
         _setAuctionPrice();
-        _claim(alice, tokenId, newPrice, auctionPrice + DEPOSIT_AMOUNT);
+        TicketLib.claim(alice, fxMintTicketProxy, tokenId, newPrice, auctionPrice + DEPOSIT_AMOUNT);
         _setTaxInfo();
         assertEq(FxMintTicket721(fxMintTicketProxy).ownerOf(tokenId), alice);
         assertEq(foreclosureTime, block.timestamp + (ONE_DAY * 2));
@@ -34,18 +34,18 @@ contract Claim is FxMintTicket721Test {
 
     function test_RevertsWhen_GracePeriodActive() public {
         vm.expectRevert(GRACE_PERIOD_ACTIVE_ERROR);
-        _claim(alice, tokenId, newPrice, PRICE + DEPOSIT_AMOUNT);
+        TicketLib.claim(alice, fxMintTicketProxy, tokenId, newPrice, PRICE + DEPOSIT_AMOUNT);
     }
 
     function test_RevertsWhen_InvalidPrice() public {
         vm.warp(gracePeriod + 1);
         vm.expectRevert(INVALID_PRICE_ERROR);
-        _claim(alice, tokenId, uint80(MINIMUM_PRICE - 1), PRICE + DEPOSIT_AMOUNT);
+        TicketLib.claim(alice, fxMintTicketProxy, tokenId, uint80(MINIMUM_PRICE - 1), PRICE + DEPOSIT_AMOUNT);
     }
 
     function test_RevertsWhen_InsufficientPayment() public {
         vm.warp(gracePeriod + 1);
         vm.expectRevert(INSUFFICIENT_PAYMENT_ERROR);
-        _claim(alice, tokenId, newPrice, PRICE + (DEPOSIT_AMOUNT / 2) - 1);
+        TicketLib.claim(alice, fxMintTicketProxy, tokenId, newPrice, PRICE + (DEPOSIT_AMOUNT / 2) - 1);
     }
 }

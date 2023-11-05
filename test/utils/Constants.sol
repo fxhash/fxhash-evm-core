@@ -29,6 +29,9 @@ uint64 constant REDEEMER_ALLOCATION = 0;
 uint64 constant RESERVE_START_TIME = 86_400; // 1 day
 uint64 constant RESERVE_END_TIME = 604_800; // 1 week
 
+// Roles
+bytes32 constant NEW_ROLE = keccak256("NEW_ROLE");
+
 // Royalties
 uint96 constant ROYALTY_BPS = 500; // 5%
 
@@ -44,3 +47,6 @@ uint256 constant TOKEN_ID = 1;
 
 // Ticket
 uint256 constant DEPOSIT_AMOUNT = 0.0027 ether;
+
+uint32 constant ADMIN_SPLITS_ALLOCATION = 100_000;
+uint32 constant CREATOR_SPLITS_ALLOCATION = 900_000;
