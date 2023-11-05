@@ -70,5 +70,5 @@ interface ITicketRedeemer is IMinter {
     /**
      * @notice Mapping of FxGenArt721 token address to FxMintTicket721 token address
      */
-    function tokens(address) external view returns (address);
+    function tickets(address) external view returns (address);
 }

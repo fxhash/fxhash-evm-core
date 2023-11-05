@@ -2,7 +2,8 @@
 pragma solidity 0.8.20;
 
 import {Allowlist} from "src/minters/extensions/Allowlist.sol";
-import {BitMaps} from "openzeppelin/contracts/utils/structs/BitMaps.sol";
+import {LibBitmap} from "solady/src/utils/LibBitmap.sol";
+import {LibMap} from "solady/src/utils/LibMap.sol";
 import {MintPass} from "src/minters/extensions/MintPass.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
@@ -22,24 +23,24 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @dev Mapping of token address to reserve ID to BitMap of claimed merkle tree slots
+     * @dev Mapping of token address to reserve ID to Bitmap of claimed merkle tree slots
      */
-    mapping(address => mapping(uint256 => BitMaps.BitMap)) internal _claimedMerkleTreeSlots;
+    mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal _claimedMerkleTreeSlots;
 
     /**
-     * @dev Mapping of token address to reserve ID to BitMap of claimed mint passes
+     * @dev Mapping of token address to reserve ID to Bitmap of claimed mint passes
      */
-    mapping(address => mapping(uint256 => BitMaps.BitMap)) internal _claimedMintPasses;
+    mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal _claimedMintPasses;
+
+    /**
+     * @dev Mapping of token address to timestamp of latest update made for token reserves
+     */
+    LibMap.Uint40Map internal _latestUpdates;
 
     /**
      * @inheritdoc IDutchAuction
      */
     mapping(address => AuctionInfo[]) public auctions;
-
-    /**
-     * @inheritdoc IDutchAuction
-     */
-    mapping(address => uint256) public latestUpdates;
 
     /**
      * @inheritdoc IDutchAuction
@@ -71,7 +72,8 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable {
         bytes32 merkleRoot = _getMerkleRoot(_token, _reserveId);
         address signer = signingAuthorities[_token][_reserveId];
-        if ((merkleRoot != bytes32(0) || signer != address(0))) revert NoPublicMint();
+        if (merkleRoot != bytes32(0)) revert NoPublicMint();
+        if (signer != address(0)) revert AddressZero();
         _buy(_token, _reserveId, _amount, _to);
     }
 
@@ -87,11 +89,15 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     ) external payable {
         bytes32 merkleRoot = _getMerkleRoot(_token, _reserveId);
         if (merkleRoot == bytes32(0)) revert NoAllowlist();
-        BitMaps.BitMap storage claimBitmap = _claimedMerkleTreeSlots[_token][_reserveId];
-        for (uint256 i; i < _proofs.length; i++) {
-            _claimSlot(_token, _reserveId, _indexes[i], _proofs[i], claimBitmap);
-        }
+        LibBitmap.Bitmap storage claimBitmap = _claimedMerkleTreeSlots[_token][_reserveId];
         uint256 amount = _proofs.length;
+        for (uint256 i; i < amount; ) {
+            _claimSlot(_token, _reserveId, _indexes[i], _proofs[i], claimBitmap);
+            unchecked {
+                ++i;
+            }
+        }
+
         _buy(_token, _reserveId, amount, _to);
     }
 
@@ -108,7 +114,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     ) external payable {
         address signer = signingAuthorities[_token][_reserveId];
         if (signer == address(0)) revert NoSigningAuthority();
-        BitMaps.BitMap storage claimBitmap = _claimedMintPasses[_token][_reserveId];
+        LibBitmap.Bitmap storage claimBitmap = _claimedMintPasses[_token][_reserveId];
         _claimMintPass(_token, _reserveId, _index, _signature, claimBitmap);
         _buy(_token, _reserveId, _amount, _to);
     }
@@ -127,7 +133,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         if (!(auctions[_token][_reserveId].refunded && lastPrice > 0)) {
             revert NoRefund();
         }
-        // Checks if the auction has ended and the reserve allocation is fully sold out
+        // Checks if the auction has ended and if the reserve allocation is fully sold out
         if (block.timestamp < reserve.endTime && reserve.allocation > 0) revert NotEnded();
 
         // Get the user's refund information
@@ -135,8 +141,8 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         uint128 refundAmount = SafeCastLib.safeCastTo128(minterInfo.totalPaid - minterInfo.totalMints * lastPrice);
 
         // Deletes the minter's refund information
-        delete refunds[_token][_reserveId].minterInfo[_buyer];
         if (refundAmount == 0) revert NoRefund();
+        delete refunds[_token][_reserveId].minterInfo[_buyer];
 
         emit RefundClaimed(_token, _reserveId, _buyer, refundAmount);
 
@@ -148,14 +154,15 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
      * @inheritdoc IDutchAuction
      */
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external {
+        if (_reserve.allocation == 0) revert InvalidAllocation();
         (AuctionInfo memory daInfo, bytes32 merkleRoot, address signer) = abi.decode(
             _mintDetails,
             (AuctionInfo, bytes32, address)
         );
-        if (latestUpdates[msg.sender] != block.timestamp) {
+        if (getLatestUpdate(msg.sender) != block.timestamp) {
             delete reserves[msg.sender];
             delete auctions[msg.sender];
-            latestUpdates[msg.sender] = block.timestamp;
+            _setLatestUpdate(msg.sender, block.timestamp);
         }
 
         // Checks if the step length is evenly divisible by the auction duration
@@ -170,14 +177,17 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         }
         if (signer != address(0)) {
             signingAuthorities[msg.sender][reserveId] = signer;
+            reserveNonce[msg.sender][reserveId]++;
         }
 
         // Checks if the price curve is descending
-        if (daInfo.prices.length < 2) revert InvalidPriceCurve();
-        for (uint256 i = 1; i < daInfo.prices.length; i++) {
-            if (!(daInfo.prices[i - 1] > daInfo.prices[i])) revert PricesOutOfOrder();
+        uint256 pricesLength = daInfo.prices.length;
+        if (pricesLength < 2) revert InvalidPriceCurve();
+        unchecked {
+            for (uint256 i = 1; i < pricesLength; ++i) {
+                if (!(daInfo.prices[i - 1] > daInfo.prices[i])) revert PricesOutOfOrder();
+            }
         }
-        if (_reserve.allocation == 0) revert InvalidAllocation();
 
         // Adds the reserve and auction info to the mappings
         reserves[msg.sender].push(_reserve);
@@ -192,7 +202,8 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     function withdraw(address _token, uint256 _reserveId) external {
         // Validates token address, reserve information and given account
         uint256 length = reserves[_token].length;
-        if (length == 0 || _token == address(0)) revert InvalidToken();
+        if (length == 0) revert InvalidToken();
+        if (_token == address(0)) revert AddressZero();
         if (_reserveId >= length) revert InvalidReserve();
 
         ReserveInfo storage reserve = reserves[_token][_reserveId];
@@ -217,6 +228,13 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     /*//////////////////////////////////////////////////////////////////////////
                                 READ FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc IDutchAuction
+     */
+    function getLatestUpdate(address _token) public view returns (uint40) {
+        return LibMap.get(_latestUpdates, uint256(uint160(_token)));
+    }
 
     /**
      * @inheritdoc IDutchAuction
@@ -271,6 +289,13 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         emit Purchase(_token, _reserveId, msg.sender, _to, _amount, price);
 
         IToken(_token).mint(_to, _amount, totalPayment);
+    }
+
+    /**
+     * @dev Sets timestamp of the latest update to token reserves
+     */
+    function _setLatestUpdate(address _token, uint256 _timestamp) internal {
+        LibMap.set(_latestUpdates, uint256(uint160(_token)), uint40(_timestamp));
     }
 
     /**

@@ -9,8 +9,8 @@ contract RegisterMinters is FxMintTicket721Test {
     }
 
     function test_RegisterMinters() public {
-        assertTrue(TicketLib.isMinter(fxMintTicketProxy, minter));
-        assertFalse(TicketLib.isMinter(fxMintTicketProxy, address(fixedPrice)));
+        assertEq(TicketLib.isMinter(fxMintTicketProxy, minter), TRUE);
+        assertEq(TicketLib.isMinter(fxMintTicketProxy, address(fixedPrice)), UNINITIALIZED);
         delete mintInfo;
         _configureMinter(
             address(fixedPrice),
@@ -22,8 +22,8 @@ contract RegisterMinters is FxMintTicket721Test {
         RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, address(fixedPrice));
         TokenLib.toggleMint(creator, fxGenArtProxy);
         TicketLib.registerMinters(creator, fxMintTicketProxy, mintInfo);
-        assertFalse(TicketLib.isMinter(fxMintTicketProxy, minter));
-        assertTrue(TicketLib.isMinter(fxMintTicketProxy, address(fixedPrice)));
+        assertEq(TicketLib.isMinter(fxMintTicketProxy, minter), FALSE);
+        assertEq(TicketLib.isMinter(fxMintTicketProxy, address(fixedPrice)), TRUE);
     }
 
     function test_RevertsWhen_MintActive() public {

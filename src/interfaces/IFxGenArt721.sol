@@ -127,7 +127,7 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     error NotAuthorized();
 
     /**
-     * @notice Error thrown when signer or caller is not the owner
+     * @notice Error thrown when signer is not the owner
      */
     error NotOwner();
 
@@ -140,11 +140,6 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @notice Error thrown when caller does not have the specified role
      */
     error UnauthorizedAccount();
-
-    /**
-     * @notice Error thrown when caller is not a registered contract
-     */
-    error UnauthorizedContract();
 
     /**
      * @notice Error thrown when caller does not have minter role
@@ -219,7 +214,7 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @param _minter Address of the minter contract
      * @return Authorization status
      */
-    function isMinter(address _minter) external view returns (bool);
+    function isMinter(address _minter) external view returns (uint8);
 
     /**
      * @notice Returns the issuer information of the project (primaryReceiver, ProjectInfo)
