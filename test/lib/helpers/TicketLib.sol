@@ -83,7 +83,7 @@ library TicketLib {
         IFxMintTicket721(_proxy).withdraw(_to);
     }
 
-    function isMinter(address _proxy, address _minter) internal view returns (bool) {
+    function isMinter(address _proxy, address _minter) internal view returns (uint8) {
         return IFxMintTicket721(_proxy).minters(_minter);
     }
 }
