@@ -4,7 +4,7 @@ pragma solidity 0.8.20;
 import {EIP712} from "openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import {ERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
-import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
+import {Ownable} from "solady/src/auth/Ownable.sol";
 import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {RoyaltyManager} from "src/tokens/extensions/RoyaltyManager.sol";
 import {SignatureChecker} from "openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
@@ -88,7 +88,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      * @dev Modifier for restricting calls to only registered minters
      */
     modifier onlyMinter() {
-        if (!isMinter(msg.sender)) revert UnregisteredMinter();
+        if (isMinter(msg.sender) != TRUE) revert UnregisteredMinter();
         _;
     }
 
@@ -139,7 +139,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         randomizer = _initInfo.randomizer;
         renderer = _initInfo.renderer;
 
-        _transferOwnership(_owner);
+        _initializeOwner(_owner);
         _setTags(_initInfo.tagIds);
         _registerMinters(_mintInfo);
         setBaseRoyalties(_royaltyReceivers, _basisPoints);
@@ -175,9 +175,13 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      */
     function mint(address _to, uint256 _amount, uint256 /* _payment */) external onlyMinter whenNotPaused {
         if (!issuerInfo.projectInfo.mintEnabled) revert MintInactive();
-        for (uint256 i; i < _amount; ++i) {
-            _mintRandom(_to, ++totalSupply);
+        uint96 currentId = totalSupply;
+        unchecked {
+            for (uint256 i; i < _amount; ++i) {
+                _mintRandom(_to, ++currentId);
+            }
         }
+        totalSupply = currentId;
     }
 
     /**
@@ -225,10 +229,16 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     function registerMinters(MintInfo[] calldata _mintInfo) external onlyOwner {
         if (issuerInfo.projectInfo.mintEnabled) revert MintActive();
 
-        // Unregisters all active minters
-        for (uint256 i; i < issuerInfo.activeMinters.length; ++i) {
+        // Caches array length
+        uint256 length = issuerInfo.activeMinters.length;
+
+        // Unregisters all current minters
+        for (uint256 i; i < length; ) {
             address minter = issuerInfo.activeMinters[i];
-            issuerInfo.minters[minter] = false;
+            issuerInfo.minters[minter] = FALSE;
+            unchecked {
+                ++i;
+            }
         }
 
         // Deletes current list of active minters
@@ -351,7 +361,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function isMinter(address _minter) public view returns (bool) {
+    function isMinter(address _minter) public view returns (uint8) {
         return issuerInfo.minters[_minter];
     }
 
@@ -425,7 +435,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
                 if (reserveInfo.startTime < block.timestamp + lockTime) revert InvalidStartTime();
                 if (reserveInfo.endTime < reserveInfo.startTime) revert InvalidEndTime();
 
-                issuerInfo.minters[minter] = true;
+                issuerInfo.minters[minter] = TRUE;
                 issuerInfo.activeMinters.push(minter);
                 totalAllocation += reserveInfo.allocation;
 

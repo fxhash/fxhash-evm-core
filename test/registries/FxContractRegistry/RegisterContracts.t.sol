@@ -16,14 +16,14 @@ contract RegisterContracts is FxContractRegistryTest {
         assertEq(fxContractRegistry.contracts(hashedName), address(fxContractRegistry));
     }
 
-    function test_RevertsWhen_ArrayLengthMismatch() public {
-        names.push(FX_GEN_ART_721);
+    function test_RevertsWhen_LengthMismatch() public {
+        names.push(FX_CONTRACT_REGISTRY);
         vm.expectRevert(abi.encodeWithSelector(LENGTH_MISMATCH_ERROR));
         RegistryLib.registerContracts(admin, fxContractRegistry, names, contracts);
     }
 
-    function test_RevertsWhen_EmptyArrays() public {
-        vm.expectRevert(abi.encodeWithSelector(INPUT_EMPTY_ERROR));
+    function test_RevertsWhen_LengthZero() public {
+        vm.expectRevert(abi.encodeWithSelector(LENGTH_ZERO_ERROR));
         RegistryLib.registerContracts(admin, fxContractRegistry, names, contracts);
     }
 }

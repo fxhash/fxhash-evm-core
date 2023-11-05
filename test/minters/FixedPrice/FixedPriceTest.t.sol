@@ -20,9 +20,9 @@ contract FixedPriceTest is BaseTest {
     bytes4 internal INVALID_PRICE_ERROR = IFixedPrice.InvalidPrice.selector;
     bytes4 internal INVALID_TIMES_ERROR = IFixedPrice.InvalidTimes.selector;
     bytes4 internal INVALID_TOKEN_ERROR = IFixedPrice.InvalidToken.selector;
+    bytes4 internal NO_PUBLIC_MINT_ERROR = IFixedPrice.NoPublicMint.selector;
     bytes4 internal NOT_STARTED_ERROR = IFixedPrice.NotStarted.selector;
     bytes4 internal TOO_MANY_ERROR = IFixedPrice.TooMany.selector;
-    bytes4 internal NO_PUBLIC_MINT_ERROR = IFixedPrice.NoPublicMint.selector;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      SETUP

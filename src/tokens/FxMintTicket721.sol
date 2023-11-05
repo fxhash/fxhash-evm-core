@@ -3,7 +3,8 @@ pragma solidity 0.8.20;
 
 import {ERC721, IERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
-import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
+import {LibMap} from "solady/src/utils/LibMap.sol";
+import {Ownable} from "solady/src/auth/Ownable.sol";
 import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
@@ -40,6 +41,11 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
     address public immutable roleRegistry;
 
     /**
+     * @dev Mapping of wallet address to balance amount available for withdrawal
+     */
+    LibMap.Uint128Map internal _balances;
+
+    /**
      * @inheritdoc IFxMintTicket721
      */
     address public genArt721;
@@ -72,12 +78,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
     /**
      * @inheritdoc IFxMintTicket721
      */
-    mapping(address => uint256) public balances;
-
-    /**
-     * @inheritdoc IFxMintTicket721
-     */
-    mapping(address => bool) public minters;
+    mapping(address => uint8) public minters;
 
     /**
      * @inheritdoc IFxMintTicket721
@@ -128,7 +129,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
         gracePeriod = _gracePeriod;
         baseURI = _baseURI;
 
-        _transferOwnership(_owner);
+        _initializeOwner(_owner);
         _registerMinters(_mintInfo);
 
         emit TicketInitialized(_genArt721, _redeemer, _gracePeriod, _baseURI, _mintInfo);
@@ -160,9 +161,9 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
         uint256 excessTax = getExcessTax(taxInfo.depositAmount, dailyTax);
 
         // Updates balance of token owner with any excess tax amount
-        if (excessTax > 0) balances[_ownerOf(_tokenId)] += excessTax;
+        if (excessTax > 0) _setBalance(_ownerOf(_tokenId), getBalance(_ownerOf(_tokenId)) + excessTax);
         // Updates balance of contract owner with deposit amount owed
-        balances[owner()] += taxInfo.depositAmount - excessTax;
+        _setBalance(owner(), getBalance(owner()) + taxInfo.depositAmount - excessTax);
     }
 
     /**
@@ -200,7 +201,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
             if (msg.value < auctionPrice + newDailyTax) revert InsufficientPayment();
 
             // Updates balance of contract owner
-            balances[owner()] += totalDeposit + auctionPrice;
+            _setBalance(owner(), totalDeposit + auctionPrice);
             // Sets new deposit amount based on auction price
             taxInfo.depositAmount = uint80(msg.value - auctionPrice);
         } else {
@@ -208,8 +209,8 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
             if (msg.value < currentPrice + newDailyTax) revert InsufficientPayment();
 
             // Updates balances of contract owner and previous owner
-            balances[owner()] += depositOwed;
-            balances[previousOwner] += currentPrice + remainingDeposit;
+            _setBalance(owner(), depositOwed);
+            _setBalance(previousOwner, currentPrice + remainingDeposit);
             // Sets new deposit amount based on current price
             taxInfo.depositAmount = uint80(msg.value - currentPrice);
         }
@@ -230,18 +231,21 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
      */
     function mint(address _to, uint256 _amount, uint256 _payment) external whenNotPaused {
         // Reverts if caller is not a registered minter contract
-        if (!minters[msg.sender]) revert UnregisteredMinter();
+        if (minters[msg.sender] != TRUE) revert UnregisteredMinter();
 
         // Calculates listing price per token
         uint256 listingPrice = _payment / _amount;
 
+        // Caches total supply
+        uint48 currentId = totalSupply;
+
         unchecked {
             for (uint256 i; i < _amount; ++i) {
                 // Increments supply and mints token to given wallet
-                _mint(_to, ++totalSupply);
+                _mint(_to, ++currentId);
 
                 // Sets initial tax info of token
-                taxes[totalSupply] = TaxInfo(
+                taxes[currentId] = TaxInfo(
                     uint48(block.timestamp) + gracePeriod,
                     uint48(block.timestamp) + gracePeriod,
                     uint80(listingPrice),
@@ -249,14 +253,16 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
                 );
             }
         }
+
+        totalSupply = currentId;
     }
 
     /**
      * @inheritdoc IFxMintTicket721
      */
     function withdraw(address _to) external {
-        uint256 balance = balances[_to];
-        delete balances[_to];
+        uint256 balance = getBalance(_to);
+        _setBalance(_to, 0);
         SafeTransferLib.safeTransferETH(_to, balance);
 
         emit Withdraw(msg.sender, _to, balance);
@@ -322,7 +328,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
         if (remainingDeposit < newDailyTax) revert InsufficientDeposit();
 
         // Updates balance of contract owner with deposit amount owed
-        balances[owner()] += (taxInfo.depositAmount - remainingDeposit);
+        _setBalance(owner(), taxInfo.depositAmount - remainingDeposit);
 
         // Sets new tax info
         taxInfo.currentPrice = _newPrice;
@@ -344,10 +350,16 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
         (, ProjectInfo memory projectInfo) = IFxGenArt721(genArt721).issuerInfo();
         if (projectInfo.mintEnabled) revert MintActive();
 
+        // Caches array length
+        uint256 length = activeMinters.length;
+
         // Unregisters all current minters
-        for (uint256 i; i < activeMinters.length; ++i) {
+        for (uint256 i; i < length; ) {
             address minter = activeMinters[i];
-            minters[minter] = false;
+            minters[minter] = FALSE;
+            unchecked {
+                ++i;
+            }
         }
 
         // Resets array state of active minters
@@ -391,7 +403,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
      * @inheritdoc ERC721
      */
     function isApprovedForAll(address _owner, address _operator) public view override(ERC721, IERC721) returns (bool) {
-        return _operator == address(this) || minters[_operator] || super.isApprovedForAll(_owner, _operator);
+        return _operator == address(this) || minters[_operator] == TRUE || super.isApprovedForAll(_owner, _operator);
     }
 
     /**
@@ -413,6 +425,13 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
         uint256 totalDecay = _currentPrice - restingPrice;
         uint256 decayedAmount = (totalDecay / ONE_DAY) * timeElapsed;
         return _currentPrice - decayedAmount;
+    }
+
+    /**
+     * @inheritdoc IFxMintTicket721
+     */
+    function getBalance(address _account) public view returns (uint128) {
+        return LibMap.get(_balances, uint256(uint160(_account)));
     }
 
     /**
@@ -494,7 +513,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
                 if (reserveInfo.startTime < block.timestamp + lockTime) revert InvalidStartTime();
                 if (reserveInfo.endTime < reserveInfo.startTime) revert InvalidEndTime();
 
-                minters[minter] = true;
+                minters[minter] = TRUE;
                 activeMinters.push(minter);
                 totalAllocation += reserveInfo.allocation;
 
@@ -507,6 +526,13 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
             uint256 remainingSupply = IFxGenArt721(genArt721).remainingSupply();
             if (totalAllocation > remainingSupply) revert AllocationExceeded();
         }
+    }
+
+    /**
+     * @dev Sets the balance amount for an account
+     */
+    function _setBalance(address _account, uint256 _balance) internal {
+        LibMap.set(_balances, uint256(uint160(_account)), uint128(_balance));
     }
 
     /**
@@ -523,7 +549,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
             if (isForeclosed(_tokenId) && msg.sender != address(this)) revert Foreclosure();
             // Checks if token is not foreclosed
             if (!isForeclosed(_tokenId)) {
-                // Returns if caller is this contract, current token owner or a registered minter
+                // Returns if caller is this contract, current token owner or redeemer contract
                 if (msg.sender == address(this) || msg.sender == _from || redeemer == msg.sender) {
                     return;
                 }

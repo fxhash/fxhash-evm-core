@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {BitMaps} from "openzeppelin/contracts/utils/structs/BitMaps.sol";
+import {LibBitmap} from "solady/src/utils/LibBitmap.sol";
 import {MintPass} from "src/minters/extensions/MintPass.sol";
+
 import {CLAIM_TYPEHASH} from "src/utils/Constants.sol";
 
 contract MockMintPass is MintPass {
-    using BitMaps for BitMaps.BitMap;
-
-    BitMaps.BitMap internal _bitmap;
+    LibBitmap.Bitmap internal _bitmap;
 
     constructor(address _signer) MintPass() {
         signingAuthorities[address(0)][0] = _signer;
@@ -19,7 +18,7 @@ contract MockMintPass is MintPass {
     }
 
     function isClaimed(uint256 _index) external view returns (bool) {
-        return _bitmap.get(_index);
+        return LibBitmap.get(_bitmap, _index);
     }
 
     function claimTypeHash() external pure returns (bytes32) {
