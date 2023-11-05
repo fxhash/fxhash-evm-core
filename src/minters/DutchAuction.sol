@@ -177,6 +177,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         }
         if (signer != address(0)) {
             signingAuthorities[msg.sender][reserveId] = signer;
+            reserveNonce[msg.sender][reserveId]++;
         }
 
         // Checks if the price curve is descending

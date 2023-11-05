@@ -143,6 +143,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
 
         if (signer != address(0)) {
             signingAuthorities[msg.sender][reserveId] = signer;
+            reserveNonce[msg.sender][reserveId]++;
         }
 
         prices[msg.sender].push(price);

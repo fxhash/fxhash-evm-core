@@ -20,6 +20,11 @@ abstract contract MintPass is EIP712 {
      */
     mapping(address => mapping(uint256 => address)) public signingAuthorities;
 
+    /**
+     * @notice Mapping of token address to reserve ID to reserve nonce
+     */
+    mapping(address => mapping(uint256 => uint256)) public reserveNonce;
+
     /*//////////////////////////////////////////////////////////////////////////
                                     EVENTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -71,10 +76,11 @@ abstract contract MintPass is EIP712 {
     function generateTypedDataHash(
         address _token,
         uint256 _reserveId,
+        uint256 _reserveNonce,
         uint256 _index,
         address _claimer
     ) public view returns (bytes32) {
-        bytes32 structHash = keccak256(abi.encode(CLAIM_TYPEHASH, _token, _reserveId, _index, _claimer));
+        bytes32 structHash = keccak256(abi.encode(CLAIM_TYPEHASH, _token, _reserveNonce, _reserveId, _index, _claimer));
         return _hashTypedDataV4(structHash);
     }
 
@@ -98,7 +104,8 @@ abstract contract MintPass is EIP712 {
         LibBitmap.Bitmap storage _bitmap
     ) internal {
         if (LibBitmap.get(_bitmap, _index)) revert PassAlreadyClaimed();
-        bytes32 hash = generateTypedDataHash(_token, _reserveId, _index, msg.sender);
+        uint256 nonce = reserveNonce[_token][_reserveId];
+        bytes32 hash = generateTypedDataHash(_token, _reserveId, nonce, _index, msg.sender);
         address signer = signingAuthorities[_token][_reserveId];
         if (!signer.isValidSignatureNow(hash, _signature)) revert InvalidSignature();
         LibBitmap.set(_bitmap, _index);
