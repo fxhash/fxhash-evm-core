@@ -70,12 +70,7 @@ interface IFxMintTicket721 is IToken {
      * @param _newForeclosure Timestmap of new foreclosure date
      * @param _depositAmount Adjusted amount of taxes deposited due to price change
      */
-    event SetPrice(
-        uint256 indexed _tokenId,
-        uint128 _newPrice,
-        uint128 _newForeclosure,
-        uint128 _depositAmount
-    );
+    event SetPrice(uint256 indexed _tokenId, uint128 _newPrice, uint128 _newForeclosure, uint128 _depositAmount);
 
     /**
      * @notice Event emitted when balance is withdrawn
