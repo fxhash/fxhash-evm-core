@@ -5,10 +5,12 @@ import "test/minters/DutchAuction/DutchAuctionTest.t.sol";
 
 contract BuyWithMintPass is DutchAuctionTest {
     uint256 internal claimIndex;
+    uint256 internal mintPassSignerNonce;
 
     function setUp() public override {
         quantity = 1;
         mintPassSignerPk = 1;
+        mintPassSignerNonce = 1;
         mintPassSigner = vm.addr(mintPassSignerPk);
         super.setUp();
     }
@@ -19,7 +21,13 @@ contract BuyWithMintPass is DutchAuctionTest {
     }
 
     function test_BuyWithMintPass() public {
-        bytes32 digest = dutchAuction.generateTypedDataHash(fxGenArtProxy, reserveId, claimIndex, alice);
+        bytes32 digest = dutchAuction.generateTypedDataHash(
+            fxGenArtProxy,
+            reserveId,
+            mintPassSignerNonce,
+            claimIndex,
+            alice
+        );
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(mintPassSignerPk, digest);
         vm.prank(alice);
         dutchAuction.buyMintPass{value: quantity * price}(
@@ -33,7 +41,13 @@ contract BuyWithMintPass is DutchAuctionTest {
     }
 
     function test_RevertsWhen_NotClaimer_BuyWithMintPass() public {
-        bytes32 digest = dutchAuction.generateTypedDataHash(fxGenArtProxy, reserveId, claimIndex, alice);
+        bytes32 digest = dutchAuction.generateTypedDataHash(
+            fxGenArtProxy,
+            reserveId,
+            mintPassSignerNonce,
+            claimIndex,
+            alice
+        );
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(mintPassSignerPk, digest);
         vm.prank(bob);
         vm.expectRevert();
@@ -48,7 +62,13 @@ contract BuyWithMintPass is DutchAuctionTest {
     }
 
     function test_RevertsWhen_SignatureInvalid_BuyWithMintPass() public {
-        bytes32 digest = dutchAuction.generateTypedDataHash(fxGenArtProxy, reserveId, claimIndex, alice);
+        bytes32 digest = dutchAuction.generateTypedDataHash(
+            fxGenArtProxy,
+            reserveId,
+            mintPassSignerNonce,
+            claimIndex,
+            alice
+        );
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(2, digest);
         vm.prank(alice);
         vm.expectRevert();
@@ -63,7 +83,13 @@ contract BuyWithMintPass is DutchAuctionTest {
     }
 
     function test_RevertsWhen_MintPassAlreadyClaimed_BuyWithMintPass() public {
-        bytes32 digest = dutchAuction.generateTypedDataHash(fxGenArtProxy, reserveId, claimIndex, alice);
+        bytes32 digest = dutchAuction.generateTypedDataHash(
+            fxGenArtProxy,
+            reserveId,
+            mintPassSignerNonce,
+            claimIndex,
+            alice
+        );
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(mintPassSignerPk, digest);
         vm.prank(alice);
         dutchAuction.buyMintPass{value: quantity * price}(

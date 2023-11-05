@@ -11,7 +11,7 @@ contract Burn is FxMintTicket721Test {
     }
 
     function test_Burn() public {
-        TicketLib.redeem(bob, address(ticketRedeemer), fxMintTicketProxy, tokenId, fxParams);
+        TicketLib.redeem(bob, address(ticketRedeemer), fxGenArtProxy, tokenId, fxParams);
         _setTaxInfo();
         assertEq(gracePeriod, 0);
         assertEq(foreclosureTime, 0);
