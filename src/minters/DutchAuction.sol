@@ -134,24 +134,17 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         ReserveInfo storage reserve = reserves[_token][_reserveId];
         uint256 lastPrice = refunds[_token][_reserveId].lastPrice;
 
+        bool refundAuction = auctions[_token][_reserveId].refunded;
         // Checks if refunds are enabled and there is a last price
-        if (!(auctions[_token][_reserveId].refunded && lastPrice > 0)) {
+        if (!(refundAuction && lastPrice > 0)) {
             revert NoRefund();
         }
         // Checks if the auction has ended and if the reserve allocation is fully sold out
         if (block.timestamp < reserve.endTime && reserve.allocation > 0) revert NotEnded();
         // checks if the rebate auction ended, but didn't sellout.  Refunds lowest price
-        if (
-            block.timestamp > reserve.endTime &&
-            reserve.allocation > 0 &&
-            auctions[_token][_reserveId].refunded &&
-            lastPrice == 0
-        ) {
-            uint256 length = auctions[_token][_reserveId].prices.length;
-            lastPrice = auctions[_token][_reserveId].prices[length - 1];
-            refunds[_token][_reserveId].lastPrice = lastPrice;
+        if (lastPrice == 0 && refundAuction) {
+            lastPrice = _recordLastPrice(reserve, _token, _reserveId);
         }
-
         // Get the user's refund information
         MinterInfo memory minterInfo = refunds[_token][_reserveId].minterInfo[_buyer];
         uint128 refundAmount = SafeCastLib.safeCastTo128(minterInfo.totalPaid - minterInfo.totalMints * lastPrice);
@@ -228,20 +221,15 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         if (block.timestamp < reserve.endTime && reserve.allocation > 0) revert NotEnded();
         (address saleReceiver, ) = IFxGenArt721(_token).issuerInfo();
         uint256 lastPrice = refunds[_token][_reserveId].lastPrice;
-        if (
-            block.timestamp > reserve.endTime &&
-            reserve.allocation > 0 &&
-            auctions[_token][_reserveId].refunded &&
-            lastPrice == 0
-        ) {
-            uint256 length = auctions[_token][_reserveId].prices.length;
-            lastPrice = auctions[_token][_reserveId].prices[length - 1];
-            refunds[_token][_reserveId].lastPrice = lastPrice;
+        bool refundAuction = auctions[_token][_reserveId].refunded;
+        if (lastPrice == 0 && refundAuction) {
+            lastPrice = _recordLastPrice(reserve, _token, _reserveId);
         }
+        refunds[_token][_reserveId].lastPrice = lastPrice;
 
         // Gets the sale proceeds for the reserve
         uint256 proceeds;
-        if (auctions[_token][_reserveId].refunded) {
+        if (refundAuction) {
             proceeds = lastPrice * numberMinted[_token][_reserveId];
         } else {
             proceeds = saleProceeds[_token][_reserveId];
@@ -352,6 +340,19 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         // Checks if the step is within the range of prices
         if (step >= _daInfo.prices.length) revert InvalidStep();
         return _daInfo.prices[step];
+    }
+
+    function _recordLastPrice(
+        ReserveInfo memory _reserve,
+        address _token,
+        uint256 _reserveId
+    ) internal returns (uint256) {
+        if (block.timestamp > _reserve.endTime && _reserve.allocation > 0) {
+            uint256 length = auctions[_token][_reserveId].prices.length;
+            uint256 lastPrice = auctions[_token][_reserveId].prices[length - 1];
+            refunds[_token][_reserveId].lastPrice = lastPrice;
+            return lastPrice;
+        }
     }
 
     /**
