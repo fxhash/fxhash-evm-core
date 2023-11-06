@@ -33,14 +33,14 @@ interface IFxContractRegistry {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @notice Error thrown when either array is empty
-     */
-    error InputEmpty();
-
-    /**
      * @notice Error thrown when array lengths do not match
      */
     error LengthMismatch();
+
+    /**
+     * @notice Error thrown when array length is zero
+     */
+    error LengthZero();
 
     /*//////////////////////////////////////////////////////////////////////////
                                   FUNCTIONS

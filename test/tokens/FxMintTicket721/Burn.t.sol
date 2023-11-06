@@ -6,12 +6,12 @@ import "test/tokens/FxMintTicket721/FxMintTicket721Test.t.sol";
 contract Burn is FxMintTicket721Test {
     function setUp() public virtual override {
         super.setUp();
-        _mint(alice, bob, amount, PRICE);
+        TicketLib.mint(alice, minter, fxMintTicketProxy, bob, amount, PRICE);
         _setTaxInfo();
     }
 
     function test_Burn() public {
-        _redeem(bob, fxMintTicketProxy, tokenId, fxParams);
+        TicketLib.redeem(bob, address(ticketRedeemer), fxGenArtProxy, tokenId, fxParams);
         _setTaxInfo();
         assertEq(gracePeriod, 0);
         assertEq(foreclosureTime, 0);

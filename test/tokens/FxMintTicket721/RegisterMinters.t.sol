@@ -9,8 +9,8 @@ contract RegisterMinters is FxMintTicket721Test {
     }
 
     function test_RegisterMinters() public {
-        assertTrue(_isMinter(minter));
-        assertFalse(_isMinter(address(fixedPrice)));
+        assertEq(TicketLib.isMinter(fxMintTicketProxy, minter), TRUE);
+        assertEq(TicketLib.isMinter(fxMintTicketProxy, address(fixedPrice)), UNINITIALIZED);
         delete mintInfo;
         _configureMinter(
             address(fixedPrice),
@@ -19,11 +19,11 @@ contract RegisterMinters is FxMintTicket721Test {
             MINTER_ALLOCATION,
             abi.encode(PRICE, merkleRoot, mintPassSigner)
         );
-        _grantRole(admin, MINTER_ROLE, address(fixedPrice));
-        _toggleMint(creator);
-        _registerMinters(creator, mintInfo);
-        assertFalse(_isMinter(minter));
-        assertTrue(_isMinter(address(fixedPrice)));
+        RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, address(fixedPrice));
+        TokenLib.toggleMint(creator, fxGenArtProxy);
+        TicketLib.registerMinters(creator, fxMintTicketProxy, mintInfo);
+        assertEq(TicketLib.isMinter(fxMintTicketProxy, minter), FALSE);
+        assertEq(TicketLib.isMinter(fxMintTicketProxy, address(fixedPrice)), TRUE);
     }
 
     function test_RevertsWhen_MintActive() public {
@@ -35,8 +35,8 @@ contract RegisterMinters is FxMintTicket721Test {
             MINTER_ALLOCATION,
             abi.encode(PRICE)
         );
-        _grantRole(admin, MINTER_ROLE, address(fixedPrice));
+        RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, address(fixedPrice));
         vm.expectRevert(MINT_ACTIVE_ERROR);
-        _registerMinters(creator, mintInfo);
+        TicketLib.registerMinters(creator, fxMintTicketProxy, mintInfo);
     }
 }

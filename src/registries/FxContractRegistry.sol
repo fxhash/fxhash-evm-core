@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
+import {Ownable} from "solady/src/auth/Ownable.sol";
 import {IFxContractRegistry, ConfigInfo} from "src/interfaces/IFxContractRegistry.sol";
 
 /**
@@ -32,7 +32,7 @@ contract FxContractRegistry is IFxContractRegistry, Ownable {
      * @dev Initializes registry owner and system config information
      */
     constructor(address _admin, ConfigInfo memory _configInfo) Ownable() {
-        _transferOwnership(_admin);
+        _initializeOwner(_admin);
         _setConfigInfo(_configInfo);
     }
 
@@ -44,14 +44,15 @@ contract FxContractRegistry is IFxContractRegistry, Ownable {
      * @inheritdoc IFxContractRegistry
      */
     function register(string[] calldata _names, address[] calldata _contracts) external onlyOwner {
+        uint256 namesLength = _names.length;
+        // Reverts if array lengths are not equal
+        if (namesLength != _contracts.length) revert LengthMismatch();
+        // Reverts if array is empty
+        if (namesLength == 0) revert LengthZero();
+
         address contractAddr;
         bytes32 contractName;
-        uint256 length = _names.length;
-        // Reverts if array lengths are not equal
-        if (length != _contracts.length) revert LengthMismatch();
-        // Reverts if array lengths are empty
-        if (length == 0 || _contracts.length == 0) revert InputEmpty();
-        for (uint256 i; i < length; ) {
+        for (uint256 i; i < namesLength; ) {
             contractAddr = _contracts[i];
             contractName = keccak256(abi.encode(_names[i]));
             contracts[contractName] = contractAddr;

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
+import {Ownable} from "solady/src/auth/Ownable.sol";
 import {SplitsController} from "src/splits/SplitsController.sol";
 
 import {ISplitsController} from "src/interfaces/ISplitsController.sol";
@@ -37,7 +37,7 @@ contract SplitsFactory is ISplitsFactory, Ownable {
      */
     constructor(address _admin, address _splits) {
         splits = _splits;
-        _transferOwnership(_admin);
+        _initializeOwner(_admin);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -67,21 +67,18 @@ contract SplitsFactory is ISplitsFactory, Ownable {
         address[] calldata _accounts,
         uint32[] calldata _allocations
     ) external returns (address split) {
-        split = ISplitsMain(splits).createSplit(_accounts, _allocations, 0, controller);
-        emit SplitsInfo(split, controller, _accounts, _allocations, 0);
+        split = _createMutableSplit(msg.sender, _accounts, _allocations);
     }
 
     /**
      * @inheritdoc ISplitsFactory
      */
-    function createMutableSplit(
+    function createMutableSplitFor(
         address _creator,
         address[] calldata _accounts,
         uint32[] calldata _allocations
     ) external returns (address split) {
-        split = ISplitsMain(splits).createSplit(_accounts, _allocations, 0, controller);
-        ISplitsController(controller).addCreator(split, _creator);
-        emit SplitsInfo(split, controller, _accounts, _allocations, 0);
+        split = _createMutableSplit(_creator, _accounts, _allocations);
     }
 
     /**
@@ -104,5 +101,18 @@ contract SplitsFactory is ISplitsFactory, Ownable {
         address oldController = controller;
         controller = _controller;
         emit ControllerUpdated(oldController, _controller);
+    }
+
+    /**
+     * @dev Creates new mutable 0xSplits wallet
+     */
+    function _createMutableSplit(
+        address _creator,
+        address[] calldata _accounts,
+        uint32[] calldata _allocations
+    ) internal returns (address split) {
+        split = ISplitsMain(splits).createSplit(_accounts, _allocations, 0, controller);
+        ISplitsController(controller).addCreator(split, _creator);
+        emit SplitsInfo(split, controller, _accounts, _allocations, 0);
     }
 }

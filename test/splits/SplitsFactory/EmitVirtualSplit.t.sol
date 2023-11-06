@@ -8,8 +8,8 @@ contract CreateVirtualSplit is SplitsFactoryTest {
         super.setUp();
         accounts.push(bob);
         accounts.push(alice);
-        allocations.push(uint32(400_000));
-        allocations.push(uint32(600_000));
+        allocations.push(CREATOR_ALLOCATION);
+        allocations.push(ADMIN_ALLOCATION);
     }
 
     function test_createsVirtualSplit() public {

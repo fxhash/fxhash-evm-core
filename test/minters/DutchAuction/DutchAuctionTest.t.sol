@@ -45,12 +45,12 @@ contract DutchAuctionTest is BaseTest {
         _configureMinter(address(dutchAuction), RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, mintParams);
         _configureMintParams(stepLength, true, prices);
         _configureMinter(address(refundableDA), RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, mintParams);
-        _grantRole(admin, MINTER_ROLE, address(dutchAuction));
-        _grantRole(admin, MINTER_ROLE, address(refundableDA));
+        RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, address(dutchAuction));
+        RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, address(refundableDA));
         _createSplit();
         _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(scriptyRenderer), tagIds);
         _createProject();
-        _toggleMint(creator);
+        TokenLib.toggleMint(creator, fxGenArtProxy);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

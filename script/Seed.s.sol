@@ -7,7 +7,7 @@ contract Seed is Deploy {
     function _run() internal override {
         super._run();
         creator = msg.sender;
-        for (uint256 i; i < 20; i++) {
+        for (uint256 i; i < 20; ++i) {
             _initializeProject();
             _createProject();
             _initializeTicket();
@@ -40,8 +40,11 @@ contract Seed is Deploy {
 
     function _mint() internal {
         IFxGenArt721(fxGenArtProxy).toggleMint();
-        for (uint256 i; i < 20; i++) {
+        for (uint256 i; i < 20; ) {
             IFxGenArt721(fxGenArtProxy).ownerMint(creator);
+            unchecked {
+                ++i;
+            }
         }
     }
 }

@@ -8,8 +8,8 @@ contract FxContractRegistryTest is BaseTest {
     bytes32 internal hashedName;
 
     // Errors
-    bytes4 INPUT_EMPTY_ERROR = IFxContractRegistry.InputEmpty.selector;
     bytes4 LENGTH_MISMATCH_ERROR = IFxContractRegistry.LengthMismatch.selector;
+    bytes4 LENGTH_ZERO_ERROR = IFxContractRegistry.LengthZero.selector;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     SETUP
@@ -17,9 +17,7 @@ contract FxContractRegistryTest is BaseTest {
 
     function setUp() public virtual override {
         super.setUp();
-        configInfo.lockTime = LOCK_TIME;
-        configInfo.referrerShare = REFERRER_SHARE;
-        configInfo.defaultMetadata = DEFAULT_METADATA;
+        _initializeState();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -27,12 +25,22 @@ contract FxContractRegistryTest is BaseTest {
     //////////////////////////////////////////////////////////////////////////*/
 
     function testSetConfig() public {
-        vm.prank(fxContractRegistry.owner());
-        fxContractRegistry.setConfig(configInfo);
+        RegistryLib.setConfig(fxContractRegistry.owner(), fxContractRegistry, configInfo);
         (lockTime, referrerShare, defaultMetadata) = fxContractRegistry.configInfo();
 
         assertEq(lockTime, configInfo.lockTime);
         assertEq(referrerShare, configInfo.referrerShare);
         assertEq(defaultMetadata, configInfo.defaultMetadata);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    HELPERS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function _initializeState() internal override {
+        super._initializeState();
+        configInfo.lockTime = LOCK_TIME;
+        configInfo.referrerShare = REFERRER_SHARE;
+        configInfo.defaultMetadata = DEFAULT_METADATA;
     }
 }

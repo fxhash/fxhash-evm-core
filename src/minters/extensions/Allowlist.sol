@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {BitMaps} from "openzeppelin/contracts/utils/structs/BitMaps.sol";
+import {LibBitmap} from "solady/src/utils/LibBitmap.sol";
 import {MerkleProof} from "openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 /**
@@ -10,8 +10,6 @@ import {MerkleProof} from "openzeppelin/contracts/utils/cryptography/MerkleProof
  * @notice Extension for claiming tokens through merkle trees
  */
 abstract contract Allowlist {
-    using BitMaps for BitMaps.BitMap;
-
     /*//////////////////////////////////////////////////////////////////////////
                                     EVENTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -56,13 +54,13 @@ abstract contract Allowlist {
         uint256 _reserveId,
         uint256 _index,
         bytes32[] memory _proof,
-        BitMaps.BitMap storage _bitmap
+        LibBitmap.Bitmap storage _bitmap
     ) internal {
-        if (_bitmap.get(_index)) revert SlotAlreadyClaimed();
+        if (LibBitmap.get(_bitmap, _index)) revert SlotAlreadyClaimed();
         bytes32 root = _getMerkleRoot(_token, _reserveId);
         bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(_index, msg.sender))));
         if (!MerkleProof.verify(_proof, root, leaf)) revert InvalidProof();
-        _bitmap.set(_index);
+        LibBitmap.set(_bitmap, _index);
 
         emit SlotClaimed(_token, _reserveId, msg.sender, _index);
     }
