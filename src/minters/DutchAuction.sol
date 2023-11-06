@@ -62,6 +62,11 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
      */
     mapping(address => mapping(uint256 => uint256)) public saleProceeds;
 
+    /**
+     * @inheritdoc IDutchAuction
+     */
+    mapping(address => mapping(uint256 => uint256)) public numberMinted;
+
     /*//////////////////////////////////////////////////////////////////////////
                                 EXTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -221,12 +226,28 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         // Checks if the auction has ended and the reserve allocation is fully sold out
         if (block.timestamp < reserve.endTime && reserve.allocation > 0) revert NotEnded();
         (address saleReceiver, ) = IFxGenArt721(_token).issuerInfo();
+        uint256 lastPrice = refunds[_token][_reserveId].lastPrice;
+        if (
+            block.timestamp > reserve.endTime &&
+            reserve.allocation > 0 &&
+            auctions[_token][_reserveId].refunded &&
+            lastPrice == 0
+        ) {
+            lastPrice = auctions[_token][_reserveId].prices[auctions[_token][_reserveId].prices.length - 1];
+            refunds[_token][_reserveId].lastPrice = lastPrice;
+        }
 
         // Gets the sale proceeds for the reserve
-        uint256 proceeds = saleProceeds[_token][_reserveId];
+        uint256 proceeds;
+        if (auctions[_token][_reserveId].refunded) {
+            proceeds = lastPrice * numberMinted[_token][_reserveId];
+        } else {
+            proceeds = saleProceeds[_token][_reserveId];
+        }
         if (proceeds == 0) revert InsufficientFunds();
 
         // Clears the sale proceeds for the reserve
+        delete numberMinted[_token][_reserveId];
         delete saleProceeds[_token][_reserveId];
 
         emit Withdrawn(_token, _reserveId, saleReceiver, proceeds);
@@ -296,6 +317,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
 
         // Adds the sale proceeds to the total for the reserve
         saleProceeds[_token][_reserveId] += totalPayment;
+        numberMinted[_token][_reserveId] += _amount;
         emit Purchase(_token, _reserveId, msg.sender, _to, _amount, price);
 
         IToken(_token).mint(_to, _amount, totalPayment);

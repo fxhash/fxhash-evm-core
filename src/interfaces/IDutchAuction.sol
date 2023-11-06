@@ -269,6 +269,11 @@ interface IDutchAuction is IMinter {
     function saleProceeds(address _token, uint256 _reserveId) external view returns (uint256);
 
     /**
+     * @notice Mapping of token address to reserve ID to number of tokens minted
+     */
+    function numberMinted(address _token, uint256 _reserveId) external view returns (uint256);
+
+    /**
      * @inheritdoc IMinter
      * @dev Mint Details: struct of auction information, merkle root, and signer address
      */
