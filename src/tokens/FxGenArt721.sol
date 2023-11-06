@@ -20,15 +20,6 @@ import {IRenderer} from "src/interfaces/IRenderer.sol";
 import "src/utils/Constants.sol";
 
 /**
- *                       .#                                    .#
- *     .##             .## .##                         .##      .##
- *   .#               .##  .##                         .##       .##
- * .###### .##   .## .##   .#####.     .####.   .####  .#####.    .##
- *  .##     .# .##  .##   .##  .##  .##  .##  .##     .##  .##   .##
- *  .##      .#     .##   .##  .## .##   .##    .###  .##  .##   .##
- *  .##    .#  .##   .##  .##  .## .##   ,##      .## .#   .##  .##
- *  .##   .##   .##   .## .##  .##   .##  ,#  .## .## .##  .## .##
- *                      .#                                    .#
  * @title FxGenArt721
  * @author fx(hash)
  * @notice See the documentation in {IFxGenArt721}
