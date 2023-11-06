@@ -147,7 +147,8 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
             auctions[_token][_reserveId].refunded &&
             lastPrice == 0
         ) {
-            lastPrice = auctions[_token][_reserveId].prices[auctions[_token][_reserveId].prices.length - 1];
+            uint256 length = auctions[_token][_reserveId].prices.length;
+            lastPrice = auctions[_token][_reserveId].prices[length - 1];
             refunds[_token][_reserveId].lastPrice = lastPrice;
         }
 
@@ -233,7 +234,8 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
             auctions[_token][_reserveId].refunded &&
             lastPrice == 0
         ) {
-            lastPrice = auctions[_token][_reserveId].prices[auctions[_token][_reserveId].prices.length - 1];
+            uint256 length = auctions[_token][_reserveId].prices.length;
+            lastPrice = auctions[_token][_reserveId].prices[length - 1];
             refunds[_token][_reserveId].lastPrice = lastPrice;
         }
 
