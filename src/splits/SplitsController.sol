@@ -15,20 +15,28 @@ contract SplitsController is ISplitsController, Ownable {
                                     STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISplitsController
+    /**
+     * @inheritdoc ISplitsController
+     */
     mapping(address => bool) public isFxHash;
 
-    /// @inheritdoc ISplitsController
+    /**
+     * @inheritdoc ISplitsController
+     */
     mapping(address => address) public splitCreators;
 
-    /// @inheritdoc ISplitsController
+    /**
+     * @inheritdoc ISplitsController
+     */
     address public splitsFactory;
 
-    /// @inheritdoc ISplitsController
+    /**
+     * @inheritdoc ISplitsController
+     */
     address public splitsMain;
 
     /**
-     *@dev Initializes controller owner, SplitsMain, and FxSplitsFactory
+     * @dev Initializes controller owner, SplitsMain, and FxSplitsFactory
      */
     constructor(address _splitsMain, address _splitsFactory, address _owner) {
         _initializeOwner(_owner);
@@ -40,13 +48,17 @@ contract SplitsController is ISplitsController, Ownable {
                                 EXTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    /// @inheritdoc ISplitsController
+    /**
+     * @inheritdoc ISplitsController
+     */
     function addCreator(address _split, address _creator) external {
         if (msg.sender != splitsFactory) revert NotSplitsFactory();
         splitCreators[_split] = _creator;
     }
 
-    /// @inheritdoc ISplitsController
+    /**
+     * @inheritdoc ISplitsController
+     */
     function transferAllocation(
         address _to,
         address _split,
@@ -57,7 +69,9 @@ contract SplitsController is ISplitsController, Ownable {
         _transferAllocationFrom(msg.sender, _to, _split, _accounts, _allocations);
     }
 
-    /// @inheritdoc ISplitsController
+    /**
+     * @inheritdoc ISplitsController
+     */
     function transferAllocationFrom(
         address _from,
         address _to,
@@ -68,7 +82,9 @@ contract SplitsController is ISplitsController, Ownable {
         _transferAllocationFrom(_from, _to, _split, _accounts, _allocations);
     }
 
-    /// @inheritdoc ISplitsController
+    /**
+     * @inheritdoc ISplitsController
+     */
     function updateFxHash(address _fxHash, bool _active) external onlyOwner {
         isFxHash[_fxHash] = _active;
     }
