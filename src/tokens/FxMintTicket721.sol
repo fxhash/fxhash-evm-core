@@ -122,7 +122,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
         address _redeemer,
         uint48 _gracePeriod,
         string calldata _baseURI,
-        MintInfo[] calldata _mintInfo
+        MintInfo[] memory _mintInfo
     ) external initializer {
         genArt721 = _genArt721;
         redeemer = _redeemer;
@@ -499,8 +499,9 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
     /**
      * @dev Registers arbitrary number of minter contracts and sets their reserves
      */
-    function _registerMinters(MintInfo[] calldata _mintInfo) internal {
+    function _registerMinters(MintInfo[] memory _mintInfo) internal {
         address minter;
+        uint64 startTime;
         uint128 totalAllocation;
         ReserveInfo memory reserveInfo;
         (uint256 lockTime, , ) = IFxContractRegistry(contractRegistry).configInfo();
@@ -510,7 +511,11 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
                 minter = _mintInfo[i].minter;
                 reserveInfo = _mintInfo[i].reserveInfo;
                 if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) revert UnauthorizedMinter();
-                if (reserveInfo.startTime < block.timestamp + lockTime) revert InvalidStartTime();
+                if (startTime == 0) {
+                    reserveInfo.startTime = uint64(block.timestamp + lockTime);
+                } else if (startTime < block.timestamp + lockTime) {
+                    revert InvalidStartTime();
+                }
                 if (reserveInfo.endTime < reserveInfo.startTime) revert InvalidEndTime();
 
                 minters[minter] = TRUE;

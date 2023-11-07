@@ -226,7 +226,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function registerMinters(MintInfo[] calldata _mintInfo) external onlyOwner {
+    function registerMinters(MintInfo[] memory _mintInfo) external onlyOwner {
         if (issuerInfo.projectInfo.mintEnabled) revert MintActive();
 
         // Caches array length

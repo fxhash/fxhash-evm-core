@@ -70,7 +70,7 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
         address _redeemer,
         uint48 _gracePeriod,
         string calldata _baseURI,
-        MintInfo[] calldata _mintInfo
+        MintInfo[] memory _mintInfo
     ) external returns (address mintTicket) {
         if (_owner == address(0)) revert InvalidOwner();
         if (_genArt721 == address(0)) revert InvalidToken();
