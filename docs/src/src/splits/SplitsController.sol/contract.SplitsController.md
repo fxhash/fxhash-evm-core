@@ -1,5 +1,5 @@
 # SplitsController
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/splits/SplitsController.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/splits/SplitsController.sol)
 
 **Inherits:**
 [ISplitsController](/src/interfaces/ISplitsController.sol/interface.ISplitsController.md), Ownable
