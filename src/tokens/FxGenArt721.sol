@@ -432,7 +432,9 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
                 minter = _mintInfo[i].minter;
                 reserveInfo = _mintInfo[i].reserveInfo;
                 if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) revert UnauthorizedMinter();
-                if (reserveInfo.startTime < block.timestamp + lockTime) revert InvalidStartTime();
+                if(reserveInfo.startTime == 0){
+                    reserveInfo.startTime = uint64(block.timestamp + lockTime);
+                } else if (reserveInfo.startTime < block.timestamp + lockTime) revert InvalidStartTime();
                 if (reserveInfo.endTime < reserveInfo.startTime) revert InvalidEndTime();
 
                 issuerInfo.minters[minter] = TRUE;
