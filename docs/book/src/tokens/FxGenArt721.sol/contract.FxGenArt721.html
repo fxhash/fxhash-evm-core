@@ -1,0 +1,543 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>FxGenArt721</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../../favicon.svg">
+        <link rel="shortcut icon" href="../../../favicon.png">
+        <link rel="stylesheet" href="../../../css/variables.css">
+        <link rel="stylesheet" href="../../../css/general.css">
+        <link rel="stylesheet" href="../../../css/chrome.css">
+        <link rel="stylesheet" href="../../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../../../highlight.css">
+        <link rel="stylesheet" href="../../../tomorrow-night.css">
+        <link rel="stylesheet" href="../../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../../book.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../../../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item "><a href="../../../index.html">Home</a></li><li class="chapter-item affix "><li class="part-title">src</li><li class="chapter-item "><a href="../../../src/factories/index.html">❱ factories</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../src/factories/FxIssuerFactory.sol/contract.FxIssuerFactory.html">FxIssuerFactory</a></li><li class="chapter-item "><a href="../../../src/factories/FxTicketFactory.sol/contract.FxTicketFactory.html">FxTicketFactory</a></li></ol></li><li class="chapter-item "><a href="../../../src/interfaces/index.html">❱ interfaces</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../src/interfaces/IDutchAuction.sol/interface.IDutchAuction.html">IDutchAuction</a></li><li class="chapter-item "><a href="../../../src/interfaces/IFixedPrice.sol/interface.IFixedPrice.html">IFixedPrice</a></li><li class="chapter-item "><a href="../../../src/interfaces/IFxContractRegistry.sol/interface.IFxContractRegistry.html">IFxContractRegistry</a></li><li class="chapter-item "><a href="../../../src/interfaces/IFxGenArt721.sol/interface.IFxGenArt721.html">IFxGenArt721</a></li><li class="chapter-item "><a href="../../../src/interfaces/IFxIssuerFactory.sol/interface.IFxIssuerFactory.html">IFxIssuerFactory</a></li><li class="chapter-item "><a href="../../../src/interfaces/IFxMintTicket721.sol/interface.IFxMintTicket721.html">IFxMintTicket721</a></li><li class="chapter-item "><a href="../../../src/interfaces/IFxRoleRegistry.sol/interface.IFxRoleRegistry.html">IFxRoleRegistry</a></li><li class="chapter-item "><a href="../../../src/interfaces/IFxTicketFactory.sol/interface.IFxTicketFactory.html">IFxTicketFactory</a></li><li class="chapter-item "><a href="../../../src/interfaces/IMinter.sol/interface.IMinter.html">IMinter</a></li><li class="chapter-item "><a href="../../../src/interfaces/IPseudoRandomizer.sol/interface.IPseudoRandomizer.html">IPseudoRandomizer</a></li><li class="chapter-item "><a href="../../../src/interfaces/IRandomizer.sol/interface.IRandomizer.html">IRandomizer</a></li><li class="chapter-item "><a href="../../../src/interfaces/IRenderer.sol/interface.IRenderer.html">IRenderer</a></li><li class="chapter-item "><a href="../../../src/interfaces/IRoyaltyManager.sol/interface.IRoyaltyManager.html">IRoyaltyManager</a></li><li class="chapter-item "><a href="../../../src/interfaces/IScriptyRenderer.sol/interface.IScriptyRenderer.html">IScriptyRenderer</a></li><li class="chapter-item "><a href="../../../src/interfaces/ISeedConsumer.sol/interface.ISeedConsumer.html">ISeedConsumer</a></li><li class="chapter-item "><a href="../../../src/interfaces/ISplitsController.sol/interface.ISplitsController.html">ISplitsController</a></li><li class="chapter-item "><a href="../../../src/interfaces/ISplitsFactory.sol/interface.ISplitsFactory.html">ISplitsFactory</a></li><li class="chapter-item "><a href="../../../src/interfaces/ISplitsMain.sol/interface.ISplitsMain.html">ISplitsMain</a></li><li class="chapter-item "><a href="../../../src/interfaces/ITicketRedeemer.sol/interface.ITicketRedeemer.html">ITicketRedeemer</a></li><li class="chapter-item "><a href="../../../src/interfaces/IToken.sol/interface.IToken.html">IToken</a></li></ol></li><li class="chapter-item "><a href="../../../src/lib/index.html">❱ lib</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../src/lib/Structs.sol/struct.AuctionInfo.html">AuctionInfo</a></li><li class="chapter-item "><a href="../../../src/lib/Structs.sol/struct.ConfigInfo.html">ConfigInfo</a></li><li class="chapter-item "><a href="../../../src/lib/Structs.sol/struct.GenArtInfo.html">GenArtInfo</a></li><li class="chapter-item "><a href="../../../src/lib/Structs.sol/struct.InitInfo.html">InitInfo</a></li><li class="chapter-item "><a href="../../../src/lib/Structs.sol/struct.IssuerInfo.html">IssuerInfo</a></li><li class="chapter-item "><a href="../../../src/lib/Structs.sol/struct.MetadataInfo.html">MetadataInfo</a></li><li class="chapter-item "><a href="../../../src/lib/Structs.sol/struct.MintInfo.html">MintInfo</a></li><li class="chapter-item "><a href="../../../src/lib/Structs.sol/struct.MinterInfo.html">MinterInfo</a></li><li class="chapter-item "><a href="../../../src/lib/Structs.sol/struct.ProjectInfo.html">ProjectInfo</a></li><li class="chapter-item "><a href="../../../src/lib/Structs.sol/struct.RefundInfo.html">RefundInfo</a></li><li class="chapter-item "><a href="../../../src/lib/Structs.sol/struct.ReserveInfo.html">ReserveInfo</a></li><li class="chapter-item "><a href="../../../src/lib/Structs.sol/struct.RoyaltyInfo.html">RoyaltyInfo</a></li><li class="chapter-item "><a href="../../../src/lib/Structs.sol/struct.TaxInfo.html">TaxInfo</a></li></ol></li><li class="chapter-item "><a href="../../../src/minters/index.html">❱ minters</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../src/minters/extensions/index.html">❱ extensions</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../src/minters/extensions/Allowlist.sol/abstract.Allowlist.html">Allowlist</a></li><li class="chapter-item "><a href="../../../src/minters/extensions/MintPass.sol/abstract.MintPass.html">MintPass</a></li></ol></li><li class="chapter-item "><a href="../../../src/minters/DutchAuction.sol/contract.DutchAuction.html">DutchAuction</a></li><li class="chapter-item "><a href="../../../src/minters/FixedPrice.sol/contract.FixedPrice.html">FixedPrice</a></li><li class="chapter-item "><a href="../../../src/minters/TicketRedeemer.sol/contract.TicketRedeemer.html">TicketRedeemer</a></li></ol></li><li class="chapter-item "><a href="../../../src/randomizers/index.html">❱ randomizers</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../src/randomizers/PseudoRandomizer.sol/contract.PseudoRandomizer.html">PseudoRandomizer</a></li></ol></li><li class="chapter-item "><a href="../../../src/registries/index.html">❱ registries</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../src/registries/FxContractRegistry.sol/contract.FxContractRegistry.html">FxContractRegistry</a></li><li class="chapter-item "><a href="../../../src/registries/FxRoleRegistry.sol/contract.FxRoleRegistry.html">FxRoleRegistry</a></li></ol></li><li class="chapter-item "><a href="../../../src/renderers/index.html">❱ renderers</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../src/renderers/ScriptyRenderer.sol/contract.ScriptyRenderer.html">ScriptyRenderer</a></li></ol></li><li class="chapter-item "><a href="../../../src/splits/index.html">❱ splits</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../src/splits/SplitsController.sol/contract.SplitsController.html">SplitsController</a></li><li class="chapter-item "><a href="../../../src/splits/SplitsFactory.sol/contract.SplitsFactory.html">SplitsFactory</a></li></ol></li><li class="chapter-item expanded "><a href="../../../src/tokens/index.html">❱ tokens</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../src/tokens/extensions/index.html">❱ extensions</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../src/tokens/extensions/RoyaltyManager.sol/abstract.RoyaltyManager.html">RoyaltyManager</a></li></ol></li><li class="chapter-item expanded "><a href="../../../src/tokens/FxGenArt721.sol/contract.FxGenArt721.html" class="active">FxGenArt721</a></li><li class="chapter-item "><a href="../../../src/tokens/FxMintTicket721.sol/contract.FxMintTicket721.html">FxMintTicket721</a></li></ol></li><li class="chapter-item "><a href="../../../src/utils/index.html">❱ utils</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../src/utils/Constants.sol/constants.Constants.html">Constants</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title"></h1>
+
+                    <div class="right-buttons">
+                        <a href="../../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/fxhash/fxhash-evm-contracts" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="fxgenart721"><a class="header" href="#fxgenart721">FxGenArt721</a></h1>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/tokens/FxGenArt721.sol">Git Source</a></p>
+<p><strong>Inherits:</strong>
+<a href="/src/interfaces/IFxGenArt721.sol/interface.IFxGenArt721.html">IFxGenArt721</a>, IERC4906, ERC721, EIP712, Initializable, Ownable, Pausable, <a href="/src/tokens/extensions/RoyaltyManager.sol/abstract.RoyaltyManager.html">RoyaltyManager</a></p>
+<p><strong>Author:</strong>
+fx(hash)</p>
+<p>See the documentation in {IFxGenArt721}</p>
+<h2 id="state-variables"><a class="header" href="#state-variables">State Variables</a></h2>
+<h3 id="contractregistry"><a class="header" href="#contractregistry">contractRegistry</a></h3>
+<p>Returns address of the FxContractRegistry contract</p>
+<pre><code class="language-solidity">address public immutable contractRegistry;
+</code></pre>
+<h3 id="roleregistry"><a class="header" href="#roleregistry">roleRegistry</a></h3>
+<p>Returns the address of the FxRoleRegistry contract</p>
+<pre><code class="language-solidity">address public immutable roleRegistry;
+</code></pre>
+<h3 id="name_"><a class="header" href="#name_">name_</a></h3>
+<p><em>Project name</em></p>
+<pre><code class="language-solidity">string internal name_;
+</code></pre>
+<h3 id="symbol_"><a class="header" href="#symbol_">symbol_</a></h3>
+<p><em>Project symbol</em></p>
+<pre><code class="language-solidity">string internal symbol_;
+</code></pre>
+<h3 id="totalsupply"><a class="header" href="#totalsupply">totalSupply</a></h3>
+<p>Returns the current circulating supply of tokens</p>
+<pre><code class="language-solidity">uint96 public totalSupply;
+</code></pre>
+<h3 id="randomizer"><a class="header" href="#randomizer">randomizer</a></h3>
+<p>Returns the address of the randomizer contract</p>
+<pre><code class="language-solidity">address public randomizer;
+</code></pre>
+<h3 id="renderer"><a class="header" href="#renderer">renderer</a></h3>
+<p>Returns the address of the Renderer contract</p>
+<pre><code class="language-solidity">address public renderer;
+</code></pre>
+<h3 id="issuerinfo"><a class="header" href="#issuerinfo">issuerInfo</a></h3>
+<p>Returns the issuer information of the project (primaryReceiver, ProjectInfo)</p>
+<pre><code class="language-solidity">IssuerInfo public issuerInfo;
+</code></pre>
+<h3 id="metadatainfo"><a class="header" href="#metadatainfo">metadataInfo</a></h3>
+<p>Returns the metadata information of the project (baseURI, imageURI, onchainData)</p>
+<pre><code class="language-solidity">MetadataInfo public metadataInfo;
+</code></pre>
+<h3 id="genartinfo"><a class="header" href="#genartinfo">genArtInfo</a></h3>
+<p>Mapping of token ID to GenArtInfo struct (seed, fxParams)</p>
+<pre><code class="language-solidity">mapping(uint256 =&gt; GenArtInfo) public genArtInfo;
+</code></pre>
+<h2 id="functions"><a class="header" href="#functions">Functions</a></h2>
+<h3 id="onlyminter"><a class="header" href="#onlyminter">onlyMinter</a></h3>
+<p><em>Modifier for restricting calls to only registered minters</em></p>
+<pre><code class="language-solidity">modifier onlyMinter();
+</code></pre>
+<h3 id="onlyrole"><a class="header" href="#onlyrole">onlyRole</a></h3>
+<p><em>Modifier for restricting calls to only authorized accounts with given role</em></p>
+<pre><code class="language-solidity">modifier onlyRole(bytes32 _role);
+</code></pre>
+<h3 id="constructor"><a class="header" href="#constructor">constructor</a></h3>
+<p><em>Initializes FxContractRegistry and FxRoleRegistry</em></p>
+<pre><code class="language-solidity">constructor(address _contractRegistry, address _roleRegistry)
+    ERC721(&quot;FxGenArt721&quot;, &quot;FXHASH&quot;)
+    EIP712(&quot;FxGenArt721&quot;, &quot;1&quot;);
+</code></pre>
+<h3 id="initialize"><a class="header" href="#initialize">initialize</a></h3>
+<p>Initializes new generative art project</p>
+<pre><code class="language-solidity">function initialize(
+    address _owner,
+    InitInfo calldata _initInfo,
+    ProjectInfo calldata _projectInfo,
+    MetadataInfo calldata _metadataInfo,
+    MintInfo[] calldata _mintInfo,
+    address payable[] calldata _royaltyReceivers,
+    uint96[] calldata _basisPoints
+) external initializer;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>_owner</code></td><td><code>address</code></td><td>Address of token proxy owner</td></tr>
+<tr><td><code>_initInfo</code></td><td><code>InitInfo</code></td><td>Initialization information set on project creation</td></tr>
+<tr><td><code>_projectInfo</code></td><td><code>ProjectInfo</code></td><td>Project information</td></tr>
+<tr><td><code>_metadataInfo</code></td><td><code>MetadataInfo</code></td><td>Metadata information</td></tr>
+<tr><td><code>_mintInfo</code></td><td><code>MintInfo[]</code></td><td>Array of authorized minter contracts and their reserves</td></tr>
+<tr><td><code>_royaltyReceivers</code></td><td><code>address payable[]</code></td><td>Array of addresses receiving royalties</td></tr>
+<tr><td><code>_basisPoints</code></td><td><code>uint96[]</code></td><td>Array of basis points for calculating royalty shares</td></tr>
+</tbody></table>
+</div>
+<h3 id="burn"><a class="header" href="#burn">burn</a></h3>
+<p>Burns token ID from the circulating supply</p>
+<pre><code class="language-solidity">function burn(uint256 _tokenId) external whenNotPaused;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>_tokenId</code></td><td><code>uint256</code></td><td>ID of the token</td></tr>
+</tbody></table>
+</div>
+<h3 id="fulfillseedrequest"><a class="header" href="#fulfillseedrequest">fulfillSeedRequest</a></h3>
+<pre><code class="language-solidity">function fulfillSeedRequest(uint256 _tokenId, bytes32 _seed) external;
+</code></pre>
+<h3 id="mint"><a class="header" href="#mint">mint</a></h3>
+<pre><code class="language-solidity">function mint(address _to, uint256 _amount, uint256) external onlyMinter whenNotPaused;
+</code></pre>
+<h3 id="mintparams"><a class="header" href="#mintparams">mintParams</a></h3>
+<p>Mints single fxParams token</p>
+<p><em>Only callable by registered minter contracts</em></p>
+<pre><code class="language-solidity">function mintParams(address _to, bytes calldata _fxParams) external onlyMinter whenNotPaused;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>_to</code></td><td><code>address</code></td><td>Address receiving minted token</td></tr>
+<tr><td><code>_fxParams</code></td><td><code>bytes</code></td><td>Random sequence of fixed-length bytes used as input</td></tr>
+</tbody></table>
+</div>
+<h3 id="ownermint"><a class="header" href="#ownermint">ownerMint</a></h3>
+<p>Mints single token with randomly generated seed</p>
+<p><em>Only callable by contract owner</em></p>
+<pre><code class="language-solidity">function ownerMint(address _to) external onlyOwner whenNotPaused;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>_to</code></td><td><code>address</code></td><td>Address receiving token</td></tr>
+</tbody></table>
+</div>
+<h3 id="ownermintparams"><a class="header" href="#ownermintparams">ownerMintParams</a></h3>
+<p>Mints single fxParams token</p>
+<p><em>Only callable by contract owner</em></p>
+<pre><code class="language-solidity">function ownerMintParams(address _to, bytes calldata _fxParams) external onlyOwner whenNotPaused;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>_to</code></td><td><code>address</code></td><td>Address receiving minted token</td></tr>
+<tr><td><code>_fxParams</code></td><td><code>bytes</code></td><td>Random sequence of fixed-length bytes used as input</td></tr>
+</tbody></table>
+</div>
+<h3 id="reducesupply"><a class="header" href="#reducesupply">reduceSupply</a></h3>
+<p>Reduces maximum supply of collection</p>
+<pre><code class="language-solidity">function reduceSupply(uint120 _supply) external onlyOwner;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>_supply</code></td><td><code>uint120</code></td><td>Maximum supply amount</td></tr>
+</tbody></table>
+</div>
+<h3 id="registerminters"><a class="header" href="#registerminters">registerMinters</a></h3>
+<p>Registers minter contracts with resereve info</p>
+<pre><code class="language-solidity">function registerMinters(MintInfo[] calldata _mintInfo) external onlyOwner;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>_mintInfo</code></td><td><code>MintInfo[]</code></td><td>Mint information of token reserves</td></tr>
+</tbody></table>
+</div>
+<h3 id="toggleburn"><a class="header" href="#toggleburn">toggleBurn</a></h3>
+<p>Toggles public burn from disabled to enabled and vice versa</p>
+<pre><code class="language-solidity">function toggleBurn() external onlyOwner;
+</code></pre>
+<h3 id="togglemint"><a class="header" href="#togglemint">toggleMint</a></h3>
+<p>Toggles public mint from enabled to disabled and vice versa</p>
+<pre><code class="language-solidity">function toggleMint() external onlyOwner;
+</code></pre>
+<h3 id="setbaseuri"><a class="header" href="#setbaseuri">setBaseURI</a></h3>
+<p>Sets the new URI of the token metadata</p>
+<pre><code class="language-solidity">function setBaseURI(string calldata _uri, bytes calldata _signature) external onlyRole(ADMIN_ROLE);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>_uri</code></td><td><code>string</code></td><td>Base URI pointer</td></tr>
+<tr><td><code>_signature</code></td><td><code>bytes</code></td><td>Signature of creator used to verify metadata update</td></tr>
+</tbody></table>
+</div>
+<h3 id="setcontracturi"><a class="header" href="#setcontracturi">setContractURI</a></h3>
+<p>Sets the new URI of the contract metadata</p>
+<pre><code class="language-solidity">function setContractURI(string calldata _uri, bytes calldata _signature) external onlyRole(ADMIN_ROLE);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>_uri</code></td><td><code>string</code></td><td>Contract URI pointer</td></tr>
+<tr><td><code>_signature</code></td><td><code>bytes</code></td><td>Signature of creator used to verify metadata update</td></tr>
+</tbody></table>
+</div>
+<h3 id="setimageuri"><a class="header" href="#setimageuri">setImageURI</a></h3>
+<p>Sets the new URI of the image metadata</p>
+<pre><code class="language-solidity">function setImageURI(string calldata _uri, bytes calldata _signature) external onlyRole(ADMIN_ROLE);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>_uri</code></td><td><code>string</code></td><td>Image URI pointer</td></tr>
+<tr><td><code>_signature</code></td><td><code>bytes</code></td><td>Signature of creator used to verify metadata update</td></tr>
+</tbody></table>
+</div>
+<h3 id="setrandomizer"><a class="header" href="#setrandomizer">setRandomizer</a></h3>
+<p>Sets the new randomizer contract</p>
+<pre><code class="language-solidity">function setRandomizer(address _randomizer) external onlyRole(ADMIN_ROLE);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>_randomizer</code></td><td><code>address</code></td><td>Address of the randomizer contract</td></tr>
+</tbody></table>
+</div>
+<h3 id="setrenderer"><a class="header" href="#setrenderer">setRenderer</a></h3>
+<p>Sets the new renderer contract</p>
+<pre><code class="language-solidity">function setRenderer(address _renderer) external onlyRole(ADMIN_ROLE);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>_renderer</code></td><td><code>address</code></td><td>Address of the renderer contract</td></tr>
+</tbody></table>
+</div>
+<h3 id="pause"><a class="header" href="#pause">pause</a></h3>
+<p>Pauses all function executions where modifier is applied</p>
+<pre><code class="language-solidity">function pause() external onlyRole(TOKEN_MODERATOR_ROLE);
+</code></pre>
+<h3 id="settags"><a class="header" href="#settags">setTags</a></h3>
+<p>Emits an event for setting tag descriptions for the project</p>
+<pre><code class="language-solidity">function setTags(uint256[] calldata _tagIds) external onlyRole(TOKEN_MODERATOR_ROLE);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>_tagIds</code></td><td><code>uint256[]</code></td><td>Array of tag IDs describing the project</td></tr>
+</tbody></table>
+</div>
+<h3 id="unpause"><a class="header" href="#unpause">unpause</a></h3>
+<p>Unpauses all function executions where modifier is applied</p>
+<pre><code class="language-solidity">function unpause() external onlyRole(TOKEN_MODERATOR_ROLE);
+</code></pre>
+<h3 id="contracturi"><a class="header" href="#contracturi">contractURI</a></h3>
+<p>Returns contract-level metadata for storefront marketplaces</p>
+<pre><code class="language-solidity">function contractURI() external view returns (string memory);
+</code></pre>
+<h3 id="generatetypeddatahash"><a class="header" href="#generatetypeddatahash">generateTypedDataHash</a></h3>
+<p>Generates typed data hash for given URI</p>
+<pre><code class="language-solidity">function generateTypedDataHash(bytes32 _typeHash, string calldata _uri) public view returns (bytes32);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>_typeHash</code></td><td><code>bytes32</code></td><td>Bytes</td></tr>
+<tr><td><code>_uri</code></td><td><code>string</code></td><td>URI of metadata</td></tr>
+</tbody></table>
+</div>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;none&gt;</code></td><td><code>bytes32</code></td><td>Typed data hash</td></tr>
+</tbody></table>
+</div>
+<h3 id="isminter"><a class="header" href="#isminter">isMinter</a></h3>
+<p>Gets the authorization status for the given minter contract</p>
+<pre><code class="language-solidity">function isMinter(address _minter) public view returns (uint8);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>_minter</code></td><td><code>address</code></td><td>Address of the minter contract</td></tr>
+</tbody></table>
+</div>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;none&gt;</code></td><td><code>uint8</code></td><td>Authorization status</td></tr>
+</tbody></table>
+</div>
+<h3 id="remainingsupply"><a class="header" href="#remainingsupply">remainingSupply</a></h3>
+<p>Returns the remaining supply of tokens left to mint</p>
+<pre><code class="language-solidity">function remainingSupply() public view returns (uint256);
+</code></pre>
+<h3 id="name"><a class="header" href="#name">name</a></h3>
+<pre><code class="language-solidity">function name() public view override returns (string memory);
+</code></pre>
+<h3 id="symbol"><a class="header" href="#symbol">symbol</a></h3>
+<pre><code class="language-solidity">function symbol() public view override returns (string memory);
+</code></pre>
+<h3 id="tokenuri"><a class="header" href="#tokenuri">tokenURI</a></h3>
+<pre><code class="language-solidity">function tokenURI(uint256 _tokenId) public view override returns (string memory);
+</code></pre>
+<h3 id="_mintparams"><a class="header" href="#_mintparams">_mintParams</a></h3>
+<p><em>Mints single token to given account using fxParams as input</em></p>
+<pre><code class="language-solidity">function _mintParams(address _to, uint256 _tokenId, bytes calldata _fxParams) internal;
+</code></pre>
+<h3 id="_mintrandom"><a class="header" href="#_mintrandom">_mintRandom</a></h3>
+<p><em>Mints single token to given account using randomly generated seed as input</em></p>
+<pre><code class="language-solidity">function _mintRandom(address _to, uint256 _tokenId) internal;
+</code></pre>
+<h3 id="_registerminters"><a class="header" href="#_registerminters">_registerMinters</a></h3>
+<p><em>Registers arbitrary number of minter contracts and sets their reserves</em></p>
+<pre><code class="language-solidity">function _registerMinters(MintInfo[] calldata _mintInfo) internal;
+</code></pre>
+<h3 id="_settags"><a class="header" href="#_settags">_setTags</a></h3>
+<p><em>Emits event for setting the project tag descriptions</em></p>
+<pre><code class="language-solidity">function _setTags(uint256[] calldata _tagIds) internal;
+</code></pre>
+<h3 id="_isverified"><a class="header" href="#_isverified">_isVerified</a></h3>
+<p><em>Checks if creator is verified by the system</em></p>
+<pre><code class="language-solidity">function _isVerified(address _creator) internal view returns (bool);
+</code></pre>
+<h3 id="_verifysignature"><a class="header" href="#_verifysignature">_verifySignature</a></h3>
+<p><em>Verifies creator signature for metadata updates</em></p>
+<pre><code class="language-solidity">function _verifySignature(bytes32 _digest, bytes calldata _signature) internal view;
+</code></pre>
+<h3 id="_exists"><a class="header" href="#_exists">_exists</a></h3>
+<pre><code class="language-solidity">function _exists(uint256 _tokenId) internal view override(ERC721, RoyaltyManager) returns (bool);
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../../src/tokens/extensions/RoyaltyManager.sol/abstract.RoyaltyManager.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../../src/tokens/FxMintTicket721.sol/contract.FxMintTicket721.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../../src/tokens/extensions/RoyaltyManager.sol/abstract.RoyaltyManager.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../../src/tokens/FxMintTicket721.sol/contract.FxMintTicket721.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../../elasticlunr.min.js"></script>
+        <script src="../../../mark.min.js"></script>
+        <script src="../../../searcher.js"></script>
+
+        <script src="../../../clipboard.min.js"></script>
+        <script src="../../../highlight.js"></script>
+        <script src="../../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../../../solidity.min.js"></script>
+
+
+    </div>
+    </body>
+</html>
