@@ -246,6 +246,11 @@ interface IDutchAuction is IMinter {
     function merkleRoots(address, uint256) external view returns (bytes32);
 
     /**
+     * @notice Mapping of token address to reserve ID to number of tokens minted
+     */
+    function numberMinted(address _token, uint256 _reserveId) external view returns (uint256);
+
+    /**
      * @notice Refunds an auction buyer with their rebate amount
      * @param _reserveId ID of the mint
      * @param _token Address of the token contract
