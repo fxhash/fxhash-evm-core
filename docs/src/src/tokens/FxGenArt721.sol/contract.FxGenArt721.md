@@ -1,5 +1,5 @@
 # FxGenArt721
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/tokens/FxGenArt721.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/tokens/FxGenArt721.sol)
 
 **Inherits:**
 [IFxGenArt721](/src/interfaces/IFxGenArt721.sol/interface.IFxGenArt721.md), IERC4906, ERC721, EIP712, Initializable, Ownable, Pausable, [RoyaltyManager](/src/tokens/extensions/RoyaltyManager.sol/abstract.RoyaltyManager.md)
