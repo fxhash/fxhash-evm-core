@@ -41,9 +41,7 @@ bytes32 constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 bytes32 constant BANNED_USER_ROLE = keccak256("BANNED_USER_ROLE");
 bytes32 constant CREATOR_ROLE = keccak256("CREATOR_ROLE");
 bytes32 constant MINTER_ROLE = keccak256("MINTER_ROLE");
-bytes32 constant TOKEN_MODERATOR_ROLE = keccak256("TOKEN_MODERATOR_ROLE");
-bytes32 constant USER_MODERATOR_ROLE = keccak256("USER_MODERATOR_ROLE");
-bytes32 constant VERIFIED_USER_ROLE = keccak256("VERIFIED_USER_ROLE");
+bytes32 constant MODERATOR_ROLE = keccak256("MODERATOR_ROLE");
 
 // Royalties
 uint96 constant FEE_DENOMINATOR = 10_000;

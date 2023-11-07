@@ -321,21 +321,21 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function pause() external onlyRole(TOKEN_MODERATOR_ROLE) {
+    function pause() external onlyRole(MODERATOR_ROLE) {
         _pause();
     }
 
     /**
      * @inheritdoc IFxGenArt721
      */
-    function setTags(uint256[] calldata _tagIds) external onlyRole(TOKEN_MODERATOR_ROLE) {
+    function setTags(uint256[] calldata _tagIds) external onlyRole(MODERATOR_ROLE) {
         _setTags(_tagIds);
     }
 
     /**
      * @inheritdoc IFxGenArt721
      */
-    function unpause() external onlyRole(TOKEN_MODERATOR_ROLE) {
+    function unpause() external onlyRole(MODERATOR_ROLE) {
         _unpause();
     }
 
@@ -465,7 +465,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      * @dev Checks if creator is verified by the system
      */
     function _isVerified(address _creator) internal view returns (bool) {
-        return (IAccessControl(roleRegistry).hasRole(VERIFIED_USER_ROLE, _creator));
+        return (IAccessControl(roleRegistry).hasRole(CREATOR_ROLE, _creator));
     }
 
     /**

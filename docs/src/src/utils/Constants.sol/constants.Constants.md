@@ -1,5 +1,5 @@
 # Constants
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/utils/Constants.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/686a75b6e028ec629d05b5b60596a8ee209b77b5/src/utils/Constants.sol)
 
 ### FX_CONTRACT_REGISTRY
 
@@ -164,22 +164,10 @@ bytes32 constant CREATOR_ROLE = keccak256("CREATOR_ROLE");
 bytes32 constant MINTER_ROLE = keccak256("MINTER_ROLE");
 ```
 
-### TOKEN_MODERATOR_ROLE
+### MODERATOR_ROLE
 
 ```solidity
-bytes32 constant TOKEN_MODERATOR_ROLE = keccak256("TOKEN_MODERATOR_ROLE");
-```
-
-### USER_MODERATOR_ROLE
-
-```solidity
-bytes32 constant USER_MODERATOR_ROLE = keccak256("USER_MODERATOR_ROLE");
-```
-
-### VERIFIED_USER_ROLE
-
-```solidity
-bytes32 constant VERIFIED_USER_ROLE = keccak256("VERIFIED_USER_ROLE");
+bytes32 constant MODERATOR_ROLE = keccak256("MODERATOR_ROLE");
 ```
 
 ### FEE_DENOMINATOR

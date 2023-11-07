@@ -376,22 +376,26 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
     /**
      * @inheritdoc IFxMintTicket721
      */
-    function pause() external onlyRole(ADMIN_ROLE) {
+    function setBaseURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
+        baseURI = _uri;
+        emit BatchMetadataUpdate(1, totalSupply);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                MODERATOR FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc IFxMintTicket721
+     */
+    function pause() external onlyRole(MODERATOR_ROLE) {
         _pause();
     }
 
     /**
      * @inheritdoc IFxMintTicket721
      */
-    function setBaseURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
-        baseURI = _uri;
-        emit BatchMetadataUpdate(1, totalSupply);
-    }
-
-    /**
-     * @inheritdoc IFxMintTicket721
-     */
-    function unpause() external onlyRole(ADMIN_ROLE) {
+    function unpause() external onlyRole(MODERATOR_ROLE) {
         _unpause();
     }
 
@@ -568,6 +572,6 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
      * @dev Checks if creator is verified by the system
      */
     function _isVerified(address _creator) internal view returns (bool) {
-        return (IAccessControl(roleRegistry).hasRole(VERIFIED_USER_ROLE, _creator));
+        return (IAccessControl(roleRegistry).hasRole(CREATOR_ROLE, _creator));
     }
 }

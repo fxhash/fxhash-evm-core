@@ -483,10 +483,10 @@ contract Deploy is Script {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _grantRoles() internal virtual {
+        fxRoleRegistry.grantRole(CREATOR_ROLE, creator);
         fxRoleRegistry.grantRole(MINTER_ROLE, address(dutchAuction));
         fxRoleRegistry.grantRole(MINTER_ROLE, address(fixedPrice));
         fxRoleRegistry.grantRole(MINTER_ROLE, address(ticketRedeemer));
-        fxRoleRegistry.grantRole(VERIFIED_USER_ROLE, creator);
     }
 
     function _registerContracts() internal virtual {
