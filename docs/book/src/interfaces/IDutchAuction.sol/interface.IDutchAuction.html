@@ -1,0 +1,498 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>IDutchAuction</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../../favicon.svg">
+        <link rel="shortcut icon" href="../../../favicon.png">
+        <link rel="stylesheet" href="../../../css/variables.css">
+        <link rel="stylesheet" href="../../../css/general.css">
+        <link rel="stylesheet" href="../../../css/chrome.css">
+        <link rel="stylesheet" href="../../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../../../highlight.css">
+        <link rel="stylesheet" href="../../../tomorrow-night.css">
+        <link rel="stylesheet" href="../../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../../book.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../../../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item "><a href="../../../index.html">Home</a></li><li class="chapter-item affix "><li class="part-title">src</li><li class="chapter-item "><a href="../../../src/factories/index.html">❱ factories</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../src/factories/FxIssuerFactory.sol/contract.FxIssuerFactory.html">FxIssuerFactory</a></li><li class="chapter-item "><a href="../../../src/factories/FxTicketFactory.sol/contract.FxTicketFactory.html">FxTicketFactory</a></li></ol></li><li class="chapter-item expanded "><a href="../../../src/interfaces/index.html">❱ interfaces</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../../src/interfaces/IDutchAuction.sol/interface.IDutchAuction.html" class="active">IDutchAuction</a></li><li class="chapter-item "><a href="../../../src/interfaces/IFixedPrice.sol/interface.IFixedPrice.html">IFixedPrice</a></li><li class="chapter-item "><a href="../../../src/interfaces/IFxContractRegistry.sol/interface.IFxContractRegistry.html">IFxContractRegistry</a></li><li class="chapter-item "><a href="../../../src/interfaces/IFxGenArt721.sol/interface.IFxGenArt721.html">IFxGenArt721</a></li><li class="chapter-item "><a href="../../../src/interfaces/IFxIssuerFactory.sol/interface.IFxIssuerFactory.html">IFxIssuerFactory</a></li><li class="chapter-item "><a href="../../../src/interfaces/IFxMintTicket721.sol/interface.IFxMintTicket721.html">IFxMintTicket721</a></li><li class="chapter-item "><a href="../../../src/interfaces/IFxRoleRegistry.sol/interface.IFxRoleRegistry.html">IFxRoleRegistry</a></li><li class="chapter-item "><a href="../../../src/interfaces/IFxTicketFactory.sol/interface.IFxTicketFactory.html">IFxTicketFactory</a></li><li class="chapter-item "><a href="../../../src/interfaces/IMinter.sol/interface.IMinter.html">IMinter</a></li><li class="chapter-item "><a href="../../../src/interfaces/IPseudoRandomizer.sol/interface.IPseudoRandomizer.html">IPseudoRandomizer</a></li><li class="chapter-item "><a href="../../../src/interfaces/IRandomizer.sol/interface.IRandomizer.html">IRandomizer</a></li><li class="chapter-item "><a href="../../../src/interfaces/IRenderer.sol/interface.IRenderer.html">IRenderer</a></li><li class="chapter-item "><a href="../../../src/interfaces/IRoyaltyManager.sol/interface.IRoyaltyManager.html">IRoyaltyManager</a></li><li class="chapter-item "><a href="../../../src/interfaces/IScriptyRenderer.sol/interface.IScriptyRenderer.html">IScriptyRenderer</a></li><li class="chapter-item "><a href="../../../src/interfaces/ISeedConsumer.sol/interface.ISeedConsumer.html">ISeedConsumer</a></li><li class="chapter-item "><a href="../../../src/interfaces/ISplitsController.sol/interface.ISplitsController.html">ISplitsController</a></li><li class="chapter-item "><a href="../../../src/interfaces/ISplitsFactory.sol/interface.ISplitsFactory.html">ISplitsFactory</a></li><li class="chapter-item "><a href="../../../src/interfaces/ISplitsMain.sol/interface.ISplitsMain.html">ISplitsMain</a></li><li class="chapter-item "><a href="../../../src/interfaces/ITicketRedeemer.sol/interface.ITicketRedeemer.html">ITicketRedeemer</a></li><li class="chapter-item "><a href="../../../src/interfaces/IToken.sol/interface.IToken.html">IToken</a></li></ol></li><li class="chapter-item "><a href="../../../src/lib/index.html">❱ lib</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../src/lib/Structs.sol/struct.AuctionInfo.html">AuctionInfo</a></li><li class="chapter-item "><a href="../../../src/lib/Structs.sol/struct.ConfigInfo.html">ConfigInfo</a></li><li class="chapter-item "><a href="../../../src/lib/Structs.sol/struct.GenArtInfo.html">GenArtInfo</a></li><li class="chapter-item "><a href="../../../src/lib/Structs.sol/struct.InitInfo.html">InitInfo</a></li><li class="chapter-item "><a href="../../../src/lib/Structs.sol/struct.IssuerInfo.html">IssuerInfo</a></li><li class="chapter-item "><a href="../../../src/lib/Structs.sol/struct.MetadataInfo.html">MetadataInfo</a></li><li class="chapter-item "><a href="../../../src/lib/Structs.sol/struct.MintInfo.html">MintInfo</a></li><li class="chapter-item "><a href="../../../src/lib/Structs.sol/struct.MinterInfo.html">MinterInfo</a></li><li class="chapter-item "><a href="../../../src/lib/Structs.sol/struct.ProjectInfo.html">ProjectInfo</a></li><li class="chapter-item "><a href="../../../src/lib/Structs.sol/struct.RefundInfo.html">RefundInfo</a></li><li class="chapter-item "><a href="../../../src/lib/Structs.sol/struct.ReserveInfo.html">ReserveInfo</a></li><li class="chapter-item "><a href="../../../src/lib/Structs.sol/struct.RoyaltyInfo.html">RoyaltyInfo</a></li><li class="chapter-item "><a href="../../../src/lib/Structs.sol/struct.TaxInfo.html">TaxInfo</a></li></ol></li><li class="chapter-item "><a href="../../../src/minters/index.html">❱ minters</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../src/minters/extensions/index.html">❱ extensions</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../src/minters/extensions/Allowlist.sol/abstract.Allowlist.html">Allowlist</a></li><li class="chapter-item "><a href="../../../src/minters/extensions/MintPass.sol/abstract.MintPass.html">MintPass</a></li></ol></li><li class="chapter-item "><a href="../../../src/minters/DutchAuction.sol/contract.DutchAuction.html">DutchAuction</a></li><li class="chapter-item "><a href="../../../src/minters/FixedPrice.sol/contract.FixedPrice.html">FixedPrice</a></li><li class="chapter-item "><a href="../../../src/minters/TicketRedeemer.sol/contract.TicketRedeemer.html">TicketRedeemer</a></li></ol></li><li class="chapter-item "><a href="../../../src/randomizers/index.html">❱ randomizers</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../src/randomizers/PseudoRandomizer.sol/contract.PseudoRandomizer.html">PseudoRandomizer</a></li></ol></li><li class="chapter-item "><a href="../../../src/registries/index.html">❱ registries</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../src/registries/FxContractRegistry.sol/contract.FxContractRegistry.html">FxContractRegistry</a></li><li class="chapter-item "><a href="../../../src/registries/FxRoleRegistry.sol/contract.FxRoleRegistry.html">FxRoleRegistry</a></li></ol></li><li class="chapter-item "><a href="../../../src/renderers/index.html">❱ renderers</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../src/renderers/ScriptyRenderer.sol/contract.ScriptyRenderer.html">ScriptyRenderer</a></li></ol></li><li class="chapter-item "><a href="../../../src/splits/index.html">❱ splits</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../src/splits/SplitsController.sol/contract.SplitsController.html">SplitsController</a></li><li class="chapter-item "><a href="../../../src/splits/SplitsFactory.sol/contract.SplitsFactory.html">SplitsFactory</a></li></ol></li><li class="chapter-item "><a href="../../../src/tokens/index.html">❱ tokens</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../src/tokens/extensions/index.html">❱ extensions</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../src/tokens/extensions/RoyaltyManager.sol/abstract.RoyaltyManager.html">RoyaltyManager</a></li></ol></li><li class="chapter-item "><a href="../../../src/tokens/FxGenArt721.sol/contract.FxGenArt721.html">FxGenArt721</a></li><li class="chapter-item "><a href="../../../src/tokens/FxMintTicket721.sol/contract.FxMintTicket721.html">FxMintTicket721</a></li></ol></li><li class="chapter-item "><a href="../../../src/utils/index.html">❱ utils</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../../src/utils/Constants.sol/constants.Constants.html">Constants</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title"></h1>
+
+                    <div class="right-buttons">
+                        <a href="../../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/fxhash/fxhash-evm-contracts" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="idutchauction"><a class="header" href="#idutchauction">IDutchAuction</a></h1>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/interfaces/IDutchAuction.sol">Git Source</a></p>
+<p><strong>Inherits:</strong>
+<a href="/src/interfaces/IMinter.sol/interface.IMinter.html">IMinter</a></p>
+<p><strong>Author:</strong>
+fx(hash)</p>
+<p>Minter for distributing tokens at linear prices over fixed periods of time</p>
+<h2 id="functions"><a class="header" href="#functions">Functions</a></h2>
+<h3 id="auctions"><a class="header" href="#auctions">auctions</a></h3>
+<p>Mapping of token address to reserve ID to reserve information</p>
+<pre><code class="language-solidity">function auctions(address, uint256) external view returns (bool, uint248);
+</code></pre>
+<h3 id="buy"><a class="header" href="#buy">buy</a></h3>
+<p>Purchases tokens at a linear price over fixed amount of time</p>
+<pre><code class="language-solidity">function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>_token</code></td><td><code>address</code></td><td>Address of the token being purchased</td></tr>
+<tr><td><code>_reserveId</code></td><td><code>uint256</code></td><td>ID of the reserve</td></tr>
+<tr><td><code>_amount</code></td><td><code>uint256</code></td><td>Amount of tokens to purchase</td></tr>
+<tr><td><code>_to</code></td><td><code>address</code></td><td>Address receiving the purchased tokens</td></tr>
+</tbody></table>
+</div>
+<h3 id="buyallowlist"><a class="header" href="#buyallowlist">buyAllowlist</a></h3>
+<p>Purchases tokens through an allowlist at a linear price over fixed amount of time</p>
+<pre><code class="language-solidity">function buyAllowlist(
+    address _token,
+    uint256 _reserveId,
+    address _to,
+    uint256[] calldata _indexes,
+    bytes32[][] calldata _proofs
+) external payable;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>_token</code></td><td><code>address</code></td><td>Address of the token being purchased</td></tr>
+<tr><td><code>_reserveId</code></td><td><code>uint256</code></td><td>ID of the reserve</td></tr>
+<tr><td><code>_to</code></td><td><code>address</code></td><td>Address receiving the purchased tokens</td></tr>
+<tr><td><code>_indexes</code></td><td><code>uint256[]</code></td><td>Array of indices containing purchase info inside the BitMap</td></tr>
+<tr><td><code>_proofs</code></td><td><code>bytes32[][]</code></td><td>Array of merkle proofs used for verifying the purchase</td></tr>
+</tbody></table>
+</div>
+<h3 id="buymintpass"><a class="header" href="#buymintpass">buyMintPass</a></h3>
+<p>Purchases tokens through a mint pass at a linear price over fixed amount of time</p>
+<pre><code class="language-solidity">function buyMintPass(
+    address _token,
+    uint256 _reserveId,
+    uint256 _amount,
+    address _to,
+    uint256 _index,
+    bytes calldata _signature
+) external payable;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>_token</code></td><td><code>address</code></td><td>Address of the token being purchased</td></tr>
+<tr><td><code>_reserveId</code></td><td><code>uint256</code></td><td>ID of the reserve</td></tr>
+<tr><td><code>_amount</code></td><td><code>uint256</code></td><td>Number of tokens being purchased</td></tr>
+<tr><td><code>_to</code></td><td><code>address</code></td><td>Address receiving the purchased tokens</td></tr>
+<tr><td><code>_index</code></td><td><code>uint256</code></td><td>Index of puchase info inside the BitMap</td></tr>
+<tr><td><code>_signature</code></td><td><code>bytes</code></td><td>Array of merkle proofs used for verifying the purchase</td></tr>
+</tbody></table>
+</div>
+<h3 id="getlatestupdate"><a class="header" href="#getlatestupdate">getLatestUpdate</a></h3>
+<p>Gets the latest timestamp update made to token reserves</p>
+<pre><code class="language-solidity">function getLatestUpdate(address _token) external view returns (uint40);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>_token</code></td><td><code>address</code></td><td>Address of the token contract</td></tr>
+</tbody></table>
+</div>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;none&gt;</code></td><td><code>uint40</code></td><td>Timestamp of latest update</td></tr>
+</tbody></table>
+</div>
+<h3 id="getprice"><a class="header" href="#getprice">getPrice</a></h3>
+<p>Gets the current auction price</p>
+<pre><code class="language-solidity">function getPrice(address _token, uint256 _reserveId) external view returns (uint256);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>_token</code></td><td><code>address</code></td><td>Address of the token contract</td></tr>
+<tr><td><code>_reserveId</code></td><td><code>uint256</code></td><td>ID of the reserve</td></tr>
+</tbody></table>
+</div>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;none&gt;</code></td><td><code>uint256</code></td><td>price Price of the token</td></tr>
+</tbody></table>
+</div>
+<h3 id="merkleroots"><a class="header" href="#merkleroots">merkleRoots</a></h3>
+<p>Mapping of token address to reserve ID to merkle root</p>
+<pre><code class="language-solidity">function merkleRoots(address, uint256) external view returns (bytes32);
+</code></pre>
+<h3 id="numberminted"><a class="header" href="#numberminted">numberMinted</a></h3>
+<p>Mapping of token address to reserve ID to number of tokens minted</p>
+<pre><code class="language-solidity">function numberMinted(address _token, uint256 _reserveId) external view returns (uint256);
+</code></pre>
+<h3 id="refund"><a class="header" href="#refund">refund</a></h3>
+<p>Refunds an auction buyer with their rebate amount</p>
+<pre><code class="language-solidity">function refund(address _token, uint256 _reserveId, address _buyer) external;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>_token</code></td><td><code>address</code></td><td>Address of the token contract</td></tr>
+<tr><td><code>_reserveId</code></td><td><code>uint256</code></td><td>ID of the mint</td></tr>
+<tr><td><code>_buyer</code></td><td><code>address</code></td><td>Address of the buyer receiving the refund</td></tr>
+</tbody></table>
+</div>
+<h3 id="refunds"><a class="header" href="#refunds">refunds</a></h3>
+<p>Mapping of token address to reserve ID to refund amount</p>
+<pre><code class="language-solidity">function refunds(address, uint256) external view returns (uint256);
+</code></pre>
+<h3 id="reserves"><a class="header" href="#reserves">reserves</a></h3>
+<p>Mapping of token address to reserve ID to reserve information (allocation, price, max mint)</p>
+<pre><code class="language-solidity">function reserves(address _token, uint256 _reserveId) external view returns (uint64, uint64, uint128);
+</code></pre>
+<h3 id="saleproceeds"><a class="header" href="#saleproceeds">saleProceeds</a></h3>
+<p>Mapping of token address to reserve ID to amount of sale proceeds</p>
+<pre><code class="language-solidity">function saleProceeds(address _token, uint256 _reserveId) external view returns (uint256);
+</code></pre>
+<h3 id="setmintdetails"><a class="header" href="#setmintdetails">setMintDetails</a></h3>
+<p>Sets the mint details for token reserves</p>
+<p><em>Mint Details: struct of auction information, merkle root, and signer address</em></p>
+<pre><code class="language-solidity">function setMintDetails(ReserveInfo calldata _reserveInfo, bytes calldata _mintDetails) external;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>_reserveInfo</code></td><td><code>ReserveInfo</code></td><td>Reserve information for the token</td></tr>
+<tr><td><code>_mintDetails</code></td><td><code>bytes</code></td><td>Details of the mint pertaining to the minter</td></tr>
+</tbody></table>
+</div>
+<h3 id="withdraw"><a class="header" href="#withdraw">withdraw</a></h3>
+<p>Withdraws sale processed of primary sales to receiver</p>
+<pre><code class="language-solidity">function withdraw(address _token, uint256 _reserveId) external;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>_token</code></td><td><code>address</code></td><td>Address of the token contract</td></tr>
+<tr><td><code>_reserveId</code></td><td><code>uint256</code></td><td>ID of the reserve</td></tr>
+</tbody></table>
+</div>
+<h2 id="events"><a class="header" href="#events">Events</a></h2>
+<h3 id="mintdetailsset"><a class="header" href="#mintdetailsset">MintDetailsSet</a></h3>
+<p>Event emitted when the mint details for a Dutch auction are set</p>
+<pre><code class="language-solidity">event MintDetailsSet(
+    address indexed _token, uint256 indexed _reserveId, ReserveInfo _reserveInfo, AuctionInfo _auctionInfo
+);
+</code></pre>
+<h3 id="purchase"><a class="header" href="#purchase">Purchase</a></h3>
+<p>Event emitted when a purchase is made during the auction</p>
+<pre><code class="language-solidity">event Purchase(
+    address indexed _token,
+    uint256 indexed _reserveId,
+    address indexed _buyer,
+    address _to,
+    uint256 _amount,
+    uint256 _price
+);
+</code></pre>
+<h3 id="refundclaimed"><a class="header" href="#refundclaimed">RefundClaimed</a></h3>
+<p>Event emitted when a refund is claimed by a buyer</p>
+<pre><code class="language-solidity">event RefundClaimed(address indexed _token, uint256 indexed _reserveId, address indexed _buyer, uint256 _refundAmount);
+</code></pre>
+<h3 id="withdrawn"><a class="header" href="#withdrawn">Withdrawn</a></h3>
+<p>Event emitted when the sale proceeds are withdrawn</p>
+<pre><code class="language-solidity">event Withdrawn(address indexed _token, uint256 indexed _reserveId, address indexed _creator, uint256 _proceeds);
+</code></pre>
+<h2 id="errors"><a class="header" href="#errors">Errors</a></h2>
+<h3 id="addresszero"><a class="header" href="#addresszero">AddressZero</a></h3>
+<p>Error thrown when receiver is zero address</p>
+<pre><code class="language-solidity">error AddressZero();
+</code></pre>
+<h3 id="ended"><a class="header" href="#ended">Ended</a></h3>
+<p>Error thrown when the auction has already ended</p>
+<pre><code class="language-solidity">error Ended();
+</code></pre>
+<h3 id="insufficientfunds"><a class="header" href="#insufficientfunds">InsufficientFunds</a></h3>
+<p>Error thrown when no funds available to withdraw</p>
+<pre><code class="language-solidity">error InsufficientFunds();
+</code></pre>
+<h3 id="insufficientprice"><a class="header" href="#insufficientprice">InsufficientPrice</a></h3>
+<p>Error thrown when the price is insufficient</p>
+<pre><code class="language-solidity">error InsufficientPrice();
+</code></pre>
+<h3 id="invalidallocation"><a class="header" href="#invalidallocation">InvalidAllocation</a></h3>
+<p>Error thrown when the allocation amount is zero</p>
+<pre><code class="language-solidity">error InvalidAllocation();
+</code></pre>
+<h3 id="invalidamount"><a class="header" href="#invalidamount">InvalidAmount</a></h3>
+<p>Error thrown when the purchase amount is zero</p>
+<pre><code class="language-solidity">error InvalidAmount();
+</code></pre>
+<h3 id="invalidpayment"><a class="header" href="#invalidpayment">InvalidPayment</a></h3>
+<p>Error thrown when payment does not equal price</p>
+<pre><code class="language-solidity">error InvalidPayment();
+</code></pre>
+<h3 id="invalidprice"><a class="header" href="#invalidprice">InvalidPrice</a></h3>
+<p>Error thrown when the price is zero</p>
+<pre><code class="language-solidity">error InvalidPrice();
+</code></pre>
+<h3 id="invalidpricecurve"><a class="header" href="#invalidpricecurve">InvalidPriceCurve</a></h3>
+<p>Error thrown when the passing a price curve with less than 2 points</p>
+<pre><code class="language-solidity">error InvalidPriceCurve();
+</code></pre>
+<h3 id="invalidreserve"><a class="header" href="#invalidreserve">InvalidReserve</a></h3>
+<p>Error thrown when a reserve does not exist</p>
+<pre><code class="language-solidity">error InvalidReserve();
+</code></pre>
+<h3 id="invalidstep"><a class="header" href="#invalidstep">InvalidStep</a></h3>
+<p>Error thrown when the step length is not equally divisible by the auction duration</p>
+<pre><code class="language-solidity">error InvalidStep();
+</code></pre>
+<h3 id="invalidtoken"><a class="header" href="#invalidtoken">InvalidToken</a></h3>
+<p>Error thrown when the token is address zero</p>
+<pre><code class="language-solidity">error InvalidToken();
+</code></pre>
+<h3 id="noallowlist"><a class="header" href="#noallowlist">NoAllowlist</a></h3>
+<p>Error thrown when buying through allowlist and no allowlist exists</p>
+<pre><code class="language-solidity">error NoAllowlist();
+</code></pre>
+<h3 id="nopublicmint"><a class="header" href="#nopublicmint">NoPublicMint</a></h3>
+<p>Error thrown when calling buy when either an allowlist or signer exists</p>
+<pre><code class="language-solidity">error NoPublicMint();
+</code></pre>
+<h3 id="norefund"><a class="header" href="#norefund">NoRefund</a></h3>
+<p>Error thrown when there is no refund available</p>
+<pre><code class="language-solidity">error NoRefund();
+</code></pre>
+<h3 id="nosigningauthority"><a class="header" href="#nosigningauthority">NoSigningAuthority</a></h3>
+<p>Error thrown when buy with a mint pass and no signing authority exists</p>
+<pre><code class="language-solidity">error NoSigningAuthority();
+</code></pre>
+<h3 id="notended"><a class="header" href="#notended">NotEnded</a></h3>
+<p>Error thrown if auction has not ended</p>
+<pre><code class="language-solidity">error NotEnded();
+</code></pre>
+<h3 id="notstarted"><a class="header" href="#notstarted">NotStarted</a></h3>
+<p>Error thrown when the auction has not started</p>
+<pre><code class="language-solidity">error NotStarted();
+</code></pre>
+<h3 id="onlyauthorityorallowlist"><a class="header" href="#onlyauthorityorallowlist">OnlyAuthorityOrAllowlist</a></h3>
+<p>Error thrown when setting both an allowlist and mint signer</p>
+<pre><code class="language-solidity">error OnlyAuthorityOrAllowlist();
+</code></pre>
+<h3 id="pricesoutoforder"><a class="header" href="#pricesoutoforder">PricesOutOfOrder</a></h3>
+<p>Error thrown when the prices are out of order</p>
+<pre><code class="language-solidity">error PricesOutOfOrder();
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../../src/interfaces/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../../src/interfaces/IFixedPrice.sol/interface.IFixedPrice.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../../src/interfaces/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../../src/interfaces/IFixedPrice.sol/interface.IFixedPrice.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        <script>
+            const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsAddress = wsProtocol + "//" + location.host + "/" + "__livereload";
+            const socket = new WebSocket(wsAddress);
+            socket.onmessage = function (event) {
+                if (event.data === "reload") {
+                    socket.close();
+                    location.reload();
+                }
+            };
+
+            window.onbeforeunload = function() {
+                socket.close();
+            }
+        </script>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../../elasticlunr.min.js"></script>
+        <script src="../../../mark.min.js"></script>
+        <script src="../../../searcher.js"></script>
+
+        <script src="../../../clipboard.min.js"></script>
+        <script src="../../../highlight.js"></script>
+        <script src="../../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../../../solidity.min.js"></script>
+
+
+    </div>
+    </body>
+</html>
