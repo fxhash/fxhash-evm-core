@@ -127,7 +127,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         InitInfo calldata _initInfo,
         ProjectInfo calldata _projectInfo,
         MetadataInfo calldata _metadataInfo,
-        MintInfo[] calldata _mintInfo,
+        MintInfo[] memory _mintInfo,
         address payable[] calldata _royaltyReceivers,
         uint96[] calldata _basisPoints
     ) external initializer {
@@ -421,8 +421,9 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @dev Registers arbitrary number of minter contracts and sets their reserves
      */
-    function _registerMinters(MintInfo[] calldata _mintInfo) internal {
+    function _registerMinters(MintInfo[] memory _mintInfo) internal {
         address minter;
+        uint64 startTime;
         uint128 totalAllocation;
         ReserveInfo memory reserveInfo;
         (uint256 lockTime, , ) = IFxContractRegistry(contractRegistry).configInfo();
@@ -431,11 +432,14 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
             for (uint256 i; i < _mintInfo.length; ++i) {
                 minter = _mintInfo[i].minter;
                 reserveInfo = _mintInfo[i].reserveInfo;
+                startTime = reserveInfo.startTime;
                 if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) revert UnauthorizedMinter();
-                if(reserveInfo.startTime == 0){
+                if (startTime == 0) {
                     reserveInfo.startTime = uint64(block.timestamp + lockTime);
-                } else if (reserveInfo.startTime < block.timestamp + lockTime) revert InvalidStartTime();
-                if (reserveInfo.endTime < reserveInfo.startTime) revert InvalidEndTime();
+                } else if (startTime < block.timestamp + lockTime) {
+                    revert InvalidStartTime();
+                }
+                if (reserveInfo.endTime < startTime) revert InvalidEndTime();
 
                 issuerInfo.minters[minter] = TRUE;
                 issuerInfo.activeMinters.push(minter);
