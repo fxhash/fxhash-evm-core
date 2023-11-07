@@ -48,6 +48,10 @@ jobs:
           forge test
         id: test
 
+      - name: Upload Selectors to Openchain.xyz
+        run: |
+          forge selectors upload --all
+
       - name: "Generate coverage report"
         run: "forge coverage --report lcov"
 
