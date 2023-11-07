@@ -177,7 +177,7 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="fxhash"><a class="header" href="#fxhash">fx(hash)</a></h1>
-<p><a href="https://fxhash-evm-docs.vercel.app"><img src="https://img.shields.io/badge/fxhash-documentation-informational" alt="Docs" /></a></p>
+<p><a href="https://fxhash-core.vercel.app/"><img src="https://img.shields.io/badge/fxhash-documentation-informational" alt="Docs" /></a></p>
 <h2 id="core-contracts"><a class="header" href="#core-contracts">Core Contracts</a></h2>
 <ol>
 <li>
@@ -212,6 +212,9 @@
 </li>
 <li>
 <p><strong><a href="https://github.com/fxhash/fxhash-core/blob/main/src/renderers/ScriptyRenderer.sol">ScriptyRenderer</a></strong>: Renderer contract that generates and builds the metadata of a token fully onchain in <code>base64</code> format using <strong><a href="https://int-art.gitbook.io/scripty.sol-v2">Scripty.sol</a></strong></p>
+</li>
+<li>
+<p><strong><a href="https://github.com/fxhash/fxhash-core/blob/main/src/splits/SplitsController.sol">SplitsController</a></strong>: Controller contract that updates mutable <strong><a href="https://docs.splits.org">0xSplits</a></strong> contracts for re-distributing token royalties on primary and secondary sales</p>
 </li>
 <li>
 <p><strong><a href="https://github.com/fxhash/fxhash-core/blob/main/src/splits/SplitsFactory.sol">SplitsFactory</a></strong>: Factory contract that creates and manages <strong><a href="https://docs.splits.org">0xSplits</a></strong> contracts for distributing token royalties on primary and secondary sales</p>
@@ -283,7 +286,7 @@ npx husky add .husky/commit-msg  'npx --no -- commitlint --edit ${1}'
 <li><a href="src/factories/FxTicketFactory.sol/contract.FxTicketFactory.html">FxTicketFactory</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="fxissuerfactory"><a class="header" href="#fxissuerfactory">FxIssuerFactory</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/factories/FxIssuerFactory.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/factories/FxIssuerFactory.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 <a href="src/factories/FxIssuerFactory.sol//src/interfaces/IFxIssuerFactory.sol/interface.IFxIssuerFactory.html">IFxIssuerFactory</a>, Ownable</p>
 <p><strong>Author:</strong>
@@ -352,7 +355,7 @@ fx(hash)</p>
 <pre><code class="language-solidity">function _setImplementation(address _implementation) internal;
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="fxticketfactory"><a class="header" href="#fxticketfactory">FxTicketFactory</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/factories/FxTicketFactory.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/factories/FxTicketFactory.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 <a href="src/factories/FxTicketFactory.sol//src/interfaces/IFxTicketFactory.sol/interface.IFxTicketFactory.html">IFxTicketFactory</a>, Ownable</p>
 <p><strong>Author:</strong>
@@ -455,7 +458,7 @@ fx(hash)</p>
 <li><a href="src/interfaces/IToken.sol/interface.IToken.html">IToken</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="idutchauction"><a class="header" href="#idutchauction">IDutchAuction</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/interfaces/IDutchAuction.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/interfaces/IDutchAuction.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 <a href="src/interfaces/IDutchAuction.sol//src/interfaces/IMinter.sol/interface.IMinter.html">IMinter</a></p>
 <p><strong>Author:</strong>
@@ -707,7 +710,7 @@ fx(hash)</p>
 <pre><code class="language-solidity">error PricesOutOfOrder();
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="ifixedprice"><a class="header" href="#ifixedprice">IFixedPrice</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/interfaces/IFixedPrice.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/interfaces/IFixedPrice.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 <a href="src/interfaces/IFixedPrice.sol//src/interfaces/IMinter.sol/interface.IMinter.html">IMinter</a></p>
 <p><strong>Author:</strong>
@@ -915,7 +918,7 @@ fx(hash)</p>
 <pre><code class="language-solidity">error TooMany();
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="ifxcontractregistry"><a class="header" href="#ifxcontractregistry">IFxContractRegistry</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/interfaces/IFxContractRegistry.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/interfaces/IFxContractRegistry.sol">Git Source</a></p>
 <p><strong>Author:</strong>
 fx(hash)</p>
 <p>Registry for managing fxhash smart contracts</p>
@@ -966,7 +969,7 @@ fx(hash)</p>
 <pre><code class="language-solidity">error LengthZero();
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="ifxgenart721"><a class="header" href="#ifxgenart721">IFxGenArt721</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/interfaces/IFxGenArt721.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/interfaces/IFxGenArt721.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 <a href="src/interfaces/IFxGenArt721.sol//src/interfaces/ISeedConsumer.sol/interface.ISeedConsumer.html">ISeedConsumer</a>, <a href="src/interfaces/IFxGenArt721.sol//src/interfaces/IToken.sol/interface.IToken.html">IToken</a></p>
 <p><strong>Author:</strong>
@@ -1316,7 +1319,7 @@ fx(hash)</p>
 <pre><code class="language-solidity">error UnregisteredMinter();
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="ifxissuerfactory"><a class="header" href="#ifxissuerfactory">IFxIssuerFactory</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/interfaces/IFxIssuerFactory.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/interfaces/IFxIssuerFactory.sol">Git Source</a></p>
 <p><strong>Author:</strong>
 fx(hash)</p>
 <p>Factory for managing newly deployed FxGenArt721 tokens</p>
@@ -1396,7 +1399,7 @@ fx(hash)</p>
 <pre><code class="language-solidity">error NotAuthorized();
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="ifxmintticket721"><a class="header" href="#ifxmintticket721">IFxMintTicket721</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/interfaces/IFxMintTicket721.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/interfaces/IFxMintTicket721.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 <a href="src/interfaces/IFxMintTicket721.sol//src/interfaces/IToken.sol/interface.IToken.html">IToken</a></p>
 <p><strong>Author:</strong>
@@ -1756,7 +1759,7 @@ fx(hash)</p>
 <pre><code class="language-solidity">error UnregisteredMinter();
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="ifxroleregistry"><a class="header" href="#ifxroleregistry">IFxRoleRegistry</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/interfaces/IFxRoleRegistry.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/interfaces/IFxRoleRegistry.sol">Git Source</a></p>
 <p><strong>Author:</strong>
 fx(hash)</p>
 <p>Registry for managing AccessControl roles throughout the system</p>
@@ -1770,7 +1773,7 @@ fx(hash)</p>
 <tr><td><code>_role</code></td><td><code>bytes32</code></td><td>Hash of the role name</td></tr>
 </tbody></table>
 </div><div style="break-before: page; page-break-before: always;"></div><h1 id="ifxticketfactory"><a class="header" href="#ifxticketfactory">IFxTicketFactory</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/interfaces/IFxTicketFactory.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/interfaces/IFxTicketFactory.sol">Git Source</a></p>
 <p><strong>Author:</strong>
 fx(hash)</p>
 <p>Factory for managing newly deployed FxMintTicket721 tokens</p>
@@ -1865,7 +1868,7 @@ fx(hash)</p>
 <pre><code class="language-solidity">error InvalidToken();
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="iminter"><a class="header" href="#iminter">IMinter</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/interfaces/IMinter.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/interfaces/IMinter.sol">Git Source</a></p>
 <p><strong>Author:</strong>
 fx(hash)</p>
 <p>Interface for FxGenArt721 tokens to interact with minters</p>
@@ -1880,7 +1883,7 @@ fx(hash)</p>
 <tr><td><code>_mintDetails</code></td><td><code>bytes</code></td><td>Details of the mint pertaining to the minter</td></tr>
 </tbody></table>
 </div><div style="break-before: page; page-break-before: always;"></div><h1 id="ipseudorandomizer"><a class="header" href="#ipseudorandomizer">IPseudoRandomizer</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/interfaces/IPseudoRandomizer.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/interfaces/IPseudoRandomizer.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 <a href="src/interfaces/IPseudoRandomizer.sol//src/interfaces/IRandomizer.sol/interface.IRandomizer.html">IRandomizer</a></p>
 <p><strong>Author:</strong>
@@ -1910,7 +1913,7 @@ fx(hash)</p>
 <tr><td><code>_tokenId</code></td><td><code>uint256</code></td><td>ID of the token</td></tr>
 </tbody></table>
 </div><div style="break-before: page; page-break-before: always;"></div><h1 id="irandomizer"><a class="header" href="#irandomizer">IRandomizer</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/interfaces/IRandomizer.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/interfaces/IRandomizer.sol">Git Source</a></p>
 <p><strong>Author:</strong>
 fx(hash)</p>
 <p>Interface for FxGenArt721 tokens to interact with randomizers</p>
@@ -1924,7 +1927,7 @@ fx(hash)</p>
 <tr><td><code>_tokenId</code></td><td><code>uint256</code></td><td>ID of the token</td></tr>
 </tbody></table>
 </div><div style="break-before: page; page-break-before: always;"></div><h1 id="irenderer"><a class="header" href="#irenderer">IRenderer</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/interfaces/IRenderer.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/interfaces/IRenderer.sol">Git Source</a></p>
 <p><strong>Author:</strong>
 fx(hash)</p>
 <p>Interface for FxGenArt721 tokens to interact with renderers</p>
@@ -1944,7 +1947,7 @@ fx(hash)</p>
 <tr><td><code>&lt;none&gt;</code></td><td><code>string</code></td><td>URI of the token metadata</td></tr>
 </tbody></table>
 </div><div style="break-before: page; page-break-before: always;"></div><h1 id="iroyaltymanager"><a class="header" href="#iroyaltymanager">IRoyaltyManager</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/interfaces/IRoyaltyManager.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/interfaces/IRoyaltyManager.sol">Git Source</a></p>
 <p><strong>Author:</strong>
 fx(hash)</p>
 <p>Extension for managing secondary royalties of FxGenArt721 tokens</p>
@@ -2045,7 +2048,7 @@ fx(hash)</p>
 <pre><code class="language-solidity">error TokenRoyaltiesNotSet();
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="iscriptyrenderer"><a class="header" href="#iscriptyrenderer">IScriptyRenderer</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/interfaces/IScriptyRenderer.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/interfaces/IScriptyRenderer.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 <a href="src/interfaces/IScriptyRenderer.sol//src/interfaces/IRenderer.sol/interface.IRenderer.html">IRenderer</a></p>
 <p><strong>Author:</strong>
@@ -2113,7 +2116,7 @@ fx(hash)</p>
 <tr><td><code>&lt;none&gt;</code></td><td><code>string</code></td><td>URI of the token metadata</td></tr>
 </tbody></table>
 </div><div style="break-before: page; page-break-before: always;"></div><h1 id="iseedconsumer"><a class="header" href="#iseedconsumer">ISeedConsumer</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/interfaces/ISeedConsumer.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/interfaces/ISeedConsumer.sol">Git Source</a></p>
 <p><strong>Author:</strong>
 fx(hash)</p>
 <p>Interface for randomizers to interact with FxGenArt721 tokens</p>
@@ -2134,7 +2137,7 @@ fx(hash)</p>
 <pre><code class="language-solidity">event SeedFulfilled(address indexed _randomizer, uint256 indexed _tokenId, bytes32 _seed);
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="isplitscontroller"><a class="header" href="#isplitscontroller">ISplitsController</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/interfaces/ISplitsController.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/interfaces/ISplitsController.sol">Git Source</a></p>
 <p><strong>Author:</strong>
 fx(hash)</p>
 <p>Interface for SplitsFactory and Recipients to interact with SplitsControllers</p>
@@ -2233,7 +2236,7 @@ fx(hash)</p>
 <pre><code class="language-solidity">error NotValidSplitHash();
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="isplitsfactory"><a class="header" href="#isplitsfactory">ISplitsFactory</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/interfaces/ISplitsFactory.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/interfaces/ISplitsFactory.sol">Git Source</a></p>
 <p><strong>Author:</strong>
 fx(hash)</p>
 <p>Factory for managing newly deployed 0xSplits wallets</p>
@@ -2345,7 +2348,7 @@ fx(hash)</p>
 <pre><code class="language-solidity">error SplitsExists();
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="isplitsmain"><a class="header" href="#isplitsmain">ISplitsMain</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/interfaces/ISplitsMain.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/interfaces/ISplitsMain.sol">Git Source</a></p>
 <p><strong>Author:</strong>
 0xSplits</p>
 <p>Interface for SplitsFactory to interact with SplitsMain</p>
@@ -2389,7 +2392,7 @@ fx(hash)</p>
 <pre><code class="language-solidity">function withdraw(address account, uint256 withdrawETH, address[] calldata tokens) external;
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="iticketredeemer"><a class="header" href="#iticketredeemer">ITicketRedeemer</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/interfaces/ITicketRedeemer.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/interfaces/ITicketRedeemer.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 <a href="src/interfaces/ITicketRedeemer.sol//src/interfaces/IMinter.sol/interface.IMinter.html">IMinter</a></p>
 <p><strong>Author:</strong>
@@ -2445,7 +2448,7 @@ fx(hash)</p>
 <pre><code class="language-solidity">error NotAuthorized();
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="itoken"><a class="header" href="#itoken">IToken</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/interfaces/IToken.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/interfaces/IToken.sol">Git Source</a></p>
 <p><strong>Author:</strong>
 fx(hash)</p>
 <p>Interface for minters to interact with tokens</p>
@@ -2478,7 +2481,7 @@ fx(hash)</p>
 <li><a href="src/lib/Structs.sol/struct.TaxInfo.html">TaxInfo</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="auctioninfo"><a class="header" href="#auctioninfo">AuctionInfo</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/lib/Structs.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/lib/Structs.sol">Git Source</a></p>
 <p>Struct of dutch auction information</p>
 <ul>
 <li><code>refunded</code> Flag indicating if refunds are enabled</li>
@@ -2492,7 +2495,7 @@ fx(hash)</p>
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="configinfo-1"><a class="header" href="#configinfo-1">ConfigInfo</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/lib/Structs.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/lib/Structs.sol">Git Source</a></p>
 <p>Struct of system config information</p>
 <ul>
 <li><code>lockTime</code> Locked time duration added to mint start time for unverified creators</li>
@@ -2506,7 +2509,7 @@ fx(hash)</p>
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="genartinfo-1"><a class="header" href="#genartinfo-1">GenArtInfo</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/lib/Structs.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/lib/Structs.sol">Git Source</a></p>
 <p>Struct of generative art information</p>
 <ul>
 <li><code>seed</code> Hash of seed generated for randomly minted tokens</li>
@@ -2518,7 +2521,7 @@ fx(hash)</p>
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="initinfo"><a class="header" href="#initinfo">InitInfo</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/lib/Structs.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/lib/Structs.sol">Git Source</a></p>
 <p>Struct of initialization information used on project creation</p>
 <ul>
 <li><code>name</code> Name of project</li>
@@ -2538,7 +2541,7 @@ fx(hash)</p>
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="issuerinfo-1"><a class="header" href="#issuerinfo-1">IssuerInfo</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/lib/Structs.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/lib/Structs.sol">Git Source</a></p>
 <p>Struct of issuer information</p>
 <ul>
 <li><code>primaryReceiver</code> Address of splitter contract receiving primary sales</li>
@@ -2554,7 +2557,7 @@ fx(hash)</p>
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="metadatainfo-1"><a class="header" href="#metadatainfo-1">MetadataInfo</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/lib/Structs.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/lib/Structs.sol">Git Source</a></p>
 <p>Struct of metadata information</p>
 <ul>
 <li><code>baseURI</code> CID hash of token metadata</li>
@@ -2568,7 +2571,7 @@ fx(hash)</p>
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="mintinfo"><a class="header" href="#mintinfo">MintInfo</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/lib/Structs.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/lib/Structs.sol">Git Source</a></p>
 <p>Struct of mint information</p>
 <ul>
 <li><code>minter</code> Address of the minter contract</li>
@@ -2582,7 +2585,7 @@ fx(hash)</p>
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="minterinfo"><a class="header" href="#minterinfo">MinterInfo</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/lib/Structs.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/lib/Structs.sol">Git Source</a></p>
 <p>Struct of minter information</p>
 <ul>
 <li><code>totalMints</code> Total number of mints executed by the minter</li>
@@ -2594,7 +2597,7 @@ fx(hash)</p>
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="projectinfo"><a class="header" href="#projectinfo">ProjectInfo</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/lib/Structs.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/lib/Structs.sol">Git Source</a></p>
 <p>Struct of project information</p>
 <ul>
 <li><code>onchain</code> Flag inidicated if project metadata is rendered onchain</li>
@@ -2614,7 +2617,7 @@ fx(hash)</p>
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="refundinfo"><a class="header" href="#refundinfo">RefundInfo</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/lib/Structs.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/lib/Structs.sol">Git Source</a></p>
 <p>Struct of refund information</p>
 <ul>
 <li><code>lastPrice</code> Price of last sale before selling out</li>
@@ -2626,7 +2629,7 @@ fx(hash)</p>
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="reserveinfo"><a class="header" href="#reserveinfo">ReserveInfo</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/lib/Structs.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/lib/Structs.sol">Git Source</a></p>
 <p>Struct of reserve information</p>
 <ul>
 <li><code>startTime</code> Start timestamp of minter</li>
@@ -2640,7 +2643,7 @@ fx(hash)</p>
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="royaltyinfo-1"><a class="header" href="#royaltyinfo-1">RoyaltyInfo</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/lib/Structs.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/lib/Structs.sol">Git Source</a></p>
 <p>Struct of royalty information</p>
 <ul>
 <li><code>receiver</code> Address receiving royalties</li>
@@ -2652,7 +2655,7 @@ fx(hash)</p>
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="taxinfo"><a class="header" href="#taxinfo">TaxInfo</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/lib/Structs.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/lib/Structs.sol">Git Source</a></p>
 <p>Struct of tax information</p>
 <ul>
 <li><code>gracePeriod</code> Timestamp of period before token entering harberger taxation</li>
@@ -2680,7 +2683,7 @@ fx(hash)</p>
 <li><a href="src/minters/extensions/MintPass.sol/abstract.MintPass.html">MintPass</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="allowlist"><a class="header" href="#allowlist">Allowlist</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/minters/extensions/Allowlist.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/minters/extensions/Allowlist.sol">Git Source</a></p>
 <p><strong>Author:</strong>
 fx(hash)</p>
 <p>Extension for claiming tokens through merkle trees</p>
@@ -2729,7 +2732,7 @@ fx(hash)</p>
 <pre><code class="language-solidity">error SlotAlreadyClaimed();
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="mintpass"><a class="header" href="#mintpass">MintPass</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/minters/extensions/MintPass.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/minters/extensions/MintPass.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 EIP712</p>
 <p><strong>Author:</strong>
@@ -2807,7 +2810,7 @@ fx(hash)</p>
 <pre><code class="language-solidity">error PassAlreadyClaimed();
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="dutchauction"><a class="header" href="#dutchauction">DutchAuction</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/minters/DutchAuction.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/minters/DutchAuction.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 <a href="src/minters/DutchAuction.sol//src/interfaces/IDutchAuction.sol/interface.IDutchAuction.html">IDutchAuction</a>, <a href="src/minters/DutchAuction.sol//src/minters/extensions/Allowlist.sol/abstract.Allowlist.html">Allowlist</a>, <a href="src/minters/DutchAuction.sol//src/minters/extensions/MintPass.sol/abstract.MintPass.html">MintPass</a></p>
 <p><strong>Author:</strong>
@@ -2981,7 +2984,7 @@ fx(hash)</p>
 <pre><code class="language-solidity">function _validateInput(address _token, uint256 _reserveId, address _buyer) internal view;
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="fixedprice"><a class="header" href="#fixedprice">FixedPrice</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/minters/FixedPrice.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/minters/FixedPrice.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 <a href="src/minters/FixedPrice.sol//src/interfaces/IFixedPrice.sol/interface.IFixedPrice.html">IFixedPrice</a>, <a href="src/minters/FixedPrice.sol//src/minters/extensions/Allowlist.sol/abstract.Allowlist.html">Allowlist</a>, <a href="src/minters/FixedPrice.sol//src/minters/extensions/MintPass.sol/abstract.MintPass.html">MintPass</a></p>
 <p><strong>Author:</strong>
@@ -3127,7 +3130,7 @@ fx(hash)</p>
 <pre><code class="language-solidity">function _getMerkleRoot(address _token, uint256 _reserveId) internal view override returns (bytes32);
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="ticketredeemer"><a class="header" href="#ticketredeemer">TicketRedeemer</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/minters/TicketRedeemer.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/minters/TicketRedeemer.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 <a href="src/minters/TicketRedeemer.sol//src/interfaces/ITicketRedeemer.sol/interface.ITicketRedeemer.html">ITicketRedeemer</a></p>
 <p><strong>Author:</strong>
@@ -3159,7 +3162,7 @@ fx(hash)</p>
 <li><a href="src/randomizers/PseudoRandomizer.sol/contract.PseudoRandomizer.html">PseudoRandomizer</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="pseudorandomizer"><a class="header" href="#pseudorandomizer">PseudoRandomizer</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/randomizers/PseudoRandomizer.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/randomizers/PseudoRandomizer.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 <a href="src/randomizers/PseudoRandomizer.sol//src/interfaces/IPseudoRandomizer.sol/interface.IPseudoRandomizer.html">IPseudoRandomizer</a></p>
 <p><strong>Author:</strong>
@@ -3188,7 +3191,7 @@ fx(hash)</p>
 <li><a href="src/registries/FxRoleRegistry.sol/contract.FxRoleRegistry.html">FxRoleRegistry</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="fxcontractregistry"><a class="header" href="#fxcontractregistry">FxContractRegistry</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/registries/FxContractRegistry.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/registries/FxContractRegistry.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 <a href="src/registries/FxContractRegistry.sol//src/interfaces/IFxContractRegistry.sol/interface.IFxContractRegistry.html">IFxContractRegistry</a>, Ownable</p>
 <p><strong>Author:</strong>
@@ -3232,7 +3235,7 @@ fx(hash)</p>
 <pre><code class="language-solidity">function _setConfigInfo(ConfigInfo memory _configInfo) internal;
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="fxroleregistry"><a class="header" href="#fxroleregistry">FxRoleRegistry</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/registries/FxRoleRegistry.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/registries/FxRoleRegistry.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 AccessControl, <a href="src/registries/FxRoleRegistry.sol//src/interfaces/IFxRoleRegistry.sol/interface.IFxRoleRegistry.html">IFxRoleRegistry</a></p>
 <p><strong>Author:</strong>
@@ -3256,7 +3259,7 @@ fx(hash)</p>
 <li><a href="src/renderers/ScriptyRenderer.sol/contract.ScriptyRenderer.html">ScriptyRenderer</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="scriptyrenderer"><a class="header" href="#scriptyrenderer">ScriptyRenderer</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/renderers/ScriptyRenderer.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/renderers/ScriptyRenderer.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 <a href="src/renderers/ScriptyRenderer.sol//src/interfaces/IScriptyRenderer.sol/interface.IScriptyRenderer.html">IScriptyRenderer</a></p>
 <p><strong>Author:</strong>
@@ -3331,7 +3334,7 @@ fx(hash)</p>
 <li><a href="src/splits/SplitsFactory.sol/contract.SplitsFactory.html">SplitsFactory</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="splitscontroller"><a class="header" href="#splitscontroller">SplitsController</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/splits/SplitsController.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/splits/SplitsController.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 <a href="src/splits/SplitsController.sol//src/interfaces/ISplitsController.sol/interface.ISplitsController.html">ISplitsController</a>, Ownable</p>
 <p><strong>Author:</strong>
@@ -3443,7 +3446,7 @@ fx(hash)</p>
 <pre><code class="language-solidity">function _swap(uint256 i, uint256 j, address[] memory _accounts, uint32[] memory _allocations) internal pure;
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="splitsfactory-2"><a class="header" href="#splitsfactory-2">SplitsFactory</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/splits/SplitsFactory.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/splits/SplitsFactory.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 <a href="src/splits/SplitsFactory.sol//src/interfaces/ISplitsFactory.sol/interface.ISplitsFactory.html">ISplitsFactory</a>, Ownable</p>
 <p><strong>Author:</strong>
@@ -3558,7 +3561,7 @@ fx(hash)</p>
 <li><a href="src/tokens/extensions/RoyaltyManager.sol/abstract.RoyaltyManager.html">RoyaltyManager</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="royaltymanager"><a class="header" href="#royaltymanager">RoyaltyManager</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/tokens/extensions/RoyaltyManager.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/tokens/extensions/RoyaltyManager.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 <a href="src/tokens/extensions/RoyaltyManager.sol//src/interfaces/IRoyaltyManager.sol/interface.IRoyaltyManager.html">IRoyaltyManager</a></p>
 <p><strong>Author:</strong>
@@ -3639,7 +3642,7 @@ fx(hash)</p>
 <pre><code class="language-solidity">function _checkRoyalties(uint96[] memory _basisPoints, uint256 _length) internal pure;
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="fxgenart721"><a class="header" href="#fxgenart721">FxGenArt721</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/tokens/FxGenArt721.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/tokens/FxGenArt721.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 <a href="src/tokens/FxGenArt721.sol//src/interfaces/IFxGenArt721.sol/interface.IFxGenArt721.html">IFxGenArt721</a>, IERC4906, ERC721, EIP712, Initializable, Ownable, Pausable, <a href="src/tokens/FxGenArt721.sol//src/tokens/extensions/RoyaltyManager.sol/abstract.RoyaltyManager.html">RoyaltyManager</a></p>
 <p><strong>Author:</strong>
@@ -3936,7 +3939,7 @@ fx(hash)</p>
 <pre><code class="language-solidity">function _exists(uint256 _tokenId) internal view override(ERC721, RoyaltyManager) returns (bool);
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="fxmintticket721"><a class="header" href="#fxmintticket721">FxMintTicket721</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/tokens/FxMintTicket721.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/tokens/FxMintTicket721.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 <a href="src/tokens/FxMintTicket721.sol//src/interfaces/IFxMintTicket721.sol/interface.IFxMintTicket721.html">IFxMintTicket721</a>, IERC4906, ERC721, Initializable, Ownable, Pausable</p>
 <p><strong>Author:</strong>
@@ -4241,7 +4244,7 @@ fx(hash)</p>
 <li><a href="src/utils/Constants.sol/constants.Constants.html">Constants</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="constants"><a class="header" href="#constants">Constants</a></h1>
-<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/7502dc47d919e0bb1248e7f953c914adde69d025/src/utils/Constants.sol">Git Source</a></p>
+<p><a href="https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/utils/Constants.sol">Git Source</a></p>
 <h3 id="fx_contract_registry"><a class="header" href="#fx_contract_registry">FX_CONTRACT_REGISTRY</a></h3>
 <pre><code class="language-solidity">string constant FX_CONTRACT_REGISTRY = &quot;FX_CONTRACT_REGISTRY&quot;;
 </code></pre>
