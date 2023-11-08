@@ -1,5 +1,5 @@
 # FxMintTicket721
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/686a75b6e028ec629d05b5b60596a8ee209b77b5/src/tokens/FxMintTicket721.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/ace7e57339c07ca2ed3c7a6bef724ed3baae64f8/src/tokens/FxMintTicket721.sol)
 
 **Inherits:**
 [IFxMintTicket721](/src/interfaces/IFxMintTicket721.sol/interface.IFxMintTicket721.md), IERC4906, ERC721, Initializable, Ownable, Pausable
@@ -141,7 +141,7 @@ function initialize(
     address _redeemer,
     uint48 _gracePeriod,
     string calldata _baseURI,
-    MintInfo[] memory _mintInfo
+    MintInfo[] calldata _mintInfo
 ) external initializer;
 ```
 **Parameters**
