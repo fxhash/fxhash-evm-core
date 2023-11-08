@@ -1,5 +1,5 @@
 # FxMintTicket721
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/tokens/FxMintTicket721.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/686a75b6e028ec629d05b5b60596a8ee209b77b5/src/tokens/FxMintTicket721.sol)
 
 **Inherits:**
 [IFxMintTicket721](/src/interfaces/IFxMintTicket721.sol/interface.IFxMintTicket721.md), IERC4906, ERC721, Initializable, Ownable, Pausable
@@ -141,7 +141,7 @@ function initialize(
     address _redeemer,
     uint48 _gracePeriod,
     string calldata _baseURI,
-    MintInfo[] calldata _mintInfo
+    MintInfo[] memory _mintInfo
 ) external initializer;
 ```
 **Parameters**
@@ -249,15 +249,6 @@ Registers minter contracts with resereve info
 function registerMinters(MintInfo[] calldata _mintInfo) external onlyOwner;
 ```
 
-### pause
-
-Pauses all function executions where modifier is set
-
-
-```solidity
-function pause() external onlyRole(ADMIN_ROLE);
-```
-
 ### setBaseURI
 
 Sets the new URI of the token metadata
@@ -273,13 +264,22 @@ function setBaseURI(string calldata _uri) external onlyRole(ADMIN_ROLE);
 |`_uri`|`string`|Base URI pointer of the metadata|
 
 
+### pause
+
+Pauses all function executions where modifier is set
+
+
+```solidity
+function pause() external onlyRole(MODERATOR_ROLE);
+```
+
 ### unpause
 
 Unpauses all function executions where modifier is set
 
 
 ```solidity
-function unpause() external onlyRole(ADMIN_ROLE);
+function unpause() external onlyRole(MODERATOR_ROLE);
 ```
 
 ### isApprovedForAll
@@ -477,7 +477,7 @@ function getTaxDuration(uint256 _taxPayment, uint256 _dailyTax) public pure retu
 
 
 ```solidity
-function _registerMinters(MintInfo[] calldata _mintInfo) internal;
+function _registerMinters(MintInfo[] memory _mintInfo) internal;
 ```
 
 ### _setBalance
