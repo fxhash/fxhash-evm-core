@@ -17,9 +17,13 @@ import {MockMintPass} from "test/mocks/MockMintPass.sol";
 import {MockRoyaltyManager} from "test/mocks/MockRoyaltyManager.sol";
 import {MockSplitsController} from "test/mocks/MockSplitsController.sol";
 
+import {HTMLRequest, HTMLTagType, HTMLTag} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
 import {IDutchAuction, AuctionInfo} from "src/interfaces/IDutchAuction.sol";
 import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
+import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
+import {IFxGenArt721, GenArtInfo, InitInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxIssuerFactory} from "src/interfaces/IFxIssuerFactory.sol";
+import {IFxMintTicket721, TaxInfo} from "src/interfaces/IFxMintTicket721.sol";
 import {IFxTicketFactory} from "src/interfaces/IFxTicketFactory.sol";
 import {IRoyaltyManager} from "src/interfaces/IRoyaltyManager.sol";
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
@@ -38,16 +42,15 @@ contract BaseTest is Deploy, Test {
     MockRoyaltyManager internal royaltyManager;
 
     // Accounts
-    address internal creator;
     address internal deployer;
     address internal minter;
-    address internal owner;
     address internal alice;
     address internal bob;
     address internal eve;
     address internal susan;
 
     // Allowlist
+    address internal mintPassSigner;
     bytes32 internal merkleRoot;
     uint256 internal mintPassSignerPk;
 
@@ -71,27 +74,16 @@ contract BaseTest is Deploy, Test {
     uint128 internal referrerShare;
     uint256[] internal tagIds;
 
-    // Registries
-    address[] internal contracts;
-    string[] internal names;
-
     // Royalties
     address payable[] internal royaltyReceivers;
     uint96[] internal basisPoints;
 
-    // Scripty
-    address internal ethFSFileStorage;
-    address internal scriptyBuilderV2;
-    address internal scriptyStorageV2;
-
     // Splits
-    address internal splitsMain;
     address internal primaryReceiver;
     address[] internal accounts;
     uint32[] internal allocations;
 
     // Structs
-    ConfigInfo internal configInfo;
     GenArtInfo internal genArtInfo;
     InitInfo internal initInfo;
     IssuerInfo internal issuerInfo;
@@ -138,11 +130,21 @@ contract BaseTest is Deploy, Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _createAccounts() internal virtual override {
-        super._createAccounts();
+        admin = makeAddr("admin");
+        creator = makeAddr("creator");
+        deployer = address(this);
         alice = makeAddr("alice");
         bob = makeAddr("bob");
         eve = makeAddr("eve");
         susan = makeAddr("susan");
+
+        vm.label(admin, "Admin");
+        vm.label(creator, "Creator");
+        vm.label(deployer, "Deployer");
+        vm.label(alice, "Alice");
+        vm.label(bob, "Bob");
+        vm.label(eve, "Eve");
+        vm.label(susan, "Susan");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -152,17 +154,14 @@ contract BaseTest is Deploy, Test {
     function _initializeAccounts() internal virtual {
         vm.deal(admin, INITIAL_BALANCE);
         vm.deal(creator, INITIAL_BALANCE);
+        vm.deal(deployer, INITIAL_BALANCE);
         vm.deal(alice, INITIAL_BALANCE);
         vm.deal(bob, INITIAL_BALANCE);
         vm.deal(eve, INITIAL_BALANCE);
         vm.deal(susan, INITIAL_BALANCE);
-        vm.deal(address(this), INITIAL_BALANCE);
     }
 
     function _initializeState() internal virtual {
-        tagIds.push(TAG_ID);
-        deployer = address(this);
-        vm.label(deployer, "Deployer");
         vm.warp(RESERVE_START_TIME);
     }
 
@@ -184,6 +183,162 @@ contract BaseTest is Deploy, Test {
 
     function _mockRoyaltyManager(address _admin) internal prank(_admin) {
         royaltyManager = new MockRoyaltyManager();
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                CONFIGURATIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function _configureSplits() internal virtual {
+        if (creator < admin) {
+            accounts.push(creator);
+            accounts.push(admin);
+            allocations.push(CREATOR_ALLOCATION);
+            allocations.push(ADMIN_ALLOCATION);
+        } else {
+            accounts.push(admin);
+            accounts.push(creator);
+            allocations.push(ADMIN_ALLOCATION);
+            allocations.push(CREATOR_ALLOCATION);
+        }
+    }
+
+    function _configureRoyalties() internal virtual {
+        royaltyReceivers.push(payable(admin));
+        royaltyReceivers.push(payable(creator));
+        basisPoints.push(ROYALTY_BPS);
+        basisPoints.push(ROYALTY_BPS * 2);
+    }
+
+    function _configureScripty() internal virtual {
+        if (block.chainid == SEPOLIA) {
+            ethFSFileStorage = SEPOLIA_ETHFS_FILE_STORAGE;
+            scriptyBuilderV2 = SEPOLIA_SCRIPTY_BUILDER_V2;
+            scriptyStorageV2 = SEPOLIA_SCRIPTY_STORAGE_V2;
+        } else {
+            ethFSFileStorage = GOERLI_ETHFS_FILE_STORAGE;
+            scriptyBuilderV2 = GOERLI_SCRIPTY_BUILDER_V2;
+            scriptyStorageV2 = GOERLI_SCRIPTY_STORAGE_V2;
+        }
+
+        headTags.push(
+            HTMLTag({
+                name: CSS_CANVAS_SCRIPT,
+                contractAddress: ethFSFileStorage,
+                contractData: bytes(""),
+                tagType: HTMLTagType.useTagOpenAndClose,
+                tagOpen: TAG_OPEN,
+                tagClose: TAG_CLOSE,
+                tagContent: bytes("")
+            })
+        );
+
+        bodyTags.push(
+            HTMLTag({
+                name: P5_JS_SCRIPT,
+                contractAddress: ethFSFileStorage,
+                contractData: bytes(""),
+                tagType: HTMLTagType.scriptGZIPBase64DataURI,
+                tagOpen: bytes(""),
+                tagClose: bytes(""),
+                tagContent: bytes("")
+            })
+        );
+
+        bodyTags.push(
+            HTMLTag({
+                name: GUNZIP_JS_SCRIPT,
+                contractAddress: ethFSFileStorage,
+                contractData: bytes(""),
+                tagType: HTMLTagType.scriptBase64DataURI,
+                tagOpen: bytes(""),
+                tagClose: bytes(""),
+                tagContent: bytes("")
+            })
+        );
+
+        bodyTags.push(
+            HTMLTag({
+                name: POINTS_AND_LINES_SCRIPT,
+                contractAddress: scriptyStorageV2,
+                contractData: bytes(""),
+                tagType: HTMLTagType.script,
+                tagOpen: bytes(""),
+                tagClose: bytes(""),
+                tagContent: bytes("")
+            })
+        );
+
+        animation.headTags = headTags;
+        animation.bodyTags = bodyTags;
+        onchainData = abi.encode(animation);
+    }
+
+    function _configureState(uint256 _amount, uint256 _price, uint256 _quantity, uint256 _tokenId) internal virtual {
+        amount = _amount;
+        price = _price;
+        quantity = _quantity;
+        tokenId = _tokenId;
+        tagIds.push(TAG_ID);
+    }
+
+    function _configureProject(
+        bool _onchain,
+        bool _mintEnabled,
+        uint120 _maxSupply,
+        string memory _contractURI
+    ) internal virtual {
+        projectInfo.onchain = _onchain;
+        projectInfo.mintEnabled = _mintEnabled;
+        projectInfo.maxSupply = _maxSupply;
+        projectInfo.contractURI = _contractURI;
+    }
+
+    function _configureMetdata(
+        string memory _baseURI,
+        string memory _imageURI,
+        bytes memory _onchainData
+    ) internal virtual {
+        metadataInfo.baseURI = _baseURI;
+        metadataInfo.imageURI = _imageURI;
+        metadataInfo.onchainData = _onchainData;
+    }
+
+    function _configureAllowlist(bytes32 _merkleRoot, address _mintPassSigner) internal virtual {
+        merkleRoot = _merkleRoot;
+        mintPassSigner = _mintPassSigner;
+    }
+
+    function _configureInit(
+        string memory _name,
+        string memory _symbol,
+        address _primaryReceiver,
+        address _randomizer,
+        address _renderer,
+        uint256[] memory _tagIds
+    ) internal virtual {
+        initInfo.name = _name;
+        initInfo.symbol = _symbol;
+        initInfo.primaryReceiver = _primaryReceiver;
+        initInfo.randomizer = _randomizer;
+        initInfo.renderer = _renderer;
+        initInfo.tagIds = _tagIds;
+    }
+
+    function _configureMinter(
+        address _minter,
+        uint64 _startTime,
+        uint64 _endTime,
+        uint64 _allocation,
+        bytes memory _params
+    ) internal virtual {
+        mintInfo.push(
+            MintInfo({
+                minter: _minter,
+                reserveInfo: ReserveInfo({startTime: _startTime, endTime: _endTime, allocation: _allocation}),
+                params: _params
+            })
+        );
     }
 
     /*//////////////////////////////////////////////////////////////////////////

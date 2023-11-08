@@ -21,13 +21,8 @@ import {SplitsController} from "src/splits/SplitsController.sol";
 import {SplitsFactory} from "src/splits/SplitsFactory.sol";
 import {TicketRedeemer} from "src/minters/TicketRedeemer.sol";
 
-import {HTMLRequest, HTMLTagType, HTMLTag} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
-import {IFxContractRegistry, ConfigInfo} from "src/interfaces/IFxContractRegistry.sol";
-import {IFxGenArt721, GenArtInfo, InitInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
-import {IFxMintTicket721, TaxInfo} from "src/interfaces/IFxMintTicket721.sol";
+import {ConfigInfo} from "src/interfaces/IFxContractRegistry.sol";
 import {LibClone} from "solady/src/utils/LibClone.sol";
-
-import {ConfigureLib} from "script/lib/helpers/ConfigureLib.s.sol";
 
 contract Deploy is Script {
     // Core
@@ -49,6 +44,16 @@ contract Deploy is Script {
 
     // Accounts
     address internal admin;
+    address internal creator;
+
+    // State
+    address internal ethFSFileStorage;
+    address internal scriptyBuilderV2;
+    address internal scriptyStorageV2;
+    address internal splitsMain;
+    address[] internal contracts;
+    string[] internal names;
+    ConfigInfo internal configInfo;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      MODIFIERS
@@ -68,27 +73,7 @@ contract Deploy is Script {
 
     function setUp() public virtual {
         _createAccounts();
-        ConfigureLib.splits(admin, creator, accounts, allocations);
-        ConfigureLib.royalties(admin, creator, royaltyReceivers, basisPoints);
-        ConfigureLib.scripty(
-            ethFSFileStorage,
-            scriptyBuilderV2,
-            scriptyStorageV2,
-            animation,
-            headTags,
-            bodyTags,
-            onchainData
-        );
-        ConfigureLib.state(amount, price, quantity, tokenId);
-        ConfigureLib.configInfo(configInfo.lockTime, configInfo.referrerShare, configInfo.defaultMetadata);
-        ConfigureLib.projectInfo(
-            projectInfo.onchain,
-            projectInfo.mintEnabled,
-            projectInfo.maxSupply,
-            projectInfo.contractURI
-        );
-        ConfigureLib.metdataInfo(metadataInfo.baseURI, metadataInfo.imageURI, metadataInfo.onchainData);
-        ConfigureLib.allowlist(merkleRoot, mintPassSigner);
+        _configureInfo(LOCK_TIME, REFERRER_SHARE, DEFAULT_METADATA);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -97,41 +82,11 @@ contract Deploy is Script {
     function run() public virtual {
         _mockSplits();
         vm.startBroadcast();
-        _run();
-        vm.stopBroadcast();
-    }
-
-    function _run() internal virtual {
         _deployContracts();
-        _configureMinter(
-            address(fixedPrice),
-            uint64(block.timestamp) + RESERVE_START_TIME,
-            uint64(block.timestamp) + RESERVE_END_TIME,
-            MINTER_ALLOCATION,
-            abi.encode(PRICE, merkleRoot, mintPassSigner)
-        );
-        _configureMinter(
-            address(ticketRedeemer),
-            uint64(block.timestamp) + RESERVE_START_TIME,
-            uint64(block.timestamp) + RESERVE_END_TIME,
-            REDEEMER_ALLOCATION,
-            abi.encode(_computeTicketAddr(admin))
-        );
         _registerContracts();
         _grantRoles();
         _setController();
-        _createSplit();
-        _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(scriptyRenderer), tagIds);
-        _createProject();
-        delete mintInfo;
-        _configureMinter(
-            address(fixedPrice),
-            uint64(block.timestamp) + RESERVE_START_TIME,
-            uint64(block.timestamp) + RESERVE_END_TIME,
-            MINTER_ALLOCATION,
-            abi.encode(PRICE, merkleRoot, mintPassSigner)
-        );
-        _createTicket();
+        vm.stopBroadcast();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -150,36 +105,14 @@ contract Deploy is Script {
                                 CONFIGURATIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _configureInit(
-        string memory _name,
-        string memory _symbol,
-        address _primaryReceiver,
-        address _randomizer,
-        address _renderer,
-        uint256[] memory _tagIds
+    function _configureInfo(
+        uint128 _lockTime,
+        uint128 _referrerShare,
+        string memory _defaultMetadata
     ) internal virtual {
-        initInfo.name = _name;
-        initInfo.symbol = _symbol;
-        initInfo.primaryReceiver = _primaryReceiver;
-        initInfo.randomizer = _randomizer;
-        initInfo.renderer = _renderer;
-        initInfo.tagIds = _tagIds;
-    }
-
-    function _configureMinter(
-        address _minter,
-        uint64 _startTime,
-        uint64 _endTime,
-        uint64 _allocation,
-        bytes memory _params
-    ) internal virtual {
-        mintInfo.push(
-            MintInfo({
-                minter: _minter,
-                reserveInfo: ReserveInfo({startTime: _startTime, endTime: _endTime, allocation: _allocation}),
-                params: _params
-            })
-        );
+        configInfo.lockTime = _lockTime;
+        configInfo.referrerShare = _referrerShare;
+        configInfo.defaultMetadata = _defaultMetadata;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -285,6 +218,7 @@ contract Deploy is Script {
         names.push(FX_MINT_TICKET_721);
         names.push(FX_ROLE_REGISTRY);
         names.push(FX_TICKET_FACTORY);
+
         names.push(DUTCH_AUCTION);
         names.push(FIXED_PRICE);
         names.push(PSEUDO_RANDOMIZER);
@@ -299,6 +233,7 @@ contract Deploy is Script {
         contracts.push(address(fxMintTicket721));
         contracts.push(address(fxRoleRegistry));
         contracts.push(address(fxTicketFactory));
+
         contracts.push(address(dutchAuction));
         contracts.push(address(fixedPrice));
         contracts.push(address(pseudoRandomizer));

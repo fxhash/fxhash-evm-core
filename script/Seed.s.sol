@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import "script/Deploy.s.sol";
+import "test/BaseTest.t.sol";
 
-contract Seed is Deploy {
-    function _run() internal override {
-        super._run();
+contract Seed is BaseTest {
+    function run() public override {
+        super.run();
         creator = msg.sender;
         for (uint256 i; i < 20; ++i) {
             _initializeProject();

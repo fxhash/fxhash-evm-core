@@ -5,6 +5,7 @@ import {IERC721} from "openzeppelin/contracts/interfaces/IERC721.sol";
 import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxMintTicket721} from "src/interfaces/IFxMintTicket721.sol";
 import {ITicketRedeemer} from "src/interfaces/ITicketRedeemer.sol";
+import "forge-std/Test.sol";
 
 /**
  * @title TicketRedeemer
@@ -31,6 +32,7 @@ contract TicketRedeemer is ITicketRedeemer {
     function redeem(address _token, uint256 _ticketId, bytes calldata _fxParams) external {
         address ticket = tickets[_token];
         // Reverts if caller is not owner of ticket
+        console.log("TICKET", ticket);
         address owner = IERC721(ticket).ownerOf(_ticketId);
         if (msg.sender != owner) revert NotAuthorized();
         // Reverts if token contract does not exist
