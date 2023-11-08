@@ -206,7 +206,7 @@ interface IFxMintTicket721 is IToken {
         address _redeemer,
         uint48 _gracePeriod,
         string calldata _baseURI,
-        MintInfo[] memory _mintInfo
+        MintInfo[] calldata _mintInfo
     ) external;
 
     /**
