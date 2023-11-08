@@ -1,5 +1,5 @@
 # FxGenArt721
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/686a75b6e028ec629d05b5b60596a8ee209b77b5/src/tokens/FxGenArt721.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/ace7e57339c07ca2ed3c7a6bef724ed3baae64f8/src/tokens/FxGenArt721.sol)
 
 **Inherits:**
 [IFxGenArt721](/src/interfaces/IFxGenArt721.sol/interface.IFxGenArt721.md), IERC4906, ERC721, EIP712, Initializable, Ownable, Pausable, [RoyaltyManager](/src/tokens/extensions/RoyaltyManager.sol/abstract.RoyaltyManager.md)
@@ -142,7 +142,7 @@ function initialize(
     InitInfo calldata _initInfo,
     ProjectInfo calldata _projectInfo,
     MetadataInfo calldata _metadataInfo,
-    MintInfo[] memory _mintInfo,
+    MintInfo[] calldata _mintInfo,
     address payable[] calldata _royaltyReceivers,
     uint96[] calldata _basisPoints
 ) external initializer;

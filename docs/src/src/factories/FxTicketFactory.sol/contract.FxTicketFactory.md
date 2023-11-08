@@ -1,5 +1,5 @@
 # FxTicketFactory
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/686a75b6e028ec629d05b5b60596a8ee209b77b5/src/factories/FxTicketFactory.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/ace7e57339c07ca2ed3c7a6bef724ed3baae64f8/src/factories/FxTicketFactory.sol)
 
 **Inherits:**
 [IFxTicketFactory](/src/interfaces/IFxTicketFactory.sol/interface.IFxTicketFactory.md), Ownable
@@ -78,7 +78,7 @@ function createTicket(
     address _redeemer,
     uint48 _gracePeriod,
     string calldata _baseURI,
-    MintInfo[] memory _mintInfo
+    MintInfo[] calldata _mintInfo
 ) external returns (address mintTicket);
 ```
 **Parameters**
