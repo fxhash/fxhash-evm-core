@@ -1,5 +1,5 @@
 # IFxGenArt721
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/interfaces/IFxGenArt721.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/686a75b6e028ec629d05b5b60596a8ee209b77b5/src/interfaces/IFxGenArt721.sol)
 
 **Inherits:**
 [ISeedConsumer](/src/interfaces/ISeedConsumer.sol/interface.ISeedConsumer.md), [IToken](/src/interfaces/IToken.sol/interface.IToken.md)
@@ -102,7 +102,7 @@ function initialize(
     InitInfo calldata _initInfo,
     ProjectInfo calldata _projectInfo,
     MetadataInfo calldata _metadataInfo,
-    MintInfo[] calldata _mintInfo,
+    MintInfo[] memory _mintInfo,
     address payable[] calldata _royaltyReceivers,
     uint96[] calldata _basisPoints
 ) external;
@@ -270,7 +270,7 @@ Registers minter contracts with resereve info
 
 
 ```solidity
-function registerMinters(MintInfo[] calldata _mintInfo) external;
+function registerMinters(MintInfo[] memory _mintInfo) external;
 ```
 **Parameters**
 

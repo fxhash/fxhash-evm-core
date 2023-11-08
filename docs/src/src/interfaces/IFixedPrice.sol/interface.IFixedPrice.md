@@ -1,5 +1,5 @@
 # IFixedPrice
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/interfaces/IFixedPrice.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/686a75b6e028ec629d05b5b60596a8ee209b77b5/src/interfaces/IFixedPrice.sol)
 
 **Inherits:**
 [IMinter](/src/interfaces/IMinter.sol/interface.IMinter.md)

@@ -1,5 +1,5 @@
 # IFxMintTicket721
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/interfaces/IFxMintTicket721.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/686a75b6e028ec629d05b5b60596a8ee209b77b5/src/interfaces/IFxMintTicket721.sol)
 
 **Inherits:**
 [IToken](/src/interfaces/IToken.sol/interface.IToken.md)
@@ -96,7 +96,7 @@ function initialize(
     address _redeemer,
     uint48 _gracePeriod,
     string calldata _baseURI,
-    MintInfo[] calldata _mintInfo
+    MintInfo[] memory _mintInfo
 ) external;
 ```
 **Parameters**
@@ -356,7 +356,7 @@ Registers minter contracts with resereve info
 
 
 ```solidity
-function registerMinters(MintInfo[] calldata _mintInfo) external;
+function registerMinters(MintInfo[] memory _mintInfo) external;
 ```
 
 ### roleRegistry
