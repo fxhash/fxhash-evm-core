@@ -127,7 +127,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         InitInfo calldata _initInfo,
         ProjectInfo calldata _projectInfo,
         MetadataInfo calldata _metadataInfo,
-        MintInfo[] calldata _mintInfo,
+        MintInfo[] memory _mintInfo,
         address payable[] calldata _royaltyReceivers,
         uint96[] calldata _basisPoints
     ) external initializer {
@@ -226,7 +226,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function registerMinters(MintInfo[] calldata _mintInfo) external onlyOwner {
+    function registerMinters(MintInfo[] memory _mintInfo) external onlyOwner {
         if (issuerInfo.projectInfo.mintEnabled) revert MintActive();
 
         // Caches array length
@@ -321,21 +321,21 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function pause() external onlyRole(TOKEN_MODERATOR_ROLE) {
+    function pause() external onlyRole(MODERATOR_ROLE) {
         _pause();
     }
 
     /**
      * @inheritdoc IFxGenArt721
      */
-    function setTags(uint256[] calldata _tagIds) external onlyRole(TOKEN_MODERATOR_ROLE) {
+    function setTags(uint256[] calldata _tagIds) external onlyRole(MODERATOR_ROLE) {
         _setTags(_tagIds);
     }
 
     /**
      * @inheritdoc IFxGenArt721
      */
-    function unpause() external onlyRole(TOKEN_MODERATOR_ROLE) {
+    function unpause() external onlyRole(MODERATOR_ROLE) {
         _unpause();
     }
 
@@ -421,8 +421,9 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @dev Registers arbitrary number of minter contracts and sets their reserves
      */
-    function _registerMinters(MintInfo[] calldata _mintInfo) internal {
+    function _registerMinters(MintInfo[] memory _mintInfo) internal {
         address minter;
+        uint64 startTime;
         uint128 totalAllocation;
         ReserveInfo memory reserveInfo;
         (uint256 lockTime, , ) = IFxContractRegistry(contractRegistry).configInfo();
@@ -431,9 +432,14 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
             for (uint256 i; i < _mintInfo.length; ++i) {
                 minter = _mintInfo[i].minter;
                 reserveInfo = _mintInfo[i].reserveInfo;
+                startTime = reserveInfo.startTime;
                 if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) revert UnauthorizedMinter();
-                if (reserveInfo.startTime < block.timestamp + lockTime) revert InvalidStartTime();
-                if (reserveInfo.endTime < reserveInfo.startTime) revert InvalidEndTime();
+                if (startTime == 0) {
+                    reserveInfo.startTime = uint64(block.timestamp + lockTime);
+                } else if (startTime < block.timestamp + lockTime) {
+                    revert InvalidStartTime();
+                }
+                if (reserveInfo.endTime < startTime) revert InvalidEndTime();
 
                 issuerInfo.minters[minter] = TRUE;
                 issuerInfo.activeMinters.push(minter);
@@ -459,7 +465,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      * @dev Checks if creator is verified by the system
      */
     function _isVerified(address _creator) internal view returns (bool) {
-        return (IAccessControl(roleRegistry).hasRole(VERIFIED_USER_ROLE, _creator));
+        return (IAccessControl(roleRegistry).hasRole(CREATOR_ROLE, _creator));
     }
 
     /**

@@ -206,7 +206,7 @@ interface IFxMintTicket721 is IToken {
         address _redeemer,
         uint48 _gracePeriod,
         string calldata _baseURI,
-        MintInfo[] calldata _mintInfo
+        MintInfo[] memory _mintInfo
     ) external;
 
     /**
@@ -312,7 +312,7 @@ interface IFxMintTicket721 is IToken {
     /**
      * @notice Registers minter contracts with resereve info
      */
-    function registerMinters(MintInfo[] calldata _mintInfo) external;
+    function registerMinters(MintInfo[] memory _mintInfo) external;
 
     /**
      * @notice Returns the address of the FxRoleRegistry contract

@@ -122,7 +122,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
         address _redeemer,
         uint48 _gracePeriod,
         string calldata _baseURI,
-        MintInfo[] calldata _mintInfo
+        MintInfo[] memory _mintInfo
     ) external initializer {
         genArt721 = _genArt721;
         redeemer = _redeemer;
@@ -374,22 +374,26 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
     /**
      * @inheritdoc IFxMintTicket721
      */
-    function pause() external onlyRole(ADMIN_ROLE) {
+    function setBaseURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
+        baseURI = _uri;
+        emit BatchMetadataUpdate(1, totalSupply);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                MODERATOR FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc IFxMintTicket721
+     */
+    function pause() external onlyRole(MODERATOR_ROLE) {
         _pause();
     }
 
     /**
      * @inheritdoc IFxMintTicket721
      */
-    function setBaseURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
-        baseURI = _uri;
-        emit BatchMetadataUpdate(1, totalSupply);
-    }
-
-    /**
-     * @inheritdoc IFxMintTicket721
-     */
-    function unpause() external onlyRole(ADMIN_ROLE) {
+    function unpause() external onlyRole(MODERATOR_ROLE) {
         _unpause();
     }
 
@@ -497,8 +501,9 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
     /**
      * @dev Registers arbitrary number of minter contracts and sets their reserves
      */
-    function _registerMinters(MintInfo[] calldata _mintInfo) internal {
+    function _registerMinters(MintInfo[] memory _mintInfo) internal {
         address minter;
+        uint64 startTime;
         uint128 totalAllocation;
         ReserveInfo memory reserveInfo;
         (uint256 lockTime, , ) = IFxContractRegistry(contractRegistry).configInfo();
@@ -508,7 +513,11 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
                 minter = _mintInfo[i].minter;
                 reserveInfo = _mintInfo[i].reserveInfo;
                 if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) revert UnauthorizedMinter();
-                if (reserveInfo.startTime < block.timestamp + lockTime) revert InvalidStartTime();
+                if (startTime == 0) {
+                    reserveInfo.startTime = uint64(block.timestamp + lockTime);
+                } else if (startTime < block.timestamp + lockTime) {
+                    revert InvalidStartTime();
+                }
                 if (reserveInfo.endTime < reserveInfo.startTime) revert InvalidEndTime();
 
                 minters[minter] = TRUE;
@@ -561,6 +570,6 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
      * @dev Checks if creator is verified by the system
      */
     function _isVerified(address _creator) internal view returns (bool) {
-        return (IAccessControl(roleRegistry).hasRole(VERIFIED_USER_ROLE, _creator));
+        return (IAccessControl(roleRegistry).hasRole(CREATOR_ROLE, _creator));
     }
 }

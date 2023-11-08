@@ -1,5 +1,5 @@
 # FxGenArt721
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/22e6538fd4576a4eee62705cd3e376e2623a19b3/src/tokens/FxGenArt721.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/686a75b6e028ec629d05b5b60596a8ee209b77b5/src/tokens/FxGenArt721.sol)
 
 **Inherits:**
 [IFxGenArt721](/src/interfaces/IFxGenArt721.sol/interface.IFxGenArt721.md), IERC4906, ERC721, EIP712, Initializable, Ownable, Pausable, [RoyaltyManager](/src/tokens/extensions/RoyaltyManager.sol/abstract.RoyaltyManager.md)
@@ -142,7 +142,7 @@ function initialize(
     InitInfo calldata _initInfo,
     ProjectInfo calldata _projectInfo,
     MetadataInfo calldata _metadataInfo,
-    MintInfo[] calldata _mintInfo,
+    MintInfo[] memory _mintInfo,
     address payable[] calldata _royaltyReceivers,
     uint96[] calldata _basisPoints
 ) external initializer;
@@ -263,7 +263,7 @@ Registers minter contracts with resereve info
 
 
 ```solidity
-function registerMinters(MintInfo[] calldata _mintInfo) external onlyOwner;
+function registerMinters(MintInfo[] memory _mintInfo) external onlyOwner;
 ```
 **Parameters**
 
@@ -374,7 +374,7 @@ Pauses all function executions where modifier is applied
 
 
 ```solidity
-function pause() external onlyRole(TOKEN_MODERATOR_ROLE);
+function pause() external onlyRole(MODERATOR_ROLE);
 ```
 
 ### setTags
@@ -383,7 +383,7 @@ Emits an event for setting tag descriptions for the project
 
 
 ```solidity
-function setTags(uint256[] calldata _tagIds) external onlyRole(TOKEN_MODERATOR_ROLE);
+function setTags(uint256[] calldata _tagIds) external onlyRole(MODERATOR_ROLE);
 ```
 **Parameters**
 
@@ -398,7 +398,7 @@ Unpauses all function executions where modifier is applied
 
 
 ```solidity
-function unpause() external onlyRole(TOKEN_MODERATOR_ROLE);
+function unpause() external onlyRole(MODERATOR_ROLE);
 ```
 
 ### contractURI
@@ -507,7 +507,7 @@ function _mintRandom(address _to, uint256 _tokenId) internal;
 
 
 ```solidity
-function _registerMinters(MintInfo[] calldata _mintInfo) internal;
+function _registerMinters(MintInfo[] memory _mintInfo) internal;
 ```
 
 ### _setTags
