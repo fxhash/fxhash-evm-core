@@ -77,7 +77,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
         InitInfo calldata _initInfo,
         ProjectInfo calldata _projectInfo,
         MetadataInfo calldata _metadataInfo,
-        MintInfo[] memory _mintInfo,
+        MintInfo[] calldata _mintInfo,
         address payable[] calldata _royaltyReceivers,
         uint96[] calldata _basisPoints
     ) external isBanned(_owner) returns (address genArtToken) {
