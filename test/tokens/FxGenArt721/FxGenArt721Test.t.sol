@@ -5,9 +5,9 @@ import "test/BaseTest.t.sol";
 
 contract FxGenArt721Test is BaseTest {
     // State
-    ProjectInfo internal project;
     address internal primarySplits;
     uint120 internal maxSupply;
+    ProjectInfo internal project;
 
     // Signature
     address internal signerAddr;

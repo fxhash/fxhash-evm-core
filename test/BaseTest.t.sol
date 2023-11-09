@@ -42,6 +42,7 @@ contract BaseTest is Deploy, Test {
 
     // Accounts
     address internal deployer;
+    address internal moderator;
     address internal minter;
     address internal alice;
     address internal bob;
@@ -118,7 +119,7 @@ contract BaseTest is Deploy, Test {
         _initializeAccounts();
         _mockSplits();
         _deployContracts();
-        RegistryLib.grantRole(admin, fxRoleRegistry, CREATOR_ROLE, creator);
+        _grantRoles();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -129,6 +130,7 @@ contract BaseTest is Deploy, Test {
         deployer = address(this);
         admin = makeAddr("admin");
         creator = makeAddr("creator");
+        moderator = makeAddr("moderator");
         alice = makeAddr("alice");
         bob = makeAddr("bob");
         eve = makeAddr("eve");
@@ -137,6 +139,7 @@ contract BaseTest is Deploy, Test {
         vm.label(admin, "Admin");
         vm.label(creator, "Creator");
         vm.label(deployer, "Deployer");
+        vm.label(moderator, "Moderator");
         vm.label(alice, "Alice");
         vm.label(bob, "Bob");
         vm.label(eve, "Eve");
@@ -151,6 +154,7 @@ contract BaseTest is Deploy, Test {
         vm.deal(admin, INITIAL_BALANCE);
         vm.deal(creator, INITIAL_BALANCE);
         vm.deal(deployer, INITIAL_BALANCE);
+        vm.deal(moderator, INITIAL_BALANCE);
         vm.deal(alice, INITIAL_BALANCE);
         vm.deal(bob, INITIAL_BALANCE);
         vm.deal(eve, INITIAL_BALANCE);
@@ -179,17 +183,10 @@ contract BaseTest is Deploy, Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _configureSplits() internal virtual {
-        if (creator < admin) {
-            accounts.push(creator);
-            accounts.push(admin);
-            allocations.push(CREATOR_ALLOCATION);
-            allocations.push(ADMIN_ALLOCATION);
-        } else {
-            accounts.push(admin);
-            accounts.push(creator);
-            allocations.push(ADMIN_ALLOCATION);
-            allocations.push(CREATOR_ALLOCATION);
-        }
+        accounts.push(creator);
+        accounts.push(admin);
+        allocations.push(CREATOR_ALLOCATION);
+        allocations.push(ADMIN_ALLOCATION);
     }
 
     function _configureRoyalties() internal virtual {
@@ -235,6 +232,15 @@ contract BaseTest is Deploy, Test {
                 params: _params
             })
         );
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                    SETTERS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    function _grantRoles() internal virtual override {
+        RegistryLib.grantRole(admin, fxRoleRegistry, CREATOR_ROLE, creator);
+        RegistryLib.grantRole(admin, fxRoleRegistry, MODERATOR_ROLE, moderator);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

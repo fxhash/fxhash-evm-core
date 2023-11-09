@@ -46,11 +46,13 @@ contract Deploy is Script {
     address internal admin;
     address internal creator;
 
-    // State
+    // External
     address internal ethFSFileStorage;
     address internal scriptyBuilderV2;
     address internal scriptyStorageV2;
     address internal splitsMain;
+
+    // State
     address[] internal contracts;
     string[] internal names;
     ConfigInfo internal configInfo;
