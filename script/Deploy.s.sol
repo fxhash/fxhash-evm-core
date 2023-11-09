@@ -120,7 +120,7 @@ contract Deploy is Script {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _deployContracts() internal virtual {
-        bytes32 salt = keccak256(abi.encode(vm.getNonce(msg.sender)));
+        bytes32 salt = keccak256(abi.encode(vm.getNonce(admin)));
 
         // FxContractRegistry
         bytes memory creationCode = type(FxContractRegistry).creationCode;
