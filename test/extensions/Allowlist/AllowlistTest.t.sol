@@ -3,7 +3,13 @@ pragma solidity 0.8.20;
 
 import "test/BaseTest.t.sol";
 
+import {Allowlist} from "src/minters/extensions/Allowlist.sol";
+import {MockAllowlist} from "test/mocks/MockAllowlist.sol";
+
 contract AllowlistTest is BaseTest, StandardMerkleTree {
+    // Contracts
+    MockAllowlist internal allowlist;
+
     // State
     address internal token;
     bytes32[] internal merkleTree;

@@ -3,7 +3,14 @@ pragma solidity 0.8.20;
 
 import "test/BaseTest.t.sol";
 
+import {ECDSA} from "openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {MintPass} from "src/minters/extensions/MintPass.sol";
+import {MockMintPass} from "test/mocks/MockMintPass.sol";
+
 contract MintPassTest is BaseTest {
+    // Contracts
+    MockMintPass internal mintPass;
+
     // State
     uint256 internal claimIndex = 1;
     address internal claimerAddr = address(this);

@@ -3,7 +3,13 @@ pragma solidity 0.8.20;
 
 import "test/BaseTest.t.sol";
 
+import {MockRoyaltyManager} from "test/mocks/MockRoyaltyManager.sol";
+import {RoyaltyManager} from "src/tokens/extensions/RoyaltyManager.sol";
+
 contract RoyaltyManagerTest is BaseTest {
+    // Contracts
+    MockRoyaltyManager internal royaltyManager;
+
     // Errors
     bytes4 INVALID_ROYALTY_CONFIG_ERROR = IRoyaltyManager.InvalidRoyaltyConfig.selector;
     bytes4 LENGTH_MISMATCH_ERROR = IRoyaltyManager.LengthMismatch.selector;

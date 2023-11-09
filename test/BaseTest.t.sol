@@ -4,19 +4,6 @@ pragma solidity 0.8.20;
 import "forge-std/Test.sol";
 import "script/Deploy.s.sol";
 
-import {Allowlist} from "src/minters/extensions/Allowlist.sol";
-import {ECDSA} from "openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import {MintPass} from "src/minters/extensions/MintPass.sol";
-import {RoyaltyManager} from "src/tokens/extensions/RoyaltyManager.sol";
-import {StandardMerkleTree} from "test/utils/StandardMerkleTree.sol";
-import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
-
-import {MockAllowlist} from "test/mocks/MockAllowlist.sol";
-import {MockMinter} from "test/mocks/MockMinter.sol";
-import {MockMintPass} from "test/mocks/MockMintPass.sol";
-import {MockRoyaltyManager} from "test/mocks/MockRoyaltyManager.sol";
-import {MockSplitsController} from "test/mocks/MockSplitsController.sol";
-
 import {IDutchAuction, AuctionInfo} from "src/interfaces/IDutchAuction.sol";
 import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
@@ -30,16 +17,15 @@ import {ISplitsFactory} from "src/interfaces/ISplitsFactory.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
 import {ITicketRedeemer} from "src/interfaces/ITicketRedeemer.sol";
 
+import {MockMinter} from "test/mocks/MockMinter.sol";
+import {MockSplitsController} from "test/mocks/MockSplitsController.sol";
 import {RegistryLib} from "test/lib/helpers/RegistryLib.sol";
+import {StandardMerkleTree} from "test/utils/StandardMerkleTree.sol";
+import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 import {TicketLib} from "test/lib/helpers/TicketLib.sol";
 import {TokenLib} from "test/lib/helpers/TokenLib.sol";
 
 contract BaseTest is Deploy, Test {
-    // Mocks
-    MockAllowlist internal allowlist;
-    MockMintPass internal mintPass;
-    MockRoyaltyManager internal royaltyManager;
-
     // Accounts
     address internal deployer;
     address internal moderator;

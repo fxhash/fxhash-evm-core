@@ -2,6 +2,7 @@
 pragma solidity 0.8.20;
 
 import "test/BaseTest.t.sol";
+
 import {HTMLRequest, HTMLTagType, HTMLTag} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
 
 contract ScriptyRendererTest is BaseTest {
