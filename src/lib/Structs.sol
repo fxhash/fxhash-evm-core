@@ -21,12 +21,12 @@ struct AuctionInfo {
  * @notice Struct of system config information
  * - `lockTime` Locked time duration added to mint start time for unverified creators
  * - `referrerShare` Share amount distributed to accounts referring tokens
- * - `defaultMetadata` Default metadata URI of all unrevealed tokens
+ * - `defaultMetadataURI` Default metadata URI of all revealed tokens
  */
 struct ConfigInfo {
     uint128 lockTime;
     uint128 referrerShare;
-    string defaultMetadata;
+    string defaultMetadataURI;
 }
 
 /**

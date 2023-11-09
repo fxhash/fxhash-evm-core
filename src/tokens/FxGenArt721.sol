@@ -26,8 +26,9 @@ import "src/utils/Constants.sol";
  * @notice See the documentation in {IFxGenArt721}
  */
 contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, Ownable, Pausable, RoyaltyManager {
-    using SignatureChecker for address;
     using Strings for uint160;
+    using Strings for uint256;
+    using SignatureChecker for address;
     /*//////////////////////////////////////////////////////////////////////////
                                     STORAGE
     //////////////////////////////////////////////////////////////////////////*/
@@ -340,9 +341,9 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      * @inheritdoc IFxGenArt721
      */
     function contractURI() external view returns (string memory) {
-        (, , string memory defaultMetadata) = IFxContractRegistry(contractRegistry).configInfo();
+        (, , string memory defaultMetadataURI) = IFxContractRegistry(contractRegistry).configInfo();
         string memory contractAddr = uint160(address(this)).toHexString(20);
-        return string.concat(defaultMetadata, contractAddr, "/contract");
+        return string.concat(defaultMetadataURI, "contract/", contractAddr);
     }
 
     /**
@@ -351,6 +352,32 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     function generateTypedDataHash(bytes32 _typeHash, string calldata _uri) public view returns (bytes32) {
         bytes32 structHash = keccak256(abi.encode(_typeHash, _uri));
         return _hashTypedDataV4(structHash);
+    }
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
+    function getBaseURI() public view returns (string memory) {
+        if (bytes(metadataInfo.baseURI).length == 0) {
+            (, , string memory defaultMetadataURI) = IFxContractRegistry(contractRegistry).configInfo();
+            string memory contractAddr = uint160(address(this)).toHexString(20);
+            return string.concat(defaultMetadataURI, "base/", contractAddr);
+        } else {
+            return metadataInfo.baseURI;
+        }
+    }
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
+    function getImageURI() public view returns (string memory) {
+        if (bytes(metadataInfo.imageURI).length == 0) {
+            (, , string memory defaultMetadataURI) = IFxContractRegistry(contractRegistry).configInfo();
+            string memory contractAddr = uint160(address(this)).toHexString(20);
+            return string.concat(defaultMetadataURI, "image/", contractAddr);
+        } else {
+            return metadataInfo.imageURI;
+        }
     }
 
     /**

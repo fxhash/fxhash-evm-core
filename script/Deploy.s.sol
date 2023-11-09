@@ -76,7 +76,7 @@ contract Deploy is Script {
     function setUp() public virtual {
         _createAccounts();
         _configureScripty();
-        _configureInfo(LOCK_TIME, REFERRER_SHARE, DEFAULT_METADATA);
+        _configureInfo(LOCK_TIME, REFERRER_SHARE, DEFAULT_METADATA_URI);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -111,11 +111,11 @@ contract Deploy is Script {
     function _configureInfo(
         uint128 _lockTime,
         uint128 _referrerShare,
-        string memory _defaultMetadata
+        string memory _defaultMetadataURI
     ) internal virtual {
         configInfo.lockTime = _lockTime;
         configInfo.referrerShare = _referrerShare;
-        configInfo.defaultMetadata = _defaultMetadata;
+        configInfo.defaultMetadataURI = _defaultMetadataURI;
     }
 
     function _configureScripty() internal virtual {

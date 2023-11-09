@@ -50,7 +50,7 @@ contract BaseTest is Deploy, Test {
 
     // Project
     string internal contractURI;
-    string internal defaultMetadata;
+    string internal defaultMetadataURI;
     uint96 internal projectId;
     uint128 internal lockTime;
     uint128 internal referrerShare;
