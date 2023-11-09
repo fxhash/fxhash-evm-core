@@ -73,6 +73,7 @@ contract Deploy is Script {
 
     function setUp() public virtual {
         _createAccounts();
+        _configureScripty();
         _configureInfo(LOCK_TIME, REFERRER_SHARE, DEFAULT_METADATA);
     }
 
@@ -113,6 +114,18 @@ contract Deploy is Script {
         configInfo.lockTime = _lockTime;
         configInfo.referrerShare = _referrerShare;
         configInfo.defaultMetadata = _defaultMetadata;
+    }
+
+    function _configureScripty() internal virtual {
+        if (block.chainid == SEPOLIA) {
+            ethFSFileStorage = SEPOLIA_ETHFS_FILE_STORAGE;
+            scriptyBuilderV2 = SEPOLIA_SCRIPTY_BUILDER_V2;
+            scriptyStorageV2 = SEPOLIA_SCRIPTY_STORAGE_V2;
+        } else {
+            ethFSFileStorage = GOERLI_ETHFS_FILE_STORAGE;
+            scriptyBuilderV2 = GOERLI_SCRIPTY_BUILDER_V2;
+            scriptyStorageV2 = GOERLI_SCRIPTY_STORAGE_V2;
+        }
     }
 
     /*//////////////////////////////////////////////////////////////////////////

@@ -17,7 +17,6 @@ import {MockMintPass} from "test/mocks/MockMintPass.sol";
 import {MockRoyaltyManager} from "test/mocks/MockRoyaltyManager.sol";
 import {MockSplitsController} from "test/mocks/MockSplitsController.sol";
 
-import {HTMLRequest, HTMLTagType, HTMLTag} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
 import {IDutchAuction, AuctionInfo} from "src/interfaces/IDutchAuction.sol";
 import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
@@ -61,10 +60,6 @@ contract BaseTest is Deploy, Test {
     string internal baseURI;
     string internal imageURI;
     uint120 internal inputSize;
-    HTMLRequest internal animation;
-    HTMLRequest internal attributes;
-    HTMLTag[] internal headTags;
-    HTMLTag[] internal bodyTags;
 
     // Project
     string internal contractURI;
@@ -119,10 +114,11 @@ contract BaseTest is Deploy, Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
-        _createAccounts();
+        super.setUp();
         _initializeAccounts();
         _mockSplits();
         _deployContracts();
+        RegistryLib.grantRole(admin, fxRoleRegistry, CREATOR_ROLE, creator);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -130,9 +126,9 @@ contract BaseTest is Deploy, Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _createAccounts() internal virtual override {
+        deployer = address(this);
         admin = makeAddr("admin");
         creator = makeAddr("creator");
-        deployer = address(this);
         alice = makeAddr("alice");
         bob = makeAddr("bob");
         eve = makeAddr("eve");
@@ -189,6 +185,14 @@ contract BaseTest is Deploy, Test {
                                 CONFIGURATIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    function _configureState(uint256 _amount, uint256 _price, uint256 _quantity, uint256 _tokenId) internal virtual {
+        amount = _amount;
+        price = _price;
+        quantity = _quantity;
+        tokenId = _tokenId;
+        tagIds.push(TAG_ID);
+    }
+
     function _configureSplits() internal virtual {
         if (creator < admin) {
             accounts.push(creator);
@@ -208,78 +212,6 @@ contract BaseTest is Deploy, Test {
         royaltyReceivers.push(payable(creator));
         basisPoints.push(ROYALTY_BPS);
         basisPoints.push(ROYALTY_BPS * 2);
-    }
-
-    function _configureScripty() internal virtual {
-        if (block.chainid == SEPOLIA) {
-            ethFSFileStorage = SEPOLIA_ETHFS_FILE_STORAGE;
-            scriptyBuilderV2 = SEPOLIA_SCRIPTY_BUILDER_V2;
-            scriptyStorageV2 = SEPOLIA_SCRIPTY_STORAGE_V2;
-        } else {
-            ethFSFileStorage = GOERLI_ETHFS_FILE_STORAGE;
-            scriptyBuilderV2 = GOERLI_SCRIPTY_BUILDER_V2;
-            scriptyStorageV2 = GOERLI_SCRIPTY_STORAGE_V2;
-        }
-
-        headTags.push(
-            HTMLTag({
-                name: CSS_CANVAS_SCRIPT,
-                contractAddress: ethFSFileStorage,
-                contractData: bytes(""),
-                tagType: HTMLTagType.useTagOpenAndClose,
-                tagOpen: TAG_OPEN,
-                tagClose: TAG_CLOSE,
-                tagContent: bytes("")
-            })
-        );
-
-        bodyTags.push(
-            HTMLTag({
-                name: P5_JS_SCRIPT,
-                contractAddress: ethFSFileStorage,
-                contractData: bytes(""),
-                tagType: HTMLTagType.scriptGZIPBase64DataURI,
-                tagOpen: bytes(""),
-                tagClose: bytes(""),
-                tagContent: bytes("")
-            })
-        );
-
-        bodyTags.push(
-            HTMLTag({
-                name: GUNZIP_JS_SCRIPT,
-                contractAddress: ethFSFileStorage,
-                contractData: bytes(""),
-                tagType: HTMLTagType.scriptBase64DataURI,
-                tagOpen: bytes(""),
-                tagClose: bytes(""),
-                tagContent: bytes("")
-            })
-        );
-
-        bodyTags.push(
-            HTMLTag({
-                name: POINTS_AND_LINES_SCRIPT,
-                contractAddress: scriptyStorageV2,
-                contractData: bytes(""),
-                tagType: HTMLTagType.script,
-                tagOpen: bytes(""),
-                tagClose: bytes(""),
-                tagContent: bytes("")
-            })
-        );
-
-        animation.headTags = headTags;
-        animation.bodyTags = bodyTags;
-        onchainData = abi.encode(animation);
-    }
-
-    function _configureState(uint256 _amount, uint256 _price, uint256 _quantity, uint256 _tokenId) internal virtual {
-        amount = _amount;
-        price = _price;
-        quantity = _quantity;
-        tokenId = _tokenId;
-        tagIds.push(TAG_ID);
     }
 
     function _configureProject(bool _onchain, bool _mintEnabled, uint120 _maxSupply) internal virtual {
@@ -354,7 +286,6 @@ contract BaseTest is Deploy, Test {
             royaltyReceivers,
             basisPoints
         );
-
         vm.label(fxGenArtProxy, "FxGenArtProxy");
     }
 
@@ -367,7 +298,6 @@ contract BaseTest is Deploy, Test {
             BASE_URI,
             mintInfo
         );
-
         vm.label(fxMintTicketProxy, "FxMintTicketProxy");
     }
 }
