@@ -42,6 +42,10 @@ contract AllowlistTest is BaseTest, StandardMerkleTree {
         index = 1;
     }
 
+    function _mockAllowlist(address _admin) internal prank(_admin) {
+        allowlist = new MockAllowlist();
+    }
+
     function _configureAllowlist() internal {
         address[5] memory users = [alice, bob, eve, susan, alice];
         for (uint256 i; i < users.length; ++i) {

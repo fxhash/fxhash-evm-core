@@ -20,4 +20,8 @@ contract RoyaltyManagerTest is BaseTest {
         super._initializeState();
         tokenId = 1;
     }
+
+    function _mockRoyaltyManager(address _admin) internal prank(_admin) {
+        royaltyManager = new MockRoyaltyManager();
+    }
 }

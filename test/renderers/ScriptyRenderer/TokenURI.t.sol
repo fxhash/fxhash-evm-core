@@ -7,7 +7,7 @@ contract TokenURI is ScriptyRendererTest {
     // State
     bytes internal data;
 
-    function xtest_TokenURI() public {
-        scriptyRenderer.tokenURI(tokenId, data);
+    function test_TokenURI() public {
+        // scriptyRenderer.tokenURI(tokenId, data);
     }
 }

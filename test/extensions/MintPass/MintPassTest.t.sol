@@ -17,4 +17,8 @@ contract MintPassTest is BaseTest {
     function setUp() public override {
         _mockMintPass(admin, signerAddr);
     }
+
+    function _mockMintPass(address _admin, address _signer) internal prank(_admin) {
+        mintPass = new MockMintPass(_signer);
+    }
 }

@@ -158,6 +158,11 @@ contract BaseTest is Deploy, Test {
     }
 
     function _initializeState() internal virtual {
+        amount = AMOUNT;
+        price = PRICE;
+        quantity = QUANTITY;
+        tokenId = TOKEN_ID;
+        tagIds.push(TAG_ID);
         vm.warp(RESERVE_START_TIME);
     }
 
@@ -165,33 +170,13 @@ contract BaseTest is Deploy, Test {
                                      MOCKS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _mockAllowlist(address _admin) internal prank(_admin) {
-        allowlist = new MockAllowlist();
-    }
-
     function _mockMinter(address _admin) internal prank(_admin) {
         minter = address(new MockMinter());
-    }
-
-    function _mockMintPass(address _admin, address _signer) internal prank(_admin) {
-        mintPass = new MockMintPass(_signer);
-    }
-
-    function _mockRoyaltyManager(address _admin) internal prank(_admin) {
-        royaltyManager = new MockRoyaltyManager();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                 CONFIGURATIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    function _configureState(uint256 _amount, uint256 _price, uint256 _quantity, uint256 _tokenId) internal virtual {
-        amount = _amount;
-        price = _price;
-        quantity = _quantity;
-        tokenId = _tokenId;
-        tagIds.push(TAG_ID);
-    }
 
     function _configureSplits() internal virtual {
         if (creator < admin) {
@@ -218,21 +203,6 @@ contract BaseTest is Deploy, Test {
         projectInfo.onchain = _onchain;
         projectInfo.mintEnabled = _mintEnabled;
         projectInfo.maxSupply = _maxSupply;
-    }
-
-    function _configureMetdata(
-        string memory _baseURI,
-        string memory _imageURI,
-        bytes memory _onchainData
-    ) internal virtual {
-        metadataInfo.baseURI = _baseURI;
-        metadataInfo.imageURI = _imageURI;
-        metadataInfo.onchainData = _onchainData;
-    }
-
-    function _configureAllowlist(bytes32 _merkleRoot, address _mintPassSigner) internal virtual {
-        merkleRoot = _merkleRoot;
-        mintPassSigner = _mintPassSigner;
     }
 
     function _configureInit(
