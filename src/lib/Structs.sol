@@ -112,7 +112,6 @@ struct MinterInfo {
  * - `burnEnabled` Flag inidicating if burning is enabled
  * - `inputSize` Maximum input size of fxParams bytes data
  * - `maxSupply` Maximum supply of tokens
- * - `contractURI` CID hash of collection metadata
  */
 struct ProjectInfo {
     bool onchain;
@@ -120,7 +119,6 @@ struct ProjectInfo {
     bool burnEnabled;
     uint120 maxSupply;
     uint120 inputSize;
-    string contractURI;
 }
 
 /**

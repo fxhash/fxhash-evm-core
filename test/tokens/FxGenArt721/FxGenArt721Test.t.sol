@@ -43,7 +43,7 @@ contract FxGenArt721Test is BaseTest {
         _configureRoyalties();
         _configureState(AMOUNT, PRICE, QUANTITY, TOKEN_ID);
         _configureAllowlist(merkleRoot, mintPassSigner);
-        _configureProject(ONCHAIN, MINT_ENABLED, MAX_SUPPLY, CONTRACT_URI);
+        _configureProject(ONCHAIN, MINT_ENABLED, MAX_SUPPLY);
         _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, abi.encode(PRICE));
         RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, minter);
         _createSplit();
@@ -73,7 +73,6 @@ contract FxGenArt721Test is BaseTest {
         assertTrue(project.onchain, "project not onchain");
         assertTrue(project.mintEnabled, "project not enabled");
         assertEq(project.maxSupply, MAX_SUPPLY, "max supply unequal");
-        assertEq(project.contractURI, CONTRACT_URI, "contract URI mismatch");
         assertEq(primarySplits, primaryReceiver, "primary receiver not splits address");
         assertEq(FxGenArt721(fxGenArtProxy).owner(), creator, "owner isn't creator");
         assertEq(IFxGenArt721(fxGenArtProxy).isMinter(minter), TRUE, "minter isn't approved minter");

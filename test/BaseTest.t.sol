@@ -282,16 +282,10 @@ contract BaseTest is Deploy, Test {
         tagIds.push(TAG_ID);
     }
 
-    function _configureProject(
-        bool _onchain,
-        bool _mintEnabled,
-        uint120 _maxSupply,
-        string memory _contractURI
-    ) internal virtual {
+    function _configureProject(bool _onchain, bool _mintEnabled, uint120 _maxSupply) internal virtual {
         projectInfo.onchain = _onchain;
         projectInfo.mintEnabled = _mintEnabled;
         projectInfo.maxSupply = _maxSupply;
-        projectInfo.contractURI = _contractURI;
     }
 
     function _configureMetdata(

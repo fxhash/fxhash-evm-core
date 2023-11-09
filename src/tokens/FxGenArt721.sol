@@ -8,6 +8,7 @@ import {Ownable} from "solady/src/auth/Ownable.sol";
 import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {RoyaltyManager} from "src/tokens/extensions/RoyaltyManager.sol";
 import {SignatureChecker} from "openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
+import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
 import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
 import {IERC4906} from "openzeppelin/contracts/interfaces/IERC4906.sol";
@@ -26,6 +27,7 @@ import "src/utils/Constants.sol";
  */
 contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, Ownable, Pausable, RoyaltyManager {
     using SignatureChecker for address;
+    using Strings for uint160;
     /*//////////////////////////////////////////////////////////////////////////
                                     STORAGE
     //////////////////////////////////////////////////////////////////////////*/
@@ -282,15 +284,6 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function setContractURI(string calldata _uri, bytes calldata _signature) external onlyRole(ADMIN_ROLE) {
-        bytes32 digest = generateTypedDataHash(SET_CONTRACT_URI_TYPEHASH, _uri);
-        _verifySignature(digest, _signature);
-        issuerInfo.projectInfo.contractURI = _uri;
-    }
-
-    /**
-     * @inheritdoc IFxGenArt721
-     */
     function setImageURI(string calldata _uri, bytes calldata _signature) external onlyRole(ADMIN_ROLE) {
         bytes32 digest = generateTypedDataHash(SET_IMAGE_URI_TYPEHASH, _uri);
         _verifySignature(digest, _signature);
@@ -347,7 +340,9 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      * @inheritdoc IFxGenArt721
      */
     function contractURI() external view returns (string memory) {
-        return issuerInfo.projectInfo.contractURI;
+        (, , string memory defaultMetadata) = IFxContractRegistry(contractRegistry).configInfo();
+        string memory contractAddr = uint160(address(this)).toHexString(20);
+        return string.concat(defaultMetadata, contractAddr, "/contract");
     }
 
     /**

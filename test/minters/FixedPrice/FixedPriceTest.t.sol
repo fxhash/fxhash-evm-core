@@ -35,7 +35,7 @@ contract FixedPriceTest is BaseTest {
         _configureRoyalties();
         _configureState(AMOUNT, PRICE, QUANTITY, TOKEN_ID);
         _configureAllowlist(merkleRoot, mintPassSigner);
-        _configureProject(ONCHAIN, MINT_ENABLED, MAX_SUPPLY, CONTRACT_URI);
+        _configureProject(ONCHAIN, MINT_ENABLED, MAX_SUPPLY);
         _configureMinter(
             address(fixedPrice),
             RESERVE_START_TIME,
