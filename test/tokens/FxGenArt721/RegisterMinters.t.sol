@@ -19,7 +19,7 @@ contract RegisterMintersTest is FxGenArt721Test {
             RESERVE_START_TIME,
             RESERVE_END_TIME,
             MINTER_ALLOCATION,
-            abi.encode(PRICE, merkleRoot, mintPassSigner)
+            abi.encode(PRICE, merkleRoot, signerAddr)
         );
         RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, address(fixedPrice));
         TokenLib.toggleMint(creator, fxGenArtProxy);
@@ -35,7 +35,7 @@ contract RegisterMintersTest is FxGenArt721Test {
             RESERVE_START_TIME,
             RESERVE_END_TIME,
             MINTER_ALLOCATION,
-            abi.encode(PRICE, merkleRoot, mintPassSigner)
+            abi.encode(PRICE, merkleRoot, signerAddr)
         );
         RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, address(fixedPrice));
         vm.expectRevert(MINT_ACTIVE_ERROR);

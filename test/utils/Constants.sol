@@ -5,7 +5,7 @@ pragma solidity 0.8.20;
 uint256 constant INITIAL_BALANCE = 1000 ether;
 
 // Config
-string constant DEFAULT_METADATA = "ipfs://QmZZVBKapDg2wXzwpDxdmL9Ah665h9ZzeJ9gYdbTZ4GBzf";
+string constant DEFAULT_METADATA_URI = "https://reveal.fxhash.xyz/";
 uint128 constant REFERRER_SHARE = 200; // 2%
 
 // Initialize
@@ -14,13 +14,12 @@ string constant SYMBOL = "FXHASH";
 uint256 constant TAG_ID = 1;
 
 // Metadata
-string constant BASE_URI = "ipfs://";
-string constant IMAGE_URI = "ipfs://";
+string constant BASE_URI = "ipfs://QmZZVBKapDg2wXzwpDxdmL9Ah665h9ZzeJ9gYdbTZ4GBzf";
+string constant IMAGE_URI = "ipfs://QmZZVBKapDg2wXzwpDxdmL9Ah665h9ZzeJ9gYdbTZ4GBzf";
 
 // Project
 bool constant MINT_ENABLED = true;
 bool constant ONCHAIN = true;
-string constant CONTRACT_URI = "ipfs://";
 uint120 constant MAX_SUPPLY = 1000;
 
 // Reserves

@@ -35,7 +35,7 @@ contract FxMintTicket721Test is BaseTest {
         _mockMinter(admin);
         _configureSplits();
         _configureRoyalties();
-        _configureProject(ONCHAIN, MINT_ENABLED, MAX_SUPPLY, CONTRACT_URI);
+        _configureProject(ONCHAIN, MINT_ENABLED, MAX_SUPPLY);
         _configureMinter(
             address(ticketRedeemer),
             RESERVE_START_TIME,

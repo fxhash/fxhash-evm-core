@@ -21,10 +21,7 @@ import {SplitsController} from "src/splits/SplitsController.sol";
 import {SplitsFactory} from "src/splits/SplitsFactory.sol";
 import {TicketRedeemer} from "src/minters/TicketRedeemer.sol";
 
-import {HTMLRequest, HTMLTagType, HTMLTag} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
-import {IFxContractRegistry, ConfigInfo} from "src/interfaces/IFxContractRegistry.sol";
-import {IFxGenArt721, GenArtInfo, InitInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
-import {IFxMintTicket721, TaxInfo} from "src/interfaces/IFxMintTicket721.sol";
+import {ConfigInfo} from "src/interfaces/IFxContractRegistry.sol";
 import {LibClone} from "solady/src/utils/LibClone.sol";
 
 contract Deploy is Script {
@@ -49,64 +46,16 @@ contract Deploy is Script {
     address internal admin;
     address internal creator;
 
-    // Project
-    string internal contractURI;
-    string internal defaultMetadata;
-    uint128 internal lockTime;
-    uint128 internal referrerShare;
-    uint256[] internal tagIds;
-
-    // Metadata
-    string internal baseURI;
-    string internal imageURI;
-    bytes internal onchainData;
-    HTMLRequest internal animation;
-    HTMLRequest internal attributes;
-    HTMLTag[] internal headTags;
-    HTMLTag[] internal bodyTags;
-
-    // Registries
-    address[] internal contracts;
-    string[] internal names;
-
-    // Royalties
-    address payable[] internal royaltyReceivers;
-    uint96[] internal basisPoints;
-
-    // Splits
-    address internal splitsMain;
-    address internal primaryReceiver;
-    address[] internal accounts;
-    uint32[] internal allocations;
-
-    // Scripty
+    // External
     address internal ethFSFileStorage;
     address internal scriptyBuilderV2;
     address internal scriptyStorageV2;
+    address internal splitsMain;
 
-    // Structs
+    // State
+    address[] internal contracts;
+    string[] internal names;
     ConfigInfo internal configInfo;
-    GenArtInfo internal genArtInfo;
-    InitInfo internal initInfo;
-    IssuerInfo internal issuerInfo;
-    MetadataInfo internal metadataInfo;
-    MintInfo[] internal mintInfo;
-    ProjectInfo internal projectInfo;
-    ReserveInfo internal reserveInfo;
-
-    // Ticket
-    address internal fxMintTicketProxy;
-    uint48 internal ticketId;
-
-    // Token
-    address internal fxGenArtProxy;
-    uint256 internal amount;
-    uint256 internal price;
-    bytes32 internal merkleRoot;
-    uint256 internal mintPassSignerPk;
-    address internal mintPassSigner;
-    uint256 internal quantity;
-    uint256 internal tokenId;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      MODIFIERS
@@ -126,14 +75,8 @@ contract Deploy is Script {
 
     function setUp() public virtual {
         _createAccounts();
-        _configureSplits();
-        _configureRoyalties();
         _configureScripty();
-        _configureState(AMOUNT, PRICE, QUANTITY, TOKEN_ID);
-        _configureInfo(LOCK_TIME, REFERRER_SHARE, DEFAULT_METADATA);
-        _configureProject(ONCHAIN, MINT_ENABLED, MAX_SUPPLY, CONTRACT_URI);
-        _configureMetdata(BASE_URI, IMAGE_URI, onchainData);
-        _configureAllowlist(merkleRoot, mintPassSigner);
+        _configureInfo(LOCK_TIME, REFERRER_SHARE, DEFAULT_METADATA_URI);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -142,41 +85,11 @@ contract Deploy is Script {
     function run() public virtual {
         _mockSplits();
         vm.startBroadcast();
-        _run();
-        vm.stopBroadcast();
-    }
-
-    function _run() internal virtual {
         _deployContracts();
-        _configureMinter(
-            address(fixedPrice),
-            uint64(block.timestamp) + RESERVE_START_TIME,
-            uint64(block.timestamp) + RESERVE_END_TIME,
-            MINTER_ALLOCATION,
-            abi.encode(PRICE, merkleRoot, mintPassSigner)
-        );
-        _configureMinter(
-            address(ticketRedeemer),
-            uint64(block.timestamp) + RESERVE_START_TIME,
-            uint64(block.timestamp) + RESERVE_END_TIME,
-            REDEEMER_ALLOCATION,
-            abi.encode(_computeTicketAddr(admin))
-        );
         _registerContracts();
         _grantRoles();
         _setController();
-        _createSplit();
-        _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(scriptyRenderer), tagIds);
-        _createProject();
-        delete mintInfo;
-        _configureMinter(
-            address(fixedPrice),
-            uint64(block.timestamp) + RESERVE_START_TIME,
-            uint64(block.timestamp) + RESERVE_END_TIME,
-            MINTER_ALLOCATION,
-            abi.encode(PRICE, merkleRoot, mintPassSigner)
-        );
-        _createTicket();
+        vm.stopBroadcast();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -195,25 +108,14 @@ contract Deploy is Script {
                                 CONFIGURATIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _configureSplits() internal virtual {
-        if (creator < admin) {
-            accounts.push(creator);
-            accounts.push(admin);
-            allocations.push(CREATOR_ALLOCATION);
-            allocations.push(ADMIN_ALLOCATION);
-        } else {
-            accounts.push(admin);
-            accounts.push(creator);
-            allocations.push(ADMIN_ALLOCATION);
-            allocations.push(CREATOR_ALLOCATION);
-        }
-    }
-
-    function _configureRoyalties() internal virtual {
-        royaltyReceivers.push(payable(admin));
-        royaltyReceivers.push(payable(creator));
-        basisPoints.push(ROYALTY_BPS);
-        basisPoints.push(ROYALTY_BPS * 2);
+    function _configureInfo(
+        uint128 _lockTime,
+        uint128 _referrerShare,
+        string memory _defaultMetadataURI
+    ) internal virtual {
+        configInfo.lockTime = _lockTime;
+        configInfo.referrerShare = _referrerShare;
+        configInfo.defaultMetadataURI = _defaultMetadataURI;
     }
 
     function _configureScripty() internal virtual {
@@ -226,135 +128,6 @@ contract Deploy is Script {
             scriptyBuilderV2 = GOERLI_SCRIPTY_BUILDER_V2;
             scriptyStorageV2 = GOERLI_SCRIPTY_STORAGE_V2;
         }
-
-        headTags.push(
-            HTMLTag({
-                name: CSS_CANVAS_SCRIPT,
-                contractAddress: ethFSFileStorage,
-                contractData: bytes(""),
-                tagType: HTMLTagType.useTagOpenAndClose,
-                tagOpen: TAG_OPEN,
-                tagClose: TAG_CLOSE,
-                tagContent: bytes("")
-            })
-        );
-
-        bodyTags.push(
-            HTMLTag({
-                name: P5_JS_SCRIPT,
-                contractAddress: ethFSFileStorage,
-                contractData: bytes(""),
-                tagType: HTMLTagType.scriptGZIPBase64DataURI,
-                tagOpen: bytes(""),
-                tagClose: bytes(""),
-                tagContent: bytes("")
-            })
-        );
-
-        bodyTags.push(
-            HTMLTag({
-                name: GUNZIP_JS_SCRIPT,
-                contractAddress: ethFSFileStorage,
-                contractData: bytes(""),
-                tagType: HTMLTagType.scriptBase64DataURI,
-                tagOpen: bytes(""),
-                tagClose: bytes(""),
-                tagContent: bytes("")
-            })
-        );
-
-        bodyTags.push(
-            HTMLTag({
-                name: POINTS_AND_LINES_SCRIPT,
-                contractAddress: scriptyStorageV2,
-                contractData: bytes(""),
-                tagType: HTMLTagType.script,
-                tagOpen: bytes(""),
-                tagClose: bytes(""),
-                tagContent: bytes("")
-            })
-        );
-
-        animation.headTags = headTags;
-        animation.bodyTags = bodyTags;
-        onchainData = abi.encode(animation);
-    }
-
-    function _configureState(uint256 _amount, uint256 _price, uint256 _quantity, uint256 _tokenId) internal virtual {
-        amount = _amount;
-        price = _price;
-        quantity = _quantity;
-        tokenId = _tokenId;
-        tagIds.push(TAG_ID);
-    }
-
-    function _configureInfo(
-        uint128 _lockTime,
-        uint128 _referrerShare,
-        string memory _defaultMetadata
-    ) internal virtual {
-        configInfo.lockTime = _lockTime;
-        configInfo.referrerShare = _referrerShare;
-        configInfo.defaultMetadata = _defaultMetadata;
-    }
-
-    function _configureProject(
-        bool _onchain,
-        bool _mintEnabled,
-        uint120 _maxSupply,
-        string memory _contractURI
-    ) internal virtual {
-        projectInfo.onchain = _onchain;
-        projectInfo.mintEnabled = _mintEnabled;
-        projectInfo.maxSupply = _maxSupply;
-        projectInfo.contractURI = _contractURI;
-    }
-
-    function _configureMetdata(
-        string memory _baseURI,
-        string memory _imageURI,
-        bytes memory _onchainData
-    ) internal virtual {
-        metadataInfo.baseURI = _baseURI;
-        metadataInfo.imageURI = _imageURI;
-        metadataInfo.onchainData = _onchainData;
-    }
-
-    function _configureAllowlist(bytes32 _merkleRoot, address _mintPassSigner) internal virtual {
-        merkleRoot = _merkleRoot;
-        mintPassSigner = _mintPassSigner;
-    }
-
-    function _configureInit(
-        string memory _name,
-        string memory _symbol,
-        address _primaryReceiver,
-        address _randomizer,
-        address _renderer,
-        uint256[] memory _tagIds
-    ) internal virtual {
-        initInfo.name = _name;
-        initInfo.symbol = _symbol;
-        initInfo.primaryReceiver = _primaryReceiver;
-        initInfo.randomizer = _randomizer;
-        initInfo.renderer = _renderer;
-        initInfo.tagIds = _tagIds;
-    }
-
-    function _configureMinter(
-        address _minter,
-        uint64 _startTime,
-        uint64 _endTime,
-        uint64 _allocation,
-        bytes memory _params
-    ) internal virtual {
-        mintInfo.push(
-            MintInfo({
-                minter: _minter,
-                reserveInfo: ReserveInfo({startTime: _startTime, endTime: _endTime, allocation: _allocation}),
-                params: _params
-            })
-        );
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -362,7 +135,7 @@ contract Deploy is Script {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _deployContracts() internal virtual {
-        bytes32 salt = keccak256(abi.encode(vm.getNonce(msg.sender)));
+        bytes32 salt = keccak256(abi.encode(vm.getNonce(admin)));
 
         // FxContractRegistry
         bytes memory creationCode = type(FxContractRegistry).creationCode;
@@ -443,42 +216,6 @@ contract Deploy is Script {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                    CREATE
-    //////////////////////////////////////////////////////////////////////////*/
-
-    function _createSplit() internal virtual {
-        primaryReceiver = splitsFactory.createImmutableSplit(accounts, allocations);
-        vm.label(primaryReceiver, "PrimaryReceiver");
-    }
-
-    function _createProject() internal virtual {
-        fxGenArtProxy = fxIssuerFactory.createProject(
-            creator,
-            initInfo,
-            projectInfo,
-            metadataInfo,
-            mintInfo,
-            royaltyReceivers,
-            basisPoints
-        );
-
-        vm.label(fxGenArtProxy, "FxGenArtProxy");
-    }
-
-    function _createTicket() internal {
-        fxMintTicketProxy = fxTicketFactory.createTicket(
-            creator,
-            fxGenArtProxy,
-            address(ticketRedeemer),
-            uint48(ONE_DAY),
-            BASE_URI,
-            mintInfo
-        );
-
-        vm.label(fxMintTicketProxy, "FxMintTicketProxy");
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                                     SETTERS
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -496,6 +233,7 @@ contract Deploy is Script {
         names.push(FX_MINT_TICKET_721);
         names.push(FX_ROLE_REGISTRY);
         names.push(FX_TICKET_FACTORY);
+
         names.push(DUTCH_AUCTION);
         names.push(FIXED_PRICE);
         names.push(PSEUDO_RANDOMIZER);
@@ -510,6 +248,7 @@ contract Deploy is Script {
         contracts.push(address(fxMintTicket721));
         contracts.push(address(fxRoleRegistry));
         contracts.push(address(fxTicketFactory));
+
         contracts.push(address(dutchAuction));
         contracts.push(address(fixedPrice));
         contracts.push(address(pseudoRandomizer));

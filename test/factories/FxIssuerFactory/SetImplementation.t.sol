@@ -8,7 +8,7 @@ contract SetImplementation is FxIssuerFactoryTest {
         super.setUp();
     }
 
-    function testSetImplementation() public {
+    function test_SetImplementation() public {
         vm.prank(admin);
         fxIssuerFactory.setImplementation(address(fxGenArt721));
         assertEq(fxIssuerFactory.implementation(), address(fxGenArt721));

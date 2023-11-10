@@ -5,18 +5,9 @@ import "test/BaseTest.t.sol";
 
 contract FxGenArt721Test is BaseTest {
     // State
-    ProjectInfo internal project;
     address internal primarySplits;
     uint120 internal maxSupply;
-
-    // Signature
-    address internal signerAddr;
-    bytes internal signature;
-    bytes32 internal digest;
-    bytes32 internal r;
-    bytes32 internal s;
-    uint8 internal v;
-    uint256 internal signerPk;
+    ProjectInfo internal project;
 
     // Errors
     bytes4 internal ALLOCATION_EXCEEDED_ERROR = IFxGenArt721.AllocationExceeded.selector;
@@ -41,9 +32,7 @@ contract FxGenArt721Test is BaseTest {
         _mockMinter(admin);
         _configureSplits();
         _configureRoyalties();
-        _configureState(AMOUNT, PRICE, QUANTITY, TOKEN_ID);
-        _configureAllowlist(merkleRoot, mintPassSigner);
-        _configureProject(ONCHAIN, MINT_ENABLED, MAX_SUPPLY, CONTRACT_URI);
+        _configureProject(ONCHAIN, MINT_ENABLED, MAX_SUPPLY);
         _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, abi.encode(PRICE));
         RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, minter);
         _createSplit();
@@ -73,7 +62,6 @@ contract FxGenArt721Test is BaseTest {
         assertTrue(project.onchain, "project not onchain");
         assertTrue(project.mintEnabled, "project not enabled");
         assertEq(project.maxSupply, MAX_SUPPLY, "max supply unequal");
-        assertEq(project.contractURI, CONTRACT_URI, "contract URI mismatch");
         assertEq(primarySplits, primaryReceiver, "primary receiver not splits address");
         assertEq(FxGenArt721(fxGenArtProxy).owner(), creator, "owner isn't creator");
         assertEq(IFxGenArt721(fxGenArtProxy).isMinter(minter), TRUE, "minter isn't approved minter");

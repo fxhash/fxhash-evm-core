@@ -66,15 +66,6 @@ library TokenLib {
         IFxGenArt721(_proxy).setBaseURI(_uri, _signature);
     }
 
-    function setContractURI(
-        address _admin,
-        address _proxy,
-        string memory _uri,
-        bytes memory _signature
-    ) internal prank(_admin) {
-        IFxGenArt721(_proxy).setContractURI(_uri, _signature);
-    }
-
     function setImageURI(
         address _admin,
         address _proxy,

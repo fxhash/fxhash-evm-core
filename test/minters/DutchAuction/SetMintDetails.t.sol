@@ -15,7 +15,7 @@ contract SetMintDetails is DutchAuctionTest {
     function test_setMintDetails() public {
         dutchAuction.setMintDetails(
             ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
-            abi.encode(daInfo, merkleRoot, mintPassSigner)
+            abi.encode(daInfo, merkleRoot, signerAddr)
         );
         vm.warp(RESERVE_START_TIME);
         (uint64 startTime_, uint64 endTime_, uint128 supply_) = dutchAuction.reserves(address(this), 0);
@@ -35,7 +35,7 @@ contract SetMintDetails is DutchAuctionTest {
         vm.expectRevert(INVALID_ALLOCATION_ERROR);
         dutchAuction.setMintDetails(
             ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, 0),
-            abi.encode(daInfo, merkleRoot, mintPassSigner)
+            abi.encode(daInfo, merkleRoot, signerAddr)
         );
     }
 
@@ -44,7 +44,7 @@ contract SetMintDetails is DutchAuctionTest {
         vm.expectRevert();
         dutchAuction.setMintDetails(
             ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
-            abi.encode(daInfo, merkleRoot, mintPassSigner)
+            abi.encode(daInfo, merkleRoot, signerAddr)
         );
     }
 
@@ -55,7 +55,7 @@ contract SetMintDetails is DutchAuctionTest {
         vm.expectRevert(INVALID_STEP_ERROR);
         dutchAuction.setMintDetails(
             ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
-            abi.encode(daInfo, merkleRoot, mintPassSigner)
+            abi.encode(daInfo, merkleRoot, signerAddr)
         );
         assertTrue(remainder != 0, "duration was not even multiple of stepLength");
     }
@@ -65,7 +65,7 @@ contract SetMintDetails is DutchAuctionTest {
         vm.expectRevert(PRICES_OUT_OF_ORDER_ERROR);
         dutchAuction.setMintDetails(
             ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
-            abi.encode(daInfo, merkleRoot, mintPassSigner)
+            abi.encode(daInfo, merkleRoot, signerAddr)
         );
     }
 }

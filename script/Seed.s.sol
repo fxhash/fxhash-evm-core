@@ -1,22 +1,30 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import "script/Deploy.s.sol";
+import "test/BaseTest.t.sol";
 
-contract Seed is Deploy {
-    function _run() internal override {
-        super._run();
+contract Seed is BaseTest {
+    function run() public override {
         creator = msg.sender;
+        _configureSplits();
+        _createSplit();
+        _initializeProject();
         for (uint256 i; i < 20; ++i) {
-            _initializeProject();
+            _initializeRedeemer();
             _createProject();
-            _initializeTicket();
+            _initializeMinter();
             _createTicket();
             _mint();
         }
     }
 
     function _initializeProject() internal {
+        _configureRoyalties();
+        _configureProject(ONCHAIN, MINT_ENABLED, MAX_SUPPLY);
+        _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(scriptyRenderer), tagIds);
+    }
+
+    function _initializeMinter() internal {
         delete mintInfo;
         _configureMinter(
             address(ticketRedeemer),
@@ -25,22 +33,28 @@ contract Seed is Deploy {
             REDEEMER_ALLOCATION,
             abi.encode(_computeTicketAddr(admin))
         );
+        vm.prank(admin);
+        fxRoleRegistry.grantRole(MINTER_ROLE, address(ticketRedeemer));
     }
 
-    function _initializeTicket() internal {
+    function _initializeRedeemer() internal {
         delete mintInfo;
         _configureMinter(
             address(fixedPrice),
             uint64(block.timestamp) + RESERVE_START_TIME,
             uint64(block.timestamp) + RESERVE_END_TIME,
             MINTER_ALLOCATION,
-            abi.encode(PRICE, merkleRoot, mintPassSigner)
+            abi.encode(PRICE, merkleRoot, signerAddr)
         );
+        vm.prank(admin);
+        fxRoleRegistry.grantRole(MINTER_ROLE, address(fixedPrice));
     }
 
     function _mint() internal {
+        vm.prank(creator);
         IFxGenArt721(fxGenArtProxy).toggleMint();
         for (uint256 i; i < 20; ) {
+            vm.prank(creator);
             IFxGenArt721(fxGenArtProxy).ownerMint(creator);
             unchecked {
                 ++i;
