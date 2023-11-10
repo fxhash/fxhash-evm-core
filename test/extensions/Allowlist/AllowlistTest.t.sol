@@ -3,7 +3,12 @@ pragma solidity 0.8.20;
 
 import "test/BaseTest.t.sol";
 
+import {MockAllowlist} from "test/mocks/MockAllowlist.sol";
+
 contract AllowlistTest is BaseTest, StandardMerkleTree {
+    // Contracts
+    MockAllowlist internal allowlist;
+
     // State
     address internal token;
     bytes32[] internal merkleTree;
@@ -11,8 +16,8 @@ contract AllowlistTest is BaseTest, StandardMerkleTree {
     uint256 internal index;
 
     // Errors
-    bytes4 internal ALREADY_CLAIMED_ERROR = Allowlist.SlotAlreadyClaimed.selector;
     bytes4 internal INVALID_PROOF_ERROR = Allowlist.InvalidProof.selector;
+    bytes4 internal SLOT_ALREADY_CLAIMED_ERROR = Allowlist.SlotAlreadyClaimed.selector;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      SETUP
@@ -40,6 +45,10 @@ contract AllowlistTest is BaseTest, StandardMerkleTree {
     function _initializeState() internal override {
         super._initializeState();
         index = 1;
+    }
+
+    function _mockAllowlist(address _admin) internal prank(_admin) {
+        allowlist = new MockAllowlist();
     }
 
     function _configureAllowlist() internal {

@@ -11,8 +11,8 @@ contract SplitsControllerTest is BaseTest {
 
     function setUp() public override {
         super.setUp();
+        _mockSplitsController();
         _configureSplits();
-        controller = new MockSplitsController(SPLITS_MAIN, address(splitsFactory), admin);
         vm.prank(splitsFactory.owner());
         splitsFactory.setController(address(controller));
         split = splitsFactory.createMutableSplitFor(address(controller), accounts, allocations);
@@ -22,8 +22,11 @@ contract SplitsControllerTest is BaseTest {
         controller.updateFxHash(fxHash, true);
     }
 
+    function _mockSplitsController() internal {
+        controller = new MockSplitsController(SPLITS_MAIN, address(splitsFactory), admin);
+    }
+
     function _configureSplits() internal virtual override {
-        // ordered addresses
         alice = address(1);
         bob = address(2);
         eve = address(3);

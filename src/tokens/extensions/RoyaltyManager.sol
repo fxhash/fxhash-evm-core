@@ -15,7 +15,7 @@ abstract contract RoyaltyManager is IRoyaltyManager {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @notice Returns royalty information of index in array
+     * @notice Returns royalty information of index in array list
      */
     RoyaltyInfo[] public baseRoyalties;
 
@@ -83,26 +83,6 @@ abstract contract RoyaltyManager is IRoyaltyManager {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @dev Checks if the token ID exists
-     */
-    function _exists(uint256 _tokenId) internal view virtual returns (bool);
-
-    /**
-     * @dev Checks if the total basis points of royalties exceeds 10,000 (100%)
-     */
-    function _checkRoyalties(uint96[] memory _basisPoints, uint256 _length) internal pure {
-        uint256 totalBasisPoints;
-        unchecked {
-            for (uint256 i; i < _length; ++i) {
-                if (_basisPoints[i] > MAX_ROYALTY_BPS) revert OverMaxBasisPointsAllowed();
-                totalBasisPoints += _basisPoints[i];
-            }
-        }
-
-        if (totalBasisPoints >= FEE_DENOMINATOR) revert InvalidRoyaltyConfig();
-    }
-
-    /**
      * @notice Sets the base royalties for all tokens
      * @param _receivers Array of addresses receiving royalties
      * @param _basisPoints Array of points used to calculate royalty payments (0.01% per receiver)
@@ -166,5 +146,25 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         }
 
         emit TokenIdRoyaltiesUpdated(_tokenId, _receivers, _basisPoints);
+    }
+
+    /**
+     * @dev Checks if the token ID exists
+     */
+    function _exists(uint256 _tokenId) internal view virtual returns (bool);
+
+    /**
+     * @dev Checks if the total basis points of royalties exceeds 10,000 (100%)
+     */
+    function _checkRoyalties(uint96[] memory _basisPoints, uint256 _length) internal pure {
+        uint256 totalBasisPoints;
+        unchecked {
+            for (uint256 i; i < _length; ++i) {
+                if (_basisPoints[i] > MAX_ROYALTY_BPS) revert OverMaxBasisPointsAllowed();
+                totalBasisPoints += _basisPoints[i];
+            }
+        }
+
+        if (totalBasisPoints >= FEE_DENOMINATOR) revert InvalidRoyaltyConfig();
     }
 }

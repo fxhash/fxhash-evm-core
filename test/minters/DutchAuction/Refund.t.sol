@@ -17,7 +17,7 @@ contract Refund is DutchAuctionTest {
         // assertEq(beforeBalance + price, afterBalance);
     }
 
-    function test_RevertsIf_NotRefundDutchAuction_Refund() public {
+    function test_RevertsIf_NotRefundDutchAuction() public {
         uint256 price = dutchAuction.getPrice(fxGenArtProxy, reserveId);
         quantity = MINTER_ALLOCATION;
         dutchAuction.buy{value: price * quantity}(fxGenArtProxy, reserveId, quantity, alice);
@@ -25,7 +25,7 @@ contract Refund is DutchAuctionTest {
         dutchAuction.refund(fxGenArtProxy, reserveId, address(this));
     }
 
-    function test_RevertsIf_NoRefund_Refund() public {
+    function test_RevertsWhen_NoRefund() public {
         quantity = MINTER_ALLOCATION;
         uint256 price = dutchAuction.getPrice(fxGenArtProxy, reserveId);
         refundableDA.buy{value: price * quantity}(fxGenArtProxy, reserveId, quantity, alice);
@@ -34,7 +34,7 @@ contract Refund is DutchAuctionTest {
         dutchAuction.refund(fxGenArtProxy, reserveId, address(this));
     }
 
-    function test_RevertsIf_AlreadyRefunded_Refund() public {
+    function test_RevertsIf_AlreadyRefunded() public {
         uint256 price = refundableDA.getPrice(fxGenArtProxy, reserveId);
         refundableDA.buy{value: price * quantity}(fxGenArtProxy, reserveId, quantity, alice);
 
@@ -49,7 +49,7 @@ contract Refund is DutchAuctionTest {
         refundableDA.refund(fxGenArtProxy, reserveId, address(this));
     }
 
-    function test_RevertsIf_Token0() public {
+    function test_RevertsIf_InvalidToken() public {
         uint256 price = dutchAuction.getPrice(fxGenArtProxy, reserveId);
         dutchAuction.buy{value: price}(fxGenArtProxy, reserveId, quantity, alice);
         vm.expectRevert(INVALID_TOKEN_ERROR);

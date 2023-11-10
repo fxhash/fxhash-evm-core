@@ -33,15 +33,13 @@ contract FixedPriceTest is BaseTest {
         _initializeState();
         _configureSplits();
         _configureRoyalties();
-        _configureState(AMOUNT, PRICE, QUANTITY, TOKEN_ID);
-        _configureAllowlist(merkleRoot, mintPassSigner);
-        _configureProject(ONCHAIN, MINT_ENABLED, MAX_SUPPLY, CONTRACT_URI);
+        _configureProject(ONCHAIN, MINT_ENABLED, MAX_SUPPLY);
         _configureMinter(
             address(fixedPrice),
             RESERVE_START_TIME,
             RESERVE_END_TIME,
             MINTER_ALLOCATION,
-            abi.encode(PRICE, merkleRoot, mintPassSigner)
+            abi.encode(PRICE, merkleRoot, signerAddr)
         );
         RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, address(fixedPrice));
         _createSplit();

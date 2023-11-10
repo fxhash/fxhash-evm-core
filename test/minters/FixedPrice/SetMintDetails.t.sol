@@ -4,10 +4,10 @@ pragma solidity 0.8.20;
 import "test/minters/FixedPrice/FixedPriceTest.t.sol";
 
 contract SetMintDetails is FixedPriceTest {
-    function test_setMintDetails() public {
+    function test_SetMintDetails() public {
         fixedPrice.setMintDetails(
             ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
-            abi.encode(price, merkleRoot, mintPassSigner)
+            abi.encode(price, merkleRoot, signerAddr)
         );
         (startTime, endTime, supply) = fixedPrice.reserves(address(this), 0);
         assertEq(fixedPrice.prices(address(this), 0), price, "price incorrectly set");
@@ -18,24 +18,24 @@ contract SetMintDetails is FixedPriceTest {
 
     function test_RevertsWhen_SignerAndMerkleRootExist() public {
         merkleRoot = bytes32(uint256(1));
-        mintPassSigner = address(1);
+        signerAddr = address(1);
         vm.expectRevert();
         fixedPrice.setMintDetails(
             ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
-            abi.encode(price, merkleRoot, mintPassSigner)
+            abi.encode(price, merkleRoot, signerAddr)
         );
     }
 
-    function test_RevertsIf_AllocationZero() public {
+    function test_RevertsWhen_InvalidAllocation() public {
         vm.expectRevert(INVALID_ALLOCATION_ERROR);
         fixedPrice.setMintDetails(ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, 0), abi.encode(price));
     }
 
-    function test_RevertsIf_Price() public {
+    function test_RevertsWhen_InvalidPrice() public {
         vm.expectRevert(INVALID_PRICE_ERROR);
         fixedPrice.setMintDetails(
             ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
-            abi.encode(MINIMUM_PRICE - 1, merkleRoot, mintPassSigner)
+            abi.encode(MINIMUM_PRICE - 1, merkleRoot, signerAddr)
         );
     }
 }

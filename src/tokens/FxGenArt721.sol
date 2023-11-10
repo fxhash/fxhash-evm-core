@@ -4,11 +4,12 @@ pragma solidity 0.8.20;
 import {EIP712} from "openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import {ERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
-import {Ownable} from "solady/src/auth/Ownable.sol";
 import {LibString} from "solady/src/utils/LibString.sol";
+import {Ownable} from "solady/src/auth/Ownable.sol";
 import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {RoyaltyManager} from "src/tokens/extensions/RoyaltyManager.sol";
 import {SignatureChecker} from "openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
+import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
 import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
 import {IERC4906} from "openzeppelin/contracts/interfaces/IERC4906.sol";
@@ -26,6 +27,8 @@ import "src/utils/Constants.sol";
  * @notice See the documentation in {IFxGenArt721}
  */
 contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, Ownable, Pausable, RoyaltyManager {
+    using Strings for uint160;
+    using Strings for uint256;
     using SignatureChecker for address;
     /*//////////////////////////////////////////////////////////////////////////
                                     STORAGE
@@ -42,6 +45,11 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     address public immutable roleRegistry;
 
     /**
+     * @dev Packed value of name and symbol where combined length is 30 bytes or less
+     */
+    bytes32 internal nameAndSymbol_;
+
+    /**
      * @dev Project name
      */
     string internal name_;
@@ -50,12 +58,6 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      * @dev Project symbol
      */
     string internal symbol_;
-
-    /**
-     * @dev The value for `name` and `symbol` if their combined
-     *      length is (32 - 2) bytes. We need 2 bytes for their lengths.
-     */
-    bytes32 internal _shortNameAndSymbol;
 
     /**
      * @inheritdoc IFxGenArt721
@@ -138,17 +140,6 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         address payable[] calldata _royaltyReceivers,
         uint96[] calldata _basisPoints
     ) external initializer {
-        // Returns `bytes32(0)` if the strings are too long to be packed into a single word.
-        bytes32 packed = LibString.packTwo(_initInfo.name, _initInfo.symbol);
-        // If we cannot pack both strings into a single 32-byte word, store separately.
-        // We need 2 bytes to store their lengths.
-        if (packed == bytes32(0)) {
-            name_ = _initInfo.name;
-            symbol_ = _initInfo.symbol;
-        } else {
-            // Otherwise, pack them and store them into a single word.
-            _shortNameAndSymbol = packed;
-        }
         issuerInfo.primaryReceiver = _initInfo.primaryReceiver;
         issuerInfo.projectInfo = _projectInfo;
         metadataInfo = _metadataInfo;
@@ -156,9 +147,10 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         renderer = _initInfo.renderer;
 
         _initializeOwner(_owner);
-        _setTags(_initInfo.tagIds);
         _registerMinters(_mintInfo);
         _setBaseRoyalties(_royaltyReceivers, _basisPoints);
+        _setNameAndSymbol(_initInfo.name, _initInfo.symbol);
+        _setTags(_initInfo.tagIds);
 
         emit ProjectInitialized(_initInfo.primaryReceiver, _projectInfo, _metadataInfo, _mintInfo);
     }
@@ -233,9 +225,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         uint120 prevSupply = issuerInfo.projectInfo.maxSupply;
         if (_supply >= prevSupply || _supply < totalSupply) revert InvalidAmount();
         issuerInfo.projectInfo.maxSupply = _supply;
-
         if (_supply == 0) emit ProjectDeleted();
-
         emit SupplyReduced(prevSupply, _supply);
     }
 
@@ -288,37 +278,6 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function setBaseURI(string calldata _uri, bytes calldata _signature) external onlyRole(ADMIN_ROLE) {
-        bytes32 digest = generateTypedDataHash(SET_BASE_URI_TYPEHASH, _uri);
-        _verifySignature(digest, _signature);
-        metadataInfo.baseURI = _uri;
-        emit SetBaseURI(_uri);
-        emit BatchMetadataUpdate(1, totalSupply);
-    }
-
-    /**
-     * @inheritdoc IFxGenArt721
-     */
-    function setContractURI(string calldata _uri, bytes calldata _signature) external onlyRole(ADMIN_ROLE) {
-        bytes32 digest = generateTypedDataHash(SET_CONTRACT_URI_TYPEHASH, _uri);
-        _verifySignature(digest, _signature);
-        issuerInfo.projectInfo.contractURI = _uri;
-        emit SetContractURI(_uri);
-    }
-
-    /**
-     * @inheritdoc IFxGenArt721
-     */
-    function setImageURI(string calldata _uri, bytes calldata _signature) external onlyRole(ADMIN_ROLE) {
-        bytes32 digest = generateTypedDataHash(SET_IMAGE_URI_TYPEHASH, _uri);
-        _verifySignature(digest, _signature);
-        metadataInfo.imageURI = _uri;
-        emit SetImageURI(_uri);
-    }
-
-    /**
-     * @inheritdoc IFxGenArt721
-     */
     function setRandomizer(address _randomizer) external onlyRole(ADMIN_ROLE) {
         randomizer = _randomizer;
         emit RandomizerUpdated(_randomizer);
@@ -331,6 +290,31 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         renderer = _renderer;
         emit RendererUpdated(_renderer);
         emit BatchMetadataUpdate(1, totalSupply);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                METADATA FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
+    function setBaseURI(string calldata _uri, bytes calldata _signature) external onlyRole(METADATA_ROLE) {
+        bytes32 digest = generateTypedDataHash(SET_BASE_URI_TYPEHASH, _uri);
+        _verifySignature(digest, _signature);
+        metadataInfo.baseURI = _uri;
+        emit BaseURIUpdated(_uri);
+        emit BatchMetadataUpdate(1, totalSupply);
+    }
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
+    function setImageURI(string calldata _uri, bytes calldata _signature) external onlyRole(METADATA_ROLE) {
+        bytes32 digest = generateTypedDataHash(SET_IMAGE_URI_TYPEHASH, _uri);
+        _verifySignature(digest, _signature);
+        metadataInfo.imageURI = _uri;
+        emit ImageURIUpdated(_uri);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -366,7 +350,9 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      * @inheritdoc IFxGenArt721
      */
     function contractURI() external view returns (string memory) {
-        return issuerInfo.projectInfo.contractURI;
+        (, , string memory defaultMetadataURI) = IFxContractRegistry(contractRegistry).configInfo();
+        string memory contractAddr = uint160(address(this)).toHexString(20);
+        return string.concat(defaultMetadataURI, "contract/", contractAddr);
     }
 
     /**
@@ -375,6 +361,32 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     function generateTypedDataHash(bytes32 _typeHash, string calldata _uri) public view returns (bytes32) {
         bytes32 structHash = keccak256(abi.encode(_typeHash, _uri));
         return _hashTypedDataV4(structHash);
+    }
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
+    function getBaseURI() public view returns (string memory) {
+        if (bytes(metadataInfo.baseURI).length == 0) {
+            (, , string memory defaultMetadataURI) = IFxContractRegistry(contractRegistry).configInfo();
+            string memory contractAddr = uint160(address(this)).toHexString(20);
+            return string.concat(defaultMetadataURI, "base/", contractAddr);
+        } else {
+            return metadataInfo.baseURI;
+        }
+    }
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
+    function getImageURI() public view returns (string memory) {
+        if (bytes(metadataInfo.imageURI).length == 0) {
+            (, , string memory defaultMetadataURI) = IFxContractRegistry(contractRegistry).configInfo();
+            string memory contractAddr = uint160(address(this)).toHexString(20);
+            return string.concat(defaultMetadataURI, "image/", contractAddr);
+        } else {
+            return metadataInfo.imageURI;
+        }
     }
 
     /**
@@ -395,7 +407,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      * @inheritdoc ERC721
      */
     function name() public view override returns (string memory _name) {
-        bytes32 packed = _shortNameAndSymbol;
+        bytes32 packed = nameAndSymbol_;
         // If the strings have been previously packed.
         if (packed != bytes32(0)) {
             (_name, ) = LibString.unpackTwo(packed);
@@ -408,7 +420,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      * @inheritdoc ERC721
      */
     function symbol() public view override returns (string memory _symbol) {
-        bytes32 packed = _shortNameAndSymbol;
+        bytes32 packed = nameAndSymbol_;
         // If the strings have been previously packed.
         if (packed != bytes32(0)) {
             (, _symbol) = LibString.unpackTwo(packed);
@@ -482,6 +494,19 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
 
         if (issuerInfo.projectInfo.maxSupply != OPEN_EDITION_SUPPLY) {
             if (totalAllocation > remainingSupply()) revert AllocationExceeded();
+        }
+    }
+
+    /**
+     * @dev Packs name and symbol into single slot if combined length is 30 bytes or less
+     */
+    function _setNameAndSymbol(string calldata _name, string calldata _symbol) internal {
+        bytes32 packed = LibString.packTwo(_name, _symbol);
+        if (packed == bytes32(0)) {
+            name_ = _name;
+            symbol_ = _symbol;
+        } else {
+            nameAndSymbol_ = packed;
         }
     }
 

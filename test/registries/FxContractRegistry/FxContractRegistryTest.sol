@@ -26,11 +26,11 @@ contract FxContractRegistryTest is BaseTest {
 
     function testSetConfig() public {
         RegistryLib.setConfig(fxContractRegistry.owner(), fxContractRegistry, configInfo);
-        (lockTime, referrerShare, defaultMetadata) = fxContractRegistry.configInfo();
+        (lockTime, referrerShare, defaultMetadataURI) = fxContractRegistry.configInfo();
 
         assertEq(lockTime, configInfo.lockTime);
         assertEq(referrerShare, configInfo.referrerShare);
-        assertEq(defaultMetadata, configInfo.defaultMetadata);
+        assertEq(defaultMetadataURI, configInfo.defaultMetadataURI);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,6 @@ contract FxContractRegistryTest is BaseTest {
         super._initializeState();
         configInfo.lockTime = LOCK_TIME;
         configInfo.referrerShare = REFERRER_SHARE;
-        configInfo.defaultMetadata = DEFAULT_METADATA;
+        configInfo.defaultMetadataURI = DEFAULT_METADATA_URI;
     }
 }

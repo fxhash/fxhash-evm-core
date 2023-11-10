@@ -14,15 +14,15 @@ contract GetRoyalties is RoyaltyManagerTest {
         royaltyReceivers.push(payable(bob));
         royaltyReceivers.push(payable(eve));
 
-        bcasisPoints.push(MAX_ROYALTY_BPS);
+        basisPoints.push(MAX_ROYALTY_BPS);
         basisPoints.push(MAX_ROYALTY_BPS);
         basisPoints.push(MAX_ROYALTY_BPS);
     }
 
-    function test_getRoyalties() public {
+    function test_GetRoyalties() public {
         royaltyManager.setBaseRoyalties(royaltyReceivers, basisPoints);
         (receivers, bps) = royaltyManager.getRoyalties(tokenId);
-        assertEq(receivers.length, royaltyReceivers.length, "Accounts mismatch");
-        assertEq(basisPoints.length, bps.length, "Basispoint mismatch");
+        assertEq(royaltyReceivers.length, receivers.length);
+        assertEq(basisPoints.length, bps.length);
     }
 }

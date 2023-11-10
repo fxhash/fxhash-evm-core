@@ -17,10 +17,22 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
+     * @notice Event emitted when the base URI is updated
+     * @param _uri URI of the base metadata
+     */
+    event BaseURIUpdated(string _uri);
+
+    /**
      * @notice Event emitted when burn is toggled
      * @param _enabled Flag status of burn
      */
     event BurnEnabled(bool indexed _enabled);
+
+    /**
+     * @notice Event emitted when the image URI is updated
+     * @param _uri URI of the image thumbnail
+     */
+    event ImageURIUpdated(string _uri);
 
     /**
      * @notice Event emitted when minted is toggled
@@ -64,24 +76,6 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @param _renderer Address of new Renderer contract
      */
     event RendererUpdated(address indexed _renderer);
-
-    /**
-     * @notice Emitted when the base URI is set
-     * @param _uri The base URI
-     */
-    event SetBaseURI(string _uri);
-
-    /**
-     * @notice Emitted when the contract URI is set
-     * @param _uri The contract URI
-     */
-    event SetContractURI(string _uri);
-
-    /**
-     * @notice Emitted when the image URI is set
-     * @param _uri The image URI
-     */
-    event SetImageURI(string _uri);
 
     /**
      * @notice Event emitted when maximum supply is reduced
@@ -208,6 +202,16 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     function generateTypedDataHash(bytes32 _typeHash, string calldata _uri) external view returns (bytes32);
 
     /**
+     * @notice Returns the generated baseURI
+     */
+    function getBaseURI() external view returns (string memory);
+
+    /**
+     * @notice Returns the generated imageURI
+     */
+    function getImageURI() external view returns (string memory);
+
+    /**
      * @notice Initializes new generative art project
      * @param _owner Address of token proxy owner
      * @param _initInfo Initialization information set on project creation
@@ -315,13 +319,6 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @param _signature Signature of creator used to verify metadata update
      */
     function setBaseURI(string calldata _uri, bytes calldata _signature) external;
-
-    /**
-     * @notice Sets the new URI of the contract metadata
-     * @param _uri Contract URI pointer
-     * @param _signature Signature of creator used to verify metadata update
-     */
-    function setContractURI(string calldata _uri, bytes calldata _signature) external;
 
     /**
      * @notice Sets the new URI of the image metadata
