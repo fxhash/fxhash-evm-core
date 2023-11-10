@@ -15,41 +15,33 @@ contract SetTokenRoyaltiesTest is RoyaltyManagerTest {
         royaltyManager.setTokenRoyalties(tokenId, royaltyReceivers, basisPoints);
     }
 
-    function test_RevertsWhen_TokenDoesntExist() public {
+    function test_RevertsWhen_NonExistentToken() public {
         tokenId = 2;
         vm.expectRevert(abi.encodeWithSelector(NON_EXISTENT_TOKEN_ERROR));
         royaltyManager.setTokenRoyalties(tokenId, royaltyReceivers, basisPoints);
     }
 
-    function test_RevertsWhen_SingleGt25() public {
+    function test_RevertsWhen_OverMaxBasisPointsAllowed() public {
         basisPoints[0] = MAX_ROYALTY_BPS + 1;
         vm.expectRevert(abi.encodeWithSelector(OVER_MAX_BASIS_POINTS_ALLOWED_ERROR));
         royaltyManager.setTokenRoyalties(tokenId, royaltyReceivers, basisPoints);
     }
 
-    function test_RevertsWhen_TokenAndBaseGreaterThan100() public {
+    function test_RevertsWhen_InvalidRoyaltyConfig() public {
         royaltyReceivers.push(payable(alice));
         royaltyReceivers.push(payable(bob));
         royaltyReceivers.push(payable(eve));
-
         basisPoints.push(MAX_ROYALTY_BPS);
         basisPoints.push(MAX_ROYALTY_BPS);
         basisPoints.push(MAX_ROYALTY_BPS);
-        royaltyReceivers.push(payable(address(0xbad)));
+        royaltyReceivers.push(payable(address(deployer)));
         basisPoints.push(1);
-
         vm.expectRevert(abi.encodeWithSelector(INVALID_ROYALTY_CONFIG_ERROR));
         royaltyManager.setTokenRoyalties(tokenId, royaltyReceivers, basisPoints);
     }
 
-    function test_RevertsWhen_LengthMismatchRoyaltyReceivers() public {
+    function test_RevertsWhen_LengthMismatch() public {
         royaltyReceivers.push(payable(alice));
-        vm.expectRevert(abi.encodeWithSelector(LENGTH_MISMATCH_ERROR));
-        royaltyManager.setTokenRoyalties(tokenId, royaltyReceivers, basisPoints);
-    }
-
-    function test_RevertsWhen_LengthMismatchBasisPoints() public {
-        basisPoints.push(MAX_ROYALTY_BPS);
         vm.expectRevert(abi.encodeWithSelector(LENGTH_MISMATCH_ERROR));
         royaltyManager.setTokenRoyalties(tokenId, royaltyReceivers, basisPoints);
     }

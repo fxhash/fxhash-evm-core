@@ -19,29 +19,23 @@ contract SetBaseRoyaltiesTest is RoyaltyManagerTest {
         royaltyManager.setBaseRoyalties(royaltyReceivers, basisPoints);
     }
 
-    function test_RevertsWhen_SingleGreaterThan25() public {
+    function test_RevertsWhen_OverMaxBasisPointsAllowed() public {
         basisPoints[0] = MAX_ROYALTY_BPS + 1;
         vm.expectRevert(abi.encodeWithSelector(OVER_MAX_BASIS_POINTS_ALLOWED_ERROR));
         royaltyManager.setBaseRoyalties(royaltyReceivers, basisPoints);
     }
 
-    function test_RevertsWhen_AllGreaterThan100() public {
+    function test_RevertsWhen_InvalidRoyaltyConfig() public {
         basisPoints.push(MAX_ROYALTY_BPS);
         royaltyReceivers.push(payable(susan));
         basisPoints.push(1);
-        royaltyReceivers.push(payable(address(this)));
+        royaltyReceivers.push(payable(deployer));
         vm.expectRevert(abi.encodeWithSelector(INVALID_ROYALTY_CONFIG_ERROR));
         royaltyManager.setBaseRoyalties(royaltyReceivers, basisPoints);
     }
 
-    function test_RevertsWhen_LengthMismatchRoyaltyReceivers() public {
+    function test_RevertsWhen_LengthMismatch() public {
         royaltyReceivers.pop();
-        vm.expectRevert(abi.encodeWithSelector(LENGTH_MISMATCH_ERROR));
-        royaltyManager.setBaseRoyalties(royaltyReceivers, basisPoints);
-    }
-
-    function test_RevertsWhen_LengthMismatchBasisPoints() public {
-        basisPoints.pop();
         vm.expectRevert(abi.encodeWithSelector(LENGTH_MISMATCH_ERROR));
         royaltyManager.setBaseRoyalties(royaltyReceivers, basisPoints);
     }

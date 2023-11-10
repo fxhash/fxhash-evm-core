@@ -24,7 +24,7 @@ contract ClaimSlot is AllowlistTest {
         assertTrue(allowlist.isClaimed(index));
     }
 
-    function test_RevertsWhen_NotClaimer() public {
+    function test_RevertsWhen_InvalidProof() public {
         proof = getProof(merkleTree, index - 1);
         vm.expectRevert(abi.encodeWithSelector(INVALID_PROOF_ERROR));
         allowlist.claimSlot(token, index, proof);
@@ -35,7 +35,7 @@ contract ClaimSlot is AllowlistTest {
         vm.prank(alice);
         allowlist.claimSlot(token, index, proof);
 
-        vm.expectRevert(abi.encodeWithSelector(ALREADY_CLAIMED_ERROR));
+        vm.expectRevert(abi.encodeWithSelector(SLOT_ALREADY_CLAIMED_ERROR));
         vm.prank(alice);
         allowlist.claimSlot(token, index, proof);
     }

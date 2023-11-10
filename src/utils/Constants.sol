@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
+/*//////////////////////////////////////////////////////////////////////////
+                                CONSTANTS
+//////////////////////////////////////////////////////////////////////////*/
+
 // Core
 string constant FX_CONTRACT_REGISTRY = "FX_CONTRACT_REGISTRY";
 string constant FX_GEN_ART_721 = "FX_GEN_ART_721";

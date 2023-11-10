@@ -8,7 +8,7 @@ contract CreateProject is FxIssuerFactoryTest {
         super.setUp();
     }
 
-    function test_createProject() public {
+    function test_CreateProject() public {
         fxGenArtProxy = fxIssuerFactory.createProject(
             creator,
             initInfo,

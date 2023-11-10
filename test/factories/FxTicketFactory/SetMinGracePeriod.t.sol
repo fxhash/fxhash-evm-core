@@ -10,7 +10,7 @@ contract SetImplementation is FxTicketFactoryTest {
         super.setUp();
     }
 
-    function test_setMinGracePeriod() public {
+    function test_SetMinGracePeriod() public {
         vm.prank(admin);
         fxTicketFactory.setMinGracePeriod(TWO_DAYS);
         assertEq(fxTicketFactory.minGracePeriod(), TWO_DAYS);

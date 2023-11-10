@@ -8,7 +8,7 @@ contract CreateTicket is FxTicketFactoryTest {
         super.setUp();
     }
 
-    function test_createTicket() public {
+    function test_CreateTicket() public {
         fxMintTicketProxy = fxTicketFactory.createTicket(
             creator,
             fxGenArtProxy,

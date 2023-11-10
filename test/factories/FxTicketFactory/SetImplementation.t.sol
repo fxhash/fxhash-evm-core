@@ -8,7 +8,7 @@ contract SetImplementation is FxTicketFactoryTest {
         super.setUp();
     }
 
-    function test_setImplementation() public {
+    function test_SetImplementation() public {
         vm.prank(admin);
         fxTicketFactory.setImplementation(address(fxMintTicket721));
         assertEq(fxTicketFactory.implementation(), address(fxMintTicket721));
