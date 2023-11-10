@@ -66,6 +66,24 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     event RendererUpdated(address indexed _renderer);
 
     /**
+     * @notice Emitted when the base URI is set
+     * @param _uri The base URI
+     */
+    event SetBaseURI(string _uri);
+
+    /**
+     * @notice Emitted when the contract URI is set
+     * @param _uri The contract URI
+     */
+    event SetContractURI(string _uri);
+
+    /**
+     * @notice Emitted when the image URI is set
+     * @param _uri The image URI
+     */
+    event SetImageURI(string _uri);
+
+    /**
      * @notice Event emitted when maximum supply is reduced
      * @param _prevSupply Amount of previous supply
      * @param _newSupply Amount of new supply
