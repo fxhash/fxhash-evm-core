@@ -9,15 +9,6 @@ contract FxGenArt721Test is BaseTest {
     uint120 internal maxSupply;
     ProjectInfo internal project;
 
-    // Signature
-    address internal signerAddr;
-    bytes internal signature;
-    bytes32 internal digest;
-    bytes32 internal r;
-    bytes32 internal s;
-    uint8 internal v;
-    uint256 internal signerPk;
-
     // Errors
     bytes4 internal ALLOCATION_EXCEEDED_ERROR = IFxGenArt721.AllocationExceeded.selector;
     bytes4 internal BURN_INACTIVE_ERROR = IFxGenArt721.BurnInactive.selector;

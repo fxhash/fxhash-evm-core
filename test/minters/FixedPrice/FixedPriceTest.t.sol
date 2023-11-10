@@ -39,7 +39,7 @@ contract FixedPriceTest is BaseTest {
             RESERVE_START_TIME,
             RESERVE_END_TIME,
             MINTER_ALLOCATION,
-            abi.encode(PRICE, merkleRoot, mintPassSigner)
+            abi.encode(PRICE, merkleRoot, signerAddr)
         );
         RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, address(fixedPrice));
         _createSplit();

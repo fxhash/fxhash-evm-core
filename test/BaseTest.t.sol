@@ -38,9 +38,14 @@ contract BaseTest is Deploy, Test {
     address internal susan;
 
     // Allowlist
-    address internal mintPassSigner;
+    uint8 internal v;
+    bytes32 internal r;
+    bytes32 internal s;
+    bytes32 internal digest;
     bytes32 internal merkleRoot;
-    uint256 internal mintPassSignerPk;
+    address internal signerAddr;
+    uint256 internal signerPk;
+    bytes internal signature;
 
     // Metadata
     bytes internal fxParams;

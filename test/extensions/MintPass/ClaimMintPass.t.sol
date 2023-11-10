@@ -4,10 +4,6 @@ pragma solidity 0.8.20;
 import "test/extensions/MintPass/MintPassTest.t.sol";
 
 contract ClaimMintPassTest is MintPassTest {
-    uint8 internal v;
-    bytes32 internal r;
-    bytes32 internal s;
-    bytes32 internal digest;
     address internal signer;
 
     function test_SignMintPass() public {

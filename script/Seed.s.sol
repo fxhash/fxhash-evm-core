@@ -44,7 +44,7 @@ contract Seed is BaseTest {
             uint64(block.timestamp) + RESERVE_START_TIME,
             uint64(block.timestamp) + RESERVE_END_TIME,
             MINTER_ALLOCATION,
-            abi.encode(PRICE, merkleRoot, mintPassSigner)
+            abi.encode(PRICE, merkleRoot, signerAddr)
         );
         vm.prank(admin);
         fxRoleRegistry.grantRole(MINTER_ROLE, address(fixedPrice));

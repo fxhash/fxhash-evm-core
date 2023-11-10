@@ -75,7 +75,7 @@ contract DutchAuctionTest is BaseTest {
             MintInfo(
                 address(dutchAuction),
                 ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
-                abi.encode(AuctionInfo(refund, stepLength, prices), merkleRoot, mintPassSigner)
+                abi.encode(AuctionInfo(refund, stepLength, prices), merkleRoot, signerAddr)
             )
         );
         refund = true;
@@ -83,13 +83,13 @@ contract DutchAuctionTest is BaseTest {
             MintInfo(
                 address(refundableDA),
                 ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
-                abi.encode(AuctionInfo(refund, stepLength, prices), merkleRoot, mintPassSigner)
+                abi.encode(AuctionInfo(refund, stepLength, prices), merkleRoot, signerAddr)
             )
         );
     }
 
     function _configureMintParams(uint248 _stepLength, bool _refund, uint256[] storage _prices) internal {
         refund = _refund;
-        mintParams = abi.encode(AuctionInfo(_refund, _stepLength, _prices), merkleRoot, mintPassSigner);
+        mintParams = abi.encode(AuctionInfo(_refund, _stepLength, _prices), merkleRoot, signerAddr);
     }
 }

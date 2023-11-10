@@ -5,13 +5,13 @@ import "test/minters/FixedPrice/FixedPriceTest.t.sol";
 
 contract BuyWithMintPass is FixedPriceTest {
     uint256 internal claimIndex;
-    uint256 internal mintPassSignerNonce;
+    uint256 internal signerNonce;
 
     function setUp() public override {
         quantity = 1;
-        mintPassSignerNonce = 1;
-        mintPassSignerPk = 1;
-        mintPassSigner = vm.addr(mintPassSignerPk);
+        signerNonce = 1;
+        signerPk = 1;
+        signerAddr = vm.addr(signerPk);
         super.setUp();
     }
 
@@ -21,14 +21,8 @@ contract BuyWithMintPass is FixedPriceTest {
     }
 
     function test_BuyWithMintPass() public {
-        bytes32 digest = fixedPrice.generateTypedDataHash(
-            fxGenArtProxy,
-            mintId,
-            mintPassSignerNonce,
-            claimIndex,
-            alice
-        );
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(mintPassSignerPk, digest);
+        digest = fixedPrice.generateTypedDataHash(fxGenArtProxy, mintId, signerNonce, claimIndex, alice);
+        (v, r, s) = vm.sign(signerPk, digest);
         vm.prank(alice);
         fixedPrice.buyMintPass{value: quantity * price}(
             fxGenArtProxy,
@@ -41,14 +35,8 @@ contract BuyWithMintPass is FixedPriceTest {
     }
 
     function test_RevertsWhen_NotClaimer_BuyWithMintPass() public {
-        bytes32 digest = fixedPrice.generateTypedDataHash(
-            fxGenArtProxy,
-            mintId,
-            mintPassSignerNonce,
-            claimIndex,
-            alice
-        );
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(mintPassSignerPk, digest);
+        digest = fixedPrice.generateTypedDataHash(fxGenArtProxy, mintId, signerNonce, claimIndex, alice);
+        (v, r, s) = vm.sign(signerPk, digest);
         vm.prank(bob);
         vm.expectRevert();
         fixedPrice.buyMintPass{value: quantity * price}(
@@ -62,14 +50,8 @@ contract BuyWithMintPass is FixedPriceTest {
     }
 
     function test_RevertsWhen_SignatureInvalid_BuyWithMintPass() public {
-        bytes32 digest = fixedPrice.generateTypedDataHash(
-            fxGenArtProxy,
-            mintId,
-            mintPassSignerNonce,
-            claimIndex,
-            alice
-        );
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(2, digest);
+        digest = fixedPrice.generateTypedDataHash(fxGenArtProxy, mintId, signerNonce, claimIndex, alice);
+        (v, r, s) = vm.sign(2, digest);
         vm.prank(alice);
         vm.expectRevert();
         fixedPrice.buyMintPass{value: quantity * price}(
@@ -83,14 +65,8 @@ contract BuyWithMintPass is FixedPriceTest {
     }
 
     function test_RevertsWhen_MintPassAlreadyClaimed_BuyWithMintPass() public {
-        bytes32 digest = fixedPrice.generateTypedDataHash(
-            fxGenArtProxy,
-            mintId,
-            mintPassSignerNonce,
-            claimIndex,
-            alice
-        );
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(mintPassSignerPk, digest);
+        digest = fixedPrice.generateTypedDataHash(fxGenArtProxy, mintId, signerNonce, claimIndex, alice);
+        (v, r, s) = vm.sign(signerPk, digest);
         vm.prank(alice);
         fixedPrice.buyMintPass{value: quantity * price}(
             fxGenArtProxy,

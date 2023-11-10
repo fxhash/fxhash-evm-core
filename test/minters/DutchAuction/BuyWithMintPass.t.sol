@@ -4,27 +4,25 @@ pragma solidity 0.8.20;
 import "test/minters/DutchAuction/DutchAuctionTest.t.sol";
 
 contract BuyWithMintPass is DutchAuctionTest {
-    uint8 internal v;
-    bytes32 internal r;
-    bytes32 internal s;
-    bytes32 internal digest;
+    // State
     uint256 internal claimIndex;
-    uint256 internal mintPassSignerNonce;
+    uint256 internal signerNonce;
 
+    // Errors
     bytes4 internal INVALID_SIGNATURE_ERROR = MintPass.InvalidSignature.selector;
     bytes4 internal PASS_ALREADY_CLAIMED_ERROR = MintPass.PassAlreadyClaimed.selector;
 
     function setUp() public override {
         quantity = 1;
-        mintPassSignerPk = 1;
-        mintPassSignerNonce = 1;
-        mintPassSigner = vm.addr(mintPassSignerPk);
+        signerPk = 1;
+        signerNonce = 1;
+        signerAddr = vm.addr(signerPk);
         super.setUp();
     }
 
     function test_BuyWithMintPass() public {
-        digest = dutchAuction.generateTypedDataHash(fxGenArtProxy, reserveId, mintPassSignerNonce, claimIndex, alice);
-        (v, r, s) = vm.sign(mintPassSignerPk, digest);
+        digest = dutchAuction.generateTypedDataHash(fxGenArtProxy, reserveId, signerNonce, claimIndex, alice);
+        (v, r, s) = vm.sign(signerPk, digest);
         vm.prank(alice);
         dutchAuction.buyMintPass{value: quantity * price}(
             fxGenArtProxy,
@@ -37,8 +35,8 @@ contract BuyWithMintPass is DutchAuctionTest {
     }
 
     function test_RevertsWhen_NotClaimer() public {
-        digest = dutchAuction.generateTypedDataHash(fxGenArtProxy, reserveId, mintPassSignerNonce, claimIndex, alice);
-        (v, r, s) = vm.sign(mintPassSignerPk, digest);
+        digest = dutchAuction.generateTypedDataHash(fxGenArtProxy, reserveId, signerNonce, claimIndex, alice);
+        (v, r, s) = vm.sign(signerPk, digest);
         vm.prank(bob);
         vm.expectRevert();
         dutchAuction.buyMintPass{value: quantity * price}(
@@ -52,7 +50,7 @@ contract BuyWithMintPass is DutchAuctionTest {
     }
 
     function test_RevertsWhen_InvalidSignature() public {
-        digest = dutchAuction.generateTypedDataHash(fxGenArtProxy, reserveId, mintPassSignerNonce, claimIndex, alice);
+        digest = dutchAuction.generateTypedDataHash(fxGenArtProxy, reserveId, signerNonce, claimIndex, alice);
         (v, r, s) = vm.sign(2, digest);
         vm.prank(alice);
         vm.expectRevert(INVALID_SIGNATURE_ERROR);
@@ -67,8 +65,8 @@ contract BuyWithMintPass is DutchAuctionTest {
     }
 
     function test_RevertsWhen_PassAlreadyClaimed() public {
-        digest = dutchAuction.generateTypedDataHash(fxGenArtProxy, reserveId, mintPassSignerNonce, claimIndex, alice);
-        (v, r, s) = vm.sign(mintPassSignerPk, digest);
+        digest = dutchAuction.generateTypedDataHash(fxGenArtProxy, reserveId, signerNonce, claimIndex, alice);
+        (v, r, s) = vm.sign(signerPk, digest);
         vm.prank(alice);
         dutchAuction.buyMintPass{value: quantity * price}(
             fxGenArtProxy,
