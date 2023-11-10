@@ -44,6 +44,7 @@ uint128 constant LOCK_TIME = 3600; // 1 hour
 bytes32 constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 bytes32 constant BANNED_USER_ROLE = keccak256("BANNED_USER_ROLE");
 bytes32 constant CREATOR_ROLE = keccak256("CREATOR_ROLE");
+bytes32 constant METADATA_ROLE = keccak256("METADATA_ROLE");
 bytes32 constant MINTER_ROLE = keccak256("MINTER_ROLE");
 bytes32 constant MODERATOR_ROLE = keccak256("MODERATOR_ROLE");
 

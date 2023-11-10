@@ -4,8 +4,13 @@ pragma solidity 0.8.20;
 import "test/minters/FixedPrice/FixedPriceTest.t.sol";
 
 contract BuyWithMintPass is FixedPriceTest {
+    // State
     uint256 internal claimIndex;
     uint256 internal signerNonce;
+
+    // Errors
+    bytes4 internal INVALID_SIGNATURE_ERROR = MintPass.InvalidSignature.selector;
+    bytes4 internal PASS_ALREADY_CLAIMED_ERROR = MintPass.PassAlreadyClaimed.selector;
 
     function setUp() public override {
         quantity = 1;
@@ -53,7 +58,7 @@ contract BuyWithMintPass is FixedPriceTest {
         digest = fixedPrice.generateTypedDataHash(fxGenArtProxy, mintId, signerNonce, claimIndex, alice);
         (v, r, s) = vm.sign(2, digest);
         vm.prank(alice);
-        vm.expectRevert();
+        vm.expectRevert(INVALID_SIGNATURE_ERROR);
         fixedPrice.buyMintPass{value: quantity * price}(
             fxGenArtProxy,
             mintId,
@@ -64,7 +69,7 @@ contract BuyWithMintPass is FixedPriceTest {
         );
     }
 
-    function test_RevertsWhen_MintPassAlreadyClaimed_BuyWithMintPass() public {
+    function test_RevertsWhen_PassAlreadyClaimed_BuyWithMintPass() public {
         digest = fixedPrice.generateTypedDataHash(fxGenArtProxy, mintId, signerNonce, claimIndex, alice);
         (v, r, s) = vm.sign(signerPk, digest);
         vm.prank(alice);
@@ -78,7 +83,7 @@ contract BuyWithMintPass is FixedPriceTest {
         );
 
         vm.prank(alice);
-        vm.expectRevert();
+        vm.expectRevert(PASS_ALREADY_CLAIMED_ERROR);
         fixedPrice.buyMintPass{value: quantity * price}(
             fxGenArtProxy,
             mintId,

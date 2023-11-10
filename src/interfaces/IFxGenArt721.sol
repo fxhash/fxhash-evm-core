@@ -17,10 +17,22 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
+     * @notice Event emitted when the base URI is updated
+     * @param _uri URI of the base metadata
+     */
+    event BaseURIUpdated(string _uri);
+
+    /**
      * @notice Event emitted when burn is toggled
      * @param _enabled Flag status of burn
      */
     event BurnEnabled(bool indexed _enabled);
+
+    /**
+     * @notice Event emitted when the image URI is updated
+     * @param _uri URI of the image thumbnail
+     */
+    event ImageURIUpdated(string _uri);
 
     /**
      * @notice Event emitted when minted is toggled
@@ -64,24 +76,6 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @param _renderer Address of new Renderer contract
      */
     event RendererUpdated(address indexed _renderer);
-
-    /**
-     * @notice Emitted when the base URI is set
-     * @param _uri The base URI
-     */
-    event SetBaseURI(string _uri);
-
-    /**
-     * @notice Emitted when the contract URI is set
-     * @param _uri The contract URI
-     */
-    event SetContractURI(string _uri);
-
-    /**
-     * @notice Emitted when the image URI is set
-     * @param _uri The image URI
-     */
-    event SetImageURI(string _uri);
 
     /**
      * @notice Event emitted when maximum supply is reduced
