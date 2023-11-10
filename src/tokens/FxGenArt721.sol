@@ -276,6 +276,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         bytes32 digest = generateTypedDataHash(SET_BASE_URI_TYPEHASH, _uri);
         _verifySignature(digest, _signature);
         metadataInfo.baseURI = _uri;
+        emit SetBaseURI(_uri);
         emit BatchMetadataUpdate(1, totalSupply);
     }
 
@@ -286,6 +287,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         bytes32 digest = generateTypedDataHash(SET_CONTRACT_URI_TYPEHASH, _uri);
         _verifySignature(digest, _signature);
         issuerInfo.projectInfo.contractURI = _uri;
+        emit SetContractURI(_uri);
     }
 
     /**
@@ -295,6 +297,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         bytes32 digest = generateTypedDataHash(SET_IMAGE_URI_TYPEHASH, _uri);
         _verifySignature(digest, _signature);
         metadataInfo.imageURI = _uri;
+        emit SetImageURI(_uri);
     }
 
     /**
