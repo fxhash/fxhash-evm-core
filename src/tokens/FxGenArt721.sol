@@ -406,27 +406,17 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc ERC721
      */
-    function name() public view override returns (string memory _name) {
-        bytes32 packed = nameAndSymbol_;
-        // If the strings have been previously packed.
-        if (packed != bytes32(0)) {
-            (_name, ) = LibString.unpackTwo(packed);
-        } else {
-            _name = name_;
-        }
+    function name() public view override returns (string memory) {
+        (string memory packedName, ) = LibString.unpackTwo(nameAndSymbol_);
+        return (nameAndSymbol_ == bytes32(0)) ? name_ : packedName;
     }
 
     /**
      * @inheritdoc ERC721
      */
-    function symbol() public view override returns (string memory _symbol) {
-        bytes32 packed = nameAndSymbol_;
-        // If the strings have been previously packed.
-        if (packed != bytes32(0)) {
-            (, _symbol) = LibString.unpackTwo(packed);
-        } else {
-            _symbol = symbol_;
-        }
+    function symbol() public view override returns (string memory) {
+        (, string memory packedSymbol) = LibString.unpackTwo(nameAndSymbol_);
+        return (nameAndSymbol_ == bytes32(0)) ? symbol_ : packedSymbol;
     }
 
     /**

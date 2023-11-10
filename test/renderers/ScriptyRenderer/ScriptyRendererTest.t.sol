@@ -7,6 +7,7 @@ import {HTMLRequest, HTMLTagType, HTMLTag} from "scripty.sol/contracts/scripty/c
 
 contract ScriptyRendererTest is BaseTest {
     // State
+    uint256 internal goerliFork;
     HTMLRequest internal animation;
     HTMLRequest internal attributes;
     HTMLTag[] internal headTags;
@@ -18,6 +19,8 @@ contract ScriptyRendererTest is BaseTest {
 
     function setUp() public override {
         super.setUp();
+        goerliFork = vm.createFork("goerli");
+        vm.selectFork(goerliFork);
         _configureOnchainData();
     }
 
