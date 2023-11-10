@@ -5,6 +5,7 @@ import {EIP712} from "openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import {ERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
 import {Ownable} from "solady/src/auth/Ownable.sol";
+import {LibString} from "solady/src/utils/LibString.sol";
 import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {RoyaltyManager} from "src/tokens/extensions/RoyaltyManager.sol";
 import {SignatureChecker} from "openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
@@ -49,6 +50,12 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      * @dev Project symbol
      */
     string internal symbol_;
+
+    /**
+     * @dev The value for `name` and `symbol` if their combined
+     *      length is (32 - 2) bytes. We need 2 bytes for their lengths.
+     */
+    bytes32 internal _shortNameAndSymbol;
 
     /**
      * @inheritdoc IFxGenArt721
@@ -131,8 +138,17 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         address payable[] calldata _royaltyReceivers,
         uint96[] calldata _basisPoints
     ) external initializer {
-        name_ = _initInfo.name;
-        symbol_ = _initInfo.symbol;
+        // Returns `bytes32(0)` if the strings are too long to be packed into a single word.
+        bytes32 packed = LibString.packTwo(_initInfo.name, _initInfo.symbol);
+        // If we cannot pack both strings into a single 32-byte word, store separately.
+        // We need 2 bytes to store their lengths.
+        if (packed == bytes32(0)) {
+            name_ = _initInfo.name;
+            symbol_ = _initInfo.symbol;
+        } else {
+            // Otherwise, pack them and store them into a single word.
+            _shortNameAndSymbol = packed;
+        }
         issuerInfo.primaryReceiver = _initInfo.primaryReceiver;
         issuerInfo.projectInfo = _projectInfo;
         metadataInfo = _metadataInfo;
@@ -378,15 +394,27 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc ERC721
      */
-    function name() public view override returns (string memory) {
-        return name_;
+    function name() public view override returns (string memory _name) {
+        bytes32 packed = _shortNameAndSymbol;
+        // If the strings have been previously packed.
+        if (packed != bytes32(0)) {
+            (_name, ) = LibString.unpackTwo(packed);
+        } else {
+            _name = name_;
+        }
     }
 
     /**
      * @inheritdoc ERC721
      */
-    function symbol() public view override returns (string memory) {
-        return symbol_;
+    function symbol() public view override returns (string memory _symbol) {
+        bytes32 packed = _shortNameAndSymbol;
+        // If the strings have been previously packed.
+        if (packed != bytes32(0)) {
+            (, _symbol) = LibString.unpackTwo(packed);
+        } else {
+            _symbol = symbol_;
+        }
     }
 
     /**
