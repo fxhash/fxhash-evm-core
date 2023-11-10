@@ -1,5 +1,5 @@
 # IFxIssuerFactory
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/686a75b6e028ec629d05b5b60596a8ee209b77b5/src/interfaces/IFxIssuerFactory.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/ace7e57339c07ca2ed3c7a6bef724ed3baae64f8/src/interfaces/IFxIssuerFactory.sol)
 
 **Author:**
 fx(hash)
@@ -19,7 +19,7 @@ function createProject(
     InitInfo calldata _initInfo,
     ProjectInfo calldata _projectInfo,
     MetadataInfo calldata _metadataInfo,
-    MintInfo[] memory _mintInfo,
+    MintInfo[] calldata _mintInfo,
     address payable[] calldata _royaltyReceivers,
     uint96[] calldata _basisPoints
 ) external returns (address);

@@ -122,7 +122,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
         address _redeemer,
         uint48 _gracePeriod,
         string calldata _baseURI,
-        MintInfo[] memory _mintInfo
+        MintInfo[] calldata _mintInfo
     ) external initializer {
         genArt721 = _genArt721;
         redeemer = _redeemer;
