@@ -79,13 +79,35 @@ abstract contract RoyaltyManager is IRoyaltyManager {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                PUBLIC FUNCTIONS
+                                INTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @inheritdoc IRoyaltyManager
+     * @dev Checks if the token ID exists
      */
-    function setBaseRoyalties(address payable[] calldata _receivers, uint96[] calldata _basisPoints) public {
+    function _exists(uint256 _tokenId) internal view virtual returns (bool);
+
+    /**
+     * @dev Checks if the total basis points of royalties exceeds 10,000 (100%)
+     */
+    function _checkRoyalties(uint96[] memory _basisPoints, uint256 _length) internal pure {
+        uint256 totalBasisPoints;
+        unchecked {
+            for (uint256 i; i < _length; ++i) {
+                if (_basisPoints[i] > MAX_ROYALTY_BPS) revert OverMaxBasisPointsAllowed();
+                totalBasisPoints += _basisPoints[i];
+            }
+        }
+
+        if (totalBasisPoints >= FEE_DENOMINATOR) revert InvalidRoyaltyConfig();
+    }
+
+    /**
+     * @notice Sets the base royalties for all tokens
+     * @param _receivers Array of addresses receiving royalties
+     * @param _basisPoints Array of points used to calculate royalty payments (0.01% per receiver)
+     */
+    function _setBaseRoyalties(address payable[] calldata _receivers, uint96[] calldata _basisPoints) internal {
         delete baseRoyalties;
         uint256 tokenLength = _basisPoints.length;
         if (_receivers.length != tokenLength) revert LengthMismatch();
@@ -103,13 +125,16 @@ abstract contract RoyaltyManager is IRoyaltyManager {
     }
 
     /**
-     * @inheritdoc IRoyaltyManager
+     * @notice Sets the royalties for a specific token ID
+     * @param _tokenId ID of the token
+     * @param _receivers Array of addresses receiving royalties
+     * @param _basisPoints Array of points used to calculate royalty payments (0.01% per receiver)
      */
-    function setTokenRoyalties(
+    function _setTokenRoyalties(
         uint256 _tokenId,
         address payable[] calldata _receivers,
         uint96[] calldata _basisPoints
-    ) public {
+    ) internal {
         if (!_exists(_tokenId)) revert NonExistentToken();
         uint256 tokenLength = _basisPoints.length;
         if (_receivers.length != tokenLength) revert LengthMismatch();
@@ -141,29 +166,5 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         }
 
         emit TokenIdRoyaltiesUpdated(_tokenId, _receivers, _basisPoints);
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                INTERNAL FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /**
-     * @dev Checks if the token ID exists
-     */
-    function _exists(uint256 _tokenId) internal view virtual returns (bool);
-
-    /**
-     * @dev Checks if the total basis points of royalties exceeds 10,000 (100%)
-     */
-    function _checkRoyalties(uint96[] memory _basisPoints, uint256 _length) internal pure {
-        uint256 totalBasisPoints;
-        unchecked {
-            for (uint256 i; i < _length; ++i) {
-                if (_basisPoints[i] > MAX_ROYALTY_BPS) revert OverMaxBasisPointsAllowed();
-                totalBasisPoints += _basisPoints[i];
-            }
-        }
-
-        if (totalBasisPoints >= FEE_DENOMINATOR) revert InvalidRoyaltyConfig();
     }
 }
