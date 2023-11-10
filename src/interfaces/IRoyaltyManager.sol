@@ -91,23 +91,4 @@ interface IRoyaltyManager {
      * @return royaltyAmount Amount to royalties being paid out
      */
     function royaltyInfo(uint256 _tokenId, uint256 _salePrice) external view returns (address, uint256);
-
-    /**
-     * @notice Sets the base royalties for all tokens
-     * @param _receivers Array of addresses receiving royalties
-     * @param _basisPoints Array of points used to calculate royalty payments (0.01% per receiver)
-     */
-    function setBaseRoyalties(address payable[] memory _receivers, uint96[] memory _basisPoints) external;
-
-    /**
-     * @notice Sets the royalties for a specific token ID
-     * @param _tokenId ID of the token
-     * @param _receivers Array of addresses receiving royalties
-     * @param _basisPoints Array of points used to calculate royalty payments (0.01% per receiver)
-     */
-    function setTokenRoyalties(
-        uint256 _tokenId,
-        address payable[] memory _receivers,
-        uint96[] memory _basisPoints
-    ) external;
 }

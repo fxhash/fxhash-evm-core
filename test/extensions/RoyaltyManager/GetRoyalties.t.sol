@@ -14,7 +14,7 @@ contract GetRoyalties is RoyaltyManagerTest {
         royaltyReceivers.push(payable(bob));
         royaltyReceivers.push(payable(eve));
 
-        basisPoints.push(MAX_ROYALTY_BPS);
+        bcasisPoints.push(MAX_ROYALTY_BPS);
         basisPoints.push(MAX_ROYALTY_BPS);
         basisPoints.push(MAX_ROYALTY_BPS);
     }
