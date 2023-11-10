@@ -83,9 +83,11 @@ abstract contract RoyaltyManager is IRoyaltyManager {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @inheritdoc IRoyaltyManager
+     * @notice Sets the base royalties for all tokens
+     * @param _receivers Array of addresses receiving royalties
+     * @param _basisPoints Array of points used to calculate royalty payments (0.01% per receiver)
      */
-    function setBaseRoyalties(address payable[] calldata _receivers, uint96[] calldata _basisPoints) public {
+    function _setBaseRoyalties(address payable[] calldata _receivers, uint96[] calldata _basisPoints) internal {
         delete baseRoyalties;
         uint256 tokenLength = _basisPoints.length;
         if (_receivers.length != tokenLength) revert LengthMismatch();
@@ -103,13 +105,16 @@ abstract contract RoyaltyManager is IRoyaltyManager {
     }
 
     /**
-     * @inheritdoc IRoyaltyManager
+     * @notice Sets the royalties for a specific token ID
+     * @param _tokenId ID of the token
+     * @param _receivers Array of addresses receiving royalties
+     * @param _basisPoints Array of points used to calculate royalty payments (0.01% per receiver)
      */
-    function setTokenRoyalties(
+    function _setTokenRoyalties(
         uint256 _tokenId,
         address payable[] calldata _receivers,
         uint96[] calldata _basisPoints
-    ) public {
+    ) internal {
         if (!_exists(_tokenId)) revert NonExistentToken();
         uint256 tokenLength = _basisPoints.length;
         if (_receivers.length != tokenLength) revert LengthMismatch();
