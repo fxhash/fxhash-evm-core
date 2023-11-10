@@ -147,10 +147,10 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         renderer = _initInfo.renderer;
 
         _initializeOwner(_owner);
-        _setNameAndSymbol(_initInfo.name, _initInfo.symbol);
-        _setTags(_initInfo.tagIds);
         _registerMinters(_mintInfo);
         _setBaseRoyalties(_royaltyReceivers, _basisPoints);
+        _setNameAndSymbol(_initInfo.name, _initInfo.symbol);
+        _setTags(_initInfo.tagIds);
 
         emit ProjectInitialized(_initInfo.primaryReceiver, _projectInfo, _metadataInfo, _mintInfo);
     }
@@ -225,9 +225,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         uint120 prevSupply = issuerInfo.projectInfo.maxSupply;
         if (_supply >= prevSupply || _supply < totalSupply) revert InvalidAmount();
         issuerInfo.projectInfo.maxSupply = _supply;
-
         if (_supply == 0) emit ProjectDeleted();
-
         emit SupplyReduced(prevSupply, _supply);
     }
 
