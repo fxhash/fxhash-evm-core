@@ -1,5 +1,5 @@
 # IssuerInfo
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/ace7e57339c07ca2ed3c7a6bef724ed3baae64f8/src/lib/Structs.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/3196ec292bff15f41085b94e4b488f73ce88013c/src/lib/Structs.sol)
 
 Struct of issuer information
 - `primaryReceiver` Address of splitter contract receiving primary sales

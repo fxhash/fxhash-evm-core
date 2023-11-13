@@ -1,5 +1,5 @@
 # IFxGenArt721
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/ace7e57339c07ca2ed3c7a6bef724ed3baae64f8/src/interfaces/IFxGenArt721.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/3196ec292bff15f41085b94e4b488f73ce88013c/src/interfaces/IFxGenArt721.sol)
 
 **Inherits:**
 [ISeedConsumer](/src/interfaces/ISeedConsumer.sol/interface.ISeedConsumer.md), [IToken](/src/interfaces/IToken.sol/interface.IToken.md)
@@ -69,28 +69,6 @@ Mapping of token ID to GenArtInfo struct (seed, fxParams)
 function genArtInfo(uint256 _tokenId) external view returns (bytes32, bytes memory);
 ```
 
-### generateTypedDataHash
-
-Generates typed data hash for given URI
-
-
-```solidity
-function generateTypedDataHash(bytes32 _typeHash, string calldata _uri) external view returns (bytes32);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_typeHash`|`bytes32`|Bytes|
-|`_uri`|`string`|URI of metadata|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`bytes32`|Typed data hash|
-
-
 ### initialize
 
 Initializes new generative art project
@@ -152,11 +130,11 @@ function issuerInfo() external view returns (address, ProjectInfo memory);
 
 ### metadataInfo
 
-Returns the metadata information of the project (baseURI, imageURI, onchainData)
+Returns the metadata information of the project (baseURI, onchainData)
 
 
 ```solidity
-function metadataInfo() external view returns (string memory, string memory, bytes memory);
+function metadataInfo() external view returns (bytes memory, bytes memory);
 ```
 
 ### mint
@@ -312,46 +290,13 @@ Sets the new URI of the token metadata
 
 
 ```solidity
-function setBaseURI(string calldata _uri, bytes calldata _signature) external;
+function setBaseURI(bytes calldata _uri) external;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_uri`|`string`|Base URI pointer|
-|`_signature`|`bytes`|Signature of creator used to verify metadata update|
-
-
-### setContractURI
-
-Sets the new URI of the contract metadata
-
-
-```solidity
-function setContractURI(string calldata _uri, bytes calldata _signature) external;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_uri`|`string`|Contract URI pointer|
-|`_signature`|`bytes`|Signature of creator used to verify metadata update|
-
-
-### setImageURI
-
-Sets the new URI of the image metadata
-
-
-```solidity
-function setImageURI(string calldata _uri, bytes calldata _signature) external;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_uri`|`string`|Image URI pointer|
-|`_signature`|`bytes`|Signature of creator used to verify metadata update|
+|`_uri`|`bytes`|Decoded content identifier of metadata pointer|
 
 
 ### setRandomizer
@@ -436,12 +381,28 @@ function unpause() external;
 ```
 
 ## Events
+### BaseURIUpdated
+Event emitted when the base URI is updated
+
+
+```solidity
+event BaseURIUpdated(bytes _uri);
+```
+
 ### BurnEnabled
 Event emitted when burn is toggled
 
 
 ```solidity
 event BurnEnabled(bool indexed _enabled);
+```
+
+### ImageURIUpdated
+Event emitted when the image URI is updated
+
+
+```solidity
+event ImageURIUpdated(string _uri);
 ```
 
 ### MintEnabled

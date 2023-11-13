@@ -1,5 +1,5 @@
 # IFxMintTicket721
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/ace7e57339c07ca2ed3c7a6bef724ed3baae64f8/src/interfaces/IFxMintTicket721.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/3196ec292bff15f41085b94e4b488f73ce88013c/src/interfaces/IFxMintTicket721.sol)
 
 **Inherits:**
 [IToken](/src/interfaces/IToken.sol/interface.IToken.md)
@@ -22,11 +22,11 @@ function activeMinters(uint256) external view returns (address);
 
 ### baseURI
 
-Returns the URI of the token metadata
+Returns the decoded content identifier of the metadata pointer
 
 
 ```solidity
-function baseURI() external view returns (string memory);
+function baseURI() external view returns (bytes memory);
 ```
 
 ### burn
@@ -95,7 +95,7 @@ function initialize(
     address _genArt721,
     address _redeemer,
     uint48 _gracePeriod,
-    string calldata _baseURI,
+    bytes calldata _baseURI,
     MintInfo[] calldata _mintInfo
 ) external;
 ```
@@ -107,7 +107,7 @@ function initialize(
 |`_genArt721`|`address`|Address of GenArt721 token contract|
 |`_redeemer`|`address`|Address of TicketRedeemer minter contract|
 |`_gracePeriod`|`uint48`|Period time before token enters harberger taxation|
-|`_baseURI`|`string`|Base URI of the token metadata|
+|`_baseURI`|`bytes`|Decoded content identifier of metadata pointer|
 |`_mintInfo`|`MintInfo[]`|Array of authorized minter contracts and their reserves|
 
 
@@ -374,13 +374,13 @@ Sets the new URI of the token metadata
 
 
 ```solidity
-function setBaseURI(string calldata _uri) external;
+function setBaseURI(bytes calldata _uri) external;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_uri`|`string`|Base URI pointer of the metadata|
+|`_uri`|`bytes`|Decoded content identifier of metadata pointer|
 
 
 ### setPrice
@@ -451,7 +451,7 @@ event TicketInitialized(
     address indexed _genArt721,
     address indexed _redeemer,
     uint48 indexed _gracePeriod,
-    string _baseURI,
+    bytes _baseURI,
     MintInfo[] _mintInfo
 );
 ```
@@ -465,8 +465,8 @@ event Claimed(
     uint256 indexed _tokenId,
     address indexed _claimer,
     uint128 _newPrice,
-    uint48 _newForeclosureTime,
-    uint80 _newDepositAmount,
+    uint48 _foreclosureTime,
+    uint80 _depositAmount,
     uint256 _payment
 );
 ```
@@ -476,7 +476,7 @@ Event emitted when additional taxes are deposited
 
 
 ```solidity
-event Deposited(uint256 indexed _tokenId, address indexed _depositer, uint48 _newForeclosure, uint80 _newTotalDeposit);
+event Deposited(uint256 indexed _tokenId, address indexed _depositer, uint48 _foreclosureTime, uint80 _depositAmount);
 ```
 
 ### SetPrice
@@ -484,7 +484,7 @@ Event emitted when new listing price is set
 
 
 ```solidity
-event SetPrice(uint256 indexed _tokenId, uint128 _newPrice, uint128 _newForeclosure, uint128 _depositAmount);
+event SetPrice(uint256 indexed _tokenId, uint128 _newPrice, uint128 _foreclosureTime, uint128 _depositAmount);
 ```
 
 ### Withdraw

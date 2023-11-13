@@ -1,5 +1,5 @@
 # TicketRedeemer
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/ace7e57339c07ca2ed3c7a6bef724ed3baae64f8/src/minters/TicketRedeemer.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/3196ec292bff15f41085b94e4b488f73ce88013c/src/minters/TicketRedeemer.sol)
 
 **Inherits:**
 [ITicketRedeemer](/src/interfaces/ITicketRedeemer.sol/interface.ITicketRedeemer.md)

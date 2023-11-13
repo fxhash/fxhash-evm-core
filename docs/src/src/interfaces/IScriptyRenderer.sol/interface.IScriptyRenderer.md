@@ -1,5 +1,5 @@
 # IScriptyRenderer
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/ace7e57339c07ca2ed3c7a6bef724ed3baae64f8/src/interfaces/IScriptyRenderer.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/3196ec292bff15f41085b94e4b488f73ce88013c/src/interfaces/IScriptyRenderer.sol)
 
 **Inherits:**
 [IRenderer](/src/interfaces/IRenderer.sol/interface.IRenderer.md)
@@ -11,6 +11,27 @@ Renderer for building onchain metadata of FxGenArt721 tokens using Scripty.sol
 
 
 ## Functions
+### contractURI
+
+Gets the contact-level metadata for a project
+
+
+```solidity
+function contractURI(string memory _defaultURI) external view returns (string memory);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_defaultURI`|`string`|Fallback URI|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`string`|URI of the contract metadata|
+
+
 ### ethfsFileStorage
 
 Returns the address of ETHFSFileStorage contract
@@ -39,6 +60,26 @@ function getEncodedHTML(uint256 _tokenId, bytes32 _seed, bytes memory _fxParams,
 |`_seed`|`bytes32`|Hash of the randomly generated fxHash seed|
 |`_fxParams`|`bytes`|Bytes value of user-input params|
 |`_htmlRequest`|`HTMLRequest`|HTMLRequest of script|
+
+
+### getImageURI
+
+Generates the image URI for a token ID
+
+
+```solidity
+function getImageURI(string memory _defaultURI, string memory _baseURI, uint256 _tokenId)
+    external
+    view
+    returns (string memory);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_defaultURI`|`string`|Fallback URI|
+|`_baseURI`|`string`|URI of the content identifier|
+|`_tokenId`|`uint256`|ID of the token|
 
 
 ### renderOnchain
@@ -97,7 +138,7 @@ function tokenURI(uint256 _tokenId, bytes calldata _data) external view returns 
 |Name|Type|Description|
 |----|----|-----------|
 |`_tokenId`|`uint256`|ID of the token|
-|`_data`|`bytes`|Additional data used to construct onchain metadata|
+|`_data`|`bytes`|Additional data used to construct metadata|
 
 **Returns**
 

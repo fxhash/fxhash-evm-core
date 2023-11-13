@@ -1,10 +1,13 @@
-# IRenderer
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/3196ec292bff15f41085b94e4b488f73ce88013c/src/interfaces/IRenderer.sol)
+# IIPFSRenderer
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/3196ec292bff15f41085b94e4b488f73ce88013c/src/interfaces/IIPFSRenderer.sol)
+
+**Inherits:**
+[IRenderer](/src/interfaces/IRenderer.sol/interface.IRenderer.md)
 
 **Author:**
 fx(hash)
 
-Interface for FxGenArt721 tokens to interact with renderers
+Renderer for constructing offchain metadata of FxGenArt721 tokens pinned to IPFS
 
 
 ## Functions
@@ -27,6 +30,26 @@ function contractURI(string memory _defaultURI) external view returns (string me
 |Name|Type|Description|
 |----|----|-----------|
 |`<none>`|`string`|URI of the contract metadata|
+
+
+### getMetadataURI
+
+Generates the metadata URI for a token ID
+
+
+```solidity
+function getMetadataURI(string memory _defaultURI, string memory _baseURI, uint256 _tokenId)
+    external
+    view
+    returns (string memory);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_defaultURI`|`string`|Fallback URI|
+|`_baseURI`|`string`|URI of the content identifier|
+|`_tokenId`|`uint256`|ID of the token|
 
 
 ### tokenURI
