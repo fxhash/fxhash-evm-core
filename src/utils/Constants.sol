@@ -29,6 +29,7 @@ bytes32 constant CLAIM_TYPEHASH = keccak256(
 bytes32 constant SET_BASE_URI_TYPEHASH = keccak256("SetBaseURI(string uri)");
 bytes32 constant SET_CONTRACT_URI_TYPEHASH = keccak256("SetContractURI(string uri)");
 bytes32 constant SET_IMAGE_URI_TYPEHASH = keccak256("SetImageURI(string uri");
+bytes32 constant SET_PRIMARY_RECEIVER_TYPEHASH = keccak256("SetPrimaryReceiver(address primaryReceiver)");
 
 // Minters
 uint8 constant UNINITIALIZED = 0;

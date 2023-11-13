@@ -60,6 +60,12 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     );
 
     /**
+     * @notice Event emitted when the primary receiver is updated
+     * @param _primaryReceiver The address of the new primary receiver account
+     */
+    event PrimaryReceiverUpdated(address indexed _primaryReceiver);
+
+    /**
      * @notice Event emitted when project tags are set
      * @param _tagIds Array of tag IDs describing the project
      */
@@ -200,6 +206,14 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @return Typed data hash
      */
     function generateTypedDataHash(bytes32 _typeHash, string calldata _uri) external view returns (bytes32);
+
+    /**
+     * @notice Generates typed data hash for updating the primary receiver address
+     * @param _typeHash Hash of the typed data
+     * @param _primaryReceiver Address of the new primary receiver account
+     * @return Typed data hash
+     */
+    function generateTypedDataHash(bytes32 _typeHash, address _primaryReceiver) external view returns (bytes32);
 
     /**
      * @notice Returns the generated baseURI
