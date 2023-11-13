@@ -19,7 +19,7 @@ interface IIPFSRenderer is IRenderer {
     function contractURI(string memory _defaultURI) external view returns (string memory);
 
     /**
-     * @notice Generates the metadata URI of a token ID
+     * @notice Generates the metadata URI for a token ID
      * @param _defaultURI Fallback URI
      * @param _baseURI URI of the content identifier
      * @param _tokenId ID of the token

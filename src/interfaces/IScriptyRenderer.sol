@@ -39,7 +39,7 @@ interface IScriptyRenderer is IRenderer {
     ) external view returns (bytes memory);
 
     /**
-     * @notice Generates the image URI of a token ID
+     * @notice Generates the image URI for a token ID
      * @param _defaultURI Fallback URI
      * @param _baseURI URI of the content identifier
      * @param _tokenId ID of the token

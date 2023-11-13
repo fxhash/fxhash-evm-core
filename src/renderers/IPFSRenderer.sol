@@ -32,11 +32,11 @@ contract IPFSRenderer is IIPFSRenderer {
      * @inheritdoc IIPFSRenderer
      */
     function tokenURI(uint256 _tokenId, bytes calldata _data) external view returns (string memory) {
-        (string memory defaultURI, MetadataInfo memory metadata, ) = abi.decode(
+        (string memory defaultURI, MetadataInfo memory metadataInfo, ) = abi.decode(
             _data,
             (string, MetadataInfo, GenArtInfo)
         );
-        string memory baseURI = LibIPFSEncoder.encodeURL(bytes32(bytes(metadata.baseURI)));
+        string memory baseURI = LibIPFSEncoder.encodeURL(bytes32(bytes(metadataInfo.baseURI)));
         return getMetadataURI(defaultURI, baseURI, _tokenId);
     }
 

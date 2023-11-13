@@ -2,6 +2,7 @@
 pragma solidity 0.8.20;
 
 import {Base64} from "openzeppelin/contracts/utils/Base64.sol";
+import {LibIPFSEncoder} from "src/lib/LibIPFSEncoder.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
 import {GenArtInfo, MetadataInfo} from "src/interfaces/IFxGenArt721.sol";
@@ -65,7 +66,7 @@ contract ScriptyRenderer is IScriptyRenderer {
      * @inheritdoc IScriptyRenderer
      */
     function tokenURI(uint256 _tokenId, bytes calldata _data) external view returns (string memory) {
-        (, MetadataInfo memory metadataInfo, GenArtInfo memory genArtInfo) = abi.decode(
+        (string memory defaultURI, MetadataInfo memory metadataInfo, GenArtInfo memory genArtInfo) = abi.decode(
             _data,
             (string, MetadataInfo, GenArtInfo)
         );
@@ -73,6 +74,8 @@ contract ScriptyRenderer is IScriptyRenderer {
             metadataInfo.onchainData,
             (HTMLRequest, HTMLRequest)
         );
+        string memory baseURI = LibIPFSEncoder.encodeURL(bytes32(bytes(metadataInfo.baseURI)));
+        string memory imageURI = getImageURI(defaultURI, baseURI, _tokenId);
         bytes memory onchainData = renderOnchain(_tokenId, genArtInfo.seed, genArtInfo.fxParams, animation, attributes);
 
         return string(abi.encodePacked("data:application/json;base64,", Base64.encode(onchainData)));
