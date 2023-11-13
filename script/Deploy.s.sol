@@ -229,7 +229,6 @@ contract Deploy is Script {
         names.push(FIXED_PRICE);
         names.push(PSEUDO_RANDOMIZER);
         names.push(SCRIPTY_RENDERER);
-        names.push(SPLITS_CONTROLLER);
         names.push(SPLITS_FACTORY);
         names.push(TICKET_REDEEMER);
 
