@@ -18,9 +18,9 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
 
     /**
      * @notice Event emitted when the base URI is updated
-     * @param _uri URI of the base metadata
+     * @param _uri Decoded content identifier of metadata pointer
      */
-    event BaseURIUpdated(string _uri);
+    event BaseURIUpdated(bytes _uri);
 
     /**
      * @notice Event emitted when burn is toggled
@@ -194,12 +194,12 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     function genArtInfo(uint256 _tokenId) external view returns (bytes32, bytes memory);
 
     /**
-     * @notice Generates typed data hash for given URI
-     * @param _typeHash Bytes
-     * @param _uri URI of metadata
+     * @notice Generates typed data hash for base URI
+     * @param _typeHash Hash of function selector and parameters
+     * @param _uri Decoded content identifier of metadata pointer
      * @return Typed data hash
      */
-    function generateTypedDataHash(bytes32 _typeHash, string calldata _uri) external view returns (bytes32);
+    function generateTypedDataHash(bytes32 _typeHash, bytes calldata _uri) external view returns (bytes32);
 
     /**
      * @notice Initializes new generative art project
@@ -236,7 +236,7 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     /**
      * @notice Returns the metadata information of the project (baseURI, onchainData)
      */
-    function metadataInfo() external view returns (string memory, bytes memory);
+    function metadataInfo() external view returns (bytes memory, bytes memory);
 
     /**
      * @inheritdoc IToken
@@ -305,10 +305,10 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
 
     /**
      * @notice Sets the new URI of the token metadata
-     * @param _uri Base URI pointer
+     * @param _uri Decoded content identifier of metadata pointer
      * @param _signature Signature of creator used to verify metadata update
      */
-    function setBaseURI(string calldata _uri, bytes calldata _signature) external;
+    function setBaseURI(bytes calldata _uri, bytes calldata _signature) external;
 
     /**
      * @notice Sets the new randomizer contract

@@ -97,7 +97,7 @@ contract FxGenArt721Test is BaseTest {
         (baseURI, ) = IFxGenArt721(fxGenArtProxy).metadataInfo();
     }
 
-    function _setSignature(bytes32 _typeHash, string memory _uri) internal {
+    function _setSignature(bytes32 _typeHash, bytes memory _uri) internal {
         digest = IFxGenArt721(fxGenArtProxy).generateTypedDataHash(_typeHash, _uri);
         (v, r, s) = vm.sign(signerPk, digest);
         signature = abi.encodePacked(r, s, v);

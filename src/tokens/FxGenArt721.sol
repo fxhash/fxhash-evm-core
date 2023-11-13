@@ -296,7 +296,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function setBaseURI(string calldata _uri, bytes calldata _signature) external onlyRole(METADATA_ROLE) {
+    function setBaseURI(bytes calldata _uri, bytes calldata _signature) external onlyRole(METADATA_ROLE) {
         bytes32 digest = generateTypedDataHash(SET_BASE_URI_TYPEHASH, _uri);
         _verifySignature(digest, _signature);
         metadataInfo.baseURI = _uri;
@@ -344,7 +344,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function generateTypedDataHash(bytes32 _typeHash, string calldata _uri) public view returns (bytes32) {
+    function generateTypedDataHash(bytes32 _typeHash, bytes calldata _uri) public view returns (bytes32) {
         bytes32 structHash = keccak256(abi.encode(_typeHash, _uri));
         return _hashTypedDataV4(structHash);
     }

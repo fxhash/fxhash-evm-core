@@ -74,11 +74,17 @@ contract ScriptyRenderer is IScriptyRenderer {
             metadataInfo.onchainData,
             (HTMLRequest, HTMLRequest)
         );
-        string memory baseURI = LibIPFSEncoder.encodeURL(bytes32(bytes(metadataInfo.baseURI)));
+        string memory baseURI = LibIPFSEncoder.encodeURL(bytes32(metadataInfo.baseURI));
         string memory imageURI = getImageURI(defaultURI, baseURI, _tokenId);
-        bytes memory onchainData = renderOnchain(_tokenId, genArtInfo.seed, genArtInfo.fxParams, animation, attributes);
+        bytes memory animationURI = renderOnchain(
+            _tokenId,
+            genArtInfo.seed,
+            genArtInfo.fxParams,
+            animation,
+            attributes
+        );
 
-        return string(abi.encodePacked("data:application/json;base64,", Base64.encode(onchainData)));
+        return string(abi.encodePacked("data:application/json;base64,", Base64.encode(animationURI)));
     }
 
     /*//////////////////////////////////////////////////////////////////////////

@@ -60,7 +60,7 @@ library TokenLib {
     function setBaseURI(
         address _admin,
         address _proxy,
-        string memory _uri,
+        bytes memory _uri,
         bytes memory _signature
     ) internal prank(_admin) {
         IFxGenArt721(_proxy).setBaseURI(_uri, _signature);

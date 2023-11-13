@@ -48,11 +48,10 @@ contract BaseTest is Deploy, Test {
     bytes internal signature;
 
     // Metadata
+    bytes internal baseURI;
     bytes internal fxParams;
     bytes internal onchainData;
     bytes32 internal seed;
-    string internal baseURI;
-    string internal imageURI;
     uint120 internal inputSize;
 
     // Project

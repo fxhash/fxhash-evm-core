@@ -36,7 +36,7 @@ contract IPFSRenderer is IIPFSRenderer {
             _data,
             (string, MetadataInfo, GenArtInfo)
         );
-        string memory baseURI = LibIPFSEncoder.encodeURL(bytes32(bytes(metadataInfo.baseURI)));
+        string memory baseURI = LibIPFSEncoder.encodeURL(bytes32(metadataInfo.baseURI));
         return getMetadataURI(defaultURI, baseURI, _tokenId);
     }
 
