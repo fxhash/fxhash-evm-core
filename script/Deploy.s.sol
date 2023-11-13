@@ -191,7 +191,7 @@ contract Deploy is Script {
         creationCode = type(PseudoRandomizer).creationCode;
         pseudoRandomizer = PseudoRandomizer(_deployCreate2(creationCode, salt));
 
-        // ScriptyRenderer
+        // IPFSRenderer
         creationCode = type(IPFSRenderer).creationCode;
         ipfsRenderer = IPFSRenderer(_deployCreate2(creationCode, salt));
 
