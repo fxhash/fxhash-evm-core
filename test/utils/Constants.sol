@@ -14,12 +14,10 @@ string constant SYMBOL = "FXHASH";
 uint256 constant TAG_ID = 1;
 
 // Metadata
-string constant BASE_URI = "ipfs://QmZZVBKapDg2wXzwpDxdmL9Ah665h9ZzeJ9gYdbTZ4GBzf";
-string constant IMAGE_URI = "ipfs://QmZZVBKapDg2wXzwpDxdmL9Ah665h9ZzeJ9gYdbTZ4GBzf";
+bytes constant BASE_URI = "ipfs://QmZZVBKapDg2wXzwpDxdmL9Ah665h9ZzeJ9gYdbTZ4GBzf";
 
 // Project
 bool constant MINT_ENABLED = true;
-bool constant ONCHAIN = true;
 uint120 constant MAX_SUPPLY = 1000;
 
 // Reserves

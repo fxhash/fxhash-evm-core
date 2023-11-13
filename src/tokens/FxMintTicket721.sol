@@ -3,6 +3,7 @@ pragma solidity 0.8.20;
 
 import {ERC721, IERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
+import {LibIPFSEncoder} from "src/lib/LibIPFSEncoder.sol";
 import {LibMap} from "solady/src/utils/LibMap.sol";
 import {Ownable} from "solady/src/auth/Ownable.sol";
 import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
@@ -63,7 +64,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
     /**
      * @inheritdoc IFxMintTicket721
      */
-    string public baseURI;
+    bytes public baseURI;
 
     /**
      * @inheritdoc IFxMintTicket721
@@ -121,7 +122,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
         address _genArt721,
         address _redeemer,
         uint48 _gracePeriod,
-        string calldata _baseURI,
+        bytes calldata _baseURI,
         MintInfo[] calldata _mintInfo
     ) external initializer {
         genArt721 = _genArt721;
@@ -374,7 +375,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
     /**
      * @inheritdoc IFxMintTicket721
      */
-    function setBaseURI(string calldata _uri) external onlyRole(ADMIN_ROLE) {
+    function setBaseURI(bytes calldata _uri) external onlyRole(ADMIN_ROLE) {
         baseURI = _uri;
         emit BatchMetadataUpdate(1, totalSupply);
     }
@@ -413,7 +414,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
      */
     function tokenURI(uint256 _tokenId) public view override returns (string memory) {
         _requireMinted(_tokenId);
-        return string.concat(baseURI, _tokenId.toString());
+        return string.concat(LibIPFSEncoder.encodeURL(bytes32(baseURI)), "/", _tokenId.toString());
     }
 
     /**

@@ -69,7 +69,7 @@ interface IFxTicketFactory {
      * @param _genArt721 Address of GenArt721 token contract
      * @param _redeemer Address of TicketRedeemer minter contract
      * @param _gracePeriod Duration of time before token enters harberger taxation
-     * @param _baseURI Base URI of the token metadata
+     * @param _baseURI Decoded content identifier of metadata pointer
      * @param _mintInfo Array of authorized minter contracts and their reserves
      */
     function createTicket(
@@ -77,7 +77,7 @@ interface IFxTicketFactory {
         address _genArt721,
         address _redeemer,
         uint48 _gracePeriod,
-        string calldata _baseURI,
+        bytes calldata _baseURI,
         MintInfo[] calldata _mintInfo
     ) external returns (address);
 
