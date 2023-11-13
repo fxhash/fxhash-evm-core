@@ -1,5 +1,5 @@
 # FxGenArt721
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/ace7e57339c07ca2ed3c7a6bef724ed3baae64f8/src/tokens/FxGenArt721.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/709c3bd5035ed7a7acc4391ca2a42cf2ad71efed/src/tokens/FxGenArt721.sol)
 
 **Inherits:**
 [IFxGenArt721](/src/interfaces/IFxGenArt721.sol/interface.IFxGenArt721.md), IERC4906, ERC721, EIP712, Initializable, Ownable, Pausable, [RoyaltyManager](/src/tokens/extensions/RoyaltyManager.sol/abstract.RoyaltyManager.md)
@@ -26,6 +26,15 @@ Returns the address of the FxRoleRegistry contract
 
 ```solidity
 address public immutable roleRegistry;
+```
+
+
+### nameAndSymbol_
+*Packed value of name and symbol where combined length is 30 bytes or less*
+
+
+```solidity
+bytes32 internal nameAndSymbol_;
 ```
 
 
@@ -84,7 +93,7 @@ IssuerInfo public issuerInfo;
 
 
 ### metadataInfo
-Returns the metadata information of the project (baseURI, imageURI, onchainData)
+Returns the metadata information of the project (baseURI, onchainData)
 
 
 ```solidity
@@ -290,54 +299,6 @@ Toggles public mint from enabled to disabled and vice versa
 function toggleMint() external onlyOwner;
 ```
 
-### setBaseURI
-
-Sets the new URI of the token metadata
-
-
-```solidity
-function setBaseURI(string calldata _uri, bytes calldata _signature) external onlyRole(ADMIN_ROLE);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_uri`|`string`|Base URI pointer|
-|`_signature`|`bytes`|Signature of creator used to verify metadata update|
-
-
-### setContractURI
-
-Sets the new URI of the contract metadata
-
-
-```solidity
-function setContractURI(string calldata _uri, bytes calldata _signature) external onlyRole(ADMIN_ROLE);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_uri`|`string`|Contract URI pointer|
-|`_signature`|`bytes`|Signature of creator used to verify metadata update|
-
-
-### setImageURI
-
-Sets the new URI of the image metadata
-
-
-```solidity
-function setImageURI(string calldata _uri, bytes calldata _signature) external onlyRole(ADMIN_ROLE);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_uri`|`string`|Image URI pointer|
-|`_signature`|`bytes`|Signature of creator used to verify metadata update|
-
-
 ### setRandomizer
 
 Sets the new randomizer contract
@@ -366,6 +327,21 @@ function setRenderer(address _renderer) external onlyRole(ADMIN_ROLE);
 |Name|Type|Description|
 |----|----|-----------|
 |`_renderer`|`address`|Address of the renderer contract|
+
+
+### setBaseURI
+
+Sets the new URI of the token metadata
+
+
+```solidity
+function setBaseURI(bytes calldata _uri) external onlyRole(METADATA_ROLE);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_uri`|`bytes`|Decoded content identifier of metadata pointer|
 
 
 ### pause
@@ -409,28 +385,6 @@ Returns contract-level metadata for storefront marketplaces
 ```solidity
 function contractURI() external view returns (string memory);
 ```
-
-### generateTypedDataHash
-
-Generates typed data hash for given URI
-
-
-```solidity
-function generateTypedDataHash(bytes32 _typeHash, string calldata _uri) public view returns (bytes32);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_typeHash`|`bytes32`|Bytes|
-|`_uri`|`string`|URI of metadata|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`bytes32`|Typed data hash|
-
 
 ### isMinter
 
@@ -510,6 +464,15 @@ function _mintRandom(address _to, uint256 _tokenId) internal;
 function _registerMinters(MintInfo[] memory _mintInfo) internal;
 ```
 
+### _setNameAndSymbol
+
+*Packs name and symbol into single slot if combined length is 30 bytes or less*
+
+
+```solidity
+function _setNameAndSymbol(string calldata _name, string calldata _symbol) internal;
+```
+
 ### _setTags
 
 *Emits event for setting the project tag descriptions*
@@ -526,15 +489,6 @@ function _setTags(uint256[] calldata _tagIds) internal;
 
 ```solidity
 function _isVerified(address _creator) internal view returns (bool);
-```
-
-### _verifySignature
-
-*Verifies creator signature for metadata updates*
-
-
-```solidity
-function _verifySignature(bytes32 _digest, bytes calldata _signature) internal view;
 ```
 
 ### _exists

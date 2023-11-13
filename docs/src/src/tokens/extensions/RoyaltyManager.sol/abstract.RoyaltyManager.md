@@ -1,5 +1,5 @@
 # RoyaltyManager
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/ace7e57339c07ca2ed3c7a6bef724ed3baae64f8/src/tokens/extensions/RoyaltyManager.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/709c3bd5035ed7a7acc4391ca2a42cf2ad71efed/src/tokens/extensions/RoyaltyManager.sol)
 
 **Inherits:**
 [IRoyaltyManager](/src/interfaces/IRoyaltyManager.sol/interface.IRoyaltyManager.md)
@@ -12,7 +12,7 @@ See the documentation in {IRoyaltyManager}
 
 ## State Variables
 ### baseRoyalties
-Returns royalty information of index in array
+Returns royalty information of index in array list
 
 
 ```solidity
@@ -78,13 +78,13 @@ function royaltyInfo(uint256 _tokenId, uint256 _salePrice) external view returns
 |`amount`|`uint256`|royaltyAmount Amount to royalties being paid out|
 
 
-### setBaseRoyalties
+### _setBaseRoyalties
 
 Sets the base royalties for all tokens
 
 
 ```solidity
-function setBaseRoyalties(address payable[] calldata _receivers, uint96[] calldata _basisPoints) public;
+function _setBaseRoyalties(address payable[] calldata _receivers, uint96[] calldata _basisPoints) internal;
 ```
 **Parameters**
 
@@ -94,14 +94,14 @@ function setBaseRoyalties(address payable[] calldata _receivers, uint96[] callda
 |`_basisPoints`|`uint96[]`|Array of points used to calculate royalty payments (0.01% per receiver)|
 
 
-### setTokenRoyalties
+### _setTokenRoyalties
 
 Sets the royalties for a specific token ID
 
 
 ```solidity
-function setTokenRoyalties(uint256 _tokenId, address payable[] calldata _receivers, uint96[] calldata _basisPoints)
-    public;
+function _setTokenRoyalties(uint256 _tokenId, address payable[] calldata _receivers, uint96[] calldata _basisPoints)
+    internal;
 ```
 **Parameters**
 

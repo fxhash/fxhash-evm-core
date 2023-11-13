@@ -1,5 +1,5 @@
 # FxMintTicket721
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/ace7e57339c07ca2ed3c7a6bef724ed3baae64f8/src/tokens/FxMintTicket721.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/709c3bd5035ed7a7acc4391ca2a42cf2ad71efed/src/tokens/FxMintTicket721.sol)
 
 **Inherits:**
 [IFxMintTicket721](/src/interfaces/IFxMintTicket721.sol/interface.IFxMintTicket721.md), IERC4906, ERC721, Initializable, Ownable, Pausable
@@ -66,11 +66,11 @@ uint48 public gracePeriod;
 
 
 ### baseURI
-Returns the URI of the token metadata
+Returns the decoded content identifier of the metadata pointer
 
 
 ```solidity
-string public baseURI;
+bytes public baseURI;
 ```
 
 
@@ -140,7 +140,7 @@ function initialize(
     address _genArt721,
     address _redeemer,
     uint48 _gracePeriod,
-    string calldata _baseURI,
+    bytes calldata _baseURI,
     MintInfo[] calldata _mintInfo
 ) external initializer;
 ```
@@ -152,7 +152,7 @@ function initialize(
 |`_genArt721`|`address`|Address of GenArt721 token contract|
 |`_redeemer`|`address`|Address of TicketRedeemer minter contract|
 |`_gracePeriod`|`uint48`|Period time before token enters harberger taxation|
-|`_baseURI`|`string`|Base URI of the token metadata|
+|`_baseURI`|`bytes`|Decoded content identifier of metadata pointer|
 |`_mintInfo`|`MintInfo[]`|Array of authorized minter contracts and their reserves|
 
 
@@ -255,13 +255,13 @@ Sets the new URI of the token metadata
 
 
 ```solidity
-function setBaseURI(string calldata _uri) external onlyRole(ADMIN_ROLE);
+function setBaseURI(bytes calldata _uri) external onlyRole(ADMIN_ROLE);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_uri`|`string`|Base URI pointer of the metadata|
+|`_uri`|`bytes`|Decoded content identifier of metadata pointer|
 
 
 ### pause
