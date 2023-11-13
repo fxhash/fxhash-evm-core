@@ -1,5 +1,5 @@
 # FixedPrice
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/3196ec292bff15f41085b94e4b488f73ce88013c/src/minters/FixedPrice.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/709c3bd5035ed7a7acc4391ca2a42cf2ad71efed/src/minters/FixedPrice.sol)
 
 **Inherits:**
 [IFixedPrice](/src/interfaces/IFixedPrice.sol/interface.IFixedPrice.md), [Allowlist](/src/minters/extensions/Allowlist.sol/abstract.Allowlist.md), [MintPass](/src/minters/extensions/MintPass.sol/abstract.MintPass.md)

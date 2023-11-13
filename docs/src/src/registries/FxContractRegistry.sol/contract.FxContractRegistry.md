@@ -1,5 +1,5 @@
 # FxContractRegistry
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/3196ec292bff15f41085b94e4b488f73ce88013c/src/registries/FxContractRegistry.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/709c3bd5035ed7a7acc4391ca2a42cf2ad71efed/src/registries/FxContractRegistry.sol)
 
 **Inherits:**
 [IFxContractRegistry](/src/interfaces/IFxContractRegistry.sol/interface.IFxContractRegistry.md), Ownable
