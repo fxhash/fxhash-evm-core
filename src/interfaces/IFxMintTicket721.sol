@@ -19,14 +19,14 @@ interface IFxMintTicket721 is IToken {
      * @param _genArt721 Address of FxGenArt721 token
      * @param _redeemer Address of TicketRedeemer contract
      * @param _gracePeriod Time period before token enters harberger taxation
-     * @param _baseURI Base URI of the token metadata
+     * @param _baseURI Decoded content indentifier of metadata pointer
      * @param _mintInfo Array of authorized minter contracts and their reserves
      */
     event TicketInitialized(
         address indexed _genArt721,
         address indexed _redeemer,
         uint48 indexed _gracePeriod,
-        string _baseURI,
+        bytes _baseURI,
         MintInfo[] _mintInfo
     );
 
@@ -163,9 +163,9 @@ interface IFxMintTicket721 is IToken {
     function activeMinters(uint256) external view returns (address);
 
     /**
-     * @notice Returns the URI of the token metadata
+     * @notice Returns the decoded content identifier of the metadata pointer
      */
-    function baseURI() external view returns (string memory);
+    function baseURI() external view returns (bytes memory);
 
     /**
      * @notice Burns token ID from the circulating supply
@@ -197,7 +197,7 @@ interface IFxMintTicket721 is IToken {
      * @param _genArt721 Address of GenArt721 token contract
      * @param _redeemer Address of TicketRedeemer minter contract
      * @param _gracePeriod Period time before token enters harberger taxation
-     * @param _baseURI Base URI of the token metadata
+     * @param _baseURI Decoded content identifier of metadata pointer
      * @param _mintInfo Array of authorized minter contracts and their reserves
      */
     function initialize(
@@ -205,7 +205,7 @@ interface IFxMintTicket721 is IToken {
         address _genArt721,
         address _redeemer,
         uint48 _gracePeriod,
-        string calldata _baseURI,
+        bytes calldata _baseURI,
         MintInfo[] calldata _mintInfo
     ) external;
 
@@ -321,9 +321,9 @@ interface IFxMintTicket721 is IToken {
 
     /**
      * @notice Sets the new URI of the token metadata
-     * @param _uri Base URI pointer of the metadata
+     * @param _uri Decoded content identifier of metadata pointer
      */
-    function setBaseURI(string calldata _uri) external;
+    function setBaseURI(bytes calldata _uri) external;
 
     /**
      * @notice Sets new price for given token

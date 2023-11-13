@@ -1,5 +1,5 @@
 # DutchAuction
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/ace7e57339c07ca2ed3c7a6bef724ed3baae64f8/src/minters/DutchAuction.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/709c3bd5035ed7a7acc4391ca2a42cf2ad71efed/src/minters/DutchAuction.sol)
 
 **Inherits:**
 [IDutchAuction](/src/interfaces/IDutchAuction.sol/interface.IDutchAuction.md), [Allowlist](/src/minters/extensions/Allowlist.sol/abstract.Allowlist.md), [MintPass](/src/minters/extensions/MintPass.sol/abstract.MintPass.md)

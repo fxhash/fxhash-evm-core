@@ -30,6 +30,9 @@ bytes32 constant SET_BASE_URI_TYPEHASH = keccak256("SetBaseURI(string uri)");
 bytes32 constant SET_CONTRACT_URI_TYPEHASH = keccak256("SetContractURI(string uri)");
 bytes32 constant SET_IMAGE_URI_TYPEHASH = keccak256("SetImageURI(string uri");
 
+// Metadata
+bytes constant IPFS_URL = hex"697066733a2f2f172c151325290607391d2c391b242225180a020b291b260929391d1b31222525202804120031280917120b280400";
+
 // Minters
 uint8 constant UNINITIALIZED = 0;
 uint8 constant FALSE = 1;

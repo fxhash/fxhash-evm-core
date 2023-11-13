@@ -1,5 +1,5 @@
 # IRoyaltyManager
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/ace7e57339c07ca2ed3c7a6bef724ed3baae64f8/src/interfaces/IRoyaltyManager.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/709c3bd5035ed7a7acc4391ca2a42cf2ad71efed/src/interfaces/IRoyaltyManager.sol)
 
 **Author:**
 fx(hash)
@@ -51,40 +51,6 @@ function royaltyInfo(uint256 _tokenId, uint256 _salePrice) external view returns
 |----|----|-----------|
 |`<none>`|`address`|receiver Address receiving royalties|
 |`<none>`|`uint256`|royaltyAmount Amount to royalties being paid out|
-
-
-### setBaseRoyalties
-
-Sets the base royalties for all tokens
-
-
-```solidity
-function setBaseRoyalties(address payable[] memory _receivers, uint96[] memory _basisPoints) external;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_receivers`|`address payable[]`|Array of addresses receiving royalties|
-|`_basisPoints`|`uint96[]`|Array of points used to calculate royalty payments (0.01% per receiver)|
-
-
-### setTokenRoyalties
-
-Sets the royalties for a specific token ID
-
-
-```solidity
-function setTokenRoyalties(uint256 _tokenId, address payable[] memory _receivers, uint96[] memory _basisPoints)
-    external;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_tokenId`|`uint256`|ID of the token|
-|`_receivers`|`address payable[]`|Array of addresses receiving royalties|
-|`_basisPoints`|`uint96[]`|Array of points used to calculate royalty payments (0.01% per receiver)|
 
 
 ## Events

@@ -9,6 +9,7 @@
 - [IFxMintTicket721](IFxMintTicket721.sol/interface.IFxMintTicket721.md)
 - [IFxRoleRegistry](IFxRoleRegistry.sol/interface.IFxRoleRegistry.md)
 - [IFxTicketFactory](IFxTicketFactory.sol/interface.IFxTicketFactory.md)
+- [IIPFSRenderer](IIPFSRenderer.sol/interface.IIPFSRenderer.md)
 - [IMinter](IMinter.sol/interface.IMinter.md)
 - [IPseudoRandomizer](IPseudoRandomizer.sol/interface.IPseudoRandomizer.md)
 - [IRandomizer](IRandomizer.sol/interface.IRandomizer.md)

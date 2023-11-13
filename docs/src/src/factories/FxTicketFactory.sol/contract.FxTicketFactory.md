@@ -1,5 +1,5 @@
 # FxTicketFactory
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/ace7e57339c07ca2ed3c7a6bef724ed3baae64f8/src/factories/FxTicketFactory.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/709c3bd5035ed7a7acc4391ca2a42cf2ad71efed/src/factories/FxTicketFactory.sol)
 
 **Inherits:**
 [IFxTicketFactory](/src/interfaces/IFxTicketFactory.sol/interface.IFxTicketFactory.md), Ownable
@@ -77,7 +77,7 @@ function createTicket(
     address _genArt721,
     address _redeemer,
     uint48 _gracePeriod,
-    string calldata _baseURI,
+    bytes calldata _baseURI,
     MintInfo[] calldata _mintInfo
 ) external returns (address mintTicket);
 ```
@@ -89,7 +89,7 @@ function createTicket(
 |`_genArt721`|`address`|Address of GenArt721 token contract|
 |`_redeemer`|`address`|Address of TicketRedeemer minter contract|
 |`_gracePeriod`|`uint48`|Duration of time before token enters harberger taxation|
-|`_baseURI`|`string`|Base URI of the token metadata|
+|`_baseURI`|`bytes`|Decoded content identifier of metadata pointer|
 |`_mintInfo`|`MintInfo[]`|Array of authorized minter contracts and their reserves|
 
 
