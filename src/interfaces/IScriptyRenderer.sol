@@ -15,6 +15,11 @@ interface IScriptyRenderer is IRenderer {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
+     * @inheritdoc IRenderer
+     */
+    function contractURI(string memory _defaultURI) external view returns (string memory);
+
+    /**
      * @notice Returns the address of ETHFSFileStorage contract
      */
     function ethfsFileStorage() external view returns (address);
@@ -32,6 +37,18 @@ interface IScriptyRenderer is IRenderer {
         bytes memory _fxParams,
         HTMLRequest memory _htmlRequest
     ) external view returns (bytes memory);
+
+    /**
+     * @notice Generates the image URI of a token ID
+     * @param _defaultURI Fallback URI
+     * @param _baseURI URI of the content identifier
+     * @param _tokenId ID of the token
+     */
+    function getImageURI(
+        string memory _defaultURI,
+        string memory _baseURI,
+        uint256 _tokenId
+    ) external view returns (string memory);
 
     /**
      * @notice Renders the token scripts onchain

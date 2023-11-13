@@ -14,6 +14,7 @@ import {IScriptyRenderer} from "src/interfaces/IScriptyRenderer.sol";
  * @dev See the documentation in {IScriptyRenderer}
  */
 contract ScriptyRenderer is IScriptyRenderer {
+    using Strings for uint160;
     using Strings for uint256;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -55,10 +56,18 @@ contract ScriptyRenderer is IScriptyRenderer {
     /**
      * @inheritdoc IScriptyRenderer
      */
+    function contractURI(string memory _defaultMetadataURI) external view returns (string memory) {
+        string memory contractAddr = uint160(msg.sender).toHexString(20);
+        return string.concat(_defaultMetadataURI, contractAddr, "/metadata.json");
+    }
+
+    /**
+     * @inheritdoc IScriptyRenderer
+     */
     function tokenURI(uint256 _tokenId, bytes calldata _data) external view returns (string memory) {
-        (MetadataInfo memory metadataInfo, GenArtInfo memory genArtInfo) = abi.decode(
+        (, MetadataInfo memory metadataInfo, GenArtInfo memory genArtInfo) = abi.decode(
             _data,
-            (MetadataInfo, GenArtInfo)
+            (string, MetadataInfo, GenArtInfo)
         );
         (HTMLRequest memory animation, HTMLRequest memory attributes) = abi.decode(
             metadataInfo.onchainData,
@@ -115,6 +124,22 @@ contract ScriptyRenderer is IScriptyRenderer {
         htmlRequest.bodyTags = bodyTags;
 
         return IScriptyBuilderV2(scriptyBuilder).getEncodedHTML(htmlRequest);
+    }
+
+    /**
+     * @dev IScriptyRenderer
+     */
+    function getImageURI(
+        string memory _defaultURI,
+        string memory _baseURI,
+        uint256 _tokenId
+    ) public view returns (string memory) {
+        string memory contractAddr = uint160(address(this)).toHexString(20);
+        string memory imageThumbnailURI = string.concat("/", _tokenId.toString(), "/thumbnail.json");
+        return
+            (bytes(_baseURI).length == 0)
+                ? string.concat(_defaultURI, contractAddr, imageThumbnailURI)
+                : string.concat(_baseURI, imageThumbnailURI);
     }
 
     /**

@@ -202,16 +202,6 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     function generateTypedDataHash(bytes32 _typeHash, string calldata _uri) external view returns (bytes32);
 
     /**
-     * @notice Returns the generated base URI for the given token ID
-     */
-    function getBaseURI(uint256 _tokenId) external view returns (string memory);
-
-    /**
-     * @notice Returns the generated image URI for the given token ID
-     */
-    function getImageURI(uint256 _tokenId) external view returns (string memory);
-
-    /**
      * @notice Initializes new generative art project
      * @param _owner Address of token proxy owner
      * @param _initInfo Initialization information set on project creation

@@ -9,7 +9,6 @@ import {Ownable} from "solady/src/auth/Ownable.sol";
 import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {RoyaltyManager} from "src/tokens/extensions/RoyaltyManager.sol";
 import {SignatureChecker} from "openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
-import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
 import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
 import {IERC4906} from "openzeppelin/contracts/interfaces/IERC4906.sol";
@@ -27,8 +26,6 @@ import "src/utils/Constants.sol";
  * @notice See the documentation in {IFxGenArt721}
  */
 contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, Ownable, Pausable, RoyaltyManager {
-    using Strings for uint160;
-    using Strings for uint256;
     using SignatureChecker for address;
     /*//////////////////////////////////////////////////////////////////////////
                                     STORAGE
@@ -341,8 +338,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      */
     function contractURI() external view returns (string memory) {
         (, , string memory defaultMetadataURI) = IFxContractRegistry(contractRegistry).configInfo();
-        string memory contractAddr = uint160(address(this)).toHexString(20);
-        return string.concat(defaultMetadataURI, contractAddr, "/metadata.json");
+        return IRenderer(renderer).contractURI(defaultMetadataURI);
     }
 
     /**
@@ -351,32 +347,6 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     function generateTypedDataHash(bytes32 _typeHash, string calldata _uri) public view returns (bytes32) {
         bytes32 structHash = keccak256(abi.encode(_typeHash, _uri));
         return _hashTypedDataV4(structHash);
-    }
-
-    /**
-     * @inheritdoc IFxGenArt721
-     */
-    function getBaseURI(uint256 _tokenId) public view returns (string memory) {
-        (, , string memory defaultMetadataURI) = IFxContractRegistry(contractRegistry).configInfo();
-        string memory contractAddr = uint160(address(this)).toHexString(20);
-        string memory jsonMetadataURI = string.concat("/", _tokenId.toString(), "/metadata.json");
-        return
-            (bytes(metadataInfo.baseURI).length == 0)
-                ? string.concat(defaultMetadataURI, contractAddr, jsonMetadataURI)
-                : string.concat(metadataInfo.baseURI, jsonMetadataURI);
-    }
-
-    /**
-     * @inheritdoc IFxGenArt721
-     */
-    function getImageURI(uint256 _tokenId) public view returns (string memory) {
-        (, , string memory defaultMetadataURI) = IFxContractRegistry(contractRegistry).configInfo();
-        string memory contractAddr = uint160(address(this)).toHexString(20);
-        string memory imageThumbnailURI = string.concat("/", _tokenId.toString(), "/thumbnail.json");
-        return
-            (bytes(metadataInfo.baseURI).length == 0)
-                ? string.concat(defaultMetadataURI, contractAddr, imageThumbnailURI)
-                : string.concat(metadataInfo.baseURI, imageThumbnailURI);
     }
 
     /**
@@ -414,7 +384,8 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      */
     function tokenURI(uint256 _tokenId) public view override returns (string memory) {
         _requireMinted(_tokenId);
-        bytes memory data = abi.encode(metadataInfo, genArtInfo[_tokenId]);
+        (, , string memory defaultMetadataURI) = IFxContractRegistry(contractRegistry).configInfo();
+        bytes memory data = abi.encode(defaultMetadataURI, metadataInfo, genArtInfo[_tokenId]);
         return IRenderer(renderer).tokenURI(_tokenId, data);
     }
 
