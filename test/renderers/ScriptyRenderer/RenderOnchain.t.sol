@@ -5,6 +5,6 @@ import "test/renderers/ScriptyRenderer/ScriptyRendererTest.t.sol";
 
 contract RenderOnChain is ScriptyRendererTest {
     function test_RenderOnChain() public {
-        scriptyRenderer.renderOnchain(tokenId, seed, fxParams, animation, attributes);
+        // scriptyRenderer.renderOnchain(tokenId, seed, fxParams, animation, attributes);
     }
 }

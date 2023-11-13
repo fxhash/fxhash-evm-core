@@ -296,9 +296,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function setBaseURI(bytes calldata _uri, bytes calldata _signature) external onlyRole(METADATA_ROLE) {
-        bytes32 digest = generateTypedDataHash(SET_BASE_URI_TYPEHASH, _uri);
-        _verifySignature(digest, _signature);
+    function setBaseURI(bytes calldata _uri) external onlyRole(METADATA_ROLE) {
         metadataInfo.baseURI = _uri;
         emit BaseURIUpdated(_uri);
         emit BatchMetadataUpdate(1, totalSupply);
@@ -339,14 +337,6 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     function contractURI() external view returns (string memory) {
         (, , string memory defaultMetadataURI) = IFxContractRegistry(contractRegistry).configInfo();
         return IRenderer(renderer).contractURI(defaultMetadataURI);
-    }
-
-    /**
-     * @inheritdoc IFxGenArt721
-     */
-    function generateTypedDataHash(bytes32 _typeHash, bytes calldata _uri) public view returns (bytes32) {
-        bytes32 structHash = keccak256(abi.encode(_typeHash, _uri));
-        return _hashTypedDataV4(structHash);
     }
 
     /**
@@ -473,13 +463,6 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      */
     function _isVerified(address _creator) internal view returns (bool) {
         return (IAccessControl(roleRegistry).hasRole(CREATOR_ROLE, _creator));
-    }
-
-    /**
-     * @dev Verifies creator signature for metadata updates
-     */
-    function _verifySignature(bytes32 _digest, bytes calldata _signature) internal view {
-        if (!owner().isValidSignatureNow(_digest, _signature)) revert NotOwner();
     }
 
     /**

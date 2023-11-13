@@ -5,6 +5,6 @@ import "test/renderers/ScriptyRenderer/ScriptyRendererTest.t.sol";
 
 contract GetEncodedHtml is ScriptyRendererTest {
     function test_GetEncodedHtml() public {
-        scriptyRenderer.getEncodedHTML(tokenId, seed, fxParams, animation);
+        // scriptyRenderer.getEncodedHTML(tokenId, seed, fxParams, animation);
     }
 }

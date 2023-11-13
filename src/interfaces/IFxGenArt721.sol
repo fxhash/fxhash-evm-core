@@ -194,14 +194,6 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     function genArtInfo(uint256 _tokenId) external view returns (bytes32, bytes memory);
 
     /**
-     * @notice Generates typed data hash for base URI
-     * @param _typeHash Hash of function selector and parameters
-     * @param _uri Decoded content identifier of metadata pointer
-     * @return Typed data hash
-     */
-    function generateTypedDataHash(bytes32 _typeHash, bytes calldata _uri) external view returns (bytes32);
-
-    /**
      * @notice Initializes new generative art project
      * @param _owner Address of token proxy owner
      * @param _initInfo Initialization information set on project creation
@@ -306,9 +298,8 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     /**
      * @notice Sets the new URI of the token metadata
      * @param _uri Decoded content identifier of metadata pointer
-     * @param _signature Signature of creator used to verify metadata update
      */
-    function setBaseURI(bytes calldata _uri, bytes calldata _signature) external;
+    function setBaseURI(bytes calldata _uri) external;
 
     /**
      * @notice Sets the new randomizer contract
