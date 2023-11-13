@@ -47,11 +47,10 @@ contract BaseTest is Deploy, Test {
     bytes internal signature;
 
     // Metadata
+    bytes internal baseURI;
     bytes internal fxParams;
     bytes internal onchainData;
     bytes32 internal seed;
-    string internal baseURI;
-    string internal imageURI;
     uint120 internal inputSize;
 
     // Project
@@ -188,8 +187,7 @@ contract BaseTest is Deploy, Test {
         basisPoints.push(ROYALTY_BPS * 2);
     }
 
-    function _configureProject(bool _onchain, bool _mintEnabled, uint120 _maxSupply) internal virtual {
-        projectInfo.onchain = _onchain;
+    function _configureProject(bool _mintEnabled, uint120 _maxSupply) internal virtual {
         projectInfo.mintEnabled = _mintEnabled;
         projectInfo.maxSupply = _maxSupply;
     }

@@ -1,5 +1,5 @@
 # Constants
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/ace7e57339c07ca2ed3c7a6bef724ed3baae64f8/src/utils/Constants.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/709c3bd5035ed7a7acc4391ca2a42cf2ad71efed/src/utils/Constants.sol)
 
 ### FX_CONTRACT_REGISTRY
 
@@ -104,6 +104,13 @@ bytes32 constant SET_CONTRACT_URI_TYPEHASH = keccak256("SetContractURI(string ur
 bytes32 constant SET_IMAGE_URI_TYPEHASH = keccak256("SetImageURI(string uri");
 ```
 
+### IPFS_URL
+
+```solidity
+bytes constant IPFS_URL =
+    hex"697066733a2f2f172c151325290607391d2c391b242225180a020b291b260929391d1b31222525202804120031280917120b280400";
+```
+
 ### UNINITIALIZED
 
 ```solidity
@@ -156,6 +163,12 @@ bytes32 constant BANNED_USER_ROLE = keccak256("BANNED_USER_ROLE");
 
 ```solidity
 bytes32 constant CREATOR_ROLE = keccak256("CREATOR_ROLE");
+```
+
+### METADATA_ROLE
+
+```solidity
+bytes32 constant METADATA_ROLE = keccak256("METADATA_ROLE");
 ```
 
 ### MINTER_ROLE

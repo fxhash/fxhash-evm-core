@@ -1,6 +1,7 @@
 
 
 # Contents
+- [LibIPFSEncoder](LibIPFSEncoder.sol/library.LibIPFSEncoder.md)
 - [AuctionInfo](Structs.sol/struct.AuctionInfo.md)
 - [ConfigInfo](Structs.sol/struct.ConfigInfo.md)
 - [GenArtInfo](Structs.sol/struct.GenArtInfo.md)

@@ -32,7 +32,7 @@ contract FxGenArt721Test is BaseTest {
         _mockMinter(admin);
         _configureSplits();
         _configureRoyalties();
-        _configureProject(ONCHAIN, MINT_ENABLED, MAX_SUPPLY);
+        _configureProject(MINT_ENABLED, MAX_SUPPLY);
         _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, abi.encode(PRICE));
         RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, minter);
         _createSplit();
@@ -59,7 +59,6 @@ contract FxGenArt721Test is BaseTest {
     function test_Initialize() public {
         _createProject();
         _setIssuerInfo();
-        assertTrue(project.onchain, "project not onchain");
         assertTrue(project.mintEnabled, "project not enabled");
         assertEq(project.maxSupply, MAX_SUPPLY, "max supply unequal");
         assertEq(primarySplits, primaryReceiver, "primary receiver not splits address");
@@ -94,12 +93,6 @@ contract FxGenArt721Test is BaseTest {
     }
 
     function _setMetadatInfo() internal {
-        (baseURI, imageURI, ) = IFxGenArt721(fxGenArtProxy).metadataInfo();
-    }
-
-    function _setSignature(bytes32 _typeHash, string memory _uri) internal {
-        digest = IFxGenArt721(fxGenArtProxy).generateTypedDataHash(_typeHash, _uri);
-        (v, r, s) = vm.sign(signerPk, digest);
-        signature = abi.encodePacked(r, s, v);
+        (baseURI, ) = IFxGenArt721(fxGenArtProxy).metadataInfo();
     }
 }
