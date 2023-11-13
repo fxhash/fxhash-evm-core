@@ -188,8 +188,7 @@ contract BaseTest is Deploy, Test {
         basisPoints.push(ROYALTY_BPS * 2);
     }
 
-    function _configureProject(bool _onchain, bool _mintEnabled, uint120 _maxSupply) internal virtual {
-        projectInfo.onchain = _onchain;
+    function _configureProject(bool _mintEnabled, uint120 _maxSupply) internal virtual {
         projectInfo.mintEnabled = _mintEnabled;
         projectInfo.maxSupply = _maxSupply;
     }

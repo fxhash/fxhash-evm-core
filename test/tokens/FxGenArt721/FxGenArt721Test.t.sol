@@ -32,7 +32,7 @@ contract FxGenArt721Test is BaseTest {
         _mockMinter(admin);
         _configureSplits();
         _configureRoyalties();
-        _configureProject(ONCHAIN, MINT_ENABLED, MAX_SUPPLY);
+        _configureProject(MINT_ENABLED, MAX_SUPPLY);
         _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, abi.encode(PRICE));
         RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, minter);
         _createSplit();
@@ -59,7 +59,6 @@ contract FxGenArt721Test is BaseTest {
     function test_Initialize() public {
         _createProject();
         _setIssuerInfo();
-        assertTrue(project.onchain, "project not onchain");
         assertTrue(project.mintEnabled, "project not enabled");
         assertEq(project.maxSupply, MAX_SUPPLY, "max supply unequal");
         assertEq(primarySplits, primaryReceiver, "primary receiver not splits address");

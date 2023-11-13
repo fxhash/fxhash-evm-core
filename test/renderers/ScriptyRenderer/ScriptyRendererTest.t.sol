@@ -19,8 +19,8 @@ contract ScriptyRendererTest is BaseTest {
 
     function setUp() public override {
         super.setUp();
-        goerliFork = vm.createFork("goerli");
-        vm.selectFork(goerliFork);
+        // goerliFork = vm.createFork("goerli");
+        // vm.selectFork(goerliFork);
         _configureOnchainData();
     }
 
