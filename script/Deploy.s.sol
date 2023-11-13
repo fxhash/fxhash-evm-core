@@ -17,7 +17,6 @@ import {DutchAuction} from "src/minters/DutchAuction.sol";
 import {FixedPrice} from "src/minters/FixedPrice.sol";
 import {PseudoRandomizer} from "src/randomizers/PseudoRandomizer.sol";
 import {ScriptyRenderer} from "src/renderers/ScriptyRenderer.sol";
-import {SplitsController} from "src/splits/SplitsController.sol";
 import {SplitsFactory} from "src/splits/SplitsFactory.sol";
 import {TicketRedeemer} from "src/minters/TicketRedeemer.sol";
 
@@ -38,7 +37,6 @@ contract Deploy is Script {
     FixedPrice internal fixedPrice;
     PseudoRandomizer internal pseudoRandomizer;
     ScriptyRenderer internal scriptyRenderer;
-    SplitsController internal splitsController;
     SplitsFactory internal splitsFactory;
     TicketRedeemer internal ticketRedeemer;
 
@@ -88,7 +86,6 @@ contract Deploy is Script {
         _deployContracts();
         _registerContracts();
         _grantRoles();
-        _setController();
         vm.stopBroadcast();
     }
 
@@ -180,11 +177,6 @@ contract Deploy is Script {
         constructorArgs = abi.encode(admin, splitsMain);
         splitsFactory = SplitsFactory(_deployCreate2(creationCode, constructorArgs, salt));
 
-        // SplitsController
-        creationCode = type(SplitsController).creationCode;
-        constructorArgs = abi.encode(splitsMain, splitsFactory, admin);
-        splitsController = SplitsController(_deployCreate2(creationCode, constructorArgs, salt));
-
         // PseudoRandomizer
         creationCode = type(PseudoRandomizer).creationCode;
         pseudoRandomizer = PseudoRandomizer(_deployCreate2(creationCode, salt));
@@ -210,7 +202,6 @@ contract Deploy is Script {
         vm.label(address(fixedPrice), "FixedPrice");
         vm.label(address(pseudoRandomizer), "PseudoRandomizer");
         vm.label(address(scriptyRenderer), "ScriptyRenderer");
-        vm.label(address(splitsController), "SplitsController");
         vm.label(address(splitsFactory), "SplitsFactory");
         vm.label(address(ticketRedeemer), "TicketRedeemer");
     }
@@ -253,15 +244,10 @@ contract Deploy is Script {
         contracts.push(address(fixedPrice));
         contracts.push(address(pseudoRandomizer));
         contracts.push(address(scriptyRenderer));
-        contracts.push(address(splitsController));
         contracts.push(address(splitsFactory));
         contracts.push(address(ticketRedeemer));
 
         fxContractRegistry.register(names, contracts);
-    }
-
-    function _setController() internal virtual {
-        splitsFactory.setController(address(splitsController));
     }
 
     /*//////////////////////////////////////////////////////////////////////////

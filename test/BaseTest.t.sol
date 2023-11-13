@@ -7,7 +7,6 @@ import "script/Deploy.s.sol";
 import {Allowlist} from "src/minters/extensions/Allowlist.sol";
 import {MintPass} from "src/minters/extensions/MintPass.sol";
 import {MockMinter} from "test/mocks/MockMinter.sol";
-import {MockSplitsController} from "test/mocks/MockSplitsController.sol";
 import {RegistryLib} from "test/lib/helpers/RegistryLib.sol";
 import {StandardMerkleTree} from "test/utils/StandardMerkleTree.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
