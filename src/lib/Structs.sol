@@ -73,13 +73,11 @@ struct IssuerInfo {
 
 /**
  * @notice Struct of metadata information
- * - `baseURI` CID hash of token metadata
- * - `imageURI` CID hash of token images
+ * - `baseURI` URI of content identifier for token metadata
  * - `onchainData` Bytes-encoded data rendered onchain
  */
 struct MetadataInfo {
     string baseURI;
-    string imageURI;
     bytes onchainData;
 }
 

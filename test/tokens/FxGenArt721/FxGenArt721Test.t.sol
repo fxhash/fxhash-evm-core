@@ -94,7 +94,7 @@ contract FxGenArt721Test is BaseTest {
     }
 
     function _setMetadatInfo() internal {
-        (baseURI, imageURI, ) = IFxGenArt721(fxGenArtProxy).metadataInfo();
+        (baseURI, ) = IFxGenArt721(fxGenArtProxy).metadataInfo();
     }
 
     function _setSignature(bytes32 _typeHash, string memory _uri) internal {

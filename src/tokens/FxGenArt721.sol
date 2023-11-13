@@ -307,16 +307,6 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         emit BatchMetadataUpdate(1, totalSupply);
     }
 
-    /**
-     * @inheritdoc IFxGenArt721
-     */
-    function setImageURI(string calldata _uri, bytes calldata _signature) external onlyRole(METADATA_ROLE) {
-        bytes32 digest = generateTypedDataHash(SET_IMAGE_URI_TYPEHASH, _uri);
-        _verifySignature(digest, _signature);
-        metadataInfo.imageURI = _uri;
-        emit ImageURIUpdated(_uri);
-    }
-
     /*//////////////////////////////////////////////////////////////////////////
                                 MODERATOR FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -352,7 +342,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     function contractURI() external view returns (string memory) {
         (, , string memory defaultMetadataURI) = IFxContractRegistry(contractRegistry).configInfo();
         string memory contractAddr = uint160(address(this)).toHexString(20);
-        return string.concat(defaultMetadataURI, "contract/", contractAddr);
+        return string.concat(defaultMetadataURI, contractAddr, "/metadata.json");
     }
 
     /**
@@ -366,27 +356,27 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function getBaseURI() public view returns (string memory) {
-        if (bytes(metadataInfo.baseURI).length == 0) {
-            (, , string memory defaultMetadataURI) = IFxContractRegistry(contractRegistry).configInfo();
-            string memory contractAddr = uint160(address(this)).toHexString(20);
-            return string.concat(defaultMetadataURI, "base/", contractAddr);
-        } else {
-            return metadataInfo.baseURI;
-        }
+    function getBaseURI(uint256 _tokenId) public view returns (string memory) {
+        (, , string memory defaultMetadataURI) = IFxContractRegistry(contractRegistry).configInfo();
+        string memory contractAddr = uint160(address(this)).toHexString(20);
+        string memory jsonMetadataURI = string.concat("/", _tokenId.toString(), "/metadata.json");
+        return
+            (bytes(metadataInfo.baseURI).length == 0)
+                ? string.concat(defaultMetadataURI, contractAddr, jsonMetadataURI)
+                : string.concat(metadataInfo.baseURI, jsonMetadataURI);
     }
 
     /**
      * @inheritdoc IFxGenArt721
      */
-    function getImageURI() public view returns (string memory) {
-        if (bytes(metadataInfo.imageURI).length == 0) {
-            (, , string memory defaultMetadataURI) = IFxContractRegistry(contractRegistry).configInfo();
-            string memory contractAddr = uint160(address(this)).toHexString(20);
-            return string.concat(defaultMetadataURI, "image/", contractAddr);
-        } else {
-            return metadataInfo.imageURI;
-        }
+    function getImageURI(uint256 _tokenId) public view returns (string memory) {
+        (, , string memory defaultMetadataURI) = IFxContractRegistry(contractRegistry).configInfo();
+        string memory contractAddr = uint160(address(this)).toHexString(20);
+        string memory imageThumbnailURI = string.concat("/", _tokenId.toString(), "/thumbnail.json");
+        return
+            (bytes(metadataInfo.baseURI).length == 0)
+                ? string.concat(defaultMetadataURI, contractAddr, imageThumbnailURI)
+                : string.concat(metadataInfo.baseURI, imageThumbnailURI);
     }
 
     /**
@@ -424,7 +414,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      */
     function tokenURI(uint256 _tokenId) public view override returns (string memory) {
         _requireMinted(_tokenId);
-        bytes memory data = abi.encode(issuerInfo.projectInfo, metadataInfo, genArtInfo[_tokenId]);
+        bytes memory data = abi.encode(metadataInfo, genArtInfo[_tokenId]);
         return IRenderer(renderer).tokenURI(_tokenId, data);
     }
 

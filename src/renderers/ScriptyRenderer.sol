@@ -4,7 +4,7 @@ pragma solidity 0.8.20;
 import {Base64} from "openzeppelin/contracts/utils/Base64.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
-import {GenArtInfo, MetadataInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
+import {GenArtInfo, MetadataInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IScriptyBuilderV2, HTMLRequest, HTMLTagType, HTMLTag} from "scripty.sol/contracts/scripty/interfaces/IScriptyBuilderV2.sol";
 import {IScriptyRenderer} from "src/interfaces/IScriptyRenderer.sol";
 
@@ -56,29 +56,17 @@ contract ScriptyRenderer is IScriptyRenderer {
      * @inheritdoc IScriptyRenderer
      */
     function tokenURI(uint256 _tokenId, bytes calldata _data) external view returns (string memory) {
-        (ProjectInfo memory projectInfo, MetadataInfo memory metadataInfo, GenArtInfo memory genArtInfo) = abi.decode(
+        (MetadataInfo memory metadataInfo, GenArtInfo memory genArtInfo) = abi.decode(
             _data,
-            (ProjectInfo, MetadataInfo, GenArtInfo)
+            (MetadataInfo, GenArtInfo)
         );
+        (HTMLRequest memory animation, HTMLRequest memory attributes) = abi.decode(
+            metadataInfo.onchainData,
+            (HTMLRequest, HTMLRequest)
+        );
+        bytes memory onchainData = renderOnchain(_tokenId, genArtInfo.seed, genArtInfo.fxParams, animation, attributes);
 
-        if (!projectInfo.onchain) {
-            string memory baseURI = metadataInfo.baseURI;
-            return string.concat(baseURI, _tokenId.toString());
-        } else {
-            (HTMLRequest memory animation, HTMLRequest memory attributes) = abi.decode(
-                metadataInfo.onchainData,
-                (HTMLRequest, HTMLRequest)
-            );
-            bytes memory onchainData = renderOnchain(
-                _tokenId,
-                genArtInfo.seed,
-                genArtInfo.fxParams,
-                animation,
-                attributes
-            );
-
-            return string(abi.encodePacked("data:application/json;base64,", Base64.encode(onchainData)));
-        }
+        return string(abi.encodePacked("data:application/json;base64,", Base64.encode(onchainData)));
     }
 
     /*//////////////////////////////////////////////////////////////////////////

@@ -202,14 +202,14 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     function generateTypedDataHash(bytes32 _typeHash, string calldata _uri) external view returns (bytes32);
 
     /**
-     * @notice Returns the generated baseURI
+     * @notice Returns the generated base URI for the given token ID
      */
-    function getBaseURI() external view returns (string memory);
+    function getBaseURI(uint256 _tokenId) external view returns (string memory);
 
     /**
-     * @notice Returns the generated imageURI
+     * @notice Returns the generated image URI for the given token ID
      */
-    function getImageURI() external view returns (string memory);
+    function getImageURI(uint256 _tokenId) external view returns (string memory);
 
     /**
      * @notice Initializes new generative art project
@@ -244,9 +244,9 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     function issuerInfo() external view returns (address, ProjectInfo memory);
 
     /**
-     * @notice Returns the metadata information of the project (baseURI, imageURI, onchainData)
+     * @notice Returns the metadata information of the project (baseURI, onchainData)
      */
-    function metadataInfo() external view returns (string memory, string memory, bytes memory);
+    function metadataInfo() external view returns (string memory, bytes memory);
 
     /**
      * @inheritdoc IToken
@@ -319,13 +319,6 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @param _signature Signature of creator used to verify metadata update
      */
     function setBaseURI(string calldata _uri, bytes calldata _signature) external;
-
-    /**
-     * @notice Sets the new URI of the image metadata
-     * @param _uri Image URI pointer
-     * @param _signature Signature of creator used to verify metadata update
-     */
-    function setImageURI(string calldata _uri, bytes calldata _signature) external;
 
     /**
      * @notice Sets the new randomizer contract
