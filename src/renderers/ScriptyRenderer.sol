@@ -76,15 +76,21 @@ contract ScriptyRenderer is IScriptyRenderer {
         );
         string memory baseURI = LibIPFSEncoder.encodeURL(bytes32(metadataInfo.baseURI));
         string memory imageURI = getImageURI(msg.sender, defaultURI, baseURI, _tokenId);
-        bytes memory animationURI = renderOnchain(
-            _tokenId,
-            genArtInfo.seed,
-            genArtInfo.fxParams,
-            animation,
-            attributes
-        );
+        bytes memory animationURI = getEncodedHTML(_tokenId, genArtInfo.seed, genArtInfo.fxParams, animation);
+        bytes memory attributesList = getEncodedHTML(_tokenId, genArtInfo.seed, genArtInfo.fxParams, attributes);
 
-        return string(abi.encodePacked("data:application/json;base64,", Base64.encode(animationURI)));
+        return
+            string(
+                abi.encodePacked(
+                    '"image":"',
+                    imageURI,
+                    '"animation_url":"',
+                    string(abi.encodePacked("data:application/json;base64,", Base64.encode(animationURI))),
+                    '", "attributes":["',
+                    string(abi.encodePacked(Base64.encode(attributesList))),
+                    '"]}'
+                )
+            );
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -150,21 +156,6 @@ contract ScriptyRenderer is IScriptyRenderer {
             (bytes(_baseURI).length == 0)
                 ? string.concat(_defaultURI, contractAddr, imageThumbnailURI)
                 : string.concat(_baseURI, imageThumbnailURI);
-    }
-
-    /**
-     * @inheritdoc IScriptyRenderer
-     */
-    function renderOnchain(
-        uint256 _tokenId,
-        bytes32 _seed,
-        bytes memory _fxParams,
-        HTMLRequest memory _animation,
-        HTMLRequest memory _attributes
-    ) public view returns (bytes memory) {
-        bytes memory animation = getEncodedHTML(_tokenId, _seed, _fxParams, _animation);
-        bytes memory attributes = getEncodedHTML(_tokenId, _seed, _fxParams, _attributes);
-        return abi.encodePacked('"animation_url":"', animation, '", "attributes":["', attributes, '"]}');
     }
 
     /*//////////////////////////////////////////////////////////////////////////
