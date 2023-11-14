@@ -11,12 +11,12 @@ contract SetRendererTest is FxGenArt721Test {
     }
 
     function test_SetRenderer() public {
-        TokenLib.setRenderer(admin, fxGenArtProxy, address(scriptyRenderer));
-        assertEq(IFxGenArt721(fxGenArtProxy).renderer(), address(scriptyRenderer));
+        TokenLib.setRenderer(admin, fxGenArtProxy, address(ipfsRenderer));
+        assertEq(IFxGenArt721(fxGenArtProxy).renderer(), address(ipfsRenderer));
     }
 
     function test_SetRenderer_RevertsWhen_UnauthorizedAccount() public {
         vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
-        TokenLib.setRenderer(creator, fxGenArtProxy, address(scriptyRenderer));
+        TokenLib.setRenderer(creator, fxGenArtProxy, address(ipfsRenderer));
     }
 }
