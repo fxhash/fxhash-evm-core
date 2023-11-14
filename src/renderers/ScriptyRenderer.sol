@@ -143,7 +143,7 @@ contract ScriptyRenderer is IScriptyRenderer {
         string memory _defaultURI,
         string memory _baseURI,
         uint256 _tokenId
-    ) public view returns (string memory) {
+    ) public pure returns (string memory) {
         string memory contractAddr = uint160(_contractAddr).toHexString(20);
         string memory imageThumbnailURI = string.concat("/", _tokenId.toString(), "/thumbnail.json");
         return

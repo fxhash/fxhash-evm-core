@@ -52,7 +52,7 @@ contract IPFSRenderer is IIPFSRenderer {
         string memory _defaultURI,
         string memory _baseURI,
         uint256 _tokenId
-    ) public view returns (string memory) {
+    ) public pure returns (string memory) {
         string memory contractAddr = uint160(_contractAddr).toHexString(20);
         string memory jsonMetadataURI = string.concat("/", _tokenId.toString(), "/metadata.json");
         return

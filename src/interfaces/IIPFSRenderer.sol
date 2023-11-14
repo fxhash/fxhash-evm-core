@@ -31,7 +31,7 @@ interface IIPFSRenderer is IRenderer {
         string memory _defaultURI,
         string memory _baseURI,
         uint256 _tokenId
-    ) external view returns (string memory);
+    ) external pure returns (string memory);
 
     /**
      * @inheritdoc IRenderer
