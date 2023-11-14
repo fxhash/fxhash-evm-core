@@ -5,6 +5,6 @@ import "test/renderers/ScriptyRenderer/ScriptyRendererTest.t.sol";
 
 contract GetImageURI is ScriptyRendererTest {
     function test_GetImageURI() public {
-        // scriptyRenderer.getImageURI(defaultURI, baseURI, tokenId);
+        // scriptyRenderer.getImageURI(fxGenArtProxy, defaultURI, baseURI, tokenId);
     }
 }

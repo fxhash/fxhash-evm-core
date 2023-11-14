@@ -75,7 +75,7 @@ contract ScriptyRenderer is IScriptyRenderer {
             (HTMLRequest, HTMLRequest)
         );
         string memory baseURI = LibIPFSEncoder.encodeURL(bytes32(metadataInfo.baseURI));
-        string memory imageURI = getImageURI(defaultURI, baseURI, _tokenId);
+        string memory imageURI = getImageURI(msg.sender, defaultURI, baseURI, _tokenId);
         bytes memory animationURI = renderOnchain(
             _tokenId,
             genArtInfo.seed,
@@ -139,11 +139,12 @@ contract ScriptyRenderer is IScriptyRenderer {
      * @dev IScriptyRenderer
      */
     function getImageURI(
+        address _contractAddr,
         string memory _defaultURI,
         string memory _baseURI,
         uint256 _tokenId
     ) public view returns (string memory) {
-        string memory contractAddr = uint160(address(this)).toHexString(20);
+        string memory contractAddr = uint160(_contractAddr).toHexString(20);
         string memory imageThumbnailURI = string.concat("/", _tokenId.toString(), "/thumbnail.json");
         return
             (bytes(_baseURI).length == 0)

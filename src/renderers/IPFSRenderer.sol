@@ -37,7 +37,7 @@ contract IPFSRenderer is IIPFSRenderer {
             (string, MetadataInfo, GenArtInfo)
         );
         string memory baseURI = LibIPFSEncoder.encodeURL(bytes32(metadataInfo.baseURI));
-        return getMetadataURI(defaultURI, baseURI, _tokenId);
+        return getMetadataURI(msg.sender, defaultURI, baseURI, _tokenId);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -48,11 +48,12 @@ contract IPFSRenderer is IIPFSRenderer {
      * @inheritdoc IIPFSRenderer
      */
     function getMetadataURI(
+        address _contractAddr,
         string memory _defaultURI,
         string memory _baseURI,
         uint256 _tokenId
     ) public view returns (string memory) {
-        string memory contractAddr = uint160(address(this)).toHexString(20);
+        string memory contractAddr = uint160(_contractAddr).toHexString(20);
         string memory jsonMetadataURI = string.concat("/", _tokenId.toString(), "/metadata.json");
         return
             (bytes(_baseURI).length == 0)
