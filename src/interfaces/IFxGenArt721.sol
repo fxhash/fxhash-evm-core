@@ -29,12 +29,6 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     event BurnEnabled(bool indexed _enabled);
 
     /**
-     * @notice Event emitted when the image URI is updated
-     * @param _uri URI of the image thumbnail
-     */
-    event ImageURIUpdated(string _uri);
-
-    /**
      * @notice Event emitted when minted is toggled
      * @param _enabled Flag status of mint
      */
@@ -76,6 +70,12 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @param _renderer Address of new Renderer contract
      */
     event RendererUpdated(address indexed _renderer);
+
+    /**
+     * @notice Event emitted when onchain data of project is updated
+     * @param _data Bytes-encoded metadata
+     */
+    event OnchainDataUpdated(bytes _data);
 
     /**
      * @notice Event emitted when maximum supply is reduced
@@ -300,6 +300,13 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @param _uri Decoded content identifier of metadata pointer
      */
     function setBaseURI(bytes calldata _uri) external;
+
+    /**
+     * @notice Sets the new onchain data of the project
+     * @param _data Bytes-encoded metadata
+     * @param _signature Signature of creator used to verify metadata update
+     */
+    function setOnchainData(bytes calldata _data, bytes calldata _signature) external;
 
     /**
      * @notice Sets the new randomizer contract
