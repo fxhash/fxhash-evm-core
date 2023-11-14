@@ -8,8 +8,6 @@ import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
 import {IFxGenArt721, InitInfo, MetadataInfo, MintInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxIssuerFactory} from "src/interfaces/IFxIssuerFactory.sol";
 
-import {BANNED_USER_ROLE} from "src/utils/Constants.sol";
-
 /**
  * @title FxIssuerFactory
  * @author fx(hash)
