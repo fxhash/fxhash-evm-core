@@ -194,6 +194,13 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     function genArtInfo(uint256 _tokenId) external view returns (bytes32, bytes memory);
 
     /**
+     * @notice Generates typed data hash for setting project metadata onchain
+     * @param _data Bytes-encoded onchain data
+     * @return Typed data hash
+     */
+    function generateOnchainDataHash(bytes calldata _data) external view returns (bytes32);
+
+    /**
      * @notice Initializes new generative art project
      * @param _owner Address of token proxy owner
      * @param _initInfo Initialization information set on project creation
