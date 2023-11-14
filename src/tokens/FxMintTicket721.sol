@@ -25,6 +25,7 @@ import "src/utils/Constants.sol";
  * @notice See the documentation in {IFxMintTicket721}
  */
 contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, Ownable, Pausable {
+    using Strings for uint160;
     using Strings for uint256;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -410,14 +411,6 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
     }
 
     /**
-     * @inheritdoc ERC721
-     */
-    function tokenURI(uint256 _tokenId) public view override returns (string memory) {
-        _requireMinted(_tokenId);
-        return string.concat(LibIPFSEncoder.encodeURL(bytes32(baseURI)), "/", _tokenId.toString());
-    }
-
-    /**
      * @inheritdoc IFxMintTicket721
      */
     function getAuctionPrice(uint256 _currentPrice, uint256 _foreclosureTime) public view returns (uint256) {
@@ -493,6 +486,16 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
      */
     function getTaxDuration(uint256 _taxPayment, uint256 _dailyTax) public pure returns (uint256) {
         return (_taxPayment * ONE_DAY) / _dailyTax;
+    }
+
+    /**
+     * @inheritdoc ERC721
+     */
+    function tokenURI(uint256 _tokenId) public view override returns (string memory) {
+        _requireMinted(_tokenId);
+        string memory encodedURI = LibIPFSEncoder.encodeURL(bytes32(baseURI));
+        string memory contractAddr = uint160(address(this)).toHexString(20);
+        return string.concat(encodedURI, "/", contractAddr, "/", _tokenId.toString(), "/metadata.json");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
