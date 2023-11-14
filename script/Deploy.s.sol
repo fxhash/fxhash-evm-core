@@ -15,6 +15,7 @@ import {FxTicketFactory} from "src/factories/FxTicketFactory.sol";
 
 import {DutchAuction} from "src/minters/DutchAuction.sol";
 import {FixedPrice} from "src/minters/FixedPrice.sol";
+import {IPFSRenderer} from "src/renderers/IPFSRenderer.sol";
 import {PseudoRandomizer} from "src/randomizers/PseudoRandomizer.sol";
 import {ScriptyRenderer} from "src/renderers/ScriptyRenderer.sol";
 import {SplitsFactory} from "src/splits/SplitsFactory.sol";
@@ -35,6 +36,7 @@ contract Deploy is Script {
     // Periphery
     DutchAuction internal dutchAuction;
     FixedPrice internal fixedPrice;
+    IPFSRenderer internal ipfsRenderer;
     PseudoRandomizer internal pseudoRandomizer;
     ScriptyRenderer internal scriptyRenderer;
     SplitsFactory internal splitsFactory;
@@ -181,6 +183,10 @@ contract Deploy is Script {
         creationCode = type(PseudoRandomizer).creationCode;
         pseudoRandomizer = PseudoRandomizer(_deployCreate2(creationCode, salt));
 
+        // IPFSRenderer
+        creationCode = type(IPFSRenderer).creationCode;
+        ipfsRenderer = IPFSRenderer(_deployCreate2(creationCode, salt));
+
         // ScriptyRenderer
         creationCode = type(ScriptyRenderer).creationCode;
         constructorArgs = abi.encode(ethFSFileStorage, scriptyStorageV2, scriptyBuilderV2);
@@ -200,6 +206,7 @@ contract Deploy is Script {
 
         vm.label(address(dutchAuction), "DutchAuction");
         vm.label(address(fixedPrice), "FixedPrice");
+        vm.label(address(ipfsRenderer), "IPFSRenderer");
         vm.label(address(pseudoRandomizer), "PseudoRandomizer");
         vm.label(address(scriptyRenderer), "ScriptyRenderer");
         vm.label(address(splitsFactory), "SplitsFactory");
@@ -227,6 +234,7 @@ contract Deploy is Script {
 
         names.push(DUTCH_AUCTION);
         names.push(FIXED_PRICE);
+        names.push(IPFS_RENDERER);
         names.push(PSEUDO_RANDOMIZER);
         names.push(SCRIPTY_RENDERER);
         names.push(SPLITS_FACTORY);
@@ -241,6 +249,7 @@ contract Deploy is Script {
 
         contracts.push(address(dutchAuction));
         contracts.push(address(fixedPrice));
+        contracts.push(address(ipfsRenderer));
         contracts.push(address(pseudoRandomizer));
         contracts.push(address(scriptyRenderer));
         contracts.push(address(splitsFactory));

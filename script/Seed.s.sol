@@ -21,7 +21,7 @@ contract Seed is BaseTest {
     function _initializeProject() internal {
         _configureRoyalties();
         _configureProject(MINT_ENABLED, MAX_SUPPLY);
-        _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(scriptyRenderer), tagIds);
+        _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(ipfsRenderer), tagIds);
     }
 
     function _initializeMinter() internal {
