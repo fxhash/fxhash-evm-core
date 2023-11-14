@@ -43,9 +43,9 @@ interface IScriptyRenderer is IRenderer {
      * @param _defaultURI Fallback URI
      * @param _baseURI URI of the content identifier
      * @param _tokenId ID of the token
-     * @return URI of the image thumbnail in string format
+     * @return URI of the image thumbnail
      */
-    function imageURI(
+    function getImageURI(
         string memory _defaultURI,
         string memory _baseURI,
         uint256 _tokenId

@@ -23,9 +23,9 @@ interface IIPFSRenderer is IRenderer {
      * @param _defaultURI Fallback URI
      * @param _baseURI URI of the content identifier
      * @param _tokenId ID of the token
-     * @return URI of the JSON metadata in string format
+     * @return URI of the JSON metadata
      */
-    function metadataURI(
+    function getMetadataURI(
         string memory _defaultURI,
         string memory _baseURI,
         uint256 _tokenId
