@@ -15,13 +15,13 @@ contract SetOnchainDataTest is FxGenArt721Test {
 
     function test_SetOnchainData() public {
         _setOnchainDataSignature(ONCHAIN_DATA);
-        TokenLib.setBaseURI(admin, fxGenArtProxy, ONCHAIN_DATA);
+        TokenLib.setOnchainData(admin, fxGenArtProxy, ONCHAIN_DATA, signature);
         _setMetadatInfo();
         assertEq(onchainData, ONCHAIN_DATA);
     }
 
     function test_RevertsWhen_UnauthorizedAccount() public {
         vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
-        TokenLib.setBaseURI(creator, fxGenArtProxy, ONCHAIN_DATA);
+        TokenLib.setOnchainData(creator, fxGenArtProxy, ONCHAIN_DATA, signature);
     }
 }
