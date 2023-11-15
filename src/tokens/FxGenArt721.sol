@@ -95,7 +95,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      * @dev Modifier for restricting calls to only registered minters
      */
     modifier onlyMinter() {
-        if (isMinter(msg.sender) != TRUE) revert UnregisteredMinter();
+        if (!isMinter(msg.sender)) revert UnregisteredMinter();
         _;
     }
 
@@ -361,8 +361,8 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function isMinter(address _minter) public view returns (uint8) {
-        return issuerInfo.minters[_minter];
+    function isMinter(address _minter) public view returns (bool) {
+        return issuerInfo.minters[_minter] == TRUE;
     }
 
     /**

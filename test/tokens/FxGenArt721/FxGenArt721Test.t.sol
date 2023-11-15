@@ -63,7 +63,7 @@ contract FxGenArt721Test is BaseTest {
         assertEq(project.maxSupply, MAX_SUPPLY, "max supply unequal");
         assertEq(primarySplits, primaryReceiver, "primary receiver not splits address");
         assertEq(FxGenArt721(fxGenArtProxy).owner(), creator, "owner isn't creator");
-        assertEq(IFxGenArt721(fxGenArtProxy).isMinter(minter), TRUE, "minter isn't approved minter");
+        assertEq(IFxGenArt721(fxGenArtProxy).isMinter(minter), true, "minter isn't approved minter");
     }
 
     function test_Initialize_RevertsWhen_InvalidStartTime() public {

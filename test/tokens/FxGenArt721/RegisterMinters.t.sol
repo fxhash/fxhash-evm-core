@@ -11,8 +11,8 @@ contract RegisterMintersTest is FxGenArt721Test {
     }
 
     function test_RegisterMinters() public {
-        assertEq(TokenLib.isMinter(fxGenArtProxy, minter), TRUE);
-        assertEq(TokenLib.isMinter(fxGenArtProxy, address(fixedPrice)), UNINITIALIZED);
+        assertEq(TokenLib.isMinter(fxGenArtProxy, minter), true);
+        assertEq(TokenLib.isMinter(fxGenArtProxy, address(fixedPrice)), false);
         delete mintInfo;
         _configureMinter(
             address(fixedPrice),
@@ -24,8 +24,8 @@ contract RegisterMintersTest is FxGenArt721Test {
         RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, address(fixedPrice));
         TokenLib.toggleMint(creator, fxGenArtProxy);
         TokenLib.registerMinters(creator, fxGenArtProxy, mintInfo);
-        assertEq(TokenLib.isMinter(fxGenArtProxy, minter), FALSE);
-        assertEq(TokenLib.isMinter(fxGenArtProxy, address(fixedPrice)), TRUE);
+        assertEq(TokenLib.isMinter(fxGenArtProxy, minter), false);
+        assertEq(TokenLib.isMinter(fxGenArtProxy, address(fixedPrice)), true);
     }
 
     function test_RevertsWhen_MintActive() public {
