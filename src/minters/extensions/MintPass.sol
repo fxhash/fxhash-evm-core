@@ -15,15 +15,19 @@ import {CLAIM_TYPEHASH} from "src/utils/Constants.sol";
 abstract contract MintPass is EIP712 {
     using SignatureChecker for address;
 
-    /**
-     * @notice Mapping of token address to reserve ID to address of mint pass authority
-     */
-    mapping(address => mapping(uint256 => address)) public signingAuthorities;
+    /*//////////////////////////////////////////////////////////////////////////
+                                    STORAGE
+    //////////////////////////////////////////////////////////////////////////*/
 
     /**
      * @notice Mapping of token address to reserve ID to reserve nonce
      */
     mapping(address => mapping(uint256 => uint256)) public reserveNonce;
+
+    /**
+     * @notice Mapping of token address to reserve ID to address of mint pass authority
+     */
+    mapping(address => mapping(uint256 => address)) public signingAuthorities;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     EVENTS

@@ -17,13 +17,13 @@ contract ReduceSupplyTest is FxGenArt721Test {
         assertEq(project.maxSupply, maxSupply);
     }
 
-    function test_ReduceSupply_RevertsWhen_OverSupplyAmount() public {
+    function test_RevertsWhen_OverSupplyAmount() public {
         maxSupply = MAX_SUPPLY + 1;
         vm.expectRevert(INVALID_AMOUNT_ERROR);
         TokenLib.reduceSupply(creator, fxGenArtProxy, maxSupply);
     }
 
-    function test_ReduceSupply_RevertsWhen_UnderSupplyAmount() public {
+    function test_RevertsWhen_UnderSupplyAmount() public {
         maxSupply = 0;
         TokenLib.ownerMint(creator, fxGenArtProxy, alice);
         vm.expectRevert(INVALID_AMOUNT_ERROR);

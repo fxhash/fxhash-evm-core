@@ -28,7 +28,7 @@ contract RegisterMintersTest is FxGenArt721Test {
         assertEq(TokenLib.isMinter(fxGenArtProxy, address(fixedPrice)), TRUE);
     }
 
-    function test_RegisterMinters_RevertsWhen_MintActive() public {
+    function test_RevertsWhen_MintActive() public {
         delete mintInfo;
         _configureMinter(
             address(fixedPrice),

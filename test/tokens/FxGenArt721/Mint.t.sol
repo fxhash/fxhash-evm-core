@@ -21,13 +21,13 @@ contract MintTest is FxGenArt721Test {
         assertEq(IFxGenArt721(fxGenArtProxy).remainingSupply(), MAX_SUPPLY - amount);
     }
 
-    function test_Mint_RevertsWhen_MintInactive() public {
+    function test_RevertsWhen_MintInactive() public {
         TokenLib.toggleMint(creator, fxGenArtProxy);
         vm.expectRevert(MINT_INACTIVE_ERROR);
         TokenLib.mint(alice, minter, fxGenArtProxy, bob, amount, PRICE);
     }
 
-    function test_Mint_RevertsWhen_UnregisteredMinter() public {
+    function test_RevertsWhen_UnregisteredMinter() public {
         vm.expectRevert(UNREGISTERED_MINTER_ERROR);
         IFxGenArt721(fxGenArtProxy).mint(alice, amount, PRICE);
     }

@@ -8,8 +8,6 @@ import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
 import {IFxGenArt721, InitInfo, MetadataInfo, MintInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxIssuerFactory} from "src/interfaces/IFxIssuerFactory.sol";
 
-import {BANNED_USER_ROLE} from "src/utils/Constants.sol";
-
 /**
  * @title FxIssuerFactory
  * @author fx(hash)
@@ -41,18 +39,6 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     mapping(uint96 => address) public projects;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                    MODIFIERS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /**
-     * @dev Modifier for checking if user is banned from system
-     */
-    modifier isBanned(address _user) {
-        if (IAccessControl(roleRegistry).hasRole(BANNED_USER_ROLE, _user)) revert NotAuthorized();
-        _;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -80,7 +66,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
         MintInfo[] calldata _mintInfo,
         address payable[] calldata _royaltyReceivers,
         uint96[] calldata _basisPoints
-    ) external isBanned(_owner) returns (address genArtToken) {
+    ) external returns (address genArtToken) {
         if (_owner == address(0)) revert InvalidOwner();
         if (_initInfo.primaryReceiver == address(0)) revert InvalidPrimaryReceiver();
         if (_initInfo.randomizer == address(0) && _projectInfo.inputSize == 0) revert InvalidInputSize();
