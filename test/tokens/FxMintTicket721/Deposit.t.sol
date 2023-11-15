@@ -17,7 +17,7 @@ contract Deposit is FxMintTicket721Test {
         assertEq(depositAmount, DEPOSIT_AMOUNT);
     }
 
-    function test_ExcessAmount() public {
+    function test_Depoist_ExcessAmount() public {
         TicketLib.deposit(bob, fxMintTicketProxy, tokenId, DEPOSIT_AMOUNT + excessAmount);
         _setTaxInfo();
         assertEq(foreclosureTime, block.timestamp + (ONE_DAY * 2));
