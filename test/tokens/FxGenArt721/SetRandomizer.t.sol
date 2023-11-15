@@ -15,7 +15,7 @@ contract SetRandomizerTest is FxGenArt721Test {
         assertEq(IFxGenArt721(fxGenArtProxy).randomizer(), address(pseudoRandomizer));
     }
 
-    function test_SetRandomizer_RevertsWhen_NotAuthorized() public {
+    function test_RevertsWhen_NotAuthorized() public {
         vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
         TokenLib.setRandomizer(creator, fxGenArtProxy, address(pseudoRandomizer));
     }

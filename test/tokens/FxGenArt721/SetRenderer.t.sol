@@ -15,7 +15,7 @@ contract SetRendererTest is FxGenArt721Test {
         assertEq(IFxGenArt721(fxGenArtProxy).renderer(), address(ipfsRenderer));
     }
 
-    function test_SetRenderer_RevertsWhen_UnauthorizedAccount() public {
+    function test_RevertsWhen_UnauthorizedAccount() public {
         vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
         TokenLib.setRenderer(creator, fxGenArtProxy, address(ipfsRenderer));
     }
