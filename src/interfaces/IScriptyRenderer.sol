@@ -7,6 +7,7 @@ import {IRenderer} from "src/interfaces/IRenderer.sol";
 /**
  * @title IScriptyRenderer
  * @author fx(hash)
+ * @custom:coauthor 0xthedude, xtremetom (https://github.com/intartnft/scripty.sol)
  * @notice Renderer for building onchain metadata of FxGenArt721 tokens using Scripty.sol
  */
 interface IScriptyRenderer is IRenderer {

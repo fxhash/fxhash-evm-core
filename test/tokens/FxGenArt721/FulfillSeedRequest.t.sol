@@ -17,7 +17,7 @@ contract FulfillSeedRequestTest is FxGenArt721Test {
         assertEq(genArtInfo.seed, seed);
     }
 
-    function test_FulfillSeedRequest_RevertsWhen_NotAuthorized() public {
+    function test_RevertsWhen_NotAuthorized() public {
         vm.expectRevert(NOT_AUTHORIZED_ERROR);
         TokenLib.fulfillSeedRequest(alice, fxGenArtProxy, tokenId, seed);
     }

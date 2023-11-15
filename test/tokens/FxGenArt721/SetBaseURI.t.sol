@@ -16,7 +16,7 @@ contract SetBaseURITest is FxGenArt721Test {
         assertEq(baseURI, BASE_URI);
     }
 
-    function test_SetBaseURI_RevertsWhen_UnauthorizedAccount() public {
+    function test_RevertsWhen_UnauthorizedAccount() public {
         vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
         TokenLib.setBaseURI(creator, fxGenArtProxy, BASE_URI);
     }
