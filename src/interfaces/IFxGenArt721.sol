@@ -29,12 +29,6 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     event BurnEnabled(bool indexed _enabled);
 
     /**
-     * @notice Event emitted when the image URI is updated
-     * @param _uri URI of the image thumbnail
-     */
-    event ImageURIUpdated(string _uri);
-
-    /**
      * @notice Event emitted when minted is toggled
      * @param _enabled Flag status of mint
      */
@@ -60,10 +54,10 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     );
 
     /**
-     * @notice Event emitted when the primary receiver is updated
-     * @param _primaryReceiver The address of the new primary receiver account
+     * @notice Event emitted when the primary receiver address is updated
+     * @param _receiver Address of the new primary receiver account
      */
-    event PrimaryReceiverUpdated(address indexed _primaryReceiver);
+    event PrimaryReceiverUpdated(address indexed _receiver);
 
     /**
      * @notice Event emitted when project tags are set
@@ -82,6 +76,12 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @param _renderer Address of new Renderer contract
      */
     event RendererUpdated(address indexed _renderer);
+
+    /**
+     * @notice Event emitted when onchain data of project is updated
+     * @param _data Bytes-encoded metadata
+     */
+    event OnchainDataUpdated(bytes _data);
 
     /**
      * @notice Event emitted when maximum supply is reduced
@@ -198,14 +198,21 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @notice Mapping of token ID to GenArtInfo struct (seed, fxParams)
      */
     function genArtInfo(uint256 _tokenId) external view returns (bytes32, bytes memory);
-
+    
+    
     /**
-     * @notice Generates typed data hash for updating the primary receiver address
-     * @param _typeHash Hash of the function selector and parameters
-     * @param _primaryReceiver Address of the new primary receiver account
+     * @notice Generates typed data hash for setting project metadata onchain
+     * @param _data Bytes-encoded onchain data
      * @return Typed data hash
      */
-    function generateTypedDataHash(bytes32 _typeHash, address _primaryReceiver) external view returns (bytes32);
+    function generateOnchainDataHash(bytes calldata _data) external view returns (bytes32);
+
+    /**
+     * @notice Generates typed data hash for setting the primary receiver address
+     * @param _receiver Address of the new primary receiver account
+     * @return Typed data hash
+     */
+    function generatePrimaryReceiverHash(address _receiver) external view returns (bytes32);
 
     /**
      * @notice Initializes new generative art project
@@ -321,6 +328,20 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @param _uri Decoded content identifier of metadata pointer
      */
     function setBaseURI(bytes calldata _uri) external;
+
+    /**
+     * @notice Sets the onchain data of the project metadata
+     * @param _data Bytes-encoded metadata
+     * @param _signature Signature of creator used to verify metadata update
+     */
+    function setOnchainData(bytes calldata _data, bytes calldata _signature) external;
+    
+    /**
+     * @notice Sets the primary receiver address for token royalties
+     * @param _receiver Address of the new primary receiver account
+     * @param _signature Signature of creator used to verify receiver update
+     */
+    function setPrimaryReceiver(address _receiver, bytes calldata _signature) external
 
     /**
      * @notice Sets the new randomizer contract

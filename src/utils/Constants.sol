@@ -28,8 +28,7 @@ bytes32 constant CLAIM_TYPEHASH = keccak256(
     "Claim(address token, uint256 reserveId, uint96 nonce, uint256 index, address user)"
 );
 bytes32 constant SET_BASE_URI_TYPEHASH = keccak256("SetBaseURI(string uri)");
-bytes32 constant SET_CONTRACT_URI_TYPEHASH = keccak256("SetContractURI(string uri)");
-bytes32 constant SET_IMAGE_URI_TYPEHASH = keccak256("SetImageURI(string uri");
+bytes32 constant SET_ONCHAIN_DATA_TYPEHASH = keccak256("SetOnchainData(bytes data");
 bytes32 constant SET_PRIMARY_RECEIVER_TYPEHASH = keccak256("SetPrimaryReceiver(address primaryReceiver)");
 
 // Metadata
