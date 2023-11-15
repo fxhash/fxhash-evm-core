@@ -198,8 +198,7 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @notice Mapping of token ID to GenArtInfo struct (seed, fxParams)
      */
     function genArtInfo(uint256 _tokenId) external view returns (bytes32, bytes memory);
-    
-    
+
     /**
      * @notice Generates typed data hash for setting project metadata onchain
      * @param _data Bytes-encoded onchain data
@@ -315,14 +314,14 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @notice Returns the address of the FxRoleRegistry contract
      */
     function roleRegistry() external view returns (address);
-    
+
     /**
      * @notice Sets the base royalties for all secondary token sales
      * @param _receivers Array of addresses receiving royalties
      * @param _basisPoints Array of points used to calculate royalty payments
      */
     function setBaseRoyalties(address payable[] calldata _receivers, uint96[] calldata _basisPoints) external;
-    
+
     /**
      * @notice Sets the new URI of the token metadata
      * @param _uri Decoded content identifier of metadata pointer
@@ -335,13 +334,13 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @param _signature Signature of creator used to verify metadata update
      */
     function setOnchainData(bytes calldata _data, bytes calldata _signature) external;
-    
+
     /**
      * @notice Sets the primary receiver address for token royalties
      * @param _receiver Address of the new primary receiver account
      * @param _signature Signature of creator used to verify receiver update
      */
-    function setPrimaryReceiver(address _receiver, bytes calldata _signature) external
+    function setPrimaryReceiver(address _receiver, bytes calldata _signature) external;
 
     /**
      * @notice Sets the new randomizer contract

@@ -282,7 +282,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /*//////////////////////////////////////////////////////////////////////////
                                 ADMIN FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-    
+
     /**
      * @inheritdoc IFxGenArt721
      */
@@ -292,12 +292,12 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         metadataInfo.onchainData = _data;
         emit OnchainDataUpdated(_data);
     }
-    
+
     /**
      * @inheritdoc IFxGenArt721
      */
     function setPrimaryReceiver(address _receiver, bytes calldata _signature) external onlyRole(ADMIN_ROLE) {
-        bytes32 digest = generateTypedDataHash(_receiver);
+        bytes32 digest = generatePrimaryReceiverHash(_receiver);
         _verifySignature(digest, _signature);
         issuerInfo.primaryReceiver = _receiver;
         emit PrimaryReceiverUpdated(_receiver);
@@ -369,7 +369,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         (, , string memory defaultMetadataURI) = IFxContractRegistry(contractRegistry).configInfo();
         return IRenderer(renderer).contractURI(defaultMetadataURI);
     }
-    
+
     /**
      * @inheritdoc IFxGenArt721
      */
