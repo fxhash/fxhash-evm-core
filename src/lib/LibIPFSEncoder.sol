@@ -5,12 +5,13 @@ import {IPFS_URL} from "src/utils/Constants.sol";
 
 /**
  * @title LibIPFSEncoder
- * @author lukasz-glen (https://github.com/lukasz-glen)
+ * @author fx(hash)
+ * @custom:coauthor lukasz-glen (https://github.com/lukasz-glen)
  * @notice Library for encoding IPFS CID hashes
  */
 library LibIPFSEncoder {
     /**
-     * @dev Encodes IPFS CID hash from bytes32 value to URL string format
+     * @dev Encodes IPFS CID hash to URL string format
      */
     function encodeURL(bytes32 _value) internal pure returns (string memory) {
         uint256 value = uint256(_value);

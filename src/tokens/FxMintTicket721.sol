@@ -45,7 +45,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
     /**
      * @dev Mapping of wallet address to balance amount available for withdrawal
      */
-    LibMap.Uint128Map internal _balances;
+    LibMap.Uint128Map internal balances_;
 
     /**
      * @inheritdoc IFxMintTicket721
@@ -427,7 +427,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
      * @inheritdoc IFxMintTicket721
      */
     function getBalance(address _account) public view returns (uint128) {
-        return LibMap.get(_balances, uint256(uint160(_account)));
+        return LibMap.get(balances_, uint256(uint160(_account)));
     }
 
     /**
@@ -543,7 +543,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
      * @dev Sets the balance amount for an account
      */
     function _setBalance(address _account, uint256 _balance) internal {
-        LibMap.set(_balances, uint256(uint160(_account)), uint128(_balance));
+        LibMap.set(balances_, uint256(uint160(_account)), uint128(_balance));
     }
 
     /**
