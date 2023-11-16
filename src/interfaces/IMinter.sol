@@ -9,6 +9,10 @@ import {ReserveInfo} from "src/lib/Structs.sol";
  * @notice Interface for FxGenArt721 tokens to interact with minters
  */
 interface IMinter {
+    /*//////////////////////////////////////////////////////////////////////////
+                                  FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
      * @notice Sets the mint details for token reserves
      * @param _reserveInfo Reserve information for the token

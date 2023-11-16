@@ -7,6 +7,10 @@ pragma solidity 0.8.20;
  * @notice Interface for FxGenArt721 tokens to interact with renderers
  */
 interface IRenderer {
+    /*//////////////////////////////////////////////////////////////////////////
+                                  FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
      * @notice Returns address of the FxContractRegistry contract
      */
