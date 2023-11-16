@@ -2,7 +2,6 @@
 pragma solidity 0.8.20;
 
 import {GenArtInfo, InitInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/lib/Structs.sol";
-import {HTMLRequest} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
 import {IToken} from "src/interfaces/IToken.sol";
 

@@ -2,7 +2,6 @@
 pragma solidity 0.8.20;
 
 import {Ownable} from "solady/src/auth/Ownable.sol";
-import {SplitsController} from "src/splits/SplitsController.sol";
 
 import {ISplitsController} from "src/interfaces/ISplitsController.sol";
 import {ISplitsFactory} from "src/interfaces/ISplitsFactory.sol";
