@@ -17,7 +17,7 @@ interface IRenderer {
     function contractRegistry() external view returns (address);
 
     /**
-     * @notice Gets the contact-level metadata for a project
+     * @notice Gets the contact-level metadata for the project
      * @return URI of the contract metadata
      */
     function contractURI() external view returns (string memory);

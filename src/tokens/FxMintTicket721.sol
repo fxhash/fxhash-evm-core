@@ -404,10 +404,33 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
+     * @inheritdoc IFxMintTicket721
+     */
+    function contractURI() external view returns (string memory) {
+        (, , string memory defaultURI) = IFxContractRegistry(contractRegistry).configInfo();
+        string memory contractAddr = uint160(address(this)).toHexString(20);
+        return string.concat(defaultURI, contractAddr, "/metadata.json");
+    }
+
+    /**
      * @inheritdoc ERC721
      */
     function isApprovedForAll(address _owner, address _operator) public view override(ERC721, IERC721) returns (bool) {
         return _operator == address(this) || minters[_operator] == TRUE || super.isApprovedForAll(_owner, _operator);
+    }
+
+    /**
+     * @inheritdoc ERC721
+     */
+    function tokenURI(uint256 _tokenId) public view override returns (string memory) {
+        _requireMinted(_tokenId);
+        (, , string memory defaultURI) = IFxContractRegistry(contractRegistry).configInfo();
+        string memory contractAddr = uint160(address(this)).toHexString(20);
+        string memory jsonMetadataURI = string.concat("/", _tokenId.toString(), "/metadata.json");
+        return
+            (bytes(baseURI).length == 0)
+                ? string.concat(defaultURI, contractAddr, jsonMetadataURI)
+                : string.concat(LibIPFSEncoder.encodeURL(bytes32(baseURI)), jsonMetadataURI);
     }
 
     /**
@@ -486,16 +509,6 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
      */
     function getTaxDuration(uint256 _taxPayment, uint256 _dailyTax) public pure returns (uint256) {
         return (_taxPayment * ONE_DAY) / _dailyTax;
-    }
-
-    /**
-     * @inheritdoc ERC721
-     */
-    function tokenURI(uint256 _tokenId) public view override returns (string memory) {
-        _requireMinted(_tokenId);
-        string memory encodedURI = LibIPFSEncoder.encodeURL(bytes32(baseURI));
-        string memory contractAddr = uint160(address(this)).toHexString(20);
-        return string.concat(encodedURI, "/", contractAddr, "/", _tokenId.toString(), "/metadata.json");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
