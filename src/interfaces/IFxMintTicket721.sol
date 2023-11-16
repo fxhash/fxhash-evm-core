@@ -186,7 +186,7 @@ interface IFxMintTicket721 is IToken {
     function contractRegistry() external view returns (address);
 
     /**
-     * @notice Gets the contact-level metadata for the project
+     * @notice Gets the contact-level metadata for the ticket
      * @return URI of the contract metadata
      */
     function contractURI() external view returns (string memory);
