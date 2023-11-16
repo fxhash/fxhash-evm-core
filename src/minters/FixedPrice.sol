@@ -152,7 +152,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
         bool openEdition = _reserve.allocation == OPEN_EDITION_SUPPLY ? true : false;
         bool timeUnlimited = _reserve.endTime == TIME_UNLIMITED ? true : false;
 
-        emit MintDetailsSet(msg.sender, reserveId, _reserve, merkleRoot, signer, openEdition, timeUnlimited);
+        emit MintDetailsSet(msg.sender, reserveId, price, _reserve, merkleRoot, signer, openEdition, timeUnlimited);
     }
 
     /**
