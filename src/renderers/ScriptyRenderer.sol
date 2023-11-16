@@ -4,6 +4,7 @@ pragma solidity 0.8.20;
 import {Base64} from "openzeppelin/contracts/utils/Base64.sol";
 import {LibIPFSEncoder} from "src/lib/LibIPFSEncoder.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
+import {SSTORE2} from "sstore2/SSTORE2.sol";
 
 import {GenArtInfo, MetadataInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IScriptyBuilderV2, HTMLRequest, HTMLTagType, HTMLTag} from "scripty.sol/contracts/scripty/interfaces/IScriptyBuilderV2.sol";
@@ -70,8 +71,9 @@ contract ScriptyRenderer is IScriptyRenderer {
             _data,
             (string, MetadataInfo, GenArtInfo)
         );
+        bytes memory onchainData = SSTORE2.read(metadataInfo.onchainDataPointer);
         (HTMLRequest memory animation, HTMLRequest memory attributes) = abi.decode(
-            metadataInfo.onchainData,
+            onchainData,
             (HTMLRequest, HTMLRequest)
         );
         string memory baseURI = LibIPFSEncoder.encodeURL(bytes32(metadataInfo.baseURI));
