@@ -354,8 +354,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      * @inheritdoc IFxGenArt721
      */
     function contractURI() external view returns (string memory) {
-        (, , string memory defaultMetadataURI) = IFxContractRegistry(contractRegistry).configInfo();
-        return IRenderer(renderer).contractURI(defaultMetadataURI);
+        return IRenderer(renderer).contractURI();
     }
 
     /**
@@ -401,8 +400,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      */
     function tokenURI(uint256 _tokenId) public view override returns (string memory) {
         _requireMinted(_tokenId);
-        (, , string memory defaultMetadataURI) = IFxContractRegistry(contractRegistry).configInfo();
-        bytes memory data = abi.encode(defaultMetadataURI, metadataInfo, genArtInfo[_tokenId]);
+        bytes memory data = abi.encode(metadataInfo, genArtInfo[_tokenId]);
         return IRenderer(renderer).tokenURI(_tokenId, data);
     }
 

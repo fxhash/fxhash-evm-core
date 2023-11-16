@@ -7,6 +7,7 @@ import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 import {SSTORE2} from "sstore2/contracts/SSTORE2.sol";
 
 import {GenArtInfo, MetadataInfo} from "src/interfaces/IFxGenArt721.sol";
+import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {IScriptyBuilderV2, HTMLRequest, HTMLTagType, HTMLTag} from "scripty.sol/contracts/scripty/interfaces/IScriptyBuilderV2.sol";
 import {IScriptyRenderer} from "src/interfaces/IScriptyRenderer.sol";
 
@@ -22,6 +23,11 @@ contract ScriptyRenderer is IScriptyRenderer {
     /*//////////////////////////////////////////////////////////////////////////
                                     STORAGE
     //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc IScriptyRenderer
+     */
+    address public immutable contractRegistry;
 
     /**
      * @inheritdoc IScriptyRenderer
@@ -45,7 +51,13 @@ contract ScriptyRenderer is IScriptyRenderer {
     /**
      * @dev Initializes ETHFSFileStorage, ScriptyStorage and ScriptyBuilder
      */
-    constructor(address _ethfsFileStorage, address _scriptyStorage, address _scriptyBuilder) {
+    constructor(
+        address _contractRegistry,
+        address _ethfsFileStorage,
+        address _scriptyStorage,
+        address _scriptyBuilder
+    ) {
+        contractRegistry = _contractRegistry;
         ethfsFileStorage = _ethfsFileStorage;
         scriptyStorage = _scriptyStorage;
         scriptyBuilder = _scriptyBuilder;
@@ -58,18 +70,20 @@ contract ScriptyRenderer is IScriptyRenderer {
     /**
      * @inheritdoc IScriptyRenderer
      */
-    function contractURI(string memory _defaultMetadataURI) external view returns (string memory) {
+    function contractURI() external view returns (string memory) {
+        (, , string memory defaultURI) = IFxContractRegistry(contractRegistry).configInfo();
         string memory contractAddr = uint160(msg.sender).toHexString(20);
-        return string.concat(_defaultMetadataURI, contractAddr, "/metadata.json");
+        return string.concat(defaultURI, contractAddr, "/metadata.json");
     }
 
     /**
      * @inheritdoc IScriptyRenderer
      */
     function tokenURI(uint256 _tokenId, bytes calldata _data) external view returns (string memory) {
-        (string memory defaultURI, MetadataInfo memory metadataInfo, GenArtInfo memory genArtInfo) = abi.decode(
+        (, , string memory defaultURI) = IFxContractRegistry(contractRegistry).configInfo();
+        (MetadataInfo memory metadataInfo, GenArtInfo memory genArtInfo) = abi.decode(
             _data,
-            (string, MetadataInfo, GenArtInfo)
+            (MetadataInfo, GenArtInfo)
         );
         bytes memory onchainData = SSTORE2.read(metadataInfo.onchainPointer);
         (HTMLRequest memory animation, HTMLRequest memory attributes) = abi.decode(

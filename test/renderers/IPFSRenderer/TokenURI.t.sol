@@ -9,7 +9,7 @@ contract TokenURI is IPFSRendererTest {
 
     function test_TokenURI_DefaultURI() public {
         metadataInfo.baseURI = bytes("");
-        data = abi.encode(DEFAULT_METADATA_URI, metadataInfo, genArtInfo);
+        data = abi.encode(metadataInfo, genArtInfo);
         contractAddr = uint160(deployer).toHexString(20);
         generatedURI = string.concat(defaultMetadataURI, contractAddr, "/", tokenId.toString(), "/metadata.json");
         tokenURI = ipfsRenderer.tokenURI(tokenId, data);
@@ -17,7 +17,7 @@ contract TokenURI is IPFSRendererTest {
     }
 
     function test_TokenURI_BaseURI() public {
-        data = abi.encode(DEFAULT_METADATA_URI, metadataInfo, genArtInfo);
+        data = abi.encode(metadataInfo, genArtInfo);
         generatedURI = string.concat(string(BASE_URI), "/", tokenId.toString(), "/metadata.json");
         tokenURI = ipfsRenderer.tokenURI(tokenId, data);
         assertEq(generatedURI, tokenURI);

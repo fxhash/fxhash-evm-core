@@ -16,9 +16,14 @@ interface IScriptyRenderer is IRenderer {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
+     * @notice IRenderer
+     */
+    function contractRegistry() external view returns (address);
+
+    /**
      * @inheritdoc IRenderer
      */
-    function contractURI(string memory _defaultURI) external view returns (string memory);
+    function contractURI() external view returns (string memory);
 
     /**
      * @notice Returns the address of ETHFSFileStorage contract

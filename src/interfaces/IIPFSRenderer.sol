@@ -16,22 +16,25 @@ interface IIPFSRenderer is IRenderer {
     /**
      * @inheritdoc IRenderer
      */
-    function contractURI(string memory _defaultURI) external view returns (string memory);
+    function contractRegistry() external view returns (address);
+
+    /**
+     * @inheritdoc IRenderer
+     */
+    function contractURI() external view returns (string memory);
 
     /**
      * @notice Generates the metadata URI for a token ID
      * @param _contractAddr Address of the token contract
-     * @param _defaultURI Fallback URI
      * @param _baseURI URI of the content identifier
      * @param _tokenId ID of the token
      * @return URI of the JSON metadata
      */
     function getMetadataURI(
         address _contractAddr,
-        string memory _defaultURI,
         string memory _baseURI,
         uint256 _tokenId
-    ) external pure returns (string memory);
+    ) external view returns (string memory);
 
     /**
      * @inheritdoc IRenderer
