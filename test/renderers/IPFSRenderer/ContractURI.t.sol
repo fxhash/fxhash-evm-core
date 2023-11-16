@@ -5,6 +5,6 @@ import "test/renderers/IPFSRenderer/IPFSRendererTest.t.sol";
 
 contract ContractURI is IPFSRendererTest {
     function test_ContractURI() public {
-        // ipfsRenderer.contractURI(defaultURI);
+        ipfsRenderer.contractURI(defaultMetadataURI);
     }
 }

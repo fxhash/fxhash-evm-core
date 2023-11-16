@@ -346,16 +346,16 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function contractURI() external view returns (string memory) {
-        (, , string memory defaultMetadataURI) = IFxContractRegistry(contractRegistry).configInfo();
-        return IRenderer(renderer).contractURI(defaultMetadataURI);
+    function activeMinters() external view returns (address[] memory) {
+        return issuerInfo.activeMinters;
     }
 
     /**
      * @inheritdoc IFxGenArt721
      */
-    function activeMinters() external view returns (address[] memory) {
-        return issuerInfo.activeMinters;
+    function contractURI() external view returns (string memory) {
+        (, , string memory defaultMetadataURI) = IFxContractRegistry(contractRegistry).configInfo();
+        return IRenderer(renderer).contractURI(defaultMetadataURI);
     }
 
     /**

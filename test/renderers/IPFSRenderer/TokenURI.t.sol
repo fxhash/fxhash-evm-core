@@ -8,6 +8,7 @@ contract TokenURI is IPFSRendererTest {
     bytes internal data;
 
     function test_TokenURI() public {
-        // ipfsRenderer.tokenURI(tokenId, data);
+        data = abi.encode(defaultMetadataURI, metadataInfo, genArtInfo);
+        ipfsRenderer.tokenURI(tokenId, data);
     }
 }

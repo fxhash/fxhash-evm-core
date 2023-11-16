@@ -46,7 +46,7 @@ contract DutchAuctionTest is BaseTest {
         RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, address(dutchAuction));
         RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, address(refundableDA));
         _createSplit();
-        _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(scriptyRenderer), tagIds);
+        _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(ipfsRenderer), tagIds);
         _createProject();
         TokenLib.toggleMint(creator, fxGenArtProxy);
     }

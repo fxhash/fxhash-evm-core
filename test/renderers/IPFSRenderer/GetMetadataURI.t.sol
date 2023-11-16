@@ -5,6 +5,6 @@ import "test/renderers/IPFSRenderer/IPFSRendererTest.t.sol";
 
 contract GetMetadataURI is IPFSRendererTest {
     function test_GetMetadataURI() public {
-        // ipfsRenderer.getMetadataURI(fxGenArtProxy, defaultURI, baseURI, tokenId);
+        ipfsRenderer.getMetadataURI(fxGenArtProxy, defaultMetadataURI, string(BASE_URI), tokenId);
     }
 }
