@@ -9,6 +9,7 @@ import {Ownable} from "solady/src/auth/Ownable.sol";
 import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {RoyaltyManager} from "src/tokens/extensions/RoyaltyManager.sol";
 import {SignatureChecker} from "openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
+import {SSTORE2} from "sstore2/SSTORE2.sol";
 
 import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
 import {IERC4906} from "openzeppelin/contracts/interfaces/IERC4906.sol";
@@ -289,7 +290,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     function setOnchainData(bytes calldata _data, bytes calldata _signature) external onlyRole(ADMIN_ROLE) {
         bytes32 digest = generateOnchainDataHash(_data);
         _verifySignature(digest, _signature);
-        metadataInfo.onchainData = _data;
+        metadataInfo.onchainDataPointer = SSTORE2.write(_data);
         emit OnchainDataUpdated(_data);
     }
 
@@ -368,6 +369,13 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     function contractURI() external view returns (string memory) {
         (, , string memory defaultMetadataURI) = IFxContractRegistry(contractRegistry).configInfo();
         return IRenderer(renderer).contractURI(defaultMetadataURI);
+    }
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
+    function activeMinters() external view returns (address[] memory) {
+        return issuerInfo.activeMinters;
     }
 
     /**
