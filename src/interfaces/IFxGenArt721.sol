@@ -167,6 +167,11 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
                                   FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /*
+     * @notice Returns the list of minters active on the token
+     */
+    function activeMinters() external view returns (address[] memory);
+
     /**
      * @notice Burns token ID from the circulating supply
      * @param _tokenId ID of the token
