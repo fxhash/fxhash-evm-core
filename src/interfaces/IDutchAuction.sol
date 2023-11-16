@@ -25,7 +25,6 @@ interface IDutchAuction is IMinter {
         address indexed _token,
         uint256 indexed _reserveId,
         ReserveInfo _reserveInfo,
-        AuctionInfo _auctionInfo,
         bytes _mintDetails
     );
 
