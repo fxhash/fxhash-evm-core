@@ -128,14 +128,7 @@ contract BaseTest is Deploy, Test {
         eve = makeAddr("eve");
         susan = makeAddr("susan");
 
-        vm.label(admin, "Admin");
-        vm.label(creator, "Creator");
         vm.label(deployer, "Deployer");
-        vm.label(moderator, "Moderator");
-        vm.label(alice, "Alice");
-        vm.label(bob, "Bob");
-        vm.label(eve, "Eve");
-        vm.label(susan, "Susan");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
