@@ -19,13 +19,14 @@ interface IDutchAuction is IMinter {
      * @param _token Address of the token being minted
      * @param _reserveId ID of the reserve
      * @param _reserveInfo The reserve info of the Dutch auction
-     * @param _auctionInfo Dutch auction information
+     * @param _mintDetails abi.encoded values tied to the reserves
      */
     event MintDetailsSet(
         address indexed _token,
         uint256 indexed _reserveId,
         ReserveInfo _reserveInfo,
-        AuctionInfo _auctionInfo
+        AuctionInfo _auctionInfo,
+        bytes _mintDetails
     );
 
     /**

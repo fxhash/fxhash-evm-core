@@ -18,18 +18,18 @@ interface IFixedPrice is IMinter {
      * @notice Event emitted when a new fixed price mint has been set
      * @param _token Address of the token being minted
      * @param _reserveId ID of the reserve
-     * @param _price Amount of fixed price mint
      * @param _reserveInfo Reserve information for the mint
      * @param _openEdition Status of an open edition mint
      * @param _timeUnlimited Status of a mint with unlimited time
+     * @param _mintDetails abi.encoded values tied to the reserves
      */
     event MintDetailsSet(
         address indexed _token,
         uint256 indexed _reserveId,
-        uint256 _price,
         ReserveInfo _reserveInfo,
         bool _openEdition,
-        bool _timeUnlimited
+        bool _timeUnlimited,
+        bytes _mintDetails
     );
 
     /**

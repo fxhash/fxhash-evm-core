@@ -56,6 +56,6 @@ contract TicketRedeemer is ITicketRedeemer {
         tickets[msg.sender] = ticket;
 
         // Emits event when mint details have been set
-        emit MintDetailsSet(ticket, msg.sender);
+        emit MintDetailsSet(ticket, msg.sender, _mintDetails);
     }
 }
