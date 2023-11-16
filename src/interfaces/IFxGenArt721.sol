@@ -238,7 +238,7 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @param _minter Address of the minter contract
      * @return Authorization status
      */
-    function isMinter(address _minter) external view returns (uint8);
+    function isMinter(address _minter) external view returns (bool);
 
     /**
      * @notice Returns the issuer information of the project (primaryReceiver, ProjectInfo)
