@@ -18,9 +18,8 @@ interface ITicketRedeemer is IMinter {
      * @notice Event emitted when the mint details are set for a ticket contract
      * @param _ticket Address of the ticket contract
      * @param _token Address of the token contract that can be redeemed through the ticket
-     * @param _mintDetails abi.encoded values tied to the reserves
      */
-    event MintDetailsSet(address indexed _ticket, address indexed _token, bytes _mintDetails);
+    event MintDetailsSet(address indexed _ticket, address indexed _token);
 
     /**
      * @notice Event emitted when a ticket is burned and a new token is minted
