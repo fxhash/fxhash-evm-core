@@ -3,7 +3,7 @@ pragma solidity 0.8.20;
 
 import {LibIPFSEncoder} from "src/lib/LibIPFSEncoder.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
-import "forge-std/Test.sol";
+
 import {GenArtInfo, MetadataInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IIPFSRenderer} from "src/interfaces/IIPFSRenderer.sol";
 
@@ -36,9 +36,7 @@ contract IPFSRenderer is IIPFSRenderer {
             _data,
             (string, MetadataInfo, GenArtInfo)
         );
-        console.logBytes32(bytes32(metadataInfo.baseURI));
         string memory baseURI = LibIPFSEncoder.encodeURL(bytes32(metadataInfo.baseURI));
-        console.log(baseURI);
         return getMetadataURI(msg.sender, defaultURI, baseURI, _tokenId);
     }
 

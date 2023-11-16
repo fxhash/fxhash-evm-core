@@ -21,6 +21,6 @@ contract IPFSRendererTest is BaseTest {
         super.setUp();
         tokenId = 1;
         defaultMetadataURI = DEFAULT_METADATA_URI;
-        metadataInfo.baseURI = BASE_URI;
+        metadataInfo.baseURI = BASE_CID;
     }
 }

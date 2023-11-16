@@ -14,6 +14,7 @@ string constant SYMBOL = "FXHASH";
 uint256 constant TAG_ID = 1;
 
 // Metadata
+bytes constant BASE_CID = hex"a6ba5489183926f882cc59ef5478ec4aacf9e522fede5c462ed5c359b3159180";
 bytes constant BASE_URI = "ipfs://QmZZVBKapDg2wXzwpDxdmL9Ah665h9ZzeJ9gYdbTZ4GBzf";
 
 // Project
