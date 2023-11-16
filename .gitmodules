@@ -16,3 +16,6 @@
 [submodule "lib/scripty.sol"]
 	path = lib/scripty.sol
 	url = https://github.com/intartnft/scripty.sol
+[submodule "lib/sstore2"]
+	path = lib/sstore2
+	url = https://github.com/0xsequence/sstore2

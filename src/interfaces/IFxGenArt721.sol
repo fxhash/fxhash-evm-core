@@ -233,9 +233,9 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     function issuerInfo() external view returns (address, ProjectInfo memory);
 
     /**
-     * @notice Returns the metadata information of the project (baseURI, onchainData)
+     * @notice Returns the metadata information of the project (baseURI, onchainPointer)
      */
-    function metadataInfo() external view returns (bytes memory, bytes memory);
+    function metadataInfo() external view returns (bytes memory, address);
 
     /**
      * @inheritdoc IToken
