@@ -49,7 +49,7 @@ contract ScriptyRenderer is IScriptyRenderer {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @dev Initializes ETHFSFileStorage, ScriptyStorage and ScriptyBuilder
+     * @dev Initializes FxContractRegistry, ETHFSFileStorage, ScriptyStorage and ScriptyBuilder
      */
     constructor(
         address _contractRegistry,

@@ -31,7 +31,7 @@ contract IPFSRenderer is IIPFSRenderer {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @dev Initializes FxContractRegistry and FxRoleRegistry
+     * @dev Initializes FxContractRegistry
      */
     constructor(address _contractRegistry) {
         contractRegistry = _contractRegistry;
