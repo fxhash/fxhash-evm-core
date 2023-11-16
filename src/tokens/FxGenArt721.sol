@@ -95,7 +95,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      * @dev Modifier for restricting calls to only registered minters
      */
     modifier onlyMinter() {
-        if (isMinter(msg.sender) != TRUE) revert UnregisteredMinter();
+        if (!isMinter(msg.sender)) revert UnregisteredMinter();
         _;
     }
 
@@ -361,8 +361,8 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function isMinter(address _minter) public view returns (uint8) {
-        return issuerInfo.minters[_minter];
+    function isMinter(address _minter) public view returns (bool) {
+        return issuerInfo.minters[_minter] == TRUE;
     }
 
     /**
@@ -428,31 +428,33 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         address minter;
         uint64 startTime;
         uint128 totalAllocation;
+        uint120 maxSupply = issuerInfo.projectInfo.maxSupply;
         ReserveInfo memory reserveInfo;
         (uint256 lockTime, , ) = IFxContractRegistry(contractRegistry).configInfo();
         lockTime = _isVerified(owner()) ? 0 : lockTime;
-        unchecked {
-            for (uint256 i; i < _mintInfo.length; ++i) {
-                minter = _mintInfo[i].minter;
-                reserveInfo = _mintInfo[i].reserveInfo;
-                startTime = reserveInfo.startTime;
-                if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) revert UnauthorizedMinter();
-                if (startTime == 0) {
-                    reserveInfo.startTime = uint64(block.timestamp + lockTime);
-                } else if (startTime < block.timestamp + lockTime) {
-                    revert InvalidStartTime();
-                }
-                if (reserveInfo.endTime < startTime) revert InvalidEndTime();
-
-                issuerInfo.minters[minter] = TRUE;
-                issuerInfo.activeMinters.push(minter);
-                totalAllocation += reserveInfo.allocation;
-
-                IMinter(minter).setMintDetails(reserveInfo, _mintInfo[i].params);
+        for (uint256 i; i < _mintInfo.length; ++i) {
+            minter = _mintInfo[i].minter;
+            reserveInfo = _mintInfo[i].reserveInfo;
+            startTime = reserveInfo.startTime;
+            if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) revert UnauthorizedMinter();
+            if (startTime == 0) {
+                reserveInfo.startTime = uint64(block.timestamp + lockTime);
+            } else if (startTime < block.timestamp + lockTime) {
+                revert InvalidStartTime();
             }
+            if (reserveInfo.endTime < startTime) revert InvalidEndTime();
+
+            issuerInfo.minters[minter] = TRUE;
+            issuerInfo.activeMinters.push(minter);
+            if (maxSupply != OPEN_EDITION_SUPPLY) {
+                /// keep track of totalAllocation if not open edition
+                totalAllocation += reserveInfo.allocation;
+            }
+
+            IMinter(minter).setMintDetails(reserveInfo, _mintInfo[i].params);
         }
 
-        if (issuerInfo.projectInfo.maxSupply != OPEN_EDITION_SUPPLY) {
+        if (maxSupply != OPEN_EDITION_SUPPLY) {
             if (totalAllocation > remainingSupply()) revert AllocationExceeded();
         }
     }

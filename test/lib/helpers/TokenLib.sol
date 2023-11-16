@@ -94,7 +94,7 @@ library TokenLib {
         IFxGenArt721(_proxy).unpause();
     }
 
-    function isMinter(address _proxy, address _minter) internal view returns (uint8) {
+    function isMinter(address _proxy, address _minter) internal view returns (bool) {
         return IFxGenArt721(_proxy).isMinter(_minter);
     }
 }
