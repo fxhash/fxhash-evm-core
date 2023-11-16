@@ -202,7 +202,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         reserves[msg.sender].push(_reserve);
         auctions[msg.sender].push(daInfo);
 
-        emit MintDetailsSet(msg.sender, reserveId, _reserve, _mintDetails);
+        emit MintDetailsSet(msg.sender, reserveId, _reserve, merkleRoot, signer, daInfo);
     }
 
     /**
