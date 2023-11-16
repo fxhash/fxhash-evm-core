@@ -18,6 +18,7 @@ interface IFixedPrice is IMinter {
      * @notice Event emitted when a new fixed price mint has been set
      * @param _token Address of the token being minted
      * @param _reserveId ID of the reserve
+     * @param _price Amount of fixed price mint
      * @param _merkleRoot The merkle root allowlisted buyers
      * @param _mintPassSigner The signing account for mint passes
      * @param _reserveInfo Reserve information for the mint
@@ -27,6 +28,7 @@ interface IFixedPrice is IMinter {
     event MintDetailsSet(
         address indexed _token,
         uint256 indexed _reserveId,
+        uint256 _price,
         ReserveInfo _reserveInfo,
         bytes32 _merkleRoot,
         address _mintPassSigner,
