@@ -512,24 +512,22 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
         ReserveInfo memory reserveInfo;
         (uint256 lockTime, , ) = IFxContractRegistry(contractRegistry).configInfo();
         lockTime = _isVerified(owner()) ? 0 : lockTime;
-        unchecked {
-            for (uint256 i; i < _mintInfo.length; ++i) {
-                minter = _mintInfo[i].minter;
-                reserveInfo = _mintInfo[i].reserveInfo;
-                if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) revert UnauthorizedMinter();
-                if (startTime == 0) {
-                    reserveInfo.startTime = uint64(block.timestamp + lockTime);
-                } else if (startTime < block.timestamp + lockTime) {
-                    revert InvalidStartTime();
-                }
-                if (reserveInfo.endTime < reserveInfo.startTime) revert InvalidEndTime();
-
-                minters[minter] = TRUE;
-                activeMinters.push(minter);
-                totalAllocation += reserveInfo.allocation;
-
-                IMinter(minter).setMintDetails(reserveInfo, _mintInfo[i].params);
+        for (uint256 i; i < _mintInfo.length; ++i) {
+            minter = _mintInfo[i].minter;
+            reserveInfo = _mintInfo[i].reserveInfo;
+            if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) revert UnauthorizedMinter();
+            if (startTime == 0) {
+                reserveInfo.startTime = uint64(block.timestamp + lockTime);
+            } else if (startTime < block.timestamp + lockTime) {
+                revert InvalidStartTime();
             }
+            if (reserveInfo.endTime < reserveInfo.startTime) revert InvalidEndTime();
+
+            minters[minter] = TRUE;
+            activeMinters.push(minter);
+            totalAllocation += reserveInfo.allocation;
+
+            IMinter(minter).setMintDetails(reserveInfo, _mintInfo[i].params);
         }
 
         (, ProjectInfo memory projectInfo) = IFxGenArt721(genArt721).issuerInfo();
