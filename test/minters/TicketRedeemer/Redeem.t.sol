@@ -6,24 +6,23 @@ import "test/minters/TicketRedeemer/TicketRedeemerTest.t.sol";
 contract Redeem is TicketRedeemerTest {
     function setUp() public override {
         super.setUp();
-        vm.prank(address(token));
-        ticketRedeemer.setMintDetails(reserveInfo, abi.encode(address(ticket)));
+        vm.prank(minter);
+        ticketRedeemer.setMintDetails(reserveInfo, mintDetails);
     }
 
     function test_Redeem() public {
-        ticketRedeemer.redeem(address(ticket), 0, "");
+        ticketRedeemer.redeem(address(ticket), tokenId, fxParams);
     }
 
-    function test_RevertsWhen_NotOwner() public {
-        vm.prank(address(420));
-        vm.expectRevert(abi.encodeWithSelector(ITicketRedeemer.NotAuthorized.selector));
-        ticketRedeemer.redeem(address(ticket), 0, "");
+    function test_RevertsWhen_NotAuthorized() public {
+        vm.prank(alice);
+        vm.expectRevert(NOT_AUTHORIZED_ERROR);
+        ticketRedeemer.redeem(address(ticket), tokenId, fxParams);
     }
 
-    function test_RevertsWhen_TicketNotRegistered() public {
-        // create a new ticket but don't register it
+    function test_RevertsWhen_InvalidToken() public {
         ticket = new MockTicket();
-        vm.expectRevert(abi.encodeWithSelector(ITicketRedeemer.InvalidToken.selector));
-        ticketRedeemer.redeem(address(ticket), 0, "");
+        vm.expectRevert(INVALID_TOKEN_ERROR);
+        ticketRedeemer.redeem(address(ticket), tokenId, fxParams);
     }
 }

@@ -9,5 +9,7 @@ contract MockMinter {
         IToken(_token).mint(_to, _amount, _payment);
     }
 
+    function mintParams(address _to, bytes calldata _fxParams) external {}
+
     function setMintDetails(ReserveInfo calldata _reserveInfo, bytes calldata _mintDetails) external {}
 }
