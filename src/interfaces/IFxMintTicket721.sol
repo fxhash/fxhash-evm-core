@@ -57,7 +57,7 @@ interface IFxMintTicket721 is IToken {
 
     /**
      * @notice Event emitted when mint ticket is initialized
-     * @param _genArt721 Address of FxGenArt721 token
+     * @param _genArt721 Address of FxGenArt721 token contract
      * @param _redeemer Address of TicketRedeemer contract
      * @param _renderer Address of renderer contract
      * @param _gracePeriod Time period before token enters harberger taxation

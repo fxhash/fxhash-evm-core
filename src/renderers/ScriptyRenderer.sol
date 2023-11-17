@@ -85,7 +85,7 @@ contract ScriptyRenderer is IScriptyRenderer {
             (bytes, address, bytes32, bytes)
         );
         string memory baseURI = LibIPFSEncoder.encodeURL(bytes32(baseCID));
-        return _render(msg.sender, defaultURI, baseURI, _tokenId, seed, fxParams, onchainPointer);
+        return _renderOnchain(msg.sender, defaultURI, baseURI, _tokenId, seed, fxParams, onchainPointer);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -174,7 +174,7 @@ contract ScriptyRenderer is IScriptyRenderer {
         return abi.encodePacked('let tokenData = {"tokenId": "', tokenId, '", "seed": "', seed, '"};');
     }
 
-    function _render(
+    function _renderOnchain(
         address _token,
         string memory _defaultURI,
         string memory _baseURI,
