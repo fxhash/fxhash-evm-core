@@ -146,11 +146,11 @@ contract ScriptyRenderer is IScriptyRenderer {
         uint256 _tokenId
     ) public pure returns (string memory) {
         string memory contractAddr = uint160(_contractAddr).toHexString(20);
-        string memory imageThumbnailURI = string.concat("/", _tokenId.toString(), "/thumbnail.json");
+        string memory imageURI = string.concat("/", _tokenId.toString(), "/thumbnail.json");
         return
             (bytes(_baseURI).length == 0)
-                ? string.concat(_defaultURI, contractAddr, imageThumbnailURI)
-                : string.concat(_baseURI, imageThumbnailURI);
+                ? string.concat(_defaultURI, contractAddr, imageURI)
+                : string.concat(_baseURI, imageURI);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

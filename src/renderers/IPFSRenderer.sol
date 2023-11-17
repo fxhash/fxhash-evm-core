@@ -72,10 +72,10 @@ contract IPFSRenderer is IIPFSRenderer {
     ) public view returns (string memory) {
         (, , string memory defaultURI) = IFxContractRegistry(contractRegistry).configInfo();
         string memory contractAddr = uint160(_contractAddr).toHexString(20);
-        string memory jsonMetadataURI = string.concat("/", _tokenId.toString(), "/metadata.json");
+        string memory metadataURI = string.concat("/", _tokenId.toString(), "/metadata.json");
         return
             (bytes(_baseURI).length == 0)
-                ? string.concat(defaultURI, contractAddr, jsonMetadataURI)
-                : string.concat(_baseURI, jsonMetadataURI);
+                ? string.concat(defaultURI, contractAddr, metadataURI)
+                : string.concat(_baseURI, metadataURI);
     }
 }
