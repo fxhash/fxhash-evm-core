@@ -2,7 +2,6 @@
 pragma solidity 0.8.20;
 
 import {GenArtInfo, InitInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/lib/Structs.sol";
-import {HTMLRequest} from "scripty.sol/contracts/scripty/core/ScriptyStructs.sol";
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
 import {IToken} from "src/interfaces/IToken.sol";
 
@@ -168,7 +167,7 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     //////////////////////////////////////////////////////////////////////////*/
 
     /*
-     * @notice Returns the list of minters active on the token
+     * @notice Returns the list of minter contracts currently active on the token
      */
     function activeMinters() external view returns (address[] memory);
 
@@ -238,7 +237,7 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     function issuerInfo() external view returns (address, ProjectInfo memory);
 
     /**
-     * @notice Returns the metadata information of the project (baseURI, onchainData)
+     * @notice Returns the metadata information of the project (baseURI, onchainPointer)
      */
     function metadataInfo() external view returns (bytes memory, address);
 

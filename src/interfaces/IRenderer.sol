@@ -7,12 +7,20 @@ pragma solidity 0.8.20;
  * @notice Interface for FxGenArt721 tokens to interact with renderers
  */
 interface IRenderer {
+    /*//////////////////////////////////////////////////////////////////////////
+                                  FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
-     * @notice Gets the contact-level metadata for a project
-     * @param _defaultURI Fallback URI
+     * @notice Returns address of the FxContractRegistry contract
+     */
+    function contractRegistry() external view returns (address);
+
+    /**
+     * @notice Gets the contact-level metadata for the project
      * @return URI of the contract metadata
      */
-    function contractURI(string memory _defaultURI) external view returns (string memory);
+    function contractURI() external view returns (string memory);
 
     /**
      * @notice Gets the metadata for a token

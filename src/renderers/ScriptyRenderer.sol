@@ -4,9 +4,9 @@ pragma solidity 0.8.20;
 import {Base64} from "openzeppelin/contracts/utils/Base64.sol";
 import {LibIPFSEncoder} from "src/lib/LibIPFSEncoder.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
-import {SSTORE2} from "sstore2/SSTORE2.sol";
+import {SSTORE2} from "sstore2/contracts/SSTORE2.sol";
 
-import {GenArtInfo, MetadataInfo} from "src/interfaces/IFxGenArt721.sol";
+import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {IScriptyBuilderV2, HTMLRequest, HTMLTagType, HTMLTag} from "scripty.sol/contracts/scripty/interfaces/IScriptyBuilderV2.sol";
 import {IScriptyRenderer} from "src/interfaces/IScriptyRenderer.sol";
 
@@ -22,6 +22,11 @@ contract ScriptyRenderer is IScriptyRenderer {
     /*//////////////////////////////////////////////////////////////////////////
                                     STORAGE
     //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc IScriptyRenderer
+     */
+    address public immutable contractRegistry;
 
     /**
      * @inheritdoc IScriptyRenderer
@@ -43,9 +48,15 @@ contract ScriptyRenderer is IScriptyRenderer {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @dev Initializes ETHFSFileStorage, ScriptyStorage and ScriptyBuilder
+     * @dev Initializes FxContractRegistry, ETHFSFileStorage, ScriptyStorage and ScriptyBuilder
      */
-    constructor(address _ethfsFileStorage, address _scriptyStorage, address _scriptyBuilder) {
+    constructor(
+        address _contractRegistry,
+        address _ethfsFileStorage,
+        address _scriptyStorage,
+        address _scriptyBuilder
+    ) {
+        contractRegistry = _contractRegistry;
         ethfsFileStorage = _ethfsFileStorage;
         scriptyStorage = _scriptyStorage;
         scriptyBuilder = _scriptyBuilder;
@@ -58,35 +69,23 @@ contract ScriptyRenderer is IScriptyRenderer {
     /**
      * @inheritdoc IScriptyRenderer
      */
-    function contractURI(string memory _defaultMetadataURI) external view returns (string memory) {
+    function contractURI() external view returns (string memory) {
+        (, , string memory defaultURI) = IFxContractRegistry(contractRegistry).configInfo();
         string memory contractAddr = uint160(msg.sender).toHexString(20);
-        return string.concat(_defaultMetadataURI, contractAddr, "/metadata.json");
+        return string.concat(defaultURI, contractAddr, "/metadata.json");
     }
 
     /**
      * @inheritdoc IScriptyRenderer
      */
     function tokenURI(uint256 _tokenId, bytes calldata _data) external view returns (string memory) {
-        (string memory defaultURI, MetadataInfo memory metadataInfo, GenArtInfo memory genArtInfo) = abi.decode(
+        (, , string memory defaultURI) = IFxContractRegistry(contractRegistry).configInfo();
+        (bytes memory baseCID, address onchainPointer, bytes32 seed, bytes memory fxParams) = abi.decode(
             _data,
-            (string, MetadataInfo, GenArtInfo)
+            (bytes, address, bytes32, bytes)
         );
-        bytes memory onchainData = SSTORE2.read(metadataInfo.onchainDataPointer);
-        (HTMLRequest memory animation, HTMLRequest memory attributes) = abi.decode(
-            onchainData,
-            (HTMLRequest, HTMLRequest)
-        );
-        string memory baseURI = LibIPFSEncoder.encodeURL(bytes32(metadataInfo.baseURI));
-        string memory imageURI = imageURI(defaultURI, baseURI, _tokenId);
-        bytes memory animationURI = renderOnchain(
-            _tokenId,
-            genArtInfo.seed,
-            genArtInfo.fxParams,
-            animation,
-            attributes
-        );
-
-        return string(abi.encodePacked("data:application/json;base64,", Base64.encode(animationURI)));
+        string memory baseURI = LibIPFSEncoder.encodeURL(bytes32(baseCID));
+        return _renderOnchain(msg.sender, defaultURI, baseURI, _tokenId, seed, fxParams, onchainPointer);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -140,32 +139,18 @@ contract ScriptyRenderer is IScriptyRenderer {
     /**
      * @dev IScriptyRenderer
      */
-    function imageURI(
+    function getImageURI(
+        address _contractAddr,
         string memory _defaultURI,
         string memory _baseURI,
         uint256 _tokenId
-    ) public view returns (string memory) {
-        string memory contractAddr = uint160(address(this)).toHexString(20);
-        string memory imageThumbnailURI = string.concat("/", _tokenId.toString(), "/thumbnail.json");
+    ) public pure returns (string memory) {
+        string memory contractAddr = uint160(_contractAddr).toHexString(20);
+        string memory imageURI = string.concat("/", _tokenId.toString(), "/thumbnail.json");
         return
             (bytes(_baseURI).length == 0)
-                ? string.concat(_defaultURI, contractAddr, imageThumbnailURI)
-                : string.concat(_baseURI, imageThumbnailURI);
-    }
-
-    /**
-     * @inheritdoc IScriptyRenderer
-     */
-    function renderOnchain(
-        uint256 _tokenId,
-        bytes32 _seed,
-        bytes memory _fxParams,
-        HTMLRequest memory _animation,
-        HTMLRequest memory _attributes
-    ) public view returns (bytes memory) {
-        bytes memory animation = getEncodedHTML(_tokenId, _seed, _fxParams, _animation);
-        bytes memory attributes = getEncodedHTML(_tokenId, _seed, _fxParams, _attributes);
-        return abi.encodePacked('"animation_url":"', animation, '", "attributes":["', attributes, '"]}');
+                ? string.concat(_defaultURI, contractAddr, imageURI)
+                : string.concat(_baseURI, imageURI);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -187,5 +172,37 @@ contract ScriptyRenderer is IScriptyRenderer {
         string memory tokenId = _tokenId.toString();
         string memory seed = uint256(_seed).toHexString(32);
         return abi.encodePacked('let tokenData = {"tokenId": "', tokenId, '", "seed": "', seed, '"};');
+    }
+
+    function _renderOnchain(
+        address _token,
+        string memory _defaultURI,
+        string memory _baseURI,
+        uint256 _tokenId,
+        bytes32 _seed,
+        bytes memory _fxParams,
+        address _onchainPointer
+    ) internal view returns (string memory) {
+        bytes memory onchainData = SSTORE2.read(_onchainPointer);
+        (HTMLRequest memory animation, HTMLRequest memory attributes) = abi.decode(
+            onchainData,
+            (HTMLRequest, HTMLRequest)
+        );
+        string memory imageURI = getImageURI(_token, _defaultURI, _baseURI, _tokenId);
+        bytes memory animationURI = getEncodedHTML(_tokenId, _seed, _fxParams, animation);
+        bytes memory attributesList = getEncodedHTML(_tokenId, _seed, _fxParams, attributes);
+
+        return
+            string(
+                abi.encodePacked(
+                    '"image":"',
+                    imageURI,
+                    '"animation_url":"',
+                    string(abi.encodePacked("data:application/json;base64,", Base64.encode(animationURI))),
+                    '", "attributes":["',
+                    string(abi.encodePacked(Base64.encode(attributesList))),
+                    '"]}'
+                )
+            );
     }
 }

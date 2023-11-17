@@ -4,4 +4,4 @@ forge-std/=lib/forge-std/src/
 scripty.sol/=lib/scripty.sol/
 solady/=lib/solady/
 solmate/=lib/solmate/
-sstore2/=lib/sstore2/contracts/
+sstore2/=lib/sstore2/

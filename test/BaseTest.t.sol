@@ -128,14 +128,7 @@ contract BaseTest is Deploy, Test {
         eve = makeAddr("eve");
         susan = makeAddr("susan");
 
-        vm.label(admin, "Admin");
-        vm.label(creator, "Creator");
         vm.label(deployer, "Deployer");
-        vm.label(moderator, "Moderator");
-        vm.label(alice, "Alice");
-        vm.label(bob, "Bob");
-        vm.label(eve, "Eve");
-        vm.label(susan, "Susan");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -261,6 +254,7 @@ contract BaseTest is Deploy, Test {
             creator,
             fxGenArtProxy,
             address(ticketRedeemer),
+            address(ipfsRenderer),
             uint48(ONE_DAY),
             BASE_URI,
             mintInfo
