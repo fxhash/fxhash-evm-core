@@ -36,6 +36,11 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     /**
      * @inheritdoc IFxIssuerFactory
      */
+    mapping(address => uint256) public nonces;
+
+    /**
+     * @inheritdoc IFxIssuerFactory
+     */
     mapping(uint96 => address) public projects;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -71,7 +76,9 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
         if (_initInfo.primaryReceiver == address(0)) revert InvalidPrimaryReceiver();
         if (_initInfo.randomizer == address(0) && _projectInfo.inputSize == 0) revert InvalidInputSize();
 
-        genArtToken = LibClone.clone(implementation);
+        bytes32 salt = keccak256(abi.encode(msg.sender, nonces[msg.sender]));
+        genArtToken = LibClone.cloneDeterministic(implementation, salt);
+        nonces[msg.sender]++;
         projects[++projectId] = genArtToken;
 
         emit ProjectCreated(projectId, genArtToken, _owner);
