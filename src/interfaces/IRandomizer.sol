@@ -7,6 +7,10 @@ pragma solidity 0.8.20;
  * @notice Interface for FxGenArt721 tokens to interact with randomizers
  */
 interface IRandomizer {
+    /*//////////////////////////////////////////////////////////////////////////
+                                  FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
      * @notice Requests random seed for a given token
      * @param _tokenId ID of the token

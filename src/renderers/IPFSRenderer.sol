@@ -4,7 +4,7 @@ pragma solidity 0.8.20;
 import {LibIPFSEncoder} from "src/lib/LibIPFSEncoder.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
-import {GenArtInfo, MetadataInfo} from "src/interfaces/IFxGenArt721.sol";
+import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {IIPFSRenderer} from "src/interfaces/IIPFSRenderer.sol";
 
 /**
@@ -17,27 +17,45 @@ contract IPFSRenderer is IIPFSRenderer {
     using Strings for uint256;
 
     /*//////////////////////////////////////////////////////////////////////////
+                                    STORAGE
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc IIPFSRenderer
+     */
+    address public immutable contractRegistry;
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                  CONSTRUCTOR
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @dev Initializes FxContractRegistry
+     */
+    constructor(address _contractRegistry) {
+        contractRegistry = _contractRegistry;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                                 EXTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
      * @inheritdoc IIPFSRenderer
      */
-    function contractURI(string memory _defaultURI) external view returns (string memory) {
+    function contractURI() external view returns (string memory) {
+        (, , string memory defaultURI) = IFxContractRegistry(contractRegistry).configInfo();
         string memory contractAddr = uint160(msg.sender).toHexString(20);
-        return string.concat(_defaultURI, contractAddr, "/metadata.json");
+        return string.concat(defaultURI, contractAddr, "/metadata.json");
     }
 
     /**
      * @inheritdoc IIPFSRenderer
      */
     function tokenURI(uint256 _tokenId, bytes calldata _data) external view returns (string memory) {
-        (string memory defaultURI, MetadataInfo memory metadataInfo, ) = abi.decode(
-            _data,
-            (string, MetadataInfo, GenArtInfo)
-        );
-        string memory baseURI = LibIPFSEncoder.encodeURL(bytes32(metadataInfo.baseURI));
-        return metadataURI(defaultURI, baseURI, _tokenId);
+        (bytes memory baseCID, , , ) = abi.decode(_data, (bytes, address, bytes32, bytes));
+        string memory baseURI = LibIPFSEncoder.encodeURL(bytes32(baseCID));
+        return getMetadataURI(msg.sender, baseURI, _tokenId);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -47,16 +65,17 @@ contract IPFSRenderer is IIPFSRenderer {
     /**
      * @inheritdoc IIPFSRenderer
      */
-    function metadataURI(
-        string memory _defaultURI,
+    function getMetadataURI(
+        address _contractAddr,
         string memory _baseURI,
         uint256 _tokenId
     ) public view returns (string memory) {
-        string memory contractAddr = uint160(address(this)).toHexString(20);
-        string memory jsonMetadataURI = string.concat("/", _tokenId.toString(), "/metadata.json");
+        (, , string memory defaultURI) = IFxContractRegistry(contractRegistry).configInfo();
+        string memory contractAddr = uint160(_contractAddr).toHexString(20);
+        string memory metadataURI = string.concat("/", _tokenId.toString(), "/metadata.json");
         return
             (bytes(_baseURI).length == 0)
-                ? string.concat(_defaultURI, contractAddr, jsonMetadataURI)
-                : string.concat(_baseURI, jsonMetadataURI);
+                ? string.concat(defaultURI, contractAddr, metadataURI)
+                : string.concat(_baseURI, metadataURI);
     }
 }
