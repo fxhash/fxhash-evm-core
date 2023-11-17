@@ -82,6 +82,11 @@ interface IFxIssuerFactory {
     function implementation() external view returns (address);
 
     /**
+     * @notice Mapping of deployer address to nonce value for precomputing token address
+     */
+    function nonces(address _deployer) external view returns (uint256);
+
+    /**
      * @notice Returns counter of latest project ID
      */
     function projectId() external view returns (uint96);
