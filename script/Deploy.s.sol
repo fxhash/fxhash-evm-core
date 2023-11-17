@@ -17,7 +17,6 @@ import {DutchAuction} from "src/minters/DutchAuction.sol";
 import {FixedPrice} from "src/minters/FixedPrice.sol";
 import {IPFSRenderer} from "src/renderers/IPFSRenderer.sol";
 import {PseudoRandomizer} from "src/randomizers/PseudoRandomizer.sol";
-import {ScriptyRenderer} from "src/renderers/ScriptyRenderer.sol";
 import {SplitsController} from "src/splits/SplitsController.sol";
 import {SplitsFactory} from "src/splits/SplitsFactory.sol";
 import {TicketRedeemer} from "src/minters/TicketRedeemer.sol";
@@ -39,7 +38,6 @@ contract Deploy is Script {
     FixedPrice internal fixedPrice;
     IPFSRenderer internal ipfsRenderer;
     PseudoRandomizer internal pseudoRandomizer;
-    ScriptyRenderer internal scriptyRenderer;
     SplitsController internal splitsController;
     SplitsFactory internal splitsFactory;
     TicketRedeemer internal ticketRedeemer;
@@ -49,9 +47,6 @@ contract Deploy is Script {
     address internal creator;
 
     // External
-    address internal ethFSFileStorage;
-    address internal scriptyBuilderV2;
-    address internal scriptyStorageV2;
     address internal splitsMain;
 
     // State
@@ -77,7 +72,6 @@ contract Deploy is Script {
 
     function setUp() public virtual {
         _createAccounts();
-        _configureScripty();
         _configureInfo(LOCK_TIME, REFERRER_SHARE, DEFAULT_METADATA_URI);
     }
 
@@ -118,18 +112,6 @@ contract Deploy is Script {
         configInfo.lockTime = _lockTime;
         configInfo.referrerShare = _referrerShare;
         configInfo.defaultMetadataURI = _defaultMetadataURI;
-    }
-
-    function _configureScripty() internal virtual {
-        if (block.chainid == SEPOLIA) {
-            ethFSFileStorage = SEPOLIA_ETHFS_FILE_STORAGE;
-            scriptyBuilderV2 = SEPOLIA_SCRIPTY_BUILDER_V2;
-            scriptyStorageV2 = SEPOLIA_SCRIPTY_STORAGE_V2;
-        } else {
-            ethFSFileStorage = GOERLI_ETHFS_FILE_STORAGE;
-            scriptyBuilderV2 = GOERLI_SCRIPTY_BUILDER_V2;
-            scriptyStorageV2 = GOERLI_SCRIPTY_STORAGE_V2;
-        }
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -196,11 +178,6 @@ contract Deploy is Script {
         constructorArgs = abi.encode(fxContractRegistry);
         ipfsRenderer = IPFSRenderer(_deployCreate2(creationCode, constructorArgs, salt));
 
-        // ScriptyRenderer
-        creationCode = type(ScriptyRenderer).creationCode;
-        constructorArgs = abi.encode(fxContractRegistry, ethFSFileStorage, scriptyStorageV2, scriptyBuilderV2);
-        scriptyRenderer = ScriptyRenderer(_deployCreate2(creationCode, constructorArgs, salt));
-
         // DutchAuction
         creationCode = type(DutchAuction).creationCode;
         dutchAuction = DutchAuction(_deployCreate2(creationCode, salt));
@@ -217,7 +194,6 @@ contract Deploy is Script {
         vm.label(address(fixedPrice), "FixedPrice");
         vm.label(address(ipfsRenderer), "IPFSRenderer");
         vm.label(address(pseudoRandomizer), "PseudoRandomizer");
-        vm.label(address(scriptyRenderer), "ScriptyRenderer");
         vm.label(address(splitsController), "SplitsController");
         vm.label(address(splitsFactory), "SplitsFactory");
         vm.label(address(ticketRedeemer), "TicketRedeemer");
@@ -246,7 +222,6 @@ contract Deploy is Script {
         names.push(FIXED_PRICE);
         names.push(IPFS_RENDERER);
         names.push(PSEUDO_RANDOMIZER);
-        names.push(SCRIPTY_RENDERER);
         names.push(SPLITS_CONTROLLER);
         names.push(SPLITS_FACTORY);
         names.push(TICKET_REDEEMER);
@@ -262,7 +237,6 @@ contract Deploy is Script {
         contracts.push(address(fixedPrice));
         contracts.push(address(ipfsRenderer));
         contracts.push(address(pseudoRandomizer));
-        contracts.push(address(scriptyRenderer));
         contracts.push(address(splitsController));
         contracts.push(address(splitsFactory));
         contracts.push(address(ticketRedeemer));
