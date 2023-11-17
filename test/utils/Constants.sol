@@ -5,7 +5,7 @@ pragma solidity 0.8.20;
 uint256 constant INITIAL_BALANCE = 1000 ether;
 
 // Config
-string constant DEFAULT_METADATA_URI = "https://reveal.fxhash.xyz/";
+string constant DEFAULT_METADATA_URI = "https://media.dev.fxhash-dev.xyz/metadata/ethereum/";
 uint128 constant REFERRER_SHARE = 200; // 2%
 
 // Initialize
@@ -14,6 +14,7 @@ string constant SYMBOL = "FXHASH";
 uint256 constant TAG_ID = 1;
 
 // Metadata
+bytes constant BASE_CID = hex"a6ba5489183926f882cc59ef5478ec4aacf9e522fede5c462ed5c359b3159180";
 bytes constant BASE_URI = "ipfs://QmZZVBKapDg2wXzwpDxdmL9Ah665h9ZzeJ9gYdbTZ4GBzf";
 
 // Project

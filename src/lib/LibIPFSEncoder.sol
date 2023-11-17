@@ -14,6 +14,7 @@ library LibIPFSEncoder {
      * @dev Encodes IPFS CID hash to URL string format
      */
     function encodeURL(bytes32 _value) internal pure returns (string memory) {
+        if (_value == bytes32(0)) return "";
         uint256 value = uint256(_value);
         bytes memory url = IPFS_URL;
         uint256 remainder;

@@ -7,6 +7,10 @@ pragma solidity 0.8.20;
  * @notice Interface for minters to interact with tokens
  */
 interface IToken {
+    /*//////////////////////////////////////////////////////////////////////////
+                                  FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
     /**
      * @notice Mints arbitrary number of tokens
      * @dev Only callable by registered minter contracts

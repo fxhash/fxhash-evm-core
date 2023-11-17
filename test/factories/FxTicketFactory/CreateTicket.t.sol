@@ -13,6 +13,7 @@ contract CreateTicket is FxTicketFactoryTest {
             creator,
             fxGenArtProxy,
             address(ticketRedeemer),
+            address(ipfsRenderer),
             uint48(ONE_DAY),
             BASE_URI,
             mintInfo
@@ -27,6 +28,7 @@ contract CreateTicket is FxTicketFactoryTest {
             creator,
             fxGenArtProxy,
             address(ticketRedeemer),
+            address(ipfsRenderer),
             uint48(ONE_DAY - 1),
             BASE_URI,
             mintInfo
@@ -39,6 +41,7 @@ contract CreateTicket is FxTicketFactoryTest {
             address(0),
             fxGenArtProxy,
             address(ticketRedeemer),
+            address(ipfsRenderer),
             uint48(ONE_DAY),
             BASE_URI,
             mintInfo
@@ -51,6 +54,7 @@ contract CreateTicket is FxTicketFactoryTest {
             creator,
             address(0),
             address(ticketRedeemer),
+            address(ipfsRenderer),
             uint48(ONE_DAY),
             BASE_URI,
             mintInfo
@@ -62,6 +66,20 @@ contract CreateTicket is FxTicketFactoryTest {
         fxMintTicketProxy = fxTicketFactory.createTicket(
             creator,
             fxGenArtProxy,
+            address(0),
+            address(ipfsRenderer),
+            uint48(ONE_DAY),
+            BASE_URI,
+            mintInfo
+        );
+    }
+
+    function test_RevertsWhen_InvalidRenderer() public {
+        vm.expectRevert(INVALID_RENDERER_ERROR);
+        fxMintTicketProxy = fxTicketFactory.createTicket(
+            creator,
+            fxGenArtProxy,
+            address(ticketRedeemer),
             address(0),
             uint48(ONE_DAY),
             BASE_URI,

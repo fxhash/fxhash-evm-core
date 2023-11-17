@@ -148,22 +148,22 @@ contract Deploy is Script {
 
         // FxGenArt721
         creationCode = type(FxGenArt721).creationCode;
-        constructorArgs = abi.encode(address(fxContractRegistry), address(fxRoleRegistry));
+        constructorArgs = abi.encode(fxContractRegistry, fxRoleRegistry);
         fxGenArt721 = FxGenArt721(_deployCreate2(creationCode, constructorArgs, salt));
 
         // FxIssuerFactory
         creationCode = type(FxIssuerFactory).creationCode;
-        constructorArgs = abi.encode(admin, address(fxRoleRegistry), address(fxGenArt721));
+        constructorArgs = abi.encode(admin, fxRoleRegistry, fxGenArt721);
         fxIssuerFactory = FxIssuerFactory(_deployCreate2(creationCode, constructorArgs, salt));
 
         // FxMintTicket721
         creationCode = type(FxMintTicket721).creationCode;
-        constructorArgs = abi.encode(address(fxContractRegistry), address(fxRoleRegistry));
+        constructorArgs = abi.encode(fxContractRegistry, fxRoleRegistry);
         fxMintTicket721 = FxMintTicket721(_deployCreate2(creationCode, constructorArgs, salt));
 
         // FxTicketFactory
         creationCode = type(FxTicketFactory).creationCode;
-        constructorArgs = abi.encode(admin, address(fxMintTicket721), ONE_DAY);
+        constructorArgs = abi.encode(admin, fxMintTicket721, ONE_DAY);
         fxTicketFactory = FxTicketFactory(_deployCreate2(creationCode, constructorArgs, salt));
 
         vm.label(address(fxContractRegistry), "FxContractRegistry");
@@ -185,11 +185,12 @@ contract Deploy is Script {
 
         // IPFSRenderer
         creationCode = type(IPFSRenderer).creationCode;
-        ipfsRenderer = IPFSRenderer(_deployCreate2(creationCode, salt));
+        constructorArgs = abi.encode(fxContractRegistry);
+        ipfsRenderer = IPFSRenderer(_deployCreate2(creationCode, constructorArgs, salt));
 
         // ScriptyRenderer
         creationCode = type(ScriptyRenderer).creationCode;
-        constructorArgs = abi.encode(ethFSFileStorage, scriptyStorageV2, scriptyBuilderV2);
+        constructorArgs = abi.encode(fxContractRegistry, ethFSFileStorage, scriptyStorageV2, scriptyBuilderV2);
         scriptyRenderer = ScriptyRenderer(_deployCreate2(creationCode, constructorArgs, salt));
 
         // DutchAuction

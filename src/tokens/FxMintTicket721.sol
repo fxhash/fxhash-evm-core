@@ -16,6 +16,7 @@ import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {IFxGenArt721, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxMintTicket721, TaxInfo} from "src/interfaces/IFxMintTicket721.sol";
 import {IMinter} from "src/interfaces/IMinter.sol";
+import {IRenderer} from "src/interfaces/IRenderer.sol";
 
 import "src/utils/Constants.sol";
 
@@ -75,6 +76,11 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
     /**
      * @inheritdoc IFxMintTicket721
      */
+    address public renderer;
+
+    /**
+     * @inheritdoc IFxMintTicket721
+     */
     address[] public activeMinters;
 
     /**
@@ -122,19 +128,21 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
         address _owner,
         address _genArt721,
         address _redeemer,
+        address _renderer,
         uint48 _gracePeriod,
         bytes calldata _baseURI,
         MintInfo[] calldata _mintInfo
     ) external initializer {
         genArt721 = _genArt721;
         redeemer = _redeemer;
+        renderer = _renderer;
         gracePeriod = _gracePeriod;
         baseURI = _baseURI;
 
         _initializeOwner(_owner);
         _registerMinters(_mintInfo);
 
-        emit TicketInitialized(_genArt721, _redeemer, _gracePeriod, _baseURI, _mintInfo);
+        emit TicketInitialized(_genArt721, _redeemer, _renderer, _gracePeriod, _baseURI, _mintInfo);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -404,10 +412,26 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
+     * @inheritdoc IFxMintTicket721
+     */
+    function contractURI() external view returns (string memory) {
+        return IRenderer(renderer).contractURI();
+    }
+
+    /**
      * @inheritdoc ERC721
      */
     function isApprovedForAll(address _owner, address _operator) public view override(ERC721, IERC721) returns (bool) {
         return _operator == address(this) || minters[_operator] == TRUE || super.isApprovedForAll(_owner, _operator);
+    }
+
+    /**
+     * @inheritdoc ERC721
+     */
+    function tokenURI(uint256 _tokenId) public view override returns (string memory) {
+        _requireMinted(_tokenId);
+        bytes memory data = abi.encode(baseURI, address(0), bytes32(0), bytes(""));
+        return IRenderer(renderer).tokenURI(_tokenId, data);
     }
 
     /**
@@ -486,16 +510,6 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
      */
     function getTaxDuration(uint256 _taxPayment, uint256 _dailyTax) public pure returns (uint256) {
         return (_taxPayment * ONE_DAY) / _dailyTax;
-    }
-
-    /**
-     * @inheritdoc ERC721
-     */
-    function tokenURI(uint256 _tokenId) public view override returns (string memory) {
-        _requireMinted(_tokenId);
-        string memory encodedURI = LibIPFSEncoder.encodeURL(bytes32(baseURI));
-        string memory contractAddr = uint160(address(this)).toHexString(20);
-        return string.concat(encodedURI, "/", contractAddr, "/", _tokenId.toString(), "/metadata.json");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
