@@ -74,7 +74,7 @@ struct IssuerInfo {
 /**
  * @notice Struct of metadata information
  * - `baseURI` Decoded URI of content identifier
- * - `onchainPointer` Pointer to bytes-encoded data rendered onchain
+ * - `onchainPointer` Address of bytes-encoded data rendered onchain
  */
 struct MetadataInfo {
     bytes baseURI;

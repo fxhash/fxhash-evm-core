@@ -15,22 +15,6 @@ interface IFxMintTicket721 is IToken {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @notice Event emitted when mint ticket is initialized
-     * @param _genArt721 Address of FxGenArt721 token
-     * @param _redeemer Address of TicketRedeemer contract
-     * @param _gracePeriod Time period before token enters harberger taxation
-     * @param _baseURI Decoded content indentifier of metadata pointer
-     * @param _mintInfo Array of authorized minter contracts and their reserves
-     */
-    event TicketInitialized(
-        address indexed _genArt721,
-        address indexed _redeemer,
-        uint48 indexed _gracePeriod,
-        bytes _baseURI,
-        MintInfo[] _mintInfo
-    );
-
-    /**
      * @notice Event emitted when token is claimed at either listing or auction price
      * @param _tokenId ID of the token
      * @param _claimer Address of the token claimer
@@ -70,6 +54,24 @@ interface IFxMintTicket721 is IToken {
      * @param _depositAmount Adjusted amount of taxes deposited due to price change
      */
     event SetPrice(uint256 indexed _tokenId, uint128 _newPrice, uint128 _foreclosureTime, uint128 _depositAmount);
+
+    /**
+     * @notice Event emitted when mint ticket is initialized
+     * @param _genArt721 Address of FxGenArt721 token
+     * @param _redeemer Address of TicketRedeemer contract
+     * @param _renderer Address of renderer contract
+     * @param _gracePeriod Time period before token enters harberger taxation
+     * @param _baseURI Decoded content indentifier of metadata pointer
+     * @param _mintInfo Array of authorized minter contracts and their reserves
+     */
+    event TicketInitialized(
+        address indexed _genArt721,
+        address indexed _redeemer,
+        address indexed _renderer,
+        uint48 _gracePeriod,
+        bytes _baseURI,
+        MintInfo[] _mintInfo
+    );
 
     /**
      * @notice Event emitted when balance is withdrawn
@@ -202,6 +204,7 @@ interface IFxMintTicket721 is IToken {
      * @param _owner Address of contract owner
      * @param _genArt721 Address of GenArt721 token contract
      * @param _redeemer Address of TicketRedeemer minter contract
+     * @param _renderer Address of renderer contract
      * @param _gracePeriod Period time before token enters harberger taxation
      * @param _baseURI Decoded content identifier of metadata pointer
      * @param _mintInfo Array of authorized minter contracts and their reserves
@@ -210,6 +213,7 @@ interface IFxMintTicket721 is IToken {
         address _owner,
         address _genArt721,
         address _redeemer,
+        address _renderer,
         uint48 _gracePeriod,
         bytes calldata _baseURI,
         MintInfo[] calldata _mintInfo
@@ -314,6 +318,11 @@ interface IFxMintTicket721 is IToken {
      * @notice Returns the address of the TickeRedeemer contract
      */
     function redeemer() external view returns (address);
+
+    /**
+     * @notice Returns the address of the renderer contract
+     */
+    function renderer() external view returns (address);
 
     /**
      * @notice Registers minter contracts with resereve info

@@ -4,7 +4,6 @@ pragma solidity 0.8.20;
 import {LibIPFSEncoder} from "src/lib/LibIPFSEncoder.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
-import {GenArtInfo, MetadataInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {IIPFSRenderer} from "src/interfaces/IIPFSRenderer.sol";
 
@@ -54,8 +53,8 @@ contract IPFSRenderer is IIPFSRenderer {
      * @inheritdoc IIPFSRenderer
      */
     function tokenURI(uint256 _tokenId, bytes calldata _data) external view returns (string memory) {
-        (MetadataInfo memory metadataInfo, ) = abi.decode(_data, (MetadataInfo, GenArtInfo));
-        string memory baseURI = LibIPFSEncoder.encodeURL(bytes32(metadataInfo.baseURI));
+        (bytes memory baseCID, , , ) = abi.decode(_data, (bytes, address, bytes32, bytes));
+        string memory baseURI = LibIPFSEncoder.encodeURL(bytes32(baseCID));
         return getMetadataURI(msg.sender, baseURI, _tokenId);
     }
 

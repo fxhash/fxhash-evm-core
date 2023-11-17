@@ -254,6 +254,7 @@ contract BaseTest is Deploy, Test {
             creator,
             fxGenArtProxy,
             address(ticketRedeemer),
+            address(ipfsRenderer),
             uint48(ONE_DAY),
             BASE_URI,
             mintInfo

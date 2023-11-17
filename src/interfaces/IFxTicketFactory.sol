@@ -55,6 +55,11 @@ interface IFxTicketFactory {
     error InvalidRedeemer();
 
     /**
+     * @notice Error thrown when renderer contract is zero address
+     */
+    error InvalidRenderer();
+
+    /**
      * @notice Error thrown when token contract is zero address
      */
     error InvalidToken();
@@ -68,6 +73,7 @@ interface IFxTicketFactory {
      * @param _owner Address of project owner
      * @param _genArt721 Address of GenArt721 token contract
      * @param _redeemer Address of TicketRedeemer minter contract
+     * @param _redeemer Address of renderer contract
      * @param _gracePeriod Duration of time before token enters harberger taxation
      * @param _baseURI Decoded content identifier of metadata pointer
      * @param _mintInfo Array of authorized minter contracts and their reserves
@@ -76,6 +82,7 @@ interface IFxTicketFactory {
         address _owner,
         address _genArt721,
         address _redeemer,
+        address _renderer,
         uint48 _gracePeriod,
         bytes calldata _baseURI,
         MintInfo[] calldata _mintInfo

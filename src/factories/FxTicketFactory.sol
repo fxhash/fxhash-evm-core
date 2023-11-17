@@ -68,6 +68,7 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
         address _owner,
         address _genArt721,
         address _redeemer,
+        address _renderer,
         uint48 _gracePeriod,
         bytes calldata _baseURI,
         MintInfo[] calldata _mintInfo
@@ -75,6 +76,7 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
         if (_owner == address(0)) revert InvalidOwner();
         if (_genArt721 == address(0)) revert InvalidToken();
         if (_redeemer == address(0)) revert InvalidRedeemer();
+        if (_renderer == address(0)) revert InvalidRenderer();
         if (_gracePeriod < minGracePeriod) revert InvalidGracePeriod();
 
         bytes32 salt = keccak256(abi.encode(msg.sender, nonces[msg.sender]));
@@ -84,7 +86,15 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
 
         emit TicketCreated(ticketId, mintTicket, _owner);
 
-        IFxMintTicket721(mintTicket).initialize(_owner, _genArt721, _redeemer, _gracePeriod, _baseURI, _mintInfo);
+        IFxMintTicket721(mintTicket).initialize(
+            _owner,
+            _genArt721,
+            _redeemer,
+            _renderer,
+            _gracePeriod,
+            _baseURI,
+            _mintInfo
+        );
     }
 
     /**

@@ -16,6 +16,7 @@ import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {IFxGenArt721, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxMintTicket721, TaxInfo} from "src/interfaces/IFxMintTicket721.sol";
 import {IMinter} from "src/interfaces/IMinter.sol";
+import {IRenderer} from "src/interfaces/IRenderer.sol";
 
 import "src/utils/Constants.sol";
 
@@ -75,6 +76,11 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
     /**
      * @inheritdoc IFxMintTicket721
      */
+    address public renderer;
+
+    /**
+     * @inheritdoc IFxMintTicket721
+     */
     address[] public activeMinters;
 
     /**
@@ -122,19 +128,21 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
         address _owner,
         address _genArt721,
         address _redeemer,
+        address _renderer,
         uint48 _gracePeriod,
         bytes calldata _baseURI,
         MintInfo[] calldata _mintInfo
     ) external initializer {
         genArt721 = _genArt721;
         redeemer = _redeemer;
+        renderer = _renderer;
         gracePeriod = _gracePeriod;
         baseURI = _baseURI;
 
         _initializeOwner(_owner);
         _registerMinters(_mintInfo);
 
-        emit TicketInitialized(_genArt721, _redeemer, _gracePeriod, _baseURI, _mintInfo);
+        emit TicketInitialized(_genArt721, _redeemer, _renderer, _gracePeriod, _baseURI, _mintInfo);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -407,9 +415,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
      * @inheritdoc IFxMintTicket721
      */
     function contractURI() external view returns (string memory) {
-        (, , string memory defaultURI) = IFxContractRegistry(contractRegistry).configInfo();
-        string memory contractAddr = uint160(address(this)).toHexString(20);
-        return string.concat(defaultURI, contractAddr, "/metadata.json");
+        return IRenderer(renderer).contractURI();
     }
 
     /**
@@ -424,13 +430,8 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
      */
     function tokenURI(uint256 _tokenId) public view override returns (string memory) {
         _requireMinted(_tokenId);
-        (, , string memory defaultURI) = IFxContractRegistry(contractRegistry).configInfo();
-        string memory contractAddr = uint160(address(this)).toHexString(20);
-        string memory jsonMetadataURI = string.concat("/", _tokenId.toString(), "/metadata.json");
-        return
-            (bytes(baseURI).length == 0)
-                ? string.concat(defaultURI, contractAddr, jsonMetadataURI)
-                : string.concat(LibIPFSEncoder.encodeURL(bytes32(baseURI)), jsonMetadataURI);
+        bytes memory data = abi.encode(baseURI, address(0), bytes32(0), bytes(""));
+        return IRenderer(renderer).tokenURI(_tokenId, data);
     }
 
     /**

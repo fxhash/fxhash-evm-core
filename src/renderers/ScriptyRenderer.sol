@@ -6,7 +6,6 @@ import {LibIPFSEncoder} from "src/lib/LibIPFSEncoder.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 import {SSTORE2} from "sstore2/contracts/SSTORE2.sol";
 
-import {GenArtInfo, MetadataInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {IScriptyBuilderV2, HTMLRequest, HTMLTagType, HTMLTag} from "scripty.sol/contracts/scripty/interfaces/IScriptyBuilderV2.sol";
 import {IScriptyRenderer} from "src/interfaces/IScriptyRenderer.sol";
@@ -81,32 +80,12 @@ contract ScriptyRenderer is IScriptyRenderer {
      */
     function tokenURI(uint256 _tokenId, bytes calldata _data) external view returns (string memory) {
         (, , string memory defaultURI) = IFxContractRegistry(contractRegistry).configInfo();
-        (MetadataInfo memory metadataInfo, GenArtInfo memory genArtInfo) = abi.decode(
+        (bytes memory baseCID, address onchainPointer, bytes32 seed, bytes memory fxParams) = abi.decode(
             _data,
-            (MetadataInfo, GenArtInfo)
+            (bytes, address, bytes32, bytes)
         );
-        bytes memory onchainData = SSTORE2.read(metadataInfo.onchainPointer);
-        (HTMLRequest memory animation, HTMLRequest memory attributes) = abi.decode(
-            onchainData,
-            (HTMLRequest, HTMLRequest)
-        );
-        string memory baseURI = LibIPFSEncoder.encodeURL(bytes32(metadataInfo.baseURI));
-        string memory imageURI = getImageURI(msg.sender, defaultURI, baseURI, _tokenId);
-        bytes memory animationURI = getEncodedHTML(_tokenId, genArtInfo.seed, genArtInfo.fxParams, animation);
-        bytes memory attributesList = getEncodedHTML(_tokenId, genArtInfo.seed, genArtInfo.fxParams, attributes);
-
-        return
-            string(
-                abi.encodePacked(
-                    '"image":"',
-                    imageURI,
-                    '"animation_url":"',
-                    string(abi.encodePacked("data:application/json;base64,", Base64.encode(animationURI))),
-                    '", "attributes":["',
-                    string(abi.encodePacked(Base64.encode(attributesList))),
-                    '"]}'
-                )
-            );
+        string memory baseURI = LibIPFSEncoder.encodeURL(bytes32(baseCID));
+        return _render(msg.sender, defaultURI, baseURI, _tokenId, seed, fxParams, onchainPointer);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -193,5 +172,37 @@ contract ScriptyRenderer is IScriptyRenderer {
         string memory tokenId = _tokenId.toString();
         string memory seed = uint256(_seed).toHexString(32);
         return abi.encodePacked('let tokenData = {"tokenId": "', tokenId, '", "seed": "', seed, '"};');
+    }
+
+    function _render(
+        address _token,
+        string memory _defaultURI,
+        string memory _baseURI,
+        uint256 _tokenId,
+        bytes32 _seed,
+        bytes memory _fxParams,
+        address _onchainPointer
+    ) internal view returns (string memory) {
+        bytes memory onchainData = SSTORE2.read(_onchainPointer);
+        (HTMLRequest memory animation, HTMLRequest memory attributes) = abi.decode(
+            onchainData,
+            (HTMLRequest, HTMLRequest)
+        );
+        string memory imageURI = getImageURI(_token, _defaultURI, _baseURI, _tokenId);
+        bytes memory animationURI = getEncodedHTML(_tokenId, _seed, _fxParams, animation);
+        bytes memory attributesList = getEncodedHTML(_tokenId, _seed, _fxParams, attributes);
+
+        return
+            string(
+                abi.encodePacked(
+                    '"image":"',
+                    imageURI,
+                    '"animation_url":"',
+                    string(abi.encodePacked("data:application/json;base64,", Base64.encode(animationURI))),
+                    '", "attributes":["',
+                    string(abi.encodePacked(Base64.encode(attributesList))),
+                    '"]}'
+                )
+            );
     }
 }
