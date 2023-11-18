@@ -62,12 +62,12 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     //////////////////////////////////////////////////////////////////////////*/
 
     function createProject(
-        bytes calldata _projectInfo,
-        bytes calldata _ticketInfo,
+        bytes calldata _projectCreationInfo,
+        bytes calldata _ticketCreationInfo,
         address _ticketFactory
     ) external returns (address genArtToken, address mintTicket) {
-        genArtToken = _createProject(_projectInfo);
-        mintTicket = IFxTicketFactory(_ticketFactory).createTicket(_ticketInfo);
+        genArtToken = _createProject(_projectCreationInfo);
+        mintTicket = IFxTicketFactory(_ticketFactory).createTicket(_ticketCreationInfo);
     }
 
     /**
