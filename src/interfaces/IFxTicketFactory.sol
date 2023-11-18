@@ -90,10 +90,10 @@ interface IFxTicketFactory {
 
     /**
      * @notice Creates new mint ticket for new generative art project in single transaction
-     * @param _ticketCreationInfo Bytes-encoded data for ticket creation
+     * @param _creationInfo Bytes-encoded data for ticket creation
      * @return mintTicket Address of newly created FxMintTicket721 proxy
      */
-    function createTicketAndProject(bytes calldata _ticketCreationInfo) external returns (address);
+    function createTicket(bytes calldata _creationInfo) external returns (address);
 
     /**
      * @notice Calculates the CREATE2 address of a new FxMintTicket721 proxy

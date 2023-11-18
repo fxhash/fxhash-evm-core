@@ -85,7 +85,7 @@ interface IFxIssuerFactory {
      * @return genArtToken Address of newly created FxGenArt721 proxy
      * @return mintTicket Address of newly created FxMintTicket721 proxy
      */
-    function createProjectAndTicket(
+    function createProject(
         bytes calldata _projectCreationInfo,
         bytes calldata _ticketCreationInfo,
         address _tickeFactory

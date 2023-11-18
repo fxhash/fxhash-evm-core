@@ -64,7 +64,7 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
     /**
      * @inheritdoc IFxTicketFactory
      */
-    function createTicketAndProject(bytes calldata _creationInfo) external returns (address mintTicket) {
+    function createTicket(bytes calldata _creationInfo) external returns (address mintTicket) {
         (
             address _owner,
             address _genArt721,
