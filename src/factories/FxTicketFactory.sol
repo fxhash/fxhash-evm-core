@@ -111,6 +111,14 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
         _setMinGracePeriod(_gracePeriod);
     }
 
+    /**
+     * @inheritdoc IFxTicketFactory
+     */
+    function getTokenAddress(address _sender, uint256 _nonce) external view returns (address) {
+        return
+            LibClone.predictDeterministicAddress(implementation, keccak256(abi.encode(_sender, _nonce)), address(this));
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                 INTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
