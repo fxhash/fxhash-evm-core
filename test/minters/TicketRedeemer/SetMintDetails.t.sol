@@ -5,7 +5,9 @@ import "test/minters/TicketRedeemer/TicketRedeemerTest.t.sol";
 
 contract SetMintDetails is TicketRedeemerTest {
     function test_SetMintDetails() public {
+        vm.prank(address(token));
         ticketRedeemer.setMintDetails(reserveInfo, mintDetails);
+        assertEq(ticketRedeemer.tickets(address(token)), address(ticket));
     }
 
     function test_RevertsWhen_AlreadySet() public {

@@ -4,10 +4,12 @@ pragma solidity 0.8.20;
 import "test/BaseTest.t.sol";
 
 import {MockTicket} from "test/mocks/MockTicket.sol";
+import {MockToken} from "test/mocks/MockToken.sol";
 
 contract TicketRedeemerTest is BaseTest {
     // State
     MockTicket internal ticket;
+    MockToken internal token;
     bytes internal mintDetails;
 
     // Errors
@@ -21,9 +23,9 @@ contract TicketRedeemerTest is BaseTest {
 
     function setUp() public virtual override {
         tokenId = 1;
+        token = new MockToken();
         ticket = new MockTicket();
         ticketRedeemer = new TicketRedeemer();
-        minter = address(new MockMinter());
         mintDetails = abi.encode(address(ticket));
     }
 }

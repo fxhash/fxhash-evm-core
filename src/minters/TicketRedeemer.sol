@@ -30,11 +30,11 @@ contract TicketRedeemer is ITicketRedeemer {
      */
     function redeem(address _token, uint256 _ticketId, bytes calldata _fxParams) external {
         address ticket = tickets[_token];
-        // Reverts if caller is not owner of ticket
-        address owner = IERC721(ticket).ownerOf(_ticketId);
-        if (msg.sender != owner) revert NotAuthorized();
-        // Reverts if token contract does not exist
+        // Reverts if ticket contract does not exist
         if (ticket == address(0)) revert InvalidToken();
+        address owner = IERC721(ticket).ownerOf(_ticketId);
+        // Reverts if caller is not owner of token
+        if (msg.sender != owner) revert NotAuthorized();
 
         // Burns ticket
         IFxMintTicket721(ticket).burn(_ticketId);
