@@ -78,6 +78,10 @@ library TokenLib {
         IFxGenArt721(_proxy).setRenderer(_renderer);
     }
 
+    function setTags(address _admin, address _proxy, uint256[] memory _tagIds) internal prank(_admin) {
+        IFxGenArt721(_proxy).setTags(_tagIds);
+    }
+
     function toggleBurn(address _creator, address _proxy) internal prank(_creator) {
         IFxGenArt721(_proxy).toggleBurn();
     }
