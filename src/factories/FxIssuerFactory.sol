@@ -131,7 +131,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
                                 INTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _createProject(bytes calldata _projectCreationInfo) internal returns (address genArt721) {
+    function _createProject(bytes calldata _creationInfo) internal returns (address genArt721) {
         (
             address _owner,
             InitInfo memory _initInfo,
@@ -140,10 +140,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
             MintInfo[] memory _mintInfo,
             address[] memory _royaltyReceivers,
             uint96[] memory _basisPoints
-        ) = abi.decode(
-                _projectCreationInfo,
-                (address, InitInfo, ProjectInfo, MetadataInfo, MintInfo[], address[], uint96[])
-            );
+        ) = abi.decode(_creationInfo, (address, InitInfo, ProjectInfo, MetadataInfo, MintInfo[], address[], uint96[]));
 
         genArt721 = createProject(
             _owner,

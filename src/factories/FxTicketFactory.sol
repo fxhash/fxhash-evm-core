@@ -64,7 +64,7 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
     /**
      * @inheritdoc IFxTicketFactory
      */
-    function createTicketAndProject(bytes calldata _ticketCreationInfo) external returns (address mintTicket) {
+    function createTicketAndProject(bytes calldata _creationInfo) external returns (address mintTicket) {
         (
             address _owner,
             address _genArt721,
@@ -73,7 +73,7 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
             uint48 _gracePeriod,
             bytes memory _baseURI,
             MintInfo[] memory _mintInfo
-        ) = abi.decode(_ticketCreationInfo, (address, address, address, address, uint48, bytes, MintInfo[]));
+        ) = abi.decode(_creationInfo, (address, address, address, address, uint48, bytes, MintInfo[]));
 
         mintTicket = createTicket(_owner, _genArt721, _redeemer, _renderer, _gracePeriod, _baseURI, _mintInfo);
     }
