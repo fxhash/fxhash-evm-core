@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.23;
 
 import {LibClone} from "solady/src/utils/LibClone.sol";
 import {Ownable} from "solady/src/auth/Ownable.sol";
