@@ -101,6 +101,14 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
         _setImplementation(_implementation);
     }
 
+    /**
+     * @inheritdoc IFxIssuerFactory
+     */
+    function getTokenAddress(address _sender, uint256 _nonce) external view returns (address) {
+        return
+            LibClone.predictDeterministicAddress(implementation, keccak256(abi.encode(_sender, _nonce)), address(this));
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                 INTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/

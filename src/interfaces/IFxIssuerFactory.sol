@@ -77,6 +77,11 @@ interface IFxIssuerFactory {
     ) external returns (address);
 
     /**
+     * @notice Calculates the CREATE2 address of a new proxy
+     */
+    function getTokenAddress(address _sender, uint256 _nonce) external view returns (address);
+
+    /**
      * @notice Returns address of current FxGenArt721 implementation contract
      */
     function implementation() external view returns (address);
