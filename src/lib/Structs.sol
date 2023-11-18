@@ -145,7 +145,7 @@ struct ReserveInfo {
  * - `basisPoints` Points used to calculate the royalty payment (0.01%)
  */
 struct RoyaltyInfo {
-    address payable receiver;
+    address receiver;
     uint96 basisPoints;
 }
 

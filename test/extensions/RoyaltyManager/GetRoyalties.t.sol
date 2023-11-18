@@ -5,7 +5,7 @@ import "test/extensions/RoyaltyManager/RoyaltyManagerTest.sol";
 
 contract GetRoyalties is RoyaltyManagerTest {
     // State
-    address payable[] internal receivers;
+    address[] internal receivers;
     uint256[] internal bps;
 
     function setUp() public override {

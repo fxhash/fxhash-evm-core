@@ -136,7 +136,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         ProjectInfo calldata _projectInfo,
         MetadataInfo calldata _metadataInfo,
         MintInfo[] calldata _mintInfo,
-        address payable[] calldata _royaltyReceivers,
+        address[] calldata _royaltyReceivers,
         uint96[] calldata _basisPoints
     ) external initializer {
         issuerInfo.primaryReceiver = _initInfo.primaryReceiver;

@@ -64,15 +64,49 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
     /**
      * @inheritdoc IFxTicketFactory
      */
+    function createTicketAndProject(bytes calldata _ticketCreationInfo) public returns (address mintTicket) {
+        (
+            address _owner,
+            address _genArt721,
+            address _redeemer,
+            address _renderer,
+            uint48 _gracePeriod,
+            bytes memory _baseURI,
+            MintInfo[] memory _mintInfo
+        ) = abi.decode(_ticketCreationInfo, (address, address, address, address, uint48, bytes, MintInfo[]));
+        mintTicket = createTicket(_owner, _genArt721, _redeemer, _renderer, _gracePeriod, _baseURI, _mintInfo);
+    }
+
+    /**
+     * @inheritdoc IFxTicketFactory
+     */
+    function setImplementation(address _implementation) external onlyOwner {
+        _setImplementation(_implementation);
+    }
+
+    /**
+     * @inheritdoc IFxTicketFactory
+     */
+    function setMinGracePeriod(uint48 _gracePeriod) external onlyOwner {
+        _setMinGracePeriod(_gracePeriod);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                PUBLIC FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc IFxTicketFactory
+     */
     function createTicket(
         address _owner,
         address _genArt721,
         address _redeemer,
         address _renderer,
         uint48 _gracePeriod,
-        bytes calldata _baseURI,
-        MintInfo[] calldata _mintInfo
-    ) external returns (address mintTicket) {
+        bytes memory _baseURI,
+        MintInfo[] memory _mintInfo
+    ) public returns (address mintTicket) {
         if (_owner == address(0)) revert InvalidOwner();
         if (_genArt721 == address(0)) revert InvalidToken();
         if (_redeemer == address(0)) revert InvalidRedeemer();
@@ -97,26 +131,16 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
         );
     }
 
-    /**
-     * @inheritdoc IFxTicketFactory
-     */
-    function setImplementation(address _implementation) external onlyOwner {
-        _setImplementation(_implementation);
-    }
+    /*//////////////////////////////////////////////////////////////////////////
+                                VIEW FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /**
      * @inheritdoc IFxTicketFactory
      */
-    function setMinGracePeriod(uint48 _gracePeriod) external onlyOwner {
-        _setMinGracePeriod(_gracePeriod);
-    }
-
-    /**
-     * @inheritdoc IFxTicketFactory
-     */
-    function getTokenAddress(address _sender, uint256 _nonce) external view returns (address) {
-        return
-            LibClone.predictDeterministicAddress(implementation, keccak256(abi.encode(_sender, _nonce)), address(this));
+    function getTicketAddress(address _sender, uint256 _nonce) external view returns (address) {
+        bytes32 salt = keccak256(abi.encode(_sender, _nonce));
+        return LibClone.predictDeterministicAddress(implementation, salt, address(this));
     }
 
     /*//////////////////////////////////////////////////////////////////////////

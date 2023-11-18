@@ -63,7 +63,7 @@ contract BaseTest is Deploy, Test {
     uint256[] internal tagIds;
 
     // Royalties
-    address payable[] internal royaltyReceivers;
+    address[] internal royaltyReceivers;
     uint96[] internal basisPoints;
 
     // Splits
