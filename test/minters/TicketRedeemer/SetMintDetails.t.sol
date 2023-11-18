@@ -15,7 +15,8 @@ contract SetMintDetails is TicketRedeemerTest {
     }
 
     function test_RevertsWhen_InvalidEncoding() public {
+        delete mintDetails;
         vm.expectRevert();
-        ticketRedeemer.setMintDetails(reserveInfo, abi.encode(address(ticket), 1));
+        ticketRedeemer.setMintDetails(reserveInfo, mintDetails);
     }
 }
