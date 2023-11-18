@@ -18,8 +18,8 @@ contract CreateTicket is FxTicketFactoryTest {
             BASE_URI,
             mintInfo
         );
-        assertEq(FxMintTicket721(fxMintTicketProxy).owner(), creator);
         assertEq(fxTicketFactory.tickets(ticketId), fxMintTicketProxy);
+        assertEq(FxMintTicket721(fxMintTicketProxy).owner(), creator);
     }
 
     function test_RevertsWhen_InvalidGracePeriod() public {
