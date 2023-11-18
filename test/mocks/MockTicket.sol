@@ -2,7 +2,11 @@
 pragma solidity 0.8.20;
 
 contract MockTicket {
-    address internal owner = msg.sender;
+    address internal owner;
+
+    constructor() {
+        owner = msg.sender;
+    }
 
     function burn(uint256 _tokenId) external {}
 

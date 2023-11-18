@@ -12,6 +12,8 @@ contract Redeem is TicketRedeemerTest {
 
     function test_Redeem() public {
         ticketRedeemer.redeem(address(token), tokenId, fxParams);
+        // assertEq(ticket.ownerOf(tokenId), address(0));
+        // assertEq(token.ownerOf(tokenId), deployer);
     }
 
     function test_RevertsWhen_InvalidToken() public {
