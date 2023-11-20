@@ -49,6 +49,11 @@ interface ITicketRedeemer is IMinter {
      */
     error NotAuthorized();
 
+    /**
+     * @notice Error thrown when receiver is zero address
+     */
+    error ZeroAddress();
+
     /*//////////////////////////////////////////////////////////////////////////
                                   FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -56,10 +61,11 @@ interface ITicketRedeemer is IMinter {
     /**
      * @notice Burns a ticket and mints a new token to the caller
      * @param _ticket Address of the ticket contract
-     * @param _tokenId ID of the ticket token to burn
+     * @param _to Address of token receiver
+     * @param _tokenId ID of the ticket being burned
      * @param _fxParams Random sequence of fixed-length bytes used for token input
      */
-    function redeem(address _ticket, uint256 _tokenId, bytes calldata _fxParams) external;
+    function redeem(address _ticket, address _to, uint256 _tokenId, bytes calldata _fxParams) external;
 
     /**
      * @inheritdoc IMinter

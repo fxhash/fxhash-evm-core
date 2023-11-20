@@ -129,8 +129,8 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
     /**
      * @inheritdoc IFxTicketFactory
      */
-    function getTicketAddress(address _sender, uint256 _nonce) external view returns (address) {
-        bytes32 salt = keccak256(abi.encode(_sender, _nonce));
+    function getTicketAddress(address _sender) external view returns (address) {
+        bytes32 salt = keccak256(abi.encode(_sender, nonces[_sender]));
         return LibClone.predictDeterministicAddress(implementation, salt, address(this));
     }
 
