@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.23;
 
 import {Ownable} from "solady/src/auth/Ownable.sol";
 import {IFxContractRegistry, ConfigInfo} from "src/interfaces/IFxContractRegistry.sol";
@@ -52,14 +52,11 @@ contract FxContractRegistry is IFxContractRegistry, Ownable {
 
         address contractAddr;
         bytes32 contractName;
-        for (uint256 i; i < namesLength; ) {
+        for (uint256 i; i < namesLength; ++i) {
             contractAddr = _contracts[i];
             contractName = keccak256(abi.encode(_names[i]));
             contracts[contractName] = contractAddr;
             emit ContractRegistered(_names[i], contractName, contractAddr);
-            unchecked {
-                ++i;
-            }
         }
     }
 

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.23;
 
 import {ERC721, IERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
@@ -130,19 +130,17 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
         address _redeemer,
         address _renderer,
         uint48 _gracePeriod,
-        bytes calldata _baseURI,
         MintInfo[] calldata _mintInfo
     ) external initializer {
         genArt721 = _genArt721;
         redeemer = _redeemer;
         renderer = _renderer;
         gracePeriod = _gracePeriod;
-        baseURI = _baseURI;
 
         _initializeOwner(_owner);
         _registerMinters(_mintInfo);
 
-        emit TicketInitialized(_genArt721, _redeemer, _renderer, _gracePeriod, _baseURI, _mintInfo);
+        emit TicketInitialized(_genArt721, _redeemer, _renderer, _gracePeriod, _mintInfo);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -249,19 +247,17 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
         // Caches total supply
         uint48 currentId = totalSupply;
 
-        unchecked {
-            for (uint256 i; i < _amount; ++i) {
-                // Increments supply and mints token to given wallet
-                _mint(_to, ++currentId);
+        for (uint256 i; i < _amount; ++i) {
+            // Increments supply and mints token to given wallet
+            _mint(_to, ++currentId);
 
-                // Sets initial tax info of token
-                taxes[currentId] = TaxInfo(
-                    uint48(block.timestamp) + gracePeriod,
-                    uint48(block.timestamp) + gracePeriod,
-                    uint80(listingPrice),
-                    0
-                );
-            }
+            // Sets initial tax info of token
+            taxes[currentId] = TaxInfo(
+                uint48(block.timestamp) + gracePeriod,
+                uint48(block.timestamp) + gracePeriod,
+                uint80(listingPrice),
+                0
+            );
         }
 
         totalSupply = currentId;
@@ -362,12 +358,9 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
         uint256 length = activeMinters.length;
 
         // Unregisters all current minters
-        for (uint256 i; i < length; ) {
+        for (uint256 i; i < length; ++i) {
             address minter = activeMinters[i];
             minters[minter] = FALSE;
-            unchecked {
-                ++i;
-            }
         }
 
         // Resets array state of active minters
@@ -386,6 +379,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
      */
     function setBaseURI(bytes calldata _uri) external onlyRole(ADMIN_ROLE) {
         baseURI = _uri;
+        emit BaseURIUpdated(_uri);
         emit BatchMetadataUpdate(1, totalSupply);
     }
 

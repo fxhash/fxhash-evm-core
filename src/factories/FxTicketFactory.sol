@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.23;
 
 import {LibClone} from "solady/src/utils/LibClone.sol";
 import {Ownable} from "solady/src/auth/Ownable.sol";
@@ -70,7 +70,6 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
         address _redeemer,
         address _renderer,
         uint48 _gracePeriod,
-        bytes calldata _baseURI,
         MintInfo[] calldata _mintInfo
     ) external returns (address mintTicket) {
         if (_owner == address(0)) revert InvalidOwner();
@@ -86,15 +85,7 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
 
         emit TicketCreated(ticketId, mintTicket, _owner);
 
-        IFxMintTicket721(mintTicket).initialize(
-            _owner,
-            _genArt721,
-            _redeemer,
-            _renderer,
-            _gracePeriod,
-            _baseURI,
-            _mintInfo
-        );
+        IFxMintTicket721(mintTicket).initialize(_owner, _genArt721, _redeemer, _renderer, _gracePeriod, _mintInfo);
     }
 
     /**
