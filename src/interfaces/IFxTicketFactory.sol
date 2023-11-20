@@ -69,7 +69,7 @@ interface IFxTicketFactory {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @notice Creates new Generative Art project
+     * @notice Creates new mint ticket
      * @param _owner Address of project owner
      * @param _genArt721 Address of GenArt721 token contract
      * @param _redeemer Address of TicketRedeemer minter contract
@@ -83,13 +83,20 @@ interface IFxTicketFactory {
         address _redeemer,
         address _renderer,
         uint48 _gracePeriod,
-        MintInfo[] calldata _mintInfo
+        MintInfo[] memory _mintInfo
     ) external returns (address);
 
     /**
-     * @notice Calculates the CREATE2 address of a new proxy
+     * @notice Creates new mint ticket for new generative art project in single transaction
+     * @param _creationInfo Bytes-encoded data for ticket creation
+     * @return mintTicket Address of newly created FxMintTicket721 proxy
      */
-    function getTokenAddress(address _sender, uint256 _nonce) external view returns (address);
+    function createTicket(bytes calldata _creationInfo) external returns (address);
+
+    /**
+     * @notice Calculates the CREATE2 address of a new FxMintTicket721 proxy
+     */
+    function getTicketAddress(address _sender, uint256 _nonce) external view returns (address);
 
     /**
      * @notice Returns address of current FxMintTicket721 implementation contract
