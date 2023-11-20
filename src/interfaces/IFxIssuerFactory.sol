@@ -57,27 +57,6 @@ interface IFxIssuerFactory {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @notice Creates new generative art project with new mint ticket in single transaction
-     * @param _projectCreationInfo Bytes-encoded data for project creation
-     * @param _ticketCreationInfo Bytes-encoded data for ticket creation
-     * @param _tickeFactory Address of FxTicketFactory contract
-     * @return genArtToken Address of newly created FxGenArt721 proxy
-     * @return mintTicket Address of newly created FxMintTicket721 proxy
-     */
-    function createProject(
-        bytes calldata _projectCreationInfo,
-        bytes calldata _ticketCreationInfo,
-        address _tickeFactory
-    ) external returns (address, address);
-
-    /**
-     * @notice Creates new generative art project with single parameter
-     * @param _creationInfo Bytes-encoded data for project creation
-     * @return genArtToken Address of newly created FxGenArt721 proxy
-     */
-    function createProject(bytes memory _creationInfo) external returns (address);
-
-    /**
      * @notice Creates new generative art project
      * @param _owner Address of project owner
      * @param _initInfo Initialization information
@@ -97,6 +76,27 @@ interface IFxIssuerFactory {
         address[] memory _royaltyReceivers,
         uint96[] memory _basisPoints
     ) external returns (address);
+
+    /**
+     * @notice Creates new generative art project with single parameter
+     * @param _creationInfo Bytes-encoded data for project creation
+     * @return genArtToken Address of newly created FxGenArt721 proxy
+     */
+    function createProject(bytes memory _creationInfo) external returns (address);
+
+    /**
+     * @notice Creates new generative art project with new mint ticket in single transaction
+     * @param _projectCreationInfo Bytes-encoded data for project creation
+     * @param _ticketCreationInfo Bytes-encoded data for ticket creation
+     * @param _tickeFactory Address of FxTicketFactory contract
+     * @return genArtToken Address of newly created FxGenArt721 proxy
+     * @return mintTicket Address of newly created FxMintTicket721 proxy
+     */
+    function createProject(
+        bytes calldata _projectCreationInfo,
+        bytes calldata _ticketCreationInfo,
+        address _tickeFactory
+    ) external returns (address, address);
 
     /**
      * @notice Calculates the CREATE2 address of a new FxGenArt721 proxy
