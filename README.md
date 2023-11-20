@@ -33,18 +33,6 @@
 
 6. **[TicketRedeemer](https://github.com/fxhash/fxhash-core/blob/main/src/minters/TicketRedeemer.sol)**: Minter contract that burns an existing `FxMintTicket721` token and mints a new `FxGenArt721` token
 
-## Architechture
-
-```mermaid
-graph TD
-B[FxGenArt721]--> A[FxRoleRegistry]
-C[FxIssuerFactory] --> B
-B --> D[FxContractRegistry]
-E[SplitsFactory]
-B --> F[PseudoRandomizer]
-B --> G[ScriptyRenderer]
-```
-
 ## Setup
 
 1. Clone repository
