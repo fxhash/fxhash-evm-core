@@ -7,13 +7,11 @@ contract CreateProject is FxIssuerFactoryTest {
     address internal deterministicToken;
     bytes internal projectCreationInfo;
     bytes internal ticketCreationInfo;
-    uint256 internal nonce;
 
     function setUp() public virtual override {
         super.setUp();
         ticketId = 1;
-        nonce = fxIssuerFactory.nonces(deployer);
-        deterministicToken = fxIssuerFactory.getTokenAddress(deployer, nonce);
+        deterministicToken = fxIssuerFactory.getTokenAddress(deployer);
     }
 
     function test_CreateProject() public {

@@ -16,6 +16,7 @@ contract TicketRedeemerTest is BaseTest {
     bytes4 internal ALREAD_SET_ERROR = ITicketRedeemer.AlreadySet.selector;
     bytes4 internal INVALID_TOKEN_ERROR = ITicketRedeemer.InvalidToken.selector;
     bytes4 internal NOT_AUTHORIZED_ERROR = ITicketRedeemer.NotAuthorized.selector;
+    bytes4 internal ZERO_ADDRESS_ERROR = ITicketRedeemer.ZeroAddress.selector;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      SETUP

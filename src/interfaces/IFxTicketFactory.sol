@@ -96,7 +96,7 @@ interface IFxTicketFactory {
     /**
      * @notice Calculates the CREATE2 address of a new FxMintTicket721 proxy
      */
-    function getTicketAddress(address _sender, uint256 _nonce) external view returns (address);
+    function getTicketAddress(address _sender) external view returns (address);
 
     /**
      * @notice Returns address of current FxMintTicket721 implementation contract
