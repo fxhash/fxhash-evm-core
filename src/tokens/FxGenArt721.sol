@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.23;
 
 import {EIP712} from "openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import {ERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
@@ -183,10 +183,8 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     function mint(address _to, uint256 _amount, uint256 /* _payment */) external onlyMinter whenNotPaused {
         if (!issuerInfo.projectInfo.mintEnabled) revert MintInactive();
         uint96 currentId = totalSupply;
-        unchecked {
-            for (uint256 i; i < _amount; ++i) {
-                _mintRandom(_to, ++currentId);
-            }
+        for (uint256 i; i < _amount; ++i) {
+            _mintRandom(_to, ++currentId);
         }
         totalSupply = currentId;
     }
@@ -238,12 +236,9 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         uint256 length = issuerInfo.activeMinters.length;
 
         // Unregisters all current minters
-        for (uint256 i; i < length; ) {
+        for (uint256 i; i < length; ++i) {
             address minter = issuerInfo.activeMinters[i];
             issuerInfo.minters[minter] = FALSE;
-            unchecked {
-                ++i;
-            }
         }
 
         // Deletes current list of active minters

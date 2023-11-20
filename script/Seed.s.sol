@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.23;
 
 import "test/BaseTest.t.sol";
 
@@ -53,12 +53,9 @@ contract Seed is BaseTest {
     function _mint() internal {
         vm.prank(creator);
         IFxGenArt721(fxGenArtProxy).toggleMint();
-        for (uint256 i; i < 20; ) {
+        for (uint256 i; i < 20; ++i) {
             vm.prank(creator);
             IFxGenArt721(fxGenArtProxy).ownerMint(creator);
-            unchecked {
-                ++i;
-            }
         }
     }
 }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.23;
 
 import {IToken} from "src/interfaces/IToken.sol";
 import {MintInfo, TaxInfo} from "src/lib/Structs.sol";
