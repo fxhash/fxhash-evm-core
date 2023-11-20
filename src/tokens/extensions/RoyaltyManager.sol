@@ -33,13 +33,13 @@ abstract contract RoyaltyManager is IRoyaltyManager {
      */
     function getRoyalties(
         uint256 _tokenId
-    ) external view returns (address payable[] memory receivers, uint256[] memory basisPoints) {
+    ) external view returns (address[] memory receivers, uint256[] memory basisPoints) {
         RoyaltyInfo[] storage tokenRoyalties_ = tokenRoyalties[_tokenId];
         uint256 baseLength = baseRoyalties.length;
         uint256 tokenLength = tokenRoyalties_.length;
         uint256 totalLength = baseLength + tokenLength;
 
-        receivers = new address payable[](totalLength);
+        receivers = new address[](totalLength);
         basisPoints = new uint256[](totalLength);
 
         for (uint256 i; i < baseLength; ++i) {
@@ -82,7 +82,7 @@ abstract contract RoyaltyManager is IRoyaltyManager {
      * @param _receivers Array of addresses receiving royalties
      * @param _basisPoints Array of points used to calculate royalty payments (0.01% per receiver)
      */
-    function _setBaseRoyalties(address payable[] calldata _receivers, uint96[] calldata _basisPoints) internal {
+    function _setBaseRoyalties(address[] calldata _receivers, uint96[] calldata _basisPoints) internal {
         delete baseRoyalties;
         uint256 tokenLength = _basisPoints.length;
         if (_receivers.length != tokenLength) revert LengthMismatch();
@@ -104,7 +104,7 @@ abstract contract RoyaltyManager is IRoyaltyManager {
      */
     function _setTokenRoyalties(
         uint256 _tokenId,
-        address payable[] calldata _receivers,
+        address[] calldata _receivers,
         uint96[] calldata _basisPoints
     ) internal {
         if (!_exists(_tokenId)) revert NonExistentToken();
