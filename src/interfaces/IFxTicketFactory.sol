@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.23;
 
 import {MintInfo} from "src/lib/Structs.sol";
 
@@ -69,13 +69,12 @@ interface IFxTicketFactory {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @notice Creates new Generative Art project
+     * @notice Creates new mint ticket
      * @param _owner Address of project owner
      * @param _genArt721 Address of GenArt721 token contract
      * @param _redeemer Address of TicketRedeemer minter contract
      * @param _redeemer Address of renderer contract
      * @param _gracePeriod Duration of time before token enters harberger taxation
-     * @param _baseURI Decoded content identifier of metadata pointer
      * @param _mintInfo Array of authorized minter contracts and their reserves
      */
     function createTicket(
@@ -84,14 +83,20 @@ interface IFxTicketFactory {
         address _redeemer,
         address _renderer,
         uint48 _gracePeriod,
-        bytes calldata _baseURI,
-        MintInfo[] calldata _mintInfo
+        MintInfo[] memory _mintInfo
     ) external returns (address);
 
     /**
-     * @notice Calculates the CREATE2 address of a new proxy
+     * @notice Creates new mint ticket for new generative art project in single transaction
+     * @param _creationInfo Bytes-encoded data for ticket creation
+     * @return mintTicket Address of newly created FxMintTicket721 proxy
      */
-    function getTokenAddress(address _sender, uint256 _nonce) external view returns (address);
+    function createTicket(bytes calldata _creationInfo) external returns (address);
+
+    /**
+     * @notice Calculates the CREATE2 address of a new FxMintTicket721 proxy
+     */
+    function getTicketAddress(address _sender) external view returns (address);
 
     /**
      * @notice Returns address of current FxMintTicket721 implementation contract

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.23;
 
 import {IRoyaltyManager, RoyaltyInfo} from "src/interfaces/IRoyaltyManager.sol";
 import {FEE_DENOMINATOR, MAX_ROYALTY_BPS} from "src/utils/Constants.sol";
@@ -33,28 +33,23 @@ abstract contract RoyaltyManager is IRoyaltyManager {
      */
     function getRoyalties(
         uint256 _tokenId
-    ) external view returns (address payable[] memory receivers, uint256[] memory basisPoints) {
+    ) external view returns (address[] memory receivers, uint256[] memory basisPoints) {
         RoyaltyInfo[] storage tokenRoyalties_ = tokenRoyalties[_tokenId];
         uint256 baseLength = baseRoyalties.length;
         uint256 tokenLength = tokenRoyalties_.length;
         uint256 totalLength = baseLength + tokenLength;
 
-        receivers = new address payable[](totalLength);
+        receivers = new address[](totalLength);
         basisPoints = new uint256[](totalLength);
 
-        for (uint256 i; i < baseLength; ) {
+        for (uint256 i; i < baseLength; ++i) {
             receivers[i] = baseRoyalties[i].receiver;
             basisPoints[i] = baseRoyalties[i].basisPoints;
-            unchecked {
-                ++i;
-            }
         }
 
-        unchecked {
-            for (uint256 i; i < tokenLength; ++i) {
-                receivers[i + baseLength] = tokenRoyalties_[i].receiver;
-                basisPoints[i + baseLength] = tokenRoyalties_[i].basisPoints;
-            }
+        for (uint256 i; i < tokenLength; ++i) {
+            receivers[i + baseLength] = tokenRoyalties_[i].receiver;
+            basisPoints[i + baseLength] = tokenRoyalties_[i].basisPoints;
         }
     }
 
@@ -87,18 +82,15 @@ abstract contract RoyaltyManager is IRoyaltyManager {
      * @param _receivers Array of addresses receiving royalties
      * @param _basisPoints Array of points used to calculate royalty payments (0.01% per receiver)
      */
-    function _setBaseRoyalties(address payable[] calldata _receivers, uint96[] calldata _basisPoints) internal {
+    function _setBaseRoyalties(address[] calldata _receivers, uint96[] calldata _basisPoints) internal {
         delete baseRoyalties;
         uint256 tokenLength = _basisPoints.length;
         if (_receivers.length != tokenLength) revert LengthMismatch();
 
         _checkRoyalties(_basisPoints, tokenLength);
 
-        for (uint256 i; i < tokenLength; ) {
+        for (uint256 i; i < tokenLength; ++i) {
             baseRoyalties.push(RoyaltyInfo(_receivers[i], _basisPoints[i]));
-            unchecked {
-                ++i;
-            }
         }
 
         emit TokenRoyaltiesUpdated(_receivers, _basisPoints);
@@ -112,7 +104,7 @@ abstract contract RoyaltyManager is IRoyaltyManager {
      */
     function _setTokenRoyalties(
         uint256 _tokenId,
-        address payable[] calldata _receivers,
+        address[] calldata _receivers,
         uint96[] calldata _basisPoints
     ) internal {
         if (!_exists(_tokenId)) revert NonExistentToken();
@@ -121,28 +113,20 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         uint256 baseLength = baseRoyalties.length;
         uint96[] memory totalBasisPoints = new uint96[](baseLength + tokenLength);
 
-        for (uint256 i; i < baseLength; ) {
+        for (uint256 i; i < baseLength; ++i) {
             totalBasisPoints[i] = baseRoyalties[i].basisPoints;
-            unchecked {
-                ++i;
-            }
         }
 
-        unchecked {
-            for (uint256 i; i < tokenLength; ++i) {
-                totalBasisPoints[i + baseLength] = _basisPoints[i];
-            }
+        for (uint256 i; i < tokenLength; ++i) {
+            totalBasisPoints[i + baseLength] = _basisPoints[i];
         }
 
         _checkRoyalties(totalBasisPoints, tokenLength);
 
         delete tokenRoyalties[_tokenId];
         RoyaltyInfo[] storage tokenRoyalties_ = tokenRoyalties[_tokenId];
-        for (uint256 i; i < tokenLength; ) {
+        for (uint256 i; i < tokenLength; ++i) {
             tokenRoyalties_.push(RoyaltyInfo(_receivers[i], _basisPoints[i]));
-            unchecked {
-                ++i;
-            }
         }
 
         emit TokenIdRoyaltiesUpdated(_tokenId, _receivers, _basisPoints);
@@ -158,11 +142,9 @@ abstract contract RoyaltyManager is IRoyaltyManager {
      */
     function _checkRoyalties(uint96[] memory _basisPoints, uint256 _length) internal pure {
         uint256 totalBasisPoints;
-        unchecked {
-            for (uint256 i; i < _length; ++i) {
-                if (_basisPoints[i] > MAX_ROYALTY_BPS) revert OverMaxBasisPointsAllowed();
-                totalBasisPoints += _basisPoints[i];
-            }
+        for (uint256 i; i < _length; ++i) {
+            if (_basisPoints[i] > MAX_ROYALTY_BPS) revert OverMaxBasisPointsAllowed();
+            totalBasisPoints += _basisPoints[i];
         }
 
         if (totalBasisPoints >= FEE_DENOMINATOR) revert InvalidRoyaltyConfig();

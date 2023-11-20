@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.23;
 
 import "forge-std/Test.sol";
 import "script/Deploy.s.sol";
@@ -62,7 +62,7 @@ contract BaseTest is Deploy, Test {
     uint256[] internal tagIds;
 
     // Royalties
-    address payable[] internal royaltyReceivers;
+    address[] internal royaltyReceivers;
     uint96[] internal basisPoints;
 
     // Splits
@@ -255,7 +255,6 @@ contract BaseTest is Deploy, Test {
             address(ticketRedeemer),
             address(ipfsRenderer),
             uint48(ONE_DAY),
-            BASE_URI,
             mintInfo
         );
         vm.label(fxMintTicketProxy, "FxMintTicketProxy");

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.23;
 
 import {IPseudoRandomizer} from "src/interfaces/IPseudoRandomizer.sol";
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";

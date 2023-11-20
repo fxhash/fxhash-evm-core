@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.23;
 
 /*//////////////////////////////////////////////////////////////////////////
                                   STRUCTS
@@ -145,7 +145,7 @@ struct ReserveInfo {
  * - `basisPoints` Points used to calculate the royalty payment (0.01%)
  */
 struct RoyaltyInfo {
-    address payable receiver;
+    address receiver;
     uint96 basisPoints;
 }
 

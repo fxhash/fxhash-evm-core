@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.23;
 
 import {GenArtInfo, InitInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/lib/Structs.sol";
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
@@ -233,7 +233,7 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
         ProjectInfo calldata _projectInfo,
         MetadataInfo calldata _metadataInfo,
         MintInfo[] calldata _mintInfo,
-        address payable[] calldata _royaltyReceivers,
+        address[] calldata _royaltyReceivers,
         uint96[] calldata _basisPoints
     ) external;
 
@@ -324,7 +324,7 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @param _receivers Array of addresses receiving royalties
      * @param _basisPoints Array of points used to calculate royalty payments
      */
-    function setBaseRoyalties(address payable[] calldata _receivers, uint96[] calldata _basisPoints) external;
+    function setBaseRoyalties(address[] calldata _receivers, uint96[] calldata _basisPoints) external;
 
     /**
      * @notice Sets the new URI of the token metadata

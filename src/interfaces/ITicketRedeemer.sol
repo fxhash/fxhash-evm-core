@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.23;
 
 import {IMinter} from "src/interfaces/IMinter.sol";
 import {ReserveInfo} from "src/lib/Structs.sol";
@@ -49,6 +49,11 @@ interface ITicketRedeemer is IMinter {
      */
     error NotAuthorized();
 
+    /**
+     * @notice Error thrown when receiver is zero address
+     */
+    error ZeroAddress();
+
     /*//////////////////////////////////////////////////////////////////////////
                                   FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -56,10 +61,11 @@ interface ITicketRedeemer is IMinter {
     /**
      * @notice Burns a ticket and mints a new token to the caller
      * @param _ticket Address of the ticket contract
-     * @param _tokenId ID of the ticket token to burn
+     * @param _to Address of token receiver
+     * @param _tokenId ID of the ticket being burned
      * @param _fxParams Random sequence of fixed-length bytes used for token input
      */
-    function redeem(address _ticket, uint256 _tokenId, bytes calldata _fxParams) external;
+    function redeem(address _ticket, address _to, uint256 _tokenId, bytes calldata _fxParams) external;
 
     /**
      * @inheritdoc IMinter

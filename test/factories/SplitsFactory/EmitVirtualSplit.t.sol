@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.23;
 
-import "test/splits/SplitsFactory/SplitsFactoryTest.sol";
+import "test/factories/SplitsFactory/SplitsFactoryTest.sol";
 
 contract CreateVirtualSplit is SplitsFactoryTest {
     function setUp() public override {
