@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.23;
 
 import "test/factories/FxTicketFactory/FxTicketFactoryTest.t.sol";
 
@@ -15,7 +15,6 @@ contract CreateTicket is FxTicketFactoryTest {
             address(ticketRedeemer),
             address(ipfsRenderer),
             uint48(ONE_DAY),
-            BASE_URI,
             mintInfo
         );
         assertEq(fxTicketFactory.tickets(ticketId), fxMintTicketProxy);
@@ -30,7 +29,6 @@ contract CreateTicket is FxTicketFactoryTest {
             address(ticketRedeemer),
             address(ipfsRenderer),
             uint48(ONE_DAY - 1),
-            BASE_URI,
             mintInfo
         );
     }
@@ -43,7 +41,6 @@ contract CreateTicket is FxTicketFactoryTest {
             address(ticketRedeemer),
             address(ipfsRenderer),
             uint48(ONE_DAY),
-            BASE_URI,
             mintInfo
         );
     }
@@ -56,7 +53,6 @@ contract CreateTicket is FxTicketFactoryTest {
             address(ticketRedeemer),
             address(ipfsRenderer),
             uint48(ONE_DAY),
-            BASE_URI,
             mintInfo
         );
     }
@@ -69,7 +65,6 @@ contract CreateTicket is FxTicketFactoryTest {
             address(0),
             address(ipfsRenderer),
             uint48(ONE_DAY),
-            BASE_URI,
             mintInfo
         );
     }
@@ -82,7 +77,6 @@ contract CreateTicket is FxTicketFactoryTest {
             address(ticketRedeemer),
             address(0),
             uint48(ONE_DAY),
-            BASE_URI,
             mintInfo
         );
     }

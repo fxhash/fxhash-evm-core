@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.23;
 
 import {MintInfo} from "src/lib/Structs.sol";
 
@@ -75,7 +75,6 @@ interface IFxTicketFactory {
      * @param _redeemer Address of TicketRedeemer minter contract
      * @param _redeemer Address of renderer contract
      * @param _gracePeriod Duration of time before token enters harberger taxation
-     * @param _baseURI Decoded content identifier of metadata pointer
      * @param _mintInfo Array of authorized minter contracts and their reserves
      */
     function createTicket(
@@ -84,7 +83,6 @@ interface IFxTicketFactory {
         address _redeemer,
         address _renderer,
         uint48 _gracePeriod,
-        bytes memory _baseURI,
         MintInfo[] memory _mintInfo
     ) external returns (address);
 

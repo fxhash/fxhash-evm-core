@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.23;
 
 import {Allowlist} from "src/minters/extensions/Allowlist.sol";
 import {LibBitmap} from "solady/src/utils/LibBitmap.sol";
