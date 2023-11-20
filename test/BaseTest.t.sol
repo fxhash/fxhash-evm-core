@@ -256,7 +256,6 @@ contract BaseTest is Deploy, Test {
             address(ticketRedeemer),
             address(ipfsRenderer),
             uint48(ONE_DAY),
-            BASE_URI,
             mintInfo
         );
         vm.label(fxMintTicketProxy, "FxMintTicketProxy");
