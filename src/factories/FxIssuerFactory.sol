@@ -7,6 +7,7 @@ import {Ownable} from "solady/src/auth/Ownable.sol";
 import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
 import {IFxGenArt721, InitInfo, MetadataInfo, MintInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxIssuerFactory} from "src/interfaces/IFxIssuerFactory.sol";
+import {IFxTicketFactory} from "src/interfaces/IFxTicketFactory.sol";
 
 /**
  * @title FxIssuerFactory
@@ -64,14 +65,62 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
      * @inheritdoc IFxIssuerFactory
      */
     function createProject(
+        bytes calldata _projectCreationInfo,
+        bytes calldata _ticketCreationInfo,
+        address _ticketFactory
+    ) external returns (address genArtToken, address mintTicket) {
+        genArtToken = createProject(_projectCreationInfo);
+        mintTicket = IFxTicketFactory(_ticketFactory).createTicket(_ticketCreationInfo);
+    }
+
+    /**
+     * @inheritdoc IFxIssuerFactory
+     */
+    function setImplementation(address _implementation) external onlyOwner {
+        _setImplementation(_implementation);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                PUBLIC FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc IFxIssuerFactory
+     */
+    function createProject(bytes memory _creationInfo) public returns (address genArt721) {
+        (
+            address _owner,
+            InitInfo memory _initInfo,
+            ProjectInfo memory _projectInfo,
+            MetadataInfo memory _metadataInfo,
+            MintInfo[] memory _mintInfo,
+            address[] memory _royaltyReceivers,
+            uint96[] memory _basisPoints
+        ) = abi.decode(_creationInfo, (address, InitInfo, ProjectInfo, MetadataInfo, MintInfo[], address[], uint96[]));
+
+        genArt721 = createProject(
+            _owner,
+            _initInfo,
+            _projectInfo,
+            _metadataInfo,
+            _mintInfo,
+            _royaltyReceivers,
+            _basisPoints
+        );
+    }
+
+    /**
+     * @inheritdoc IFxIssuerFactory
+     */
+    function createProject(
         address _owner,
-        InitInfo calldata _initInfo,
-        ProjectInfo calldata _projectInfo,
-        MetadataInfo calldata _metadataInfo,
-        MintInfo[] calldata _mintInfo,
-        address payable[] calldata _royaltyReceivers,
-        uint96[] calldata _basisPoints
-    ) external returns (address genArtToken) {
+        InitInfo memory _initInfo,
+        ProjectInfo memory _projectInfo,
+        MetadataInfo memory _metadataInfo,
+        MintInfo[] memory _mintInfo,
+        address[] memory _royaltyReceivers,
+        uint96[] memory _basisPoints
+    ) public returns (address genArtToken) {
         if (_owner == address(0)) revert InvalidOwner();
         if (_initInfo.primaryReceiver == address(0)) revert InvalidPrimaryReceiver();
         if (_initInfo.randomizer == address(0) && _projectInfo.inputSize == 0) revert InvalidInputSize();
@@ -94,19 +143,16 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
         );
     }
 
-    /**
-     * @inheritdoc IFxIssuerFactory
-     */
-    function setImplementation(address _implementation) external onlyOwner {
-        _setImplementation(_implementation);
-    }
+    /*//////////////////////////////////////////////////////////////////////////
+                                VIEW FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /**
      * @inheritdoc IFxIssuerFactory
      */
     function getTokenAddress(address _sender, uint256 _nonce) external view returns (address) {
-        return
-            LibClone.predictDeterministicAddress(implementation, keccak256(abi.encode(_sender, _nonce)), address(this));
+        bytes32 salt = keccak256(abi.encode(_sender, _nonce));
+        return LibClone.predictDeterministicAddress(implementation, salt, address(this));
     }
 
     /*//////////////////////////////////////////////////////////////////////////

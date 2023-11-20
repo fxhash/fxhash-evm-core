@@ -220,7 +220,7 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
         ProjectInfo calldata _projectInfo,
         MetadataInfo calldata _metadataInfo,
         MintInfo[] calldata _mintInfo,
-        address payable[] calldata _royaltyReceivers,
+        address[] calldata _royaltyReceivers,
         uint96[] calldata _basisPoints
     ) external;
 

@@ -10,15 +10,11 @@ contract MockRoyaltyManager is RoyaltyManager {
         tokens[_tokenId] = exists;
     }
 
-    function setBaseRoyalties(address payable[] calldata _receivers, uint96[] calldata _basisPoints) external {
+    function setBaseRoyalties(address[] calldata _receivers, uint96[] calldata _basisPoints) external {
         _setBaseRoyalties(_receivers, _basisPoints);
     }
 
-    function setTokenRoyalties(
-        uint256 _id,
-        address payable[] calldata _receivers,
-        uint96[] calldata _basisPoints
-    ) external {
+    function setTokenRoyalties(uint256 _id, address[] calldata _receivers, uint96[] calldata _basisPoints) external {
         _setTokenRoyalties(_id, _receivers, _basisPoints);
     }
 
