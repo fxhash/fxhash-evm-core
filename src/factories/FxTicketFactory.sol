@@ -71,11 +71,10 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
             address _redeemer,
             address _renderer,
             uint48 _gracePeriod,
-            bytes memory _baseURI,
             MintInfo[] memory _mintInfo
-        ) = abi.decode(_creationInfo, (address, address, address, address, uint48, bytes, MintInfo[]));
+        ) = abi.decode(_creationInfo, (address, address, address, address, uint48, MintInfo[]));
 
-        mintTicket = createTicket(_owner, _genArt721, _redeemer, _renderer, _gracePeriod, _baseURI, _mintInfo);
+        mintTicket = createTicket(_owner, _genArt721, _redeemer, _renderer, _gracePeriod, _mintInfo);
     }
 
     /**

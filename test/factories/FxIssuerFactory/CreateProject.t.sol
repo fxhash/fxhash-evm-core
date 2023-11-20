@@ -30,6 +30,21 @@ contract CreateProject is FxIssuerFactoryTest {
         assertEq(FxGenArt721(fxGenArtProxy).owner(), creator);
     }
 
+    function test_CreateProject_WithSingleParameter() public {
+        projectCreationInfo = abi.encode(
+            creator,
+            initInfo,
+            projectInfo,
+            metadataInfo,
+            mintInfo,
+            royaltyReceivers,
+            basisPoints
+        );
+        fxGenArtProxy = fxIssuerFactory.createProject(projectCreationInfo);
+        assertEq(fxIssuerFactory.projects(projectId), fxGenArtProxy);
+        assertEq(FxGenArt721(fxGenArtProxy).owner(), creator);
+    }
+
     function test_CreateProject_WithTicket() public {
         projectCreationInfo = abi.encode(
             creator,
@@ -46,7 +61,6 @@ contract CreateProject is FxIssuerFactoryTest {
             address(ticketRedeemer),
             address(ipfsRenderer),
             uint48(ONE_DAY),
-            BASE_URI,
             mintInfo
         );
         (fxGenArtProxy, fxMintTicketProxy) = fxIssuerFactory.createProject(
@@ -54,7 +68,6 @@ contract CreateProject is FxIssuerFactoryTest {
             ticketCreationInfo,
             address(fxTicketFactory)
         );
-
         assertEq(fxIssuerFactory.projects(projectId), fxGenArtProxy);
         assertEq(FxGenArt721(fxGenArtProxy).owner(), creator);
         assertEq(fxTicketFactory.tickets(ticketId), fxMintTicketProxy);

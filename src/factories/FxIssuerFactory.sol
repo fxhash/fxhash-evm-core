@@ -61,12 +61,15 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
                                 EXTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    /**
+     * @inheritdoc IFxIssuerFactory
+     */
     function createProject(
         bytes calldata _projectCreationInfo,
         bytes calldata _ticketCreationInfo,
         address _ticketFactory
     ) external returns (address genArtToken, address mintTicket) {
-        genArtToken = _createProject(_projectCreationInfo);
+        genArtToken = createProject(_projectCreationInfo);
         mintTicket = IFxTicketFactory(_ticketFactory).createTicket(_ticketCreationInfo);
     }
 
@@ -80,6 +83,31 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     /*//////////////////////////////////////////////////////////////////////////
                                 PUBLIC FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc IFxIssuerFactory
+     */
+    function createProject(bytes memory _creationInfo) public returns (address genArt721) {
+        (
+            address _owner,
+            InitInfo memory _initInfo,
+            ProjectInfo memory _projectInfo,
+            MetadataInfo memory _metadataInfo,
+            MintInfo[] memory _mintInfo,
+            address[] memory _royaltyReceivers,
+            uint96[] memory _basisPoints
+        ) = abi.decode(_creationInfo, (address, InitInfo, ProjectInfo, MetadataInfo, MintInfo[], address[], uint96[]));
+
+        genArt721 = createProject(
+            _owner,
+            _initInfo,
+            _projectInfo,
+            _metadataInfo,
+            _mintInfo,
+            _royaltyReceivers,
+            _basisPoints
+        );
+    }
 
     /**
      * @inheritdoc IFxIssuerFactory
@@ -130,28 +158,6 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     /*//////////////////////////////////////////////////////////////////////////
                                 INTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    function _createProject(bytes calldata _creationInfo) internal returns (address genArt721) {
-        (
-            address _owner,
-            InitInfo memory _initInfo,
-            ProjectInfo memory _projectInfo,
-            MetadataInfo memory _metadataInfo,
-            MintInfo[] memory _mintInfo,
-            address[] memory _royaltyReceivers,
-            uint96[] memory _basisPoints
-        ) = abi.decode(_creationInfo, (address, InitInfo, ProjectInfo, MetadataInfo, MintInfo[], address[], uint96[]));
-
-        genArt721 = createProject(
-            _owner,
-            _initInfo,
-            _projectInfo,
-            _metadataInfo,
-            _mintInfo,
-            _royaltyReceivers,
-            _basisPoints
-        );
-    }
 
     /**
      * @dev Sets the FxGenArt721 implementation contract
