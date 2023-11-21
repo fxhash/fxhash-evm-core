@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.23;
 
 import "test/factories/FxIssuerFactory/FxIssuerFactoryTest.t.sol";
 
@@ -9,7 +9,7 @@ contract GetTokenAddress is FxIssuerFactoryTest {
     }
 
     function test_GetTokenAddress() public {
-        uint256 nonce = fxIssuerFactory.nonces(address(this));
+        address deterministicAddr = fxIssuerFactory.getTokenAddress(address(this));
         fxGenArtProxy = fxIssuerFactory.createProject(
             creator,
             initInfo,
@@ -19,6 +19,6 @@ contract GetTokenAddress is FxIssuerFactoryTest {
             royaltyReceivers,
             basisPoints
         );
-        assertEq(fxGenArtProxy, fxIssuerFactory.getTokenAddress(address(this), nonce));
+        assertEq(fxGenArtProxy, deterministicAddr);
     }
 }

@@ -1,25 +1,23 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.23;
 
 import "test/factories/FxTicketFactory/FxTicketFactoryTest.t.sol";
 
-contract GetTokenAddress is FxTicketFactoryTest {
+contract GetTicketAddress is FxTicketFactoryTest {
     function setUp() public virtual override {
         super.setUp();
     }
 
-    function test_GetTokenAddress() public {
-        uint256 nonce = fxTicketFactory.nonces(address(this));
-
+    function test_GetTicketAddress() public {
+        address deterministicAddr = fxTicketFactory.getTicketAddress(address(this));
         fxMintTicketProxy = fxTicketFactory.createTicket(
             creator,
             fxGenArtProxy,
             address(ticketRedeemer),
             address(ipfsRenderer),
             uint48(ONE_DAY),
-            BASE_URI,
             mintInfo
         );
-        assertEq(fxMintTicketProxy, fxTicketFactory.getTokenAddress(address(this), nonce));
+        assertEq(fxMintTicketProxy, deterministicAddr);
     }
 }
