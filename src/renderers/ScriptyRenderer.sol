@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.23;
 
 import {Base64} from "openzeppelin/contracts/utils/Base64.sol";
 import {LibIPFSEncoder} from "src/lib/LibIPFSEncoder.sol";

@@ -7,12 +7,37 @@ uint256 constant GOERLI = 5;
 uint256 constant HOLESKY = 17000;
 uint256 constant SEPOLIA = 11155111;
 
-// Allowlist
-bytes32 constant MERKLE_ROOT = bytes32(0);
-address constant MINT_PASS_SIGNER = address(0);
+// Scripty Goerli Contracts
+address constant GOERLI_ETHFS_FILE_STORAGE = 0x70a78d91A434C1073D47b2deBe31C184aA8CA9Fa;
+address constant GOERLI_SCRIPTY_STORAGE_V2 = 0x4e2f40eef8DFBF200f3f744a9733Afe2E9F83D28;
+address constant GOERLI_SCRIPTY_BUILDER_V2 = 0xccd7E419f1EEc86fa748c9079584e3a89312f11C;
 
-// Metadata
-bytes constant ONCHAIN_DATA = bytes("");
+// Scripty Sepolia Contracts
+address constant SEPOLIA_ETHFS_FILE_STORAGE = 0x2E85be2893d9a0c8B4426DcB7C1359a4e19Dc62A;
+address constant SEPOLIA_SCRIPTY_STORAGE_V2 = 0x6683D9DF2e1F3e079cdeCf119C33a88fAd71Db7b;
+address constant SEPOLIA_SCRIPTY_BUILDER_V2 = 0x7a165B3e808DfBA9c378c7545EF77E336BF9944e;
+
+// Scripty JS Libraries
+string constant CSS_CANVAS_SCRIPT = "fullSizeCanvas.css";
+string constant GUNZIP_JS_SCRIPT = "gunzipScripts-0.0.1.js";
+string constant INJECT_PNG_SCRIPT = "injectPNGScripts-0.0.1";
+string constant P5_JS_SCRIPT = "p5-v1.5.0.min.js.gz";
+string constant THREE_JS_GZ_SCRIPT = "three.min.js.gz";
+string constant THREE_JS_PNG_SCRIPT = "threejs.min.js.png";
+
+// Scripty Example Scripts
+string constant BASE_SCRIPT = "scriptyBase";
+string constant CUBE_3D_SCRIPT = "cube3D_GZIP";
+string constant DRAW_CIRCLES = "drawCircles";
+string constant DRAW_RECTANGLES = "drawRectangles";
+string constant DRAW_SHAPES = "drawShapes";
+string constant POINTS_AND_LINES_SCRIPT = "pointsAndLines";
+string constant STACKED_3D_OBJECTS_1_SCRIPT = "stacked3DObjects1";
+string constant STACKED_3D_OBJECTS_2_SCRIPT = "stacked3DObjects2";
+
+// Scripty Custom Tags
+bytes constant TAG_OPEN = '<link rel="stylesheet" href="data:text/css;base64,';
+bytes constant TAG_CLOSE = '">';
 
 // Splits Mainnet / Goerli Contracts
 address constant SPLITS_DEPLOYER = 0x9ebC8E61f87A301fF25a606d7C06150f856F24E2;
