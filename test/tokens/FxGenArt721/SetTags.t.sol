@@ -3,7 +3,7 @@ pragma solidity 0.8.23;
 
 import "test/tokens/FxGenArt721/FxGenArt721Test.t.sol";
 
-contract SetTagsTest is FxGenArt721Test {
+contract SetTags is FxGenArt721Test {
     function setUp() public virtual override {
         super.setUp();
         _createProject();
@@ -14,7 +14,7 @@ contract SetTagsTest is FxGenArt721Test {
         TokenLib.setTags(admin, fxGenArtProxy, tagIds);
     }
 
-    function test_SetTags_RevertsWhen_NotModerator() public {
+    function test_RevertsWhen_UnauthorizedAccount() public {
         vm.expectRevert(abi.encodeWithSelector(UNAUTHORIZED_ACCOUNT_ERROR));
         TokenLib.setTags(alice, fxGenArtProxy, tagIds);
     }
