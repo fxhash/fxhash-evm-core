@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.23;
 
 import {LibClone} from "solady/src/utils/LibClone.sol";
 import {Ownable} from "solady/src/auth/Ownable.sol";
@@ -64,37 +64,17 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
     /**
      * @inheritdoc IFxTicketFactory
      */
-    function createTicket(
-        address _owner,
-        address _genArt721,
-        address _redeemer,
-        address _renderer,
-        uint48 _gracePeriod,
-        bytes calldata _baseURI,
-        MintInfo[] calldata _mintInfo
-    ) external returns (address mintTicket) {
-        if (_owner == address(0)) revert InvalidOwner();
-        if (_genArt721 == address(0)) revert InvalidToken();
-        if (_redeemer == address(0)) revert InvalidRedeemer();
-        if (_renderer == address(0)) revert InvalidRenderer();
-        if (_gracePeriod < minGracePeriod) revert InvalidGracePeriod();
+    function createTicket(bytes calldata _creationInfo) external returns (address mintTicket) {
+        (
+            address _owner,
+            address _genArt721,
+            address _redeemer,
+            address _renderer,
+            uint48 _gracePeriod,
+            MintInfo[] memory _mintInfo
+        ) = abi.decode(_creationInfo, (address, address, address, address, uint48, MintInfo[]));
 
-        bytes32 salt = keccak256(abi.encode(msg.sender, nonces[msg.sender]));
-        mintTicket = LibClone.cloneDeterministic(implementation, salt);
-        nonces[msg.sender]++;
-        tickets[++ticketId] = mintTicket;
-
-        emit TicketCreated(ticketId, mintTicket, _owner);
-
-        IFxMintTicket721(mintTicket).initialize(
-            _owner,
-            _genArt721,
-            _redeemer,
-            _renderer,
-            _gracePeriod,
-            _baseURI,
-            _mintInfo
-        );
+        mintTicket = createTicket(_owner, _genArt721, _redeemer, _renderer, _gracePeriod, _mintInfo);
     }
 
     /**
@@ -109,6 +89,49 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
      */
     function setMinGracePeriod(uint48 _gracePeriod) external onlyOwner {
         _setMinGracePeriod(_gracePeriod);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                PUBLIC FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc IFxTicketFactory
+     */
+    function createTicket(
+        address _owner,
+        address _genArt721,
+        address _redeemer,
+        address _renderer,
+        uint48 _gracePeriod,
+        MintInfo[] memory _mintInfo
+    ) public returns (address mintTicket) {
+        if (_owner == address(0)) revert InvalidOwner();
+        if (_genArt721 == address(0)) revert InvalidToken();
+        if (_redeemer == address(0)) revert InvalidRedeemer();
+        if (_renderer == address(0)) revert InvalidRenderer();
+        if (_gracePeriod < minGracePeriod) revert InvalidGracePeriod();
+
+        bytes32 salt = keccak256(abi.encode(msg.sender, nonces[msg.sender]));
+        mintTicket = LibClone.cloneDeterministic(implementation, salt);
+        nonces[msg.sender]++;
+        tickets[++ticketId] = mintTicket;
+
+        emit TicketCreated(ticketId, mintTicket, _owner);
+
+        IFxMintTicket721(mintTicket).initialize(_owner, _genArt721, _redeemer, _renderer, _gracePeriod, _mintInfo);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                VIEW FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc IFxTicketFactory
+     */
+    function getTicketAddress(address _sender) external view returns (address) {
+        bytes32 salt = keccak256(abi.encode(_sender, nonces[_sender]));
+        return LibClone.predictDeterministicAddress(implementation, salt, address(this));
     }
 
     /*//////////////////////////////////////////////////////////////////////////

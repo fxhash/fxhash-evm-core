@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.23;
 
 import {RoyaltyInfo} from "src/lib/Structs.sol";
 
@@ -15,18 +15,18 @@ interface IRoyaltyManager {
 
     /**
      * @notice Event emitted when the royalties for a token ID have been updated
-     * @param tokenId ID of the token
-     * @param receivers Array of addresses receiving the royalties
-     * @param basisPoint Points used to calculate royalty payments (0.01s%)
+     * @param _tokenId ID of the token
+     * @param _receivers Array of addresses receiving the royalties
+     * @param _basisPoints Points used to calculate royalty payments (0.01s%)
      */
-    event TokenIdRoyaltiesUpdated(uint256 indexed tokenId, address payable[] receivers, uint96[] basisPoint);
+    event TokenIdRoyaltiesUpdated(uint256 indexed _tokenId, address[] _receivers, uint96[] _basisPoints);
 
     /**
      * @notice Event emitted when the royalties for a list of receivers have been updated
-     * @param receivers Array of addresses receiving royalties
-     * @param basisPoints Array of points used to calculate royalty payments (0.01% per receiver)
+     * @param _receivers Array of addresses receiving royalties
+     * @param _basisPoints Array of points used to calculate royalty payments (0.01% per receiver)
      */
-    event TokenRoyaltiesUpdated(address payable[] receivers, uint96[] basisPoints);
+    event TokenRoyaltiesUpdated(address[] _receivers, uint96[] _basisPoints);
 
     /*//////////////////////////////////////////////////////////////////////////
                                   ERRORS
@@ -81,7 +81,7 @@ interface IRoyaltyManager {
      * @param _tokenId ID of the token
      * @return Total receivers and basis points
      */
-    function getRoyalties(uint256 _tokenId) external view returns (address payable[] memory, uint256[] memory);
+    function getRoyalties(uint256 _tokenId) external view returns (address[] memory, uint256[] memory);
 
     /**
      * @notice Returns the royalty information for a specific token ID and sale price

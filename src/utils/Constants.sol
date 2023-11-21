@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.23;
 
 /*//////////////////////////////////////////////////////////////////////////
                                 CONSTANTS
@@ -18,7 +18,6 @@ string constant DUTCH_AUCTION = "DUTCH_AUCTION";
 string constant FIXED_PRICE = "FIXED_PRICE";
 string constant IPFS_RENDERER = "IPFS_RENDERER";
 string constant PSEUDO_RANDOMIZER = "PSEUDO_RANDOMIZER";
-string constant SCRIPTY_RENDERER = "SCRIPTY_RENDERER";
 string constant SPLITS_CONTROLLER = "SPLITS_CONTROLLER";
 string constant SPLITS_FACTORY = "SPLITS_FACTORY";
 string constant TICKET_REDEEMER = "TICKET_REDEEMER";

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.23;
 
 import "forge-std/Script.sol";
 import "script/utils/Constants.sol";
@@ -142,16 +142,22 @@ contract Deploy is Script {
         // FxContractRegistry
         bytes memory creationCode = type(FxContractRegistry).creationCode;
         bytes memory constructorArgs = abi.encode(admin, configInfo);
+        // init: cast keccak256(creationCode, abi.encode(constructorArgs))
+        // salt: cast create2 --starts-with 00000000 --case-sensitive --deployer CREATE2_FACTORY --init-code-hash init
         fxContractRegistry = FxContractRegistry(_deployCreate2(creationCode, constructorArgs, salt));
 
         // FxRoleRegistry
         creationCode = type(FxRoleRegistry).creationCode;
         constructorArgs = abi.encode(admin);
+        // init: cast keccak256(creationCode, abi.encode(constructorArgs))
+        // salt: cast create2 --starts-with 00000000 --case-sensitive --deployer CREATE2_FACTORY --init-code-hash init
         fxRoleRegistry = FxRoleRegistry(_deployCreate2(creationCode, constructorArgs, salt));
 
         // FxGenArt721
         creationCode = type(FxGenArt721).creationCode;
         constructorArgs = abi.encode(fxContractRegistry, fxRoleRegistry);
+        // init: cast keccak256(creationCode, abi.encode(constructorArgs))
+        // salt: cast create2 --starts-with 00000000 --case-sensitive --deployer CREATE2_FACTORY --init-code-hash init
         fxGenArt721 = FxGenArt721(_deployCreate2(creationCode, constructorArgs, salt));
 
         // FxIssuerFactory
@@ -162,6 +168,8 @@ contract Deploy is Script {
         // FxMintTicket721
         creationCode = type(FxMintTicket721).creationCode;
         constructorArgs = abi.encode(fxContractRegistry, fxRoleRegistry);
+        // init: cast keccak256(creationCode, abi.encode(constructorArgs))
+        // salt: cast create2 --starts-with 00000000 --case-sensitive --deployer CREATE2_FACTORY --init-code-hash init
         fxMintTicket721 = FxMintTicket721(_deployCreate2(creationCode, constructorArgs, salt));
 
         // FxTicketFactory
@@ -278,6 +286,10 @@ contract Deploy is Script {
                                     CREATE2
     //////////////////////////////////////////////////////////////////////////*/
 
+    function _deployCreate2(bytes memory _creationCode, bytes32 _salt) internal returns (address deployedAddr) {
+        deployedAddr = _deployCreate2(_creationCode, bytes(""), _salt);
+    }
+
     function _deployCreate2(
         bytes memory _creationCode,
         bytes memory _constructorArgs,
@@ -288,10 +300,6 @@ contract Deploy is Script {
         );
         deployedAddr = address(bytes20(response));
         require(success, "deployment failed");
-    }
-
-    function _deployCreate2(bytes memory _creationCode, bytes32 _salt) internal returns (address deployedAddr) {
-        deployedAddr = _deployCreate2(_creationCode, "", _salt);
     }
 
     function _mockSplits() internal onlyLocalForge {

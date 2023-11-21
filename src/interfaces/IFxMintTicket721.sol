@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.23;
 
 import {IToken} from "src/interfaces/IToken.sol";
 import {MintInfo, TaxInfo} from "src/lib/Structs.sol";
@@ -13,6 +13,12 @@ interface IFxMintTicket721 is IToken {
     /*//////////////////////////////////////////////////////////////////////////
                                   EVENTS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @notice Event emitted when the base URI is updated
+     * @param _uri Decoded content identifier of metadata pointer
+     */
+    event BaseURIUpdated(bytes _uri);
 
     /**
      * @notice Event emitted when token is claimed at either listing or auction price
@@ -61,7 +67,6 @@ interface IFxMintTicket721 is IToken {
      * @param _redeemer Address of TicketRedeemer contract
      * @param _renderer Address of renderer contract
      * @param _gracePeriod Time period before token enters harberger taxation
-     * @param _baseURI Decoded content indentifier of metadata pointer
      * @param _mintInfo Array of authorized minter contracts and their reserves
      */
     event TicketInitialized(
@@ -69,7 +74,6 @@ interface IFxMintTicket721 is IToken {
         address indexed _redeemer,
         address indexed _renderer,
         uint48 _gracePeriod,
-        bytes _baseURI,
         MintInfo[] _mintInfo
     );
 
@@ -206,7 +210,6 @@ interface IFxMintTicket721 is IToken {
      * @param _redeemer Address of TicketRedeemer minter contract
      * @param _renderer Address of renderer contract
      * @param _gracePeriod Period time before token enters harberger taxation
-     * @param _baseURI Decoded content identifier of metadata pointer
      * @param _mintInfo Array of authorized minter contracts and their reserves
      */
     function initialize(
@@ -215,7 +218,6 @@ interface IFxMintTicket721 is IToken {
         address _redeemer,
         address _renderer,
         uint48 _gracePeriod,
-        bytes calldata _baseURI,
         MintInfo[] calldata _mintInfo
     ) external;
 

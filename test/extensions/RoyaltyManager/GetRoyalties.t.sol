@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.23;
 
 import "test/extensions/RoyaltyManager/RoyaltyManagerTest.sol";
 
 contract GetRoyalties is RoyaltyManagerTest {
     // State
-    address payable[] internal receivers;
+    address[] internal receivers;
     uint256[] internal bps;
 
     function setUp() public override {

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.23;
 
 import {InitInfo, MetadataInfo, MintInfo, ProjectInfo} from "src/lib/Structs.sol";
 
@@ -65,16 +65,43 @@ interface IFxIssuerFactory {
      * @param _mintInfo Array of authorized minter contracts and their reserves
      * @param _royaltyReceivers Array of addresses receiving royalties
      * @param _basisPoints Array of basis points for calculating royalty shares
+     * @return genArtToken Address of newly created FxGenArt721 proxy
      */
     function createProject(
         address _owner,
-        InitInfo calldata _initInfo,
-        ProjectInfo calldata _projectInfo,
-        MetadataInfo calldata _metadataInfo,
-        MintInfo[] calldata _mintInfo,
-        address payable[] calldata _royaltyReceivers,
-        uint96[] calldata _basisPoints
+        InitInfo memory _initInfo,
+        ProjectInfo memory _projectInfo,
+        MetadataInfo memory _metadataInfo,
+        MintInfo[] memory _mintInfo,
+        address[] memory _royaltyReceivers,
+        uint96[] memory _basisPoints
     ) external returns (address);
+
+    /**
+     * @notice Creates new generative art project with single parameter
+     * @param _creationInfo Bytes-encoded data for project creation
+     * @return genArtToken Address of newly created FxGenArt721 proxy
+     */
+    function createProject(bytes memory _creationInfo) external returns (address);
+
+    /**
+     * @notice Creates new generative art project with new mint ticket in single transaction
+     * @param _projectCreationInfo Bytes-encoded data for project creation
+     * @param _ticketCreationInfo Bytes-encoded data for ticket creation
+     * @param _tickeFactory Address of FxTicketFactory contract
+     * @return genArtToken Address of newly created FxGenArt721 proxy
+     * @return mintTicket Address of newly created FxMintTicket721 proxy
+     */
+    function createProject(
+        bytes calldata _projectCreationInfo,
+        bytes calldata _ticketCreationInfo,
+        address _tickeFactory
+    ) external returns (address, address);
+
+    /**
+     * @notice Calculates the CREATE2 address of a new FxGenArt721 proxy
+     */
+    function getTokenAddress(address _sender) external view returns (address);
 
     /**
      * @notice Returns address of current FxGenArt721 implementation contract

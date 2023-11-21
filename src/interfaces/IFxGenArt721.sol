@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.23;
 
 import {GenArtInfo, InitInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/lib/Structs.sol";
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
@@ -220,7 +220,7 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
         ProjectInfo calldata _projectInfo,
         MetadataInfo calldata _metadataInfo,
         MintInfo[] calldata _mintInfo,
-        address payable[] calldata _royaltyReceivers,
+        address[] calldata _royaltyReceivers,
         uint96[] calldata _basisPoints
     ) external;
 

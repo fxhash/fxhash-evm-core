@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.23;
 
 import {Allowlist} from "src/minters/extensions/Allowlist.sol";
 import {LibBitmap} from "solady/src/utils/LibBitmap.sol";
@@ -90,11 +90,8 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
         if (merkleRoot == bytes32(0)) revert NoAllowlist();
         LibBitmap.Bitmap storage claimBitmap = claimedMerkleTreeSlots_[_token][_reserveId];
         uint256 amount = _proofs.length;
-        for (uint256 i; i < amount; ) {
+        for (uint256 i; i < amount; ++i) {
             _claimSlot(_token, _reserveId, _indexes[i], _proofs[i], claimBitmap);
-            unchecked {
-                ++i;
-            }
         }
 
         _buy(_token, _reserveId, amount, _to);

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.23;
 
 /**
  * @title StandardMerkleTree
@@ -27,18 +27,16 @@ contract StandardMerkleTree {
         // Also for dynamic arrays, size is limited to 2**64-1
         // pos: pos is bounded by log2(data.length), which should be less than type(uint256).max
         while (_data.length > 1) {
-            unchecked {
-                if (_node % 2 == 1) {
-                    result[pos] = _data[_node - 1];
-                } else if (_node + 1 == _data.length) {
-                    result[pos] = bytes32(0);
-                    ++counter;
-                } else {
-                    result[pos] = _data[_node + 1];
-                }
-                ++pos;
-                _node = _node / 2;
+            if (_node % 2 == 1) {
+                result[pos] = _data[_node - 1];
+            } else if (_node + 1 == _data.length) {
+                result[pos] = bytes32(0);
+                ++counter;
+            } else {
+                result[pos] = _data[_node + 1];
             }
+            ++pos;
+            _node = _node / 2;
             _data = _hashLevel(_data);
         }
 
@@ -46,11 +44,9 @@ contract StandardMerkleTree {
         // This is done to return the actual proof size of the indexed node
         uint256 offset;
         proof = new bytes32[](size - counter);
-        unchecked {
-            for (uint256 i; i < size; ++i) {
-                if (result[i] != bytes32(0)) proof[i - offset] = result[i];
-                else ++offset;
-            }
+        for (uint256 i; i < size; ++i) {
+            if (result[i] != bytes32(0)) proof[i - offset] = result[i];
+            else ++offset;
         }
     }
 
@@ -124,13 +120,11 @@ contract StandardMerkleTree {
 
         // if x == type(uint256).max, than ceil is capped at 256
         // if x == 0, then pO2 == 0, so ceil won't underflow
-        unchecked {
-            while (x > 0) {
-                x >>= 1;
-                ceil++;
-            }
-            ceil -= pOf2;
+        while (x > 0) {
+            x >>= 1;
+            ceil++;
         }
+        ceil -= pOf2;
     }
 
     /**
@@ -143,10 +137,8 @@ contract StandardMerkleTree {
     function verifyProof(bytes32 _root, bytes32[] memory _proof, bytes32 _valueToProve) public pure returns (bool) {
         // proof length must be less than max array size
         bytes32 rollingHash = _valueToProve;
-        unchecked {
-            for (uint256 i = 0; i < _proof.length; ++i) {
-                rollingHash = hashLeafPairs(rollingHash, _proof[i]);
-            }
+        for (uint256 i = 0; i < _proof.length; ++i) {
+            rollingHash = hashLeafPairs(rollingHash, _proof[i]);
         }
         return _root == rollingHash;
     }
@@ -160,21 +152,19 @@ contract StandardMerkleTree {
         // Function is private, and all internal callers check that data.length >=2.
         // Underflow is not possible as lowest possible value for data/result index is 1
         // overflow should be safe as length is / 2 always.
-        unchecked {
-            uint256 length = _data.length;
-            if (length & 0x1 == 1) {
-                result = new bytes32[]((length >> 1) + 1);
-                result[result.length - 1] = hashLeafPairs(_data[length - 1], bytes32(0));
-            } else {
-                result = new bytes32[](length >> 1);
-            }
+        uint256 length = _data.length;
+        if (length & 0x1 == 1) {
+            result = new bytes32[]((length >> 1) + 1);
+            result[result.length - 1] = hashLeafPairs(_data[length - 1], bytes32(0));
+        } else {
+            result = new bytes32[](length >> 1);
+        }
 
-            // pos is upper bounded by data.length / 2, so safe even if array is at max size
-            uint256 pos;
-            for (uint256 i; i < length - 1; i += 2) {
-                result[pos] = hashLeafPairs(_data[i], _data[i + 1]);
-                ++pos;
-            }
+        // pos is upper bounded by data.length / 2, so safe even if array is at max size
+        uint256 pos;
+        for (uint256 i; i < length - 1; i += 2) {
+            result[pos] = hashLeafPairs(_data[i], _data[i + 1]);
+            ++pos;
         }
     }
 }

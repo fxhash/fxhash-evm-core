@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.23;
 
 import "test/tokens/FxMintTicket721/FxMintTicket721Test.t.sol";
 
@@ -11,7 +11,7 @@ contract Burn is FxMintTicket721Test {
     }
 
     function test_Burn() public {
-        TicketLib.redeem(bob, address(ticketRedeemer), fxGenArtProxy, tokenId, fxParams);
+        TicketLib.redeem(bob, address(ticketRedeemer), fxGenArtProxy, bob, tokenId, fxParams);
         _setTaxInfo();
         assertEq(gracePeriod, 0);
         assertEq(foreclosureTime, 0);
