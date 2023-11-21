@@ -2,17 +2,24 @@
 pragma solidity 0.8.23;
 
 import "test/tokens/FxGenArt721/FxGenArt721Test.t.sol";
+import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 
-contract PauseTest is FxGenArt721Test {
+contract Pause is FxGenArt721Test {
     function setUp() public virtual override {
         super.setUp();
         _createProject();
         _setIssuerInfo();
     }
 
-    function test_Pausable_MintRandom() public {
+    function test_Pause() public {
         TokenLib.pause(admin, fxGenArtProxy);
-        vm.expectRevert(bytes("Pausable: paused"));
-        TokenLib.mint(alice, minter, fxGenArtProxy, bob, amount, PRICE);
+        assertTrue(Pausable(fxGenArtProxy).paused());
+    }
+
+    function test_RevertsWhen_Paused() public {
+        TokenLib.pause(admin, fxGenArtProxy);
+
+        vm.expectRevert("Pausable: paused");
+        TokenLib.pause(admin, fxGenArtProxy);
     }
 }

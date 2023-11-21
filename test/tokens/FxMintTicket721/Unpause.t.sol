@@ -2,8 +2,9 @@
 pragma solidity 0.8.23;
 
 import "test/tokens/FxMintTicket721/FxMintTicket721Test.t.sol";
+import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 
-contract UnpausedTest is FxMintTicket721Test {
+contract Unpause is FxMintTicket721Test {
     function setUp() public virtual override {
         super.setUp();
         _createProject();
@@ -13,9 +14,11 @@ contract UnpausedTest is FxMintTicket721Test {
         TokenLib.pause(admin, address(fxMintTicket721));
 
         TokenLib.unpause(admin, address(fxMintTicket721));
+
+        assertFalse(Pausable(fxMintTicket721).paused());
     }
 
-    function test_Unpause_RevertsWhen_NotModerator() public {
+    function test_RevertsWhen_UnauthorizedAccount() public {
         TokenLib.pause(admin, address(fxMintTicket721));
 
         vm.expectRevert(UNAUTHORIZED_ACCOUNT_TICKET_ERROR);

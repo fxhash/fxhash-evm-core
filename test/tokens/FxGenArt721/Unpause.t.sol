@@ -2,8 +2,9 @@
 pragma solidity 0.8.23;
 
 import "test/tokens/FxGenArt721/FxGenArt721Test.t.sol";
+import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 
-contract UnpausedTest is FxGenArt721Test {
+contract Unpause is FxGenArt721Test {
     function setUp() public virtual override {
         super.setUp();
         _createProject();
@@ -14,9 +15,11 @@ contract UnpausedTest is FxGenArt721Test {
         TokenLib.pause(admin, fxGenArtProxy);
 
         TokenLib.unpause(admin, fxGenArtProxy);
+
+        assertFalse(Pausable(fxGenArtProxy).paused());
     }
 
-    function test_Unpause_RevertsWhen_NotPaused() public {
+    function test_RevertsWhen_NotPaused() public {
         vm.expectRevert("Pausable: not paused");
         TokenLib.unpause(admin, fxGenArtProxy);
     }
