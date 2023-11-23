@@ -10,6 +10,8 @@ import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {IScriptyBuilderV2, HTMLRequest, HTMLTagType, HTMLTag} from "scripty.sol/contracts/scripty/interfaces/IScriptyBuilderV2.sol";
 import {IScriptyRenderer} from "src/interfaces/IScriptyRenderer.sol";
 
+import {METADATA_ENDPOINT, THUMBNAIL_ENDPOINT} from "src/utils/Constants.sol";
+
 /**
  * @title ScriptyRenderer
  * @author fx(hash)
@@ -72,7 +74,7 @@ contract ScriptyRenderer is IScriptyRenderer {
     function contractURI() external view returns (string memory) {
         (, , string memory defaultURI) = IFxContractRegistry(contractRegistry).configInfo();
         string memory contractAddr = uint160(msg.sender).toHexString(20);
-        return string.concat(defaultURI, contractAddr, "/metadata.json");
+        return string.concat(defaultURI, contractAddr, METADATA_ENDPOINT);
     }
 
     /**
@@ -146,7 +148,7 @@ contract ScriptyRenderer is IScriptyRenderer {
         uint256 _tokenId
     ) public pure returns (string memory) {
         string memory contractAddr = uint160(_contractAddr).toHexString(20);
-        string memory imageURI = string.concat("/", _tokenId.toString(), "/thumbnail.json");
+        string memory imageURI = string.concat("/", _tokenId.toString(), THUMBNAIL_ENDPOINT);
         return
             (bytes(_baseURI).length == 0)
                 ? string.concat(_defaultURI, contractAddr, imageURI)
