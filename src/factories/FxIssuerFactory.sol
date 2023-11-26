@@ -87,60 +87,15 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     /**
      * @inheritdoc IFxIssuerFactory
      */
-    function createProject(bytes memory _creationInfo) public returns (address genArt721) {
-        (
-            address _owner,
-            InitInfo memory _initInfo,
-            ProjectInfo memory _projectInfo,
-            MetadataInfo memory _metadataInfo,
-            MintInfo[] memory _mintInfo,
-            address[] memory _royaltyReceivers,
-            uint96[] memory _basisPoints
-        ) = abi.decode(_creationInfo, (address, InitInfo, ProjectInfo, MetadataInfo, MintInfo[], address[], uint96[]));
-
-        genArt721 = createProject(
-            _owner,
-            _initInfo,
-            _projectInfo,
-            _metadataInfo,
-            _mintInfo,
-            _royaltyReceivers,
-            _basisPoints
-        );
-    }
-
-    /**
-     * @inheritdoc IFxIssuerFactory
-     */
-    function createProject(
-        address _owner,
-        InitInfo memory _initInfo,
-        ProjectInfo memory _projectInfo,
-        MetadataInfo memory _metadataInfo,
-        MintInfo[] memory _mintInfo,
-        address[] memory _royaltyReceivers,
-        uint96[] memory _basisPoints
-    ) public returns (address genArtToken) {
-        if (_owner == address(0)) revert InvalidOwner();
-        if (_initInfo.primaryReceiver == address(0)) revert InvalidPrimaryReceiver();
-        if (_initInfo.randomizer == address(0) && _projectInfo.inputSize == 0) revert InvalidInputSize();
-
+    function createProject(bytes calldata _creationInfo) public returns (address genArt721) {
         bytes32 salt = keccak256(abi.encode(msg.sender, nonces[msg.sender]));
-        genArtToken = LibClone.cloneDeterministic(implementation, salt);
+        genArt721 = LibClone.cloneDeterministic(implementation, salt);
         nonces[msg.sender]++;
-        projects[++projectId] = genArtToken;
+        projects[++projectId] = genArt721;
 
-        emit ProjectCreated(projectId, genArtToken, _owner);
+        emit ProjectCreated(projectId, genArt721);
 
-        IFxGenArt721(genArtToken).initialize(
-            _owner,
-            _initInfo,
-            _projectInfo,
-            _metadataInfo,
-            _mintInfo,
-            _royaltyReceivers,
-            _basisPoints
-        );
+        IFxGenArt721(genArt721).initialize(_creationInfo);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

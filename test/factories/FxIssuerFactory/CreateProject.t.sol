@@ -16,13 +16,7 @@ contract CreateProject is FxIssuerFactoryTest {
 
     function test_CreateProject() public {
         fxGenArtProxy = fxIssuerFactory.createProject(
-            creator,
-            initInfo,
-            projectInfo,
-            metadataInfo,
-            mintInfo,
-            royaltyReceivers,
-            basisPoints
+            abi.encode(creator, initInfo, projectInfo, metadataInfo, mintInfo, royaltyReceivers, basisPoints)
         );
         assertEq(fxIssuerFactory.projects(projectId), fxGenArtProxy);
         assertEq(FxGenArt721(fxGenArtProxy).owner(), creator);
@@ -30,13 +24,7 @@ contract CreateProject is FxIssuerFactoryTest {
 
     function test_CreateProject_WithSingleParameter() public {
         projectCreationInfo = abi.encode(
-            creator,
-            initInfo,
-            projectInfo,
-            metadataInfo,
-            mintInfo,
-            royaltyReceivers,
-            basisPoints
+            abi.encode(creator, initInfo, projectInfo, metadataInfo, mintInfo, royaltyReceivers, basisPoints)
         );
         fxGenArtProxy = fxIssuerFactory.createProject(projectCreationInfo);
         assertEq(fxIssuerFactory.projects(projectId), fxGenArtProxy);
@@ -45,13 +33,7 @@ contract CreateProject is FxIssuerFactoryTest {
 
     function test_CreateProject_WithTicket() public {
         projectCreationInfo = abi.encode(
-            creator,
-            initInfo,
-            projectInfo,
-            metadataInfo,
-            mintInfo,
-            royaltyReceivers,
-            basisPoints
+            abi.encode(creator, initInfo, projectInfo, metadataInfo, mintInfo, royaltyReceivers, basisPoints)
         );
         ticketCreationInfo = abi.encode(
             creator,
@@ -75,13 +57,7 @@ contract CreateProject is FxIssuerFactoryTest {
     function test_RevertsWhen_InvalidOwner() public {
         vm.expectRevert(INVALID_OWNER_ERROR);
         fxGenArtProxy = fxIssuerFactory.createProject(
-            address(0),
-            initInfo,
-            projectInfo,
-            metadataInfo,
-            mintInfo,
-            royaltyReceivers,
-            basisPoints
+            abi.encode(address(0), initInfo, projectInfo, metadataInfo, mintInfo, royaltyReceivers, basisPoints)
         );
     }
 
@@ -89,13 +65,7 @@ contract CreateProject is FxIssuerFactoryTest {
         initInfo.primaryReceiver = address(0);
         vm.expectRevert(INVALID_PRIMARY_RECEIVER_ERROR);
         fxGenArtProxy = fxIssuerFactory.createProject(
-            creator,
-            initInfo,
-            projectInfo,
-            metadataInfo,
-            mintInfo,
-            royaltyReceivers,
-            basisPoints
+            abi.encode(creator, initInfo, projectInfo, metadataInfo, mintInfo, royaltyReceivers, basisPoints)
         );
     }
 }

@@ -28,6 +28,8 @@ import "src/utils/Constants.sol";
  */
 contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, Ownable, Pausable, RoyaltyManager {
     using SignatureChecker for address;
+    error InvalidOwner();
+    error InvalidPrimaryReceiver();
 
     /*//////////////////////////////////////////////////////////////////////////
                                     STORAGE
@@ -130,15 +132,21 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function initialize(
-        address _owner,
-        InitInfo calldata _initInfo,
-        ProjectInfo calldata _projectInfo,
-        MetadataInfo calldata _metadataInfo,
-        MintInfo[] calldata _mintInfo,
-        address[] calldata _royaltyReceivers,
-        uint96[] calldata _basisPoints
-    ) external initializer {
+    function initialize(bytes calldata _creationInfo) external initializer {
+        (
+            address _owner,
+            InitInfo memory _initInfo,
+            ProjectInfo memory _projectInfo,
+            MetadataInfo memory _metadataInfo,
+            MintInfo[] memory _mintInfo,
+            address[] memory _royaltyReceivers,
+            uint96[] memory _basisPoints
+        ) = abi.decode(_creationInfo, (address, InitInfo, ProjectInfo, MetadataInfo, MintInfo[], address[], uint96[]));
+
+        if (_owner == address(0)) revert InvalidOwner();
+        if (_initInfo.primaryReceiver == address(0)) revert InvalidPrimaryReceiver();
+        if (_initInfo.randomizer == address(0) && _projectInfo.inputSize == 0) revert InvalidInputSize();
+
         issuerInfo.primaryReceiver = _initInfo.primaryReceiver;
         issuerInfo.projectInfo = _projectInfo;
         metadataInfo = _metadataInfo;
@@ -323,7 +331,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function setTags(uint256[] calldata _tagIds) external onlyRole(MODERATOR_ROLE) {
+    function setTags(uint256[] memory _tagIds) external onlyRole(MODERATOR_ROLE) {
         _setTags(_tagIds);
     }
 
@@ -468,7 +476,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @dev Packs name and symbol into single slot if combined length is 30 bytes or less
      */
-    function _setNameAndSymbol(string calldata _name, string calldata _symbol) internal {
+    function _setNameAndSymbol(string memory _name, string memory _symbol) internal {
         bytes32 packed = LibString.packTwo(_name, _symbol);
         if (packed == bytes32(0)) {
             name_ = _name;
@@ -481,7 +489,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @dev Emits event for setting the project tag descriptions
      */
-    function _setTags(uint256[] calldata _tagIds) internal {
+    function _setTags(uint256[] memory _tagIds) internal {
         emit ProjectTags(_tagIds);
     }
 

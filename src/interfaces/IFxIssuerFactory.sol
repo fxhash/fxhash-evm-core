@@ -24,9 +24,8 @@ interface IFxIssuerFactory {
      * @notice Event emitted when a new generative art project is created
      * @param _projectId ID of the project
      * @param _genArtToken Address of newly deployed FxGenArt721 token contract
-     * @param _owner Address of project owner
      */
-    event ProjectCreated(uint96 indexed _projectId, address indexed _genArtToken, address indexed _owner);
+    event ProjectCreated(uint96 indexed _projectId, address indexed _genArtToken);
 
     /*//////////////////////////////////////////////////////////////////////////
                                   ERRORS
@@ -55,27 +54,6 @@ interface IFxIssuerFactory {
     /*//////////////////////////////////////////////////////////////////////////
                                   FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
-
-    /**
-     * @notice Creates new generative art project
-     * @param _owner Address of project owner
-     * @param _initInfo Initialization information
-     * @param _projectInfo Project information
-     * @param _metadataInfo Metadata information
-     * @param _mintInfo Array of authorized minter contracts and their reserves
-     * @param _royaltyReceivers Array of addresses receiving royalties
-     * @param _basisPoints Array of basis points for calculating royalty shares
-     * @return genArtToken Address of newly created FxGenArt721 proxy
-     */
-    function createProject(
-        address _owner,
-        InitInfo memory _initInfo,
-        ProjectInfo memory _projectInfo,
-        MetadataInfo memory _metadataInfo,
-        MintInfo[] memory _mintInfo,
-        address[] memory _royaltyReceivers,
-        uint96[] memory _basisPoints
-    ) external returns (address);
 
     /**
      * @notice Creates new generative art project with single parameter

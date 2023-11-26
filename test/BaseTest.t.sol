@@ -238,13 +238,7 @@ contract BaseTest is Deploy, Test {
 
     function _createProject() internal virtual {
         fxGenArtProxy = fxIssuerFactory.createProject(
-            creator,
-            initInfo,
-            projectInfo,
-            metadataInfo,
-            mintInfo,
-            royaltyReceivers,
-            basisPoints
+            abi.encode(creator, initInfo, projectInfo, metadataInfo, mintInfo, royaltyReceivers, basisPoints)
         );
         vm.label(fxGenArtProxy, "FxGenArtProxy");
     }

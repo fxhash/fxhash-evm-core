@@ -82,7 +82,7 @@ abstract contract RoyaltyManager is IRoyaltyManager {
      * @param _receivers Array of addresses receiving royalties
      * @param _basisPoints Array of points used to calculate royalty payments (0.01% per receiver)
      */
-    function _setBaseRoyalties(address[] calldata _receivers, uint96[] calldata _basisPoints) internal {
+    function _setBaseRoyalties(address[] memory _receivers, uint96[] memory _basisPoints) internal {
         delete baseRoyalties;
         uint256 tokenLength = _basisPoints.length;
         if (_receivers.length != tokenLength) revert LengthMismatch();

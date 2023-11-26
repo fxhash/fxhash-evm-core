@@ -206,23 +206,8 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
 
     /**
      * @notice Initializes new generative art project
-     * @param _owner Address of token proxy owner
-     * @param _initInfo Initialization information set on project creation
-     * @param _projectInfo Project information
-     * @param _metadataInfo Metadata information
-     * @param _mintInfo Array of authorized minter contracts and their reserves
-     * @param _royaltyReceivers Array of addresses receiving royalties
-     * @param _basisPoints Array of basis points for calculating royalty shares
      */
-    function initialize(
-        address _owner,
-        InitInfo calldata _initInfo,
-        ProjectInfo calldata _projectInfo,
-        MetadataInfo calldata _metadataInfo,
-        MintInfo[] calldata _mintInfo,
-        address[] calldata _royaltyReceivers,
-        uint96[] calldata _basisPoints
-    ) external;
+    function initialize(bytes calldata _initalizeData) external;
 
     /**
      * @notice Gets the authorization status for the given minter contract
