@@ -86,8 +86,7 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         _checkRoyalties(_receivers, _allocations, _basisPoints);
         /// compute split if necessary
         address receiver;
-        if (_receivers.length == 0) {
-            /// TODO: need to check some boolean for if fxhash has revoke royalties
+        if (_receivers.length == 0 || _basisPoints == 0) {
             delete baseRoyalties;
         } else if (_receivers.length > 1) {
             receiver = ISplitsMain(SPLITS_MAIN).predictImmutableSplitAddress(_receivers, _allocations, 0);
