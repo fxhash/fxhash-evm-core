@@ -36,7 +36,6 @@ contract DutchAuctionTest is BaseTest {
         super.setUp();
         _initializeState();
         _deployRefundableDA();
-        _configureSplits();
         _configureRoyalties();
         _configureReserve();
         _configureMintParams(stepLength, false, prices);

@@ -137,7 +137,8 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         MetadataInfo calldata _metadataInfo,
         MintInfo[] calldata _mintInfo,
         address[] calldata _royaltyReceivers,
-        uint96[] calldata _basisPoints
+        uint32[] calldata _allocations,
+        uint96 _basisPoints
     ) external initializer {
         issuerInfo.primaryReceiver = _initInfo.primaryReceiver;
         issuerInfo.projectInfo = _projectInfo;
@@ -147,7 +148,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
 
         _initializeOwner(_owner);
         _registerMinters(_mintInfo);
-        _setBaseRoyalties(_royaltyReceivers, _basisPoints);
+        _setBaseRoyalties(_royaltyReceivers, _allocations, _basisPoints);
         _setNameAndSymbol(_initInfo.name, _initInfo.symbol);
         _setTags(_initInfo.tagIds);
 
@@ -251,8 +252,12 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function setBaseRoyalties(address[] calldata _receivers, uint96[] calldata _basisPoints) external onlyOwner {
-        _setBaseRoyalties(_receivers, _basisPoints);
+    function setBaseRoyalties(
+        address[] calldata _receivers,
+        uint32[] calldata _allocations,
+        uint96 _basisPoints
+    ) external onlyOwner {
+        _setBaseRoyalties(_receivers, _allocations, _basisPoints);
     }
 
     /**

@@ -31,7 +31,7 @@ uint64 constant RESERVE_END_TIME = 604_800; // 1 week
 bytes32 constant NEW_ROLE = keccak256("NEW_ROLE");
 
 // Royalties
-uint96 constant ROYALTY_BPS = 500; // 5%
+uint32 constant ROYALTY_ALLOCATION = 500_000; // 5%
 
 // Splits
 uint32 constant ADMIN_ALLOCATION = 100_000;

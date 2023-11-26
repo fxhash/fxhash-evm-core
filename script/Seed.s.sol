@@ -6,7 +6,7 @@ import "test/BaseTest.t.sol";
 contract Seed is BaseTest {
     function run() public override {
         creator = msg.sender;
-        _configureSplits();
+        _configureRoyalties();
         _createSplit();
         _initializeProject();
         for (uint256 i; i < 20; ++i) {

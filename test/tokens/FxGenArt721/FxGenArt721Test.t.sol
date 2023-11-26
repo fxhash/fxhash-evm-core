@@ -18,6 +18,7 @@ contract FxGenArt721Test is BaseTest {
     bytes4 internal MINT_ACTIVE_ERROR = IFxGenArt721.MintActive.selector;
     bytes4 internal MINT_INACTIVE_ERROR = IFxGenArt721.MintInactive.selector;
     bytes4 internal NOT_AUTHORIZED_ERROR = IFxGenArt721.NotAuthorized.selector;
+    bytes4 internal UNAUTHORIZED_ERROR = 0x82b42900; /// solday ownable error
     bytes4 internal UNAUTHORIZED_ACCOUNT_ERROR = IFxGenArt721.UnauthorizedAccount.selector;
     bytes4 internal UNAUTHORIZED_MINTER_ERROR = IFxGenArt721.UnauthorizedMinter.selector;
     bytes4 internal UNREGISTERED_MINTER_ERROR = IFxGenArt721.UnregisteredMinter.selector;
@@ -30,7 +31,6 @@ contract FxGenArt721Test is BaseTest {
         super.setUp();
         _initializeState();
         _mockMinter(admin);
-        _configureSplits();
         _configureRoyalties();
         _configureProject(MINT_ENABLED, MAX_SUPPLY);
         _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, abi.encode(PRICE));

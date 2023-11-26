@@ -225,7 +225,8 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @param _metadataInfo Metadata information
      * @param _mintInfo Array of authorized minter contracts and their reserves
      * @param _royaltyReceivers Array of addresses receiving royalties
-     * @param _basisPoints Array of basis points for calculating royalty shares
+     * @param _allocations Array of basis points for calculating royalty shares
+     * @param _basisPoints basis points for calculating royalty shares
      */
     function initialize(
         address _owner,
@@ -234,7 +235,8 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
         MetadataInfo calldata _metadataInfo,
         MintInfo[] calldata _mintInfo,
         address[] calldata _royaltyReceivers,
-        uint96[] calldata _basisPoints
+        uint32[] calldata _allocations,
+        uint96 _basisPoints
     ) external;
 
     /**
@@ -322,9 +324,14 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     /**
      * @notice Sets the base royalties for all secondary token sales
      * @param _receivers Array of addresses receiving royalties
-     * @param _basisPoints Array of points used to calculate royalty payments
+     * @param _allocations Array of allocations used to calculate royalty payments
+     * @param _basisPoints basis points used to calculate royalty payments
      */
-    function setBaseRoyalties(address[] calldata _receivers, uint96[] calldata _basisPoints) external;
+    function setBaseRoyalties(
+        address[] calldata _receivers,
+        uint32[] calldata _allocations,
+        uint96 _basisPoints
+    ) external;
 
     /**
      * @notice Sets the new URI of the token metadata
