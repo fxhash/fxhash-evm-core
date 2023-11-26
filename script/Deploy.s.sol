@@ -70,7 +70,7 @@ contract Deploy is Script {
 
     function setUp() public virtual {
         _createAccounts();
-        _configureInfo(LOCK_TIME, REFERRER_SHARE, DEFAULT_METADATA_URI);
+        _configureInfo(admin, LOCK_TIME, REFERRER_SHARE, ROYALTY_ALLOCATION, DEFAULT_METADATA_URI);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -102,13 +102,17 @@ contract Deploy is Script {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _configureInfo(
+        address _fxHashReceiver,
         uint128 _lockTime,
         uint128 _referrerShare,
+        uint32 _fxHashAllocation,
         string memory _defaultMetadataURI
     ) internal virtual {
         configInfo.lockTime = _lockTime;
         configInfo.referrerShare = _referrerShare;
         configInfo.defaultMetadataURI = _defaultMetadataURI;
+        configInfo.fxHashFeeReceiver = _fxHashReceiver;
+        configInfo.fxHashAllocation = _fxHashAllocation;
     }
 
     /*//////////////////////////////////////////////////////////////////////////

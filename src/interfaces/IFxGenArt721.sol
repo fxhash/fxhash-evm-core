@@ -104,6 +104,11 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     error BurnInactive();
 
     /**
+     * @notice Error thrown when the Fxhash fee receiving address isn't included in the receiver allocations
+     */
+    error FxHashReceiverMissing();
+
+    /**
      * @notice Error thrown when remaining supply is zero
      */
     error InsufficientSupply();
