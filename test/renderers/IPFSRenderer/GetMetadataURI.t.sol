@@ -9,13 +9,13 @@ contract GetMetadataURI is IPFSRendererTest {
 
     function test_GetMetadataURI_DefaultURI() public {
         contractAddr = uint160(deployer).toHexString(20);
-        generatedURI = string.concat(defaultMetadataURI, contractAddr, "/", tokenId.toString(), "/metadata.json");
+        generatedURI = string.concat(defaultMetadataURI, contractAddr, "/", tokenId.toString(), METADATA_ENDPOINT);
         metadataURI = ipfsRenderer.getMetadataURI(deployer, "", tokenId);
         assertEq(generatedURI, metadataURI);
     }
 
     function test_GetMetadataURI_BaseURI() public {
-        generatedURI = string.concat(string(BASE_URI), "/", tokenId.toString(), "/metadata.json");
+        generatedURI = string.concat(string(BASE_URI), "/", tokenId.toString(), METADATA_ENDPOINT);
         metadataURI = ipfsRenderer.getMetadataURI(deployer, string(BASE_URI), tokenId);
         assertEq(generatedURI, metadataURI);
     }

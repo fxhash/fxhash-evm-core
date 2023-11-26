@@ -7,6 +7,8 @@ import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {IIPFSRenderer} from "src/interfaces/IIPFSRenderer.sol";
 
+import {METADATA_ENDPOINT} from "src/utils/Constants.sol";
+
 /**
  * @title IPFSRenderer
  * @author fx(hash)
@@ -46,7 +48,7 @@ contract IPFSRenderer is IIPFSRenderer {
     function contractURI() external view returns (string memory) {
         (, , string memory defaultURI) = IFxContractRegistry(contractRegistry).configInfo();
         string memory contractAddr = uint160(msg.sender).toHexString(20);
-        return string.concat(defaultURI, contractAddr, "/metadata.json");
+        return string.concat(defaultURI, contractAddr, METADATA_ENDPOINT);
     }
 
     /**
@@ -72,7 +74,7 @@ contract IPFSRenderer is IIPFSRenderer {
     ) public view returns (string memory) {
         (, , string memory defaultURI) = IFxContractRegistry(contractRegistry).configInfo();
         string memory contractAddr = uint160(_contractAddr).toHexString(20);
-        string memory metadataURI = string.concat("/", _tokenId.toString(), "/metadata.json");
+        string memory metadataURI = string.concat("/", _tokenId.toString(), METADATA_ENDPOINT);
         return
             (bytes(_baseURI).length == 0)
                 ? string.concat(defaultURI, contractAddr, metadataURI)
