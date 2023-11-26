@@ -466,7 +466,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         uint128 totalAllocation;
         uint120 maxSupply = issuerInfo.projectInfo.maxSupply;
         ReserveInfo memory reserveInfo;
-        (uint256 lockTime, , ) = IFxContractRegistry(contractRegistry).configInfo();
+        (, uint256 lockTime, , , ) = IFxContractRegistry(contractRegistry).configInfo();
         lockTime = _isVerified(owner()) ? 0 : lockTime;
         for (uint256 i; i < _mintInfo.length; ++i) {
             minter = _mintInfo[i].minter;
@@ -493,6 +493,14 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         if (maxSupply != OPEN_EDITION_SUPPLY) {
             if (totalAllocation > remainingSupply()) revert AllocationExceeded();
         }
+    }
+
+    function _setBaseRoyalties(
+        address[] calldata _receivers,
+        uint32[] calldata _allocations,
+        uint96 _basisPoints
+    ) internal override {
+        super._setBaseRoyalties(_receivers, _allocations, _basisPoints);
     }
 
     /**

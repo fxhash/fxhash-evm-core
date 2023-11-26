@@ -59,6 +59,8 @@ contract BaseTest is Deploy, Test {
     uint96 internal projectId;
     uint128 internal lockTime;
     uint128 internal referrerShare;
+    address internal fxHashFeeReceiver;
+    uint32 internal fxHashAllocation;
     uint256[] internal tagIds;
 
     // Royalties

@@ -2,7 +2,7 @@
 pragma solidity 0.8.23;
 
 import {IRoyaltyManager, RoyaltyInfo} from "src/interfaces/IRoyaltyManager.sol";
-import {FEE_DENOMINATOR, MAX_ROYALTY_BPS} from "src/utils/Constants.sol";
+import {FEE_DENOMINATOR, MAX_ROYALTY_BPS, ALLOCATION_DENOMINATOR} from "src/utils/Constants.sol";
 import {SPLITS_MAIN} from "script/utils/Constants.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
 
@@ -82,7 +82,7 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         address[] calldata _receivers,
         uint32[] calldata _allocations,
         uint96 _basisPoints
-    ) internal {
+    ) internal virtual {
         _checkRoyalties(_receivers, _allocations, _basisPoints);
         /// compute split if necessary
         address receiver;
@@ -130,7 +130,8 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         if (_receivers.length != allocationsLength) revert LengthMismatch();
         if (_basisPoints >= FEE_DENOMINATOR) revert InvalidRoyaltyConfig();
         for (uint256 i; i < allocationsLength; ++i) {
-            if ((_allocations[i] * _basisPoints) / 10e6 > MAX_ROYALTY_BPS) revert OverMaxBasisPointsAllowed();
+            if ((_allocations[i] * _basisPoints) / ALLOCATION_DENOMINATOR > MAX_ROYALTY_BPS)
+                revert OverMaxBasisPointsAllowed();
         }
     }
 }

@@ -26,7 +26,8 @@ contract FxContractRegistryTest is BaseTest {
 
     function testSetConfig() public {
         RegistryLib.setConfig(fxContractRegistry.owner(), fxContractRegistry, configInfo);
-        (lockTime, referrerShare, defaultMetadataURI) = fxContractRegistry.configInfo();
+        (fxHashFeeReceiver, lockTime, referrerShare, fxHashAllocation, defaultMetadataURI) = fxContractRegistry
+            .configInfo();
 
         assertEq(lockTime, configInfo.lockTime);
         assertEq(referrerShare, configInfo.referrerShare);

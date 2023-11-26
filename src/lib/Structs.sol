@@ -24,8 +24,10 @@ struct AuctionInfo {
  * - `defaultMetadataURI` Default metadata URI of all revealed tokens
  */
 struct ConfigInfo {
+    address fxHashFeeReceiver;
     uint128 lockTime;
     uint128 referrerShare;
+    uint32 fxHashAllocation;
     string defaultMetadataURI;
 }
 

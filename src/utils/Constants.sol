@@ -54,6 +54,7 @@ bytes32 constant MODERATOR_ROLE = keccak256("MODERATOR_ROLE");
 uint96 constant FEE_DENOMINATOR = 10_000;
 uint96 constant MAX_ROYALTY_BPS = 2500; // 25%
 
+uint32 constant ALLOCATION_DENOMINATOR = 1_000_000;
 // Ticket
 uint256 constant AUCTION_DECAY_RATE = 200; // 2%
 uint256 constant DAILY_TAX_RATE = 27; // 0.274%

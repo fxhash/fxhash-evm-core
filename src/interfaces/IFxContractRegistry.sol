@@ -49,7 +49,7 @@ interface IFxContractRegistry {
     /**
      * @notice Returns the system config information (lock time, referrer share, default metadata)
      */
-    function configInfo() external view returns (uint128, uint128, string memory);
+    function configInfo() external view returns (address, uint128, uint128, uint32, string memory);
 
     /**
      * @notice Mapping of hashed contract name to contract address

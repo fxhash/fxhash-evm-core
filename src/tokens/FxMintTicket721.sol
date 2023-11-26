@@ -518,7 +518,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
         uint64 startTime;
         uint128 totalAllocation;
         ReserveInfo memory reserveInfo;
-        (uint256 lockTime, , ) = IFxContractRegistry(contractRegistry).configInfo();
+        (, uint256 lockTime, , , ) = IFxContractRegistry(contractRegistry).configInfo();
         lockTime = _isVerified(owner()) ? 0 : lockTime;
         for (uint256 i; i < _mintInfo.length; ++i) {
             minter = _mintInfo[i].minter;
