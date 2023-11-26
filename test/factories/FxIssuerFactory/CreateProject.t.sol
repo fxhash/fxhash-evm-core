@@ -24,7 +24,13 @@ contract CreateProject is FxIssuerFactoryTest {
 
     function test_CreateProject_WithSingleParameter() public {
         projectCreationInfo = abi.encode(
-            abi.encode(creator, initInfo, projectInfo, metadataInfo, mintInfo, royaltyReceivers, basisPoints)
+            creator,
+            initInfo,
+            projectInfo,
+            metadataInfo,
+            mintInfo,
+            royaltyReceivers,
+            basisPoints
         );
         fxGenArtProxy = fxIssuerFactory.createProject(projectCreationInfo);
         assertEq(fxIssuerFactory.projects(projectId), fxGenArtProxy);
@@ -33,7 +39,13 @@ contract CreateProject is FxIssuerFactoryTest {
 
     function test_CreateProject_WithTicket() public {
         projectCreationInfo = abi.encode(
-            abi.encode(creator, initInfo, projectInfo, metadataInfo, mintInfo, royaltyReceivers, basisPoints)
+            creator,
+            initInfo,
+            projectInfo,
+            metadataInfo,
+            mintInfo,
+            royaltyReceivers,
+            basisPoints
         );
         ticketCreationInfo = abi.encode(
             creator,
