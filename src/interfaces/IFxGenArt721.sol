@@ -129,6 +129,14 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     error InvalidStartTime();
 
     /**
+     * @notice Error thrown when signature is invalid
+     *      There are two common cases
+     *          1. It wasn't signed by the correct signer
+     *          2. The data signed wasn't correct
+     */
+    error InvalidSignature();
+
+    /**
      * @notice Error thrown when reserve end time is invalid
      */
     error InvalidEndTime();
@@ -211,34 +219,34 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     /**
      * @notice Generates typed data hash for setting project metadata onchain
      * @param _uri Bytes-encoded base URI data
-     * @param _salt A single use value to mark a signature as consumed
+     * @param _nonce The current nonce to be consumed by execution
      * @return Typed data hash
      */
-    function generateBaseURIHash(bytes calldata _uri, bytes32 _salt) external view returns (bytes32);
+    function generateBaseURIHash(bytes calldata _uri, uint96 _nonce) external view returns (bytes32);
 
     /**
      * @notice Generates typed data hash for setting project metadata onchain
      * @param _data Bytes-encoded onchain data
-     * @param _salt A single use value to mark a signature as consumed
+     * @param _nonce The current nonce to be consumed by execution
      * @return Typed data hash
      */
-    function generateOnchainDataHash(bytes calldata _data, bytes32 _salt) external view returns (bytes32);
+    function generateOnchainDataHash(bytes calldata _data, uint96 _nonce) external view returns (bytes32);
 
     /**
      * @notice Generates typed data hash for setting the primary receiver address
      * @param _receiver Address of the new primary receiver account
-     * @param _salt A single use value to mark a signature as consumed
+     * @param _nonce The current nonce to be consumed by execution
      * @return Typed data hash
      */
-    function generatePrimaryReceiverHash(address _receiver, bytes32 _salt) external view returns (bytes32);
+    function generatePrimaryReceiverHash(address _receiver, uint96 _nonce) external view returns (bytes32);
 
     /**
      * @notice Generates typed data hash for setting the primary receiver address
      * @param _renderer Address of the new renderer contract
-     * @param _salt A single use value to mark a signature as consumed
+     * @param _nonce The current nonce to be consumed by execution
      * @return Typed data hash
      */
-    function generateSetRendererHash(address _renderer, bytes32 _salt) external view returns (bytes32);
+    function generateSetRendererHash(address _renderer, uint96 _nonce) external view returns (bytes32);
 
     /**
      * @notice Initializes new generative art project
@@ -291,6 +299,11 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @param _fxParams Random sequence of fixed-length bytes used as input
      */
     function mintParams(address _to, bytes calldata _fxParams) external;
+
+    /**
+     * @notice Current nonce for admin signatures
+     */
+    function nonce() external returns (uint96);
 
     /**
      * @notice Mints single token with randomly generated seed
@@ -359,26 +372,23 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     /**
      * @notice Sets the new URI of the token metadata
      * @param _uri Decoded content identifier of metadata pointer
-     * @param _salt A single use value to mark a signature as consumed
      * @param _signature Signature of creator used to verify metadata update
      */
-    function setBaseURI(bytes calldata _uri, bytes32 _salt, bytes calldata _signature) external;
+    function setBaseURI(bytes calldata _uri, bytes calldata _signature) external;
 
     /**
      * @notice Sets the onchain data of the project metadata
      * @param _data Bytes-encoded metadata
-     * @param _salt A single use value to mark a signature as consumed
      * @param _signature Signature of creator used to verify metadata update
      */
-    function setOnchainData(bytes calldata _data, bytes32 _salt, bytes calldata _signature) external;
+    function setOnchainData(bytes calldata _data, bytes calldata _signature) external;
 
     /**
      * @notice Sets the primary receiver address for token royalties
      * @param _receiver Address of the new primary receiver account
-     * @param _salt A single use value to mark a signature as consumed
      * @param _signature Signature of creator used to verify receiver update
      */
-    function setPrimaryReceiver(address _receiver, bytes32 _salt, bytes calldata _signature) external;
+    function setPrimaryReceiver(address _receiver, bytes calldata _signature) external;
 
     /**
      * @notice Sets the new randomizer contract
@@ -389,10 +399,9 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     /**
      * @notice Sets the new renderer contract
      * @param _renderer Address of the renderer contract
-     * @param _salt A single use value to mark a signature as consumed
      * @param _signature Signature of creator used to verify receiver update
      */
-    function setRenderer(address _renderer, bytes32 _salt, bytes calldata _signature) external;
+    function setRenderer(address _renderer, bytes calldata _signature) external;
 
     /**
      * @notice Emits an event for setting tag descriptions for the project

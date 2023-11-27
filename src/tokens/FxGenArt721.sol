@@ -10,6 +10,7 @@ import {LibBitmap} from "solady/src/utils/LibBitmap.sol";
 import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {RoyaltyManager} from "src/tokens/extensions/RoyaltyManager.sol";
 import {SignatureChecker} from "openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
+import {ECDSA} from "openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {SSTORE2} from "sstore2/contracts/SSTORE2.sol";
 
 import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
@@ -30,8 +31,6 @@ import "src/utils/Constants.sol";
 contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, Ownable, Pausable, RoyaltyManager {
     using SignatureChecker for address;
 
-    error SaltAlreadyConsumed();
-
     /*//////////////////////////////////////////////////////////////////////////
                                     STORAGE
     //////////////////////////////////////////////////////////////////////////*/
@@ -50,11 +49,6 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      * @dev Packed value of name and symbol where combined length is 30 bytes or less
      */
     bytes32 internal nameAndSymbol_;
-
-    /**
-     * @dev Bitmap of nonces that have been consumed
-     */
-    LibBitmap.Bitmap internal consumedSalts;
 
     /**
      * @dev Project name
@@ -80,6 +74,11 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      * @inheritdoc IFxGenArt721
      */
     address public renderer;
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
+    uint96 public nonce;
 
     /**
      * @inheritdoc IFxGenArt721
@@ -271,15 +270,10 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function setBaseURI(bytes calldata _uri, bytes32 _salt, bytes calldata _signature) external onlyOwner {
-        uint256 index = uint256(_salt);
-        if (LibBitmap.get(consumedSalts, index)) revert SaltAlreadyConsumed();
-        LibBitmap.set(consumedSalts, uint256(_salt));
-
-        /// TODO: need to update to a signer signed update
-        /// TODO: need to update the function
-        bytes32 digest = generateOnchainDataHash(_uri, _salt);
-        _verifySignature(digest, _signature);
+    function setBaseURI(bytes calldata _uri, bytes calldata _signature) external onlyOwner {
+        bytes32 digest = generateBaseURIHash(_uri, nonce++);
+        address signer = ECDSA.recover(digest, _signature);
+        if (!IAccessControl(roleRegistry).hasRole(SIGNER_ROLE, signer)) revert UnauthorizedAccount();
         metadataInfo.baseURI = _uri;
         emit BaseURIUpdated(_uri);
         emit BatchMetadataUpdate(1, totalSupply);
@@ -288,13 +282,10 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function setOnchainData(bytes calldata _data, bytes32 _salt, bytes calldata _signature) external onlyOwner {
-        uint256 index = uint256(_salt);
-        if (LibBitmap.get(consumedSalts, index)) revert SaltAlreadyConsumed();
-        LibBitmap.set(consumedSalts, uint256(_salt));
-        bytes32 digest = generateOnchainDataHash(_data, _salt);
-        /// need to update this to check signer role
-        _verifySignature(digest, _signature);
+    function setOnchainData(bytes calldata _data, bytes calldata _signature) external onlyOwner {
+        bytes32 digest = generateOnchainDataHash(_data, nonce++);
+        address signer = ECDSA.recover(digest, _signature);
+        if (!IAccessControl(roleRegistry).hasRole(SIGNER_ROLE, signer)) revert UnauthorizedAccount();
         metadataInfo.onchainPointer = SSTORE2.write(_data);
         emit OnchainDataUpdated(_data);
     }
@@ -302,12 +293,10 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function setPrimaryReceiver(address _receiver, bytes32 _salt, bytes calldata _signature) external onlyOwner {
-        uint256 index = uint256(_salt);
-        if (LibBitmap.get(consumedSalts, index)) revert SaltAlreadyConsumed();
-        LibBitmap.get(consumedSalts, index);
-        bytes32 digest = generatePrimaryReceiverHash(_receiver, _salt);
-        _verifySignature(digest, _signature);
+    function setPrimaryReceiver(address _receiver, bytes calldata _signature) external onlyOwner {
+        bytes32 digest = generatePrimaryReceiverHash(_receiver, nonce++);
+        address signer = ECDSA.recover(digest, _signature);
+        if (!IAccessControl(roleRegistry).hasRole(SIGNER_ROLE, signer)) revert UnauthorizedAccount();
         issuerInfo.primaryReceiver = _receiver;
         emit PrimaryReceiverUpdated(_receiver);
     }
@@ -315,13 +304,10 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function setRenderer(address _renderer, bytes32 _salt, bytes calldata _signature) external onlyOwner {
-        /// TODO: need to update to be a signer signed update
-        uint256 index = uint256(_salt);
-        if (LibBitmap.get(consumedSalts, index)) revert SaltAlreadyConsumed();
-        LibBitmap.get(consumedSalts, index);
-        bytes32 digest = generatePrimaryReceiverHash(_renderer, _salt);
-        _verifySignature(digest, _signature);
+    function setRenderer(address _renderer, bytes calldata _signature) external onlyOwner {
+        bytes32 digest = generateSetRendererHash(_renderer, nonce++);
+        address signer = ECDSA.recover(digest, _signature);
+        if (!IAccessControl(roleRegistry).hasRole(SIGNER_ROLE, signer)) revert UnauthorizedAccount();
         renderer = _renderer;
         emit RendererUpdated(_renderer);
         emit BatchMetadataUpdate(1, totalSupply);
@@ -402,36 +388,32 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function generateBaseURIHash(bytes calldata _uri, bytes32 _salt) public view returns (bytes32) {
-        /// TODO: check that the salt was consumed
-        bytes32 structHash = keccak256(abi.encode(SET_BASE_URI_TYPEHASH, _uri, _salt));
+    function generateBaseURIHash(bytes calldata _uri, uint96 _nonce) public view returns (bytes32) {
+        bytes32 structHash = keccak256(abi.encode(SET_BASE_URI_TYPEHASH, _uri, _nonce));
         return _hashTypedDataV4(structHash);
     }
 
     /**
      * @inheritdoc IFxGenArt721
      */
-    function generateOnchainDataHash(bytes calldata _data, bytes32 _salt) public view returns (bytes32) {
-        /// TODO: check that the salt was consumed
-        bytes32 structHash = keccak256(abi.encode(SET_ONCHAIN_DATA_TYPEHASH, _data, _salt));
+    function generateOnchainDataHash(bytes calldata _data, uint96 _nonce) public view returns (bytes32) {
+        bytes32 structHash = keccak256(abi.encode(SET_ONCHAIN_DATA_TYPEHASH, _data, _nonce));
         return _hashTypedDataV4(structHash);
     }
 
     /**
      * @inheritdoc IFxGenArt721
      */
-    function generatePrimaryReceiverHash(address _receiver, bytes32 _salt) public view returns (bytes32) {
-        /// TODO: check that the salt was consumed
-        bytes32 structHash = keccak256(abi.encode(SET_PRIMARY_RECEIVER_TYPEHASH, _receiver, _salt));
+    function generatePrimaryReceiverHash(address _receiver, uint96 _nonce) public view returns (bytes32) {
+        bytes32 structHash = keccak256(abi.encode(SET_PRIMARY_RECEIVER_TYPEHASH, _receiver, _nonce));
         return _hashTypedDataV4(structHash);
     }
 
     /**
      * @inheritdoc IFxGenArt721
      */
-    function generateSetRendererHash(address _renderer, bytes32 _salt) public view returns (bytes32) {
-        /// TODO: check that the salt was consumed
-        bytes32 structHash = keccak256(abi.encode(SET_RENDERER_TYPEHASH, _renderer, _salt));
+    function generateSetRendererHash(address _renderer, uint96 _nonce) public view returns (bytes32) {
+        bytes32 structHash = keccak256(abi.encode(SET_RENDERER_TYPEHASH, _renderer, _nonce));
         return _hashTypedDataV4(structHash);
     }
 

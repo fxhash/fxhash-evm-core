@@ -92,7 +92,6 @@ contract BaseTest is Deploy, Test {
     uint256 internal price;
     uint256 internal quantity;
     uint256 internal tokenId;
-    uint256 internal nextSalt;
 
     // Modifiers
     modifier prank(address _caller) {
