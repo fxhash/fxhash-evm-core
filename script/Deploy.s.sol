@@ -43,7 +43,7 @@ contract Deploy is Script {
     // Accounts
     address internal admin;
     address internal creator;
-    
+
     // External
     address internal ethFSFileStorage;
     address internal scriptyBuilderV2;
