@@ -6,7 +6,6 @@ import {ERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
 import {LibString} from "solady/src/utils/LibString.sol";
 import {Ownable} from "solady/src/auth/Ownable.sol";
-import {LibBitmap} from "solady/src/utils/LibBitmap.sol";
 import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {RoyaltyManager} from "src/tokens/extensions/RoyaltyManager.sol";
 import {ECDSA} from "openzeppelin/contracts/utils/cryptography/ECDSA.sol";
