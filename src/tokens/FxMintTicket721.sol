@@ -177,26 +177,27 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
     /**
      * @inheritdoc IFxMintTicket721
      */
-    function claim(uint256 _tokenId, uint80 _newPrice) external payable {
+    function claim(uint256 _tokenId, uint256 _maxPrice, uint80 _newPrice) external payable {
         // Loads current tax info
         TaxInfo storage taxInfo = taxes[_tokenId];
         // Reverts if grace period of token is still active
         if (block.timestamp <= taxInfo.gracePeriod) revert GracePeriodActive();
         // Reverts if new price is less than the minimum price
         if (_newPrice < MINIMUM_PRICE) revert InvalidPrice();
+        // Reverts if current price is greater than max payment
+        uint256 currentPrice = taxInfo.currentPrice;
+        if (currentPrice > _maxPrice) revert PriceExceeded();
 
         // Loads current tax information
-        uint256 currentPrice = taxInfo.currentPrice;
-        uint256 totalDeposit = taxInfo.depositAmount;
-        uint256 foreclosureTime = taxInfo.foreclosureTime;
+        uint256 depositAmount;
         address previousOwner = _ownerOf(_tokenId);
 
         // Gets current daily tax amount for current price
         uint256 currentDailyTax = getDailyTax(currentPrice);
         // Gets remaining deposit amount for current price
-        uint256 remainingDeposit = getRemainingDeposit(currentDailyTax, foreclosureTime, totalDeposit);
+        uint256 remainingDeposit = getRemainingDeposit(currentDailyTax, taxInfo.foreclosureTime, taxInfo.depositAmount);
         // Calculates deposit amount owed for current price
-        uint256 depositOwed = totalDeposit - remainingDeposit;
+        uint256 depositOwed = taxInfo.depositAmount - remainingDeposit;
 
         // Gets new daily tax amount for new price
         uint256 newDailyTax = getDailyTax(_newPrice);
@@ -204,16 +205,16 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
         // Checks if foreclosure is active
         if (isForeclosed(_tokenId)) {
             // Gets current auction price
-            uint256 auctionPrice = getAuctionPrice(currentPrice, foreclosureTime);
+            uint256 auctionPrice = getAuctionPrice(currentPrice, taxInfo.foreclosureTime);
             // Reverts if payment amount is insufficient to auction price and new daily tax
             if (msg.value < auctionPrice + newDailyTax) revert InsufficientPayment();
 
             // Updates balance of contract owner
-            uint256 newBalance = getBalance(owner()) + (totalDeposit + auctionPrice);
+            uint256 newBalance = getBalance(owner()) + (taxInfo.depositAmount + auctionPrice);
             _setBalance(owner(), newBalance);
 
-            // Sets new deposit amount based on auction price
-            taxInfo.depositAmount = uint80(msg.value - auctionPrice);
+            // Calculates new deposit amount based on auction price
+            depositAmount = msg.value - auctionPrice;
         } else {
             // Reverts if payment amount if insufficient to current price and new daily tax
             if (msg.value < currentPrice + newDailyTax) revert InsufficientPayment();
@@ -226,16 +227,23 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
             newBalance = getBalance(previousOwner) + currentPrice + remainingDeposit;
             _setBalance(previousOwner, newBalance);
 
-            // Sets new deposit amount based on current price
-            taxInfo.depositAmount = uint80(msg.value - currentPrice);
+            // Calculates new deposit amount based on current price
+            depositAmount = msg.value - currentPrice;
         }
+
+        // Calculates any excess tax amount
+        uint256 excessAmount = getExcessTax(depositAmount, newDailyTax);
 
         // Sets new tax info
         taxInfo.currentPrice = _newPrice;
+        taxInfo.depositAmount = uint80(depositAmount - excessAmount);
         taxInfo.foreclosureTime = getForeclosureTime(newDailyTax, block.timestamp, taxInfo.depositAmount);
 
         // Transfers token from previous owner to new owner
         this.transferFrom(previousOwner, msg.sender, _tokenId);
+
+        // Transfers excess amount back to caller
+        if (excessAmount > 0) SafeTransferLib.safeTransferETH(msg.sender, excessAmount);
 
         // Emits event for claiming ticket
         emit Claimed(_tokenId, msg.sender, _newPrice, taxInfo.foreclosureTime, taxInfo.depositAmount, msg.value);

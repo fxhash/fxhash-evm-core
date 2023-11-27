@@ -11,7 +11,7 @@ contract Withdraw is FxMintTicket721Test {
         _setTaxInfo();
         vm.warp(foreclosureTime + TEN_MINUTES);
         _setAuctionPrice();
-        TicketLib.claim(alice, fxMintTicketProxy, tokenId, newPrice, auctionPrice + DEPOSIT_AMOUNT);
+        TicketLib.claim(alice, fxMintTicketProxy, tokenId, PRICE, newPrice, auctionPrice + DEPOSIT_AMOUNT);
         _setTaxInfo();
         _setBalance(creator);
     }
