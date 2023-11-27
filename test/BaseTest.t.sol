@@ -54,13 +54,13 @@ contract BaseTest is Deploy, Test {
     uint120 internal inputSize;
 
     // Project
+    address internal feeReceiver;
     string internal contractURI;
     string internal defaultMetadataURI;
+    uint32 internal feeAllocation;
+    uint64 internal lockTime;
+    uint64 internal referrerShare;
     uint96 internal projectId;
-    uint128 internal lockTime;
-    uint128 internal referrerShare;
-    address internal fxHashFeeReceiver;
-    uint32 internal fxHashAllocation;
     uint256[] internal tagIds;
 
     // Royalties
@@ -174,7 +174,7 @@ contract BaseTest is Deploy, Test {
         royaltyReceivers.push(payable(creator));
         royaltyReceivers.push(payable(admin));
         allocations.push(ROYALTY_ALLOCATION);
-        allocations.push(ROYALTY_ALLOCATION);
+        allocations.push(FEE_ALLOCATION);
         basisPoints = uint96(500);
     }
 

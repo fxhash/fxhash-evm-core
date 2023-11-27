@@ -500,17 +500,17 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         uint32[] calldata _allocations,
         uint96 _basisPoints
     ) internal override {
-        /// call out to contract registry and get fxHash fee receiver
-        (address fxhashReceiver, , , uint32 allocation, ) = IFxContractRegistry(contractRegistry).configInfo();
+        // call out to contract registry and get fee receiver
+        (address feeReceiver, uint32 feeAllocation, , , ) = IFxContractRegistry(contractRegistry).configInfo();
 
-        /// check that the fxhash fee receiver is included
-        bool fxHashReceiverValid;
+        // check that the fee receiver is included
+        bool feeReceiverExists;
         for (uint256 i; i < _allocations.length; i++) {
-            if (_receivers[i] == fxhashReceiver && _allocations[i] == allocation) fxHashReceiverValid = true;
+            if (_receivers[i] == feeReceiver && _allocations[i] == feeAllocation) feeReceiverExists = true;
         }
-        if (!fxHashReceiverValid) revert FxHashReceiverMissing();
+        if (!feeReceiverExists) revert FeeReceiverMissing();
 
-        /// check allocations match
+        // check allocations match
         super._setBaseRoyalties(_receivers, _allocations, _basisPoints);
     }
 

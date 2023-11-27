@@ -5,8 +5,9 @@ pragma solidity 0.8.23;
 uint256 constant INITIAL_BALANCE = 1000 ether;
 
 // Config
+uint32 constant FEE_ALLOCATION = 333_000; // 33.3 %
+uint64 constant REFERRER_SHARE = 200; // 2%
 string constant DEFAULT_METADATA_URI = "https://media.dev.fxhash-dev.xyz/metadata/ethereum/";
-uint128 constant REFERRER_SHARE = 200; // 2%
 
 // Initialize
 string constant NAME = "fxhash";
@@ -31,7 +32,8 @@ uint64 constant RESERVE_END_TIME = 604_800; // 1 week
 bytes32 constant NEW_ROLE = keccak256("NEW_ROLE");
 
 // Royalties
-uint32 constant ROYALTY_ALLOCATION = 500_000; // 5%
+uint32 constant MAX_ALLOCATION = 1_000_000;
+uint32 constant ROYALTY_ALLOCATION = MAX_ALLOCATION - FEE_ALLOCATION;
 
 // Splits
 uint32 constant ADMIN_ALLOCATION = 100_000;

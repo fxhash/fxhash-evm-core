@@ -14,7 +14,7 @@ contract FxIssuerFactoryTest is BaseTest {
 
     function setUp() public virtual override {
         super.setUp();
-        _configureInfo(admin, LOCK_TIME, REFERRER_SHARE, ROYALTY_ALLOCATION, DEFAULT_METADATA_URI);
+        _configureInfo(admin, FEE_ALLOCATION, LOCK_TIME, REFERRER_SHARE, DEFAULT_METADATA_URI);
         _configureRoyalties();
         _initializeState();
     }
