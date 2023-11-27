@@ -31,6 +31,8 @@ bytes32 constant SET_PRIMARY_RECEIVER_TYPEHASH = keccak256("SetPrimaryReceiver(a
 
 // Metadata
 bytes constant IPFS_URL = hex"697066733a2f2f172c151325290607391d2c391b242225180a020b291b260929391d1b31222525202804120031280917120b280400";
+string constant METADATA_ENDPOINT = "/metadata.json";
+string constant THUMBNAIL_ENDPOINT = "/thumbnail.json";
 
 // Minters
 uint8 constant UNINITIALIZED = 0;
