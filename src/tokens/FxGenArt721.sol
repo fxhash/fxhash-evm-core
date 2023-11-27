@@ -137,7 +137,8 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         MetadataInfo calldata _metadataInfo,
         MintInfo[] calldata _mintInfo,
         address[] calldata _royaltyReceivers,
-        uint96[] calldata _basisPoints
+        uint32[] calldata _allocations,
+        uint96 _basisPoints
     ) external initializer {
         issuerInfo.primaryReceiver = _initInfo.primaryReceiver;
         issuerInfo.projectInfo = _projectInfo;
@@ -147,7 +148,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
 
         _initializeOwner(_owner);
         _registerMinters(_mintInfo);
-        _setBaseRoyalties(_royaltyReceivers, _basisPoints);
+        _setBaseRoyalties(_royaltyReceivers, _allocations, _basisPoints);
         _setNameAndSymbol(_initInfo.name, _initInfo.symbol);
         _setTags(_initInfo.tagIds);
 
@@ -251,6 +252,17 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
+    function setBaseRoyalties(
+        address[] calldata _receivers,
+        uint32[] calldata _allocations,
+        uint96 _basisPoints
+    ) external onlyOwner {
+        _setBaseRoyalties(_receivers, _allocations, _basisPoints);
+    }
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
     function toggleBurn() external onlyOwner {
         if (remainingSupply() == 0) revert SupplyRemaining();
         issuerInfo.projectInfo.burnEnabled = !issuerInfo.projectInfo.burnEnabled;
@@ -277,6 +289,16 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         _verifySignature(digest, _signature);
         metadataInfo.onchainPointer = SSTORE2.write(_data);
         emit OnchainDataUpdated(_data);
+    }
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
+    function setPrimaryReceiver(address _receiver, bytes calldata _signature) external onlyRole(ADMIN_ROLE) {
+        bytes32 digest = generatePrimaryReceiverHash(_receiver);
+        _verifySignature(digest, _signature);
+        issuerInfo.primaryReceiver = _receiver;
+        emit PrimaryReceiverUpdated(_receiver);
     }
 
     /**
@@ -363,6 +385,14 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
+    function generatePrimaryReceiverHash(address _receiver) public view returns (bytes32) {
+        bytes32 structHash = keccak256(abi.encode(SET_PRIMARY_RECEIVER_TYPEHASH, _receiver));
+        return _hashTypedDataV4(structHash);
+    }
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
     function isMinter(address _minter) public view returns (bool) {
         return issuerInfo.minters[_minter] == TRUE;
     }
@@ -436,12 +466,13 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         uint128 totalAllocation;
         uint120 maxSupply = issuerInfo.projectInfo.maxSupply;
         ReserveInfo memory reserveInfo;
-        (uint256 lockTime, , ) = IFxContractRegistry(contractRegistry).configInfo();
+        (, uint256 lockTime, , , ) = IFxContractRegistry(contractRegistry).configInfo();
         lockTime = _isVerified(owner()) ? 0 : lockTime;
         for (uint256 i; i < _mintInfo.length; ++i) {
             minter = _mintInfo[i].minter;
             reserveInfo = _mintInfo[i].reserveInfo;
             startTime = reserveInfo.startTime;
+
             if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) revert UnauthorizedMinter();
             if (startTime == 0) {
                 reserveInfo.startTime = uint64(block.timestamp + lockTime);
@@ -449,20 +480,35 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
                 revert InvalidStartTime();
             }
             if (reserveInfo.endTime < startTime) revert InvalidEndTime();
+            if (maxSupply != OPEN_EDITION_SUPPLY) totalAllocation += reserveInfo.allocation;
 
             issuerInfo.minters[minter] = TRUE;
             issuerInfo.activeMinters.push(minter);
-            if (maxSupply != OPEN_EDITION_SUPPLY) {
-                /// keep track of totalAllocation if not open edition
-                totalAllocation += reserveInfo.allocation;
-            }
-
             IMinter(minter).setMintDetails(reserveInfo, _mintInfo[i].params);
         }
 
         if (maxSupply != OPEN_EDITION_SUPPLY) {
             if (totalAllocation > remainingSupply()) revert AllocationExceeded();
         }
+    }
+
+    function _setBaseRoyalties(
+        address[] calldata _receivers,
+        uint32[] calldata _allocations,
+        uint96 _basisPoints
+    ) internal override {
+        // call out to contract registry and get fee receiver
+        (address feeReceiver, uint32 feeAllocation, , , ) = IFxContractRegistry(contractRegistry).configInfo();
+
+        // check that the fee receiver is included
+        bool feeReceiverExists;
+        for (uint256 i; i < _allocations.length; i++) {
+            if (_receivers[i] == feeReceiver && _allocations[i] == feeAllocation) feeReceiverExists = true;
+        }
+        if (!feeReceiverExists) revert FeeReceiverMissing();
+
+        // check allocations match
+        super._setBaseRoyalties(_receivers, _allocations, _basisPoints);
     }
 
     /**

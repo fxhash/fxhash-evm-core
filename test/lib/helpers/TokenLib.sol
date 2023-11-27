@@ -57,6 +57,16 @@ library TokenLib {
         IFxGenArt721(_proxy).registerMinters(_mintInfo);
     }
 
+    function setBaseRoyalties(
+        address _admin,
+        address _proxy,
+        address[] memory _receivers,
+        uint32[] memory _allocations,
+        uint96 _basisPoints
+    ) internal prank(_admin) {
+        IFxGenArt721(_proxy).setBaseRoyalties(_receivers, _allocations, _basisPoints);
+    }
+
     function setBaseURI(address _admin, address _proxy, bytes memory _uri) internal prank(_admin) {
         IFxGenArt721(_proxy).setBaseURI(_uri);
     }

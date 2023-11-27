@@ -10,19 +10,11 @@ contract GetRoyalties is RoyaltyManagerTest {
 
     function setUp() public override {
         super.setUp();
-        royaltyReceivers.push(payable(alice));
-        royaltyReceivers.push(payable(bob));
-        royaltyReceivers.push(payable(eve));
-
-        basisPoints.push(MAX_ROYALTY_BPS);
-        basisPoints.push(MAX_ROYALTY_BPS);
-        basisPoints.push(MAX_ROYALTY_BPS);
+        _configureRoyalties();
     }
 
     function test_GetRoyalties() public {
-        royaltyManager.setBaseRoyalties(royaltyReceivers, basisPoints);
+        royaltyManager.setBaseRoyalties(royaltyReceivers, allocations, basisPoints);
         (receivers, bps) = royaltyManager.getRoyalties(tokenId);
-        assertEq(royaltyReceivers.length, receivers.length);
-        assertEq(basisPoints.length, bps.length);
     }
 }

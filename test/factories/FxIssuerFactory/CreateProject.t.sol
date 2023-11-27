@@ -22,6 +22,7 @@ contract CreateProject is FxIssuerFactoryTest {
             metadataInfo,
             mintInfo,
             royaltyReceivers,
+            allocations,
             basisPoints
         );
         assertEq(fxIssuerFactory.projects(projectId), fxGenArtProxy);
@@ -36,6 +37,7 @@ contract CreateProject is FxIssuerFactoryTest {
             metadataInfo,
             mintInfo,
             royaltyReceivers,
+            allocations,
             basisPoints
         );
         fxGenArtProxy = fxIssuerFactory.createProject(projectCreationInfo);
@@ -51,6 +53,7 @@ contract CreateProject is FxIssuerFactoryTest {
             metadataInfo,
             mintInfo,
             royaltyReceivers,
+            allocations,
             basisPoints
         );
         ticketCreationInfo = abi.encode(
@@ -81,6 +84,7 @@ contract CreateProject is FxIssuerFactoryTest {
             metadataInfo,
             mintInfo,
             royaltyReceivers,
+            allocations,
             basisPoints
         );
     }
@@ -95,6 +99,7 @@ contract CreateProject is FxIssuerFactoryTest {
             metadataInfo,
             mintInfo,
             royaltyReceivers,
+            allocations,
             basisPoints
         );
     }

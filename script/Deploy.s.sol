@@ -18,8 +18,7 @@ import {FixedPrice} from "src/minters/FixedPrice.sol";
 import {IPFSRenderer} from "src/renderers/IPFSRenderer.sol";
 import {PseudoRandomizer} from "src/randomizers/PseudoRandomizer.sol";
 import {ScriptyRenderer} from "src/renderers/ScriptyRenderer.sol";
-import {SplitsController} from "src/splits/SplitsController.sol";
-import {SplitsFactory} from "src/splits/SplitsFactory.sol";
+import {SplitsFactory} from "src/factories/SplitsFactory.sol";
 import {TicketRedeemer} from "src/minters/TicketRedeemer.sol";
 
 import {ConfigInfo} from "src/interfaces/IFxContractRegistry.sol";
@@ -40,7 +39,6 @@ contract Deploy is Script {
     IPFSRenderer internal ipfsRenderer;
     PseudoRandomizer internal pseudoRandomizer;
     ScriptyRenderer internal scriptyRenderer;
-    SplitsController internal splitsController;
     SplitsFactory internal splitsFactory;
     TicketRedeemer internal ticketRedeemer;
 
@@ -78,7 +76,7 @@ contract Deploy is Script {
     function setUp() public virtual {
         _createAccounts();
         _configureScripty();
-        _configureInfo(LOCK_TIME, REFERRER_SHARE, DEFAULT_METADATA_URI);
+        _configureInfo(admin, FEE_ALLOCATION, LOCK_TIME, REFERRER_SHARE, DEFAULT_METADATA_URI);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -90,7 +88,6 @@ contract Deploy is Script {
         _deployContracts();
         _registerContracts();
         _grantRoles();
-        _setController();
         vm.stopBroadcast();
     }
 
@@ -111,10 +108,14 @@ contract Deploy is Script {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _configureInfo(
-        uint128 _lockTime,
-        uint128 _referrerShare,
+        address _feeReceiver,
+        uint32 _feeAllocation,
+        uint64 _lockTime,
+        uint64 _referrerShare,
         string memory _defaultMetadataURI
     ) internal virtual {
+        configInfo.feeReceiver = _feeReceiver;
+        configInfo.feeAllocation = _feeAllocation;
         configInfo.lockTime = _lockTime;
         configInfo.referrerShare = _referrerShare;
         configInfo.defaultMetadataURI = _defaultMetadataURI;
@@ -190,11 +191,6 @@ contract Deploy is Script {
         constructorArgs = abi.encode(admin, splitsMain);
         splitsFactory = SplitsFactory(_deployCreate2(creationCode, constructorArgs, salt));
 
-        // SplitsController
-        creationCode = type(SplitsController).creationCode;
-        constructorArgs = abi.encode(splitsMain, splitsFactory, admin);
-        splitsController = SplitsController(_deployCreate2(creationCode, constructorArgs, salt));
-
         // PseudoRandomizer
         creationCode = type(PseudoRandomizer).creationCode;
         pseudoRandomizer = PseudoRandomizer(_deployCreate2(creationCode, salt));
@@ -226,7 +222,6 @@ contract Deploy is Script {
         vm.label(address(ipfsRenderer), "IPFSRenderer");
         vm.label(address(pseudoRandomizer), "PseudoRandomizer");
         vm.label(address(scriptyRenderer), "ScriptyRenderer");
-        vm.label(address(splitsController), "SplitsController");
         vm.label(address(splitsFactory), "SplitsFactory");
         vm.label(address(ticketRedeemer), "TicketRedeemer");
     }
@@ -255,7 +250,6 @@ contract Deploy is Script {
         names.push(IPFS_RENDERER);
         names.push(PSEUDO_RANDOMIZER);
         names.push(SCRIPTY_RENDERER);
-        names.push(SPLITS_CONTROLLER);
         names.push(SPLITS_FACTORY);
         names.push(TICKET_REDEEMER);
 
@@ -271,15 +265,10 @@ contract Deploy is Script {
         contracts.push(address(ipfsRenderer));
         contracts.push(address(pseudoRandomizer));
         contracts.push(address(scriptyRenderer));
-        contracts.push(address(splitsController));
         contracts.push(address(splitsFactory));
         contracts.push(address(ticketRedeemer));
 
         fxContractRegistry.register(names, contracts);
-    }
-
-    function _setController() internal virtual {
-        splitsFactory.setController(address(splitsController));
     }
 
     /*//////////////////////////////////////////////////////////////////////////

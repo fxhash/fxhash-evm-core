@@ -41,7 +41,6 @@ bytes constant TAG_CLOSE = '">';
 
 // Splits Mainnet / Goerli Contracts
 address constant SPLITS_DEPLOYER = 0x9ebC8E61f87A301fF25a606d7C06150f856F24E2;
-address constant SPLITS_MAIN = 0x2ed6c4B5dA6378c7897AC67Ba9e43102Feb694EE;
 
 // Splits Sepolia Contracts
 address constant SEPOLIA_SPLITS_MAIN = 0x3E03b08dF74146cA4Dc1f5f5e884228811B5dD6b;

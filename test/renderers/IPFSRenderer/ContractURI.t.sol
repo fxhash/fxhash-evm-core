@@ -8,7 +8,7 @@ contract ContractURI is IPFSRendererTest {
 
     function test_ContractURI() public {
         contractAddr = uint160(deployer).toHexString(20);
-        generatedURI = string.concat(defaultMetadataURI, contractAddr, "/metadata.json");
+        generatedURI = string.concat(defaultMetadataURI, contractAddr, METADATA_ENDPOINT);
         contractURI = ipfsRenderer.contractURI();
         assertEq(generatedURI, contractURI);
     }

@@ -95,8 +95,12 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
             MetadataInfo memory _metadataInfo,
             MintInfo[] memory _mintInfo,
             address[] memory _royaltyReceivers,
-            uint96[] memory _basisPoints
-        ) = abi.decode(_creationInfo, (address, InitInfo, ProjectInfo, MetadataInfo, MintInfo[], address[], uint96[]));
+            uint32[] memory _allocations,
+            uint96 _basisPoints
+        ) = abi.decode(
+                _creationInfo,
+                (address, InitInfo, ProjectInfo, MetadataInfo, MintInfo[], address[], uint32[], uint96)
+            );
 
         genArt721 = createProject(
             _owner,
@@ -105,6 +109,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
             _metadataInfo,
             _mintInfo,
             _royaltyReceivers,
+            _allocations,
             _basisPoints
         );
     }
@@ -119,7 +124,8 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
         MetadataInfo memory _metadataInfo,
         MintInfo[] memory _mintInfo,
         address[] memory _royaltyReceivers,
-        uint96[] memory _basisPoints
+        uint32[] memory _allocations,
+        uint96 _basisPoints
     ) public returns (address genArtToken) {
         if (_owner == address(0)) revert InvalidOwner();
         if (_initInfo.primaryReceiver == address(0)) revert InvalidPrimaryReceiver();
@@ -139,6 +145,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
             _metadataInfo,
             _mintInfo,
             _royaltyReceivers,
+            _allocations,
             _basisPoints
         );
     }
