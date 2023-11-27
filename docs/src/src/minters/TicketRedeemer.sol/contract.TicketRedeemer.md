@@ -1,5 +1,5 @@
 # TicketRedeemer
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/709c3bd5035ed7a7acc4391ca2a42cf2ad71efed/src/minters/TicketRedeemer.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/1ca8488246dda0c8af0201fe562392f87b349fa1/src/minters/TicketRedeemer.sol)
 
 **Inherits:**
 [ITicketRedeemer](/src/interfaces/ITicketRedeemer.sol/interface.ITicketRedeemer.md)
@@ -27,13 +27,14 @@ Burns a ticket and mints a new token to the caller
 
 
 ```solidity
-function redeem(address _token, uint256 _ticketId, bytes calldata _fxParams) external;
+function redeem(address _token, address _to, uint256 _ticketId, bytes calldata _fxParams) external;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
 |`_token`|`address`||
+|`_to`|`address`|Address of token receiver|
 |`_ticketId`|`uint256`||
 |`_fxParams`|`bytes`|Random sequence of fixed-length bytes used for token input|
 

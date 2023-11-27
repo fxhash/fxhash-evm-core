@@ -1,5 +1,5 @@
 # DutchAuction
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/709c3bd5035ed7a7acc4391ca2a42cf2ad71efed/src/minters/DutchAuction.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/1ca8488246dda0c8af0201fe562392f87b349fa1/src/minters/DutchAuction.sol)
 
 **Inherits:**
 [IDutchAuction](/src/interfaces/IDutchAuction.sol/interface.IDutchAuction.md), [Allowlist](/src/minters/extensions/Allowlist.sol/abstract.Allowlist.md), [MintPass](/src/minters/extensions/MintPass.sol/abstract.MintPass.md)
@@ -11,30 +11,30 @@ fx(hash)
 
 
 ## State Variables
-### _claimedMerkleTreeSlots
+### claimedMerkleTreeSlots_
 *Mapping of token address to reserve ID to Bitmap of claimed merkle tree slots*
 
 
 ```solidity
-mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal _claimedMerkleTreeSlots;
+mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal claimedMerkleTreeSlots_;
 ```
 
 
-### _claimedMintPasses
+### claimedMintPasses_
 *Mapping of token address to reserve ID to Bitmap of claimed mint passes*
 
 
 ```solidity
-mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal _claimedMintPasses;
+mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal claimedMintPasses_;
 ```
 
 
-### _latestUpdates
+### latestUpdates_
 *Mapping of token address to timestamp of latest update made for token reserves*
 
 
 ```solidity
-LibMap.Uint40Map internal _latestUpdates;
+LibMap.Uint40Map internal latestUpdates_;
 ```
 
 
@@ -288,7 +288,9 @@ function _getPrice(ReserveInfo memory _reserve, AuctionInfo storage _daInfo) int
 
 
 ```solidity
-function _recordLastPrice(ReserveInfo memory _reserve, address _token, uint256 _reserveId) internal returns (uint256);
+function _recordLastPrice(ReserveInfo memory _reserve, address _token, uint256 _reserveId)
+    internal
+    returns (uint256 lastPrice);
 ```
 
 ### _validateInput

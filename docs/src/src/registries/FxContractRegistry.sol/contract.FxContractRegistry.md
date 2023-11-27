@@ -1,5 +1,5 @@
 # FxContractRegistry
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/709c3bd5035ed7a7acc4391ca2a42cf2ad71efed/src/registries/FxContractRegistry.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/1ca8488246dda0c8af0201fe562392f87b349fa1/src/registries/FxContractRegistry.sol)
 
 **Inherits:**
 [IFxContractRegistry](/src/interfaces/IFxContractRegistry.sol/interface.IFxContractRegistry.md), Ownable
@@ -12,7 +12,7 @@ fx(hash)
 
 ## State Variables
 ### configInfo
-Returns the system config information (lock time, referrer share, default metadata)
+Returns the system config information (feeReceiver, feeAllocation, lockTime, referrerShare, defaultMetadataURI)
 
 
 ```solidity

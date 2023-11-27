@@ -1,5 +1,5 @@
 # FxTicketFactory
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/709c3bd5035ed7a7acc4391ca2a42cf2ad71efed/src/factories/FxTicketFactory.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/1ca8488246dda0c8af0201fe562392f87b349fa1/src/factories/FxTicketFactory.sol)
 
 **Inherits:**
 [IFxTicketFactory](/src/interfaces/IFxTicketFactory.sol/interface.IFxTicketFactory.md), Ownable
@@ -68,29 +68,17 @@ constructor(address _admin, address _implementation, uint48 _gracePeriod);
 
 ### createTicket
 
-Creates new Generative Art project
+Creates new mint ticket
 
 
 ```solidity
-function createTicket(
-    address _owner,
-    address _genArt721,
-    address _redeemer,
-    uint48 _gracePeriod,
-    bytes calldata _baseURI,
-    MintInfo[] calldata _mintInfo
-) external returns (address mintTicket);
+function createTicket(bytes calldata _creationInfo) external returns (address mintTicket);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_owner`|`address`|Address of project owner|
-|`_genArt721`|`address`|Address of GenArt721 token contract|
-|`_redeemer`|`address`|Address of TicketRedeemer minter contract|
-|`_gracePeriod`|`uint48`|Duration of time before token enters harberger taxation|
-|`_baseURI`|`bytes`|Decoded content identifier of metadata pointer|
-|`_mintInfo`|`MintInfo[]`|Array of authorized minter contracts and their reserves|
+|`_creationInfo`|`bytes`||
 
 
 ### setImplementation
@@ -122,6 +110,42 @@ function setMinGracePeriod(uint48 _gracePeriod) external onlyOwner;
 |----|----|-----------|
 |`_gracePeriod`|`uint48`|Minimum time duration before a ticket enters harberger taxation|
 
+
+### createTicket
+
+Creates new mint ticket
+
+
+```solidity
+function createTicket(
+    address _owner,
+    address _genArt721,
+    address _redeemer,
+    address _renderer,
+    uint48 _gracePeriod,
+    MintInfo[] memory _mintInfo
+) public returns (address mintTicket);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_owner`|`address`|Address of project owner|
+|`_genArt721`|`address`|Address of GenArt721 token contract|
+|`_redeemer`|`address`|Address of TicketRedeemer minter contract|
+|`_renderer`|`address`||
+|`_gracePeriod`|`uint48`|Duration of time before token enters harberger taxation|
+|`_mintInfo`|`MintInfo[]`|Array of authorized minter contracts and their reserves|
+
+
+### getTicketAddress
+
+Calculates the CREATE2 address of a new FxMintTicket721 proxy
+
+
+```solidity
+function getTicketAddress(address _sender) external view returns (address);
+```
 
 ### _setImplementation
 

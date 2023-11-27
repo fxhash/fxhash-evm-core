@@ -1,5 +1,5 @@
 # FixedPrice
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/709c3bd5035ed7a7acc4391ca2a42cf2ad71efed/src/minters/FixedPrice.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/1ca8488246dda0c8af0201fe562392f87b349fa1/src/minters/FixedPrice.sol)
 
 **Inherits:**
 [IFixedPrice](/src/interfaces/IFixedPrice.sol/interface.IFixedPrice.md), [Allowlist](/src/minters/extensions/Allowlist.sol/abstract.Allowlist.md), [MintPass](/src/minters/extensions/MintPass.sol/abstract.MintPass.md)
@@ -11,39 +11,39 @@ fx(hash)
 
 
 ## State Variables
-### _claimedMerkleTreeSlots
+### claimedMerkleTreeSlots_
 *Mapping of token address to reserve ID to Bitmap of claimed merkle tree slots*
 
 
 ```solidity
-mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal _claimedMerkleTreeSlots;
+mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal claimedMerkleTreeSlots_;
 ```
 
 
-### _claimedMintPasses
+### claimedMintPasses_
 *Mapping of token address to reserve ID to Bitmap of claimed mint passes*
 
 
 ```solidity
-mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal _claimedMintPasses;
+mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal claimedMintPasses_;
 ```
 
 
-### _latestUpdates
+### latestUpdates_
 *Mapping of token address to timestamp of latest update made for token reserves*
 
 
 ```solidity
-LibMap.Uint40Map internal _latestUpdates;
+LibMap.Uint40Map internal latestUpdates_;
 ```
 
 
-### _saleProceeds
+### saleProceeds_
 *Mapping of token address to sale proceeds*
 
 
 ```solidity
-LibMap.Uint128Map internal _saleProceeds;
+LibMap.Uint128Map internal saleProceeds_;
 ```
 
 

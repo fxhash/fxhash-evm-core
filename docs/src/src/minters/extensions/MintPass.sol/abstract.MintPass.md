@@ -1,5 +1,5 @@
 # MintPass
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/709c3bd5035ed7a7acc4391ca2a42cf2ad71efed/src/minters/extensions/MintPass.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/1ca8488246dda0c8af0201fe562392f87b349fa1/src/minters/extensions/MintPass.sol)
 
 **Inherits:**
 EIP712
@@ -11,21 +11,21 @@ Extension for claiming tokens through mint passes
 
 
 ## State Variables
-### signingAuthorities
-Mapping of token address to reserve ID to address of mint pass authority
-
-
-```solidity
-mapping(address => mapping(uint256 => address)) public signingAuthorities;
-```
-
-
 ### reserveNonce
 Mapping of token address to reserve ID to reserve nonce
 
 
 ```solidity
 mapping(address => mapping(uint256 => uint256)) public reserveNonce;
+```
+
+
+### signingAuthorities
+Mapping of token address to reserve ID to address of mint pass authority
+
+
+```solidity
+mapping(address => mapping(uint256 => address)) public signingAuthorities;
 ```
 
 
@@ -103,6 +103,15 @@ Event emitted when mint pass is claimed
 ```solidity
 event PassClaimed(address indexed _token, uint256 indexed _reserveId, address indexed _claimer, uint256 _index);
 ```
+
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_token`|`address`|Address of the token|
+|`_reserveId`|`uint256`|ID of the reserve|
+|`_claimer`|`address`|Address of the mint pass claimer|
+|`_index`|`uint256`|Index of purchase info inside the BitMap|
 
 ## Errors
 ### InvalidSignature
