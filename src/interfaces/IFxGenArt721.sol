@@ -210,17 +210,35 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
 
     /**
      * @notice Generates typed data hash for setting project metadata onchain
-     * @param _data Bytes-encoded onchain data
+     * @param _uri Bytes-encoded base URI data
+     * @param _salt A single use value to mark a signature as consumed
      * @return Typed data hash
      */
-    function generateOnchainDataHash(bytes calldata _data) external view returns (bytes32);
+    function generateBaseURIHash(bytes calldata _uri, bytes32 _salt) external view returns (bytes32);
+
+    /**
+     * @notice Generates typed data hash for setting project metadata onchain
+     * @param _data Bytes-encoded onchain data
+     * @param _salt A single use value to mark a signature as consumed
+     * @return Typed data hash
+     */
+    function generateOnchainDataHash(bytes calldata _data, bytes32 _salt) external view returns (bytes32);
 
     /**
      * @notice Generates typed data hash for setting the primary receiver address
      * @param _receiver Address of the new primary receiver account
+     * @param _salt A single use value to mark a signature as consumed
      * @return Typed data hash
      */
-    function generatePrimaryReceiverHash(address _receiver) external view returns (bytes32);
+    function generatePrimaryReceiverHash(address _receiver, bytes32 _salt) external view returns (bytes32);
+
+    /**
+     * @notice Generates typed data hash for setting the primary receiver address
+     * @param _renderer Address of the new renderer contract
+     * @param _salt A single use value to mark a signature as consumed
+     * @return Typed data hash
+     */
+    function generateSetRendererHash(address _renderer, bytes32 _salt) external view returns (bytes32);
 
     /**
      * @notice Initializes new generative art project
@@ -341,22 +359,26 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     /**
      * @notice Sets the new URI of the token metadata
      * @param _uri Decoded content identifier of metadata pointer
+     * @param _salt A single use value to mark a signature as consumed
+     * @param _signature Signature of creator used to verify metadata update
      */
-    function setBaseURI(bytes calldata _uri) external;
+    function setBaseURI(bytes calldata _uri, bytes32 _salt, bytes calldata _signature) external;
 
     /**
      * @notice Sets the onchain data of the project metadata
      * @param _data Bytes-encoded metadata
+     * @param _salt A single use value to mark a signature as consumed
      * @param _signature Signature of creator used to verify metadata update
      */
-    function setOnchainData(bytes calldata _data, bytes calldata _signature) external;
+    function setOnchainData(bytes calldata _data, bytes32 _salt, bytes calldata _signature) external;
 
     /**
      * @notice Sets the primary receiver address for token royalties
      * @param _receiver Address of the new primary receiver account
+     * @param _salt A single use value to mark a signature as consumed
      * @param _signature Signature of creator used to verify receiver update
      */
-    function setPrimaryReceiver(address _receiver, bytes calldata _signature) external;
+    function setPrimaryReceiver(address _receiver, bytes32 _salt, bytes calldata _signature) external;
 
     /**
      * @notice Sets the new randomizer contract
@@ -367,8 +389,10 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     /**
      * @notice Sets the new renderer contract
      * @param _renderer Address of the renderer contract
+     * @param _salt A single use value to mark a signature as consumed
+     * @param _signature Signature of creator used to verify receiver update
      */
-    function setRenderer(address _renderer) external;
+    function setRenderer(address _renderer, bytes32 _salt, bytes calldata _signature) external;
 
     /**
      * @notice Emits an event for setting tag descriptions for the project

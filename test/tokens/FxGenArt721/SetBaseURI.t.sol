@@ -11,13 +11,13 @@ contract SetBaseURITest is FxGenArt721Test {
     }
 
     function test_SetBaseURI() public {
-        TokenLib.setBaseURI(admin, fxGenArtProxy, BASE_URI);
+        TokenLib.setBaseURI(creator, fxGenArtProxy, BASE_URI, bytes32(nextSalt), signature);
         _setMetadatInfo();
         assertEq(baseURI, BASE_URI);
     }
 
     function test_RevertsWhen_UnauthorizedAccount() public {
         vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
-        TokenLib.setBaseURI(creator, fxGenArtProxy, BASE_URI);
+        TokenLib.setBaseURI(bob, fxGenArtProxy, BASE_URI, bytes32(nextSalt), signature);
     }
 }

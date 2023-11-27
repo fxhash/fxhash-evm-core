@@ -25,9 +25,10 @@ string constant TICKET_REDEEMER = "TICKET_REDEEMER";
 bytes32 constant CLAIM_TYPEHASH = keccak256(
     "Claim(address token, uint256 reserveId, uint96 nonce, uint256 index, address user)"
 );
-bytes32 constant SET_BASE_URI_TYPEHASH = keccak256("SetBaseURI(string uri)");
-bytes32 constant SET_ONCHAIN_DATA_TYPEHASH = keccak256("SetOnchainData(bytes data");
-bytes32 constant SET_PRIMARY_RECEIVER_TYPEHASH = keccak256("SetPrimaryReceiver(address primaryReceiver)");
+bytes32 constant SET_BASE_URI_TYPEHASH = keccak256("SetBaseURI(string uri, bytes32 salt)");
+bytes32 constant SET_ONCHAIN_DATA_TYPEHASH = keccak256("SetOnchainData(bytes data, bytes32 salt)");
+bytes32 constant SET_PRIMARY_RECEIVER_TYPEHASH = keccak256("SetPrimaryReceiver(address primaryReceiver, bytes32 salt)");
+bytes32 constant SET_RENDERER_TYPEHASH = keccak256("SetRenderer(address renderer, bytes32 salt)");
 
 // Metadata
 bytes constant IPFS_URL = hex"697066733a2f2f172c151325290607391d2c391b242225180a020b291b260929391d1b31222525202804120031280917120b280400";
@@ -48,9 +49,9 @@ uint120 constant OPEN_EDITION_SUPPLY = type(uint120).max;
 bytes32 constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 bytes32 constant BANNED_USER_ROLE = keccak256("BANNED_USER_ROLE");
 bytes32 constant CREATOR_ROLE = keccak256("CREATOR_ROLE");
-bytes32 constant METADATA_ROLE = keccak256("METADATA_ROLE");
 bytes32 constant MINTER_ROLE = keccak256("MINTER_ROLE");
 bytes32 constant MODERATOR_ROLE = keccak256("MODERATOR_ROLE");
+bytes32 constant SIGNER_ROLE = keccak256("SIGNER_ROLE");
 
 // Royalties
 uint32 constant ALLOCATION_DENOMINATOR = 1_000_000;
