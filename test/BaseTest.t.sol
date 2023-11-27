@@ -22,7 +22,6 @@ import {IFxMintTicket721, TaxInfo} from "src/interfaces/IFxMintTicket721.sol";
 import {IFxTicketFactory} from "src/interfaces/IFxTicketFactory.sol";
 import {IRoyaltyManager} from "src/interfaces/IRoyaltyManager.sol";
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
-import {ISplitsFactory} from "src/interfaces/ISplitsFactory.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
 import {ITicketRedeemer} from "src/interfaces/ITicketRedeemer.sol";
 
@@ -229,7 +228,7 @@ contract BaseTest is Deploy, Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _createSplit() internal virtual {
-        primaryReceiver = splitsFactory.createImmutableSplit(royaltyReceivers, allocations);
+        primaryReceiver = ISplitsMain(SPLITS_MAIN).createSplit(royaltyReceivers, allocations, 0, address(0));
         vm.label(primaryReceiver, "PrimaryReceiver");
     }
 
