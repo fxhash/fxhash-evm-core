@@ -230,8 +230,8 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @param _metadataInfo Metadata information
      * @param _mintInfo Array of authorized minter contracts and their reserves
      * @param _royaltyReceivers Array of addresses receiving royalties
-     * @param _allocations Array of basis points for calculating royalty shares
-     * @param _basisPoints basis points for calculating royalty shares
+     * @param _allocations Array of allocation amounts for calculating royalty shares
+     * @param _basisPoints Total allocation scalar for calculating royalty shares
      */
     function initialize(
         address _owner,
