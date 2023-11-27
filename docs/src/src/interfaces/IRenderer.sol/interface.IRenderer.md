@@ -1,5 +1,5 @@
 # IRenderer
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/709c3bd5035ed7a7acc4391ca2a42cf2ad71efed/src/interfaces/IRenderer.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/1ca8488246dda0c8af0201fe562392f87b349fa1/src/interfaces/IRenderer.sol)
 
 **Author:**
 fx(hash)
@@ -8,20 +8,23 @@ Interface for FxGenArt721 tokens to interact with renderers
 
 
 ## Functions
-### contractURI
+### contractRegistry
 
-Gets the contact-level metadata for a project
+Returns address of the FxContractRegistry contract
 
 
 ```solidity
-function contractURI(string memory _defaultURI) external view returns (string memory);
+function contractRegistry() external view returns (address);
 ```
-**Parameters**
 
-|Name|Type|Description|
-|----|----|-----------|
-|`_defaultURI`|`string`|Fallback URI|
+### contractURI
 
+Gets the contact-level metadata for the project
+
+
+```solidity
+function contractURI() external view returns (string memory);
+```
 **Returns**
 
 |Name|Type|Description|

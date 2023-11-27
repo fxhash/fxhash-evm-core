@@ -1,5 +1,5 @@
 # IFxGenArt721
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/709c3bd5035ed7a7acc4391ca2a42cf2ad71efed/src/interfaces/IFxGenArt721.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/1ca8488246dda0c8af0201fe562392f87b349fa1/src/interfaces/IFxGenArt721.sol)
 
 **Inherits:**
 [ISeedConsumer](/src/interfaces/ISeedConsumer.sol/interface.ISeedConsumer.md), [IToken](/src/interfaces/IToken.sol/interface.IToken.md)
@@ -11,6 +11,13 @@ ERC-721 token for generative art projects created on fxhash
 
 
 ## Functions
+### activeMinters
+
+
+```solidity
+function activeMinters() external view returns (address[] memory);
+```
+
 ### burn
 
 Burns token ID from the circulating supply
@@ -69,6 +76,48 @@ Mapping of token ID to GenArtInfo struct (seed, fxParams)
 function genArtInfo(uint256 _tokenId) external view returns (bytes32, bytes memory);
 ```
 
+### generateOnchainDataHash
+
+Generates typed data hash for setting project metadata onchain
+
+
+```solidity
+function generateOnchainDataHash(bytes calldata _data) external view returns (bytes32);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_data`|`bytes`|Bytes-encoded onchain data|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bytes32`|Typed data hash|
+
+
+### generatePrimaryReceiverHash
+
+Generates typed data hash for setting the primary receiver address
+
+
+```solidity
+function generatePrimaryReceiverHash(address _receiver) external view returns (bytes32);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_receiver`|`address`|Address of the new primary receiver account|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bytes32`|Typed data hash|
+
+
 ### initialize
 
 Initializes new generative art project
@@ -81,8 +130,9 @@ function initialize(
     ProjectInfo calldata _projectInfo,
     MetadataInfo calldata _metadataInfo,
     MintInfo[] calldata _mintInfo,
-    address payable[] calldata _royaltyReceivers,
-    uint96[] calldata _basisPoints
+    address[] calldata _royaltyReceivers,
+    uint32[] calldata _allocations,
+    uint96 _basisPoints
 ) external;
 ```
 **Parameters**
@@ -94,8 +144,9 @@ function initialize(
 |`_projectInfo`|`ProjectInfo`|Project information|
 |`_metadataInfo`|`MetadataInfo`|Metadata information|
 |`_mintInfo`|`MintInfo[]`|Array of authorized minter contracts and their reserves|
-|`_royaltyReceivers`|`address payable[]`|Array of addresses receiving royalties|
-|`_basisPoints`|`uint96[]`|Array of basis points for calculating royalty shares|
+|`_royaltyReceivers`|`address[]`|Array of addresses receiving royalties|
+|`_allocations`|`uint32[]`|Array of allocation amounts for calculating royalty shares|
+|`_basisPoints`|`uint96`|Total allocation scalar for calculating royalty shares|
 
 
 ### isMinter
@@ -104,7 +155,7 @@ Gets the authorization status for the given minter contract
 
 
 ```solidity
-function isMinter(address _minter) external view returns (uint8);
+function isMinter(address _minter) external view returns (bool);
 ```
 **Parameters**
 
@@ -116,7 +167,7 @@ function isMinter(address _minter) external view returns (uint8);
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`uint8`|Authorization status|
+|`<none>`|`bool`|Authorization status|
 
 
 ### issuerInfo
@@ -130,11 +181,11 @@ function issuerInfo() external view returns (address, ProjectInfo memory);
 
 ### metadataInfo
 
-Returns the metadata information of the project (baseURI, onchainData)
+Returns the metadata information of the project (baseURI, onchainPointer)
 
 
 ```solidity
-function metadataInfo() external view returns (bytes memory, bytes memory);
+function metadataInfo() external view returns (bytes memory, address);
 ```
 
 ### mint
@@ -284,6 +335,24 @@ Returns the address of the FxRoleRegistry contract
 function roleRegistry() external view returns (address);
 ```
 
+### setBaseRoyalties
+
+Sets the base royalties for all secondary token sales
+
+
+```solidity
+function setBaseRoyalties(address[] calldata _receivers, uint32[] calldata _allocations, uint96 _basisPoints)
+    external;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_receivers`|`address[]`|Array of addresses receiving royalties|
+|`_allocations`|`uint32[]`|Array of allocations used to calculate royalty payments|
+|`_basisPoints`|`uint96`|basis points used to calculate royalty payments|
+
+
 ### setBaseURI
 
 Sets the new URI of the token metadata
@@ -297,6 +366,38 @@ function setBaseURI(bytes calldata _uri) external;
 |Name|Type|Description|
 |----|----|-----------|
 |`_uri`|`bytes`|Decoded content identifier of metadata pointer|
+
+
+### setOnchainData
+
+Sets the onchain data of the project metadata
+
+
+```solidity
+function setOnchainData(bytes calldata _data, bytes calldata _signature) external;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_data`|`bytes`|Bytes-encoded metadata|
+|`_signature`|`bytes`|Signature of creator used to verify metadata update|
+
+
+### setPrimaryReceiver
+
+Sets the primary receiver address for token royalties
+
+
+```solidity
+function setPrimaryReceiver(address _receiver, bytes calldata _signature) external;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_receiver`|`address`|Address of the new primary receiver account|
+|`_signature`|`bytes`|Signature of creator used to verify receiver update|
 
 
 ### setRandomizer
@@ -389,6 +490,12 @@ Event emitted when the base URI is updated
 event BaseURIUpdated(bytes _uri);
 ```
 
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_uri`|`bytes`|Decoded content identifier of metadata pointer|
+
 ### BurnEnabled
 Event emitted when burn is toggled
 
@@ -397,13 +504,11 @@ Event emitted when burn is toggled
 event BurnEnabled(bool indexed _enabled);
 ```
 
-### ImageURIUpdated
-Event emitted when the image URI is updated
+**Parameters**
 
-
-```solidity
-event ImageURIUpdated(string _uri);
-```
+|Name|Type|Description|
+|----|----|-----------|
+|`_enabled`|`bool`|Flag status of burn|
 
 ### MintEnabled
 Event emitted when minted is toggled
@@ -412,6 +517,12 @@ Event emitted when minted is toggled
 ```solidity
 event MintEnabled(bool indexed _enabled);
 ```
+
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_enabled`|`bool`|Flag status of mint|
 
 ### ProjectDeleted
 Event emitted when project is deleted only once supply is set to zero
@@ -431,6 +542,29 @@ event ProjectInitialized(
 );
 ```
 
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_primaryReceiver`|`address`|Address of splitter contract receiving primary sales|
+|`_projectInfo`|`ProjectInfo`|Project information|
+|`_metadataInfo`|`MetadataInfo`|Metadata information of token|
+|`_mintInfo`|`MintInfo[]`|Array of authorized minter contracts and their reserves|
+
+### PrimaryReceiverUpdated
+Event emitted when the primary receiver address is updated
+
+
+```solidity
+event PrimaryReceiverUpdated(address indexed _receiver);
+```
+
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_receiver`|`address`|Address of the new primary receiver account|
+
 ### ProjectTags
 Event emitted when project tags are set
 
@@ -438,6 +572,12 @@ Event emitted when project tags are set
 ```solidity
 event ProjectTags(uint256[] indexed _tagIds);
 ```
+
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_tagIds`|`uint256[]`|Array of tag IDs describing the project|
 
 ### RandomizerUpdated
 Event emitted when Randomizer contract is updated
@@ -447,6 +587,12 @@ Event emitted when Randomizer contract is updated
 event RandomizerUpdated(address indexed _randomizer);
 ```
 
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_randomizer`|`address`|Address of new Randomizer contract|
+
 ### RendererUpdated
 Event emitted when Renderer contract is updated
 
@@ -455,6 +601,26 @@ Event emitted when Renderer contract is updated
 event RendererUpdated(address indexed _renderer);
 ```
 
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_renderer`|`address`|Address of new Renderer contract|
+
+### OnchainDataUpdated
+Event emitted when onchain data of project is updated
+
+
+```solidity
+event OnchainDataUpdated(bytes _data);
+```
+
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_data`|`bytes`|Bytes-encoded metadata|
+
 ### SupplyReduced
 Event emitted when maximum supply is reduced
 
@@ -462,6 +628,13 @@ Event emitted when maximum supply is reduced
 ```solidity
 event SupplyReduced(uint120 indexed _prevSupply, uint120 indexed _newSupply);
 ```
+
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_prevSupply`|`uint120`|Amount of previous supply|
+|`_newSupply`|`uint120`|Amount of new supply|
 
 ## Errors
 ### AllocationExceeded
@@ -478,6 +651,14 @@ Error thrown when burning is inactive
 
 ```solidity
 error BurnInactive();
+```
+
+### FeeReceiverMissing
+Error thrown when the fee receiver address is not included in the receiver allocations
+
+
+```solidity
+error FeeReceiverMissing();
 ```
 
 ### InsufficientSupply

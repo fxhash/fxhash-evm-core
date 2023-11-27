@@ -1,5 +1,5 @@
 # Allowlist
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/709c3bd5035ed7a7acc4391ca2a42cf2ad71efed/src/minters/extensions/Allowlist.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/1ca8488246dda0c8af0201fe562392f87b349fa1/src/minters/extensions/Allowlist.sol)
 
 **Author:**
 fx(hash)
@@ -57,6 +57,15 @@ Event emitted when allowlist slot is claimed
 ```solidity
 event SlotClaimed(address indexed _token, uint256 indexed _reserveId, address indexed _claimer, uint256 _index);
 ```
+
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_token`|`address`|Address of the token|
+|`_reserveId`|`uint256`|ID of the reserve|
+|`_claimer`|`address`|Address of the claimer|
+|`_index`|`uint256`|Index of purchase info inside the BitMap|
 
 ## Errors
 ### InvalidProof

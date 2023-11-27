@@ -1,5 +1,5 @@
 # IFxTicketFactory
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/709c3bd5035ed7a7acc4391ca2a42cf2ad71efed/src/interfaces/IFxTicketFactory.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/1ca8488246dda0c8af0201fe562392f87b349fa1/src/interfaces/IFxTicketFactory.sol)
 
 **Author:**
 fx(hash)
@@ -10,7 +10,7 @@ Factory for managing newly deployed FxMintTicket721 tokens
 ## Functions
 ### createTicket
 
-Creates new Generative Art project
+Creates new mint ticket
 
 
 ```solidity
@@ -18,9 +18,9 @@ function createTicket(
     address _owner,
     address _genArt721,
     address _redeemer,
+    address _renderer,
     uint48 _gracePeriod,
-    bytes calldata _baseURI,
-    MintInfo[] calldata _mintInfo
+    MintInfo[] memory _mintInfo
 ) external returns (address);
 ```
 **Parameters**
@@ -30,10 +30,40 @@ function createTicket(
 |`_owner`|`address`|Address of project owner|
 |`_genArt721`|`address`|Address of GenArt721 token contract|
 |`_redeemer`|`address`|Address of TicketRedeemer minter contract|
+|`_renderer`|`address`||
 |`_gracePeriod`|`uint48`|Duration of time before token enters harberger taxation|
-|`_baseURI`|`bytes`|Decoded content identifier of metadata pointer|
 |`_mintInfo`|`MintInfo[]`|Array of authorized minter contracts and their reserves|
 
+
+### createTicket
+
+Creates new mint ticket for new generative art project in single transaction
+
+
+```solidity
+function createTicket(bytes calldata _creationInfo) external returns (address);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_creationInfo`|`bytes`|Bytes-encoded data for ticket creation|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`address`|mintTicket Address of newly created FxMintTicket721 proxy|
+
+
+### getTicketAddress
+
+Calculates the CREATE2 address of a new FxMintTicket721 proxy
+
+
+```solidity
+function getTicketAddress(address _sender) external view returns (address);
+```
 
 ### implementation
 
@@ -119,6 +149,13 @@ Event emitted when the minimum grace period is updated
 event GracePeriodUpdated(address indexed _owner, uint48 indexed _gracePeriod);
 ```
 
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_owner`|`address`|Address of the factory owner|
+|`_gracePeriod`|`uint48`|Time duration of the new grace period|
+
 ### ImplementationUpdated
 Event emitted when the FxMintTicket721 implementation contract is updated
 
@@ -127,6 +164,13 @@ Event emitted when the FxMintTicket721 implementation contract is updated
 event ImplementationUpdated(address indexed _owner, address indexed _implementation);
 ```
 
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_owner`|`address`|Address of the factory owner|
+|`_implementation`|`address`|Address of the new FxMintTicket721 implementation contract|
+
 ### TicketCreated
 Event emitted when new FxMintTicket721 is created
 
@@ -134,6 +178,14 @@ Event emitted when new FxMintTicket721 is created
 ```solidity
 event TicketCreated(uint96 indexed _ticketId, address indexed _mintTicket, address indexed _owner);
 ```
+
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ticketId`|`uint96`|ID of the ticket contract|
+|`_mintTicket`|`address`|Address of newly deployed FxMintTicket721 token contract|
+|`_owner`|`address`|Address of ticket owner|
 
 ## Errors
 ### InvalidGracePeriod
@@ -158,6 +210,14 @@ Error thrown when redeemer contract is zero address
 
 ```solidity
 error InvalidRedeemer();
+```
+
+### InvalidRenderer
+Error thrown when renderer contract is zero address
+
+
+```solidity
+error InvalidRenderer();
 ```
 
 ### InvalidToken

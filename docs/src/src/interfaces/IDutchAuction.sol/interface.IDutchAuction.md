@@ -1,5 +1,5 @@
 # IDutchAuction
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/709c3bd5035ed7a7acc4391ca2a42cf2ad71efed/src/interfaces/IDutchAuction.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/1ca8488246dda0c8af0201fe562392f87b349fa1/src/interfaces/IDutchAuction.sol)
 
 **Inherits:**
 [IMinter](/src/interfaces/IMinter.sol/interface.IMinter.md)
@@ -236,9 +236,25 @@ Event emitted when the mint details for a Dutch auction are set
 
 ```solidity
 event MintDetailsSet(
-    address indexed _token, uint256 indexed _reserveId, ReserveInfo _reserveInfo, AuctionInfo _auctionInfo
+    address indexed _token,
+    uint256 indexed _reserveId,
+    ReserveInfo _reserveInfo,
+    bytes32 _merkleRoot,
+    address _mintPassSigner,
+    AuctionInfo _auctionInfo
 );
 ```
+
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_token`|`address`|Address of the token being minted|
+|`_reserveId`|`uint256`|ID of the reserve|
+|`_reserveInfo`|`ReserveInfo`|The reserve info of the Dutch auction|
+|`_merkleRoot`|`bytes32`|The merkle root allowlisted buyers|
+|`_mintPassSigner`|`address`|The signing account for mint passes|
+|`_auctionInfo`|`AuctionInfo`|Dutch auction information|
 
 ### Purchase
 Event emitted when a purchase is made during the auction
@@ -255,6 +271,17 @@ event Purchase(
 );
 ```
 
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_token`|`address`|Address of the token being purchased|
+|`_reserveId`|`uint256`|ID of the reserve|
+|`_buyer`|`address`|Address of the buyer|
+|`_to`|`address`|Address where the purchased tokens will be sent|
+|`_amount`|`uint256`|Amount of tokens purchased|
+|`_price`|`uint256`|Price at which the tokens were purchased|
+
 ### RefundClaimed
 Event emitted when a refund is claimed by a buyer
 
@@ -263,6 +290,15 @@ Event emitted when a refund is claimed by a buyer
 event RefundClaimed(address indexed _token, uint256 indexed _reserveId, address indexed _buyer, uint256 _refundAmount);
 ```
 
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_token`|`address`|Address of the token for which the refund is claimed|
+|`_reserveId`|`uint256`|ID of the reserve|
+|`_buyer`|`address`|Address of the buyer claiming the refund|
+|`_refundAmount`|`uint256`|Amount of refund claimed|
+
 ### Withdrawn
 Event emitted when the sale proceeds are withdrawn
 
@@ -270,6 +306,15 @@ Event emitted when the sale proceeds are withdrawn
 ```solidity
 event Withdrawn(address indexed _token, uint256 indexed _reserveId, address indexed _creator, uint256 _proceeds);
 ```
+
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_token`|`address`|Address of the token|
+|`_reserveId`|`uint256`|ID of the reserve|
+|`_creator`|`address`|Address of the creator of the project|
+|`_proceeds`|`uint256`|Amount of sale proceeds withdrawn|
 
 ## Errors
 ### AddressZero

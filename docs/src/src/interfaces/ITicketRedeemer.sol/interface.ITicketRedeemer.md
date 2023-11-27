@@ -1,5 +1,5 @@
 # ITicketRedeemer
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/709c3bd5035ed7a7acc4391ca2a42cf2ad71efed/src/interfaces/ITicketRedeemer.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/1ca8488246dda0c8af0201fe562392f87b349fa1/src/interfaces/ITicketRedeemer.sol)
 
 **Inherits:**
 [IMinter](/src/interfaces/IMinter.sol/interface.IMinter.md)
@@ -17,14 +17,15 @@ Burns a ticket and mints a new token to the caller
 
 
 ```solidity
-function redeem(address _ticket, uint256 _tokenId, bytes calldata _fxParams) external;
+function redeem(address _ticket, address _to, uint256 _tokenId, bytes calldata _fxParams) external;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
 |`_ticket`|`address`|Address of the ticket contract|
-|`_tokenId`|`uint256`|ID of the ticket token to burn|
+|`_to`|`address`|Address of token receiver|
+|`_tokenId`|`uint256`|ID of the ticket being burned|
 |`_fxParams`|`bytes`|Random sequence of fixed-length bytes used for token input|
 
 
@@ -64,6 +65,13 @@ Event emitted when the mint details are set for a ticket contract
 event MintDetailsSet(address indexed _ticket, address indexed _token);
 ```
 
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ticket`|`address`|Address of the ticket contract|
+|`_token`|`address`|Address of the token contract that can be redeemed through the ticket|
+
 ### Redeemed
 Event emitted when a ticket is burned and a new token is minted
 
@@ -71,6 +79,15 @@ Event emitted when a ticket is burned and a new token is minted
 ```solidity
 event Redeemed(address indexed _ticket, uint256 indexed _tokenId, address indexed _owner, address _token);
 ```
+
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_ticket`|`address`|Address of the ticket contract|
+|`_tokenId`|`uint256`|ID of the token being burned|
+|`_owner`|`address`|Address of the owner receiving the token|
+|`_token`|`address`|Address of the token being minted|
 
 ## Errors
 ### AlreadySet
@@ -95,5 +112,13 @@ Error thrown when the caller is not authorized
 
 ```solidity
 error NotAuthorized();
+```
+
+### ZeroAddress
+Error thrown when receiver is zero address
+
+
+```solidity
+error ZeroAddress();
 ```
 

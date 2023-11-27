@@ -1,5 +1,5 @@
 # IFxIssuerFactory
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/709c3bd5035ed7a7acc4391ca2a42cf2ad71efed/src/interfaces/IFxIssuerFactory.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/1ca8488246dda0c8af0201fe562392f87b349fa1/src/interfaces/IFxIssuerFactory.sol)
 
 **Author:**
 fx(hash)
@@ -16,12 +16,13 @@ Creates new generative art project
 ```solidity
 function createProject(
     address _owner,
-    InitInfo calldata _initInfo,
-    ProjectInfo calldata _projectInfo,
-    MetadataInfo calldata _metadataInfo,
-    MintInfo[] calldata _mintInfo,
-    address payable[] calldata _royaltyReceivers,
-    uint96[] calldata _basisPoints
+    InitInfo memory _initInfo,
+    ProjectInfo memory _projectInfo,
+    MetadataInfo memory _metadataInfo,
+    MintInfo[] memory _mintInfo,
+    address[] memory _royaltyReceivers,
+    uint32[] memory _allocations,
+    uint96 _basisPoints
 ) external returns (address);
 ```
 **Parameters**
@@ -33,9 +34,72 @@ function createProject(
 |`_projectInfo`|`ProjectInfo`|Project information|
 |`_metadataInfo`|`MetadataInfo`|Metadata information|
 |`_mintInfo`|`MintInfo[]`|Array of authorized minter contracts and their reserves|
-|`_royaltyReceivers`|`address payable[]`|Array of addresses receiving royalties|
-|`_basisPoints`|`uint96[]`|Array of basis points for calculating royalty shares|
+|`_royaltyReceivers`|`address[]`|Array of addresses receiving royalties|
+|`_allocations`|`uint32[]`|Array of allocation amounts for calculating royalty shares|
+|`_basisPoints`|`uint96`|Total allocation scalar for calculating royalty shares|
 
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`address`|genArtToken Address of newly created FxGenArt721 proxy|
+
+
+### createProject
+
+Creates new generative art project with single parameter
+
+
+```solidity
+function createProject(bytes memory _creationInfo) external returns (address);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_creationInfo`|`bytes`|Bytes-encoded data for project creation|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`address`|genArtToken Address of newly created FxGenArt721 proxy|
+
+
+### createProject
+
+Creates new generative art project with new mint ticket in single transaction
+
+
+```solidity
+function createProject(bytes calldata _projectCreationInfo, bytes calldata _ticketCreationInfo, address _tickeFactory)
+    external
+    returns (address, address);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_projectCreationInfo`|`bytes`|Bytes-encoded data for project creation|
+|`_ticketCreationInfo`|`bytes`|Bytes-encoded data for ticket creation|
+|`_tickeFactory`|`address`|Address of FxTicketFactory contract|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`address`|genArtToken Address of newly created FxGenArt721 proxy|
+|`<none>`|`address`|mintTicket Address of newly created FxMintTicket721 proxy|
+
+
+### getTokenAddress
+
+Calculates the CREATE2 address of a new FxGenArt721 proxy
+
+
+```solidity
+function getTokenAddress(address _sender) external view returns (address);
+```
 
 ### implementation
 
@@ -44,6 +108,15 @@ Returns address of current FxGenArt721 implementation contract
 
 ```solidity
 function implementation() external view returns (address);
+```
+
+### nonces
+
+Mapping of deployer address to nonce value for precomputing token address
+
+
+```solidity
+function nonces(address _deployer) external view returns (uint256);
 ```
 
 ### projectId
@@ -97,6 +170,13 @@ Event emitted when the FxGenArt721 implementation contract is updated
 event ImplementationUpdated(address indexed _owner, address indexed _implementation);
 ```
 
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_owner`|`address`|Address of the factory owner|
+|`_implementation`|`address`|Address of the new FxGenArt721 implementation contract|
+
 ### ProjectCreated
 Event emitted when a new generative art project is created
 
@@ -104,6 +184,14 @@ Event emitted when a new generative art project is created
 ```solidity
 event ProjectCreated(uint96 indexed _projectId, address indexed _genArtToken, address indexed _owner);
 ```
+
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_projectId`|`uint96`|ID of the project|
+|`_genArtToken`|`address`|Address of newly deployed FxGenArt721 token contract|
+|`_owner`|`address`|Address of project owner|
 
 ## Errors
 ### InvalidInputSize
