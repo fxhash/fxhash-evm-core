@@ -22,11 +22,6 @@ contract SplitsFactory is ISplitsFactory, Ownable {
      */
     address public immutable splits;
 
-    /**
-     * @inheritdoc ISplitsFactory
-     */
-    address public controller;
-
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
@@ -72,17 +67,6 @@ contract SplitsFactory is ISplitsFactory, Ownable {
     /**
      * @inheritdoc ISplitsFactory
      */
-    function createMutableSplitFor(
-        address _creator,
-        address[] calldata _accounts,
-        uint32[] calldata _allocations
-    ) external returns (address split) {
-        split = _createMutableSplit(_creator, _accounts, _allocations);
-    }
-
-    /**
-     * @inheritdoc ISplitsFactory
-     */
     function emitVirtualSplit(
         address[] calldata _accounts,
         uint32[] calldata _allocations
@@ -94,24 +78,14 @@ contract SplitsFactory is ISplitsFactory, Ownable {
     }
 
     /**
-     * @inheritdoc ISplitsFactory
-     */
-    function setController(address _controller) external onlyOwner {
-        address oldController = controller;
-        controller = _controller;
-        emit ControllerUpdated(oldController, _controller);
-    }
-
-    /**
      * @dev Creates new mutable 0xSplits wallet
      */
     function _createMutableSplit(
-        address _creator,
+        address _controller,
         address[] calldata _accounts,
         uint32[] calldata _allocations
     ) internal returns (address split) {
-        split = ISplitsMain(splits).createSplit(_accounts, _allocations, 0, controller);
-        ISplitsController(controller).addCreator(split, _creator);
-        emit SplitsInfo(split, controller, _accounts, _allocations, 0);
+        split = ISplitsMain(splits).createSplit(_accounts, _allocations, 0, _controller);
+        emit SplitsInfo(split, _controller, _accounts, _allocations, 0);
     }
 }

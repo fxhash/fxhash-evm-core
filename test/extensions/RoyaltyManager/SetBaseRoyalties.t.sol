@@ -6,37 +6,29 @@ import "test/extensions/RoyaltyManager/RoyaltyManagerTest.sol";
 contract SetBaseRoyaltiesTest is RoyaltyManagerTest {
     function setUp() public override {
         super.setUp();
-        royaltyReceivers.push(payable(alice));
         royaltyReceivers.push(payable(bob));
+        royaltyReceivers.push(payable(alice));
         royaltyReceivers.push(payable(eve));
 
-        basisPoints.push(MAX_ROYALTY_BPS);
-        basisPoints.push(MAX_ROYALTY_BPS);
-        basisPoints.push(MAX_ROYALTY_BPS);
+        allocations.push(333_333);
+        allocations.push(333_333);
+        allocations.push(333_334);
+        basisPoints = 500;
     }
 
     function test_SetBaseRoyalties() public {
-        royaltyManager.setBaseRoyalties(royaltyReceivers, basisPoints);
-    }
-
-    function test_RevertsWhen_OverMaxBasisPointsAllowed() public {
-        basisPoints[0] = MAX_ROYALTY_BPS + 1;
-        vm.expectRevert(abi.encodeWithSelector(OVER_MAX_BASIS_POINTS_ALLOWED_ERROR));
-        royaltyManager.setBaseRoyalties(royaltyReceivers, basisPoints);
+        royaltyManager.setBaseRoyalties(royaltyReceivers, allocations, basisPoints);
     }
 
     function test_RevertsWhen_InvalidRoyaltyConfig() public {
-        basisPoints.push(MAX_ROYALTY_BPS);
-        royaltyReceivers.push(payable(susan));
-        basisPoints.push(1);
-        royaltyReceivers.push(payable(deployer));
+        basisPoints = 10_001;
         vm.expectRevert(abi.encodeWithSelector(INVALID_ROYALTY_CONFIG_ERROR));
-        royaltyManager.setBaseRoyalties(royaltyReceivers, basisPoints);
+        royaltyManager.setBaseRoyalties(royaltyReceivers, allocations, basisPoints);
     }
 
     function test_RevertsWhen_LengthMismatch() public {
         royaltyReceivers.pop();
         vm.expectRevert(abi.encodeWithSelector(LENGTH_MISMATCH_ERROR));
-        royaltyManager.setBaseRoyalties(royaltyReceivers, basisPoints);
+        royaltyManager.setBaseRoyalties(royaltyReceivers, allocations, basisPoints);
     }
 }

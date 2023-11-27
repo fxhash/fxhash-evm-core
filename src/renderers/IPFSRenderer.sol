@@ -46,7 +46,7 @@ contract IPFSRenderer is IIPFSRenderer {
      * @inheritdoc IIPFSRenderer
      */
     function contractURI() external view returns (string memory) {
-        (, , string memory defaultURI) = IFxContractRegistry(contractRegistry).configInfo();
+        (, , , , string memory defaultURI) = IFxContractRegistry(contractRegistry).configInfo();
         string memory contractAddr = uint160(msg.sender).toHexString(20);
         return string.concat(defaultURI, contractAddr, METADATA_ENDPOINT);
     }
@@ -72,7 +72,7 @@ contract IPFSRenderer is IIPFSRenderer {
         string memory _baseURI,
         uint256 _tokenId
     ) public view returns (string memory) {
-        (, , string memory defaultURI) = IFxContractRegistry(contractRegistry).configInfo();
+        (, , , , string memory defaultURI) = IFxContractRegistry(contractRegistry).configInfo();
         string memory contractAddr = uint160(_contractAddr).toHexString(20);
         string memory metadataURI = string.concat("/", _tokenId.toString(), METADATA_ENDPOINT);
         return

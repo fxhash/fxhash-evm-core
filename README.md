@@ -27,11 +27,9 @@
 
 3. **[PseudoRandomizer](https://github.com/fxhash/fxhash-core/blob/main/src/randomizers/PseudoRandomizer.sol)**: Randomizer contract that provides a pseudo-randomness `keccak256` hash using the token ID, sender's address, current block number, and hash of the previous block
 
-4. **[SplitsController](https://github.com/fxhash/fxhash-core/blob/main/src/splits/SplitsController.sol)**: Controller contract that updates mutable **[0xSplits](https://docs.splits.org)** contracts for re-distributing token royalties on primary and secondary sales
+4. **[SplitsFactory](https://github.com/fxhash/fxhash-core/blob/main/src/factories/SplitsFactory.sol)**: Factory contract that creates and manages **[0xSplits](https://docs.splits.org)** contracts for distributing token royalties on primary and secondary sales
 
-5. **[SplitsFactory](https://github.com/fxhash/fxhash-core/blob/main/src/splits/SplitsFactory.sol)**: Factory contract that creates and manages **[0xSplits](https://docs.splits.org)** contracts for distributing token royalties on primary and secondary sales
-
-6. **[TicketRedeemer](https://github.com/fxhash/fxhash-core/blob/main/src/minters/TicketRedeemer.sol)**: Minter contract that burns an existing `FxMintTicket721` token and mints a new `FxGenArt721` token
+5. **[TicketRedeemer](https://github.com/fxhash/fxhash-core/blob/main/src/minters/TicketRedeemer.sol)**: Minter contract that burns an existing `FxMintTicket721` token and mints a new `FxGenArt721` token
 
 ## Setup
 

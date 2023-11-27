@@ -33,7 +33,6 @@ contract FxMintTicket721Test is BaseTest {
         super.setUp();
         _initializeState();
         _mockMinter(admin);
-        _configureSplits();
         _configureRoyalties();
         _configureProject(MINT_ENABLED, MAX_SUPPLY);
         _configureMinter(

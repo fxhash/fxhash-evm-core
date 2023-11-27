@@ -47,9 +47,9 @@ interface IFxContractRegistry {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @notice Returns the system config information (lock time, referrer share, default metadata)
+     * @notice Returns the system config information (feeReceiver, feeAllocation, lockTime, referrerShare, defaultMetadataURI)
      */
-    function configInfo() external view returns (uint128, uint128, string memory);
+    function configInfo() external view returns (address, uint32, uint64, uint64, string memory);
 
     /**
      * @notice Mapping of hashed contract name to contract address

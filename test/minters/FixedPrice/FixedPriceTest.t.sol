@@ -31,7 +31,6 @@ contract FixedPriceTest is BaseTest {
     function setUp() public virtual override {
         super.setUp();
         _initializeState();
-        _configureSplits();
         _configureRoyalties();
         _configureProject(MINT_ENABLED, MAX_SUPPLY);
         _configureMinter(

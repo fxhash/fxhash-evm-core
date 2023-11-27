@@ -68,7 +68,3 @@ jobs:
       - name: Deploy script
         run: |
           forge script script/Deploy.s.sol
-
-      - name: Seed script
-        run: |
-          forge script script/Seed.s.sol

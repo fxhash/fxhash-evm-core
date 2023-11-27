@@ -7,7 +7,6 @@ import "script/Deploy.s.sol";
 import {Allowlist} from "src/minters/extensions/Allowlist.sol";
 import {MintPass} from "src/minters/extensions/MintPass.sol";
 import {MockMinter} from "test/mocks/MockMinter.sol";
-import {MockSplitsController} from "test/mocks/MockSplitsController.sol";
 import {RegistryLib} from "test/lib/helpers/RegistryLib.sol";
 import {StandardMerkleTree} from "test/utils/StandardMerkleTree.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
@@ -55,21 +54,23 @@ contract BaseTest is Deploy, Test {
     uint120 internal inputSize;
 
     // Project
+    address internal feeReceiver;
     string internal contractURI;
     string internal defaultMetadataURI;
+    uint32 internal feeAllocation;
+    uint64 internal lockTime;
+    uint64 internal referrerShare;
     uint96 internal projectId;
-    uint128 internal lockTime;
-    uint128 internal referrerShare;
     uint256[] internal tagIds;
 
     // Royalties
     address[] internal royaltyReceivers;
-    uint96[] internal basisPoints;
+    uint32[] internal allocations;
+    uint96 internal basisPoints;
 
     // Splits
     address internal primaryReceiver;
     address[] internal accounts;
-    uint32[] internal allocations;
 
     // Structs
     GenArtInfo internal genArtInfo;
@@ -167,18 +168,14 @@ contract BaseTest is Deploy, Test {
                                 CONFIGURATIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _configureSplits() internal virtual {
-        accounts.push(creator);
-        accounts.push(admin);
-        allocations.push(CREATOR_ALLOCATION);
-        allocations.push(ADMIN_ALLOCATION);
-    }
-
     function _configureRoyalties() internal virtual {
-        royaltyReceivers.push(payable(admin));
+        delete royaltyReceivers;
+        delete allocations;
         royaltyReceivers.push(payable(creator));
-        basisPoints.push(ROYALTY_BPS);
-        basisPoints.push(ROYALTY_BPS * 2);
+        royaltyReceivers.push(payable(admin));
+        allocations.push(ROYALTY_ALLOCATION);
+        allocations.push(FEE_ALLOCATION);
+        basisPoints = uint96(500);
     }
 
     function _configureProject(bool _mintEnabled, uint120 _maxSupply) internal virtual {
@@ -232,7 +229,7 @@ contract BaseTest is Deploy, Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _createSplit() internal virtual {
-        primaryReceiver = splitsFactory.createImmutableSplit(accounts, allocations);
+        primaryReceiver = splitsFactory.createImmutableSplit(royaltyReceivers, allocations);
         vm.label(primaryReceiver, "PrimaryReceiver");
     }
 
@@ -244,6 +241,7 @@ contract BaseTest is Deploy, Test {
             metadataInfo,
             mintInfo,
             royaltyReceivers,
+            allocations,
             basisPoints
         );
         vm.label(fxGenArtProxy, "FxGenArtProxy");

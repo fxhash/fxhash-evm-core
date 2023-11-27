@@ -53,6 +53,12 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     );
 
     /**
+     * @notice Event emitted when the primary receiver address is updated
+     * @param _receiver Address of the new primary receiver account
+     */
+    event PrimaryReceiverUpdated(address indexed _receiver);
+
+    /**
      * @notice Event emitted when project tags are set
      * @param _tagIds Array of tag IDs describing the project
      */
@@ -96,6 +102,11 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      *  @notice Error thrown when burning is inactive
      */
     error BurnInactive();
+
+    /**
+     * @notice Error thrown when the fee receiver address is not included in the receiver allocations
+     */
+    error FeeReceiverMissing();
 
     /**
      * @notice Error thrown when remaining supply is zero
@@ -205,6 +216,13 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     function generateOnchainDataHash(bytes calldata _data) external view returns (bytes32);
 
     /**
+     * @notice Generates typed data hash for setting the primary receiver address
+     * @param _receiver Address of the new primary receiver account
+     * @return Typed data hash
+     */
+    function generatePrimaryReceiverHash(address _receiver) external view returns (bytes32);
+
+    /**
      * @notice Initializes new generative art project
      * @param _owner Address of token proxy owner
      * @param _initInfo Initialization information set on project creation
@@ -212,7 +230,8 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @param _metadataInfo Metadata information
      * @param _mintInfo Array of authorized minter contracts and their reserves
      * @param _royaltyReceivers Array of addresses receiving royalties
-     * @param _basisPoints Array of basis points for calculating royalty shares
+     * @param _allocations Array of allocation amounts for calculating royalty shares
+     * @param _basisPoints Total allocation scalar for calculating royalty shares
      */
     function initialize(
         address _owner,
@@ -221,7 +240,8 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
         MetadataInfo calldata _metadataInfo,
         MintInfo[] calldata _mintInfo,
         address[] calldata _royaltyReceivers,
-        uint96[] calldata _basisPoints
+        uint32[] calldata _allocations,
+        uint96 _basisPoints
     ) external;
 
     /**
@@ -307,17 +327,36 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     function roleRegistry() external view returns (address);
 
     /**
+     * @notice Sets the base royalties for all secondary token sales
+     * @param _receivers Array of addresses receiving royalties
+     * @param _allocations Array of allocations used to calculate royalty payments
+     * @param _basisPoints basis points used to calculate royalty payments
+     */
+    function setBaseRoyalties(
+        address[] calldata _receivers,
+        uint32[] calldata _allocations,
+        uint96 _basisPoints
+    ) external;
+
+    /**
      * @notice Sets the new URI of the token metadata
      * @param _uri Decoded content identifier of metadata pointer
      */
     function setBaseURI(bytes calldata _uri) external;
 
     /**
-     * @notice Sets the new onchain data of the project
+     * @notice Sets the onchain data of the project metadata
      * @param _data Bytes-encoded metadata
      * @param _signature Signature of creator used to verify metadata update
      */
     function setOnchainData(bytes calldata _data, bytes calldata _signature) external;
+
+    /**
+     * @notice Sets the primary receiver address for token royalties
+     * @param _receiver Address of the new primary receiver account
+     * @param _signature Signature of creator used to verify receiver update
+     */
+    function setPrimaryReceiver(address _receiver, bytes calldata _signature) external;
 
     /**
      * @notice Sets the new randomizer contract
