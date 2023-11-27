@@ -17,7 +17,6 @@ import {DutchAuction} from "src/minters/DutchAuction.sol";
 import {FixedPrice} from "src/minters/FixedPrice.sol";
 import {IPFSRenderer} from "src/renderers/IPFSRenderer.sol";
 import {PseudoRandomizer} from "src/randomizers/PseudoRandomizer.sol";
-import {SplitsFactory} from "src/factories/SplitsFactory.sol";
 import {TicketRedeemer} from "src/minters/TicketRedeemer.sol";
 
 import {ConfigInfo} from "src/interfaces/IFxContractRegistry.sol";
@@ -37,15 +36,11 @@ contract Deploy is Script {
     FixedPrice internal fixedPrice;
     IPFSRenderer internal ipfsRenderer;
     PseudoRandomizer internal pseudoRandomizer;
-    SplitsFactory internal splitsFactory;
     TicketRedeemer internal ticketRedeemer;
 
     // Accounts
     address internal admin;
     address internal creator;
-
-    // External
-    address internal splitsMain;
 
     // State
     address[] internal contracts;
@@ -167,12 +162,6 @@ contract Deploy is Script {
         vm.label(address(fxRoleRegistry), "FxRoleRegistry");
         vm.label(address(fxTicketFactory), "FxTicketFactory");
 
-        // SplitsFactory
-        splitsMain = (block.chainid == SEPOLIA) ? SEPOLIA_SPLITS_MAIN : SPLITS_MAIN;
-        creationCode = type(SplitsFactory).creationCode;
-        constructorArgs = abi.encode(admin, splitsMain);
-        splitsFactory = SplitsFactory(_deployCreate2(creationCode, constructorArgs, salt));
-
         // PseudoRandomizer
         creationCode = type(PseudoRandomizer).creationCode;
         pseudoRandomizer = PseudoRandomizer(_deployCreate2(creationCode, salt));
@@ -198,7 +187,6 @@ contract Deploy is Script {
         vm.label(address(fixedPrice), "FixedPrice");
         vm.label(address(ipfsRenderer), "IPFSRenderer");
         vm.label(address(pseudoRandomizer), "PseudoRandomizer");
-        vm.label(address(splitsFactory), "SplitsFactory");
         vm.label(address(ticketRedeemer), "TicketRedeemer");
     }
 
@@ -225,7 +213,6 @@ contract Deploy is Script {
         names.push(FIXED_PRICE);
         names.push(IPFS_RENDERER);
         names.push(PSEUDO_RANDOMIZER);
-        names.push(SPLITS_FACTORY);
         names.push(TICKET_REDEEMER);
 
         contracts.push(address(fxContractRegistry));
@@ -239,7 +226,6 @@ contract Deploy is Script {
         contracts.push(address(fixedPrice));
         contracts.push(address(ipfsRenderer));
         contracts.push(address(pseudoRandomizer));
-        contracts.push(address(splitsFactory));
         contracts.push(address(ticketRedeemer));
 
         fxContractRegistry.register(names, contracts);
