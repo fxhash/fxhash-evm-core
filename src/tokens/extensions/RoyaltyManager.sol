@@ -90,6 +90,9 @@ abstract contract RoyaltyManager is IRoyaltyManager {
             delete baseRoyalties;
         } else if (_receivers.length > 1) {
             receiver = ISplitsMain(SPLITS_MAIN).predictImmutableSplitAddress(_receivers, _allocations, 0);
+            if (receiver.code.length == 0) {
+                ISplitsMain(SPLITS_MAIN).createSplit(_receivers, _allocations, 0, address(0));
+            }
         } else {
             receiver = _receivers[0];
         }
