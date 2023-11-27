@@ -29,7 +29,6 @@ contract FxRoleRegistry is AccessControl, IFxRoleRegistry {
         _grantRole(ADMIN_ROLE, _admin);
         _grantRole(SIGNER_ROLE, _admin);
         _grantRole(MODERATOR_ROLE, _admin);
-        _grantRole(SIGNER_ROLE, _admin);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
