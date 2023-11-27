@@ -1,5 +1,5 @@
 # ISeedConsumer
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/709c3bd5035ed7a7acc4391ca2a42cf2ad71efed/src/interfaces/ISeedConsumer.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/1ca8488246dda0c8af0201fe562392f87b349fa1/src/interfaces/ISeedConsumer.sol)
 
 **Author:**
 fx(hash)
@@ -32,4 +32,12 @@ Event emitted when a seed request is fulfilled for a specific token
 ```solidity
 event SeedFulfilled(address indexed _randomizer, uint256 indexed _tokenId, bytes32 _seed);
 ```
+
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_randomizer`|`address`|Address of the randomizer contract|
+|`_tokenId`|`uint256`|ID of the token|
+|`_seed`|`bytes32`|Hash of the random seed|
 

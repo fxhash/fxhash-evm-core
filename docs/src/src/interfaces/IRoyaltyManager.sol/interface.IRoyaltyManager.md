@@ -1,5 +1,5 @@
 # IRoyaltyManager
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/709c3bd5035ed7a7acc4391ca2a42cf2ad71efed/src/interfaces/IRoyaltyManager.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/1ca8488246dda0c8af0201fe562392f87b349fa1/src/interfaces/IRoyaltyManager.sol)
 
 **Author:**
 fx(hash)
@@ -14,7 +14,7 @@ Gets the royalties for a specific token ID
 
 
 ```solidity
-function getRoyalties(uint256 _tokenId) external view returns (address payable[] memory, uint256[] memory);
+function getRoyalties(uint256 _tokenId) external view returns (address[] memory, uint256[] memory);
 ```
 **Parameters**
 
@@ -26,7 +26,7 @@ function getRoyalties(uint256 _tokenId) external view returns (address payable[]
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`address payable[]`|Total receivers and basis points|
+|`<none>`|`address[]`|Total receivers and basis points|
 |`<none>`|`uint256[]`||
 
 
@@ -59,16 +59,32 @@ Event emitted when the royalties for a token ID have been updated
 
 
 ```solidity
-event TokenIdRoyaltiesUpdated(uint256 indexed tokenId, address payable[] receivers, uint96[] basisPoint);
+event TokenIdRoyaltiesUpdated(uint256 indexed _tokenId, address _receiver, uint96 _basisPoints);
 ```
+
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_tokenId`|`uint256`|ID of the token|
+|`_receiver`|`address`|Addresses receiving the royalties|
+|`_basisPoints`|`uint96`|Points used to calculate royalty payments (100 = 1%)|
 
 ### TokenRoyaltiesUpdated
 Event emitted when the royalties for a list of receivers have been updated
 
 
 ```solidity
-event TokenRoyaltiesUpdated(address payable[] receivers, uint96[] basisPoints);
+event TokenRoyaltiesUpdated(address[] _receivers, uint32[] _allocations, uint96 _basisPoints);
 ```
+
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_receivers`|`address[]`|Array of addresses receiving royalties|
+|`_allocations`|`uint32[]`|Array of allocations used to determine the proportional share of royalty payments|
+|`_basisPoints`|`uint96`|Points used to calculate royalty payments (100 = 1%)|
 
 ## Errors
 ### BaseRoyaltiesNotSet

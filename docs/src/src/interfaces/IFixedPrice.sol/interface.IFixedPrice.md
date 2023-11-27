@@ -1,5 +1,5 @@
 # IFixedPrice
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/709c3bd5035ed7a7acc4391ca2a42cf2ad71efed/src/interfaces/IFixedPrice.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/1ca8488246dda0c8af0201fe562392f87b349fa1/src/interfaces/IFixedPrice.sol)
 
 **Inherits:**
 [IMinter](/src/interfaces/IMinter.sol/interface.IMinter.md)
@@ -194,10 +194,25 @@ event MintDetailsSet(
     uint256 indexed _reserveId,
     uint256 _price,
     ReserveInfo _reserveInfo,
+    bytes32 _merkleRoot,
+    address _mintPassSigner,
     bool _openEdition,
     bool _timeUnlimited
 );
 ```
+
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_token`|`address`|Address of the token being minted|
+|`_reserveId`|`uint256`|ID of the reserve|
+|`_price`|`uint256`|Amount of fixed price mint|
+|`_reserveInfo`|`ReserveInfo`|Reserve information for the mint|
+|`_merkleRoot`|`bytes32`|The merkle root allowlisted buyers|
+|`_mintPassSigner`|`address`|The signing account for mint passes|
+|`_openEdition`|`bool`|Status of an open edition mint|
+|`_timeUnlimited`|`bool`|Status of a mint with unlimited time|
 
 ### Purchase
 Event emitted when a purchase is made
@@ -214,6 +229,17 @@ event Purchase(
 );
 ```
 
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_token`|`address`|Address of the token being purchased|
+|`_reserveId`|`uint256`|ID of the mint|
+|`_buyer`|`address`|Address purchasing the tokens|
+|`_amount`|`uint256`|Amount of tokens being purchased|
+|`_to`|`address`|Address to which the tokens are being transferred|
+|`_price`|`uint256`|Price of the purchase|
+
 ### Withdrawn
 Event emitted when sale proceeds are withdrawn
 
@@ -221,6 +247,14 @@ Event emitted when sale proceeds are withdrawn
 ```solidity
 event Withdrawn(address indexed _token, address indexed _creator, uint256 _proceeds);
 ```
+
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_token`|`address`|Address of the token|
+|`_creator`|`address`|Address of the project creator|
+|`_proceeds`|`uint256`|Amount of proceeds being withdrawn|
 
 ## Errors
 ### AddressZero

@@ -1,5 +1,5 @@
 # IFxMintTicket721
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/709c3bd5035ed7a7acc4391ca2a42cf2ad71efed/src/interfaces/IFxMintTicket721.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/1ca8488246dda0c8af0201fe562392f87b349fa1/src/interfaces/IFxMintTicket721.sol)
 
 **Inherits:**
 [IToken](/src/interfaces/IToken.sol/interface.IToken.md)
@@ -69,6 +69,21 @@ Returns the address of the FxContractRegistry contract
 function contractRegistry() external view returns (address);
 ```
 
+### contractURI
+
+Gets the contact-level metadata for the ticket
+
+
+```solidity
+function contractURI() external view returns (string memory);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`string`|URI of the contract metadata|
+
+
 ### deposit
 
 Deposits taxes for given token
@@ -94,8 +109,8 @@ function initialize(
     address _owner,
     address _genArt721,
     address _redeemer,
+    address _renderer,
     uint48 _gracePeriod,
-    bytes calldata _baseURI,
     MintInfo[] calldata _mintInfo
 ) external;
 ```
@@ -106,8 +121,8 @@ function initialize(
 |`_owner`|`address`|Address of contract owner|
 |`_genArt721`|`address`|Address of GenArt721 token contract|
 |`_redeemer`|`address`|Address of TicketRedeemer minter contract|
+|`_renderer`|`address`|Address of renderer contract|
 |`_gracePeriod`|`uint48`|Period time before token enters harberger taxation|
-|`_baseURI`|`bytes`|Decoded content identifier of metadata pointer|
 |`_mintInfo`|`MintInfo[]`|Array of authorized minter contracts and their reserves|
 
 
@@ -350,6 +365,15 @@ Returns the address of the TickeRedeemer contract
 function redeemer() external view returns (address);
 ```
 
+### renderer
+
+Returns the address of the renderer contract
+
+
+```solidity
+function renderer() external view returns (address);
+```
+
 ### registerMinters
 
 Registers minter contracts with resereve info
@@ -442,19 +466,19 @@ function withdraw(address _to) external;
 
 
 ## Events
-### TicketInitialized
-Event emitted when mint ticket is initialized
+### BaseURIUpdated
+Event emitted when the base URI is updated
 
 
 ```solidity
-event TicketInitialized(
-    address indexed _genArt721,
-    address indexed _redeemer,
-    uint48 indexed _gracePeriod,
-    bytes _baseURI,
-    MintInfo[] _mintInfo
-);
+event BaseURIUpdated(bytes _uri);
 ```
+
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_uri`|`bytes`|Decoded content identifier of metadata pointer|
 
 ### Claimed
 Event emitted when token is claimed at either listing or auction price
@@ -471,6 +495,17 @@ event Claimed(
 );
 ```
 
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_tokenId`|`uint256`|ID of the token|
+|`_claimer`|`address`|Address of the token claimer|
+|`_newPrice`|`uint128`|Updated listing price of token|
+|`_foreclosureTime`|`uint48`|Timestamp of new foreclosure date|
+|`_depositAmount`|`uint80`|Total amount of taxes deposited|
+|`_payment`|`uint256`|Current price of token in addition to taxes deposited|
+
 ### Deposited
 Event emitted when additional taxes are deposited
 
@@ -478,6 +513,15 @@ Event emitted when additional taxes are deposited
 ```solidity
 event Deposited(uint256 indexed _tokenId, address indexed _depositer, uint48 _foreclosureTime, uint80 _depositAmount);
 ```
+
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_tokenId`|`uint256`|ID of the token|
+|`_depositer`|`address`|Address of tax depositer|
+|`_foreclosureTime`|`uint48`|Timestamp of new foreclosure date|
+|`_depositAmount`|`uint80`|Total amount of taxes deposited|
 
 ### SetPrice
 Event emitted when new listing price is set
@@ -487,6 +531,39 @@ Event emitted when new listing price is set
 event SetPrice(uint256 indexed _tokenId, uint128 _newPrice, uint128 _foreclosureTime, uint128 _depositAmount);
 ```
 
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_tokenId`|`uint256`|ID of the token|
+|`_newPrice`|`uint128`|New listing price of token|
+|`_foreclosureTime`|`uint128`|Timestamp of new foreclosure date|
+|`_depositAmount`|`uint128`|Adjusted amount of taxes deposited due to price change|
+
+### TicketInitialized
+Event emitted when mint ticket is initialized
+
+
+```solidity
+event TicketInitialized(
+    address indexed _genArt721,
+    address indexed _redeemer,
+    address indexed _renderer,
+    uint48 _gracePeriod,
+    MintInfo[] _mintInfo
+);
+```
+
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_genArt721`|`address`|Address of FxGenArt721 token contract|
+|`_redeemer`|`address`|Address of TicketRedeemer contract|
+|`_renderer`|`address`|Address of renderer contract|
+|`_gracePeriod`|`uint48`|Time period before token enters harberger taxation|
+|`_mintInfo`|`MintInfo[]`|Array of authorized minter contracts and their reserves|
+
 ### Withdraw
 Event emitted when balance is withdrawn
 
@@ -494,6 +571,14 @@ Event emitted when balance is withdrawn
 ```solidity
 event Withdraw(address indexed _caller, address indexed _to, uint256 indexed _balance);
 ```
+
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_caller`|`address`|Address of caller|
+|`_to`|`address`|Address receiving balance amount|
+|`_balance`|`uint256`|Amount of ether being withdrawn|
 
 ## Errors
 ### AllocationExceeded

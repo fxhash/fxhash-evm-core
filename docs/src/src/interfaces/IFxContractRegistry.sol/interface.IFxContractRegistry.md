@@ -1,5 +1,5 @@
 # IFxContractRegistry
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/709c3bd5035ed7a7acc4391ca2a42cf2ad71efed/src/interfaces/IFxContractRegistry.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/1ca8488246dda0c8af0201fe562392f87b349fa1/src/interfaces/IFxContractRegistry.sol)
 
 **Author:**
 fx(hash)
@@ -10,11 +10,11 @@ Registry for managing fxhash smart contracts
 ## Functions
 ### configInfo
 
-Returns the system config information (lock time, referrer share, default metadata)
+Returns the system config information (feeReceiver, feeAllocation, lockTime, referrerShare, defaultMetadataURI)
 
 
 ```solidity
-function configInfo() external view returns (uint128, uint128, string memory);
+function configInfo() external view returns (address, uint32, uint64, uint64, string memory);
 ```
 
 ### contracts
@@ -66,6 +66,14 @@ Event emitted when contract gets registered
 event ContractRegistered(string indexed _contractName, bytes32 indexed _hashedName, address indexed _contractAddr);
 ```
 
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_contractName`|`string`|Name of the contract|
+|`_hashedName`|`bytes32`|Hashed name of the contract|
+|`_contractAddr`|`address`|Address of the contract|
+
 ### ConfigUpdated
 Event emitted when the config information is updated
 
@@ -73,6 +81,13 @@ Event emitted when the config information is updated
 ```solidity
 event ConfigUpdated(address indexed _owner, ConfigInfo _configInfo);
 ```
+
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_owner`|`address`|Address of the registry owner|
+|`_configInfo`|`ConfigInfo`|Updated config information|
 
 ## Errors
 ### LengthMismatch

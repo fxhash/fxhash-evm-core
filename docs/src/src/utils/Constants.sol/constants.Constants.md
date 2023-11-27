@@ -1,5 +1,5 @@
 # Constants
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/709c3bd5035ed7a7acc4391ca2a42cf2ad71efed/src/utils/Constants.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/1ca8488246dda0c8af0201fe562392f87b349fa1/src/utils/Constants.sol)
 
 ### FX_CONTRACT_REGISTRY
 
@@ -49,22 +49,16 @@ string constant DUTCH_AUCTION = "DUTCH_AUCTION";
 string constant FIXED_PRICE = "FIXED_PRICE";
 ```
 
+### IPFS_RENDERER
+
+```solidity
+string constant IPFS_RENDERER = "IPFS_RENDERER";
+```
+
 ### PSEUDO_RANDOMIZER
 
 ```solidity
 string constant PSEUDO_RANDOMIZER = "PSEUDO_RANDOMIZER";
-```
-
-### SCRIPTY_RENDERER
-
-```solidity
-string constant SCRIPTY_RENDERER = "SCRIPTY_RENDERER";
-```
-
-### SPLITS_CONTROLLER
-
-```solidity
-string constant SPLITS_CONTROLLER = "SPLITS_CONTROLLER";
 ```
 
 ### SPLITS_FACTORY
@@ -92,16 +86,16 @@ bytes32 constant CLAIM_TYPEHASH =
 bytes32 constant SET_BASE_URI_TYPEHASH = keccak256("SetBaseURI(string uri)");
 ```
 
-### SET_CONTRACT_URI_TYPEHASH
+### SET_ONCHAIN_DATA_TYPEHASH
 
 ```solidity
-bytes32 constant SET_CONTRACT_URI_TYPEHASH = keccak256("SetContractURI(string uri)");
+bytes32 constant SET_ONCHAIN_DATA_TYPEHASH = keccak256("SetOnchainData(bytes data");
 ```
 
-### SET_IMAGE_URI_TYPEHASH
+### SET_PRIMARY_RECEIVER_TYPEHASH
 
 ```solidity
-bytes32 constant SET_IMAGE_URI_TYPEHASH = keccak256("SetImageURI(string uri");
+bytes32 constant SET_PRIMARY_RECEIVER_TYPEHASH = keccak256("SetPrimaryReceiver(address primaryReceiver)");
 ```
 
 ### IPFS_URL
@@ -109,6 +103,18 @@ bytes32 constant SET_IMAGE_URI_TYPEHASH = keccak256("SetImageURI(string uri");
 ```solidity
 bytes constant IPFS_URL =
     hex"697066733a2f2f172c151325290607391d2c391b242225180a020b291b260929391d1b31222525202804120031280917120b280400";
+```
+
+### METADATA_ENDPOINT
+
+```solidity
+string constant METADATA_ENDPOINT = "/metadata.json";
+```
+
+### THUMBNAIL_ENDPOINT
+
+```solidity
+string constant THUMBNAIL_ENDPOINT = "/thumbnail.json";
 ```
 
 ### UNINITIALIZED
@@ -129,6 +135,12 @@ uint8 constant FALSE = 1;
 uint8 constant TRUE = 2;
 ```
 
+### LOCK_TIME
+
+```solidity
+uint64 constant LOCK_TIME = 3600;
+```
+
 ### TIME_UNLIMITED
 
 ```solidity
@@ -139,12 +151,6 @@ uint64 constant TIME_UNLIMITED = type(uint64).max;
 
 ```solidity
 uint120 constant OPEN_EDITION_SUPPLY = type(uint120).max;
-```
-
-### LOCK_TIME
-
-```solidity
-uint128 constant LOCK_TIME = 3600;
 ```
 
 ### ADMIN_ROLE
@@ -183,6 +189,12 @@ bytes32 constant MINTER_ROLE = keccak256("MINTER_ROLE");
 bytes32 constant MODERATOR_ROLE = keccak256("MODERATOR_ROLE");
 ```
 
+### ALLOCATION_DENOMINATOR
+
+```solidity
+uint32 constant ALLOCATION_DENOMINATOR = 1_000_000;
+```
+
 ### FEE_DENOMINATOR
 
 ```solidity
@@ -193,6 +205,12 @@ uint96 constant FEE_DENOMINATOR = 10_000;
 
 ```solidity
 uint96 constant MAX_ROYALTY_BPS = 2500;
+```
+
+### SPLITS_MAIN
+
+```solidity
+address constant SPLITS_MAIN = 0x2ed6c4B5dA6378c7897AC67Ba9e43102Feb694EE;
 ```
 
 ### AUCTION_DECAY_RATE

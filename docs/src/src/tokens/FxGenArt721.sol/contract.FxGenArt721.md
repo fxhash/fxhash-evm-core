@@ -1,5 +1,5 @@
 # FxGenArt721
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/709c3bd5035ed7a7acc4391ca2a42cf2ad71efed/src/tokens/FxGenArt721.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/1ca8488246dda0c8af0201fe562392f87b349fa1/src/tokens/FxGenArt721.sol)
 
 **Inherits:**
 [IFxGenArt721](/src/interfaces/IFxGenArt721.sol/interface.IFxGenArt721.md), IERC4906, ERC721, EIP712, Initializable, Ownable, Pausable, [RoyaltyManager](/src/tokens/extensions/RoyaltyManager.sol/abstract.RoyaltyManager.md)
@@ -93,7 +93,7 @@ IssuerInfo public issuerInfo;
 
 
 ### metadataInfo
-Returns the metadata information of the project (baseURI, onchainData)
+Returns the metadata information of the project (baseURI, onchainPointer)
 
 
 ```solidity
@@ -152,8 +152,9 @@ function initialize(
     ProjectInfo calldata _projectInfo,
     MetadataInfo calldata _metadataInfo,
     MintInfo[] calldata _mintInfo,
-    address payable[] calldata _royaltyReceivers,
-    uint96[] calldata _basisPoints
+    address[] calldata _royaltyReceivers,
+    uint32[] calldata _allocations,
+    uint96 _basisPoints
 ) external initializer;
 ```
 **Parameters**
@@ -165,8 +166,9 @@ function initialize(
 |`_projectInfo`|`ProjectInfo`|Project information|
 |`_metadataInfo`|`MetadataInfo`|Metadata information|
 |`_mintInfo`|`MintInfo[]`|Array of authorized minter contracts and their reserves|
-|`_royaltyReceivers`|`address payable[]`|Array of addresses receiving royalties|
-|`_basisPoints`|`uint96[]`|Array of basis points for calculating royalty shares|
+|`_royaltyReceivers`|`address[]`|Array of addresses receiving royalties|
+|`_allocations`|`uint32[]`|Array of allocation amounts for calculating royalty shares|
+|`_basisPoints`|`uint96`|Total allocation scalar for calculating royalty shares|
 
 
 ### burn
@@ -281,6 +283,25 @@ function registerMinters(MintInfo[] memory _mintInfo) external onlyOwner;
 |`_mintInfo`|`MintInfo[]`|Mint information of token reserves|
 
 
+### setBaseRoyalties
+
+Sets the base royalties for all secondary token sales
+
+
+```solidity
+function setBaseRoyalties(address[] calldata _receivers, uint32[] calldata _allocations, uint96 _basisPoints)
+    external
+    onlyOwner;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_receivers`|`address[]`|Array of addresses receiving royalties|
+|`_allocations`|`uint32[]`|Array of allocations used to calculate royalty payments|
+|`_basisPoints`|`uint96`|basis points used to calculate royalty payments|
+
+
 ### toggleBurn
 
 Toggles public burn from disabled to enabled and vice versa
@@ -298,6 +319,38 @@ Toggles public mint from enabled to disabled and vice versa
 ```solidity
 function toggleMint() external onlyOwner;
 ```
+
+### setOnchainData
+
+Sets the onchain data of the project metadata
+
+
+```solidity
+function setOnchainData(bytes calldata _data, bytes calldata _signature) external onlyRole(ADMIN_ROLE);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_data`|`bytes`|Bytes-encoded metadata|
+|`_signature`|`bytes`|Signature of creator used to verify metadata update|
+
+
+### setPrimaryReceiver
+
+Sets the primary receiver address for token royalties
+
+
+```solidity
+function setPrimaryReceiver(address _receiver, bytes calldata _signature) external onlyRole(ADMIN_ROLE);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_receiver`|`address`|Address of the new primary receiver account|
+|`_signature`|`bytes`|Signature of creator used to verify receiver update|
+
 
 ### setRandomizer
 
@@ -377,6 +430,13 @@ Unpauses all function executions where modifier is applied
 function unpause() external onlyRole(MODERATOR_ROLE);
 ```
 
+### activeMinters
+
+
+```solidity
+function activeMinters() external view returns (address[] memory);
+```
+
 ### contractURI
 
 Returns contract-level metadata for storefront marketplaces
@@ -386,13 +446,55 @@ Returns contract-level metadata for storefront marketplaces
 function contractURI() external view returns (string memory);
 ```
 
+### generateOnchainDataHash
+
+Generates typed data hash for setting project metadata onchain
+
+
+```solidity
+function generateOnchainDataHash(bytes calldata _data) public view returns (bytes32);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_data`|`bytes`|Bytes-encoded onchain data|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bytes32`|Typed data hash|
+
+
+### generatePrimaryReceiverHash
+
+Generates typed data hash for setting the primary receiver address
+
+
+```solidity
+function generatePrimaryReceiverHash(address _receiver) public view returns (bytes32);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_receiver`|`address`|Address of the new primary receiver account|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bytes32`|Typed data hash|
+
+
 ### isMinter
 
 Gets the authorization status for the given minter contract
 
 
 ```solidity
-function isMinter(address _minter) public view returns (uint8);
+function isMinter(address _minter) public view returns (bool);
 ```
 **Parameters**
 
@@ -404,7 +506,7 @@ function isMinter(address _minter) public view returns (uint8);
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`uint8`|Authorization status|
+|`<none>`|`bool`|Authorization status|
 
 
 ### remainingSupply
@@ -464,6 +566,15 @@ function _mintRandom(address _to, uint256 _tokenId) internal;
 function _registerMinters(MintInfo[] memory _mintInfo) internal;
 ```
 
+### _setBaseRoyalties
+
+
+```solidity
+function _setBaseRoyalties(address[] calldata _receivers, uint32[] calldata _allocations, uint96 _basisPoints)
+    internal
+    override;
+```
+
 ### _setNameAndSymbol
 
 *Packs name and symbol into single slot if combined length is 30 bytes or less*
@@ -493,8 +604,19 @@ function _isVerified(address _creator) internal view returns (bool);
 
 ### _exists
 
+*Returns if token `id` exists.*
+
 
 ```solidity
 function _exists(uint256 _tokenId) internal view override(ERC721, RoyaltyManager) returns (bool);
+```
+
+### _verifySignature
+
+*Verifies creator signature for updating storage through admin setters*
+
+
+```solidity
+function _verifySignature(bytes32 _digest, bytes calldata _signature) internal view;
 ```
 

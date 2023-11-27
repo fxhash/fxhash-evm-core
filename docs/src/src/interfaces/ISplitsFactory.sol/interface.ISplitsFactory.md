@@ -1,5 +1,5 @@
 # ISplitsFactory
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/709c3bd5035ed7a7acc4391ca2a42cf2ad71efed/src/interfaces/ISplitsFactory.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/1ca8488246dda0c8af0201fe562392f87b349fa1/src/interfaces/ISplitsFactory.sol)
 
 **Author:**
 fx(hash)
@@ -8,15 +8,6 @@ Factory for managing newly deployed 0xSplits wallets
 
 
 ## Functions
-### controller
-
-Returns address of 0xSplits controller contract
-
-
-```solidity
-function controller() external view returns (address);
-```
-
 ### createImmutableSplit
 
 Creates a new immutable 0xSplits wallet
@@ -63,31 +54,6 @@ function createMutableSplit(address[] calldata _accounts, uint32[] calldata _all
 |`<none>`|`address`|split Address of the deployed splits contract|
 
 
-### createMutableSplitFor
-
-Creates a new mutable 0xSplits wallet
-
-
-```solidity
-function createMutableSplitFor(address _creator, address[] calldata _accounts, uint32[] calldata _allocations)
-    external
-    returns (address);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_creator`|`address`|Address of the creator being added to the split|
-|`_accounts`|`address[]`|Array of addresses that participate in the split|
-|`_allocations`|`uint32[]`|Array of allocations for each account|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`address`|split Address of the deployed splits contract|
-
-
 ### emitVirtualSplit
 
 Emits a deterministic 0xSplits wallet address
@@ -110,21 +76,6 @@ function emitVirtualSplit(address[] calldata _accounts, uint32[] calldata _alloc
 |`<none>`|`address`|split Address of the deterministic splits wallet|
 
 
-### setController
-
-Sets the new 0xSplits controller address
-
-
-```solidity
-function setController(address _controller) external;
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_controller`|`address`|Address of the new controller|
-
-
 ### splits
 
 Returns address of the SplitsMain contract
@@ -135,14 +86,6 @@ function splits() external view returns (address);
 ```
 
 ## Events
-### ControllerUpdated
-Event emitted when the 0xSplits controller is updated
-
-
-```solidity
-event ControllerUpdated(address indexed _oldController, address indexed _newController);
-```
-
 ### SplitsInfo
 Event emitted to indicate a 0xSplits wallet was created or the deterministic address
 
@@ -156,6 +99,16 @@ event SplitsInfo(
     uint32 _distributorFee
 );
 ```
+
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_split`|`address`|Address the splits contract will be deployed to|
+|`_controller`|`address`|Address of the controller contract|
+|`_accounts`|`address[]`|Array of addresses that participate in the split|
+|`_allocations`|`uint32[]`|Array of allocations for each account|
+|`_distributorFee`|`uint32`|Distributor fee percentage|
 
 ## Errors
 ### InvalidSplit

@@ -1,5 +1,5 @@
 # FxMintTicket721
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/709c3bd5035ed7a7acc4391ca2a42cf2ad71efed/src/tokens/FxMintTicket721.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/1ca8488246dda0c8af0201fe562392f87b349fa1/src/tokens/FxMintTicket721.sol)
 
 **Inherits:**
 [IFxMintTicket721](/src/interfaces/IFxMintTicket721.sol/interface.IFxMintTicket721.md), IERC4906, ERC721, Initializable, Ownable, Pausable
@@ -29,12 +29,12 @@ address public immutable roleRegistry;
 ```
 
 
-### _balances
+### balances_
 *Mapping of wallet address to balance amount available for withdrawal*
 
 
 ```solidity
-LibMap.Uint128Map internal _balances;
+LibMap.Uint128Map internal balances_;
 ```
 
 
@@ -80,6 +80,15 @@ Returns the address of the TickeRedeemer contract
 
 ```solidity
 address public redeemer;
+```
+
+
+### renderer
+Returns the address of the renderer contract
+
+
+```solidity
+address public renderer;
 ```
 
 
@@ -139,8 +148,8 @@ function initialize(
     address _owner,
     address _genArt721,
     address _redeemer,
+    address _renderer,
     uint48 _gracePeriod,
-    bytes calldata _baseURI,
     MintInfo[] calldata _mintInfo
 ) external initializer;
 ```
@@ -151,8 +160,8 @@ function initialize(
 |`_owner`|`address`|Address of contract owner|
 |`_genArt721`|`address`|Address of GenArt721 token contract|
 |`_redeemer`|`address`|Address of TicketRedeemer minter contract|
+|`_renderer`|`address`|Address of renderer contract|
 |`_gracePeriod`|`uint48`|Period time before token enters harberger taxation|
-|`_baseURI`|`bytes`|Decoded content identifier of metadata pointer|
 |`_mintInfo`|`MintInfo[]`|Array of authorized minter contracts and their reserves|
 
 
@@ -281,6 +290,21 @@ Unpauses all function executions where modifier is set
 ```solidity
 function unpause() external onlyRole(MODERATOR_ROLE);
 ```
+
+### contractURI
+
+Gets the contact-level metadata for the ticket
+
+
+```solidity
+function contractURI() external view returns (string memory);
+```
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`string`|URI of the contract metadata|
+
 
 ### isApprovedForAll
 

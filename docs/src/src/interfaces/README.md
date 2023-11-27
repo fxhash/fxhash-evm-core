@@ -15,7 +15,6 @@
 - [IRandomizer](IRandomizer.sol/interface.IRandomizer.md)
 - [IRenderer](IRenderer.sol/interface.IRenderer.md)
 - [IRoyaltyManager](IRoyaltyManager.sol/interface.IRoyaltyManager.md)
-- [IScriptyRenderer](IScriptyRenderer.sol/interface.IScriptyRenderer.md)
 - [ISeedConsumer](ISeedConsumer.sol/interface.ISeedConsumer.md)
 - [ISplitsController](ISplitsController.sol/interface.ISplitsController.md)
 - [ISplitsFactory](ISplitsFactory.sol/interface.ISplitsFactory.md)
