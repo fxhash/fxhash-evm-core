@@ -210,6 +210,13 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
 
     /**
      * @notice Generates typed data hash for setting project metadata onchain
+     * @param _uri Bytes-encoded base URI data
+     * @return Typed data hash
+     */
+    function generateBaseURIHash(bytes calldata _uri) external view returns (bytes32);
+
+    /**
+     * @notice Generates typed data hash for setting project metadata onchain
      * @param _data Bytes-encoded onchain data
      * @return Typed data hash
      */
@@ -221,6 +228,13 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @return Typed data hash
      */
     function generatePrimaryReceiverHash(address _receiver) external view returns (bytes32);
+
+    /**
+     * @notice Generates typed data hash for setting the primary receiver address
+     * @param _renderer Address of the new renderer contract
+     * @return Typed data hash
+     */
+    function generateRendererHash(address _renderer) external view returns (bytes32);
 
     /**
      * @notice Initializes new generative art project
@@ -273,6 +287,11 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @param _fxParams Random sequence of fixed-length bytes used as input
      */
     function mintParams(address _to, bytes calldata _fxParams) external;
+
+    /**
+     * @notice Current nonce for admin signatures
+     */
+    function nonce() external returns (uint96);
 
     /**
      * @notice Mints single token with randomly generated seed
@@ -341,8 +360,9 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     /**
      * @notice Sets the new URI of the token metadata
      * @param _uri Decoded content identifier of metadata pointer
+     * @param _signature Signature of creator used to verify metadata update
      */
-    function setBaseURI(bytes calldata _uri) external;
+    function setBaseURI(bytes calldata _uri, bytes calldata _signature) external;
 
     /**
      * @notice Sets the onchain data of the project metadata
@@ -367,8 +387,9 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     /**
      * @notice Sets the new renderer contract
      * @param _renderer Address of the renderer contract
+     * @param _signature Signature of creator used to verify renderer update
      */
-    function setRenderer(address _renderer) external;
+    function setRenderer(address _renderer, bytes calldata _signature) external;
 
     /**
      * @notice Emits an event for setting tag descriptions for the project
