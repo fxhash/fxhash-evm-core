@@ -92,11 +92,6 @@ interface IFixedPrice is IMinter {
     error InvalidPayment();
 
     /**
-     * @notice Error thrown when an invalid price is provided
-     */
-    error InvalidPrice();
-
-    /**
      * @notice Error thrown thrown when reserve does not exist
      */
     error InvalidReserve();

@@ -17,4 +17,17 @@ contract Mint is FxMintTicket721Test {
         assertEq(currentPrice, PRICE);
         assertEq(depositAmount, 0);
     }
+
+    function test_Mint_MinimumPrice() public {
+        delete mintInfo;
+        _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, abi.encode(0));
+        _createTicket();
+        TicketLib.mint(alice, minter, fxMintTicketProxy, bob, amount, MINIMUM_PRICE);
+        _setTaxInfo();
+        assertEq(FxMintTicket721(fxMintTicketProxy).ownerOf(tokenId), bob);
+        assertEq(gracePeriod, block.timestamp + ONE_DAY);
+        assertEq(foreclosureTime, block.timestamp + ONE_DAY);
+        assertEq(currentPrice, MINIMUM_PRICE);
+        assertEq(depositAmount, 0);
+    }
 }

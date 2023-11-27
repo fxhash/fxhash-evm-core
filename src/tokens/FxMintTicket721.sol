@@ -258,6 +258,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
 
         // Calculates listing price per token
         uint256 listingPrice = _payment / _amount;
+        listingPrice = (listingPrice < MINIMUM_PRICE) ? MINIMUM_PRICE : listingPrice;
 
         // Caches total supply
         uint48 currentId = totalSupply;
