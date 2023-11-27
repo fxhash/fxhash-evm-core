@@ -268,9 +268,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      */
     function setBaseURI(bytes calldata _uri, bytes calldata _signature) external onlyOwner {
         bytes32 digest = generateBaseURIHash(_uri);
-        nonce++;
-        address signer = ECDSA.recover(digest, _signature);
-        if (!IAccessControl(roleRegistry).hasRole(SIGNER_ROLE, signer)) revert UnauthorizedAccount();
+        _verifySignature(digest, _signature);
         metadataInfo.baseURI = _uri;
         emit BaseURIUpdated(_uri);
         emit BatchMetadataUpdate(1, totalSupply);
@@ -281,9 +279,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      */
     function setOnchainData(bytes calldata _data, bytes calldata _signature) external onlyOwner {
         bytes32 digest = generateOnchainDataHash(_data);
-        nonce++;
-        address signer = ECDSA.recover(digest, _signature);
-        if (!IAccessControl(roleRegistry).hasRole(SIGNER_ROLE, signer)) revert UnauthorizedAccount();
+        _verifySignature(digest, _signature);
         metadataInfo.onchainPointer = SSTORE2.write(_data);
         emit OnchainDataUpdated(_data);
     }
@@ -293,9 +289,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      */
     function setPrimaryReceiver(address _receiver, bytes calldata _signature) external onlyOwner {
         bytes32 digest = generatePrimaryReceiverHash(_receiver);
-        nonce++;
-        address signer = ECDSA.recover(digest, _signature);
-        if (!IAccessControl(roleRegistry).hasRole(SIGNER_ROLE, signer)) revert UnauthorizedAccount();
+        _verifySignature(digest, _signature);
         issuerInfo.primaryReceiver = _receiver;
         emit PrimaryReceiverUpdated(_receiver);
     }
@@ -305,9 +299,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      */
     function setRenderer(address _renderer, bytes calldata _signature) external onlyOwner {
         bytes32 digest = generateRendererHash(_renderer);
-        nonce++;
-        address signer = ECDSA.recover(digest, _signature);
-        if (!IAccessControl(roleRegistry).hasRole(SIGNER_ROLE, signer)) revert UnauthorizedAccount();
+        _verifySignature(digest, _signature);
         renderer = _renderer;
         emit RendererUpdated(_renderer);
         emit BatchMetadataUpdate(1, totalSupply);
@@ -556,6 +548,15 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      */
     function _setTags(uint256[] calldata _tagIds) internal {
         emit ProjectTags(_tagIds);
+    }
+
+    /**
+     * @dev Verifies that a signature was generated for the computed digest
+     */
+    function _verifySignature(bytes32 _digest, bytes calldata _signature) internal {
+        address signer = ECDSA.recover(_digest, _signature);
+        if (!IAccessControl(roleRegistry).hasRole(SIGNER_ROLE, signer)) revert UnauthorizedAccount();
+        nonce++;
     }
 
     /**
