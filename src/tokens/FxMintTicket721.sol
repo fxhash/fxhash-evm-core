@@ -192,13 +192,6 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
         uint256 depositAmount;
         address previousOwner = _ownerOf(_tokenId);
 
-        // Gets current daily tax amount for current price
-        uint256 currentDailyTax = getDailyTax(currentPrice);
-        // Gets remaining deposit amount for current price
-        uint256 remainingDeposit = getRemainingDeposit(currentDailyTax, taxInfo.foreclosureTime, taxInfo.depositAmount);
-        // Calculates deposit amount owed for current price
-        uint256 depositOwed = taxInfo.depositAmount - remainingDeposit;
-
         // Gets new daily tax amount for new price
         uint256 newDailyTax = getDailyTax(_newPrice);
 
@@ -218,6 +211,17 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
         } else {
             // Reverts if payment amount if insufficient to current price and new daily tax
             if (msg.value < currentPrice + newDailyTax) revert InsufficientPayment();
+
+            // Gets current daily tax amount for current price
+            uint256 currentDailyTax = getDailyTax(currentPrice);
+            // Gets remaining deposit amount for current price
+            uint256 remainingDeposit = getRemainingDeposit(
+                currentDailyTax,
+                taxInfo.foreclosureTime,
+                taxInfo.depositAmount
+            );
+            // Calculates deposit amount owed for current price
+            uint256 depositOwed = taxInfo.depositAmount - remainingDeposit;
 
             // Updates balances of contract owner
             uint256 newBalance = getBalance(owner()) + depositOwed;
