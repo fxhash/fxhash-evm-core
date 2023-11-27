@@ -129,14 +129,6 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     error InvalidStartTime();
 
     /**
-     * @notice Error thrown when signature is invalid
-     *      There are two common cases
-     *          1. It wasn't signed by the correct signer
-     *          2. The data signed wasn't correct
-     */
-    error InvalidSignature();
-
-    /**
      * @notice Error thrown when reserve end time is invalid
      */
     error InvalidEndTime();
@@ -219,34 +211,30 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     /**
      * @notice Generates typed data hash for setting project metadata onchain
      * @param _uri Bytes-encoded base URI data
-     * @param _nonce The current nonce to be consumed by execution
      * @return Typed data hash
      */
-    function generateBaseURIHash(bytes calldata _uri, uint96 _nonce) external view returns (bytes32);
+    function generateBaseURIHash(bytes calldata _uri) external view returns (bytes32);
 
     /**
      * @notice Generates typed data hash for setting project metadata onchain
      * @param _data Bytes-encoded onchain data
-     * @param _nonce The current nonce to be consumed by execution
      * @return Typed data hash
      */
-    function generateOnchainDataHash(bytes calldata _data, uint96 _nonce) external view returns (bytes32);
+    function generateOnchainDataHash(bytes calldata _data) external view returns (bytes32);
 
     /**
      * @notice Generates typed data hash for setting the primary receiver address
      * @param _receiver Address of the new primary receiver account
-     * @param _nonce The current nonce to be consumed by execution
      * @return Typed data hash
      */
-    function generatePrimaryReceiverHash(address _receiver, uint96 _nonce) external view returns (bytes32);
+    function generatePrimaryReceiverHash(address _receiver) external view returns (bytes32);
 
     /**
      * @notice Generates typed data hash for setting the primary receiver address
      * @param _renderer Address of the new renderer contract
-     * @param _nonce The current nonce to be consumed by execution
      * @return Typed data hash
      */
-    function generateSetRendererHash(address _renderer, uint96 _nonce) external view returns (bytes32);
+    function generateSetRendererHash(address _renderer) external view returns (bytes32);
 
     /**
      * @notice Initializes new generative art project
