@@ -387,7 +387,7 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     /**
      * @notice Sets the new renderer contract
      * @param _renderer Address of the renderer contract
-     * @param _signature Signature of creator used to verify receiver update
+     * @param _signature Signature of creator used to verify renderer update
      */
     function setRenderer(address _renderer, bytes calldata _signature) external;
 
