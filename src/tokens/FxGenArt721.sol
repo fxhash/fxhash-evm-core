@@ -304,7 +304,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      * @inheritdoc IFxGenArt721
      */
     function setRenderer(address _renderer, bytes calldata _signature) external onlyOwner {
-        bytes32 digest = generateSetRendererHash(_renderer);
+        bytes32 digest = generateRendererHash(_renderer);
         nonce++;
         address signer = ECDSA.recover(digest, _signature);
         if (!IAccessControl(roleRegistry).hasRole(SIGNER_ROLE, signer)) revert UnauthorizedAccount();
@@ -412,7 +412,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function generateSetRendererHash(address _renderer) public view returns (bytes32) {
+    function generateRendererHash(address _renderer) public view returns (bytes32) {
         bytes32 structHash = keccak256(abi.encode(SET_RENDERER_TYPEHASH, _renderer, nonce));
         return _hashTypedDataV4(structHash);
     }

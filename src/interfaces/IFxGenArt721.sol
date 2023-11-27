@@ -234,7 +234,7 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @param _renderer Address of the new renderer contract
      * @return Typed data hash
      */
-    function generateSetRendererHash(address _renderer) external view returns (bytes32);
+    function generateRendererHash(address _renderer) external view returns (bytes32);
 
     /**
      * @notice Initializes new generative art project
