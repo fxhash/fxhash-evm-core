@@ -22,12 +22,12 @@ contract FxRoleRegistry is AccessControl, IFxRoleRegistry {
     constructor(address _admin) {
         _setRoleAdmin(ADMIN_ROLE, ADMIN_ROLE);
         _setRoleAdmin(CREATOR_ROLE, ADMIN_ROLE);
-        _setRoleAdmin(METADATA_ROLE, ADMIN_ROLE);
         _setRoleAdmin(MINTER_ROLE, ADMIN_ROLE);
         _setRoleAdmin(MODERATOR_ROLE, ADMIN_ROLE);
+        _setRoleAdmin(SIGNER_ROLE, ADMIN_ROLE);
 
         _grantRole(ADMIN_ROLE, _admin);
-        _grantRole(METADATA_ROLE, _admin);
+        _grantRole(SIGNER_ROLE, _admin);
         _grantRole(MODERATOR_ROLE, _admin);
     }
 

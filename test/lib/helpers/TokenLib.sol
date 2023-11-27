@@ -67,8 +67,13 @@ library TokenLib {
         IFxGenArt721(_proxy).setBaseRoyalties(_receivers, _allocations, _basisPoints);
     }
 
-    function setBaseURI(address _admin, address _proxy, bytes memory _uri) internal prank(_admin) {
-        IFxGenArt721(_proxy).setBaseURI(_uri);
+    function setBaseURI(
+        address _admin,
+        address _proxy,
+        bytes memory _uri,
+        bytes memory _signature
+    ) internal prank(_admin) {
+        IFxGenArt721(_proxy).setBaseURI(_uri, _signature);
     }
 
     function setOnchainData(
@@ -84,8 +89,13 @@ library TokenLib {
         IFxGenArt721(_proxy).setRandomizer(_randomizer);
     }
 
-    function setRenderer(address _admin, address _proxy, address _renderer) internal prank(_admin) {
-        IFxGenArt721(_proxy).setRenderer(_renderer);
+    function setRenderer(
+        address _admin,
+        address _proxy,
+        address _renderer,
+        bytes memory _signature
+    ) internal prank(_admin) {
+        IFxGenArt721(_proxy).setRenderer(_renderer, _signature);
     }
 
     function setTags(address _admin, address _proxy, uint256[] memory _tagIds) internal prank(_admin) {
