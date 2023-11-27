@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
 
+import {ECDSA} from "openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {EIP712} from "openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import {ERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
@@ -8,7 +9,6 @@ import {LibString} from "solady/src/utils/LibString.sol";
 import {Ownable} from "solady/src/auth/Ownable.sol";
 import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {RoyaltyManager} from "src/tokens/extensions/RoyaltyManager.sol";
-import {ECDSA} from "openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {SSTORE2} from "sstore2/contracts/SSTORE2.sol";
 
 import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
