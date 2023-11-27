@@ -297,6 +297,8 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
      * @inheritdoc IFxMintTicket721
      */
     function deposit(uint256 _tokenId) public payable {
+        // Reverts if token is foreclosed
+        if (isForeclosed(_tokenId)) revert Foreclosure();
         // Loads current tax info
         TaxInfo storage taxInfo = taxes[_tokenId];
         // Gets current daily tax amount
