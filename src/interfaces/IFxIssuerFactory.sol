@@ -64,8 +64,8 @@ interface IFxIssuerFactory {
      * @param _metadataInfo Metadata information
      * @param _mintInfo Array of authorized minter contracts and their reserves
      * @param _royaltyReceivers Array of addresses receiving royalties
-     * @param _royaltyReceivers Array of allocations used to determine an accounts share of a royalty payment
-     * @param _basisPoints basis points for calculating royalty shares
+     * @param _allocations Array of allocation amounts for calculating royalty shares
+     * @param _basisPoints Total allocation scalar for calculating royalty shares
      * @return genArtToken Address of newly created FxGenArt721 proxy
      */
     function createProject(
