@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
 
+import {ECDSA} from "openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {EIP712} from "openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import {ERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
@@ -8,7 +9,6 @@ import {LibString} from "solady/src/utils/LibString.sol";
 import {Ownable} from "solady/src/auth/Ownable.sol";
 import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {RoyaltyManager} from "src/tokens/extensions/RoyaltyManager.sol";
-import {SignatureChecker} from "openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
 import {SSTORE2} from "sstore2/contracts/SSTORE2.sol";
 
 import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
@@ -27,8 +27,6 @@ import "src/utils/Constants.sol";
  * @notice See the documentation in {IFxGenArt721}
  */
 contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, Ownable, Pausable, RoyaltyManager {
-    using SignatureChecker for address;
-
     /*//////////////////////////////////////////////////////////////////////////
                                     STORAGE
     //////////////////////////////////////////////////////////////////////////*/
@@ -72,6 +70,11 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      * @inheritdoc IFxGenArt721
      */
     address public renderer;
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
+    uint96 public nonce;
 
     /**
      * @inheritdoc IFxGenArt721
@@ -263,6 +266,48 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
+    function setBaseURI(bytes calldata _uri, bytes calldata _signature) external onlyOwner {
+        bytes32 digest = generateBaseURIHash(_uri);
+        _verifySignature(digest, _signature);
+        metadataInfo.baseURI = _uri;
+        emit BaseURIUpdated(_uri);
+        emit BatchMetadataUpdate(1, totalSupply);
+    }
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
+    function setOnchainData(bytes calldata _data, bytes calldata _signature) external onlyOwner {
+        bytes32 digest = generateOnchainDataHash(_data);
+        _verifySignature(digest, _signature);
+        metadataInfo.onchainPointer = SSTORE2.write(_data);
+        emit OnchainDataUpdated(_data);
+    }
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
+    function setPrimaryReceiver(address _receiver, bytes calldata _signature) external onlyOwner {
+        bytes32 digest = generatePrimaryReceiverHash(_receiver);
+        _verifySignature(digest, _signature);
+        issuerInfo.primaryReceiver = _receiver;
+        emit PrimaryReceiverUpdated(_receiver);
+    }
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
+    function setRenderer(address _renderer, bytes calldata _signature) external onlyOwner {
+        bytes32 digest = generateRendererHash(_renderer);
+        _verifySignature(digest, _signature);
+        renderer = _renderer;
+        emit RendererUpdated(_renderer);
+        emit BatchMetadataUpdate(1, totalSupply);
+    }
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
     function toggleBurn() external onlyOwner {
         if (remainingSupply() == 0) revert SupplyRemaining();
         issuerInfo.projectInfo.burnEnabled = !issuerInfo.projectInfo.burnEnabled;
@@ -284,51 +329,9 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function setOnchainData(bytes calldata _data, bytes calldata _signature) external onlyRole(ADMIN_ROLE) {
-        bytes32 digest = generateOnchainDataHash(_data);
-        _verifySignature(digest, _signature);
-        metadataInfo.onchainPointer = SSTORE2.write(_data);
-        emit OnchainDataUpdated(_data);
-    }
-
-    /**
-     * @inheritdoc IFxGenArt721
-     */
-    function setPrimaryReceiver(address _receiver, bytes calldata _signature) external onlyRole(ADMIN_ROLE) {
-        bytes32 digest = generatePrimaryReceiverHash(_receiver);
-        _verifySignature(digest, _signature);
-        issuerInfo.primaryReceiver = _receiver;
-        emit PrimaryReceiverUpdated(_receiver);
-    }
-
-    /**
-     * @inheritdoc IFxGenArt721
-     */
     function setRandomizer(address _randomizer) external onlyRole(ADMIN_ROLE) {
         randomizer = _randomizer;
         emit RandomizerUpdated(_randomizer);
-    }
-
-    /**
-     * @inheritdoc IFxGenArt721
-     */
-    function setRenderer(address _renderer) external onlyRole(ADMIN_ROLE) {
-        renderer = _renderer;
-        emit RendererUpdated(_renderer);
-        emit BatchMetadataUpdate(1, totalSupply);
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                METADATA FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /**
-     * @inheritdoc IFxGenArt721
-     */
-    function setBaseURI(bytes calldata _uri) external onlyRole(METADATA_ROLE) {
-        metadataInfo.baseURI = _uri;
-        emit BaseURIUpdated(_uri);
-        emit BatchMetadataUpdate(1, totalSupply);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -377,8 +380,16 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
+    function generateBaseURIHash(bytes calldata _uri) public view returns (bytes32) {
+        bytes32 structHash = keccak256(abi.encode(SET_BASE_URI_TYPEHASH, _uri, nonce));
+        return _hashTypedDataV4(structHash);
+    }
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
     function generateOnchainDataHash(bytes calldata _data) public view returns (bytes32) {
-        bytes32 structHash = keccak256(abi.encode(SET_ONCHAIN_DATA_TYPEHASH, _data));
+        bytes32 structHash = keccak256(abi.encode(SET_ONCHAIN_DATA_TYPEHASH, _data, nonce));
         return _hashTypedDataV4(structHash);
     }
 
@@ -386,7 +397,15 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      * @inheritdoc IFxGenArt721
      */
     function generatePrimaryReceiverHash(address _receiver) public view returns (bytes32) {
-        bytes32 structHash = keccak256(abi.encode(SET_PRIMARY_RECEIVER_TYPEHASH, _receiver));
+        bytes32 structHash = keccak256(abi.encode(SET_PRIMARY_RECEIVER_TYPEHASH, _receiver, nonce));
+        return _hashTypedDataV4(structHash);
+    }
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
+    function generateRendererHash(address _renderer) public view returns (bytes32) {
+        bytes32 structHash = keccak256(abi.encode(SET_RENDERER_TYPEHASH, _renderer, nonce));
         return _hashTypedDataV4(structHash);
     }
 
@@ -532,6 +551,15 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     }
 
     /**
+     * @dev Verifies that a signature was generated for the computed digest
+     */
+    function _verifySignature(bytes32 _digest, bytes calldata _signature) internal {
+        address signer = ECDSA.recover(_digest, _signature);
+        if (!IAccessControl(roleRegistry).hasRole(SIGNER_ROLE, signer)) revert UnauthorizedAccount();
+        nonce++;
+    }
+
+    /**
      * @dev Checks if creator is verified by the system
      */
     function _isVerified(address _creator) internal view returns (bool) {
@@ -543,12 +571,5 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      */
     function _exists(uint256 _tokenId) internal view override(ERC721, RoyaltyManager) returns (bool) {
         return super._exists(_tokenId);
-    }
-
-    /**
-     * @dev Verifies creator signature for updating storage through admin setters
-     */
-    function _verifySignature(bytes32 _digest, bytes calldata _signature) internal view {
-        if (!owner().isValidSignatureNow(_digest, _signature)) revert NotOwner();
     }
 }
