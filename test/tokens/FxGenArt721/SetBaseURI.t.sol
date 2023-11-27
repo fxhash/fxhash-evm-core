@@ -28,4 +28,34 @@ contract SetBaseURITest is FxGenArt721Test {
         vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
         TokenLib.setBaseURI(creator, fxGenArtProxy, BASE_URI, signature);
     }
+
+    function test_RevertsWhen_Unauthorized() public {
+        uint96 nonce = IFxGenArt721(fxGenArtProxy).nonce();
+        digest = IFxGenArt721(fxGenArtProxy).generateBaseURIHash(BASE_URI, nonce);
+        (v, r, s) = vm.sign(uint256(keccak256("admin")), digest);
+        signature = abi.encodePacked(r, s, v);
+        vm.expectRevert(UNAUTHORIZED_ERROR);
+        TokenLib.setBaseURI(bob, fxGenArtProxy, BASE_URI, signature);
+    }
+
+    function test_RevertsWhen_InvalidNonce() public {
+        uint96 nonce = IFxGenArt721(fxGenArtProxy).nonce();
+        nonce++;
+        digest = IFxGenArt721(fxGenArtProxy).generateBaseURIHash(BASE_URI, nonce);
+        (v, r, s) = vm.sign(uint256(keccak256("admin")), digest);
+        signature = abi.encodePacked(r, s, v);
+        vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
+        TokenLib.setBaseURI(creator, fxGenArtProxy, BASE_URI, signature);
+    }
+
+    function test_RevertsWhen_NonceConsumed() public {
+        /// cache the nonce
+        uint96 nonce = IFxGenArt721(fxGenArtProxy).nonce();
+        test_SetBaseURI();
+        digest = IFxGenArt721(fxGenArtProxy).generateBaseURIHash(BASE_URI, nonce);
+        (v, r, s) = vm.sign(uint256(keccak256("admin")), digest);
+        signature = abi.encodePacked(r, s, v);
+        vm.expectRevert(UNAUTHORIZED_ACCOUNT_ERROR);
+        TokenLib.setBaseURI(creator, fxGenArtProxy, BASE_URI, signature);
+    }
 }
