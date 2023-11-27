@@ -209,16 +209,23 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
             if (msg.value < auctionPrice + newDailyTax) revert InsufficientPayment();
 
             // Updates balance of contract owner
-            _setBalance(owner(), totalDeposit + auctionPrice);
+            uint256 newBalance = getBalance(owner()) + (totalDeposit + auctionPrice);
+            _setBalance(owner(), newBalance);
+
             // Sets new deposit amount based on auction price
             taxInfo.depositAmount = uint80(msg.value - auctionPrice);
         } else {
             // Reverts if payment amount if insufficient to current price and new daily tax
             if (msg.value < currentPrice + newDailyTax) revert InsufficientPayment();
 
-            // Updates balances of contract owner and previous owner
-            _setBalance(owner(), depositOwed);
-            _setBalance(previousOwner, currentPrice + remainingDeposit);
+            // Updates balances of contract owner
+            uint256 newBalance = getBalance(owner()) + depositOwed;
+            _setBalance(owner(), newBalance);
+
+            // Updates balances of previous owner
+            newBalance = getBalance(previousOwner) + currentPrice + remainingDeposit;
+            _setBalance(previousOwner, newBalance);
+
             // Sets new deposit amount based on current price
             taxInfo.depositAmount = uint80(msg.value - currentPrice);
         }
@@ -332,7 +339,8 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
         if (remainingDeposit < newDailyTax) revert InsufficientDeposit();
 
         // Updates balance of contract owner with deposit amount owed
-        _setBalance(owner(), taxInfo.depositAmount - remainingDeposit);
+        uint256 newBalance = getBalance(owner()) + (taxInfo.depositAmount - remainingDeposit);
+        _setBalance(owner(), newBalance);
 
         // Sets new tax info
         taxInfo.currentPrice = _newPrice;
