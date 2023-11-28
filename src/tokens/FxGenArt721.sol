@@ -143,7 +143,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         uint32[] calldata _allocations,
         uint96 _basisPoints
     ) external initializer {
-        issuerInfo.primaryReceiver = _initInfo.primaryReceiver;
+        _setPrimaryReceiver(_initInfo.primaryReceivers, _initInfo.allocations);
         issuerInfo.projectInfo = _projectInfo;
         metadataInfo = _metadataInfo;
         randomizer = _initInfo.randomizer;
@@ -155,7 +155,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         _setNameAndSymbol(_initInfo.name, _initInfo.symbol);
         _setTags(_initInfo.tagIds);
 
-        emit ProjectInitialized(_initInfo.primaryReceiver, _projectInfo, _metadataInfo, _mintInfo);
+        emit ProjectInitialized(issuerInfo.primaryReceiver, _projectInfo, _metadataInfo, _mintInfo);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -287,11 +287,8 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function setPrimaryReceiver(address _receiver, bytes calldata _signature) external onlyOwner {
-        bytes32 digest = generatePrimaryReceiverHash(_receiver);
-        _verifySignature(digest, _signature);
-        issuerInfo.primaryReceiver = _receiver;
-        emit PrimaryReceiverUpdated(_receiver);
+    function setPrimaryReceivers(address[] calldata _receivers, uint32[] calldata _allocations) external onlyOwner {
+        _setPrimaryReceiver(_receivers, _allocations);
     }
 
     /**
@@ -403,14 +400,6 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function generatePrimaryReceiverHash(address _receiver) public view returns (bytes32) {
-        bytes32 structHash = keccak256(abi.encode(SET_PRIMARY_RECEIVER_TYPEHASH, _receiver, nonce));
-        return _hashTypedDataV4(structHash);
-    }
-
-    /**
-     * @inheritdoc IFxGenArt721
-     */
     function generateRendererHash(address _renderer) public view returns (bytes32) {
         bytes32 structHash = keccak256(abi.encode(SET_RENDERER_TYPEHASH, _renderer, nonce));
         return _hashTypedDataV4(structHash);
@@ -492,7 +481,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         uint128 totalAllocation;
         uint120 maxSupply = issuerInfo.projectInfo.maxSupply;
         ReserveInfo memory reserveInfo;
-        (, uint256 lockTime, , , ) = IFxContractRegistry(contractRegistry).configInfo();
+        (, uint256 lockTime, , , , ) = IFxContractRegistry(contractRegistry).configInfo();
         lockTime = _isVerified(owner()) ? 0 : lockTime;
         for (uint256 i; i < _mintInfo.length; ++i) {
             minter = _mintInfo[i].minter;
@@ -524,17 +513,22 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         uint96 _basisPoints
     ) internal override {
         // call out to contract registry and get fee receiver
-        (address feeReceiver, uint32 feeAllocation, , , ) = IFxContractRegistry(contractRegistry).configInfo();
+        (address feeReceiver, , uint32 secondaryFeeAllocation, , , ) = IFxContractRegistry(contractRegistry)
+            .configInfo();
 
-        // check that the fee receiver is included
-        bool feeReceiverExists;
-        for (uint256 i; i < _allocations.length; i++) {
-            if (_receivers[i] == feeReceiver && _allocations[i] == feeAllocation) feeReceiverExists = true;
-        }
-        if (!feeReceiverExists) revert FeeReceiverMissing();
-
+        _checkFeeReceiver(_receivers, _allocations, feeReceiver, secondaryFeeAllocation);
         // check allocations match
         super._setBaseRoyalties(_receivers, _allocations, _basisPoints);
+    }
+
+    function _setPrimaryReceiver(address[] calldata _receivers, uint32[] calldata _allocations) internal {
+        (address feeReceiver, uint32 primaryFeeAllocation, , , , ) = IFxContractRegistry(contractRegistry).configInfo();
+
+        _checkFeeReceiver(_receivers, _allocations, feeReceiver, primaryFeeAllocation);
+        address primaryReceiver = _getOrCreateSplit(_receivers, _allocations);
+        issuerInfo.primaryReceiver = primaryReceiver;
+
+        emit PrimaryReceiverUpdated(primaryReceiver, _receivers, _allocations);
     }
 
     /**
@@ -571,6 +565,23 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      */
     function _isVerified(address _creator) internal view returns (bool) {
         return (IAccessControl(roleRegistry).hasRole(CREATOR_ROLE, _creator));
+    }
+
+    /**
+     * @dev checks if a fee receiver and allocation is included in their respective arrays
+     */
+    function _checkFeeReceiver(
+        address[] calldata _receivers,
+        uint32[] calldata _allocations,
+        address _feeReceiver,
+        uint32 _feeAllocation
+    ) internal pure {
+        // check that the fee receiver is included
+        bool feeReceiverExists;
+        for (uint256 i; i < _allocations.length; i++) {
+            if (_receivers[i] == _feeReceiver && _allocations[i] == _feeAllocation) feeReceiverExists = true;
+        }
+        if (!feeReceiverExists) revert InvalidFeeReceiver();
     }
 
     /**

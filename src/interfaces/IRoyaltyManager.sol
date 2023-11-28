@@ -23,11 +23,17 @@ interface IRoyaltyManager {
 
     /**
      * @notice Event emitted when the royalties for a list of receivers have been updated
+     * @param _receiver The address receiving royalties for the token either an account or a split address
      * @param _receivers Array of addresses receiving royalties
      * @param _allocations Array of allocations used to determine the proportional share of royalty payments
      * @param _basisPoints Points used to calculate royalty payments (100 = 1%)
      */
-    event TokenRoyaltiesUpdated(address[] _receivers, uint32[] _allocations, uint96 _basisPoints);
+    event TokenRoyaltiesUpdated(
+        address indexed _receiver,
+        address[] _receivers,
+        uint32[] _allocations,
+        uint96 _basisPoints
+    );
 
     /*//////////////////////////////////////////////////////////////////////////
                                   ERRORS
