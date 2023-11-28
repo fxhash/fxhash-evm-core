@@ -136,6 +136,11 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     error InvalidEndTime();
 
     /**
+     * @notice Error thrown when the configured fee receiver is not valid
+     */
+    error InvalidFeeReceiver();
+
+    /**
      * @notice Error thrown when minting is active
      */
     error MintActive();
@@ -154,11 +159,6 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @notice Error thrown when signer is not the owner
      */
     error NotOwner();
-
-    /**
-     * @notice Error thrown when the configured fee receiver is not valid
-     */
-    error InvalidFeeReceiver();
 
     /**
      * @notice Error thrown when supply is remaining
