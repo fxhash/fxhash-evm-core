@@ -72,7 +72,7 @@ abstract contract RoyaltyManager is IRoyaltyManager {
                                 INTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _getOrCreateReceiver(
+    function _getOrCreateSplit(
         address[] calldata _receivers,
         uint32[] calldata _allocations
     ) internal returns (address receiver) {
@@ -99,10 +99,7 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         if (_receivers.length == 0 || _basisPoints == 0) {
             delete baseRoyalties;
         } else if (_receivers.length > 1) {
-            receiver = ISplitsMain(SPLITS_MAIN).predictImmutableSplitAddress(_receivers, _allocations, 0);
-            if (receiver.code.length == 0) {
-                ISplitsMain(SPLITS_MAIN).createSplit(_receivers, _allocations, 0, address(0));
-            }
+            receiver = _getOrCreateSplit(_receivers, _allocations);
         } else {
             receiver = _receivers[0];
         }

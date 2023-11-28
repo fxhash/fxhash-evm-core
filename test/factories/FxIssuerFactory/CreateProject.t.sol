@@ -10,6 +10,7 @@ contract CreateProject is FxIssuerFactoryTest {
 
     function setUp() public virtual override {
         super.setUp();
+        _initializeState();
         ticketId = 1;
         deterministicToken = fxIssuerFactory.getTokenAddress(deployer);
     }

@@ -143,8 +143,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         uint32[] calldata _allocations,
         uint96 _basisPoints
     ) external initializer {
-        address primaryReceiver = _getOrCreateReceiver(_initInfo.primaryReceivers, _initInfo.allocations);
-        issuerInfo.primaryReceiver = primaryReceiver;
+        _setPrimaryReceiver(_initInfo.primaryReceivers, _initInfo.allocations);
         issuerInfo.projectInfo = _projectInfo;
         metadataInfo = _metadataInfo;
         randomizer = _initInfo.randomizer;
@@ -156,7 +155,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         _setNameAndSymbol(_initInfo.name, _initInfo.symbol);
         _setTags(_initInfo.tagIds);
 
-        emit ProjectInitialized(primaryReceiver, _projectInfo, _metadataInfo, _mintInfo);
+        emit ProjectInitialized(issuerInfo.primaryReceiver, _projectInfo, _metadataInfo, _mintInfo);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -534,6 +533,14 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
 
     function _setPrimaryReceiver(address[] calldata _receivers, uint32[] calldata _allocations) internal {
         (address feeReceiver, , uint32 primaryFeeAllocation, , , ) = IFxContractRegistry(contractRegistry).configInfo();
+
+        // check that the fee receiver is included
+        bool feeReceiverExists;
+        for (uint256 i; i < _allocations.length; i++) {
+            if (_receivers[i] == feeReceiver && _allocations[i] == primaryFeeAllocation) feeReceiverExists = true;
+        }
+        if (!feeReceiverExists) revert FeeReceiverMissing();
+        issuerInfo.primaryReceiver = _getOrCreateSplit(_receivers, _allocations);
     }
 
     /**

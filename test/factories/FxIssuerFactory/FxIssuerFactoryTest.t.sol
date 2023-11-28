@@ -14,6 +14,7 @@ contract FxIssuerFactoryTest is BaseTest {
 
     function setUp() public virtual override {
         super.setUp();
+
         _configureInfo(
             admin,
             SECONDARY_FEE_ALLOCATION,
@@ -22,8 +23,13 @@ contract FxIssuerFactoryTest is BaseTest {
             REFERRER_SHARE,
             DEFAULT_METADATA_URI
         );
-        _configureRoyalties();
         _initializeState();
+        _mockMinter(admin);
+        _configureRoyalties();
+        _configureProject(MINT_ENABLED, MAX_SUPPLY);
+        _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, abi.encode(PRICE));
+        RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, minter);
+        _configureInit(NAME, SYMBOL, address(pseudoRandomizer), address(ipfsRenderer), tagIds);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -33,8 +39,6 @@ contract FxIssuerFactoryTest is BaseTest {
     function _initializeState() internal override {
         super._initializeState();
         projectId = 1;
-        initInfo.primaryReceivers = royaltyReceivers;
-        initInfo.allocations = allocations;
         initInfo.randomizer = address(pseudoRandomizer);
         initInfo.renderer = address(ipfsRenderer);
     }

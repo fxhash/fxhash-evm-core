@@ -71,6 +71,8 @@ contract BaseTest is Deploy, Test {
     // Splits
     address internal primaryReceiver;
     address[] internal accounts;
+    address[] internal primaryReceivers;
+    uint32[] internal primaryAllocations;
 
     // Structs
     GenArtInfo internal genArtInfo;
@@ -148,6 +150,17 @@ contract BaseTest is Deploy, Test {
     }
 
     function _initializeState() internal virtual {
+        delete primaryReceivers;
+        delete primaryAllocations;
+        primaryReceivers.push(payable(creator));
+        primaryReceivers.push(payable(admin));
+        primaryAllocations.push(MAX_ALLOCATION - PRIMARY_FEE_ALLOCATION);
+        primaryAllocations.push(PRIMARY_FEE_ALLOCATION);
+        primaryReceiver = ISplitsMain(SPLITS_MAIN).predictImmutableSplitAddress(
+            primaryReceivers,
+            primaryAllocations,
+            0
+        );
         amount = AMOUNT;
         price = PRICE;
         quantity = QUANTITY;
@@ -186,15 +199,14 @@ contract BaseTest is Deploy, Test {
     function _configureInit(
         string memory _name,
         string memory _symbol,
-        address _primaryReceiver,
         address _randomizer,
         address _renderer,
         uint256[] memory _tagIds
     ) internal virtual {
         initInfo.name = _name;
         initInfo.symbol = _symbol;
-        initInfo.primaryReceivers = royaltyReceivers;
-        initInfo.allocations = allocations;
+        initInfo.primaryReceivers = primaryReceivers;
+        initInfo.allocations = primaryAllocations;
         initInfo.randomizer = _randomizer;
         initInfo.renderer = _renderer;
         initInfo.tagIds = _tagIds;
@@ -228,11 +240,6 @@ contract BaseTest is Deploy, Test {
     /*//////////////////////////////////////////////////////////////////////////
                                     CREATE
     //////////////////////////////////////////////////////////////////////////*/
-
-    function _createSplit() internal virtual {
-        primaryReceiver = ISplitsMain(SPLITS_MAIN).createSplit(royaltyReceivers, allocations, 0, address(0));
-        vm.label(primaryReceiver, "PrimaryReceiver");
-    }
 
     function _createProject() internal virtual {
         fxGenArtProxy = fxIssuerFactory.createProject(
