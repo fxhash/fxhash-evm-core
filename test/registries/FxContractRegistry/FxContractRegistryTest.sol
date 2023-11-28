@@ -28,8 +28,8 @@ contract FxContractRegistryTest is BaseTest {
         RegistryLib.setConfig(fxContractRegistry.owner(), fxContractRegistry, configInfo);
         (
             feeReceiver,
-            secondaryFeeAllocation,
             primaryFeeAllocation,
+            secondaryFeeAllocation,
             lockTime,
             referrerShare,
             defaultMetadataURI
@@ -38,6 +38,9 @@ contract FxContractRegistryTest is BaseTest {
         assertEq(lockTime, configInfo.lockTime);
         assertEq(referrerShare, configInfo.referrerShare);
         assertEq(defaultMetadataURI, configInfo.defaultMetadataURI);
+        assertEq(primaryFeeAllocation, PRIMARY_FEE_ALLOCATION);
+        assertEq(secondaryFeeAllocation, SECONDARY_FEE_ALLOCATION);
+        assertEq(feeReceiver, admin);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
