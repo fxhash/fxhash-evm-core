@@ -155,7 +155,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         _setNameAndSymbol(_initInfo.name, _initInfo.symbol);
         _setTags(_initInfo.tagIds);
 
-        emit ProjectInitialized(_projectInfo, _metadataInfo, _mintInfo);
+        emit ProjectInitialized(issuerInfo.primaryReceiver, _projectInfo, _metadataInfo, _mintInfo);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
