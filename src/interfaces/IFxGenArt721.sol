@@ -54,9 +54,11 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
 
     /**
      * @notice Event emitted when the primary receiver address is updated
-     * @param _receiver Address of the new primary receiver account
+     * @param _primaryReceiver The split address receiving funds on behalf of the users
+     * @param _receivers Array of addresses receiving a portion of the funds in a split
+     * @param _allocations Array of allocation shares for the split
      */
-    event PrimaryReceiverUpdated(address indexed _receiver);
+    event PrimaryReceiverUpdated(address indexed _primaryReceiver, address[] _receivers, uint32[] _allocations);
 
     /**
      * @notice Event emitted when project tags are set
@@ -132,6 +134,11 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @notice Error thrown when reserve end time is invalid
      */
     error InvalidEndTime();
+
+    /**
+     * @notice Error thrown when the configured fee receiver is not valid
+     */
+    error InvalidFeeReceiver();
 
     /**
      * @notice Error thrown when minting is active
@@ -224,13 +231,6 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
 
     /**
      * @notice Generates typed data hash for setting the primary receiver address
-     * @param _receiver Address of the new primary receiver account
-     * @return Typed data hash
-     */
-    function generatePrimaryReceiverHash(address _receiver) external view returns (bytes32);
-
-    /**
-     * @notice Generates typed data hash for setting the primary receiver address
      * @param _renderer Address of the new renderer contract
      * @return Typed data hash
      */
@@ -314,6 +314,11 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     function pause() external;
 
     /**
+     * @inheritdoc IToken
+     */
+    function primaryReceiver() external view returns (address);
+
+    /**
      * @notice Returns the address of the randomizer contract
      */
     function randomizer() external view returns (address);
@@ -372,11 +377,11 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     function setOnchainData(bytes calldata _data, bytes calldata _signature) external;
 
     /**
-     * @notice Sets the primary receiver address for token royalties
-     * @param _receiver Address of the new primary receiver account
-     * @param _signature Signature of creator used to verify receiver update
+     * @notice Sets the primary receiver address for primary sale proceeds
+     * @param _receivers Array of addresses receiving shares from primary sales
+     * @param _allocations Array of allocation amounts for calculating primary sales shares
      */
-    function setPrimaryReceiver(address _receiver, bytes calldata _signature) external;
+    function setPrimaryReceivers(address[] calldata _receivers, uint32[] calldata _allocations) external;
 
     /**
      * @notice Sets the new randomizer contract
