@@ -287,11 +287,8 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function setPrimaryReceiver(address _receiver, bytes calldata _signature) external onlyOwner {
-        bytes32 digest = generatePrimaryReceiverHash(_receiver);
-        _verifySignature(digest, _signature);
-        issuerInfo.primaryReceiver = _receiver;
-        emit PrimaryReceiverUpdated(_receiver);
+    function setPrimaryReceivers(address[] calldata _receivers, uint32[] calldata _allocations) external onlyOwner {
+        _setPrimaryReceiver(_receivers, _allocations);
     }
 
     /**
@@ -539,8 +536,11 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         for (uint256 i; i < _allocations.length; i++) {
             if (_receivers[i] == feeReceiver && _allocations[i] == primaryFeeAllocation) feeReceiverExists = true;
         }
-        if (!feeReceiverExists) revert FeeReceiverMissing();
-        issuerInfo.primaryReceiver = _getOrCreateSplit(_receivers, _allocations);
+        if (!feeReceiverExists) revert PrimaryFeeReceiverIncorrect();
+        address primaryReceiver = _getOrCreateSplit(_receivers, _allocations);
+        issuerInfo.primaryReceiver = primaryReceiver;
+
+        emit PrimaryReceiverUpdated(primaryReceiver);
     }
 
     /**

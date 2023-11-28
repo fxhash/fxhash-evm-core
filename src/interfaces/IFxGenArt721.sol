@@ -152,6 +152,9 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @notice Error thrown when signer is not the owner
      */
     error NotOwner();
+    /**
+     * @notice Error thrown when the configured primary receiver isn't used */
+    error PrimaryFeeReceiverIncorrect();
 
     /**
      * @notice Error thrown when supply is remaining
@@ -373,10 +376,10 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
 
     /**
      * @notice Sets the primary receiver address for token royalties
-     * @param _receiver Address of the new primary receiver account
-     * @param _signature Signature of creator used to verify receiver update
+     * @param _receivers Array of addresses receiving royalties
+     * @param _allocations Array of allocation amounts for calculating primary sales shares
      */
-    function setPrimaryReceiver(address _receiver, bytes calldata _signature) external;
+    function setPrimaryReceivers(address[] calldata _receivers, uint32[] calldata _allocations) external;
 
     /**
      * @notice Sets the new randomizer contract

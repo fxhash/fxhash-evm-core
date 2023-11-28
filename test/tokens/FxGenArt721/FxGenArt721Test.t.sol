@@ -12,6 +12,7 @@ contract FxGenArt721Test is BaseTest {
     // Errors
     bytes4 internal ALLOCATION_EXCEEDED_ERROR = IFxGenArt721.AllocationExceeded.selector;
     bytes4 internal BURN_INACTIVE_ERROR = IFxGenArt721.BurnInactive.selector;
+    bytes4 internal PRIMARY_FEE_RECEIVER_ERROR = IFxGenArt721.PrimaryFeeReceiverIncorrect.selector;
     bytes4 internal INVALID_AMOUNT_ERROR = IFxGenArt721.InvalidAmount.selector;
     bytes4 internal INVALID_END_TIME_ERROR = IFxGenArt721.InvalidEndTime.selector;
     bytes4 internal INVALID_START_TIME_ERROR = IFxGenArt721.InvalidStartTime.selector;
