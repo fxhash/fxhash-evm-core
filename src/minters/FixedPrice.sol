@@ -9,8 +9,8 @@ import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 
 import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
-import {ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IToken} from "src/interfaces/IToken.sol";
+import {ReserveInfo} from "src/lib/Structs.sol";
 
 import {MINIMUM_PRICE, OPEN_EDITION_SUPPLY, TIME_UNLIMITED} from "src/utils/Constants.sol";
 
