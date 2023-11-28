@@ -506,7 +506,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         uint96 _basisPoints
     ) internal override {
         // call out to contract registry and get fee receiver
-        (address feeReceiver, uint32 secondaryFeeAllocation, , , , ) = IFxContractRegistry(contractRegistry)
+        (address feeReceiver, , uint32 secondaryFeeAllocation, , , ) = IFxContractRegistry(contractRegistry)
             .configInfo();
 
         // check that the fee receiver is included
@@ -514,14 +514,14 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         for (uint256 i; i < _allocations.length; i++) {
             if (_receivers[i] == feeReceiver && _allocations[i] == secondaryFeeAllocation) feeReceiverExists = true;
         }
-        if (!feeReceiverExists) revert FeeReceiverMissing();
+        if (!feeReceiverExists) revert InvalidFeeReceiver();
 
         // check allocations match
         super._setBaseRoyalties(_receivers, _allocations, _basisPoints);
     }
 
     function _setPrimaryReceiver(address[] calldata _receivers, uint32[] calldata _allocations) internal {
-        (address feeReceiver, , uint32 primaryFeeAllocation, , , ) = IFxContractRegistry(contractRegistry).configInfo();
+        (address feeReceiver, uint32 primaryFeeAllocation, , , , ) = IFxContractRegistry(contractRegistry).configInfo();
 
         // check that the fee receiver is included
         bool feeReceiverExists;
