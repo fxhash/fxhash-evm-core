@@ -268,7 +268,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
             // Increments supply and mints token to given wallet
             _mint(_to, ++currentId);
 
-            // Emits event for SBT
+            // Emits event for partial SBT
             emit Locked(currentId);
 
             // Sets initial tax info of token
@@ -313,12 +313,12 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
 
         // Gets excess daily tax amount
         uint256 excessAmount = getExcessTax(msg.value, dailyTax);
-        // Calculates total deposit amount
+        // Calculates total actual deposit amount
         uint256 depositAmount = msg.value - excessAmount;
 
         // Sets new tax info
-        taxInfo.foreclosureTime = getForeclosureTime(dailyTax, taxInfo.foreclosureTime, depositAmount);
         taxInfo.depositAmount += uint80(depositAmount);
+        taxInfo.foreclosureTime = getForeclosureTime(dailyTax, taxInfo.foreclosureTime, depositAmount);
 
         // Emits event for depositing taxes
         emit Deposited(_tokenId, msg.sender, taxInfo.foreclosureTime, taxInfo.depositAmount);
@@ -358,8 +358,8 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
 
         // Sets new tax info
         taxInfo.currentPrice = _newPrice;
-        taxInfo.foreclosureTime = getForeclosureTime(newDailyTax, foreclosureTime, remainingDeposit);
         taxInfo.depositAmount = uint80(remainingDeposit);
+        taxInfo.foreclosureTime = getForeclosureTime(newDailyTax, foreclosureTime, remainingDeposit);
 
         // Emits event for setting new price
         emit SetPrice(_tokenId, _newPrice, taxInfo.foreclosureTime, taxInfo.depositAmount);
