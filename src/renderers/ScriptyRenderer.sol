@@ -72,7 +72,7 @@ contract ScriptyRenderer is IScriptyRenderer {
      * @inheritdoc IScriptyRenderer
      */
     function contractURI() external view returns (string memory) {
-        (, , , , string memory defaultURI) = IFxContractRegistry(contractRegistry).configInfo();
+        (, , , , , string memory defaultURI) = IFxContractRegistry(contractRegistry).configInfo();
         string memory contractAddr = uint160(msg.sender).toHexString(20);
         return string.concat(defaultURI, contractAddr, METADATA_ENDPOINT);
     }
@@ -81,7 +81,7 @@ contract ScriptyRenderer is IScriptyRenderer {
      * @inheritdoc IScriptyRenderer
      */
     function tokenURI(uint256 _tokenId, bytes calldata _data) external view returns (string memory) {
-        (, , , , string memory defaultURI) = IFxContractRegistry(contractRegistry).configInfo();
+        (, , , , , string memory defaultURI) = IFxContractRegistry(contractRegistry).configInfo();
         (bytes memory baseCID, address onchainPointer, bytes32 seed, bytes memory fxParams) = abi.decode(
             _data,
             (bytes, address, bytes32, bytes)
