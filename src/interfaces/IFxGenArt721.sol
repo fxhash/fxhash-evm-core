@@ -229,13 +229,6 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
 
     /**
      * @notice Generates typed data hash for setting the primary receiver address
-     * @param _receiver Address of the new primary receiver account
-     * @return Typed data hash
-     */
-    function generatePrimaryReceiverHash(address _receiver) external view returns (bytes32);
-
-    /**
-     * @notice Generates typed data hash for setting the primary receiver address
      * @param _renderer Address of the new renderer contract
      * @return Typed data hash
      */
