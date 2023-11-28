@@ -104,7 +104,7 @@ abstract contract RoyaltyManager is IRoyaltyManager {
             receiver = _receivers[0];
         }
         baseRoyalties = RoyaltyInfo(receiver, _basisPoints);
-        emit TokenRoyaltiesUpdated(_receivers, _allocations, _basisPoints);
+        emit TokenRoyaltiesUpdated(receiver, _receivers, _allocations, _basisPoints);
     }
 
     /**
