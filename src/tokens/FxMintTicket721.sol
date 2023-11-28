@@ -419,7 +419,8 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
     /**
      * @inheritdoc IERC5192
      */
-    function locked(uint256 /* _tokenId */) external pure returns (bool) {
+    function locked(uint256 _tokenId) external view returns (bool) {
+        _requireMinted(_tokenId);
         return true;
     }
 
