@@ -1,5 +1,5 @@
 # IFxGenArt721
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/1ca8488246dda0c8af0201fe562392f87b349fa1/src/interfaces/IFxGenArt721.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/437282be235abab247d75ca27e240f794022a9e1/src/interfaces/IFxGenArt721.sol)
 
 **Inherits:**
 [ISeedConsumer](/src/interfaces/ISeedConsumer.sol/interface.ISeedConsumer.md), [IToken](/src/interfaces/IToken.sol/interface.IToken.md)
@@ -76,6 +76,27 @@ Mapping of token ID to GenArtInfo struct (seed, fxParams)
 function genArtInfo(uint256 _tokenId) external view returns (bytes32, bytes memory);
 ```
 
+### generateBaseURIHash
+
+Generates typed data hash for setting project metadata onchain
+
+
+```solidity
+function generateBaseURIHash(bytes calldata _uri) external view returns (bytes32);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_uri`|`bytes`|Bytes-encoded base URI data|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bytes32`|Typed data hash|
+
+
 ### generateOnchainDataHash
 
 Generates typed data hash for setting project metadata onchain
@@ -97,19 +118,19 @@ function generateOnchainDataHash(bytes calldata _data) external view returns (by
 |`<none>`|`bytes32`|Typed data hash|
 
 
-### generatePrimaryReceiverHash
+### generateRendererHash
 
 Generates typed data hash for setting the primary receiver address
 
 
 ```solidity
-function generatePrimaryReceiverHash(address _receiver) external view returns (bytes32);
+function generateRendererHash(address _renderer) external view returns (bytes32);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_receiver`|`address`|Address of the new primary receiver account|
+|`_renderer`|`address`|Address of the new renderer contract|
 
 **Returns**
 
@@ -225,6 +246,15 @@ function mintParams(address _to, bytes calldata _fxParams) external;
 |`_fxParams`|`bytes`|Random sequence of fixed-length bytes used as input|
 
 
+### nonce
+
+Current nonce for admin signatures
+
+
+```solidity
+function nonce() external returns (uint96);
+```
+
 ### ownerMint
 
 Mints single token with randomly generated seed
@@ -267,6 +297,15 @@ Pauses all function executions where modifier is applied
 
 ```solidity
 function pause() external;
+```
+
+### primaryReceiver
+
+Returns address of primary receiver for token sales
+
+
+```solidity
+function primaryReceiver() external view returns (address);
 ```
 
 ### randomizer
@@ -359,13 +398,14 @@ Sets the new URI of the token metadata
 
 
 ```solidity
-function setBaseURI(bytes calldata _uri) external;
+function setBaseURI(bytes calldata _uri, bytes calldata _signature) external;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
 |`_uri`|`bytes`|Decoded content identifier of metadata pointer|
+|`_signature`|`bytes`|Signature of creator used to verify metadata update|
 
 
 ### setOnchainData
@@ -384,20 +424,20 @@ function setOnchainData(bytes calldata _data, bytes calldata _signature) externa
 |`_signature`|`bytes`|Signature of creator used to verify metadata update|
 
 
-### setPrimaryReceiver
+### setPrimaryReceivers
 
-Sets the primary receiver address for token royalties
+Sets the primary receiver address for primary sale proceeds
 
 
 ```solidity
-function setPrimaryReceiver(address _receiver, bytes calldata _signature) external;
+function setPrimaryReceivers(address[] calldata _receivers, uint32[] calldata _allocations) external;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_receiver`|`address`|Address of the new primary receiver account|
-|`_signature`|`bytes`|Signature of creator used to verify receiver update|
+|`_receivers`|`address[]`|Array of addresses receiving shares from primary sales|
+|`_allocations`|`uint32[]`|Array of allocation amounts for calculating primary sales shares|
 
 
 ### setRandomizer
@@ -421,13 +461,14 @@ Sets the new renderer contract
 
 
 ```solidity
-function setRenderer(address _renderer) external;
+function setRenderer(address _renderer, bytes calldata _signature) external;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
 |`_renderer`|`address`|Address of the renderer contract|
+|`_signature`|`bytes`|Signature of creator used to verify renderer update|
 
 
 ### setTags
@@ -556,14 +597,16 @@ Event emitted when the primary receiver address is updated
 
 
 ```solidity
-event PrimaryReceiverUpdated(address indexed _receiver);
+event PrimaryReceiverUpdated(address indexed _receiver, address[] _receivers, uint32[] _allocations);
 ```
 
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_receiver`|`address`|Address of the new primary receiver account|
+|`_receiver`|`address`|The split address receiving funds on behalf of the users|
+|`_receivers`|`address[]`|Array of addresses receiving a portion of the funds in a split|
+|`_allocations`|`uint32[]`|Array of allocation shares for the split|
 
 ### ProjectTags
 Event emitted when project tags are set
@@ -699,6 +742,14 @@ Error thrown when reserve end time is invalid
 
 ```solidity
 error InvalidEndTime();
+```
+
+### InvalidFeeReceiver
+Error thrown when the configured fee receiver is not valid
+
+
+```solidity
+error InvalidFeeReceiver();
 ```
 
 ### MintActive

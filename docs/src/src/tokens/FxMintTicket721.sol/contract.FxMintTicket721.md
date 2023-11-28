@@ -1,8 +1,8 @@
 # FxMintTicket721
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/1ca8488246dda0c8af0201fe562392f87b349fa1/src/tokens/FxMintTicket721.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/437282be235abab247d75ca27e240f794022a9e1/src/tokens/FxMintTicket721.sol)
 
 **Inherits:**
-[IFxMintTicket721](/src/interfaces/IFxMintTicket721.sol/interface.IFxMintTicket721.md), IERC4906, ERC721, Initializable, Ownable, Pausable
+[IFxMintTicket721](/src/interfaces/IFxMintTicket721.sol/interface.IFxMintTicket721.md), IERC4906, [IERC5192](/src/interfaces/IERC5192.sol/interface.IERC5192.md), ERC721, Initializable, Ownable, Pausable
 
 **Author:**
 fx(hash)
@@ -186,13 +186,14 @@ Claims token at current price and sets new price of token with initial deposit a
 
 
 ```solidity
-function claim(uint256 _tokenId, uint80 _newPrice) external payable;
+function claim(uint256 _tokenId, uint256 _maxPrice, uint80 _newPrice) external payable;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
 |`_tokenId`|`uint256`|ID of the token|
+|`_maxPrice`|`uint256`|Maximum payment amount allowed to prevent front-running of listing price|
 |`_newPrice`|`uint80`|New listing price of token|
 
 
@@ -305,6 +306,30 @@ function contractURI() external view returns (string memory);
 |----|----|-----------|
 |`<none>`|`string`|URI of the contract metadata|
 
+
+### locked
+
+Returns the locking status of an Soulbound Token
+
+*SBTs assigned to zero address are considered invalid, and queries about them do throw*
+
+
+```solidity
+function locked(uint256 _tokenId) external view returns (bool);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_tokenId`|`uint256`||
+
+
+### primaryReceiver
+
+
+```solidity
+function primaryReceiver() external view returns (address);
+```
 
 ### isApprovedForAll
 
