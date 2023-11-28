@@ -28,8 +28,8 @@ struct AuctionInfo {
  */
 struct ConfigInfo {
     address feeReceiver;
-    uint32 primaryAllocation;
-    uint32 secondaryAllocation;
+    uint32 primaryFeeAllocation;
+    uint32 secondaryFeeAllocation;
     uint32 lockTime;
     uint64 referrerShare;
     string defaultMetadataURI;
