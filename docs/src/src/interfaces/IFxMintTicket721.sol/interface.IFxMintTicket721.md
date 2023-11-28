@@ -1,5 +1,5 @@
 # IFxMintTicket721
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/1ca8488246dda0c8af0201fe562392f87b349fa1/src/interfaces/IFxMintTicket721.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/437282be235abab247d75ca27e240f794022a9e1/src/interfaces/IFxMintTicket721.sol)
 
 **Inherits:**
 [IToken](/src/interfaces/IToken.sol/interface.IToken.md)
@@ -50,13 +50,14 @@ Claims token at current price and sets new price of token with initial deposit a
 
 
 ```solidity
-function claim(uint256 _tokenId, uint80 _newPrice) external payable;
+function claim(uint256 _tokenId, uint256 _maxPrice, uint80 _newPrice) external payable;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
 |`_tokenId`|`uint256`|ID of the token|
+|`_maxPrice`|`uint256`|Maximum payment amount allowed to prevent front-running of listing price|
 |`_newPrice`|`uint80`|New listing price of token|
 
 
@@ -356,6 +357,15 @@ Pauses all function executions where modifier is set
 function pause() external;
 ```
 
+### primaryReceiver
+
+Returns address of primary receiver for token sales
+
+
+```solidity
+function primaryReceiver() external view returns (address);
+```
+
 ### redeemer
 
 Returns the address of the TickeRedeemer contract
@@ -643,6 +653,14 @@ Error thrown when reserve start time is invalid
 
 ```solidity
 error InvalidStartTime();
+```
+
+### PriceExceeded
+Error thrown when current price exceeds maximum payment amount
+
+
+```solidity
+error PriceExceeded();
 ```
 
 ### MintActive
