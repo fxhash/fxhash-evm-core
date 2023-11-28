@@ -1,5 +1,5 @@
 # IPseudoRandomizer
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/1ca8488246dda0c8af0201fe562392f87b349fa1/src/interfaces/IPseudoRandomizer.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/437282be235abab247d75ca27e240f794022a9e1/src/interfaces/IPseudoRandomizer.sol)
 
 **Inherits:**
 [IRandomizer](/src/interfaces/IRandomizer.sol/interface.IRandomizer.md)

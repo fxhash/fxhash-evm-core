@@ -2,6 +2,7 @@
 
 # Contents
 - [IDutchAuction](IDutchAuction.sol/interface.IDutchAuction.md)
+- [IERC5192](IERC5192.sol/interface.IERC5192.md)
 - [IFixedPrice](IFixedPrice.sol/interface.IFixedPrice.md)
 - [IFxContractRegistry](IFxContractRegistry.sol/interface.IFxContractRegistry.md)
 - [IFxGenArt721](IFxGenArt721.sol/interface.IFxGenArt721.md)
@@ -16,8 +17,6 @@
 - [IRenderer](IRenderer.sol/interface.IRenderer.md)
 - [IRoyaltyManager](IRoyaltyManager.sol/interface.IRoyaltyManager.md)
 - [ISeedConsumer](ISeedConsumer.sol/interface.ISeedConsumer.md)
-- [ISplitsController](ISplitsController.sol/interface.ISplitsController.md)
-- [ISplitsFactory](ISplitsFactory.sol/interface.ISplitsFactory.md)
 - [ISplitsMain](ISplitsMain.sol/interface.ISplitsMain.md)
 - [ITicketRedeemer](ITicketRedeemer.sol/interface.ITicketRedeemer.md)
 - [IToken](IToken.sol/interface.IToken.md)

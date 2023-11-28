@@ -1,5 +1,5 @@
 # Constants
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/1ca8488246dda0c8af0201fe562392f87b349fa1/src/utils/Constants.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/437282be235abab247d75ca27e240f794022a9e1/src/utils/Constants.sol)
 
 ### FX_CONTRACT_REGISTRY
 
@@ -61,12 +61,6 @@ string constant IPFS_RENDERER = "IPFS_RENDERER";
 string constant PSEUDO_RANDOMIZER = "PSEUDO_RANDOMIZER";
 ```
 
-### SPLITS_FACTORY
-
-```solidity
-string constant SPLITS_FACTORY = "SPLITS_FACTORY";
-```
-
 ### TICKET_REDEEMER
 
 ```solidity
@@ -77,25 +71,31 @@ string constant TICKET_REDEEMER = "TICKET_REDEEMER";
 
 ```solidity
 bytes32 constant CLAIM_TYPEHASH =
-    keccak256("Claim(address token, uint256 reserveId, uint96 nonce, uint256 index, address user)");
+    keccak256("Claim(address token,uint256 reserveId,uint96 nonce,uint256 index,address user)");
 ```
 
 ### SET_BASE_URI_TYPEHASH
 
 ```solidity
-bytes32 constant SET_BASE_URI_TYPEHASH = keccak256("SetBaseURI(string uri)");
+bytes32 constant SET_BASE_URI_TYPEHASH = keccak256("SetBaseURI(bytes uri,uint96 nonce)");
 ```
 
 ### SET_ONCHAIN_DATA_TYPEHASH
 
 ```solidity
-bytes32 constant SET_ONCHAIN_DATA_TYPEHASH = keccak256("SetOnchainData(bytes data");
+bytes32 constant SET_ONCHAIN_DATA_TYPEHASH = keccak256("SetOnchainData(bytes data,uint96 nonce)");
 ```
 
 ### SET_PRIMARY_RECEIVER_TYPEHASH
 
 ```solidity
-bytes32 constant SET_PRIMARY_RECEIVER_TYPEHASH = keccak256("SetPrimaryReceiver(address primaryReceiver)");
+bytes32 constant SET_PRIMARY_RECEIVER_TYPEHASH = keccak256("SetPrimaryReceiver(address receiver,uint96 nonce)");
+```
+
+### SET_RENDERER_TYPEHASH
+
+```solidity
+bytes32 constant SET_RENDERER_TYPEHASH = keccak256("SetRenderer(address renderer,uint96 nonce)");
 ```
 
 ### IPFS_URL
@@ -138,7 +138,7 @@ uint8 constant TRUE = 2;
 ### LOCK_TIME
 
 ```solidity
-uint64 constant LOCK_TIME = 3600;
+uint32 constant LOCK_TIME = 3600;
 ```
 
 ### TIME_UNLIMITED
@@ -171,12 +171,6 @@ bytes32 constant BANNED_USER_ROLE = keccak256("BANNED_USER_ROLE");
 bytes32 constant CREATOR_ROLE = keccak256("CREATOR_ROLE");
 ```
 
-### METADATA_ROLE
-
-```solidity
-bytes32 constant METADATA_ROLE = keccak256("METADATA_ROLE");
-```
-
 ### MINTER_ROLE
 
 ```solidity
@@ -187,6 +181,12 @@ bytes32 constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
 ```solidity
 bytes32 constant MODERATOR_ROLE = keccak256("MODERATOR_ROLE");
+```
+
+### SIGNER_ROLE
+
+```solidity
+bytes32 constant SIGNER_ROLE = keccak256("SIGNER_ROLE");
 ```
 
 ### ALLOCATION_DENOMINATOR
