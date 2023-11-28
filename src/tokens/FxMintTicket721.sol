@@ -12,6 +12,7 @@ import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
 import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
 import {IERC4906} from "openzeppelin/contracts/interfaces/IERC4906.sol";
+import {IERC5192} from "src/interfaces/IERC5192.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {IFxGenArt721, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxMintTicket721, TaxInfo} from "src/interfaces/IFxMintTicket721.sol";
@@ -25,7 +26,7 @@ import "src/utils/Constants.sol";
  * @author fx(hash)
  * @notice See the documentation in {IFxMintTicket721}
  */
-contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, Ownable, Pausable {
+contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initializable, Ownable, Pausable {
     using Strings for uint160;
     using Strings for uint256;
 
@@ -271,6 +272,9 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
             // Increments supply and mints token to given wallet
             _mint(_to, ++currentId);
 
+            // Emits event for SBT
+            emit Locked(currentId);
+
             // Sets initial tax info of token
             taxes[currentId] = TaxInfo(
                 uint48(block.timestamp) + gracePeriod,
@@ -433,6 +437,14 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
      */
     function contractURI() external view returns (string memory) {
         return IRenderer(renderer).contractURI();
+    }
+
+    /**
+     * @inheritdoc IERC5192
+     */
+    function locked(uint256 _tokenId) external view returns (bool) {
+        _requireMinted(_tokenId);
+        return true;
     }
 
     /**
