@@ -155,7 +155,8 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      */
     error NotOwner();
     /**
-     * @notice Error thrown when the configured primary receiver isn't used */
+     * @notice Error thrown when the configured primary receiver isn't used
+     */
     error PrimaryFeeReceiverIncorrect();
 
     /**
