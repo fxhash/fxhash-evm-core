@@ -12,6 +12,26 @@ contract SetMintDetails is DutchAuctionTest {
         vm.warp(RESERVE_START_TIME - 1);
     }
 
+    function test_RevertsWhen_StepLengthAndPricesArrayInvalid() public {
+        bool refunded;
+        uint248 stepLength = 6;
+        uint256 pricesLength = 9940;
+        uint64 startTime = 1700221226;
+        uint64 endTime = 1700290802;
+        vm.warp(0);
+        delete prices;
+        prices = new uint256[](pricesLength);
+        for (uint256 i; i < pricesLength; i++) {
+            prices[i] = pricesLength - i;
+        }
+        daInfo = AuctionInfo(refunded, stepLength, prices);
+        vm.expectRevert(INVALID_STEP_ERROR);
+        dutchAuction.setMintDetails(
+            ReserveInfo(startTime, endTime, MINTER_ALLOCATION),
+            abi.encode(daInfo, merkleRoot, signerAddr)
+        );
+    }
+
     function test_setMintDetails() public {
         dutchAuction.setMintDetails(
             ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
