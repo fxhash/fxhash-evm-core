@@ -528,7 +528,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         for (uint256 i; i < _allocations.length; i++) {
             if (_receivers[i] == feeReceiver && _allocations[i] == primaryFeeAllocation) feeReceiverExists = true;
         }
-        if (!feeReceiverExists) revert PrimaryFeeReceiverIncorrect();
+        if (!feeReceiverExists) revert InvalidFeeReceiver();
         address primaryReceiver = _getOrCreateSplit(_receivers, _allocations);
         issuerInfo.primaryReceiver = primaryReceiver;
 

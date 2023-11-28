@@ -155,9 +155,9 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      */
     error NotOwner();
     /**
-     * @notice Error thrown when the configured primary receiver isn't used
+     * @notice Error thrown when the configured fee receiver is not valid
      */
-    error PrimaryFeeReceiverIncorrect();
+    error InvalidFeeReceiver();
 
     /**
      * @notice Error thrown when supply is remaining
@@ -371,8 +371,8 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     function setOnchainData(bytes calldata _data, bytes calldata _signature) external;
 
     /**
-     * @notice Sets the primary receiver address for token royalties
-     * @param _receivers Array of addresses receiving royalties
+     * @notice Sets the primary receiver address for primary sale proceeds
+     * @param _receivers Array of addresses receiving shares from primary sales
      * @param _allocations Array of allocation amounts for calculating primary sales shares
      */
     function setPrimaryReceivers(address[] calldata _receivers, uint32[] calldata _allocations) external;
