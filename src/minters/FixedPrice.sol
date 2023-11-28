@@ -9,8 +9,8 @@ import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 
 import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
-import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IToken} from "src/interfaces/IToken.sol";
+import {ReserveInfo} from "src/lib/Structs.sol";
 
 import {OPEN_EDITION_SUPPLY, TIME_UNLIMITED} from "src/utils/Constants.sol";
 
@@ -158,7 +158,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
         uint256 proceeds = getSaleProceed(_token);
         if (proceeds == 0) revert InsufficientFunds();
 
-        (address saleReceiver, ) = IFxGenArt721(_token).issuerInfo();
+        address saleReceiver = IToken(_token).primaryReceiver();
         _setSaleProceeds(_token, 0);
 
         SafeTransferLib.safeTransferETH(saleReceiver, proceeds);

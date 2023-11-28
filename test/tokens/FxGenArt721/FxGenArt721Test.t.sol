@@ -12,6 +12,7 @@ contract FxGenArt721Test is BaseTest {
     // Errors
     bytes4 internal ALLOCATION_EXCEEDED_ERROR = IFxGenArt721.AllocationExceeded.selector;
     bytes4 internal BURN_INACTIVE_ERROR = IFxGenArt721.BurnInactive.selector;
+    bytes4 internal PRIMARY_FEE_RECEIVER_ERROR = IFxGenArt721.InvalidFeeReceiver.selector;
     bytes4 internal INVALID_AMOUNT_ERROR = IFxGenArt721.InvalidAmount.selector;
     bytes4 internal INVALID_END_TIME_ERROR = IFxGenArt721.InvalidEndTime.selector;
     bytes4 internal INVALID_START_TIME_ERROR = IFxGenArt721.InvalidStartTime.selector;
@@ -30,15 +31,21 @@ contract FxGenArt721Test is BaseTest {
     function setUp() public virtual override {
         super.setUp();
 
-        _configureInfo(admin, FEE_ALLOCATION, LOCK_TIME, REFERRER_SHARE, DEFAULT_METADATA_URI);
+        _configureInfo(
+            admin,
+            SECONDARY_FEE_ALLOCATION,
+            PRIMARY_FEE_ALLOCATION,
+            LOCK_TIME,
+            REFERRER_SHARE,
+            DEFAULT_METADATA_URI
+        );
         _initializeState();
         _mockMinter(admin);
         _configureRoyalties();
         _configureProject(MINT_ENABLED, MAX_SUPPLY);
         _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, abi.encode(PRICE));
         RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, minter);
-        _createSplit();
-        _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(ipfsRenderer), tagIds);
+        _configureInit(NAME, SYMBOL, address(pseudoRandomizer), address(ipfsRenderer), tagIds);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

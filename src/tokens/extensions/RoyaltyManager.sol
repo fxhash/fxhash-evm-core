@@ -72,6 +72,16 @@ abstract contract RoyaltyManager is IRoyaltyManager {
                                 INTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    function _getOrCreateSplit(
+        address[] calldata _receivers,
+        uint32[] calldata _allocations
+    ) internal returns (address receiver) {
+        receiver = ISplitsMain(SPLITS_MAIN).predictImmutableSplitAddress(_receivers, _allocations, 0);
+        if (receiver.code.length == 0) {
+            ISplitsMain(SPLITS_MAIN).createSplit(_receivers, _allocations, 0, address(0));
+        }
+    }
+
     /**
      * @notice Sets the base royalties for all tokens
      * @param _receivers Array of addresses receiving royalties
@@ -89,15 +99,12 @@ abstract contract RoyaltyManager is IRoyaltyManager {
         if (_receivers.length == 0 || _basisPoints == 0) {
             delete baseRoyalties;
         } else if (_receivers.length > 1) {
-            receiver = ISplitsMain(SPLITS_MAIN).predictImmutableSplitAddress(_receivers, _allocations, 0);
-            if (receiver.code.length == 0) {
-                ISplitsMain(SPLITS_MAIN).createSplit(_receivers, _allocations, 0, address(0));
-            }
+            receiver = _getOrCreateSplit(_receivers, _allocations);
         } else {
             receiver = _receivers[0];
         }
         baseRoyalties = RoyaltyInfo(receiver, _basisPoints);
-        emit TokenRoyaltiesUpdated(_receivers, _allocations, _basisPoints);
+        emit TokenRoyaltiesUpdated(receiver, _receivers, _allocations, _basisPoints);
     }
 
     /**

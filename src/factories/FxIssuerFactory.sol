@@ -128,7 +128,6 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
         uint96 _basisPoints
     ) public returns (address genArtToken) {
         if (_owner == address(0)) revert InvalidOwner();
-        if (_initInfo.primaryReceiver == address(0)) revert InvalidPrimaryReceiver();
         if (_initInfo.randomizer == address(0) && _projectInfo.inputSize == 0) revert InvalidInputSize();
 
         bytes32 salt = keccak256(abi.encode(msg.sender, nonces[msg.sender]));

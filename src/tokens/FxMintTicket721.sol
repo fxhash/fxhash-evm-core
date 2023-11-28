@@ -436,6 +436,13 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
     }
 
     /**
+     * @inheritdoc IFxMintTicket721
+     */
+    function primaryReceiver() external view returns (address) {
+        return IFxGenArt721(genArt721).primaryReceiver();
+    }
+
+    /**
      * @inheritdoc ERC721
      */
     function isApprovedForAll(address _owner, address _operator) public view override(ERC721, IERC721) returns (bool) {
@@ -543,7 +550,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
         (, ProjectInfo memory projectInfo) = IFxGenArt721(genArt721).issuerInfo();
         uint120 maxSupply = projectInfo.maxSupply;
         ReserveInfo memory reserveInfo;
-        (, uint256 lockTime, , , ) = IFxContractRegistry(contractRegistry).configInfo();
+        (, uint256 lockTime, , , , ) = IFxContractRegistry(contractRegistry).configInfo();
         lockTime = _isVerified(owner()) ? 0 : lockTime;
         for (uint256 i; i < _mintInfo.length; ++i) {
             minter = _mintInfo[i].minter;

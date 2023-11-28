@@ -323,6 +323,11 @@ interface IFxMintTicket721 is IToken {
     function pause() external;
 
     /**
+     * @inheritdoc IToken
+     */
+    function primaryReceiver() external view returns (address);
+
+    /**
      * @notice Returns the address of the TickeRedeemer contract
      */
     function redeemer() external view returns (address);
