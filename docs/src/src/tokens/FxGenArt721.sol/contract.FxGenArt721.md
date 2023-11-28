@@ -1,5 +1,5 @@
 # FxGenArt721
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/1ca8488246dda0c8af0201fe562392f87b349fa1/src/tokens/FxGenArt721.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/437282be235abab247d75ca27e240f794022a9e1/src/tokens/FxGenArt721.sol)
 
 **Inherits:**
 [IFxGenArt721](/src/interfaces/IFxGenArt721.sol/interface.IFxGenArt721.md), IERC4906, ERC721, EIP712, Initializable, Ownable, Pausable, [RoyaltyManager](/src/tokens/extensions/RoyaltyManager.sol/abstract.RoyaltyManager.md)
@@ -80,6 +80,15 @@ Returns the address of the Renderer contract
 
 ```solidity
 address public renderer;
+```
+
+
+### nonce
+Current nonce for admin signatures
+
+
+```solidity
+uint96 public nonce;
 ```
 
 
@@ -302,6 +311,70 @@ function setBaseRoyalties(address[] calldata _receivers, uint32[] calldata _allo
 |`_basisPoints`|`uint96`|basis points used to calculate royalty payments|
 
 
+### setBaseURI
+
+Sets the new URI of the token metadata
+
+
+```solidity
+function setBaseURI(bytes calldata _uri, bytes calldata _signature) external onlyOwner;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_uri`|`bytes`|Decoded content identifier of metadata pointer|
+|`_signature`|`bytes`|Signature of creator used to verify metadata update|
+
+
+### setOnchainData
+
+Sets the onchain data of the project metadata
+
+
+```solidity
+function setOnchainData(bytes calldata _data, bytes calldata _signature) external onlyOwner;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_data`|`bytes`|Bytes-encoded metadata|
+|`_signature`|`bytes`|Signature of creator used to verify metadata update|
+
+
+### setPrimaryReceivers
+
+Sets the primary receiver address for primary sale proceeds
+
+
+```solidity
+function setPrimaryReceivers(address[] calldata _receivers, uint32[] calldata _allocations) external onlyOwner;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_receivers`|`address[]`|Array of addresses receiving shares from primary sales|
+|`_allocations`|`uint32[]`|Array of allocation amounts for calculating primary sales shares|
+
+
+### setRenderer
+
+Sets the new renderer contract
+
+
+```solidity
+function setRenderer(address _renderer, bytes calldata _signature) external onlyOwner;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_renderer`|`address`|Address of the renderer contract|
+|`_signature`|`bytes`|Signature of creator used to verify renderer update|
+
+
 ### toggleBurn
 
 Toggles public burn from disabled to enabled and vice versa
@@ -320,38 +393,6 @@ Toggles public mint from enabled to disabled and vice versa
 function toggleMint() external onlyOwner;
 ```
 
-### setOnchainData
-
-Sets the onchain data of the project metadata
-
-
-```solidity
-function setOnchainData(bytes calldata _data, bytes calldata _signature) external onlyRole(ADMIN_ROLE);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_data`|`bytes`|Bytes-encoded metadata|
-|`_signature`|`bytes`|Signature of creator used to verify metadata update|
-
-
-### setPrimaryReceiver
-
-Sets the primary receiver address for token royalties
-
-
-```solidity
-function setPrimaryReceiver(address _receiver, bytes calldata _signature) external onlyRole(ADMIN_ROLE);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_receiver`|`address`|Address of the new primary receiver account|
-|`_signature`|`bytes`|Signature of creator used to verify receiver update|
-
-
 ### setRandomizer
 
 Sets the new randomizer contract
@@ -365,36 +406,6 @@ function setRandomizer(address _randomizer) external onlyRole(ADMIN_ROLE);
 |Name|Type|Description|
 |----|----|-----------|
 |`_randomizer`|`address`|Address of the randomizer contract|
-
-
-### setRenderer
-
-Sets the new renderer contract
-
-
-```solidity
-function setRenderer(address _renderer) external onlyRole(ADMIN_ROLE);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_renderer`|`address`|Address of the renderer contract|
-
-
-### setBaseURI
-
-Sets the new URI of the token metadata
-
-
-```solidity
-function setBaseURI(bytes calldata _uri) external onlyRole(METADATA_ROLE);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_uri`|`bytes`|Decoded content identifier of metadata pointer|
 
 
 ### pause
@@ -446,6 +457,34 @@ Returns contract-level metadata for storefront marketplaces
 function contractURI() external view returns (string memory);
 ```
 
+### primaryReceiver
+
+
+```solidity
+function primaryReceiver() external view returns (address);
+```
+
+### generateBaseURIHash
+
+Generates typed data hash for setting project metadata onchain
+
+
+```solidity
+function generateBaseURIHash(bytes calldata _uri) public view returns (bytes32);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_uri`|`bytes`|Bytes-encoded base URI data|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`bytes32`|Typed data hash|
+
+
 ### generateOnchainDataHash
 
 Generates typed data hash for setting project metadata onchain
@@ -467,19 +506,19 @@ function generateOnchainDataHash(bytes calldata _data) public view returns (byte
 |`<none>`|`bytes32`|Typed data hash|
 
 
-### generatePrimaryReceiverHash
+### generateRendererHash
 
 Generates typed data hash for setting the primary receiver address
 
 
 ```solidity
-function generatePrimaryReceiverHash(address _receiver) public view returns (bytes32);
+function generateRendererHash(address _renderer) public view returns (bytes32);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_receiver`|`address`|Address of the new primary receiver account|
+|`_renderer`|`address`|Address of the new renderer contract|
 
 **Returns**
 
@@ -575,6 +614,13 @@ function _setBaseRoyalties(address[] calldata _receivers, uint32[] calldata _all
     override;
 ```
 
+### _setPrimaryReceiver
+
+
+```solidity
+function _setPrimaryReceiver(address[] calldata _receivers, uint32[] calldata _allocations) internal;
+```
+
 ### _setNameAndSymbol
 
 *Packs name and symbol into single slot if combined length is 30 bytes or less*
@@ -593,6 +639,15 @@ function _setNameAndSymbol(string calldata _name, string calldata _symbol) inter
 function _setTags(uint256[] calldata _tagIds) internal;
 ```
 
+### _verifySignature
+
+*Verifies that a signature was generated for the computed digest*
+
+
+```solidity
+function _verifySignature(bytes32 _digest, bytes calldata _signature) internal;
+```
+
 ### _isVerified
 
 *Checks if creator is verified by the system*
@@ -602,6 +657,20 @@ function _setTags(uint256[] calldata _tagIds) internal;
 function _isVerified(address _creator) internal view returns (bool);
 ```
 
+### _checkFeeReceiver
+
+*checks if a fee receiver and allocation is included in their respective arrays*
+
+
+```solidity
+function _checkFeeReceiver(
+    address[] calldata _receivers,
+    uint32[] calldata _allocations,
+    address _feeReceiver,
+    uint32 _feeAllocation
+) internal pure;
+```
+
 ### _exists
 
 *Returns if token `id` exists.*
@@ -609,14 +678,5 @@ function _isVerified(address _creator) internal view returns (bool);
 
 ```solidity
 function _exists(uint256 _tokenId) internal view override(ERC721, RoyaltyManager) returns (bool);
-```
-
-### _verifySignature
-
-*Verifies creator signature for updating storage through admin setters*
-
-
-```solidity
-function _verifySignature(bytes32 _digest, bytes calldata _signature) internal view;
 ```
 

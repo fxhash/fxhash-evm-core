@@ -5,8 +5,8 @@ pragma solidity 0.8.23;
 uint256 constant INITIAL_BALANCE = 1000 ether;
 
 // Config
+uint32 constant PRIMARY_FEE_ALLOCATION = 100_000; // 10 %
 uint32 constant SECONDARY_FEE_ALLOCATION = 333_000; // 33.3 %
-uint32 constant PRIMARY_FEE_ALLOCATION = 100_000; // 33.3 %
 uint64 constant REFERRER_SHARE = 200; // 2%
 string constant DEFAULT_METADATA_URI = "https://media.dev.fxhash-dev.xyz/metadata/ethereum/";
 

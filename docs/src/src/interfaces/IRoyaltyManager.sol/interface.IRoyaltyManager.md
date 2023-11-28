@@ -1,5 +1,5 @@
 # IRoyaltyManager
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/1ca8488246dda0c8af0201fe562392f87b349fa1/src/interfaces/IRoyaltyManager.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/437282be235abab247d75ca27e240f794022a9e1/src/interfaces/IRoyaltyManager.sol)
 
 **Author:**
 fx(hash)
@@ -75,13 +75,16 @@ Event emitted when the royalties for a list of receivers have been updated
 
 
 ```solidity
-event TokenRoyaltiesUpdated(address[] _receivers, uint32[] _allocations, uint96 _basisPoints);
+event TokenRoyaltiesUpdated(
+    address indexed _receiver, address[] _receivers, uint32[] _allocations, uint96 _basisPoints
+);
 ```
 
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
+|`_receiver`|`address`|The address receiving royalties for the token either an account or a split address|
 |`_receivers`|`address[]`|Array of addresses receiving royalties|
 |`_allocations`|`uint32[]`|Array of allocations used to determine the proportional share of royalty payments|
 |`_basisPoints`|`uint96`|Points used to calculate royalty payments (100 = 1%)|
