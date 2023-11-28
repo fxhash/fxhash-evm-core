@@ -1,5 +1,5 @@
 # IToken
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/1ca8488246dda0c8af0201fe562392f87b349fa1/src/interfaces/IToken.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/437282be235abab247d75ca27e240f794022a9e1/src/interfaces/IToken.sol)
 
 **Author:**
 fx(hash)
@@ -26,4 +26,13 @@ function mint(address _to, uint256 _amount, uint256 _payment) external;
 |`_amount`|`uint256`|Number of tokens being minted|
 |`_payment`|`uint256`|Total payment amount of the transaction|
 
+
+### primaryReceiver
+
+Returns address of primary receiver for token sales
+
+
+```solidity
+function primaryReceiver() external view returns (address);
+```
 

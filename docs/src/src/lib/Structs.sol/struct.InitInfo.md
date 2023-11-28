@@ -1,5 +1,5 @@
 # InitInfo
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/1ca8488246dda0c8af0201fe562392f87b349fa1/src/lib/Structs.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/437282be235abab247d75ca27e240f794022a9e1/src/lib/Structs.sol)
 
 Struct of initialization information used on project creation
 - `name` Name of project
@@ -14,7 +14,8 @@ Struct of initialization information used on project creation
 struct InitInfo {
     string name;
     string symbol;
-    address primaryReceiver;
+    address[] primaryReceivers;
+    uint32[] allocations;
     address randomizer;
     address renderer;
     uint256[] tagIds;
