@@ -287,7 +287,8 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         if (msg.value != price * _amount) revert InvalidPayment();
 
         // Updates the allocation for the reserve
-        reserve.allocation -= SafeCastLib.safeCastTo128(_amount);
+        uint128 amount = SafeCastLib.safeCastTo128(_amount);
+        reserve.allocation -= amount;
 
         // If the reserve allocation is fully sold out and refunds are enabled, store the last price
         if (reserve.allocation == 0 && daInfo.refunded) {
@@ -297,7 +298,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         // Updates the minter's total mints and total paid amounts
         uint128 totalPayment = SafeCastLib.safeCastTo128(price * _amount);
         MinterInfo storage minterInfo = refunds[_token][_reserveId].minterInfo[msg.sender];
-        minterInfo.totalMints += SafeCastLib.safeCastTo128(_amount);
+        minterInfo.totalMints += amount;
         minterInfo.totalPaid += totalPayment;
 
         // Adds the sale proceeds to the total for the reserve
