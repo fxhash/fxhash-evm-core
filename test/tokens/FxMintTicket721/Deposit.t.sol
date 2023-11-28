@@ -17,6 +17,12 @@ contract Deposit is FxMintTicket721Test {
         assertEq(depositAmount, DEPOSIT_AMOUNT);
     }
 
+    function test_RevertsWhen_Foreclosure() public {
+        vm.warp(foreclosureTime);
+        vm.expectRevert(FORECLOSURE_ERROR);
+        TicketLib.deposit(bob, fxMintTicketProxy, tokenId, DEPOSIT_AMOUNT);
+    }
+
     function test_Depoist_ExcessAmount() public {
         TicketLib.deposit(bob, fxMintTicketProxy, tokenId, DEPOSIT_AMOUNT + excessAmount);
         _setTaxInfo();

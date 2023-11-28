@@ -21,10 +21,11 @@ library TicketLib {
         address _claimer,
         address _proxy,
         uint256 _tokenId,
+        uint256 _maxPrice,
         uint80 _newPrice,
         uint256 _payment
     ) internal prank(_claimer) {
-        IFxMintTicket721(_proxy).claim{value: _payment}(_tokenId, _newPrice);
+        IFxMintTicket721(_proxy).claim{value: _payment}(_tokenId, _maxPrice, _newPrice);
     }
 
     function deposit(address _depositer, address _proxy, uint256 _tokenId, uint256 _amount) internal prank(_depositer) {

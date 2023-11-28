@@ -15,9 +15,7 @@ contract FixedPriceTest is BaseTest {
     bytes4 internal ENDED_ERROR = IFixedPrice.Ended.selector;
     bytes4 internal INSUFFICIENT_FUNDS_ERROR = IFixedPrice.InsufficientFunds.selector;
     bytes4 internal INVALID_ALLOCATION_ERROR = IFixedPrice.InvalidAllocation.selector;
-    bytes4 internal INVALID_AMOUNT_ERROR = IFixedPrice.InvalidPrice.selector;
     bytes4 internal INVALID_PAYMENT_ERROR = IFixedPrice.InvalidPayment.selector;
-    bytes4 internal INVALID_PRICE_ERROR = IFixedPrice.InvalidPrice.selector;
     bytes4 internal INVALID_TIMES_ERROR = IFixedPrice.InvalidTimes.selector;
     bytes4 internal INVALID_TOKEN_ERROR = IFixedPrice.InvalidToken.selector;
     bytes4 internal NO_PUBLIC_MINT_ERROR = IFixedPrice.NoPublicMint.selector;

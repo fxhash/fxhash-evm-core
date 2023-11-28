@@ -30,12 +30,4 @@ contract SetMintDetails is FixedPriceTest {
         vm.expectRevert(INVALID_ALLOCATION_ERROR);
         fixedPrice.setMintDetails(ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, 0), abi.encode(price));
     }
-
-    function test_RevertsWhen_InvalidPrice() public {
-        vm.expectRevert(INVALID_PRICE_ERROR);
-        fixedPrice.setMintDetails(
-            ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
-            abi.encode(MINIMUM_PRICE - 1, merkleRoot, signerAddr)
-        );
-    }
 }

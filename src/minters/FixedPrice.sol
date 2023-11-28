@@ -12,7 +12,7 @@ import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
 import {IToken} from "src/interfaces/IToken.sol";
 import {ReserveInfo} from "src/lib/Structs.sol";
 
-import {MINIMUM_PRICE, OPEN_EDITION_SUPPLY, TIME_UNLIMITED} from "src/utils/Constants.sol";
+import {OPEN_EDITION_SUPPLY, TIME_UNLIMITED} from "src/utils/Constants.sol";
 
 /**
  * @title FixedPrice
@@ -127,7 +127,6 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
 
         if (_reserve.allocation == 0) revert InvalidAllocation();
         (uint256 price, bytes32 merkleRoot, address signer) = abi.decode(_mintDetails, (uint256, bytes32, address));
-        if (price < MINIMUM_PRICE) revert InvalidPrice();
         if (merkleRoot != bytes32(0) && signer != address(0)) revert OnlyAuthorityOrAllowlist();
 
         uint256 reserveId = reserves[msg.sender].length;
