@@ -45,11 +45,6 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
     address public immutable roleRegistry;
 
     /**
-     * @dev Mapping of wallet address to balance amount available for withdrawal
-     */
-    LibMap.Uint128Map internal balances_;
-
-    /**
      * @inheritdoc IFxMintTicket721
      */
     address public genArt721;
@@ -83,6 +78,11 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
      * @inheritdoc IFxMintTicket721
      */
     address[] public activeMinters;
+
+    /**
+     * @inheritdoc IFxMintTicket721
+     */
+    mapping(address => uint256) public balances;
 
     /**
      * @inheritdoc IFxMintTicket721
@@ -170,9 +170,10 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
         uint256 excessTax = getExcessTax(taxInfo.depositAmount, dailyTax);
 
         // Updates balance of token owner with any excess tax amount
-        if (excessTax > 0) _setBalance(_ownerOf(_tokenId), getBalance(_ownerOf(_tokenId)) + excessTax);
+        if (excessTax > 0) balances[ownerOf(_tokenId)] += excessTax;
+
         // Updates balance of contract owner with deposit amount owed
-        _setBalance(owner(), getBalance(owner()) + taxInfo.depositAmount - excessTax);
+        balances[owner()] += taxInfo.depositAmount - excessTax;
     }
 
     /**
@@ -204,8 +205,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
             if (msg.value < auctionPrice + newDailyTax) revert InsufficientPayment();
 
             // Updates balance of contract owner
-            uint256 newBalance = getBalance(owner()) + (taxInfo.depositAmount + auctionPrice);
-            _setBalance(owner(), newBalance);
+            balances[owner()] += taxInfo.depositAmount + auctionPrice;
 
             // Calculates new deposit amount based on auction price
             depositAmount = msg.value - auctionPrice;
@@ -224,13 +224,9 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
             // Calculates deposit amount owed for current price
             uint256 depositOwed = taxInfo.depositAmount - remainingDeposit;
 
-            // Updates balances of contract owner
-            uint256 newBalance = getBalance(owner()) + depositOwed;
-            _setBalance(owner(), newBalance);
-
-            // Updates balances of previous owner
-            newBalance = getBalance(previousOwner) + currentPrice + remainingDeposit;
-            _setBalance(previousOwner, newBalance);
+            // Updates balances of contract owner and previous token owner
+            balances[owner()] += depositOwed;
+            balances[previousOwner] += currentPrice + remainingDeposit;
 
             // Calculates new deposit amount based on current price
             depositAmount = msg.value - currentPrice;
@@ -291,8 +287,8 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
      * @inheritdoc IFxMintTicket721
      */
     function withdraw(address _to) external {
-        uint256 balance = getBalance(_to);
-        _setBalance(_to, 0);
+        uint256 balance = balances[_to];
+        delete balances[_to];
         SafeTransferLib.safeTransferETH(_to, balance);
 
         emit Withdraw(msg.sender, _to, balance);
@@ -358,8 +354,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
         if (remainingDeposit < newDailyTax) revert InsufficientDeposit();
 
         // Updates balance of contract owner with deposit amount owed
-        uint256 newBalance = getBalance(owner()) + (taxInfo.depositAmount - remainingDeposit);
-        _setBalance(owner(), newBalance);
+        balances[owner()] += taxInfo.depositAmount - remainingDeposit;
 
         // Sets new tax info
         taxInfo.currentPrice = _newPrice;
@@ -486,13 +481,6 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
     /**
      * @inheritdoc IFxMintTicket721
      */
-    function getBalance(address _account) public view returns (uint128) {
-        return LibMap.get(balances_, uint256(uint160(_account)));
-    }
-
-    /**
-     * @inheritdoc IFxMintTicket721
-     */
     function getRemainingDeposit(
         uint256 _dailyTax,
         uint256 _foreclosureTime,
@@ -587,13 +575,6 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
             uint256 remainingSupply = IFxGenArt721(genArt721).remainingSupply();
             if (totalAllocation > remainingSupply) revert AllocationExceeded();
         }
-    }
-
-    /**
-     * @dev Sets the balance amount for an account
-     */
-    function _setBalance(address _account, uint256 _balance) internal {
-        LibMap.set(balances_, uint256(uint160(_account)), uint128(_balance));
     }
 
     /**
