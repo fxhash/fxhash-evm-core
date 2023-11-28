@@ -525,10 +525,10 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         (address feeReceiver, uint32 primaryFeeAllocation, , , , ) = IFxContractRegistry(contractRegistry).configInfo();
 
         _checkFeeReceiver(_receivers, _allocations, feeReceiver, primaryFeeAllocation);
-        address primaryReceiver = _getOrCreateSplit(_receivers, _allocations);
-        issuerInfo.primaryReceiver = primaryReceiver;
+        address receiver = _getOrCreateSplit(_receivers, _allocations);
+        issuerInfo.primaryReceiver = receiver;
 
-        emit PrimaryReceiverUpdated(primaryReceiver, _receivers, _allocations);
+        emit PrimaryReceiverUpdated(receiver, _receivers, _allocations);
     }
 
     /**
