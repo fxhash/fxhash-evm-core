@@ -509,13 +509,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         (address feeReceiver, , uint32 secondaryFeeAllocation, , , ) = IFxContractRegistry(contractRegistry)
             .configInfo();
 
-        // check that the fee receiver is included
-        bool feeReceiverExists;
-        for (uint256 i; i < _allocations.length; i++) {
-            if (_receivers[i] == feeReceiver && _allocations[i] == secondaryFeeAllocation) feeReceiverExists = true;
-        }
-        if (!feeReceiverExists) revert InvalidFeeReceiver();
-
+        _checkFeeReceiver(_receivers, _allocations, feeReceiver, secondaryFeeAllocation);
         // check allocations match
         super._setBaseRoyalties(_receivers, _allocations, _basisPoints);
     }
@@ -523,12 +517,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     function _setPrimaryReceiver(address[] calldata _receivers, uint32[] calldata _allocations) internal {
         (address feeReceiver, uint32 primaryFeeAllocation, , , , ) = IFxContractRegistry(contractRegistry).configInfo();
 
-        // check that the fee receiver is included
-        bool feeReceiverExists;
-        for (uint256 i; i < _allocations.length; i++) {
-            if (_receivers[i] == feeReceiver && _allocations[i] == primaryFeeAllocation) feeReceiverExists = true;
-        }
-        if (!feeReceiverExists) revert InvalidFeeReceiver();
+        _checkFeeReceiver(_receivers, _allocations, feeReceiver, primaryFeeAllocation);
         address primaryReceiver = _getOrCreateSplit(_receivers, _allocations);
         issuerInfo.primaryReceiver = primaryReceiver;
 
@@ -569,6 +558,23 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      */
     function _isVerified(address _creator) internal view returns (bool) {
         return (IAccessControl(roleRegistry).hasRole(CREATOR_ROLE, _creator));
+    }
+
+    /**
+     * @dev checks if a fee receiver and allocation is included in their respective arrays
+     */
+    function _checkFeeReceiver(
+        address[] calldata _receivers,
+        uint32[] calldata _allocations,
+        address _feeReceiver,
+        uint32 _feeAllocation
+    ) internal pure {
+        // check that the fee receiver is included
+        bool feeReceiverExists;
+        for (uint256 i; i < _allocations.length; i++) {
+            if (_receivers[i] == _feeReceiver && _allocations[i] == _feeAllocation) feeReceiverExists = true;
+        }
+        if (!feeReceiverExists) revert InvalidFeeReceiver();
     }
 
     /**

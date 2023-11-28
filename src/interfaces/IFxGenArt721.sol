@@ -154,6 +154,7 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @notice Error thrown when signer is not the owner
      */
     error NotOwner();
+
     /**
      * @notice Error thrown when the configured fee receiver is not valid
      */
