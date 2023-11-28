@@ -88,19 +88,4 @@ contract CreateProject is FxIssuerFactoryTest {
             basisPoints
         );
     }
-
-    function test_RevertsWhen_InvalidPrimaryReceiver() public {
-        initInfo.primaryReceiver = address(0);
-        vm.expectRevert(INVALID_PRIMARY_RECEIVER_ERROR);
-        fxGenArtProxy = fxIssuerFactory.createProject(
-            creator,
-            initInfo,
-            projectInfo,
-            metadataInfo,
-            mintInfo,
-            royaltyReceivers,
-            allocations,
-            basisPoints
-        );
-    }
 }

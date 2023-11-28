@@ -14,7 +14,14 @@ contract FxIssuerFactoryTest is BaseTest {
 
     function setUp() public virtual override {
         super.setUp();
-        _configureInfo(admin, FEE_ALLOCATION, LOCK_TIME, REFERRER_SHARE, DEFAULT_METADATA_URI);
+        _configureInfo(
+            admin,
+            SECONDARY_FEE_ALLOCATION,
+            PRIMARY_FEE_ALLOCATION,
+            LOCK_TIME,
+            REFERRER_SHARE,
+            DEFAULT_METADATA_URI
+        );
         _configureRoyalties();
         _initializeState();
     }
@@ -26,7 +33,8 @@ contract FxIssuerFactoryTest is BaseTest {
     function _initializeState() internal override {
         super._initializeState();
         projectId = 1;
-        initInfo.primaryReceiver = address(this);
+        initInfo.primaryReceivers = royaltyReceivers;
+        initInfo.allocations = allocations;
         initInfo.randomizer = address(pseudoRandomizer);
         initInfo.renderer = address(ipfsRenderer);
     }

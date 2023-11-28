@@ -27,8 +27,9 @@ struct AuctionInfo {
  */
 struct ConfigInfo {
     address feeReceiver;
-    uint32 feeAllocation;
-    uint64 lockTime;
+    uint32 secondaryFeeAllocation;
+    uint32 primaryFeeAllocation;
+    uint32 lockTime;
     uint64 referrerShare;
     string defaultMetadataURI;
 }
@@ -55,7 +56,8 @@ struct GenArtInfo {
 struct InitInfo {
     string name;
     string symbol;
-    address primaryReceiver;
+    address[] primaryReceivers;
+    uint32[] allocations;
     address randomizer;
     address renderer;
     uint256[] tagIds;

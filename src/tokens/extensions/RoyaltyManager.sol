@@ -72,6 +72,16 @@ abstract contract RoyaltyManager is IRoyaltyManager {
                                 INTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
+    function _getOrCreateReceiver(
+        address[] calldata _receivers,
+        uint32[] calldata _allocations
+    ) internal returns (address receiver) {
+        receiver = ISplitsMain(SPLITS_MAIN).predictImmutableSplitAddress(_receivers, _allocations, 0);
+        if (receiver.code.length == 0) {
+            ISplitsMain(SPLITS_MAIN).createSplit(_receivers, _allocations, 0, address(0));
+        }
+    }
+
     /**
      * @notice Sets the base royalties for all tokens
      * @param _receivers Array of addresses receiving royalties

@@ -56,7 +56,8 @@ contract BaseTest is Deploy, Test {
     address internal feeReceiver;
     string internal contractURI;
     string internal defaultMetadataURI;
-    uint32 internal feeAllocation;
+    uint32 internal secondaryFeeAllocation;
+    uint32 internal primaryFeeAllocation;
     uint64 internal lockTime;
     uint64 internal referrerShare;
     uint96 internal projectId;
@@ -173,7 +174,7 @@ contract BaseTest is Deploy, Test {
         royaltyReceivers.push(payable(creator));
         royaltyReceivers.push(payable(admin));
         allocations.push(ROYALTY_ALLOCATION);
-        allocations.push(FEE_ALLOCATION);
+        allocations.push(SECONDARY_FEE_ALLOCATION);
         basisPoints = uint96(500);
     }
 
@@ -192,7 +193,8 @@ contract BaseTest is Deploy, Test {
     ) internal virtual {
         initInfo.name = _name;
         initInfo.symbol = _symbol;
-        initInfo.primaryReceiver = _primaryReceiver;
+        initInfo.primaryReceivers = royaltyReceivers;
+        initInfo.allocations = allocations;
         initInfo.randomizer = _randomizer;
         initInfo.renderer = _renderer;
         initInfo.tagIds = _tagIds;
