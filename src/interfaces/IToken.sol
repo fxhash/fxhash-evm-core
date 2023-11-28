@@ -20,5 +20,8 @@ interface IToken {
      */
     function mint(address _to, uint256 _amount, uint256 _payment) external;
 
+    /**
+     * @notice Returns address of primary receiver for token sales
+     */
     function primaryReceiver() external view returns (address);
 }
