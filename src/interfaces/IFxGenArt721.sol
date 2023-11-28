@@ -56,7 +56,7 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @notice Event emitted when the primary receiver address is updated
      * @param _receiver The split address receiving funds on behalf of the users
      * @param _receivers Array of addresses receiving a portion of the funds in a split
-     * @param _allocations Arrya of allocation shares for the split
+     * @param _allocations Array of allocation shares for the split
      */
     event PrimaryReceiverUpdated(address indexed _receiver, address[] _receivers, uint32[] _allocations);
 
