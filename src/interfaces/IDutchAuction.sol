@@ -165,7 +165,7 @@ interface IDutchAuction is IMinter {
     /**
      * @notice Error thrown if auction is not a refundable dutch auction
      */
-    error NonRefundDA();
+    error NonRefundableDA();
 
     /**
      * @notice Error thrown when the auction has not started

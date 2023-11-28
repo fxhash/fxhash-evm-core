@@ -133,7 +133,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
 
         bool refundAuction = auctions[_token][_reserveId].refunded;
         // Checks if refunds are enabled and there is a last price
-        if (!refundAuction) revert NonRefundDA();
+        if (!refundAuction) revert NonRefundableDA();
 
         // Checks if the auction has ended and if the reserve allocation is fully sold out
         if (block.timestamp < reserve.endTime && reserve.allocation > 0) revert NotEnded();
