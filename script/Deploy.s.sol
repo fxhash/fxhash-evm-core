@@ -112,8 +112,8 @@ contract Deploy is Script {
         string memory _defaultMetadataURI
     ) internal virtual {
         configInfo.feeReceiver = _feeReceiver;
-        configInfo.secondaryAllocation = _secondaryFeeAllocation;
-        configInfo.primaryAllocation = _primaryFeeAllocation;
+        configInfo.secondaryFeeAllocation = _secondaryFeeAllocation;
+        configInfo.primaryFeeAllocation = _primaryFeeAllocation;
         configInfo.lockTime = _lockTime;
         configInfo.referrerShare = _referrerShare;
         configInfo.defaultMetadataURI = _defaultMetadataURI;
