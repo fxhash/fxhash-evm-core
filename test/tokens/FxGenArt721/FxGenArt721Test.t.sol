@@ -12,15 +12,16 @@ contract FxGenArt721Test is BaseTest {
     // Errors
     bytes4 internal ALLOCATION_EXCEEDED_ERROR = IFxGenArt721.AllocationExceeded.selector;
     bytes4 internal BURN_INACTIVE_ERROR = IFxGenArt721.BurnInactive.selector;
+    bytes4 internal PRIMARY_FEE_RECEIVER_ERROR = IFxGenArt721.InvalidFeeReceiver.selector;
     bytes4 internal INVALID_AMOUNT_ERROR = IFxGenArt721.InvalidAmount.selector;
     bytes4 internal INVALID_END_TIME_ERROR = IFxGenArt721.InvalidEndTime.selector;
     bytes4 internal INVALID_START_TIME_ERROR = IFxGenArt721.InvalidStartTime.selector;
     bytes4 internal MINT_ACTIVE_ERROR = IFxGenArt721.MintActive.selector;
     bytes4 internal MINT_INACTIVE_ERROR = IFxGenArt721.MintInactive.selector;
     bytes4 internal NOT_AUTHORIZED_ERROR = IFxGenArt721.NotAuthorized.selector;
-    bytes4 internal UNAUTHORIZED_ERROR = 0x82b42900; /// solday ownable error
     bytes4 internal UNAUTHORIZED_ACCOUNT_ERROR = IFxGenArt721.UnauthorizedAccount.selector;
     bytes4 internal UNAUTHORIZED_MINTER_ERROR = IFxGenArt721.UnauthorizedMinter.selector;
+    bytes4 internal UNAUTHORIZED_ERROR = 0x82b42900; // solday ownable error
     bytes4 internal UNREGISTERED_MINTER_ERROR = IFxGenArt721.UnregisteredMinter.selector;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -30,15 +31,21 @@ contract FxGenArt721Test is BaseTest {
     function setUp() public virtual override {
         super.setUp();
 
-        _configureInfo(admin, FEE_ALLOCATION, LOCK_TIME, REFERRER_SHARE, DEFAULT_METADATA_URI);
+        _configureInfo(
+            admin,
+            SECONDARY_FEE_ALLOCATION,
+            PRIMARY_FEE_ALLOCATION,
+            LOCK_TIME,
+            REFERRER_SHARE,
+            DEFAULT_METADATA_URI
+        );
         _initializeState();
         _mockMinter(admin);
         _configureRoyalties();
         _configureProject(MINT_ENABLED, MAX_SUPPLY);
         _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, abi.encode(PRICE));
         RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, minter);
-        _createSplit();
-        _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(ipfsRenderer), tagIds);
+        _configureInit(NAME, SYMBOL, address(pseudoRandomizer), address(ipfsRenderer), tagIds);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

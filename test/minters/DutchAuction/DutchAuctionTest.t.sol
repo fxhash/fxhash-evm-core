@@ -24,6 +24,7 @@ contract DutchAuctionTest is BaseTest {
     bytes4 internal INVALID_STEP_ERROR = IDutchAuction.InvalidStep.selector;
     bytes4 internal INVALID_TOKEN_ERROR = IDutchAuction.InvalidToken.selector;
     bytes4 internal NO_REFUND_ERROR = IDutchAuction.NoRefund.selector;
+    bytes4 internal NON_REFUNDABLE_ERROR = IDutchAuction.NonRefundableDA.selector;
     bytes4 internal NOT_STARTED_ERROR = IDutchAuction.NotStarted.selector;
     bytes4 internal NOT_ENDED_ERROR = IDutchAuction.NotEnded.selector;
     bytes4 internal PRICES_OUT_OF_ORDER_ERROR = IDutchAuction.PricesOutOfOrder.selector;
@@ -44,8 +45,7 @@ contract DutchAuctionTest is BaseTest {
         _configureMinter(address(refundableDA), RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, mintParams);
         RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, address(dutchAuction));
         RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, address(refundableDA));
-        _createSplit();
-        _configureInit(NAME, SYMBOL, primaryReceiver, address(pseudoRandomizer), address(ipfsRenderer), tagIds);
+        _configureInit(NAME, SYMBOL, address(pseudoRandomizer), address(ipfsRenderer), tagIds);
         _createProject();
         TokenLib.toggleMint(creator, fxGenArtProxy);
     }

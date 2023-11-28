@@ -74,7 +74,14 @@ contract Deploy is Script {
     function setUp() public virtual {
         _createAccounts();
         _configureScripty();
-        _configureInfo(admin, FEE_ALLOCATION, LOCK_TIME, REFERRER_SHARE, DEFAULT_METADATA_URI);
+        _configureInfo(
+            admin,
+            SECONDARY_FEE_ALLOCATION,
+            PRIMARY_FEE_ALLOCATION,
+            LOCK_TIME,
+            REFERRER_SHARE,
+            DEFAULT_METADATA_URI
+        );
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -107,13 +114,15 @@ contract Deploy is Script {
 
     function _configureInfo(
         address _feeReceiver,
-        uint32 _feeAllocation,
-        uint64 _lockTime,
+        uint32 _secondaryFeeAllocation,
+        uint32 _primaryFeeAllocation,
+        uint32 _lockTime,
         uint64 _referrerShare,
         string memory _defaultMetadataURI
     ) internal virtual {
         configInfo.feeReceiver = _feeReceiver;
-        configInfo.feeAllocation = _feeAllocation;
+        configInfo.secondaryAllocation = _secondaryFeeAllocation;
+        configInfo.primaryAllocation = _primaryFeeAllocation;
         configInfo.lockTime = _lockTime;
         configInfo.referrerShare = _referrerShare;
         configInfo.defaultMetadataURI = _defaultMetadataURI;

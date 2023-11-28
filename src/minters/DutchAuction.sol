@@ -133,13 +133,12 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
 
         bool refundAuction = auctions[_token][_reserveId].refunded;
         // Checks if refunds are enabled and there is a last price
-        if (!(refundAuction && lastPrice > 0)) {
-            revert NoRefund();
-        }
+        if (!refundAuction) revert NonRefundableDA();
+
         // Checks if the auction has ended and if the reserve allocation is fully sold out
         if (block.timestamp < reserve.endTime && reserve.allocation > 0) revert NotEnded();
         // checks if the rebate auction ended, but didn't sellout.  Refunds lowest price
-        if (lastPrice == 0 && refundAuction) {
+        if (lastPrice == 0) {
             lastPrice = _recordLastPrice(reserve, _token, _reserveId);
         }
         // Get the user's refund information
@@ -172,7 +171,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         }
 
         // Checks if the step length is evenly divisible by the auction duration
-        if ((_reserve.endTime - _reserve.startTime) % daInfo.stepLength != 0) revert InvalidStep();
+        if (_reserve.endTime - _reserve.startTime != daInfo.prices.length * daInfo.stepLength) revert InvalidStep();
         uint256 reserveId = reserves[msg.sender].length;
         delete merkleRoots[msg.sender][reserveId];
         delete signingAuthorities[msg.sender][reserveId];
@@ -287,7 +286,8 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         if (msg.value != price * _amount) revert InvalidPayment();
 
         // Updates the allocation for the reserve
-        reserve.allocation -= SafeCastLib.safeCastTo128(_amount);
+        uint128 amount = SafeCastLib.safeCastTo128(_amount);
+        reserve.allocation -= amount;
 
         // If the reserve allocation is fully sold out and refunds are enabled, store the last price
         if (reserve.allocation == 0 && daInfo.refunded) {
@@ -297,7 +297,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         // Updates the minter's total mints and total paid amounts
         uint128 totalPayment = SafeCastLib.safeCastTo128(price * _amount);
         MinterInfo storage minterInfo = refunds[_token][_reserveId].minterInfo[msg.sender];
-        minterInfo.totalMints += SafeCastLib.safeCastTo128(_amount);
+        minterInfo.totalMints += amount;
         minterInfo.totalPaid += totalPayment;
 
         // Adds the sale proceeds to the total for the reserve

@@ -23,6 +23,7 @@ contract MintPassTest is BaseTest {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public override {
+        super.setUp();
         _initializeState();
         _mockMintPass(admin, signerAddr);
     }

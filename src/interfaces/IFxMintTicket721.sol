@@ -130,6 +130,11 @@ interface IFxMintTicket721 is IToken {
     error InvalidStartTime();
 
     /**
+     * @notice Error thrown when current price exceeds maximum payment amount
+     */
+    error PriceExceeded();
+
+    /**
      * @notice Error thrown when minting is active
      */
     error MintActive();
@@ -182,9 +187,10 @@ interface IFxMintTicket721 is IToken {
     /**
      * @notice Claims token at current price and sets new price of token with initial deposit amount
      * @param _tokenId ID of the token
+     * @param _maxPrice Maximum payment amount allowed to prevent front-running of listing price
      * @param _newPrice New listing price of token
      */
-    function claim(uint256 _tokenId, uint80 _newPrice) external payable;
+    function claim(uint256 _tokenId, uint256 _maxPrice, uint80 _newPrice) external payable;
 
     /**
      * @notice Returns the address of the FxContractRegistry contract
@@ -315,6 +321,11 @@ interface IFxMintTicket721 is IToken {
      * @notice Pauses all function executions where modifier is set
      */
     function pause() external;
+
+    /**
+     * @inheritdoc IToken
+     */
+    function primaryReceiver() external view returns (address);
 
     /**
      * @notice Returns the address of the TickeRedeemer contract
