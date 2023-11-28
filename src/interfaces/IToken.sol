@@ -19,4 +19,6 @@ interface IToken {
      * @param _payment Total payment amount of the transaction
      */
     function mint(address _to, uint256 _amount, uint256 _payment) external;
+
+    function primaryReceiver() external view returns (address);
 }

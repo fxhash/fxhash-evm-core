@@ -14,6 +14,7 @@ import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
 import {IERC4906} from "openzeppelin/contracts/interfaces/IERC4906.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {IFxGenArt721, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
+import {IToken} from "src/interfaces/IToken.sol";
 import {IFxMintTicket721, TaxInfo} from "src/interfaces/IFxMintTicket721.sol";
 import {IMinter} from "src/interfaces/IMinter.sol";
 import {IRenderer} from "src/interfaces/IRenderer.sol";
@@ -410,6 +411,13 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
      */
     function contractURI() external view returns (string memory) {
         return IRenderer(renderer).contractURI();
+    }
+
+    /**
+     * @inheritdoc IToken
+     */
+    function primaryReceiver() external view returns (address) {
+        return IToken(genArt721).primaryReceiver();
     }
 
     /**

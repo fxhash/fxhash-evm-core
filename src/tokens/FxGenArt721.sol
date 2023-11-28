@@ -15,6 +15,7 @@ import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
 import {IERC4906} from "openzeppelin/contracts/interfaces/IERC4906.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {IFxGenArt721, GenArtInfo, InitInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
+import {IToken} from "src/interfaces/IToken.sol";
 import {IMinter} from "src/interfaces/IMinter.sol";
 import {IRandomizer} from "src/interfaces/IRandomizer.sol";
 import {IRenderer} from "src/interfaces/IRenderer.sol";
@@ -429,6 +430,13 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     function name() public view override returns (string memory) {
         (string memory packedName, ) = LibString.unpackTwo(nameAndSymbol_);
         return (nameAndSymbol_ == bytes32(0)) ? name_ : packedName;
+    }
+
+    /**
+     * @inheritdoc IToken
+     */
+    function primaryReceiver() external view returns (address) {
+        return issuerInfo.primaryReceiver;
     }
 
     /**
