@@ -28,11 +28,11 @@ contract Refund is DutchAuctionTest {
         assertEq(beforeBalance - afterBalance, prices[prices.length - 1]);
     }
 
-    function test_RevertsIf_NotRefundDutchAuction() public {
+    function test_RevertsIf_NonRefundDutchAuction() public {
         uint256 price = dutchAuction.getPrice(fxGenArtProxy, reserveId);
         quantity = MINTER_ALLOCATION;
         dutchAuction.buy{value: price * quantity}(fxGenArtProxy, reserveId, quantity, alice);
-        vm.expectRevert(NOT_REFUNDABLE_ERROR);
+        vm.expectRevert(NON_REFUNDABLE_ERROR);
         dutchAuction.refund(fxGenArtProxy, reserveId, address(this));
     }
 
