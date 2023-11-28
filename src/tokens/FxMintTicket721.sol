@@ -413,6 +413,13 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, ERC721, Initializable, O
     }
 
     /**
+     * @inheritdoc IFxMintTicket721
+     */
+    function primaryReceiver() external view returns (address) {
+        return IFxGenArt721(genArt721).primaryReceiver();
+    }
+
+    /**
      * @inheritdoc ERC721
      */
     function isApprovedForAll(address _owner, address _operator) public view override(ERC721, IERC721) returns (bool) {
