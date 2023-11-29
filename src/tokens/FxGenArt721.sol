@@ -143,14 +143,19 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         uint32[] calldata _allocations,
         uint96 _basisPoints
     ) external initializer {
-        _setPrimaryReceiver(_initInfo.primaryReceivers, _initInfo.allocations);
         issuerInfo.projectInfo = _projectInfo;
         metadataInfo = _metadataInfo;
         randomizer = _initInfo.randomizer;
         renderer = _initInfo.renderer;
 
+        (, , , uint32 lockTime, , ) = IFxContractRegistry(contractRegistry).configInfo();
+        issuerInfo.projectInfo.earlistStartTime = (_isVerified(_owner))
+            ? uint32(block.timestamp)
+            : uint32(block.timestamp) + lockTime;
+
         _initializeOwner(_owner);
         _registerMinters(_mintInfo);
+        _setPrimaryReceiver(_initInfo.primaryReceivers, _initInfo.allocations);
         _setBaseRoyalties(_royaltyReceivers, _allocations, _basisPoints);
         _setNameAndSymbol(_initInfo.name, _initInfo.symbol);
         _setTags(_initInfo.tagIds);
@@ -400,21 +405,6 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function getLockTime(uint256 _creationTime) public view returns (uint256 lockTime) {
-        (, , , lockTime, , ) = IFxContractRegistry(contractRegistry).configInfo();
-        if (_isVerified(owner())) {
-            lockTime = 0;
-        } else {
-            if (_creationTime != 0) {
-                uint256 timeElapsed = block.timestamp - _creationTime;
-                lockTime = (timeElapsed > lockTime) ? 0 : timeElapsed;
-            }
-        }
-    }
-
-    /**
-     * @inheritdoc IFxGenArt721
-     */
     function isMinter(address _minter) public view returns (bool) {
         return issuerInfo.minters[_minter] == TRUE;
     }
@@ -487,10 +477,8 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         uint64 startTime;
         uint128 totalAllocation;
         ReserveInfo memory reserveInfo;
+        uint32 earlistStartTime = issuerInfo.projectInfo.earlistStartTime;
         uint120 maxSupply = issuerInfo.projectInfo.maxSupply;
-        uint256 creationTime = issuerInfo.projectInfo.creationTime;
-        uint256 lockTime = getLockTime(creationTime);
-
         for (uint256 i; i < _mintInfo.length; ++i) {
             minter = _mintInfo[i].minter;
             reserveInfo = _mintInfo[i].reserveInfo;
@@ -498,8 +486,10 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
 
             if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) revert UnauthorizedMinter();
             if (startTime == 0) {
-                reserveInfo.startTime = uint64(block.timestamp + lockTime);
-            } else if (startTime < block.timestamp + lockTime) {
+                reserveInfo.startTime = (block.timestamp > earlistStartTime)
+                    ? earlistStartTime
+                    : uint64(block.timestamp);
+            } else if (startTime < earlistStartTime) {
                 revert InvalidStartTime();
             }
             if (reserveInfo.endTime < startTime) revert InvalidEndTime();
@@ -513,8 +503,6 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         if (maxSupply != OPEN_EDITION_SUPPLY) {
             if (totalAllocation > remainingSupply()) revert AllocationExceeded();
         }
-
-        if (creationTime == 0) issuerInfo.projectInfo.creationTime = uint32(block.timestamp);
     }
 
     /**

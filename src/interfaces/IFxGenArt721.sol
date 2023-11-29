@@ -237,12 +237,6 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     function generateRendererHash(address _renderer) external view returns (bytes32);
 
     /**
-     * @notice Gets current lock time based on owner verification and project creation timestamp
-     * @param _creationTime Timestamp of when project was initially created
-     */
-    function getLockTime(uint256 _creationTime) external view returns (uint256);
-
-    /**
      * @notice Initializes new generative art project
      * @param _owner Address of token proxy owner
      * @param _initInfo Initialization information set on project creation

@@ -116,14 +116,14 @@ struct MinterInfo {
  * - `burnEnabled` Flag inidicating if burning is enabled
  * - `maxSupply` Maximum supply of tokens
  * - `inputSize` Maximum input size of fxParams bytes data
- * - `creationTime` Timestamp of when project is created
+ * - `earlistStartTime` Earliest possible start time for registering minters
  */
 struct ProjectInfo {
     bool mintEnabled;
     bool burnEnabled;
     uint120 maxSupply;
     uint88 inputSize;
-    uint32 creationTime;
+    uint32 earlistStartTime;
 }
 
 /**

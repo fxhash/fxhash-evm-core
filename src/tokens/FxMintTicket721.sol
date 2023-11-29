@@ -493,21 +493,6 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
     /**
      * @inheritdoc IFxMintTicket721
      */
-    function getLockTime(uint256 _creationTime) public view returns (uint256 lockTime) {
-        (, , , lockTime, , ) = IFxContractRegistry(contractRegistry).configInfo();
-        if (_isVerified(owner())) {
-            lockTime = 0;
-        } else {
-            if (_creationTime != 0) {
-                uint256 timeElapsed = block.timestamp - _creationTime;
-                lockTime = (timeElapsed > lockTime) ? 0 : timeElapsed;
-            }
-        }
-    }
-
-    /**
-     * @inheritdoc IFxMintTicket721
-     */
     function getRemainingDeposit(
         uint256 _dailyTax,
         uint256 _foreclosureTime,
@@ -577,7 +562,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
         ReserveInfo memory reserveInfo;
         (, ProjectInfo memory projectInfo) = IFxGenArt721(genArt721).issuerInfo();
         uint120 maxSupply = projectInfo.maxSupply;
-        uint256 lockTime = getLockTime(projectInfo.creationTime);
+        uint64 earlistStartTime = projectInfo.earlistStartTime;
         for (uint256 i; i < _mintInfo.length; ++i) {
             minter = _mintInfo[i].minter;
             reserveInfo = _mintInfo[i].reserveInfo;
@@ -585,8 +570,10 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
 
             if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) revert UnauthorizedMinter();
             if (startTime == 0) {
-                reserveInfo.startTime = uint64(block.timestamp + lockTime);
-            } else if (startTime < block.timestamp + lockTime) {
+                reserveInfo.startTime = (block.timestamp > earlistStartTime)
+                    ? earlistStartTime
+                    : uint64(block.timestamp);
+            } else if (startTime < earlistStartTime) {
                 revert InvalidStartTime();
             }
             if (reserveInfo.endTime < startTime) revert InvalidEndTime();
