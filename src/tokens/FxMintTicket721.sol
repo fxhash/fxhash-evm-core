@@ -4,11 +4,9 @@ pragma solidity 0.8.23;
 import {ERC721, IERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
 import {LibIPFSEncoder} from "src/lib/LibIPFSEncoder.sol";
-import {LibMap} from "solady/src/utils/LibMap.sol";
 import {Ownable} from "solady/src/auth/Ownable.sol";
 import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
-import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
 import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
 import {IERC4906} from "openzeppelin/contracts/interfaces/IERC4906.sol";
@@ -27,9 +25,6 @@ import "src/utils/Constants.sol";
  * @notice See the documentation in {IFxMintTicket721}
  */
 contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initializable, Ownable, Pausable {
-    using Strings for uint160;
-    using Strings for uint256;
-
     /*//////////////////////////////////////////////////////////////////////////
                                     STORAGE
     //////////////////////////////////////////////////////////////////////////*/
@@ -150,6 +145,15 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
 
     /**
      * @inheritdoc IFxMintTicket721
+     * @dev Steps:
+     * 1. Check if caller is Redeemer contract
+     * 2. Burn token from collection
+     * 3. Load tax info into memory
+     * 4. Delete tax info from storage
+     * 5. Get current daily tax amount
+     * 6. Get excess tax deposited
+     * 7. Update balance of token owner with excess tax amount if exists
+     * 8.
      */
     function burn(uint256 _tokenId) external whenNotPaused {
         // Reverts if caller is not TicketRedeemer contract
@@ -201,35 +205,38 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
         if (isForeclosed(_tokenId)) {
             // Gets current auction price
             uint256 auctionPrice = getAuctionPrice(currentPrice, taxInfo.foreclosureTime);
+
             // Reverts if payment amount is insufficient to auction price and new daily tax
             if (msg.value < auctionPrice + newDailyTax) revert InsufficientPayment();
 
-            // Updates balance of contract owner
-            balances[owner()] += taxInfo.depositAmount + auctionPrice;
-
             // Calculates new deposit amount based on auction price
             depositAmount = msg.value - auctionPrice;
+
+            // Updates balance of contract owner
+            balances[owner()] += taxInfo.depositAmount + auctionPrice;
         } else {
             // Reverts if payment amount if insufficient to current price and new daily tax
             if (msg.value < currentPrice + newDailyTax) revert InsufficientPayment();
 
             // Gets current daily tax amount for current price
             uint256 currentDailyTax = getDailyTax(currentPrice);
+
             // Gets remaining deposit amount for current price
             uint256 remainingDeposit = getRemainingDeposit(
                 currentDailyTax,
                 taxInfo.foreclosureTime,
                 taxInfo.depositAmount
             );
+
             // Calculates deposit amount owed for current price
             uint256 depositOwed = taxInfo.depositAmount - remainingDeposit;
+
+            // Calculates new deposit amount based on current price
+            depositAmount = msg.value - currentPrice;
 
             // Updates balances of contract owner and previous token owner
             balances[owner()] += depositOwed;
             balances[previousOwner] += currentPrice + remainingDeposit;
-
-            // Calculates new deposit amount based on current price
-            depositAmount = msg.value - currentPrice;
         }
 
         // Calculates any excess tax amount
@@ -304,10 +311,12 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
     function deposit(uint256 _tokenId) public payable {
         // Reverts if token is foreclosed
         if (isForeclosed(_tokenId)) revert Foreclosure();
+
         // Loads current tax info
         TaxInfo storage taxInfo = taxes[_tokenId];
         // Gets current daily tax amount
         uint256 dailyTax = getDailyTax(taxInfo.currentPrice);
+
         // Reverts if deposit amount is less than daily tax amount for one day
         if (msg.value < dailyTax) revert InsufficientDeposit();
 
