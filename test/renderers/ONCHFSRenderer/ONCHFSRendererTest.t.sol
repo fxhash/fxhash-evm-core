@@ -3,9 +3,7 @@ pragma solidity 0.8.23;
 
 import "test/BaseTest.t.sol";
 
-import {LibIPFSEncoder} from "src/lib/LibIPFSEncoder.sol";
-
-contract IPFSRendererTest is BaseTest {
+contract ONCHFSRendererTest is BaseTest {
     // State
     bytes internal data;
     string internal contractAddr;
@@ -21,6 +19,6 @@ contract IPFSRendererTest is BaseTest {
         super.setUp();
         tokenId = 1;
         defaultMetadataURI = DEFAULT_METADATA_URI;
-        metadataInfo.baseURI = IPFS_BASE_CID;
+        metadataInfo.baseURI = ONCHFS_BASE_URI;
     }
 }
