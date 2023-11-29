@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
-import "forge-std/Test.sol";
+
 import {ECDSA} from "openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {EIP712} from "openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import {ERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
@@ -240,7 +240,6 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
             address minter = issuerInfo.activeMinters[i];
             issuerInfo.minters[minter] = FALSE;
         }
-
         delete issuerInfo.activeMinters;
         _registerMinters(_mintInfo);
     }
@@ -491,6 +490,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         uint120 maxSupply = issuerInfo.projectInfo.maxSupply;
         uint256 creationTime = issuerInfo.projectInfo.creationTime;
         uint256 lockTime = getLockTime(creationTime);
+
         for (uint256 i; i < _mintInfo.length; ++i) {
             minter = _mintInfo[i].minter;
             reserveInfo = _mintInfo[i].reserveInfo;
@@ -527,7 +527,6 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     ) internal override {
         (address feeReceiver, , uint32 secondaryFeeAllocation, , , ) = IFxContractRegistry(contractRegistry)
             .configInfo();
-
         _checkFeeReceiver(_receivers, _allocations, feeReceiver, secondaryFeeAllocation);
         super._setBaseRoyalties(_receivers, _allocations, _basisPoints);
     }
@@ -537,11 +536,9 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      */
     function _setPrimaryReceiver(address[] calldata _receivers, uint32[] calldata _allocations) internal {
         (address feeReceiver, uint32 primaryFeeAllocation, , , , ) = IFxContractRegistry(contractRegistry).configInfo();
-
         _checkFeeReceiver(_receivers, _allocations, feeReceiver, primaryFeeAllocation);
         address receiver = _getOrCreateSplit(_receivers, _allocations);
         issuerInfo.primaryReceiver = receiver;
-
         emit PrimaryReceiverUpdated(receiver, _receivers, _allocations);
     }
 
