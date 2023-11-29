@@ -143,14 +143,19 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         uint32[] calldata _allocations,
         uint96 _basisPoints
     ) external initializer {
-        _setPrimaryReceiver(_initInfo.primaryReceivers, _initInfo.allocations);
         issuerInfo.projectInfo = _projectInfo;
         metadataInfo = _metadataInfo;
         randomizer = _initInfo.randomizer;
         renderer = _initInfo.renderer;
 
+        (, , , uint32 lockTime, , ) = IFxContractRegistry(contractRegistry).configInfo();
+        issuerInfo.projectInfo.earliestStartTime = (_isVerified(_owner))
+            ? uint32(block.timestamp)
+            : uint32(block.timestamp) + lockTime;
+
         _initializeOwner(_owner);
         _registerMinters(_mintInfo);
+        _setPrimaryReceiver(_initInfo.primaryReceivers, _initInfo.allocations);
         _setBaseRoyalties(_royaltyReceivers, _allocations, _basisPoints);
         _setNameAndSymbol(_initInfo.name, _initInfo.symbol);
         _setTags(_initInfo.tagIds);
@@ -235,20 +240,12 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      */
     function registerMinters(MintInfo[] memory _mintInfo) external onlyOwner {
         if (issuerInfo.projectInfo.mintEnabled) revert MintActive();
-
-        // Caches array length
         uint256 length = issuerInfo.activeMinters.length;
-
-        // Unregisters all current minters
         for (uint256 i; i < length; ++i) {
             address minter = issuerInfo.activeMinters[i];
             issuerInfo.minters[minter] = FALSE;
         }
-
-        // Deletes current list of active minters
         delete issuerInfo.activeMinters;
-
-        // Registers new minters
         _registerMinters(_mintInfo);
     }
 
@@ -479,10 +476,9 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         address minter;
         uint64 startTime;
         uint128 totalAllocation;
-        uint120 maxSupply = issuerInfo.projectInfo.maxSupply;
         ReserveInfo memory reserveInfo;
-        (, uint256 lockTime, , , , ) = IFxContractRegistry(contractRegistry).configInfo();
-        lockTime = _isVerified(owner()) ? 0 : lockTime;
+        uint32 earliestStartTime = issuerInfo.projectInfo.earliestStartTime;
+        uint120 maxSupply = issuerInfo.projectInfo.maxSupply;
         for (uint256 i; i < _mintInfo.length; ++i) {
             minter = _mintInfo[i].minter;
             reserveInfo = _mintInfo[i].reserveInfo;
@@ -490,8 +486,10 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
 
             if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) revert UnauthorizedMinter();
             if (startTime == 0) {
-                reserveInfo.startTime = uint64(block.timestamp + lockTime);
-            } else if (startTime < block.timestamp + lockTime) {
+                reserveInfo.startTime = (block.timestamp > earliestStartTime)
+                    ? uint64(block.timestamp)
+                    : earliestStartTime;
+            } else if (startTime < earliestStartTime) {
                 revert InvalidStartTime();
             }
             if (reserveInfo.endTime < startTime) revert InvalidEndTime();
@@ -507,27 +505,28 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         }
     }
 
+    /**
+     * @dev Sets receivers and allocations for base royalties of token sales
+     */
     function _setBaseRoyalties(
         address[] calldata _receivers,
         uint32[] calldata _allocations,
         uint96 _basisPoints
     ) internal override {
-        // call out to contract registry and get fee receiver
         (address feeReceiver, , uint32 secondaryFeeAllocation, , , ) = IFxContractRegistry(contractRegistry)
             .configInfo();
-
         _checkFeeReceiver(_receivers, _allocations, feeReceiver, secondaryFeeAllocation);
-        // check allocations match
         super._setBaseRoyalties(_receivers, _allocations, _basisPoints);
     }
 
+    /**
+     * @dev Sets primary receiver address for token sales
+     */
     function _setPrimaryReceiver(address[] calldata _receivers, uint32[] calldata _allocations) internal {
         (address feeReceiver, uint32 primaryFeeAllocation, , , , ) = IFxContractRegistry(contractRegistry).configInfo();
-
         _checkFeeReceiver(_receivers, _allocations, feeReceiver, primaryFeeAllocation);
         address receiver = _getOrCreateSplit(_receivers, _allocations);
         issuerInfo.primaryReceiver = receiver;
-
         emit PrimaryReceiverUpdated(receiver, _receivers, _allocations);
     }
 
@@ -568,7 +567,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     }
 
     /**
-     * @dev checks if a fee receiver and allocation is included in their respective arrays
+     * @dev Checks if fee receiver and allocation amount are included in their respective arrays
      */
     function _checkFeeReceiver(
         address[] calldata _receivers,
@@ -576,7 +575,6 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         address _feeReceiver,
         uint32 _feeAllocation
     ) internal pure {
-        // check that the fee receiver is included
         bool feeReceiverExists;
         for (uint256 i; i < _allocations.length; i++) {
             if (_receivers[i] == _feeReceiver && _allocations[i] == _feeAllocation) feeReceiverExists = true;
