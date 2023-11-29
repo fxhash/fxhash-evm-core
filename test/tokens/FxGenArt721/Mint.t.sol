@@ -22,7 +22,7 @@ contract MintTest is FxGenArt721Test {
     }
 
     function test_RevertsWhen_MintInactive() public {
-        TokenLib.toggleMint(creator, fxGenArtProxy);
+        TokenLib.setMintEnabled(creator, fxGenArtProxy, false);
         vm.expectRevert(MINT_INACTIVE_ERROR);
         TokenLib.mint(alice, minter, fxGenArtProxy, bob, amount, PRICE);
     }

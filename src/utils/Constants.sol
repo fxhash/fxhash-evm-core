@@ -26,7 +26,6 @@ string constant TICKET_REDEEMER = "TICKET_REDEEMER";
 bytes32 constant CLAIM_TYPEHASH = keccak256(
     "Claim(address token,uint256 reserveId,uint96 nonce,uint256 index,address user)"
 );
-bytes32 constant SET_BASE_URI_TYPEHASH = keccak256("SetBaseURI(bytes uri,uint96 nonce)");
 bytes32 constant SET_ONCHAIN_DATA_TYPEHASH = keccak256("SetOnchainData(bytes data,uint96 nonce)");
 bytes32 constant SET_PRIMARY_RECEIVER_TYPEHASH = keccak256("SetPrimaryReceiver(address receiver,uint96 nonce)");
 bytes32 constant SET_RENDERER_TYPEHASH = keccak256("SetRenderer(address renderer,uint96 nonce)");
@@ -50,6 +49,7 @@ uint120 constant OPEN_EDITION_SUPPLY = type(uint120).max;
 bytes32 constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 bytes32 constant BANNED_USER_ROLE = keccak256("BANNED_USER_ROLE");
 bytes32 constant CREATOR_ROLE = keccak256("CREATOR_ROLE");
+bytes32 constant METADATA_ROLE = keccak256("METADATA_ROLE");
 bytes32 constant MINTER_ROLE = keccak256("MINTER_ROLE");
 bytes32 constant MODERATOR_ROLE = keccak256("MODERATOR_ROLE");
 bytes32 constant SIGNER_ROLE = keccak256("SIGNER_ROLE");

@@ -23,11 +23,13 @@ contract Deposit is FxMintTicket721Test {
         TicketLib.deposit(bob, fxMintTicketProxy, tokenId, DEPOSIT_AMOUNT);
     }
 
-    function test_Depoist_ExcessAmount() public {
+    function test_Deposit_ExcessAmount() public {
         TicketLib.deposit(bob, fxMintTicketProxy, tokenId, DEPOSIT_AMOUNT + excessAmount);
         _setTaxInfo();
+        _setBalance(bob);
         assertEq(foreclosureTime, block.timestamp + (ONE_DAY * 2));
         assertEq(depositAmount, DEPOSIT_AMOUNT);
+        assertEq(balance, excessAmount);
     }
 
     function test_RevertsWhen_InsufficientDeposit() public {

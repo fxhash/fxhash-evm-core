@@ -67,13 +67,16 @@ library TokenLib {
         IFxGenArt721(_proxy).setBaseRoyalties(_receivers, _allocations, _basisPoints);
     }
 
-    function setBaseURI(
-        address _admin,
-        address _proxy,
-        bytes memory _uri,
-        bytes memory _signature
-    ) internal prank(_admin) {
-        IFxGenArt721(_proxy).setBaseURI(_uri, _signature);
+    function setBaseURI(address _admin, address _proxy, bytes memory _uri) internal prank(_admin) {
+        IFxGenArt721(_proxy).setBaseURI(_uri);
+    }
+
+    function setBurnEnabled(address _creator, address _proxy, bool _flag) internal prank(_creator) {
+        IFxGenArt721(_proxy).setBurnEnabled(_flag);
+    }
+
+    function setMintEnabled(address _creator, address _proxy, bool _flag) internal prank(_creator) {
+        IFxGenArt721(_proxy).setMintEnabled(_flag);
     }
 
     function setOnchainData(
@@ -100,14 +103,6 @@ library TokenLib {
 
     function setTags(address _admin, address _proxy, uint256[] memory _tagIds) internal prank(_admin) {
         IFxGenArt721(_proxy).setTags(_tagIds);
-    }
-
-    function toggleBurn(address _creator, address _proxy) internal prank(_creator) {
-        IFxGenArt721(_proxy).toggleBurn();
-    }
-
-    function toggleMint(address _creator, address _proxy) internal prank(_creator) {
-        IFxGenArt721(_proxy).toggleMint();
     }
 
     function transferOwnership(address _owner, address _proxy, address _account) internal prank(_owner) {

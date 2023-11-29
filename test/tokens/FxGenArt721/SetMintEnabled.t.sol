@@ -3,7 +3,7 @@ pragma solidity 0.8.23;
 
 import "test/tokens/FxGenArt721/FxGenArt721Test.t.sol";
 
-contract ToggleMintTest is FxGenArt721Test {
+contract SetMintEnabledTest is FxGenArt721Test {
     function setUp() public virtual override {
         super.setUp();
         _createProject();
@@ -12,7 +12,7 @@ contract ToggleMintTest is FxGenArt721Test {
 
     function test_ToggleMint() public {
         assertTrue(project.mintEnabled);
-        TokenLib.toggleMint(creator, fxGenArtProxy);
+        TokenLib.setMintEnabled(creator, fxGenArtProxy, false);
         _setIssuerInfo();
         assertFalse(project.mintEnabled);
     }

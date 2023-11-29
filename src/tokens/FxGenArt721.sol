@@ -136,22 +136,21 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     function initialize(
         address _owner,
         InitInfo calldata _initInfo,
-        ProjectInfo calldata _projectInfo,
+        ProjectInfo memory _projectInfo,
         MetadataInfo calldata _metadataInfo,
         MintInfo[] calldata _mintInfo,
         address[] calldata _royaltyReceivers,
         uint32[] calldata _allocations,
         uint96 _basisPoints
     ) external initializer {
+        (, , , uint32 lockTime, , ) = IFxContractRegistry(contractRegistry).configInfo();
+        _projectInfo.earliestStartTime = (_isVerified(_owner))
+            ? uint32(block.timestamp)
+            : uint32(block.timestamp) + lockTime;
         issuerInfo.projectInfo = _projectInfo;
         metadataInfo = _metadataInfo;
         randomizer = _initInfo.randomizer;
         renderer = _initInfo.renderer;
-
-        (, , , uint32 lockTime, , ) = IFxContractRegistry(contractRegistry).configInfo();
-        issuerInfo.projectInfo.earliestStartTime = (_isVerified(_owner))
-            ? uint32(block.timestamp)
-            : uint32(block.timestamp) + lockTime;
 
         _initializeOwner(_owner);
         _registerMinters(_mintInfo);
@@ -263,12 +262,18 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function setBaseURI(bytes calldata _uri, bytes calldata _signature) external onlyOwner {
-        bytes32 digest = generateBaseURIHash(_uri);
-        _verifySignature(digest, _signature);
-        metadataInfo.baseURI = _uri;
-        emit BaseURIUpdated(_uri);
-        emit BatchMetadataUpdate(1, totalSupply);
+    function setBurnEnabled(bool _flag) external onlyOwner {
+        if (remainingSupply() == 0) revert SupplyRemaining();
+        issuerInfo.projectInfo.burnEnabled = _flag;
+        emit BurnEnabled(_flag);
+    }
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
+    function setMintEnabled(bool _flag) external onlyOwner {
+        issuerInfo.projectInfo.mintEnabled = _flag;
+        emit MintEnabled(_flag);
     }
 
     /**
@@ -299,23 +304,6 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         emit BatchMetadataUpdate(1, totalSupply);
     }
 
-    /**
-     * @inheritdoc IFxGenArt721
-     */
-    function toggleBurn() external onlyOwner {
-        if (remainingSupply() == 0) revert SupplyRemaining();
-        issuerInfo.projectInfo.burnEnabled = !issuerInfo.projectInfo.burnEnabled;
-        emit BurnEnabled(issuerInfo.projectInfo.burnEnabled);
-    }
-
-    /**
-     * @inheritdoc IFxGenArt721
-     */
-    function toggleMint() external onlyOwner {
-        issuerInfo.projectInfo.mintEnabled = !issuerInfo.projectInfo.mintEnabled;
-        emit MintEnabled(issuerInfo.projectInfo.mintEnabled);
-    }
-
     /*//////////////////////////////////////////////////////////////////////////
                                 ADMIN FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -326,6 +314,19 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     function setRandomizer(address _randomizer) external onlyRole(ADMIN_ROLE) {
         randomizer = _randomizer;
         emit RandomizerUpdated(_randomizer);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                 METADATA FUNCTIONS
+     //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
+    function setBaseURI(bytes calldata _uri) external onlyRole(METADATA_ROLE) {
+        metadataInfo.baseURI = _uri;
+        emit BaseURIUpdated(_uri);
+        emit BatchMetadataUpdate(1, totalSupply);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -376,14 +377,6 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      */
     function primaryReceiver() external view returns (address) {
         return issuerInfo.primaryReceiver;
-    }
-
-    /**
-     * @inheritdoc IFxGenArt721
-     */
-    function generateBaseURIHash(bytes calldata _uri) public view returns (bytes32) {
-        bytes32 structHash = keccak256(abi.encode(SET_BASE_URI_TYPEHASH, _uri, nonce));
-        return _hashTypedDataV4(structHash);
     }
 
     /**
