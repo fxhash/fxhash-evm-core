@@ -282,6 +282,12 @@ interface IFxMintTicket721 is IToken {
     ) external pure returns (uint48);
 
     /**
+     * @notice Gets current lock time based on owner verification and project creation timestamp
+     * @param _creationTime Timestamp of when project was initially created
+     */
+    function getLockTime(uint256 _creationTime) external view returns (uint256);
+
+    /**
      * @notice Gets the remaining amount of taxes to be deposited
      * @param _dailyTax Daily tax amount based on current price
      * @param _foreclosureTime Timestamp of current foreclosure

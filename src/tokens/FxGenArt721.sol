@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
-
+import "forge-std/Test.sol";
 import {ECDSA} from "openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {EIP712} from "openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import {ERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
@@ -235,20 +235,13 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      */
     function registerMinters(MintInfo[] memory _mintInfo) external onlyOwner {
         if (issuerInfo.projectInfo.mintEnabled) revert MintActive();
-
-        // Caches array length
         uint256 length = issuerInfo.activeMinters.length;
-
-        // Unregisters all current minters
         for (uint256 i; i < length; ++i) {
             address minter = issuerInfo.activeMinters[i];
             issuerInfo.minters[minter] = FALSE;
         }
 
-        // Deletes current list of active minters
         delete issuerInfo.activeMinters;
-
-        // Registers new minters
         _registerMinters(_mintInfo);
     }
 
@@ -408,6 +401,21 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
+    function getLockTime(uint256 _creationTime) public view returns (uint256 lockTime) {
+        (, , , lockTime, , ) = IFxContractRegistry(contractRegistry).configInfo();
+        if (_isVerified(owner())) {
+            lockTime = 0;
+        } else {
+            if (_creationTime != 0) {
+                uint256 timeElapsed = block.timestamp - _creationTime;
+                lockTime = (timeElapsed > lockTime) ? 0 : timeElapsed;
+            }
+        }
+    }
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
     function isMinter(address _minter) public view returns (bool) {
         return issuerInfo.minters[_minter] == TRUE;
     }
@@ -479,10 +487,10 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         address minter;
         uint64 startTime;
         uint128 totalAllocation;
-        uint120 maxSupply = issuerInfo.projectInfo.maxSupply;
         ReserveInfo memory reserveInfo;
-        (, uint256 lockTime, , , , ) = IFxContractRegistry(contractRegistry).configInfo();
-        lockTime = _isVerified(owner()) ? 0 : lockTime;
+        uint120 maxSupply = issuerInfo.projectInfo.maxSupply;
+        uint256 creationTime = issuerInfo.projectInfo.creationTime;
+        uint256 lockTime = getLockTime(creationTime);
         for (uint256 i; i < _mintInfo.length; ++i) {
             minter = _mintInfo[i].minter;
             reserveInfo = _mintInfo[i].reserveInfo;
@@ -505,22 +513,28 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         if (maxSupply != OPEN_EDITION_SUPPLY) {
             if (totalAllocation > remainingSupply()) revert AllocationExceeded();
         }
+
+        if (creationTime == 0) issuerInfo.projectInfo.creationTime = uint32(block.timestamp);
     }
 
+    /**
+     * @dev Sets receivers and allocations for base royalties of token sales
+     */
     function _setBaseRoyalties(
         address[] calldata _receivers,
         uint32[] calldata _allocations,
         uint96 _basisPoints
     ) internal override {
-        // call out to contract registry and get fee receiver
         (address feeReceiver, , uint32 secondaryFeeAllocation, , , ) = IFxContractRegistry(contractRegistry)
             .configInfo();
 
         _checkFeeReceiver(_receivers, _allocations, feeReceiver, secondaryFeeAllocation);
-        // check allocations match
         super._setBaseRoyalties(_receivers, _allocations, _basisPoints);
     }
 
+    /**
+     * @dev Sets primary receiver address for token sales
+     */
     function _setPrimaryReceiver(address[] calldata _receivers, uint32[] calldata _allocations) internal {
         (address feeReceiver, uint32 primaryFeeAllocation, , , , ) = IFxContractRegistry(contractRegistry).configInfo();
 
@@ -568,7 +582,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     }
 
     /**
-     * @dev checks if a fee receiver and allocation is included in their respective arrays
+     * @dev Checks if fee receiver and allocation amount are included in their respective arrays
      */
     function _checkFeeReceiver(
         address[] calldata _receivers,
@@ -576,7 +590,6 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         address _feeReceiver,
         uint32 _feeAllocation
     ) internal pure {
-        // check that the fee receiver is included
         bool feeReceiverExists;
         for (uint256 i; i < _allocations.length; i++) {
             if (_receivers[i] == _feeReceiver && _allocations[i] == _feeAllocation) feeReceiverExists = true;

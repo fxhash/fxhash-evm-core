@@ -493,6 +493,21 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
     /**
      * @inheritdoc IFxMintTicket721
      */
+    function getLockTime(uint256 _creationTime) public view returns (uint256 lockTime) {
+        (, , , lockTime, , ) = IFxContractRegistry(contractRegistry).configInfo();
+        if (_isVerified(owner())) {
+            lockTime = 0;
+        } else {
+            if (_creationTime != 0) {
+                uint256 timeElapsed = block.timestamp - _creationTime;
+                lockTime = (timeElapsed > lockTime) ? 0 : timeElapsed;
+            }
+        }
+    }
+
+    /**
+     * @inheritdoc IFxMintTicket721
+     */
     function getRemainingDeposit(
         uint256 _dailyTax,
         uint256 _foreclosureTime,
@@ -559,11 +574,10 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
         address minter;
         uint64 startTime;
         uint128 totalAllocation;
+        ReserveInfo memory reserveInfo;
         (, ProjectInfo memory projectInfo) = IFxGenArt721(genArt721).issuerInfo();
         uint120 maxSupply = projectInfo.maxSupply;
-        ReserveInfo memory reserveInfo;
-        (, uint256 lockTime, , , , ) = IFxContractRegistry(contractRegistry).configInfo();
-        lockTime = _isVerified(owner()) ? 0 : lockTime;
+        uint256 lockTime = getLockTime(projectInfo.creationTime);
         for (uint256 i; i < _mintInfo.length; ++i) {
             minter = _mintInfo[i].minter;
             reserveInfo = _mintInfo[i].reserveInfo;
