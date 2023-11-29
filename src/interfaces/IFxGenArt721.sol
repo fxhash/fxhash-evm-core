@@ -361,7 +361,6 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      */
     function setBaseURI(bytes calldata _uri) external;
 
-
     /**
      * @notice Sets flag status of public burn to enabled or disabled
      * @param _flag Status of burn
