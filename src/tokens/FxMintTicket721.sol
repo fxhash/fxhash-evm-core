@@ -340,7 +340,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
         balances[owner()] += taxInfo.depositAmount - remainingDeposit;
         taxInfo.currentPrice = _newPrice;
         taxInfo.depositAmount = uint80(remainingDeposit);
-        taxInfo.foreclosureTime = getNewForeclosure(newDailyTax, remainingDeposit, foreclosureTime);
+        taxInfo.foreclosureTime = getNewForeclosure(newDailyTax, remainingDeposit, block.timestamp);
 
         emit SetPrice(_tokenId, _newPrice, taxInfo.depositAmount, taxInfo.foreclosureTime);
     }
