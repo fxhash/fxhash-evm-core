@@ -22,16 +22,16 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     event BaseURIUpdated(bytes _uri);
 
     /**
-     * @notice Event emitted when burn is toggled
-     * @param _enabled Flag status of burn
+     * @notice Event emitted when public burn is enabled or disabled
+     * @param _flag Status of burn
      */
-    event BurnEnabled(bool indexed _enabled);
+    event BurnEnabled(bool indexed _flag);
 
     /**
-     * @notice Event emitted when minted is toggled
-     * @param _enabled Flag status of mint
+     * @notice Event emitted when public mint is enabled or disabled
+     * @param _flag Status of mint
      */
-    event MintEnabled(bool indexed _enabled);
+    event MintEnabled(bool indexed _flag);
 
     /**
      * @notice Event emitted when project is deleted only once supply is set to zero
@@ -361,6 +361,19 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      */
     function setBaseURI(bytes calldata _uri) external;
 
+
+    /**
+     * @notice Sets flag status of public burn to enabled or disabled
+     * @param _flag Status of burn
+     */
+    function setBurnEnabled(bool _flag) external;
+
+    /**
+     * @notice Sets flag status of public mint to enabled or disabled
+     * @param _flag Status of mint
+     */
+    function setMintEnabled(bool _flag) external;
+
     /**
      * @notice Sets the onchain data of the project metadata
      * @param _data Bytes-encoded metadata
@@ -393,16 +406,6 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @param _tagIds Array of tag IDs describing the project
      */
     function setTags(uint256[] calldata _tagIds) external;
-
-    /**
-     * @notice Toggles public burn from disabled to enabled and vice versa
-     */
-    function toggleBurn() external;
-
-    /**
-     * @notice Toggles public mint from enabled to disabled and vice versa
-     */
-    function toggleMint() external;
 
     /**
      * @notice Returns the current circulating supply of tokens

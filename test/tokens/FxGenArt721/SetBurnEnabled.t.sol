@@ -3,7 +3,7 @@ pragma solidity 0.8.23;
 
 import "test/tokens/FxGenArt721/FxGenArt721Test.t.sol";
 
-contract ToggleBurnTest is FxGenArt721Test {
+contract SetBurnEnabledTest is FxGenArt721Test {
     function setUp() public virtual override {
         super.setUp();
         _createProject();
@@ -12,8 +12,8 @@ contract ToggleBurnTest is FxGenArt721Test {
 
     function test_ToggleBurn() public {
         assertFalse(project.burnEnabled);
-        TokenLib.toggleMint(creator, fxGenArtProxy);
-        TokenLib.toggleBurn(creator, fxGenArtProxy);
+        TokenLib.setMintEnabled(creator, fxGenArtProxy, false);
+        TokenLib.setBurnEnabled(creator, fxGenArtProxy, true);
         _setIssuerInfo();
         assertTrue(project.burnEnabled);
     }

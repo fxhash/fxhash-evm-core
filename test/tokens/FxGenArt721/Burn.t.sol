@@ -13,7 +13,7 @@ contract BurnTest is FxGenArt721Test {
 
     function test_Burn() public {
         TokenLib.mint(alice, minter, fxGenArtProxy, bob, amount, PRICE);
-        TokenLib.toggleBurn(creator, fxGenArtProxy);
+        TokenLib.setBurnEnabled(creator, fxGenArtProxy, true);
         TokenLib.burn(bob, fxGenArtProxy, tokenId);
         assertEq(FxGenArt721(fxGenArtProxy).balanceOf(bob), amount - 1);
     }
@@ -26,7 +26,7 @@ contract BurnTest is FxGenArt721Test {
 
     function test_RevertsWhen_NotAuthorized() public {
         TokenLib.mint(alice, minter, fxGenArtProxy, bob, amount, PRICE);
-        TokenLib.toggleBurn(creator, fxGenArtProxy);
+        TokenLib.setBurnEnabled(creator, fxGenArtProxy, true);
         vm.expectRevert(NOT_AUTHORIZED_ERROR);
         TokenLib.burn(alice, fxGenArtProxy, tokenId);
     }

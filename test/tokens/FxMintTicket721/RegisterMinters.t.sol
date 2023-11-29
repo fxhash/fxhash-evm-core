@@ -20,7 +20,7 @@ contract RegisterMinters is FxMintTicket721Test {
             abi.encode(PRICE, merkleRoot, signerAddr)
         );
         RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, address(fixedPrice));
-        TokenLib.toggleMint(creator, fxGenArtProxy);
+        TokenLib.setMintEnabled(creator, fxGenArtProxy, false);
         TicketLib.registerMinters(creator, fxMintTicketProxy, mintInfo);
         assertEq(TicketLib.isMinter(fxMintTicketProxy, minter), FALSE);
         assertEq(TicketLib.isMinter(fxMintTicketProxy, address(fixedPrice)), TRUE);
