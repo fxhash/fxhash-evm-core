@@ -559,11 +559,10 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
         address minter;
         uint64 startTime;
         uint128 totalAllocation;
+        ReserveInfo memory reserveInfo;
         (, ProjectInfo memory projectInfo) = IFxGenArt721(genArt721).issuerInfo();
         uint120 maxSupply = projectInfo.maxSupply;
-        ReserveInfo memory reserveInfo;
-        (, uint256 lockTime, , , , ) = IFxContractRegistry(contractRegistry).configInfo();
-        lockTime = _isVerified(owner()) ? 0 : lockTime;
+        uint64 earliestStartTime = projectInfo.earliestStartTime;
         for (uint256 i; i < _mintInfo.length; ++i) {
             minter = _mintInfo[i].minter;
             reserveInfo = _mintInfo[i].reserveInfo;
@@ -571,8 +570,10 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
 
             if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) revert UnauthorizedMinter();
             if (startTime == 0) {
-                reserveInfo.startTime = uint64(block.timestamp + lockTime);
-            } else if (startTime < block.timestamp + lockTime) {
+                reserveInfo.startTime = (block.timestamp > earliestStartTime)
+                    ? uint64(block.timestamp)
+                    : earliestStartTime;
+            } else if (startTime < earliestStartTime) {
                 revert InvalidStartTime();
             }
             if (reserveInfo.endTime < startTime) revert InvalidEndTime();

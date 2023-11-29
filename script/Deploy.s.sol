@@ -16,6 +16,7 @@ import {FxTicketFactory} from "src/factories/FxTicketFactory.sol";
 import {DutchAuction} from "src/minters/DutchAuction.sol";
 import {FixedPrice} from "src/minters/FixedPrice.sol";
 import {IPFSRenderer} from "src/renderers/IPFSRenderer.sol";
+import {ONCHFSRenderer} from "src/renderers/ONCHFSRenderer.sol";
 import {PseudoRandomizer} from "src/randomizers/PseudoRandomizer.sol";
 import {ScriptyRenderer} from "src/renderers/ScriptyRenderer.sol";
 import {TicketRedeemer} from "src/minters/TicketRedeemer.sol";
@@ -36,6 +37,7 @@ contract Deploy is Script {
     DutchAuction internal dutchAuction;
     FixedPrice internal fixedPrice;
     IPFSRenderer internal ipfsRenderer;
+    ONCHFSRenderer internal onchfsRenderer;
     PseudoRandomizer internal pseudoRandomizer;
     ScriptyRenderer internal scriptyRenderer;
     TicketRedeemer internal ticketRedeemer;
@@ -76,8 +78,8 @@ contract Deploy is Script {
         _configureScripty();
         _configureInfo(
             admin,
-            SECONDARY_FEE_ALLOCATION,
             PRIMARY_FEE_ALLOCATION,
+            SECONDARY_FEE_ALLOCATION,
             LOCK_TIME,
             REFERRER_SHARE,
             DEFAULT_METADATA_URI
@@ -114,15 +116,15 @@ contract Deploy is Script {
 
     function _configureInfo(
         address _feeReceiver,
-        uint32 _secondaryFeeAllocation,
         uint32 _primaryFeeAllocation,
+        uint32 _secondaryFeeAllocation,
         uint32 _lockTime,
         uint64 _referrerShare,
         string memory _defaultMetadataURI
     ) internal virtual {
         configInfo.feeReceiver = _feeReceiver;
-        configInfo.secondaryFeeAllocation = _secondaryFeeAllocation;
         configInfo.primaryFeeAllocation = _primaryFeeAllocation;
+        configInfo.secondaryFeeAllocation = _secondaryFeeAllocation;
         configInfo.lockTime = _lockTime;
         configInfo.referrerShare = _referrerShare;
         configInfo.defaultMetadataURI = _defaultMetadataURI;
@@ -201,6 +203,11 @@ contract Deploy is Script {
         constructorArgs = abi.encode(fxContractRegistry);
         ipfsRenderer = IPFSRenderer(_deployCreate2(creationCode, constructorArgs, salt));
 
+        // ONCHFSRenderer
+        creationCode = type(ONCHFSRenderer).creationCode;
+        constructorArgs = abi.encode(fxContractRegistry);
+        onchfsRenderer = ONCHFSRenderer(_deployCreate2(creationCode, constructorArgs, salt));
+
         // ScriptyRenderer
         creationCode = type(ScriptyRenderer).creationCode;
         constructorArgs = abi.encode(fxContractRegistry, ethFSFileStorage, scriptyStorageV2, scriptyBuilderV2);
@@ -221,6 +228,7 @@ contract Deploy is Script {
         vm.label(address(dutchAuction), "DutchAuction");
         vm.label(address(fixedPrice), "FixedPrice");
         vm.label(address(ipfsRenderer), "IPFSRenderer");
+        vm.label(address(onchfsRenderer), "ONCHFSRenderer");
         vm.label(address(pseudoRandomizer), "PseudoRandomizer");
         vm.label(address(scriptyRenderer), "ScriptyRenderer");
         vm.label(address(ticketRedeemer), "TicketRedeemer");
@@ -248,6 +256,7 @@ contract Deploy is Script {
         names.push(DUTCH_AUCTION);
         names.push(FIXED_PRICE);
         names.push(IPFS_RENDERER);
+        names.push(ONCHFS_RENDERER);
         names.push(PSEUDO_RANDOMIZER);
         names.push(SCRIPTY_RENDERER);
         names.push(TICKET_REDEEMER);
@@ -262,6 +271,7 @@ contract Deploy is Script {
         contracts.push(address(dutchAuction));
         contracts.push(address(fixedPrice));
         contracts.push(address(ipfsRenderer));
+        contracts.push(address(onchfsRenderer));
         contracts.push(address(pseudoRandomizer));
         contracts.push(address(scriptyRenderer));
         contracts.push(address(ticketRedeemer));

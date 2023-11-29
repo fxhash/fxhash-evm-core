@@ -16,9 +16,10 @@ string constant SYMBOL = "FXHASH";
 uint256 constant TAG_ID = 1;
 
 // Metadata
-bytes constant BASE_CID = hex"a6ba5489183926f882cc59ef5478ec4aacf9e522fede5c462ed5c359b3159180";
-bytes constant BASE_URI = "ipfs://QmZZVBKapDg2wXzwpDxdmL9Ah665h9ZzeJ9gYdbTZ4GBzf";
+bytes constant IPFS_BASE_CID = hex"a6ba5489183926f882cc59ef5478ec4aacf9e522fede5c462ed5c359b3159180";
+bytes constant IPFS_BASE_URI = "ipfs://QmZZVBKapDg2wXzwpDxdmL9Ah665h9ZzeJ9gYdbTZ4GBzf";
 bytes constant ONCHAIN_DATA = bytes("");
+bytes constant ONCHFS_BASE_URI = "onchfs://a45656a598c9b98dcbeb634920fc436be6c4d75750cb87141af191d9a4362352";
 
 // Project
 bool constant MINT_ENABLED = true;
