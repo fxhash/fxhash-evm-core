@@ -571,8 +571,8 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
             if (!IAccessControl(roleRegistry).hasRole(MINTER_ROLE, minter)) revert UnauthorizedMinter();
             if (startTime == 0) {
                 reserveInfo.startTime = (block.timestamp > earliestStartTime)
-                    ? earliestStartTime
-                    : uint64(block.timestamp);
+                    ? uint64(block.timestamp)
+                    : earliestStartTime;
             } else if (startTime < earliestStartTime) {
                 revert InvalidStartTime();
             }
