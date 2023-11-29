@@ -6,7 +6,7 @@ import {IRenderer} from "src/interfaces/IRenderer.sol";
 /**
  * @title IONCHFSRenderer
  * @author fx(hash)
- * @notice Renderer for constructing onchain metadata of FxGenArt721 tokens stored with ONCHFS
+ * @notice Renderer for constructing onchain metadata of FxGenArt721 tokens stored through ONCHFS
  */
 interface IONCHFSRenderer is IRenderer {
     /*//////////////////////////////////////////////////////////////////////////
