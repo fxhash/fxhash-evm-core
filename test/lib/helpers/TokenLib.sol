@@ -67,13 +67,8 @@ library TokenLib {
         IFxGenArt721(_proxy).setBaseRoyalties(_receivers, _allocations, _basisPoints);
     }
 
-    function setBaseURI(
-        address _admin,
-        address _proxy,
-        bytes memory _uri,
-        bytes memory _signature
-    ) internal prank(_admin) {
-        IFxGenArt721(_proxy).setBaseURI(_uri, _signature);
+    function setBaseURI(address _admin, address _proxy, bytes memory _uri) internal prank(_admin) {
+        IFxGenArt721(_proxy).setBaseURI(_uri);
     }
 
     function setOnchainData(

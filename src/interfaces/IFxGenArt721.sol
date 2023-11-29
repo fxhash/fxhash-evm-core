@@ -365,9 +365,8 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     /**
      * @notice Sets the new URI of the token metadata
      * @param _uri Decoded content identifier of metadata pointer
-     * @param _signature Signature of creator used to verify metadata update
      */
-    function setBaseURI(bytes calldata _uri, bytes calldata _signature) external;
+    function setBaseURI(bytes calldata _uri) external;
 
     /**
      * @notice Sets the onchain data of the project metadata

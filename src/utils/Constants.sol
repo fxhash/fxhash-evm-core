@@ -52,6 +52,7 @@ bytes32 constant CREATOR_ROLE = keccak256("CREATOR_ROLE");
 bytes32 constant MINTER_ROLE = keccak256("MINTER_ROLE");
 bytes32 constant MODERATOR_ROLE = keccak256("MODERATOR_ROLE");
 bytes32 constant SIGNER_ROLE = keccak256("SIGNER_ROLE");
+bytes32 constant METADATA_ROLE = keccak256("METADATA_ROLE");
 
 // Royalties
 uint32 constant ALLOCATION_DENOMINATOR = 1_000_000;
