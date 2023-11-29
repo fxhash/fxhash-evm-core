@@ -136,22 +136,21 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     function initialize(
         address _owner,
         InitInfo calldata _initInfo,
-        ProjectInfo calldata _projectInfo,
+        ProjectInfo memory _projectInfo,
         MetadataInfo calldata _metadataInfo,
         MintInfo[] calldata _mintInfo,
         address[] calldata _royaltyReceivers,
         uint32[] calldata _allocations,
         uint96 _basisPoints
     ) external initializer {
+        (, , , uint32 lockTime, , ) = IFxContractRegistry(contractRegistry).configInfo();
+        _projectInfo.earliestStartTime = (_isVerified(_owner))
+            ? uint32(block.timestamp)
+            : uint32(block.timestamp) + lockTime;
         issuerInfo.projectInfo = _projectInfo;
         metadataInfo = _metadataInfo;
         randomizer = _initInfo.randomizer;
         renderer = _initInfo.renderer;
-
-        (, , , uint32 lockTime, , ) = IFxContractRegistry(contractRegistry).configInfo();
-        issuerInfo.projectInfo.earliestStartTime = (_isVerified(_owner))
-            ? uint32(block.timestamp)
-            : uint32(block.timestamp) + lockTime;
 
         _initializeOwner(_owner);
         _registerMinters(_mintInfo);
