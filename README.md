@@ -29,7 +29,9 @@
 
 5. **[PseudoRandomizer](https://github.com/fxhash/fxhash-core/blob/main/src/randomizers/PseudoRandomizer.sol)**: Randomizer contract that provides a pseudo-randomness `keccak256` hash using the token ID, sender's address, current block number, and hash of the previous block
 
-6. **[TicketRedeemer](https://github.com/fxhash/fxhash-core/blob/main/src/minters/TicketRedeemer.sol)**: Minter contract that burns an existing `FxMintTicket721` token and mints a new `FxGenArt721` token
+6. **[ONCHFSRenderer](https://github.com/fxhash/fxhash-core/blob/main/src/renderers/ONCHFSRenderer.sol)**: Renderer contract that constructs onchain metadata of `FxGenArt721` and `FxMintTicket721` tokens stored through **[ONCHFS](https://onchfs.com/)**
+
+7. **[TicketRedeemer](https://github.com/fxhash/fxhash-core/blob/main/src/minters/TicketRedeemer.sol)**: Minter contract that burns an existing `FxMintTicket721` token and mints a new `FxGenArt721` token
 
 ## Setup
 

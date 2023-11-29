@@ -262,6 +262,23 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
+    function setBurnEnabled(bool _flag) external onlyOwner {
+        if (remainingSupply() == 0) revert SupplyRemaining();
+        issuerInfo.projectInfo.burnEnabled = _flag;
+        emit BurnEnabled(_flag);
+    }
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
+    function setMintEnabled(bool _flag) external onlyOwner {
+        issuerInfo.projectInfo.mintEnabled = _flag;
+        emit MintEnabled(_flag);
+    }
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
     function setOnchainData(bytes calldata _data, bytes calldata _signature) external onlyOwner {
         bytes32 digest = generateOnchainDataHash(_data);
         _verifySignature(digest, _signature);
@@ -287,21 +304,16 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         emit BatchMetadataUpdate(1, totalSupply);
     }
 
-    /**
-     * @inheritdoc IFxGenArt721
-     */
-    function toggleBurn() external onlyOwner {
-        if (remainingSupply() == 0) revert SupplyRemaining();
-        issuerInfo.projectInfo.burnEnabled = !issuerInfo.projectInfo.burnEnabled;
-        emit BurnEnabled(issuerInfo.projectInfo.burnEnabled);
-    }
+    /*//////////////////////////////////////////////////////////////////////////
+                                ADMIN FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     /**
      * @inheritdoc IFxGenArt721
      */
-    function toggleMint() external onlyOwner {
-        issuerInfo.projectInfo.mintEnabled = !issuerInfo.projectInfo.mintEnabled;
-        emit MintEnabled(issuerInfo.projectInfo.mintEnabled);
+    function setRandomizer(address _randomizer) external onlyRole(ADMIN_ROLE) {
+        randomizer = _randomizer;
+        emit RandomizerUpdated(_randomizer);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -315,18 +327,6 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         metadataInfo.baseURI = _uri;
         emit BaseURIUpdated(_uri);
         emit BatchMetadataUpdate(1, totalSupply);
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                ADMIN FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /**
-     * @inheritdoc IFxGenArt721
-     */
-    function setRandomizer(address _randomizer) external onlyRole(ADMIN_ROLE) {
-        randomizer = _randomizer;
-        emit RandomizerUpdated(_randomizer);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

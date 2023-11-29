@@ -22,7 +22,7 @@ contract RegisterMintersTest is FxGenArt721Test {
             abi.encode(PRICE, merkleRoot, signerAddr)
         );
         RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, address(fixedPrice));
-        TokenLib.toggleMint(creator, fxGenArtProxy);
+        TokenLib.setMintEnabled(creator, fxGenArtProxy, false);
         TokenLib.registerMinters(creator, fxGenArtProxy, mintInfo);
         assertFalse(TokenLib.isMinter(fxGenArtProxy, minter));
         assertTrue(TokenLib.isMinter(fxGenArtProxy, address(fixedPrice)));

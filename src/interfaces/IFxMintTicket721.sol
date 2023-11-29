@@ -174,6 +174,11 @@ interface IFxMintTicket721 is IToken {
     function activeMinters(uint256) external view returns (address);
 
     /**
+     * @notice Mapping of wallet address to pending balance available for withdrawal
+     */
+    function balances(address) external view returns (uint256);
+
+    /**
      * @notice Returns the decoded content identifier of the metadata pointer
      */
     function baseURI() external view returns (bytes memory);
@@ -208,6 +213,13 @@ interface IFxMintTicket721 is IToken {
      * @param _tokenId ID of the token
      */
     function deposit(uint256 _tokenId) external payable;
+
+    /**
+     * @notice Deposits taxes for given token and set new price for same token
+     * @param _tokenId ID of the token
+     * @param _newPrice New listing price of token
+     */
+    function depositAndSetPrice(uint256 _tokenId, uint80 _newPrice) external payable;
 
     /**
      * @notice Initializes new generative art project
@@ -247,13 +259,6 @@ interface IFxMintTicket721 is IToken {
     function getAuctionPrice(uint256 _currentPrice, uint256 _foreclosureTime) external view returns (uint256);
 
     /**
-     * @notice Gets the pending balance amount available for a given wallet
-     * @param _account Address of the wallet
-     * @return Balance amount available for withdrawal
-     */
-    function getBalance(address _account) external view returns (uint128);
-
-    /**
      * @notice Gets the daily tax amount based on current price
      * @param _currentPrice Current listing price
      * @return Daily tax amount
@@ -262,45 +267,45 @@ interface IFxMintTicket721 is IToken {
 
     /**
      * @notice Gets the excess amount of taxes paid
-     * @param _totalDeposit Total amount of taxes deposited
      * @param _dailyTax Daily tax amount based on current price
+     * @param _depositAmount Total amount of taxes deposited
      * @return Excess amount of taxes
      */
-    function getExcessTax(uint256 _totalDeposit, uint256 _dailyTax) external pure returns (uint256);
+    function getExcessTax(uint256 _dailyTax, uint256 _depositAmount) external pure returns (uint256);
 
     /**
      * @notice Gets the new foreclosure timestamp
      * @param _dailyTax Daily tax amount based on current price
+     * @param _depositAmount Amount of taxes being deposited
      * @param _foreclosureTime Timestamp of current foreclosure
-     * @param _taxPayment Amount of taxes being deposited
      * @return Timestamp of new foreclosure
      */
-    function getForeclosureTime(
+    function getNewForeclosure(
         uint256 _dailyTax,
-        uint256 _foreclosureTime,
-        uint256 _taxPayment
+        uint256 _depositAmount,
+        uint256 _foreclosureTime
     ) external pure returns (uint48);
 
     /**
      * @notice Gets the remaining amount of taxes to be deposited
      * @param _dailyTax Daily tax amount based on current price
-     * @param _foreclosureTime Timestamp of current foreclosure
      * @param _depositAmount Total amount of taxes deposited
+     * @param _foreclosureTime Timestamp of current foreclosure
      * @return Remainig deposit amount
      */
     function getRemainingDeposit(
         uint256 _dailyTax,
-        uint256 _foreclosureTime,
-        uint256 _depositAmount
+        uint256 _depositAmount,
+        uint256 _foreclosureTime
     ) external view returns (uint256);
 
     /**
      * @notice Gets the total duration of time covered
-     * @param _taxPayment Amount of taxes being deposited
      * @param _dailyTax Daily tax amount based on current price
+     * @param _depositAmount Amount of taxes being deposited
      * @return Total time duration
      */
-    function getTaxDuration(uint256 _taxPayment, uint256 _dailyTax) external pure returns (uint256);
+    function getTaxDuration(uint256 _dailyTax, uint256 _depositAmount) external pure returns (uint256);
 
     /**
      * @notice Returns default grace period of time for each token
