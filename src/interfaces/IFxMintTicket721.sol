@@ -24,42 +24,42 @@ interface IFxMintTicket721 is IToken {
      * @notice Event emitted when token is claimed at either listing or auction price
      * @param _tokenId ID of the token
      * @param _claimer Address of the token claimer
+     * @param _currentPrice Current listing price of token
      * @param _newPrice Updated listing price of token
-     * @param _foreclosureTime Timestamp of new foreclosure date
      * @param _depositAmount Total amount of taxes deposited
-     * @param _payment Current price of token in addition to taxes deposited
+     * @param _foreclosureTime Timestamp of new foreclosure date
      */
     event Claimed(
         uint256 indexed _tokenId,
         address indexed _claimer,
+        uint256 _currentPrice,
         uint128 _newPrice,
-        uint48 _foreclosureTime,
         uint80 _depositAmount,
-        uint256 _payment
+        uint48 _foreclosureTime
     );
 
     /**
      * @notice Event emitted when additional taxes are deposited
      * @param _tokenId ID of the token
      * @param _depositer Address of tax depositer
-     * @param _foreclosureTime Timestamp of new foreclosure date
      * @param _depositAmount Total amount of taxes deposited
+     * @param _foreclosureTime Timestamp of new foreclosure date
      */
     event Deposited(
         uint256 indexed _tokenId,
         address indexed _depositer,
-        uint48 _foreclosureTime,
-        uint80 _depositAmount
+        uint80 _depositAmount,
+        uint48 _foreclosureTime
     );
 
     /**
      * @notice Event emitted when new listing price is set
      * @param _tokenId ID of the token
      * @param _newPrice New listing price of token
-     * @param _foreclosureTime Timestamp of new foreclosure date
      * @param _depositAmount Adjusted amount of taxes deposited due to price change
+     * @param _foreclosureTime Timestamp of new foreclosure date
      */
-    event SetPrice(uint256 indexed _tokenId, uint128 _newPrice, uint128 _foreclosureTime, uint128 _depositAmount);
+    event SetPrice(uint256 indexed _tokenId, uint128 _newPrice, uint128 _depositAmount, uint128 _foreclosureTime);
 
     /**
      * @notice Event emitted when mint ticket is initialized
@@ -215,6 +215,13 @@ interface IFxMintTicket721 is IToken {
     function deposit(uint256 _tokenId) external payable;
 
     /**
+     * @notice Deposits taxes for given token and set new price for same token
+     * @param _tokenId ID of the token
+     * @param _newPrice New listing price of token
+     */
+    function depositAndSetPrice(uint256 _tokenId, uint80 _newPrice) external payable;
+
+    /**
      * @notice Initializes new generative art project
      * @param _owner Address of contract owner
      * @param _genArt721 Address of GenArt721 token contract
@@ -260,45 +267,45 @@ interface IFxMintTicket721 is IToken {
 
     /**
      * @notice Gets the excess amount of taxes paid
-     * @param _totalDeposit Total amount of taxes deposited
      * @param _dailyTax Daily tax amount based on current price
+     * @param _depositAmount Total amount of taxes deposited
      * @return Excess amount of taxes
      */
-    function getExcessTax(uint256 _totalDeposit, uint256 _dailyTax) external pure returns (uint256);
+    function getExcessTax(uint256 _dailyTax, uint256 _depositAmount) external pure returns (uint256);
 
     /**
      * @notice Gets the new foreclosure timestamp
      * @param _dailyTax Daily tax amount based on current price
+     * @param _depositAmount Amount of taxes being deposited
      * @param _foreclosureTime Timestamp of current foreclosure
-     * @param _taxPayment Amount of taxes being deposited
      * @return Timestamp of new foreclosure
      */
-    function getForeclosureTime(
+    function getNewForeclosure(
         uint256 _dailyTax,
-        uint256 _foreclosureTime,
-        uint256 _taxPayment
+        uint256 _depositAmount,
+        uint256 _foreclosureTime
     ) external pure returns (uint48);
 
     /**
      * @notice Gets the remaining amount of taxes to be deposited
      * @param _dailyTax Daily tax amount based on current price
-     * @param _foreclosureTime Timestamp of current foreclosure
      * @param _depositAmount Total amount of taxes deposited
+     * @param _foreclosureTime Timestamp of current foreclosure
      * @return Remainig deposit amount
      */
     function getRemainingDeposit(
         uint256 _dailyTax,
-        uint256 _foreclosureTime,
-        uint256 _depositAmount
+        uint256 _depositAmount,
+        uint256 _foreclosureTime
     ) external view returns (uint256);
 
     /**
      * @notice Gets the total duration of time covered
-     * @param _taxPayment Amount of taxes being deposited
      * @param _dailyTax Daily tax amount based on current price
+     * @param _depositAmount Amount of taxes being deposited
      * @return Total time duration
      */
-    function getTaxDuration(uint256 _taxPayment, uint256 _dailyTax) external pure returns (uint256);
+    function getTaxDuration(uint256 _dailyTax, uint256 _depositAmount) external pure returns (uint256);
 
     /**
      * @notice Returns default grace period of time for each token

@@ -28,8 +28,23 @@ library TicketLib {
         IFxMintTicket721(_proxy).claim{value: _payment}(_tokenId, _maxPrice, _newPrice);
     }
 
-    function deposit(address _depositer, address _proxy, uint256 _tokenId, uint256 _amount) internal prank(_depositer) {
-        IFxMintTicket721(_proxy).deposit{value: _amount}(_tokenId);
+    function deposit(
+        address _depositer,
+        address _proxy,
+        uint256 _tokenId,
+        uint256 _payment
+    ) internal prank(_depositer) {
+        IFxMintTicket721(_proxy).deposit{value: _payment}(_tokenId);
+    }
+
+    function depositAndSetPrice(
+        address _depositer,
+        address _proxy,
+        uint256 _tokenId,
+        uint80 _newPrice,
+        uint256 _payment
+    ) internal prank(_depositer) {
+        IFxMintTicket721(_proxy).depositAndSetPrice{value: _payment}(_tokenId, _newPrice);
     }
 
     function mint(
