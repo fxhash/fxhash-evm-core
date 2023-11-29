@@ -382,14 +382,6 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function generateBaseURIHash(bytes calldata _uri) public view returns (bytes32) {
-        bytes32 structHash = keccak256(abi.encode(SET_BASE_URI_TYPEHASH, _uri, nonce));
-        return _hashTypedDataV4(structHash);
-    }
-
-    /**
-     * @inheritdoc IFxGenArt721
-     */
     function generateOnchainDataHash(bytes calldata _data) public view returns (bytes32) {
         bytes32 structHash = keccak256(abi.encode(SET_ONCHAIN_DATA_TYPEHASH, _data, nonce));
         return _hashTypedDataV4(structHash);

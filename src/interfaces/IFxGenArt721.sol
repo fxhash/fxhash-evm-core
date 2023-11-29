@@ -217,13 +217,6 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
 
     /**
      * @notice Generates typed data hash for setting project metadata onchain
-     * @param _uri Bytes-encoded base URI data
-     * @return Typed data hash
-     */
-    function generateBaseURIHash(bytes calldata _uri) external view returns (bytes32);
-
-    /**
-     * @notice Generates typed data hash for setting project metadata onchain
      * @param _data Bytes-encoded onchain data
      * @return Typed data hash
      */
