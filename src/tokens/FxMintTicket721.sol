@@ -155,19 +155,17 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
      *  8. Update balance of contract owner with total deposit amount minus excess tax amount
      */
     function burn(uint256 _tokenId) external whenNotPaused {
-        // Reverts if caller is not TicketRedeemer contract
         if (msg.sender != redeemer) revert UnauthorizedRedeemer();
 
         _burn(_tokenId);
-
         TaxInfo memory taxInfo = taxes[_tokenId];
         delete taxes[_tokenId];
 
         uint256 dailyTax = getDailyTax(taxInfo.currentPrice);
         uint256 excessTax = getExcessTax(dailyTax, taxInfo.depositAmount);
 
-        if (excessTax > 0) balances[ownerOf(_tokenId)] += excessTax;
         balances[owner()] += taxInfo.depositAmount - excessTax;
+        if (excessTax > 0) balances[ownerOf(_tokenId)] += excessTax;
     }
 
     /**
@@ -205,47 +203,35 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
      */
     function claim(uint256 _tokenId, uint256 _maxPrice, uint80 _newPrice) external payable {
         TaxInfo storage taxInfo = taxes[_tokenId];
-        // Reverts if grace period of token is still active
         if (block.timestamp <= taxInfo.gracePeriod) revert GracePeriodActive();
-        // Reverts if new price is less than the minimum price
         if (_newPrice < MINIMUM_PRICE) revert InvalidPrice();
-
         uint256 currentPrice = taxInfo.currentPrice;
-        // Reverts if current price exceeds maximum price set at time of purchase
         if (currentPrice > _maxPrice) revert PriceExceeded();
 
         uint256 newDepositAmount;
         address previousOwner = _ownerOf(_tokenId);
         uint256 newDailyTax = getDailyTax(_newPrice);
 
-        // Checks if foreclosure is active
         if (isForeclosed(_tokenId)) {
             uint256 auctionPrice = getAuctionPrice(currentPrice, taxInfo.foreclosureTime);
-            // Reverts if payment amount is insufficient to auction price and new daily tax
             if (msg.value < auctionPrice + newDailyTax) revert InsufficientPayment();
-
             newDepositAmount = msg.value - auctionPrice;
             balances[owner()] += taxInfo.depositAmount + auctionPrice;
         } else {
-            // Reverts if payment amount if insufficient to current price and new daily tax
             if (msg.value < currentPrice + newDailyTax) revert InsufficientPayment();
-
             uint256 currentDailyTax = getDailyTax(currentPrice);
             uint256 remainingDeposit = getRemainingDeposit(
                 currentDailyTax,
                 taxInfo.depositAmount,
                 taxInfo.foreclosureTime
             );
-
             uint256 depositOwed = taxInfo.depositAmount - remainingDeposit;
             newDepositAmount = msg.value - currentPrice;
-
             balances[owner()] += depositOwed;
             balances[previousOwner] += currentPrice + remainingDeposit;
         }
 
         uint256 excessAmount = getExcessTax(newDailyTax, newDepositAmount);
-
         taxInfo.currentPrice = _newPrice;
         taxInfo.depositAmount = uint80(newDepositAmount - excessAmount);
         taxInfo.foreclosureTime = getNewForeclosure(newDailyTax, taxInfo.depositAmount, block.timestamp);
@@ -253,7 +239,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
         this.transferFrom(previousOwner, msg.sender, _tokenId);
         if (excessAmount > 0) balances[msg.sender] += excessAmount;
 
-        emit Claimed(_tokenId, msg.sender, currentPrice, _newPrice, taxInfo.depositAmount, taxInfo.foreclosureTime);
+        emit Claimed(_tokenId, msg.sender, _newPrice, taxInfo.foreclosureTime, taxInfo.depositAmount, msg.value);
     }
 
     /**
@@ -268,7 +254,6 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
      * @inheritdoc IFxMintTicket721
      */
     function mint(address _to, uint256 _amount, uint256 _payment) external whenNotPaused {
-        // Reverts if caller is not a registered minter contract
         if (minters[msg.sender] != TRUE) revert UnregisteredMinter();
 
         uint256 listingPrice = _payment / _amount;
@@ -278,7 +263,6 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
         for (uint256 i; i < _amount; ++i) {
             _mint(_to, ++currentId);
 
-            // Emits event for partial SBT
             emit Locked(currentId);
 
             taxes[currentId] = TaxInfo(
@@ -310,13 +294,9 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
      * @inheritdoc IFxMintTicket721
      */
     function deposit(uint256 _tokenId) public payable {
-        // Reverts if token is foreclosed
         if (isForeclosed(_tokenId)) revert Foreclosure();
-
         TaxInfo storage taxInfo = taxes[_tokenId];
         uint256 dailyTax = getDailyTax(taxInfo.currentPrice);
-
-        // Reverts if deposit amount is less than daily tax amount for one day
         if (msg.value < dailyTax) revert InsufficientDeposit();
 
         uint256 excessAmount = getExcessTax(dailyTax, msg.value);
@@ -324,10 +304,9 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
 
         taxInfo.depositAmount += uint80(depositAmount);
         taxInfo.foreclosureTime = getNewForeclosure(dailyTax, depositAmount, taxInfo.foreclosureTime);
-
         if (excessAmount > 0) balances[msg.sender] += excessAmount;
 
-        emit Deposited(_tokenId, msg.sender, taxInfo.depositAmount, taxInfo.foreclosureTime);
+        emit Deposited(_tokenId, msg.sender, taxInfo.foreclosureTime, taxInfo.depositAmount);
     }
 
     /**
@@ -343,16 +322,13 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
 
         TaxInfo storage taxInfo = taxes[_tokenId];
         uint48 foreclosureTime = taxInfo.foreclosureTime;
-
         uint256 currentDailyTax = getDailyTax(taxInfo.currentPrice);
         uint256 remainingDeposit = getRemainingDeposit(currentDailyTax, taxInfo.depositAmount, foreclosureTime);
         uint256 newDailyTax = getDailyTax(_newPrice);
 
-        // Reverts if remaining deposit amount is insufficient to new daily tax amount
         if (remainingDeposit < newDailyTax) revert InsufficientDeposit();
 
         balances[owner()] += taxInfo.depositAmount - remainingDeposit;
-
         taxInfo.currentPrice = _newPrice;
         taxInfo.depositAmount = uint80(remainingDeposit);
         taxInfo.foreclosureTime = getNewForeclosure(newDailyTax, remainingDeposit, foreclosureTime);

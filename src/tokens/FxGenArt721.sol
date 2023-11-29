@@ -305,6 +305,18 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     }
 
     /*//////////////////////////////////////////////////////////////////////////
+                                ADMIN FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
+    function setRandomizer(address _randomizer) external onlyRole(ADMIN_ROLE) {
+        randomizer = _randomizer;
+        emit RandomizerUpdated(_randomizer);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                                  METADATA FUNCTIONS
      //////////////////////////////////////////////////////////////////////////*/
 
@@ -315,18 +327,6 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         metadataInfo.baseURI = _uri;
         emit BaseURIUpdated(_uri);
         emit BatchMetadataUpdate(1, totalSupply);
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                ADMIN FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /**
-     * @inheritdoc IFxGenArt721
-     */
-    function setRandomizer(address _randomizer) external onlyRole(ADMIN_ROLE) {
-        randomizer = _randomizer;
-        emit RandomizerUpdated(_randomizer);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
