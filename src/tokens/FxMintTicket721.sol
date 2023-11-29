@@ -380,13 +380,13 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                ADMIN FUNCTIONS
+                                METADATA FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
      * @inheritdoc IFxMintTicket721
      */
-    function setBaseURI(bytes calldata _uri) external onlyRole(ADMIN_ROLE) {
+    function setBaseURI(bytes calldata _uri) external onlyRole(METADATA_ROLE) {
         baseURI = _uri;
         emit BaseURIUpdated(_uri);
         emit BatchMetadataUpdate(1, totalSupply);

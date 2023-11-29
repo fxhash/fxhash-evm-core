@@ -262,17 +262,6 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function setBaseURI(bytes calldata _uri, bytes calldata _signature) external onlyOwner {
-        bytes32 digest = generateBaseURIHash(_uri);
-        _verifySignature(digest, _signature);
-        metadataInfo.baseURI = _uri;
-        emit BaseURIUpdated(_uri);
-        emit BatchMetadataUpdate(1, totalSupply);
-    }
-
-    /**
-     * @inheritdoc IFxGenArt721
-     */
     function setOnchainData(bytes calldata _data, bytes calldata _signature) external onlyOwner {
         bytes32 digest = generateOnchainDataHash(_data);
         _verifySignature(digest, _signature);
@@ -313,6 +302,19 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     function toggleMint() external onlyOwner {
         issuerInfo.projectInfo.mintEnabled = !issuerInfo.projectInfo.mintEnabled;
         emit MintEnabled(issuerInfo.projectInfo.mintEnabled);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                 METADATA FUNCTIONS
+     //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
+    function setBaseURI(bytes calldata _uri) external onlyRole(METADATA_ROLE) {
+        metadataInfo.baseURI = _uri;
+        emit BaseURIUpdated(_uri);
+        emit BatchMetadataUpdate(1, totalSupply);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -375,14 +377,6 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      */
     function primaryReceiver() external view returns (address) {
         return issuerInfo.primaryReceiver;
-    }
-
-    /**
-     * @inheritdoc IFxGenArt721
-     */
-    function generateBaseURIHash(bytes calldata _uri) public view returns (bytes32) {
-        bytes32 structHash = keccak256(abi.encode(SET_BASE_URI_TYPEHASH, _uri, nonce));
-        return _hashTypedDataV4(structHash);
     }
 
     /**

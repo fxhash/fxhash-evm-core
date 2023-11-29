@@ -217,13 +217,6 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
 
     /**
      * @notice Generates typed data hash for setting project metadata onchain
-     * @param _uri Bytes-encoded base URI data
-     * @return Typed data hash
-     */
-    function generateBaseURIHash(bytes calldata _uri) external view returns (bytes32);
-
-    /**
-     * @notice Generates typed data hash for setting project metadata onchain
      * @param _data Bytes-encoded onchain data
      * @return Typed data hash
      */
@@ -365,9 +358,8 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     /**
      * @notice Sets the new URI of the token metadata
      * @param _uri Decoded content identifier of metadata pointer
-     * @param _signature Signature of creator used to verify metadata update
      */
-    function setBaseURI(bytes calldata _uri, bytes calldata _signature) external;
+    function setBaseURI(bytes calldata _uri) external;
 
     /**
      * @notice Sets the onchain data of the project metadata
