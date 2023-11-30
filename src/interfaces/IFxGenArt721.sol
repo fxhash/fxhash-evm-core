@@ -80,9 +80,9 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
 
     /**
      * @notice Event emitted when onchain data of project is updated
-     * @param _data Bytes-encoded metadata
+     * @param _pointer SSTORE pointer to the onchain data
      */
-    event OnchainDataUpdated(bytes _data);
+    event OnchainDataUpdated(address _pointer);
 
     /**
      * @notice Event emitted when maximum supply is reduced
