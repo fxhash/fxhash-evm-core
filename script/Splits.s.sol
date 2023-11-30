@@ -52,6 +52,10 @@ contract Splits is Script {
         vm.stopBroadcast();
     }
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                    HELPERS
+    //////////////////////////////////////////////////////////////////////////*/
+
     function _setUpCreators() internal {
         creators[0] = 0xed2647390b6FED5eC4e07E8036101A191f3eE4AB; // riiiis
         creators[1] = 0x21713dFBB002d7a91E5bc780e065389BDF4ed9f2; // KALA
