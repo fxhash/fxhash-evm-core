@@ -159,8 +159,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         _setNameAndSymbol(_initInfo.name, _initInfo.symbol);
         _setTags(_initInfo.tagIds);
         if (_initInfo.onchainData.length > 0) {
-            address onchainDataPointer = SSTORE2.write(_initInfo.onchainData);
-            emit OnchainDataUpdated(onchainDataPointer);
+            _setOnchainData(_initInfo.onchainData);
         }
 
         emit ProjectInitialized(issuerInfo.primaryReceiver, _projectInfo, _metadataInfo, _mintInfo);
@@ -286,9 +285,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     function setOnchainData(bytes calldata _data, bytes calldata _signature) external onlyOwner {
         bytes32 digest = generateOnchainDataHash(_data);
         _verifySignature(digest, _signature);
-        address onchainDataPointer = SSTORE2.write(_data);
-        metadataInfo.onchainPointer = onchainDataPointer;
-        emit OnchainDataUpdated(onchainDataPointer);
+        _setOnchainData(_data);
     }
 
     /**
@@ -540,6 +537,12 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         } else {
             nameAndSymbol_ = packed;
         }
+    }
+
+    function _setOnchainData(bytes calldata _onchainData) internal {
+        address onchainDataPointer = SSTORE2.write(_onchainData);
+        metadataInfo.onchainPointer = onchainDataPointer;
+        emit OnchainDataUpdated(onchainDataPointer);
     }
 
     /**
