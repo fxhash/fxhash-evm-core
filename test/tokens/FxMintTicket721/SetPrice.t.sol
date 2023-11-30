@@ -14,7 +14,7 @@ contract SetPrice is FxMintTicket721Test {
     function test_SetPrice() public {
         TicketLib.setPrice(bob, fxMintTicketProxy, tokenId, newPrice);
         _setTaxInfo();
-        assertEq(foreclosureTime, block.timestamp + (ONE_DAY * 2));
+        assertEq(foreclosureTime, taxationStartTime + (ONE_DAY * 2));
         assertEq(currentPrice, newPrice);
         assertEq(depositAmount, DEPOSIT_AMOUNT);
     }

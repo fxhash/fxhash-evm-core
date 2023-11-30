@@ -160,13 +160,13 @@ struct RoyaltyInfo {
 
 /**
  * @notice Struct of tax information
- * - `gracePeriod` Timestamp of period before token entering harberger taxation
+ * - `startTime` Timestamp of when harberger taxation begins
  * - `foreclosureTime` Timestamp of token foreclosure
- * - `currentPrice` Current ether price of token
+ * - `currentPrice` Current listing price of token
  * - `depositAmount` Total amount of taxes deposited
  */
 struct TaxInfo {
-    uint48 gracePeriod;
+    uint48 startTime;
     uint48 foreclosureTime;
     uint80 currentPrice;
     uint80 depositAmount;

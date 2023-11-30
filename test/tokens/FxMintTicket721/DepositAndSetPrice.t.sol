@@ -13,7 +13,7 @@ contract DepositAndSetPrice is FxMintTicket721Test {
     function test_DepositAndSetPrice() public {
         TicketLib.depositAndSetPrice(bob, fxMintTicketProxy, tokenId, newPrice, DEPOSIT_AMOUNT);
         _setTaxInfo();
-        assertEq(foreclosureTime, block.timestamp + (ONE_DAY * 2));
+        assertEq(foreclosureTime, taxationStartTime + (ONE_DAY * 2));
         assertEq(currentPrice, newPrice);
         assertEq(depositAmount, DEPOSIT_AMOUNT);
     }

@@ -271,7 +271,7 @@ interface IFxMintTicket721 is IToken {
      * @param _depositAmount Total amount of taxes deposited
      * @return Excess amount of taxes
      */
-    function getExcessTax(uint256 _dailyTax, uint256 _depositAmount) external pure returns (uint256);
+    function getExcessTax(uint256 _dailyTax, uint256 _depositAmount) external view returns (uint256);
 
     /**
      * @notice Gets the new foreclosure timestamp
@@ -284,14 +284,14 @@ interface IFxMintTicket721 is IToken {
         uint256 _dailyTax,
         uint256 _depositAmount,
         uint256 _foreclosureTime
-    ) external pure returns (uint48);
+    ) external view returns (uint48);
 
     /**
      * @notice Gets the remaining amount of taxes to be deposited
      * @param _dailyTax Daily tax amount based on current price
      * @param _depositAmount Total amount of taxes deposited
      * @param _foreclosureTime Timestamp of current foreclosure
-     * @return Remainig deposit amount
+     * @return Remaining deposit amount
      */
     function getRemainingDeposit(
         uint256 _dailyTax,
