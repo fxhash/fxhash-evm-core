@@ -266,6 +266,32 @@ interface IFxMintTicket721 is IToken {
     function getDailyTax(uint256 _currentPrice) external pure returns (uint256);
 
     /**
+     * @notice Gets the deposit amount owed to contract owner after a change in price, claim or burn
+     * @param _dailyTax Daily tax amount based on current price
+     * @param _depositAmount Total amount of taxes deposited
+     * @param _foreclosureTime Timestamp of current foreclosure
+     * @return Deposit amount owed
+     */
+    function getDepositOwed(
+        uint256 _dailyTax,
+        uint256 _depositAmount,
+        uint256 _foreclosureTime
+    ) external view returns (uint256);
+
+    /**
+     * @notice Gets the deposit amount remaining after a change in price, claim or burn
+     * @param _dailyTax Daily tax amount based on current price
+     * @param _depositAmount Total amount of taxes deposited
+     * @param _foreclosureTime Timestamp of current foreclosure
+     * @return Deposit amount remaining
+     */
+    function getDepositRemaining(
+        uint256 _dailyTax,
+        uint256 _depositAmount,
+        uint256 _foreclosureTime
+    ) external view returns (uint256);
+
+    /**
      * @notice Gets the excess amount of taxes paid
      * @param _dailyTax Daily tax amount based on current price
      * @param _depositAmount Total amount of taxes deposited
@@ -285,19 +311,6 @@ interface IFxMintTicket721 is IToken {
         uint256 _depositAmount,
         uint256 _foreclosureTime
     ) external view returns (uint48);
-
-    /**
-     * @notice Gets the remaining amount of taxes to be deposited
-     * @param _dailyTax Daily tax amount based on current price
-     * @param _depositAmount Total amount of taxes deposited
-     * @param _foreclosureTime Timestamp of current foreclosure
-     * @return Remaining deposit amount
-     */
-    function getRemainingDeposit(
-        uint256 _dailyTax,
-        uint256 _depositAmount,
-        uint256 _foreclosureTime
-    ) external view returns (uint256);
 
     /**
      * @notice Gets the total duration of time covered
