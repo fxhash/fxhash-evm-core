@@ -80,7 +80,7 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
 
     /**
      * @notice Event emitted when onchain data of project is updated
-     * @param _pointer SSTORE pointer to the onchain data
+     * @param _pointer SSTORE2 pointer to the onchain data
      */
     event OnchainDataUpdated(address _pointer);
 
