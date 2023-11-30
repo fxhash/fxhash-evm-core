@@ -79,13 +79,13 @@ library TokenLib {
         IFxGenArt721(_proxy).setMintEnabled(_flag);
     }
 
-    function setOnchainData(
+    function setOnchainPointer(
         address _admin,
         address _proxy,
-        bytes memory _data,
+        bytes memory _onchainData,
         bytes memory _signature
     ) internal prank(_admin) {
-        IFxGenArt721(_proxy).setOnchainData(_data, _signature);
+        IFxGenArt721(_proxy).setOnchainPointer(_onchainData, _signature);
     }
 
     function setRandomizer(address _admin, address _proxy, address _randomizer) internal prank(_admin) {
