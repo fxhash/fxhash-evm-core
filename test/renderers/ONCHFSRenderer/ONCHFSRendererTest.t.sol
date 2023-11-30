@@ -19,6 +19,6 @@ contract ONCHFSRendererTest is BaseTest {
         super.setUp();
         tokenId = 1;
         defaultMetadataURI = DEFAULT_METADATA_URI;
-        metadataInfo.baseURI = ONCHFS_BASE_URI;
+        metadataInfo.baseURI = ONCHFS_BASE_CID;
     }
 }

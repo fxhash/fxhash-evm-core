@@ -15,8 +15,14 @@ contract GetMetadataURI is ONCHFSRendererTest {
     }
 
     function test_GetMetadataURI_BaseURI() public {
-        generatedURI = string.concat(string(ONCHFS_BASE_URI), "/", tokenId.toString(), METADATA_ENDPOINT);
-        metadataURI = onchfsRenderer.getMetadataURI(deployer, string(ONCHFS_BASE_URI), tokenId);
+        generatedURI = string.concat(
+            ONCHFS_PREFIX,
+            string(ONCHFS_BASE_CID),
+            "/",
+            tokenId.toString(),
+            METADATA_ENDPOINT
+        );
+        metadataURI = onchfsRenderer.getMetadataURI(deployer, string(ONCHFS_BASE_CID), tokenId);
         assertEq(generatedURI, metadataURI);
     }
 }

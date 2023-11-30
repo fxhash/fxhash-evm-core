@@ -6,7 +6,7 @@ import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {IONCHFSRenderer} from "src/interfaces/IONCHFSRenderer.sol";
 
-import {METADATA_ENDPOINT} from "src/utils/Constants.sol";
+import {METADATA_ENDPOINT, ONCHFS_PREFIX} from "src/utils/Constants.sol";
 
 /**
  * @title ONCHFSRenderer
@@ -76,6 +76,6 @@ contract ONCHFSRenderer is IONCHFSRenderer {
         return
             (bytes(_baseURI).length == 0)
                 ? string.concat(defaultURI, contractAddr, metadataURI)
-                : string.concat(_baseURI, metadataURI);
+                : string.concat(ONCHFS_PREFIX, _baseURI, metadataURI);
     }
 }

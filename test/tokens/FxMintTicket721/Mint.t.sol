@@ -12,7 +12,7 @@ contract Mint is FxMintTicket721Test {
         TicketLib.mint(alice, minter, fxMintTicketProxy, bob, amount, PRICE);
         _setTaxInfo();
         assertEq(FxMintTicket721(fxMintTicketProxy).ownerOf(tokenId), bob);
-        assertEq(gracePeriod, block.timestamp + ONE_DAY);
+        assertEq(taxationStartTime, block.timestamp + ONE_DAY);
         assertEq(foreclosureTime, block.timestamp + ONE_DAY);
         assertEq(currentPrice, PRICE);
         assertEq(depositAmount, 0);
@@ -25,7 +25,7 @@ contract Mint is FxMintTicket721Test {
         TicketLib.mint(alice, minter, fxMintTicketProxy, bob, amount, MINIMUM_PRICE);
         _setTaxInfo();
         assertEq(FxMintTicket721(fxMintTicketProxy).ownerOf(tokenId), bob);
-        assertEq(gracePeriod, block.timestamp + ONE_DAY);
+        assertEq(taxationStartTime, block.timestamp + ONE_DAY);
         assertEq(foreclosureTime, block.timestamp + ONE_DAY);
         assertEq(currentPrice, MINIMUM_PRICE);
         assertEq(depositAmount, 0);

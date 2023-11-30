@@ -32,6 +32,7 @@ bytes32 constant SET_RENDERER_TYPEHASH = keccak256("SetRenderer(address renderer
 
 // Metadata
 bytes constant IPFS_URL = hex"697066733a2f2f172c151325290607391d2c391b242225180a020b291b260929391d1b31222525202804120031280917120b280400";
+string constant ONCHFS_PREFIX = "onchfs://";
 string constant METADATA_ENDPOINT = "/metadata.json";
 string constant THUMBNAIL_ENDPOINT = "/thumbnail.json";
 

@@ -6,7 +6,7 @@ import "test/BaseTest.t.sol";
 contract FxMintTicket721Test is BaseTest {
     // State
     uint48 foreclosureTime;
-    uint48 gracePeriod;
+    uint48 taxationStartTime;
     uint80 currentPrice;
     uint80 depositAmount;
     uint80 newPrice;
@@ -73,6 +73,8 @@ contract FxMintTicket721Test is BaseTest {
     }
 
     function _setTaxInfo() internal {
-        (gracePeriod, foreclosureTime, currentPrice, depositAmount) = FxMintTicket721(fxMintTicketProxy).taxes(tokenId);
+        (taxationStartTime, foreclosureTime, currentPrice, depositAmount) = FxMintTicket721(fxMintTicketProxy).taxes(
+            tokenId
+        );
     }
 }
