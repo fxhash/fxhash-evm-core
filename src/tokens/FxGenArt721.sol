@@ -451,6 +451,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         if (issuerInfo.projectInfo.inputSize < _fxParams.length) revert InvalidInputSize();
         _mint(_to, _tokenId);
         genArtInfo[_tokenId].fxParams = _fxParams;
+        IRandomizer(randomizer).requestRandomness(_tokenId);
     }
 
     /**
