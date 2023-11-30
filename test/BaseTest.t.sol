@@ -177,6 +177,16 @@ contract BaseTest is Deploy, Test {
         minter = address(new MockMinter());
     }
 
+    function _mockSplits() internal onlyLocalForge {
+        bytes memory splitMainBytecode = abi.encodePacked(SPLITS_MAIN_CREATION_CODE, abi.encode());
+        address deployedAddr;
+        vm.setNonce(SPLITS_DEPLOYER, 0);
+        vm.prank(SPLITS_DEPLOYER);
+        assembly {
+            deployedAddr := create(0, add(splitMainBytecode, 32), mload(splitMainBytecode))
+        }
+    }
+
     /*//////////////////////////////////////////////////////////////////////////
                                 CONFIGURATIONS
     //////////////////////////////////////////////////////////////////////////*/

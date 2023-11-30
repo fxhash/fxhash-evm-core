@@ -80,8 +80,8 @@ contract Deploy is Script {
     /*//////////////////////////////////////////////////////////////////////////
                                       RUN
     //////////////////////////////////////////////////////////////////////////*/
+
     function run() public virtual {
-        _mockSplits();
         vm.startBroadcast();
         _deployContracts();
         _registerContracts();
@@ -268,16 +268,6 @@ contract Deploy is Script {
         );
         deployedAddr = address(bytes20(response));
         require(success, "deployment failed");
-    }
-
-    function _mockSplits() internal onlyLocalForge {
-        bytes memory splitMainBytecode = abi.encodePacked(SPLITS_MAIN_CREATION_CODE, abi.encode());
-        address deployedAddr;
-        vm.setNonce(SPLITS_DEPLOYER, 0);
-        vm.prank(SPLITS_DEPLOYER);
-        assembly {
-            deployedAddr := create(0, add(splitMainBytecode, 32), mload(splitMainBytecode))
-        }
     }
 
     function _computeTicketAddr(address _deployer) internal view returns (address) {
