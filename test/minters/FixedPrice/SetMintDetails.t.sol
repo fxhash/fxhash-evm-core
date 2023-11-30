@@ -30,4 +30,28 @@ contract SetMintDetails is FixedPriceTest {
         vm.expectRevert(INVALID_ALLOCATION_ERROR);
         fixedPrice.setMintDetails(ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, 0), abi.encode(price));
     }
+
+    function test_RevertsWhen_DeregisteredReserve() public {
+        fixedPrice.setMintDetails(
+            ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
+            abi.encode(price, merkleRoot, signerAddr)
+        );
+
+        fixedPrice.setMintDetails(
+            ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
+            abi.encode(0, merkleRoot, signerAddr)
+        );
+
+        vm.warp(block.timestamp + 1);
+
+        fixedPrice.setMintDetails(
+            ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
+            abi.encode(0, merkleRoot, signerAddr)
+        );
+
+        vm.expectRevert(INVALID_RESERVE_ERROR);
+        fixedPrice.buy(address(this), 1, 1, address(this));
+    }
+
+    function mint(address _to, uint256 _amount, uint256 _payment) external {}
 }
