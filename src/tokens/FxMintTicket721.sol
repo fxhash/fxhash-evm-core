@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
-import "forge-std/Test.sol";
+
 import {ERC721, IERC721} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {Initializable} from "openzeppelin-upgradeable/contracts/proxy/utils/Initializable.sol";
 import {Ownable} from "solady/src/auth/Ownable.sol";
@@ -160,8 +160,11 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
 
         // Calculates remaining deposit amount to return to token owner
         uint256 dailyTax = getDailyTax(taxInfo.currentPrice);
-        uint256 depositRemaining = getDepositRemaining(dailyTax, taxInfo.depositAmount, taxInfo.foreclosureTime);
-        uint256 depositOwed = getDepositOwed(dailyTax, taxInfo.depositAmount, taxInfo.foreclosureTime);
+        (uint256 depositOwed, uint256 depositRemaining) = getDepositAmounts(
+            dailyTax,
+            taxInfo.depositAmount,
+            taxInfo.foreclosureTime
+        );
 
         // Updates owner balance with deposit amount owed
         balances[owner()] += depositOwed;
@@ -185,40 +188,56 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
 
         uint256 newDepositAmount;
         address previousOwner = _ownerOf(_tokenId);
+
         // Gets new daily tax amount based on new listing price
         uint256 newDailyTax = getDailyTax(_newPrice);
 
         if (isForeclosed(_tokenId)) {
             uint256 auctionPrice = getAuctionPrice(currentPrice, taxInfo.foreclosureTime);
-            // Reverts if payment amount is not at least auction price plus one day's worth of taxes
+            // Reverts if payment amount is not at least auction price plus new daily tax amount
             if (msg.value < auctionPrice + newDailyTax) revert InsufficientPayment();
+
+            // Sets new deposit amount based on payment minus current listing price
             newDepositAmount = msg.value - auctionPrice;
+
+            // Updates balance of contract owner with total deposit amount and auction price
             balances[owner()] += taxInfo.depositAmount + auctionPrice;
         } else {
-            // Reverts if payment amount is not at least current listing price plus one day's worth of taxes
+            // Reverts if payment amount is not at least current listing price plus new daily tax amount
             if (msg.value < currentPrice + newDailyTax) revert InsufficientPayment();
+
+            // Sets new deposit amount based on payment minus current listing price
+            newDepositAmount = msg.value - currentPrice;
+
             // Gets current daily tax amount based on current listing price
             uint256 currentDailyTax = getDailyTax(currentPrice);
-            // Gets remaining deposit amount based on time used from total deposit amount
-            uint256 depositOwed = getDepositOwed(currentDailyTax, taxInfo.depositAmount, taxInfo.foreclosureTime);
-            uint256 depositRemaining = getDepositRemaining(
+            // Gets deposit amount owed and remaining based on time accrued from total deposit
+            (uint256 depositOwed, uint256 depositRemaining) = getDepositAmounts(
                 currentDailyTax,
                 taxInfo.depositAmount,
                 taxInfo.foreclosureTime
             );
+
+            // Updates balances of contract owner and previous token owner
             balances[owner()] += depositOwed;
             balances[previousOwner] += currentPrice + depositRemaining;
-            newDepositAmount = msg.value - currentPrice;
         }
 
+        // Gets excess tax amount
         uint256 excessAmount = getExcessTax(newDailyTax, newDepositAmount);
+
+        // Sets updated tax info
         taxInfo.currentPrice = _newPrice;
         taxInfo.depositAmount = uint80(newDepositAmount - excessAmount);
         taxInfo.foreclosureTime = getNewForeclosure(newDailyTax, taxInfo.depositAmount, block.timestamp);
 
+        // Transfers token from previous owner to caller
         this.transferFrom(previousOwner, msg.sender, _tokenId);
+
+        // Updates balance of caller with excess tax if any amount exists
         if (excessAmount > 0) balances[msg.sender] += excessAmount;
 
+        // Emits event for claiming token
         emit Claimed(_tokenId, msg.sender, _newPrice, taxInfo.foreclosureTime, taxInfo.depositAmount, msg.value);
     }
 
@@ -234,17 +253,22 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
      * @inheritdoc IFxMintTicket721
      */
     function mint(address _to, uint256 _amount, uint256 _payment) external whenNotPaused {
+        // Reverts if caller is not a registered minter contract
         if (minters[msg.sender] != TRUE) revert UnregisteredMinter();
 
+        // Calculates individual listing price
         uint256 currentPrice = _payment / _amount;
         currentPrice = (currentPrice < MINIMUM_PRICE) ? MINIMUM_PRICE : currentPrice;
 
         uint48 currentId = totalSupply;
         for (uint256 i; i < _amount; ++i) {
+            // Mints token to caller
             _mint(_to, ++currentId);
 
+            // Emits event for partial SBT
             emit Locked(currentId);
 
+            // Initialized token info
             taxes[currentId] = TaxInfo(
                 uint48(block.timestamp) + gracePeriod,
                 uint48(block.timestamp) + gracePeriod,
@@ -274,29 +298,26 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
      * @inheritdoc IFxMintTicket721
      */
     function deposit(uint256 _tokenId) public payable {
-        console.log("deposit()");
+        // Reverts if token is foreclosed
         if (isForeclosed(_tokenId)) revert Foreclosure();
         TaxInfo storage taxInfo = taxes[_tokenId];
+        // Gets daily tax amount based on current listing price
         uint256 dailyTax = getDailyTax(taxInfo.currentPrice);
+        // Reverts if deposit amount is less than daily tax amount
         if (msg.value < dailyTax) revert InsufficientDeposit();
 
-        console.log("CURRENT PRICE", taxInfo.currentPrice);
-        console.log("DAILY TAX", dailyTax);
-
+        // Calculates actual deposit amount due to any excess tax deposited
         uint256 excessAmount = getExcessTax(dailyTax, msg.value);
         uint256 depositAmount = msg.value - excessAmount;
 
-        console.log("EXCESS AMOUNT", excessAmount);
-        console.log("DEPOSIT AMOUNT", depositAmount);
-
+        // Sets updated tax info
         taxInfo.depositAmount += uint80(depositAmount);
         taxInfo.foreclosureTime = getNewForeclosure(dailyTax, depositAmount, taxInfo.foreclosureTime);
+
+        // Updates balance of caller with excess tax if any amount exists
         if (excessAmount > 0) balances[msg.sender] += excessAmount;
 
-        console.log("CURRENT BLOCK TIME", block.timestamp);
-        console.log("CURRENT FORECLOSURE TIME", taxInfo.foreclosureTime);
-        console.log("=================================================");
-
+        // Emits event for deposit taxes
         emit Deposited(_tokenId, msg.sender, taxInfo.foreclosureTime, taxInfo.depositAmount);
     }
 
@@ -304,40 +325,41 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
      * @inheritdoc IFxMintTicket721
      */
     function setPrice(uint256 _tokenId, uint80 _newPrice) public {
-        console.log("setPrice()");
+        // Reverts if caller is not owner of token
         if (_ownerOf(_tokenId) != msg.sender) revert NotAuthorized();
+        // Reverts if token is foreclosed
         if (isForeclosed(_tokenId)) revert Foreclosure();
+        // Reverts if new listing price is less than minimum possible price
         if (_newPrice < MINIMUM_PRICE) revert InvalidPrice();
 
         TaxInfo storage taxInfo = taxes[_tokenId];
         uint48 foreclosureTime = taxInfo.foreclosureTime;
-        uint256 currentDailyTax = getDailyTax(taxInfo.currentPrice);
+        // Checks maximum timestamp to get actual taxation start time
         uint256 taxationStartTime = (block.timestamp > taxInfo.startTime) ? block.timestamp : taxInfo.startTime;
-        uint256 depositOwed = getDepositOwed(currentDailyTax, taxInfo.depositAmount, foreclosureTime);
-        uint256 depositRemaining = getDepositRemaining(currentDailyTax, taxInfo.depositAmount, foreclosureTime);
+
+        // Gets current daily tax amount based on current listing price
+        uint256 currentDailyTax = getDailyTax(taxInfo.currentPrice);
+        // Get new daily tax amount based on new listing price
         uint256 newDailyTax = getDailyTax(_newPrice);
+        // Gets deposit amount owed and remaining for time accrued from total deposit
+        (uint256 depositOwed, uint256 depositRemaining) = getDepositAmounts(
+            currentDailyTax,
+            taxInfo.depositAmount,
+            foreclosureTime
+        );
 
-        console.log("CURRENT PRICE", taxInfo.currentPrice);
-        console.log("CURRENT FORECLOSURE TIME", foreclosureTime);
-        console.log("CURRENT DAILY TAX", currentDailyTax);
-        console.log("REMAINING DEPOSIT", depositRemaining);
-        console.log("NEW DAILY TAX", newDailyTax);
-
+        // Reverts if remaining deposit amount is less than new daily tax amount
         if (depositRemaining < newDailyTax) revert InsufficientDeposit();
 
+        // Updates balance of contract owner with deposit amount owed
         balances[owner()] += depositOwed;
+
+        // Sets update tax info
         taxInfo.currentPrice = _newPrice;
         taxInfo.depositAmount = uint80(depositRemaining);
         taxInfo.foreclosureTime = getNewForeclosure(newDailyTax, depositRemaining, taxationStartTime);
 
-        console.log("DEPOSIT OWED", balances[owner()]);
-        console.log("NEW PRICE", _newPrice);
-        console.log("NEW DEPOSIT AMOUNT", taxInfo.depositAmount);
-        console.log("TAXATION START TIME", taxationStartTime);
-        console.log("CURRENT BLOCK TIME", block.timestamp);
-        console.log("NEW FORECLOSURE TIME", taxInfo.foreclosureTime);
-        console.log("=================================================");
-
+        // Emits event for setting new listing price
         emit SetPrice(_tokenId, _newPrice, taxInfo.depositAmount, taxInfo.foreclosureTime);
     }
 
@@ -439,8 +461,8 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
     function getAuctionPrice(uint256 _currentPrice, uint256 _foreclosureTime) public view returns (uint256) {
         uint256 timeElapsed = block.timestamp - _foreclosureTime;
         uint256 restingPrice = (_currentPrice * AUCTION_DECAY_RATE) / SCALING_FACTOR;
-        // Returns resting price if more than one day has already passed
         if (timeElapsed > ONE_DAY) return restingPrice;
+
         uint256 totalDecay = _currentPrice - restingPrice;
         uint256 decayedAmount = (totalDecay / ONE_DAY) * timeElapsed;
         return _currentPrice - decayedAmount;
@@ -449,38 +471,20 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
     /**
      * @inheritdoc IFxMintTicket721
      */
-    function getDepositOwed(
+    function getDepositAmounts(
         uint256 _dailyTax,
         uint256 _depositAmount,
         uint256 _foreclosureTime
-    ) public view returns (uint256) {
-        console.log("amountOwed()");
-        uint256 remainingDeposit = getDepositRemaining(_dailyTax, _depositAmount, _foreclosureTime);
-        console.log("REMAINING DEPOSIT", remainingDeposit);
-        console.log("DEPOSIT AMOUNT", _depositAmount);
-        console.log("=================================================");
-        return (_depositAmount < remainingDeposit) ? _depositAmount : _depositAmount - remainingDeposit;
-    }
-
-    /**
-     * @inheritdoc IFxMintTicket721
-     */
-    function getDepositRemaining(
-        uint256 _dailyTax,
-        uint256 _depositAmount,
-        uint256 _foreclosureTime
-    ) public view returns (uint256 remainingDeposit) {
-        console.log("getRemainingDeposit()");
+    ) public view returns (uint256 depositOwed, uint256 depositRemaining) {
         uint256 secondsCovered = getTaxDuration(_dailyTax, _depositAmount);
-        console.log("SECONDS COVERED", secondsCovered);
         uint256 depositStartTime = _foreclosureTime - secondsCovered;
-        console.log("DEPOSIT START TIME", depositStartTime);
-        // Returns total deposit amount if current time is less than deposit start timestamp
-        if (block.timestamp <= depositStartTime) return _depositAmount;
-        uint256 elapsedDuration = block.timestamp - depositStartTime;
-        console.log("ELAPSED DURATION", elapsedDuration);
-        remainingDeposit = (elapsedDuration * _dailyTax) / ONE_DAY;
-        console.log("REMAINING DEPOSIT", remainingDeposit);
+        if (block.timestamp <= depositStartTime) {
+            depositRemaining = _depositAmount;
+        } else {
+            uint256 elapsedDuration = block.timestamp - depositStartTime;
+            depositRemaining = (elapsedDuration * _dailyTax) / ONE_DAY;
+            depositOwed = (_depositAmount < depositRemaining) ? _depositAmount : _depositAmount - depositRemaining;
+        }
     }
 
     /**
@@ -500,13 +504,9 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
     /**
      * @inheritdoc IFxMintTicket721
      */
-    function getExcessTax(uint256 _dailyTax, uint256 _depositAmount) public view returns (uint256) {
-        console.log("getExcessTax()");
+    function getExcessTax(uint256 _dailyTax, uint256 _depositAmount) public pure returns (uint256) {
         uint256 daysCovered = _depositAmount / _dailyTax;
-        console.log("DAYS COVERED", daysCovered);
         uint256 actualAmount = daysCovered * _dailyTax;
-        console.log("ACTUAL AMOUNT", actualAmount);
-        console.log("=================================================");
         return _depositAmount - actualAmount;
     }
 
@@ -517,11 +517,8 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
         uint256 _dailyTax,
         uint256 _depositAmount,
         uint256 _currentForeclosure
-    ) public view returns (uint48) {
-        console.log("getNewForeclosure()");
+    ) public pure returns (uint48) {
         uint256 secondsCovered = getTaxDuration(_dailyTax, _depositAmount);
-        console.log("SECONDS COVERED", secondsCovered);
-        console.log("=================================================");
         return uint48(_currentForeclosure + secondsCovered);
     }
 

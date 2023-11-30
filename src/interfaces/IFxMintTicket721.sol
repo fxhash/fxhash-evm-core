@@ -266,30 +266,18 @@ interface IFxMintTicket721 is IToken {
     function getDailyTax(uint256 _currentPrice) external pure returns (uint256);
 
     /**
-     * @notice Gets the deposit amount owed to contract owner after a change in price, claim or burn
+     * @notice Gets the deposit amount owed and remaining after change in price, claim or burn
      * @param _dailyTax Daily tax amount based on current price
      * @param _depositAmount Total amount of taxes deposited
      * @param _foreclosureTime Timestamp of current foreclosure
      * @return Deposit amount owed
-     */
-    function getDepositOwed(
-        uint256 _dailyTax,
-        uint256 _depositAmount,
-        uint256 _foreclosureTime
-    ) external view returns (uint256);
-
-    /**
-     * @notice Gets the deposit amount remaining after a change in price, claim or burn
-     * @param _dailyTax Daily tax amount based on current price
-     * @param _depositAmount Total amount of taxes deposited
-     * @param _foreclosureTime Timestamp of current foreclosure
      * @return Deposit amount remaining
      */
-    function getDepositRemaining(
+    function getDepositAmounts(
         uint256 _dailyTax,
         uint256 _depositAmount,
         uint256 _foreclosureTime
-    ) external view returns (uint256);
+    ) external view returns (uint256, uint256);
 
     /**
      * @notice Gets the excess amount of taxes paid
