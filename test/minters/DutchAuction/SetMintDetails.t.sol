@@ -88,4 +88,26 @@ contract SetMintDetails is DutchAuctionTest {
             abi.encode(daInfo, merkleRoot, signerAddr)
         );
     }
+
+    function test_RevertsWhen_DeregisteredReserve() public {
+        dutchAuction.setMintDetails(
+            ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
+            abi.encode(daInfo, merkleRoot, signerAddr)
+        );
+        dutchAuction.setMintDetails(
+            ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
+            abi.encode(daInfo, merkleRoot, signerAddr)
+        );
+        vm.warp(block.timestamp + 1);
+
+        dutchAuction.setMintDetails(
+            ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
+            abi.encode(daInfo, merkleRoot, signerAddr)
+        );
+
+        vm.expectRevert(INVALID_RESERVE_ERROR);
+        dutchAuction.buy(address(this), 1, 1, address(this));
+    }
+
+    function mint(address _to, uint256 _amount, uint256 _payment) external {}
 }
