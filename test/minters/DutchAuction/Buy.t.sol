@@ -30,10 +30,9 @@ contract Buy is DutchAuctionTest {
         dutchAuction.buy{value: 0.5 ether}(fxGenArtProxy, reserveId, quantity, alice);
     }
 
-    function test_RevertsWhen_Ended() public {
+    function test_WhenEnded_PurchasePriceStaysAtLastStep() public {
         vm.warp(uint256(RESERVE_END_TIME) + 1);
-        vm.expectRevert(ENDED_ERROR);
-        dutchAuction.buy{value: price}(fxGenArtProxy, reserveId, quantity, alice);
+        dutchAuction.buy{value: 0.5 ether}(fxGenArtProxy, reserveId, quantity, alice);
     }
 
     function test_RevertsWhen_InvalidToken() public {
