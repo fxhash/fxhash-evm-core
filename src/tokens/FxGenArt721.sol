@@ -158,6 +158,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         _setBaseRoyalties(_royaltyReceivers, _allocations, _basisPoints);
         _setNameAndSymbol(_initInfo.name, _initInfo.symbol);
         _setTags(_initInfo.tagIds);
+        if (_initInfo.onchainData.length > 0) _setOnchainPointer(_initInfo.onchainData);
 
         emit ProjectInitialized(issuerInfo.primaryReceiver, _projectInfo, _metadataInfo, _mintInfo);
     }
@@ -279,11 +280,10 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function setOnchainData(bytes calldata _data, bytes calldata _signature) external onlyOwner {
-        bytes32 digest = generateOnchainDataHash(_data);
+    function setOnchainPointer(bytes calldata _onchainData, bytes calldata _signature) external onlyOwner {
+        bytes32 digest = generateOnchainDataHash(_onchainData);
         _verifySignature(digest, _signature);
-        metadataInfo.onchainPointer = SSTORE2.write(_data);
-        emit OnchainDataUpdated(_data);
+        _setOnchainPointer(_onchainData);
     }
 
     /**
@@ -535,6 +535,15 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         } else {
             nameAndSymbol_ = packed;
         }
+    }
+
+    /**
+     * @dev Sets the onchain pointer for reconstructing metadata onchain
+     */
+    function _setOnchainPointer(bytes calldata _onchainData) internal {
+        address onchainPointer = SSTORE2.write(_onchainData);
+        metadataInfo.onchainPointer = onchainPointer;
+        emit OnchainPointerUpdated(onchainPointer);
     }
 
     /**
