@@ -18,7 +18,13 @@ contract TokenURI is ONCHFSRendererTest {
 
     function test_TokenURI_BaseURI() public {
         data = abi.encode(metadataInfo.baseURI, metadataInfo.onchainPointer, genArtInfo.seed, genArtInfo.fxParams);
-        generatedURI = string.concat(string(ONCHFS_BASE_URI), "/", tokenId.toString(), METADATA_ENDPOINT);
+        generatedURI = string.concat(
+            ONCHFS_PREFIX,
+            string(ONCHFS_BASE_CID),
+            "/",
+            tokenId.toString(),
+            METADATA_ENDPOINT
+        );
         tokenURI = onchfsRenderer.tokenURI(tokenId, data);
         assertEq(generatedURI, tokenURI);
     }

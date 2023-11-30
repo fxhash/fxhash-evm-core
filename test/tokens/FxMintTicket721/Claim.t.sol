@@ -12,7 +12,7 @@ contract Claim is FxMintTicket721Test {
     }
 
     function test_Claim_ListingPrice() public {
-        vm.warp(gracePeriod + 1);
+        vm.warp(taxationStartTime + 1);
         TicketLib.claim(alice, fxMintTicketProxy, tokenId, PRICE, newPrice, PRICE + DEPOSIT_AMOUNT);
         _setTaxInfo();
         assertEq(FxMintTicket721(fxMintTicketProxy).ownerOf(tokenId), alice);
@@ -38,19 +38,19 @@ contract Claim is FxMintTicket721Test {
     }
 
     function test_RevertsWhen_PriceExceeded() public {
-        vm.warp(gracePeriod + 1);
+        vm.warp(taxationStartTime + 1);
         vm.expectRevert(PRICE_EXCEEDED_ERROR);
         TicketLib.claim(alice, fxMintTicketProxy, tokenId, PRICE - 1, newPrice, PRICE + DEPOSIT_AMOUNT);
     }
 
     function test_RevertsWhen_InvalidPrice() public {
-        vm.warp(gracePeriod + 1);
+        vm.warp(taxationStartTime + 1);
         vm.expectRevert(INVALID_PRICE_ERROR);
         TicketLib.claim(alice, fxMintTicketProxy, tokenId, PRICE, uint80(MINIMUM_PRICE - 1), PRICE + DEPOSIT_AMOUNT);
     }
 
     function test_RevertsWhen_InsufficientPayment() public {
-        vm.warp(gracePeriod + 1);
+        vm.warp(taxationStartTime + 1);
         vm.expectRevert(INSUFFICIENT_PAYMENT_ERROR);
         TicketLib.claim(alice, fxMintTicketProxy, tokenId, PRICE, newPrice, PRICE + (DEPOSIT_AMOUNT / 2) - 1);
     }
