@@ -15,7 +15,6 @@ contract DutchAuctionTest is BaseTest {
 
     // Errors
     bytes4 internal ADDRESS_ZERO_ERROR = IDutchAuction.AddressZero.selector;
-    bytes4 internal ENDED_ERROR = IDutchAuction.Ended.selector;
     bytes4 internal INSUFFICIENT_FUNDS_ERROR = IDutchAuction.InsufficientFunds.selector;
     bytes4 internal INVALID_ALLOCATION_ERROR = IDutchAuction.InvalidAllocation.selector;
     bytes4 internal INVALID_AMOUNT_ERROR = IDutchAuction.InvalidAmount.selector;

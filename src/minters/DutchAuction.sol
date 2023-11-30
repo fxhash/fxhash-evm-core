@@ -276,7 +276,6 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
 
         // Checks if the auction has started and not ended
         if (block.timestamp < reserve.startTime) revert NotStarted();
-        // if (block.timestamp > reserve.endTime) revert Ended();
 
         // Checks if the requested amount is within the available allocation for the reserve
         if (_amount > reserve.allocation) revert InvalidAmount();
