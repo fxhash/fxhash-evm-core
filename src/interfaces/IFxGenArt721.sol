@@ -82,7 +82,7 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @notice Event emitted when onchain data of project is updated
      * @param _pointer SSTORE2 pointer to the onchain data
      */
-    event OnchainDataUpdated(address _pointer);
+    event OnchainPointerUpdated(address _pointer);
 
     /**
      * @notice Event emitted when maximum supply is reduced
@@ -374,11 +374,11 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     function setMintEnabled(bool _flag) external;
 
     /**
-     * @notice Sets the onchain data of the project metadata
-     * @param _data Bytes-encoded metadata
+     * @notice Sets the onchain pointer for reconstructing project metadata onchain
+     * @param _onchainData Bytes-encoded metadata
      * @param _signature Signature of creator used to verify metadata update
      */
-    function setOnchainData(bytes calldata _data, bytes calldata _signature) external;
+    function setOnchainPointer(bytes calldata _onchainData, bytes calldata _signature) external;
 
     /**
      * @notice Sets the primary receiver address for primary sale proceeds

@@ -53,7 +53,7 @@ struct GenArtInfo {
  * - `randomizer` Address of Randomizer contract
  * - `renderer` Address of Renderer contract
  * - `tagIds` Array of tag IDs describing the project
- * - 'onchainData' Onchain data to be stored onchain using SSTORE2 and available to renderers
+ * - 'onchainData' Onchain data to be stored using SSTORE2 and available to renderers
  */
 struct InitInfo {
     string name;
