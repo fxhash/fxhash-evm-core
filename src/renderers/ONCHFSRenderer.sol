@@ -5,6 +5,7 @@ import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {IONCHFSRenderer} from "src/interfaces/IONCHFSRenderer.sol";
+import {SSTORE2} from "sstore2/contracts/SSTORE2.sol";
 
 import {METADATA_ENDPOINT, ONCHFS_PREFIX} from "src/utils/Constants.sol";
 
@@ -54,7 +55,8 @@ contract ONCHFSRenderer is IONCHFSRenderer {
      * @inheritdoc IONCHFSRenderer
      */
     function tokenURI(uint256 _tokenId, bytes calldata _data) external view returns (string memory) {
-        (bytes memory baseURI, , , ) = abi.decode(_data, (bytes, address, bytes32, bytes));
+        (bytes memory baseURI, address onchainPointer, , ) = abi.decode(_data, (bytes, address, bytes32, bytes));
+        bytes memory onchainData = SSTORE2.read(onchainPointer);
         return getMetadataURI(msg.sender, string(baseURI), _tokenId);
     }
 
