@@ -33,11 +33,6 @@ interface IFxIssuerFactory {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @notice Error thrown when input size is zero
-     */
-    error InvalidInputSize();
-
-    /**
      * @notice Error thrown when owner is zero address
      */
     error InvalidOwner();
