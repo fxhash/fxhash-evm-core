@@ -62,8 +62,8 @@ contract ONCHFSRenderer is IONCHFSRenderer {
         string memory baseURI = LibIPFSEncoder.encodeURL(bytes32(baseCID));
         bytes memory onchainData = SSTORE2.read(onchainPointer);
         (string memory description, bytes32 onchfsCID) = abi.decode(onchainData, (string, bytes32));
-        string memory animationURI = getAnimationURL(onchfsCID, _tokenId, minter, seed, fxParams);
-        return _renderJSON(msg.sender, _tokenId, description, baseURI, animationURI);
+        string memory animationURL = getAnimationURL(onchfsCID, _tokenId, minter, seed, fxParams);
+        return _renderJSON(msg.sender, _tokenId, description, baseURI, animationURL);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -149,13 +149,13 @@ contract ONCHFSRenderer is IONCHFSRenderer {
         uint256 _tokenId,
         string memory _description,
         string memory _baseURI,
-        string memory _animationURI
+        string memory _animationURL
     ) internal view returns (string memory) {
         string memory name = string.concat(IERC721Metadata(_contractAdrr).name(), " #", _tokenId.toString());
         string memory symbol = IERC721Metadata(_contractAdrr).symbol();
         string memory externalURL = getExternalURL(msg.sender, _tokenId);
-        string memory imageURI = getImageURL(msg.sender, string(_baseURI), _tokenId);
-        string memory attributesURI = getAttributesURL(msg.sender, string(_baseURI), _tokenId);
+        string memory imageURL = getImageURL(msg.sender, string(_baseURI), _tokenId);
+        string memory attributesURL = getAttributesURL(msg.sender, string(_baseURI), _tokenId);
 
         return
             string(
@@ -171,11 +171,11 @@ contract ONCHFSRenderer is IONCHFSRenderer {
                     '"externalURL:"',
                     externalURL,
                     '"image":"',
-                    imageURI,
+                    imageURL,
                     '"animation_url":"',
-                    _animationURI,
+                    _animationURL,
                     '", "attributes":["',
-                    attributesURI,
+                    attributesURL,
                     '"]}'
                 )
             );

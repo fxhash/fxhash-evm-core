@@ -2,9 +2,13 @@
 pragma solidity 0.8.23;
 
 contract MockToken {
+    string name;
+    string symbol;
     address internal owner;
 
     constructor() {
+        name = "name";
+        symbol = "symbol";
         owner = msg.sender;
     }
 

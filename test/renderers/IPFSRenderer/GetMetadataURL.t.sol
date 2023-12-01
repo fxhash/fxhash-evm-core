@@ -8,15 +8,15 @@ contract GetMetadataURL is IPFSRendererTest {
     using Strings for uint256;
 
     function test_GetMetadataURL_DefaultURI() public {
-        contractAddr = uint160(deployer).toHexString(20);
+        contractAddr = uint160(fxGenArtProxy).toHexString(20);
         generatedURL = string.concat(DEFAULT_METADATA_URI, contractAddr, "/", tokenId.toString(), METADATA_ENDPOINT);
-        metadataURL = ipfsRenderer.getMetadataURL(deployer, "", tokenId);
+        metadataURL = ipfsRenderer.getMetadataURL(fxGenArtProxy, "", tokenId);
         assertEq(generatedURL, metadataURL);
     }
 
     function test_GetMetadataURL_BaseURI() public {
         generatedURL = string.concat(string(IPFS_BASE_URI), "/", tokenId.toString(), METADATA_ENDPOINT);
-        metadataURL = ipfsRenderer.getMetadataURL(deployer, string(IPFS_BASE_URI), tokenId);
+        metadataURL = ipfsRenderer.getMetadataURL(fxGenArtProxy, string(IPFS_BASE_URI), tokenId);
         assertEq(generatedURL, metadataURL);
     }
 }

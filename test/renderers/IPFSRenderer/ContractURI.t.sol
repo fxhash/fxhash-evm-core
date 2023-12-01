@@ -7,8 +7,9 @@ contract ContractURI is IPFSRendererTest {
     using Strings for uint160;
 
     function test_ContractURI() public {
-        contractAddr = uint160(deployer).toHexString(20);
+        contractAddr = uint160(fxGenArtProxy).toHexString(20);
         generatedURL = string.concat(DEFAULT_METADATA_URI, contractAddr, METADATA_ENDPOINT);
+        vm.prank(fxGenArtProxy);
         contractURI = ipfsRenderer.contractURI();
         assertEq(generatedURL, contractURI);
     }
