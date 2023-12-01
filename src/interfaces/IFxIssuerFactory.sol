@@ -63,7 +63,7 @@ interface IFxIssuerFactory {
      * @param _basisPoints Total allocation scalar for calculating royalty shares
      * @return genArtToken Address of newly created FxGenArt721 proxy
      */
-    function createProject(
+    function createProjectWithParams(
         address _owner,
         InitInfo memory _initInfo,
         ProjectInfo memory _projectInfo,
@@ -89,7 +89,7 @@ interface IFxIssuerFactory {
      * @return genArtToken Address of newly created FxGenArt721 proxy
      * @return mintTicket Address of newly created FxMintTicket721 proxy
      */
-    function createProject(
+    function createProjectWithTicket(
         bytes calldata _projectCreationInfo,
         bytes calldata _ticketCreationInfo,
         address _tickeFactory

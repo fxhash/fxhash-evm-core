@@ -64,7 +64,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     /**
      * @inheritdoc IFxIssuerFactory
      */
-    function createProject(
+    function createProjectWithTicket(
         bytes calldata _projectCreationInfo,
         bytes calldata _ticketCreationInfo,
         address _ticketFactory
@@ -102,7 +102,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
                 (address, InitInfo, ProjectInfo, MetadataInfo, MintInfo[], address[], uint32[], uint96)
             );
 
-        genArt721 = createProject(
+        genArt721 = createProjectWithParams(
             _owner,
             _initInfo,
             _projectInfo,
@@ -117,7 +117,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     /**
      * @inheritdoc IFxIssuerFactory
      */
-    function createProject(
+    function createProjectWithParams(
         address _owner,
         InitInfo memory _initInfo,
         ProjectInfo memory _projectInfo,
