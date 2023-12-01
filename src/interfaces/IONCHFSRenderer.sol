@@ -43,45 +43,36 @@ interface IONCHFSRenderer is IRenderer {
     /**
      * @notice Generates the attributes URI for a token ID
      * @param _contractAddr Address of the token contract
-     * @param _defaultURI URI of offchain metadata
      * @param _baseURI URI of the content identifier
      * @param _tokenId ID of the token
      * @return URI of the attributes pointer
      */
     function getAttributesURI(
         address _contractAddr,
-        string memory _defaultURI,
         string memory _baseURI,
         uint256 _tokenId
-    ) external pure returns (string memory);
+    ) external view returns (string memory);
 
     /**
      * @notice Generates the external URL for a token ID
      * @param _contractAddr Address of the token contract
-     * @param _defaultURI URI of offchain metadata
      * @param _tokenId ID of the token
      * @return URL of the external token pointer
      */
-    function getExternalURL(
-        address _contractAddr,
-        string memory _defaultURI,
-        uint256 _tokenId
-    ) external pure returns (string memory);
+    function getExternalURL(address _contractAddr, uint256 _tokenId) external view returns (string memory);
 
     /**
      * @notice Generates the image URI for a token ID
      * @param _contractAddr Address of the token contract
-     * @param _defaultURI URI of offchain metadata
      * @param _baseURI URI of the content identifier
      * @param _tokenId ID of the token
      * @return URI of the image pointer
      */
     function getImageURI(
         address _contractAddr,
-        string memory _defaultURI,
         string memory _baseURI,
         uint256 _tokenId
-    ) external pure returns (string memory);
+    ) external view returns (string memory);
 
     /**
      * @inheritdoc IRenderer

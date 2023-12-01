@@ -2,12 +2,12 @@
 pragma solidity 0.8.23;
 
 import {LibIPFSEncoder} from "src/lib/LibIPFSEncoder.sol";
+import {SSTORE2} from "sstore2/contracts/SSTORE2.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 
 import {IERC721Metadata} from "openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {IONCHFSRenderer} from "src/interfaces/IONCHFSRenderer.sol";
-import {SSTORE2} from "sstore2/contracts/SSTORE2.sol";
 
 import "src/utils/Constants.sol";
 
@@ -63,13 +63,56 @@ contract ONCHFSRenderer is IONCHFSRenderer {
         bytes memory onchainData = SSTORE2.read(onchainPointer);
         (string memory description, bytes32 onchfsCID) = abi.decode(onchainData, (string, bytes32));
         string memory animationURI = getAnimationURI(string(bytes.concat(onchfsCID)), _tokenId, minter, seed, fxParams);
-        (, , , , , string memory defaultURI, ) = IFxContractRegistry(contractRegistry).configInfo();
-        return _renderJSON(msg.sender, _tokenId, description, defaultURI, baseURI, animationURI);
+        return _renderJSON(msg.sender, _tokenId, description, baseURI, animationURI);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
                                 PUBLIC FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc IONCHFSRenderer
+     */
+    function getAttributesURI(
+        address _contractAddr,
+        string memory _baseURI,
+        uint256 _tokenId
+    ) public view returns (string memory) {
+        (, , , , , string memory defaultURI, ) = IFxContractRegistry(contractRegistry).configInfo();
+        string memory contractAddr = uint160(_contractAddr).toHexString(20);
+        string memory attributesURI = string.concat("/", _tokenId.toString(), ATTRIBUTES_ENDPOINT);
+        return
+            (bytes(_baseURI).length == 0)
+                ? string.concat(defaultURI, contractAddr, attributesURI)
+                : string.concat(_baseURI, attributesURI);
+    }
+
+    /**
+     * @inheritdoc IONCHFSRenderer
+     */
+    function getExternalURL(address _contractAddr, uint256 _tokenId) public view returns (string memory) {
+        (, , , , , , string memory externalURI) = IFxContractRegistry(contractRegistry).configInfo();
+        string memory contractAddr = uint160(_contractAddr).toHexString(20);
+        string memory metadataURI = string.concat("-", _tokenId.toString());
+        return string.concat(externalURI, contractAddr, metadataURI);
+    }
+
+    /**
+     * @inheritdoc IONCHFSRenderer
+     */
+    function getImageURI(
+        address _contractAddr,
+        string memory _baseURI,
+        uint256 _tokenId
+    ) public view returns (string memory) {
+        (, , , , , string memory defaultURI, ) = IFxContractRegistry(contractRegistry).configInfo();
+        string memory contractAddr = uint160(_contractAddr).toHexString(20);
+        string memory imageURI = string.concat("/", _tokenId.toString(), THUMBNAIL_ENDPOINT);
+        return
+            (bytes(_baseURI).length == 0)
+                ? string.concat(defaultURI, contractAddr, imageURI)
+                : string.concat(_baseURI, imageURI);
+    }
 
     /**
      * @inheritdoc IONCHFSRenderer
@@ -94,53 +137,6 @@ contract ONCHFSRenderer is IONCHFSRenderer {
         return string.concat(ONCHFS_PREFIX, _onchfsCID, queryParams);
     }
 
-    /**
-     * @inheritdoc IONCHFSRenderer
-     */
-    function getAttributesURI(
-        address _contractAddr,
-        string memory _defaultURI,
-        string memory _baseURI,
-        uint256 _tokenId
-    ) public pure returns (string memory) {
-        string memory contractAddr = uint160(_contractAddr).toHexString(20);
-        string memory attributesURI = string.concat("/", _tokenId.toString(), ATTRIBUTES_ENDPOINT);
-        return
-            (bytes(_baseURI).length == 0)
-                ? string.concat(_defaultURI, contractAddr, attributesURI)
-                : string.concat(_baseURI, attributesURI);
-    }
-
-    /**
-     * @inheritdoc IONCHFSRenderer
-     */
-    function getExternalURL(
-        address _contractAddr,
-        string memory _defaultURI,
-        uint256 _tokenId
-    ) public pure returns (string memory) {
-        string memory contractAddr = uint160(_contractAddr).toHexString(20);
-        string memory externalURL = string.concat("/", _tokenId.toString());
-        return string.concat(_defaultURI, contractAddr, externalURL);
-    }
-
-    /**
-     * @inheritdoc IONCHFSRenderer
-     */
-    function getImageURI(
-        address _contractAddr,
-        string memory _defaultURI,
-        string memory _baseURI,
-        uint256 _tokenId
-    ) public pure returns (string memory) {
-        string memory contractAddr = uint160(_contractAddr).toHexString(20);
-        string memory imageURI = string.concat("/", _tokenId.toString(), THUMBNAIL_ENDPOINT);
-        return
-            (bytes(_baseURI).length == 0)
-                ? string.concat(_defaultURI, contractAddr, imageURI)
-                : string.concat(_baseURI, imageURI);
-    }
-
     /*//////////////////////////////////////////////////////////////////////////
                                 INTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -152,15 +148,14 @@ contract ONCHFSRenderer is IONCHFSRenderer {
         address _contractAdrr,
         uint256 _tokenId,
         string memory _description,
-        string memory _defaultURI,
         string memory _baseURI,
         string memory _animationURI
     ) internal view returns (string memory) {
         string memory name = string.concat(IERC721Metadata(_contractAdrr).name(), " #", _tokenId.toString());
         string memory symbol = IERC721Metadata(_contractAdrr).symbol();
-        string memory externalURL = getExternalURL(msg.sender, _defaultURI, _tokenId);
-        string memory imageURI = getImageURI(msg.sender, _defaultURI, string(_baseURI), _tokenId);
-        string memory attributesURI = getAttributesURI(msg.sender, _defaultURI, string(_baseURI), _tokenId);
+        string memory externalURL = getExternalURL(msg.sender, _tokenId);
+        string memory imageURI = getImageURI(msg.sender, string(_baseURI), _tokenId);
+        string memory attributesURI = getAttributesURI(msg.sender, string(_baseURI), _tokenId);
 
         return
             string(
@@ -171,8 +166,8 @@ contract ONCHFSRenderer is IONCHFSRenderer {
                     _description,
                     '"symbol:"',
                     symbol,
-                    '"version:"',
-                    API_VERSION,
+                    // '"version:"',
+                    // API_VERSION,
                     '"externalURL:"',
                     externalURL,
                     '"image":"',

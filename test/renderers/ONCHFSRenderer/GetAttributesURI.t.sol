@@ -11,13 +11,13 @@ contract GetAttributesURI is ONCHFSRendererTest {
         baseURI = bytes("");
         contractAddr = uint160(deployer).toHexString(20);
         generatedURI = string.concat(defaultMetadataURI, contractAddr, "/", tokenId.toString(), ATTRIBUTES_ENDPOINT);
-        imageURI = onchfsRenderer.getImageURI(deployer, defaultMetadataURI, string(baseURI), tokenId);
-        assertEq(generatedURI, imageURI);
+        attributesURI = onchfsRenderer.getAttributesURI(deployer, string(baseURI), tokenId);
+        assertEq(generatedURI, attributesURI);
     }
 
     function test_GetAttributesURI_BaseURI() public {
         generatedURI = string.concat(string(IPFS_BASE_URI), "/", tokenId.toString(), ATTRIBUTES_ENDPOINT);
-        imageURI = onchfsRenderer.getImageURI(deployer, defaultMetadataURI, string(IPFS_BASE_URI), tokenId);
-        assertEq(generatedURI, imageURI);
+        attributesURI = onchfsRenderer.getAttributesURI(deployer, string(IPFS_BASE_URI), tokenId);
+        assertEq(generatedURI, attributesURI);
     }
 }
