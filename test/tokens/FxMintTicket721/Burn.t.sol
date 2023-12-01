@@ -20,4 +20,10 @@ contract Burn is FxMintTicket721Test {
         assertEq(FxMintTicket721(fxMintTicketProxy).balanceOf(bob), 0);
         assertEq(FxGenArt721(fxGenArtProxy).balanceOf(bob), 1);
     }
+
+    function test_Burn2() public {
+        TicketLib.deposit(bob, fxMintTicketProxy, tokenId, 0.0027 ether);
+        TicketLib.redeem(bob, address(ticketRedeemer), fxGenArtProxy, bob, tokenId, fxParams);
+        _setTaxInfo();
+    }
 }

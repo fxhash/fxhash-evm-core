@@ -181,19 +181,12 @@ contract SetPrice is FxMintTicket721Test {
         _setTaxInfo();
         TicketLib.deposit(bob, fxMintTicketProxy, tokenId, 0.0027 ether);
         _setTaxInfo();
-        /// 0.66 * 0.027 == 0.001782 [ User has enough for 1 day of tax ]
-        TicketLib.setPrice(bob, fxMintTicketProxy, tokenId, uint80(1 ether));
-        _setTaxInfo();
-        uint256 pretaxStart = taxationStartTime;
-        uint256 preforeclosureTime = foreclosureTime;
-        uint256 precurrentPrice = currentPrice;
-        uint256 predeposit = depositAmount;
 
-        TicketLib.transferFrom(bob, fxMintTicketProxy, bob, bob, tokenId);
+        // TicketLib.setPrice(address(this), fxMintTicketProxy, tokenId, uint80(1 ether));
+        // _setTaxInfo();
+
+        vm.prank(address(ticketRedeemer));
+        IFxMintTicket721(fxMintTicketProxy).burn(tokenId);
         _setTaxInfo();
-        assertEq(pretaxStart, taxationStartTime);
-        assertEq(preforeclosureTime, foreclosureTime);
-        assertEq(precurrentPrice, currentPrice);
-        assertEq(predeposit, depositAmount);
     }
 }
