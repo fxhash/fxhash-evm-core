@@ -276,7 +276,6 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
 
         // Checks if the auction has started and not ended
         if (block.timestamp < reserve.startTime) revert NotStarted();
-        if (block.timestamp > reserve.endTime) revert Ended();
 
         // Checks if the requested amount is within the available allocation for the reserve
         if (_amount > reserve.allocation) revert InvalidAmount();
@@ -333,7 +332,8 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         uint256 step = timeSinceStart / _daInfo.stepLength;
 
         // Checks if the step is within the range of prices
-        if (step >= _daInfo.prices.length) revert InvalidStep();
+        uint256 length = _daInfo.prices.length;
+        if (step >= length) return _daInfo.prices[length - 1];
         return _daInfo.prices[step];
     }
 

@@ -242,7 +242,7 @@ contract BaseTest is Deploy, Test {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _createProject() internal virtual {
-        fxGenArtProxy = fxIssuerFactory.createProject(
+        fxGenArtProxy = fxIssuerFactory.createProjectWithParams(
             creator,
             initInfo,
             projectInfo,

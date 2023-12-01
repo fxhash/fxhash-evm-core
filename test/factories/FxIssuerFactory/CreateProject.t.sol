@@ -16,7 +16,7 @@ contract CreateProject is FxIssuerFactoryTest {
     }
 
     function test_CreateProject() public {
-        fxGenArtProxy = fxIssuerFactory.createProject(
+        fxGenArtProxy = fxIssuerFactory.createProjectWithParams(
             creator,
             initInfo,
             projectInfo,
@@ -65,7 +65,7 @@ contract CreateProject is FxIssuerFactoryTest {
             uint48(ONE_DAY),
             mintInfo
         );
-        (fxGenArtProxy, fxMintTicketProxy) = fxIssuerFactory.createProject(
+        (fxGenArtProxy, fxMintTicketProxy) = fxIssuerFactory.createProjectWithTicket(
             projectCreationInfo,
             ticketCreationInfo,
             address(fxTicketFactory)
@@ -78,7 +78,7 @@ contract CreateProject is FxIssuerFactoryTest {
 
     function test_RevertsWhen_InvalidOwner() public {
         vm.expectRevert(INVALID_OWNER_ERROR);
-        fxGenArtProxy = fxIssuerFactory.createProject(
+        fxGenArtProxy = fxIssuerFactory.createProjectWithParams(
             address(0),
             initInfo,
             projectInfo,
