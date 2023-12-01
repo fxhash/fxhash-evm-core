@@ -12,7 +12,7 @@ import {IONCHFSRenderer} from "src/interfaces/IONCHFSRenderer.sol";
 import "src/utils/Constants.sol";
 
 /**
- * @title ONCHFSRenderers
+ * @title ONCHFSRenderer
  * @author fx(hash)
  * @dev See the documentation in {IONCHFSRenderer}
  */
