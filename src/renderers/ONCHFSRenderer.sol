@@ -124,16 +124,11 @@ contract ONCHFSRenderer is IONCHFSRenderer {
         bytes32 _seed,
         bytes memory _fxParams
     ) public pure returns (string memory) {
-        string memory queryParams = string.concat(
-            FX_HASH_QUERY,
-            uint256(_seed).toHexString(),
-            ITERATION_QUERY,
-            _tokenId.toString(),
-            MINTER_QUERY,
-            uint160(_minter).toHexString(20),
-            FX_PARAMS_QUERY,
-            string(_fxParams)
-        );
+        string memory fxHash = string.concat(FX_HASH_QUERY, uint256(_seed).toHexString());
+        string memory iteration = string.concat(ITERATION_QUERY, _tokenId.toString());
+        string memory minter = string.concat(MINTER_QUERY, uint160(_minter).toHexString(20));
+        string memory fxParams = string.concat(FX_PARAMS_QUERY, string(_fxParams));
+        string memory queryParams = string.concat(fxHash, iteration, minter, fxParams);
         return string.concat(ONCHFS_PREFIX, uint256(_onchfsCID).toHexString(), queryParams);
     }
 

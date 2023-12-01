@@ -24,7 +24,7 @@ contract ONCHFSRendererTest is BaseTest {
                                     SETUP
     //////////////////////////////////////////////////////////////////////////*/
 
-    function setUp() public override {
+    function setUp() public virtual override {
         super.setUp();
         tokenId = 1;
         fxGenArtProxy = address(new MockToken());
@@ -33,6 +33,6 @@ contract ONCHFSRendererTest is BaseTest {
         description = "description";
         metadataInfo.baseURI = IPFS_BASE_CID;
         metadataInfo.onchainPointer = SSTORE2.write(abi.encode(description, ONCHFS_CID));
-        genArtInfo.minter = deployer;
+        genArtInfo.minter = fxGenArtProxy;
     }
 }
