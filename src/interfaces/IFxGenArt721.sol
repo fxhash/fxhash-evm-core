@@ -220,7 +220,7 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @param _data Bytes-encoded onchain data
      * @return Typed data hash
      */
-    function generateOnchainDataHash(bytes calldata _data) external view returns (bytes32);
+    function generateOnchainPointerHash(bytes calldata _data) external view returns (bytes32);
 
     /**
      * @notice Generates typed data hash for setting the primary receiver address

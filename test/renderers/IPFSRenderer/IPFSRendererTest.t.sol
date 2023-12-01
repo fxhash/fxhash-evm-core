@@ -9,8 +9,8 @@ contract IPFSRendererTest is BaseTest {
     // State
     bytes internal data;
     string internal contractAddr;
-    string internal generatedURI;
-    string internal metadataURI;
+    string internal generatedURL;
+    string internal metadataURL;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     SETUP
@@ -19,7 +19,6 @@ contract IPFSRendererTest is BaseTest {
     function setUp() public override {
         super.setUp();
         tokenId = 1;
-        defaultMetadataURI = DEFAULT_METADATA_URI;
         metadataInfo.baseURI = IPFS_BASE_CID;
     }
 }

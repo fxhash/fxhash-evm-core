@@ -8,8 +8,8 @@ contract ContractURI is ONCHFSRendererTest {
 
     function test_ContractURI() public {
         contractAddr = uint160(deployer).toHexString(20);
-        generatedURI = string.concat(defaultMetadataURI, contractAddr, METADATA_ENDPOINT);
+        generatedURL = string.concat(DEFAULT_METADATA_URI, contractAddr, METADATA_ENDPOINT);
         contractURI = onchfsRenderer.contractURI();
-        assertEq(generatedURI, contractURI);
+        assertEq(generatedURL, contractURI);
     }
 }

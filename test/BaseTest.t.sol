@@ -56,14 +56,14 @@ contract BaseTest is Deploy, Test {
 
     // Metadata
     bytes internal baseURI;
+    string internal contractURI;
+    string internal tokenURI;
     bytes internal fxParams;
     bytes internal onchainData;
     bytes32 internal seed;
     uint120 internal inputSize;
 
     // Project
-    string internal contractURI;
-    string internal tokenURI;
     uint96 internal projectId;
     uint256[] internal tagIds;
 

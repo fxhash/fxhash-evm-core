@@ -62,7 +62,7 @@ contract ONCHFSRenderer is IONCHFSRenderer {
         string memory baseURI = LibIPFSEncoder.encodeURL(bytes32(baseCID));
         bytes memory onchainData = SSTORE2.read(onchainPointer);
         (string memory description, bytes32 onchfsCID) = abi.decode(onchainData, (string, bytes32));
-        string memory animationURI = getAnimationURI(onchfsCID, _tokenId, minter, seed, fxParams);
+        string memory animationURI = getAnimationURL(onchfsCID, _tokenId, minter, seed, fxParams);
         return _renderJSON(msg.sender, _tokenId, description, baseURI, animationURI);
     }
 
@@ -73,7 +73,7 @@ contract ONCHFSRenderer is IONCHFSRenderer {
     /**
      * @inheritdoc IONCHFSRenderer
      */
-    function getAttributesURI(
+    function getAttributesURL(
         address _contractAddr,
         string memory _baseURI,
         uint256 _tokenId
@@ -100,7 +100,7 @@ contract ONCHFSRenderer is IONCHFSRenderer {
     /**
      * @inheritdoc IONCHFSRenderer
      */
-    function getImageURI(
+    function getImageURL(
         address _contractAddr,
         string memory _baseURI,
         uint256 _tokenId
@@ -117,7 +117,7 @@ contract ONCHFSRenderer is IONCHFSRenderer {
     /**
      * @inheritdoc IONCHFSRenderer
      */
-    function getAnimationURI(
+    function getAnimationURL(
         bytes32 _onchfsCID,
         uint256 _tokenId,
         address _minter,
@@ -154,8 +154,8 @@ contract ONCHFSRenderer is IONCHFSRenderer {
         string memory name = string.concat(IERC721Metadata(_contractAdrr).name(), " #", _tokenId.toString());
         string memory symbol = IERC721Metadata(_contractAdrr).symbol();
         string memory externalURL = getExternalURL(msg.sender, _tokenId);
-        string memory imageURI = getImageURI(msg.sender, string(_baseURI), _tokenId);
-        string memory attributesURI = getAttributesURI(msg.sender, string(_baseURI), _tokenId);
+        string memory imageURI = getImageURL(msg.sender, string(_baseURI), _tokenId);
+        string memory attributesURI = getAttributesURL(msg.sender, string(_baseURI), _tokenId);
 
         return
             string(

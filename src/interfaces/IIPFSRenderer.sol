@@ -24,13 +24,13 @@ interface IIPFSRenderer is IRenderer {
     function contractURI() external view returns (string memory);
 
     /**
-     * @notice Generates the metadata URI for a token ID
+     * @notice Generates the metadata URL for a token ID
      * @param _contractAddr Address of the token contract
      * @param _baseURI URI of the content identifier
      * @param _tokenId ID of the token
-     * @return URI of the JSON metadata
+     * @return URL of the JSON metadata
      */
-    function getMetadataURI(
+    function getMetadataURL(
         address _contractAddr,
         string memory _baseURI,
         uint256 _tokenId

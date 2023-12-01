@@ -24,15 +24,15 @@ interface IONCHFSRenderer is IRenderer {
     function contractURI() external view returns (string memory);
 
     /**
-     * @notice Generates the animation URI for a token ID
+     * @notice Generates the animation URL for a token ID
      * @param _onchfsCID CID hash of token animation
      * @param _tokenId ID of the token
      * @param _minter Address of initial token owner
      * @param _seed Hash of randomly generated seed
      * @param _fxParams Random sequence of fixed-length bytes used as token input
-     * @return URI of the animation pointer
+     * @return URL of the animation pointer
      */
-    function getAnimationURI(
+    function getAnimationURL(
         bytes32 _onchfsCID,
         uint256 _tokenId,
         address _minter,
@@ -41,13 +41,13 @@ interface IONCHFSRenderer is IRenderer {
     ) external pure returns (string memory);
 
     /**
-     * @notice Generates the attributes URI for a token ID
+     * @notice Generates the attributes URL for a token ID
      * @param _contractAddr Address of the token contract
      * @param _baseURI URI of the content identifier
      * @param _tokenId ID of the token
-     * @return URI of the attributes pointer
+     * @return URL of the attributes pointer
      */
-    function getAttributesURI(
+    function getAttributesURL(
         address _contractAddr,
         string memory _baseURI,
         uint256 _tokenId
@@ -62,13 +62,13 @@ interface IONCHFSRenderer is IRenderer {
     function getExternalURL(address _contractAddr, uint256 _tokenId) external view returns (string memory);
 
     /**
-     * @notice Generates the image URI for a token ID
+     * @notice Generates the image URL for a token ID
      * @param _contractAddr Address of the token contract
      * @param _baseURI URI of the content identifier
      * @param _tokenId ID of the token
-     * @return URI of the image pointer
+     * @return URL of the image pointer
      */
-    function getImageURI(
+    function getImageURL(
         address _contractAddr,
         string memory _baseURI,
         uint256 _tokenId

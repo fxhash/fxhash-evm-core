@@ -10,10 +10,11 @@ contract ONCHFSRendererTest is BaseTest {
     bytes internal data;
     address internal onchainPointer;
     string internal contractAddr;
-    string internal generatedURI;
-    string internal animationURI;
-    string internal attributesURI;
-    string internal imageURI;
+    string internal animationURL;
+    string internal attributesURL;
+    string internal externalURL;
+    string internal generatedURL;
+    string internal imageURL;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     SETUP
@@ -22,8 +23,6 @@ contract ONCHFSRendererTest is BaseTest {
     function setUp() public override {
         super.setUp();
         tokenId = 1;
-        defaultMetadataURI = DEFAULT_METADATA_URI;
-        externalURI = EXTERNAL_URI;
         metadataInfo.baseURI = IPFS_BASE_URI;
         onchainPointer = SSTORE2.write(bytes.concat(ONCHFS_CID));
         genArtInfo.minter = deployer;

@@ -281,7 +281,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      * @inheritdoc IFxGenArt721
      */
     function setOnchainPointer(bytes calldata _onchainData, bytes calldata _signature) external onlyOwner {
-        bytes32 digest = generateOnchainDataHash(_onchainData);
+        bytes32 digest = generateOnchainPointerHash(_onchainData);
         _verifySignature(digest, _signature);
         _setOnchainPointer(_onchainData);
     }
@@ -382,8 +382,8 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function generateOnchainDataHash(bytes calldata _data) public view returns (bytes32) {
-        bytes32 structHash = keccak256(abi.encode(SET_ONCHAIN_DATA_TYPEHASH, _data, nonce));
+    function generateOnchainPointerHash(bytes calldata _data) public view returns (bytes32) {
+        bytes32 structHash = keccak256(abi.encode(SET_ONCHAIN_POINTER_TYPEHASH, _data, nonce));
         return _hashTypedDataV4(structHash);
     }
 

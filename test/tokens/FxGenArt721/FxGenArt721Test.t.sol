@@ -37,7 +37,8 @@ contract FxGenArt721Test is BaseTest {
             PRIMARY_FEE_ALLOCATION,
             LOCK_TIME,
             REFERRER_SHARE,
-            DEFAULT_METADATA_URI
+            DEFAULT_METADATA_URI,
+            EXTERNAL_URI
         );
         _initializeState();
         _mockMinter(admin);
