@@ -105,6 +105,11 @@ interface IFxMintTicket721 is IToken {
     error GracePeriodActive();
 
     /**
+     * @notice Error thrown when token is outside of the grace period
+     */
+    error GracePeriodInactive();
+
+    /**
      * @notice Error thrown when deposit amount is not for at least one day
      */
     error InsufficientDeposit();
@@ -365,6 +370,12 @@ interface IFxMintTicket721 is IToken {
      * @param _newPrice New price of the token
      */
     function setPrice(uint256 _tokenId, uint80 _newPrice) external;
+
+    /**
+     * @notice Sets taxation start time to the current timestamp
+     * @param _tokenId ID of the token
+     */
+    function setStartTime(uint256 _tokenId) external;
 
     /**
      * @notice Mapping of ticket ID to tax information (grace period, foreclosure time, current price, deposit amount)

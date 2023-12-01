@@ -282,6 +282,21 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
     /**
      * @inheritdoc IFxMintTicket721
      */
+    function setStartTime(uint256 _tokenId) external {
+        // Reverts if caller is not owner of token
+        if (_ownerOf(_tokenId) != msg.sender) revert NotAuthorized();
+        TaxInfo storage taxInfo = taxes[_tokenId];
+        // Reverts if taxation start time has already begun
+        if (block.timestamp >= taxInfo.startTime) revert GracePeriodInactive();
+        // Reverts if foreclosure time is less than one day
+        if (taxInfo.foreclosureTime < block.timestamp + ONE_DAY) revert InsufficientDeposit();
+
+        taxInfo.startTime += uint48(block.timestamp);
+    }
+
+    /**
+     * @inheritdoc IFxMintTicket721
+     */
     function withdraw(address _to) external {
         uint256 balance = balances[_to];
         delete balances[_to];
