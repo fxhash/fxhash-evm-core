@@ -2,6 +2,7 @@
 pragma solidity 0.8.23;
 
 import "test/BaseTest.t.sol";
+import {Pausable} from "openzeppelin-contracts/contracts/security/Pausable.sol";
 
 contract FxIssuerFactoryTest is BaseTest {
     // Errors
