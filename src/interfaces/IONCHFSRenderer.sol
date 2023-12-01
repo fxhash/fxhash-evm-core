@@ -6,7 +6,7 @@ import {IRenderer} from "src/interfaces/IRenderer.sol";
 /**
  * @title IONCHFSRenderer
  * @author fx(hash)
- * @notice Renderer for constructing onchain metadata of FxGenArt721 tokens stored through ONCHFS
+ * @notice Renderer for reconstructing metadata of FxGenArt721 tokens stored onchain through ONCHFS
  */
 interface IONCHFSRenderer is IRenderer {
     /*//////////////////////////////////////////////////////////////////////////
@@ -41,7 +41,7 @@ interface IONCHFSRenderer is IRenderer {
     ) external pure returns (string memory);
 
     /**
-     * @notice Generates the attributes for a token ID
+     * @notice Generates the list of attributes for a token ID
      * @param _contractAddr Address of the token contract
      * @param _baseURI URI of the content identifier
      * @param _tokenId ID of the token
