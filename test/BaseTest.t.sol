@@ -45,6 +45,15 @@ contract BaseTest is Deploy, Test {
     uint256 internal signerPk;
     bytes internal signature;
 
+    // Config
+    address internal feeReceiver;
+    string internal defaultMetadataURI;
+    string internal externalURL;
+    uint32 internal secondaryFeeAllocation;
+    uint32 internal primaryFeeAllocation;
+    uint64 internal lockTime;
+    uint64 internal referrerShare;
+
     // Metadata
     bytes internal baseURI;
     bytes internal fxParams;
@@ -53,13 +62,8 @@ contract BaseTest is Deploy, Test {
     uint120 internal inputSize;
 
     // Project
-    address internal feeReceiver;
     string internal contractURI;
-    string internal defaultMetadataURI;
-    uint32 internal secondaryFeeAllocation;
-    uint32 internal primaryFeeAllocation;
-    uint64 internal lockTime;
-    uint64 internal referrerShare;
+    string internal tokenURI;
     uint96 internal projectId;
     uint256[] internal tagIds;
 

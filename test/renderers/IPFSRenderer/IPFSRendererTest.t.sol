@@ -11,7 +11,6 @@ contract IPFSRendererTest is BaseTest {
     string internal contractAddr;
     string internal generatedURI;
     string internal metadataURI;
-    string internal tokenURI;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     SETUP

@@ -143,7 +143,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         uint32[] calldata _allocations,
         uint96 _basisPoints
     ) external initializer {
-        (, , , uint32 lockTime, , ) = IFxContractRegistry(contractRegistry).configInfo();
+        (, , , uint32 lockTime, , , ) = IFxContractRegistry(contractRegistry).configInfo();
         _projectInfo.earliestStartTime = (_isVerified(_owner))
             ? uint32(block.timestamp)
             : uint32(block.timestamp) + lockTime;
@@ -507,7 +507,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         uint32[] calldata _allocations,
         uint96 _basisPoints
     ) internal override {
-        (address feeReceiver, , uint32 secondaryFeeAllocation, , , ) = IFxContractRegistry(contractRegistry)
+        (address feeReceiver, , uint32 secondaryFeeAllocation, , , , ) = IFxContractRegistry(contractRegistry)
             .configInfo();
         _checkFeeReceiver(_receivers, _allocations, feeReceiver, secondaryFeeAllocation);
         super._setBaseRoyalties(_receivers, _allocations, _basisPoints);
@@ -517,7 +517,8 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      * @dev Sets primary receiver address for token sales
      */
     function _setPrimaryReceiver(address[] calldata _receivers, uint32[] calldata _allocations) internal {
-        (address feeReceiver, uint32 primaryFeeAllocation, , , , ) = IFxContractRegistry(contractRegistry).configInfo();
+        (address feeReceiver, uint32 primaryFeeAllocation, , , , , ) = IFxContractRegistry(contractRegistry)
+            .configInfo();
         _checkFeeReceiver(_receivers, _allocations, feeReceiver, primaryFeeAllocation);
         address receiver = _getOrCreateSplit(_receivers, _allocations);
         issuerInfo.primaryReceiver = receiver;

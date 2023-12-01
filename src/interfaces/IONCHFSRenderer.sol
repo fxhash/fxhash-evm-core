@@ -24,17 +24,62 @@ interface IONCHFSRenderer is IRenderer {
     function contractURI() external view returns (string memory);
 
     /**
-     * @notice Generates the metadata URI for a token ID
+     * @notice Generates the animation URI for a token ID
+     * @param _onchfsCID CID hash of onchfs animation data
+     * @param _tokenId ID of the token
+     * @param _seed Hash of randomly generated seed
+     * @param _fxParams Random sequence of fixed-length bytes used as token input
+     * @return URI of the animation pointer
+     */
+    function getAnimationURI(
+        string memory _onchfsCID,
+        uint256 _tokenId,
+        bytes32 _seed,
+        bytes memory _fxParams
+    ) external pure returns (string memory);
+
+    /**
+     * @notice Generates the attributes URI for a token ID
      * @param _contractAddr Address of the token contract
+     * @param _defaultURI URI of offchain metadata
      * @param _baseURI URI of the content identifier
      * @param _tokenId ID of the token
-     * @return URI of the JSON metadata
+     * @return URI of the attributes pointer
      */
-    function getMetadataURI(
+    function getAttributesURI(
         address _contractAddr,
+        string memory _defaultURI,
         string memory _baseURI,
         uint256 _tokenId
-    ) external view returns (string memory);
+    ) external pure returns (string memory);
+
+    /**
+     * @notice Generates the external URL for a token ID
+     * @param _contractAddr Address of the token contract
+     * @param _defaultURI URI of offchain metadata
+     * @param _tokenId ID of the token
+     * @return URL of the external token pointer
+     */
+    function getExternalURL(
+        address _contractAddr,
+        string memory _defaultURI,
+        uint256 _tokenId
+    ) external pure returns (string memory);
+
+    /**
+     * @notice Generates the image URI for a token ID
+     * @param _contractAddr Address of the token contract
+     * @param _defaultURI URI of offchain metadata
+     * @param _baseURI URI of the content identifier
+     * @param _tokenId ID of the token
+     * @return URI of the image pointer
+     */
+    function getImageURI(
+        address _contractAddr,
+        string memory _defaultURI,
+        string memory _baseURI,
+        uint256 _tokenId
+    ) external pure returns (string memory);
 
     /**
      * @inheritdoc IRenderer
