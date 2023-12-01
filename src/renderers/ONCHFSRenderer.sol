@@ -12,7 +12,7 @@ import {IONCHFSRenderer} from "src/interfaces/IONCHFSRenderer.sol";
 import "src/utils/Constants.sol";
 
 /**
- * @title ONCHFSRenderer
+ * @title ONCHFSRenderers
  * @author fx(hash)
  * @dev See the documentation in {IONCHFSRenderer}
  */
@@ -157,17 +157,16 @@ contract ONCHFSRenderer is IONCHFSRenderer {
                 abi.encodePacked(
                     '"name:"',
                     name,
-                    '"description:"',
+                    '", "description:"',
                     _description,
-                    '"symbol:"',
+                    '", "symbol:"',
                     symbol,
-                    // '"version:"',
-                    // API_VERSION,
-                    '"externalURL:"',
+                    '", "version: 0.2"',
+                    '", "externalURL:"',
                     externalURL,
-                    '"image":"',
+                    '", "image":"',
                     imageURL,
-                    '"animation_url":"',
+                    '", "animation_url":"',
                     _animationURL,
                     '", "attributes":["',
                     attributes,
