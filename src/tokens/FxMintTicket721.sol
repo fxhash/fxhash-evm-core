@@ -295,6 +295,8 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
         if (taxInfo.foreclosureTime < block.timestamp + ONE_DAY) revert InsufficientDeposit();
 
         taxInfo.startTime += uint48(block.timestamp);
+
+        emit StartTimeUpdated(_tokenId, msg.sender, taxInfo.foreclosureTime);
     }
 
     /**
