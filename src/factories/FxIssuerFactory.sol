@@ -69,7 +69,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
         bytes calldata _ticketCreationInfo,
         address _ticketFactory
     ) external returns (address genArtToken, address mintTicket) {
-        genArtToken = createProjectWithBytes(_projectCreationInfo);
+        genArtToken = createProject(_projectCreationInfo);
         mintTicket = IFxTicketFactory(_ticketFactory).createTicket(_ticketCreationInfo);
     }
 
@@ -87,7 +87,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     /**
      * @inheritdoc IFxIssuerFactory
      */
-    function createProjectWithBytes(bytes memory _creationInfo) public returns (address genArt721) {
+    function createProject(bytes memory _creationInfo) public returns (address genArt721) {
         (
             address _owner,
             InitInfo memory _initInfo,
@@ -102,7 +102,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
                 (address, InitInfo, ProjectInfo, MetadataInfo, MintInfo[], address[], uint32[], uint96)
             );
 
-        genArt721 = createProject(
+        genArt721 = createProjectWithParams(
             _owner,
             _initInfo,
             _projectInfo,
@@ -117,7 +117,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     /**
      * @inheritdoc IFxIssuerFactory
      */
-    function createProject(
+    function createProjectWithParams(
         address _owner,
         InitInfo memory _initInfo,
         ProjectInfo memory _projectInfo,

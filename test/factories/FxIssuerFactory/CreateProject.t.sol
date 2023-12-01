@@ -16,7 +16,7 @@ contract CreateProject is FxIssuerFactoryTest {
     }
 
     function test_CreateProject() public {
-        fxGenArtProxy = fxIssuerFactory.createProject(
+        fxGenArtProxy = fxIssuerFactory.createProjectWithParams(
             creator,
             initInfo,
             projectInfo,
@@ -41,7 +41,7 @@ contract CreateProject is FxIssuerFactoryTest {
             allocations,
             basisPoints
         );
-        fxGenArtProxy = fxIssuerFactory.createProjectWithBytes(projectCreationInfo);
+        fxGenArtProxy = fxIssuerFactory.createProject(projectCreationInfo);
         assertEq(fxIssuerFactory.projects(projectId), fxGenArtProxy);
         assertEq(FxGenArt721(fxGenArtProxy).owner(), creator);
     }
@@ -78,7 +78,7 @@ contract CreateProject is FxIssuerFactoryTest {
 
     function test_RevertsWhen_InvalidOwner() public {
         vm.expectRevert(INVALID_OWNER_ERROR);
-        fxGenArtProxy = fxIssuerFactory.createProject(
+        fxGenArtProxy = fxIssuerFactory.createProjectWithParams(
             address(0),
             initInfo,
             projectInfo,

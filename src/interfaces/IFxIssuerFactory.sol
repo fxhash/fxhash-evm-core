@@ -63,7 +63,7 @@ interface IFxIssuerFactory {
      * @param _basisPoints Total allocation scalar for calculating royalty shares
      * @return genArtToken Address of newly created FxGenArt721 proxy
      */
-    function createProject(
+    function createProjectWithParams(
         address _owner,
         InitInfo memory _initInfo,
         ProjectInfo memory _projectInfo,
@@ -79,7 +79,7 @@ interface IFxIssuerFactory {
      * @param _creationInfo Bytes-encoded data for project creation
      * @return genArtToken Address of newly created FxGenArt721 proxy
      */
-    function createProjectWithBytes(bytes memory _creationInfo) external returns (address);
+    function createProject(bytes memory _creationInfo) external returns (address);
 
     /**
      * @notice Creates new generative art project with new mint ticket in single transaction
