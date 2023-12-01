@@ -94,7 +94,8 @@ contract Deploy is Script {
             uint256 secondaryAllocation,
             uint256 lockTime,
             uint256 referrerShare,
-            string memory metadata
+            string memory metadata,
+
         ) = fxContractRegistry.configInfo();
 
         require(lockTime == 1 hours, "Lock time incorrect");
