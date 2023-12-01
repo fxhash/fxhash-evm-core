@@ -79,7 +79,7 @@ interface IFxIssuerFactory {
      * @param _creationInfo Bytes-encoded data for project creation
      * @return genArtToken Address of newly created FxGenArt721 proxy
      */
-    function createProject(bytes memory _creationInfo) external returns (address);
+    function createProjectWithBytes(bytes memory _creationInfo) external returns (address);
 
     /**
      * @notice Creates new generative art project with new mint ticket in single transaction
@@ -89,7 +89,7 @@ interface IFxIssuerFactory {
      * @return genArtToken Address of newly created FxGenArt721 proxy
      * @return mintTicket Address of newly created FxMintTicket721 proxy
      */
-    function createProject(
+    function createProjectWithTicket(
         bytes calldata _projectCreationInfo,
         bytes calldata _ticketCreationInfo,
         address _tickeFactory

@@ -41,7 +41,7 @@ contract CreateProject is FxIssuerFactoryTest {
             allocations,
             basisPoints
         );
-        fxGenArtProxy = fxIssuerFactory.createProject(projectCreationInfo);
+        fxGenArtProxy = fxIssuerFactory.createProjectWithBytes(projectCreationInfo);
         assertEq(fxIssuerFactory.projects(projectId), fxGenArtProxy);
         assertEq(FxGenArt721(fxGenArtProxy).owner(), creator);
     }
@@ -65,7 +65,7 @@ contract CreateProject is FxIssuerFactoryTest {
             uint48(ONE_DAY),
             mintInfo
         );
-        (fxGenArtProxy, fxMintTicketProxy) = fxIssuerFactory.createProject(
+        (fxGenArtProxy, fxMintTicketProxy) = fxIssuerFactory.createProjectWithTicket(
             projectCreationInfo,
             ticketCreationInfo,
             address(fxTicketFactory)
