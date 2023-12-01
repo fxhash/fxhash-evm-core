@@ -3,6 +3,7 @@ pragma solidity 0.8.23;
 
 import {LibClone} from "solady/src/utils/LibClone.sol";
 import {Ownable} from "solady/src/auth/Ownable.sol";
+import {Pausable} from "openzeppelin-contracts/contracts/security/Pausable.sol";
 
 import {IAccessControl} from "openzeppelin/contracts/access/IAccessControl.sol";
 import {IFxGenArt721, InitInfo, MetadataInfo, MintInfo, ProjectInfo} from "src/interfaces/IFxGenArt721.sol";
@@ -14,7 +15,7 @@ import {IFxTicketFactory} from "src/interfaces/IFxTicketFactory.sol";
  * @author fx(hash)
  * @dev See the documentation in {IFxIssuerFactory}
  */
-contract FxIssuerFactory is IFxIssuerFactory, Ownable {
+contract FxIssuerFactory is IFxIssuerFactory, Ownable, Pausable {
     /*//////////////////////////////////////////////////////////////////////////
                                     STORAGE
     //////////////////////////////////////////////////////////////////////////*/
@@ -52,6 +53,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
      * @dev Initializes factory owner, FxRoleRegistry and FxGenArt721 implementation
      */
     constructor(address _admin, address _roleRegistry, address _implementation) {
+        _pause();
         roleRegistry = _roleRegistry;
         _initializeOwner(_admin);
         _setImplementation(_implementation);
@@ -64,13 +66,27 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     /**
      * @inheritdoc IFxIssuerFactory
      */
-    function createProject(
+    function createProjectWithTicket(
         bytes calldata _projectCreationInfo,
         bytes calldata _ticketCreationInfo,
         address _ticketFactory
-    ) external returns (address genArtToken, address mintTicket) {
+    ) external whenNotPaused returns (address genArtToken, address mintTicket) {
         genArtToken = createProject(_projectCreationInfo);
         mintTicket = IFxTicketFactory(_ticketFactory).createTicket(_ticketCreationInfo);
+    }
+
+    /**
+     * @inheritdoc IFxIssuerFactory
+     */
+    function unpause() external onlyOwner {
+        _unpause();
+    }
+
+    /**
+     * @inheritdoc IFxIssuerFactory
+     */
+    function pause() external onlyOwner {
+        _pause();
     }
 
     /**
@@ -102,7 +118,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
                 (address, InitInfo, ProjectInfo, MetadataInfo, MintInfo[], address[], uint32[], uint96)
             );
 
-        genArt721 = createProject(
+        genArt721 = createProjectWithParams(
             _owner,
             _initInfo,
             _projectInfo,
@@ -117,7 +133,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
     /**
      * @inheritdoc IFxIssuerFactory
      */
-    function createProject(
+    function createProjectWithParams(
         address _owner,
         InitInfo memory _initInfo,
         ProjectInfo memory _projectInfo,
@@ -126,7 +142,7 @@ contract FxIssuerFactory is IFxIssuerFactory, Ownable {
         address[] memory _royaltyReceivers,
         uint32[] memory _allocations,
         uint96 _basisPoints
-    ) public returns (address genArtToken) {
+    ) public whenNotPaused returns (address genArtToken) {
         if (_owner == address(0)) revert InvalidOwner();
 
         bytes32 salt = keccak256(abi.encode(msg.sender, nonces[msg.sender]));

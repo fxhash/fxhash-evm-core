@@ -9,6 +9,7 @@ uint32 constant PRIMARY_FEE_ALLOCATION = 100_000; // 10 %
 uint32 constant SECONDARY_FEE_ALLOCATION = 333_000; // 33.3 %
 uint64 constant REFERRER_SHARE = 200; // 2%
 string constant DEFAULT_METADATA_URI = "https://media.dev.fxhash-dev.xyz/metadata/ethereum/";
+string constant EXTERNAL_URI = "https://dev.fxhash-dev.xyz/gentk/";
 
 // Initialize
 string constant NAME = "fxhash";
@@ -19,7 +20,7 @@ uint256 constant TAG_ID = 1;
 bytes constant IPFS_BASE_CID = hex"a6ba5489183926f882cc59ef5478ec4aacf9e522fede5c462ed5c359b3159180";
 bytes constant IPFS_BASE_URI = "ipfs://QmZZVBKapDg2wXzwpDxdmL9Ah665h9ZzeJ9gYdbTZ4GBzf";
 bytes constant ONCHAIN_DATA = bytes("");
-bytes constant ONCHFS_BASE_CID = "a45656a598c9b98dcbeb634920fc436be6c4d75750cb87141af191d9a4362352";
+bytes32 constant ONCHFS_CID = 0xca7905aba124fa06b37ae8b25517e6fa75a3fc79db19d2c3ff2205161295eec9;
 
 // Project
 bool constant MINT_ENABLED = true;

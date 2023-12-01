@@ -80,9 +80,9 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
 
     /**
      * @notice Event emitted when onchain data of project is updated
-     * @param _data Bytes-encoded metadata
+     * @param _pointer SSTORE2 pointer to the onchain data
      */
-    event OnchainDataUpdated(bytes _data);
+    event OnchainPointerUpdated(address _pointer);
 
     /**
      * @notice Event emitted when maximum supply is reduced
@@ -211,16 +211,16 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     function fulfillSeedRequest(uint256 _tokenId, bytes32 _seed) external;
 
     /**
-     * @notice Mapping of token ID to GenArtInfo struct (seed, fxParams)
+     * @notice Mapping of token ID to GenArtInfo struct (minter, seed, fxParams)
      */
-    function genArtInfo(uint256 _tokenId) external view returns (bytes32, bytes memory);
+    function genArtInfo(uint256 _tokenId) external view returns (address, bytes32, bytes memory);
 
     /**
      * @notice Generates typed data hash for setting project metadata onchain
      * @param _data Bytes-encoded onchain data
      * @return Typed data hash
      */
-    function generateOnchainDataHash(bytes calldata _data) external view returns (bytes32);
+    function generateOnchainPointerHash(bytes calldata _data) external view returns (bytes32);
 
     /**
      * @notice Generates typed data hash for setting the primary receiver address
@@ -374,11 +374,11 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     function setMintEnabled(bool _flag) external;
 
     /**
-     * @notice Sets the onchain data of the project metadata
-     * @param _data Bytes-encoded metadata
+     * @notice Sets the onchain pointer for reconstructing project metadata onchain
+     * @param _onchainData Bytes-encoded metadata
      * @param _signature Signature of creator used to verify metadata update
      */
-    function setOnchainData(bytes calldata _data, bytes calldata _signature) external;
+    function setOnchainPointer(bytes calldata _onchainData, bytes calldata _signature) external;
 
     /**
      * @notice Sets the primary receiver address for primary sale proceeds

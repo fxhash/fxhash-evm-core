@@ -83,11 +83,6 @@ interface IDutchAuction is IMinter {
     error AddressZero();
 
     /**
-     * @notice Error thrown when the auction has already ended
-     */
-    error Ended();
-
-    /**
      * @notice Error thrown when no funds available to withdraw
      */
     error InsufficientFunds();
