@@ -143,7 +143,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         uint32[] calldata _allocations,
         uint96 _basisPoints
     ) external initializer {
-        (, , , uint32 lockTime, , ) = IFxContractRegistry(contractRegistry).configInfo();
+        (, , , uint32 lockTime, , , ) = IFxContractRegistry(contractRegistry).configInfo();
         _projectInfo.earliestStartTime = (_isVerified(_owner))
             ? uint32(block.timestamp)
             : uint32(block.timestamp) + lockTime;
@@ -281,7 +281,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      * @inheritdoc IFxGenArt721
      */
     function setOnchainPointer(bytes calldata _onchainData, bytes calldata _signature) external onlyOwner {
-        bytes32 digest = generateOnchainDataHash(_onchainData);
+        bytes32 digest = generateOnchainPointerHash(_onchainData);
         _verifySignature(digest, _signature);
         _setOnchainPointer(_onchainData);
     }
@@ -382,8 +382,8 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function generateOnchainDataHash(bytes calldata _data) public view returns (bytes32) {
-        bytes32 structHash = keccak256(abi.encode(SET_ONCHAIN_DATA_TYPEHASH, _data, nonce));
+    function generateOnchainPointerHash(bytes calldata _data) public view returns (bytes32) {
+        bytes32 structHash = keccak256(abi.encode(SET_ONCHAIN_POINTER_TYPEHASH, _data, nonce));
         return _hashTypedDataV4(structHash);
     }
 
@@ -433,6 +433,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         bytes memory data = abi.encode(
             metadataInfo.baseURI,
             metadataInfo.onchainPointer,
+            genArtInfo[_tokenId].minter,
             genArtInfo[_tokenId].seed,
             genArtInfo[_tokenId].fxParams
         );
@@ -450,6 +451,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         if (remainingSupply() == 0) revert InsufficientSupply();
         if (issuerInfo.projectInfo.inputSize < _fxParams.length) revert InvalidInputSize();
         _mint(_to, _tokenId);
+        genArtInfo[_tokenId].minter = _to;
         genArtInfo[_tokenId].fxParams = _fxParams;
         IRandomizer(randomizer).requestRandomness(_tokenId);
     }
@@ -460,6 +462,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     function _mintRandom(address _to, uint256 _tokenId) internal {
         if (remainingSupply() == 0) revert InsufficientSupply();
         _mint(_to, _tokenId);
+        genArtInfo[_tokenId].minter = _to;
         IRandomizer(randomizer).requestRandomness(_tokenId);
     }
 
@@ -507,7 +510,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         uint32[] calldata _allocations,
         uint96 _basisPoints
     ) internal override {
-        (address feeReceiver, , uint32 secondaryFeeAllocation, , , ) = IFxContractRegistry(contractRegistry)
+        (address feeReceiver, , uint32 secondaryFeeAllocation, , , , ) = IFxContractRegistry(contractRegistry)
             .configInfo();
         _checkFeeReceiver(_receivers, _allocations, feeReceiver, secondaryFeeAllocation);
         super._setBaseRoyalties(_receivers, _allocations, _basisPoints);
@@ -517,7 +520,8 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      * @dev Sets primary receiver address for token sales
      */
     function _setPrimaryReceiver(address[] calldata _receivers, uint32[] calldata _allocations) internal {
-        (address feeReceiver, uint32 primaryFeeAllocation, , , , ) = IFxContractRegistry(contractRegistry).configInfo();
+        (address feeReceiver, uint32 primaryFeeAllocation, , , , , ) = IFxContractRegistry(contractRegistry)
+            .configInfo();
         _checkFeeReceiver(_receivers, _allocations, feeReceiver, primaryFeeAllocation);
         address receiver = _getOrCreateSplit(_receivers, _allocations);
         issuerInfo.primaryReceiver = receiver;

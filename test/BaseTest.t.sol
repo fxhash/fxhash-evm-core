@@ -45,21 +45,25 @@ contract BaseTest is Deploy, Test {
     uint256 internal signerPk;
     bytes internal signature;
 
+    // Config
+    address internal feeReceiver;
+    string internal defaultMetadataURI;
+    string internal externalURI;
+    uint32 internal secondaryFeeAllocation;
+    uint32 internal primaryFeeAllocation;
+    uint64 internal lockTime;
+    uint64 internal referrerShare;
+
     // Metadata
     bytes internal baseURI;
+    string internal contractURI;
+    string internal tokenURI;
     bytes internal fxParams;
     bytes internal onchainData;
     bytes32 internal seed;
     uint120 internal inputSize;
 
     // Project
-    address internal feeReceiver;
-    string internal contractURI;
-    string internal defaultMetadataURI;
-    uint32 internal secondaryFeeAllocation;
-    uint32 internal primaryFeeAllocation;
-    uint64 internal lockTime;
-    uint64 internal referrerShare;
     uint96 internal projectId;
     uint256[] internal tagIds;
 
@@ -115,6 +119,8 @@ contract BaseTest is Deploy, Test {
         _mockSplits();
         _deployContracts();
         _grantRoles();
+        vm.prank(fxIssuerFactory.owner());
+        fxIssuerFactory.unpause();
     }
 
     /*//////////////////////////////////////////////////////////////////////////

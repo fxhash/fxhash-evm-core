@@ -73,7 +73,8 @@ contract Deploy is Script {
             SECONDARY_FEE_ALLOCATION,
             LOCK_TIME,
             REFERRER_SHARE,
-            DEFAULT_METADATA_URI
+            DEFAULT_METADATA_URI,
+            EXTERNAL_URI
         );
     }
 
@@ -141,7 +142,8 @@ contract Deploy is Script {
         uint32 _secondaryFeeAllocation,
         uint32 _lockTime,
         uint64 _referrerShare,
-        string memory _defaultMetadataURI
+        string memory _defaultMetadataURI,
+        string memory _externalURI
     ) internal virtual {
         configInfo.feeReceiver = _feeReceiver;
         configInfo.primaryFeeAllocation = _primaryFeeAllocation;
@@ -149,6 +151,7 @@ contract Deploy is Script {
         configInfo.lockTime = _lockTime;
         configInfo.referrerShare = _referrerShare;
         configInfo.defaultMetadataURI = _defaultMetadataURI;
+        configInfo.externalURI = _externalURI;
     }
 
     /*//////////////////////////////////////////////////////////////////////////

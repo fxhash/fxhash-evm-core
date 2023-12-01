@@ -149,6 +149,9 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
         // Reverts if caller is not redeemer contract
         if (msg.sender != redeemer) revert UnauthorizedRedeemer();
 
+        // Caches token owner
+        address tokenOwner = ownerOf(_tokenId);
+
         // Burns token from collection
         _burn(_tokenId);
 
@@ -170,7 +173,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
         balances[owner()] += depositOwed;
 
         // Updates token owner balance with returning deposit if any amount exists
-        if (depositRemaining > 0) balances[ownerOf(_tokenId)] += depositRemaining;
+        if (depositRemaining > 0) balances[tokenOwner] += depositRemaining;
     }
 
     /**
@@ -360,7 +363,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
         taxInfo.foreclosureTime = getNewForeclosure(newDailyTax, depositRemaining, taxationStartTime);
 
         // Emits event for setting new listing price
-        emit SetPrice(_tokenId, _newPrice, taxInfo.depositAmount, taxInfo.foreclosureTime);
+        emit SetPrice(_tokenId, _newPrice, taxInfo.foreclosureTime, taxInfo.depositAmount);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

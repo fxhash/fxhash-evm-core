@@ -76,6 +76,68 @@ contract CreateProject is FxIssuerFactoryTest {
         assertEq(FxMintTicket721(fxMintTicketProxy).owner(), creator);
     }
 
+    function test_RevertsWhen_Paused_CreateProjectWithParams() public {
+        vm.prank(fxIssuerFactory.owner());
+        fxIssuerFactory.pause();
+        vm.expectRevert("Pausable: paused");
+        fxGenArtProxy = fxIssuerFactory.createProjectWithParams(
+            creator,
+            initInfo,
+            projectInfo,
+            metadataInfo,
+            mintInfo,
+            royaltyReceivers,
+            allocations,
+            basisPoints
+        );
+    }
+
+    function test_RevertsWhen_Paused_CreateProject() public {
+        vm.prank(fxIssuerFactory.owner());
+        fxIssuerFactory.pause();
+        projectCreationInfo = abi.encode(
+            creator,
+            initInfo,
+            projectInfo,
+            metadataInfo,
+            mintInfo,
+            royaltyReceivers,
+            allocations,
+            basisPoints
+        );
+        vm.expectRevert("Pausable: paused");
+        fxGenArtProxy = fxIssuerFactory.createProject(projectCreationInfo);
+    }
+
+    function test_RevertsWhen_Paused_CreateProjectWithTicket() public {
+        vm.prank(fxIssuerFactory.owner());
+        fxIssuerFactory.pause();
+        projectCreationInfo = abi.encode(
+            creator,
+            initInfo,
+            projectInfo,
+            metadataInfo,
+            mintInfo,
+            royaltyReceivers,
+            allocations,
+            basisPoints
+        );
+        ticketCreationInfo = abi.encode(
+            creator,
+            deterministicToken,
+            address(ticketRedeemer),
+            address(ipfsRenderer),
+            uint48(ONE_DAY),
+            mintInfo
+        );
+        vm.expectRevert("Pausable: paused");
+        (fxGenArtProxy, fxMintTicketProxy) = fxIssuerFactory.createProjectWithTicket(
+            projectCreationInfo,
+            ticketCreationInfo,
+            address(fxTicketFactory)
+        );
+    }
+
     function test_RevertsWhen_InvalidOwner() public {
         vm.expectRevert(INVALID_OWNER_ERROR);
         fxGenArtProxy = fxIssuerFactory.createProjectWithParams(
