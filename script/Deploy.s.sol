@@ -87,6 +87,36 @@ contract Deploy is Script {
         _registerContracts();
         _grantRoles();
         vm.stopBroadcast();
+        (
+            address feeReceiver,
+            uint256 primaryAllocation,
+            uint256 secondaryAllocation,
+            uint256 lockTime,
+            uint256 referrerShare,
+            string memory metadata
+        ) = fxContractRegistry.configInfo();
+
+        require(lockTime == 1 hours, "Lock time incorrect");
+        require(feeReceiver == admin, "Admin incorrect");
+        require(primaryAllocation == 100_000, "Primary Allocation incorrect");
+        require(secondaryAllocation == 333_000, "Secondary Allocation incorrect");
+        require(referrerShare == 200, "referrer share incorrec");
+        require(
+            keccak256(bytes(metadata)) == keccak256(bytes("https://media.dev.fxhash-dev.xyz/metadata/ethereum/")),
+            "incorrect default URI"
+        );
+
+        require(fxRoleRegistry.getRoleAdmin(ADMIN_ROLE) == ADMIN_ROLE, "Admin role incorrect");
+        require(fxRoleRegistry.getRoleAdmin(CREATOR_ROLE) == ADMIN_ROLE, "Admin role incorrect");
+        require(fxRoleRegistry.getRoleAdmin(METADATA_ROLE) == ADMIN_ROLE, "Admin role incorrect");
+        require(fxRoleRegistry.getRoleAdmin(MINTER_ROLE) == ADMIN_ROLE, "Admin role incorrect");
+        require(fxRoleRegistry.getRoleAdmin(MODERATOR_ROLE) == ADMIN_ROLE, "Admin role incorrect");
+        require(fxRoleRegistry.getRoleAdmin(SIGNER_ROLE) == ADMIN_ROLE, "Admin role incorrect");
+        require(fxRoleRegistry.hasRole(ADMIN_ROLE, admin), "Admin role incorrect");
+        require(fxRoleRegistry.hasRole(CREATOR_ROLE, creator), "Role incorrect");
+        require(fxRoleRegistry.hasRole(MINTER_ROLE, address(dutchAuction)), "Role incorrect");
+        require(fxRoleRegistry.hasRole(MINTER_ROLE, address(fixedPrice)), "Role incorrect");
+        require(fxRoleRegistry.hasRole(MINTER_ROLE, address(ticketRedeemer)), "Role incorrect");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
