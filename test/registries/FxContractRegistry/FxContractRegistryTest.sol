@@ -32,7 +32,8 @@ contract FxContractRegistryTest is BaseTest {
             primaryFeeAllocation,
             lockTime,
             referrerShare,
-            defaultMetadataURI
+            defaultMetadataURI,
+            externalURI
         ) = fxContractRegistry.configInfo();
 
         assertEq(lockTime, configInfo.lockTime);
@@ -49,5 +50,6 @@ contract FxContractRegistryTest is BaseTest {
         configInfo.lockTime = LOCK_TIME;
         configInfo.referrerShare = REFERRER_SHARE;
         configInfo.defaultMetadataURI = DEFAULT_METADATA_URI;
+        configInfo.externalURI = EXTERNAL_URI;
     }
 }

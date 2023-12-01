@@ -3,22 +3,36 @@ pragma solidity 0.8.23;
 
 import "test/BaseTest.t.sol";
 
+import {MockToken} from "test/mocks/MockToken.sol";
+import {SSTORE2} from "sstore2/contracts/SSTORE2.sol";
+
 contract ONCHFSRendererTest is BaseTest {
     // State
-    bytes internal data;
+    bytes internal tokenData;
+    string internal animationURL;
+    string internal attributes;
     string internal contractAddr;
-    string internal generatedURI;
-    string internal metadataURI;
-    string internal tokenURI;
+    string internal description;
+    string internal externalURL;
+    string internal generatedURL;
+    string internal imageURL;
+    string internal name;
+    string internal queryParams;
+    string internal symbol;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     SETUP
     //////////////////////////////////////////////////////////////////////////*/
 
-    function setUp() public override {
+    function setUp() public virtual override {
         super.setUp();
         tokenId = 1;
-        defaultMetadataURI = DEFAULT_METADATA_URI;
-        metadataInfo.baseURI = ONCHFS_BASE_CID;
+        fxGenArtProxy = address(new MockToken());
+        name = MockToken(fxGenArtProxy).name();
+        symbol = MockToken(fxGenArtProxy).symbol();
+        description = "description";
+        metadataInfo.baseURI = IPFS_BASE_CID;
+        metadataInfo.onchainPointer = SSTORE2.write(abi.encode(description, ONCHFS_CID));
+        genArtInfo.minter = fxGenArtProxy;
     }
 }

@@ -211,16 +211,16 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
     function fulfillSeedRequest(uint256 _tokenId, bytes32 _seed) external;
 
     /**
-     * @notice Mapping of token ID to GenArtInfo struct (seed, fxParams)
+     * @notice Mapping of token ID to GenArtInfo struct (minter, seed, fxParams)
      */
-    function genArtInfo(uint256 _tokenId) external view returns (bytes32, bytes memory);
+    function genArtInfo(uint256 _tokenId) external view returns (address, bytes32, bytes memory);
 
     /**
      * @notice Generates typed data hash for setting project metadata onchain
      * @param _data Bytes-encoded onchain data
      * @return Typed data hash
      */
-    function generateOnchainDataHash(bytes calldata _data) external view returns (bytes32);
+    function generateOnchainPointerHash(bytes calldata _data) external view returns (bytes32);
 
     /**
      * @notice Generates typed data hash for setting the primary receiver address
