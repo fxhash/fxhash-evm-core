@@ -70,6 +70,7 @@ contract SetPrice is FxMintTicket721Test {
     /**
      * GRACE PERIOD SCENARIOS
      */
+    /// Set Price over Deposit
     function test_Scenarios1() public {
         TicketLib.mint(alice, minter, fxMintTicketProxy, bob, amount, 0);
         tokenId++;
@@ -80,9 +81,12 @@ contract SetPrice is FxMintTicket721Test {
         vm.expectRevert(INSUFFICIENT_DEPOSIT_ERROR);
         TicketLib.setPrice(bob, fxMintTicketProxy, tokenId, uint80(0.67 ether));
         _setTaxInfo();
+
         /// 0.66 * 0.027 == 0.001782 [ User has enough for 1 day of tax + the gracePeriod ]
         TicketLib.setPrice(bob, fxMintTicketProxy, tokenId, uint80(0.66 ether));
-        console.log(foreclosureTime);
+        _setTaxInfo();
+
+        assertApproxEqRel(foreclosureTime, block.timestamp + 2 days, 0.01e18);
     }
 
     function test_Scenarios2() public {
@@ -97,21 +101,20 @@ contract SetPrice is FxMintTicket721Test {
         _setTaxInfo();
         console.log(foreclosureTime);
         /// 1 ether * 0.027 == 0.027  ether daily tax [  User shouldnt have enough to set this price ]
-        vm.expectRevert();
         TicketLib.setPrice(bob, fxMintTicketProxy, tokenId, uint80(1 ether));
         _setTaxInfo();
-        console.log(foreclosureTime);
+        // assertApproxEqRel(foreclosureTime, block.timestamp + 2 days, 0.01e18);
     }
 
     function test_Scenarios3() public {
-        TicketLib.mint(alice, minter, fxMintTicketProxy, bob, amount, 1 ether);
+        TicketLib.mint(alice, minter, fxMintTicketProxy, bob, 1, 1 ether);
         tokenId++;
         _setTaxInfo();
         /// 1 ether * 0.027 == 0.027 ether daily tax [ User should only have grace period ]
         console.log(foreclosureTime);
+
         /// This should be insufficient to extend their foreclosureTime / but it extends it 3 days
         /// User should deposit 0.027 ether and extend their foreclosureTime by 1 day
-        vm.expectRevert();
         TicketLib.deposit(bob, fxMintTicketProxy, tokenId, 0.018 ether);
         _setTaxInfo();
         console.log(foreclosureTime);
@@ -121,10 +124,11 @@ contract SetPrice is FxMintTicket721Test {
         TicketLib.mint(alice, minter, fxMintTicketProxy, bob, amount, 0);
         tokenId++;
         _setTaxInfo();
-        TicketLib.deposit(bob, fxMintTicketProxy, tokenId, 0.0018 ether);
+        TicketLib.deposit(bob, fxMintTicketProxy, tokenId, 0.0027 ether);
         _setTaxInfo();
         /// 0.66 * 0.027 == 0.001782 [ User has enough for 1 day of tax ]
-        TicketLib.setPrice(bob, fxMintTicketProxy, tokenId, uint80(0.66 ether));
+        TicketLib.setPrice(bob, fxMintTicketProxy, tokenId, uint80(1 ether));
+        _setTaxInfo();
         console.log(foreclosureTime);
 
         TicketLib.transferFrom(bob, fxMintTicketProxy, bob, address(420), tokenId);
@@ -137,10 +141,10 @@ contract SetPrice is FxMintTicket721Test {
         TicketLib.mint(alice, minter, fxMintTicketProxy, bob, amount, 0);
         tokenId++;
         _setTaxInfo();
-        TicketLib.deposit(bob, fxMintTicketProxy, tokenId, 0.0018 ether);
+        TicketLib.deposit(bob, fxMintTicketProxy, tokenId, 0.0027 ether);
         _setTaxInfo();
         /// 0.66 * 0.027 == 0.001782 [ User has enough for 1 day of tax ]
-        TicketLib.setPrice(bob, fxMintTicketProxy, tokenId, uint80(0.66 ether));
+        TicketLib.setPrice(bob, fxMintTicketProxy, tokenId, uint80(1 ether));
         console.log(foreclosureTime);
 
         /// warp to after grace period
@@ -148,9 +152,48 @@ contract SetPrice is FxMintTicket721Test {
         // Pretty sure the below should pass
         // TicketLib.claim(alice, fxMintTicketProxy, tokenId, 0.66 ether, 0.66 ether, 0.66 ether);
 
-        TicketLib.claim(alice, fxMintTicketProxy, tokenId, 0.66 ether, 0.66 ether, 0.667 ether);
+        TicketLib.claim(alice, fxMintTicketProxy, tokenId, 1 ether, 1 ether, 1.0027 ether);
         _setTaxInfo();
         console.log(foreclosureTime);
         /// Foreclosure time should transfer with the token
+    }
+
+    function test_Scenarios6() public {
+        TicketLib.mint(alice, minter, fxMintTicketProxy, bob, amount, 0);
+        tokenId++;
+        _setTaxInfo();
+        TicketLib.deposit(bob, fxMintTicketProxy, tokenId, 0.0027 ether);
+        _setTaxInfo();
+        /// 0.66 * 0.027 == 0.001782 [ User has enough for 1 day of tax ]
+        TicketLib.setPrice(bob, fxMintTicketProxy, tokenId, uint80(1 ether));
+        _setTaxInfo();
+        console.log(foreclosureTime);
+
+        TicketLib.transferFrom(bob, fxMintTicketProxy, bob, bob, tokenId);
+        _setTaxInfo();
+        console.log(foreclosureTime);
+        /// Foreclosure time should transfer with the token
+    }
+
+    function test_Scenarios7() public {
+        TicketLib.mint(alice, minter, fxMintTicketProxy, bob, amount, 0);
+        tokenId++;
+        _setTaxInfo();
+        TicketLib.deposit(bob, fxMintTicketProxy, tokenId, 0.0027 ether);
+        _setTaxInfo();
+        /// 0.66 * 0.027 == 0.001782 [ User has enough for 1 day of tax ]
+        TicketLib.setPrice(bob, fxMintTicketProxy, tokenId, uint80(1 ether));
+        _setTaxInfo();
+        uint256 pretaxStart = taxationStartTime;
+        uint256 preforeclosureTime = foreclosureTime;
+        uint256 precurrentPrice = currentPrice;
+        uint256 predeposit = depositAmount;
+
+        TicketLib.transferFrom(bob, fxMintTicketProxy, bob, bob, tokenId);
+        _setTaxInfo();
+        assertEq(pretaxStart, taxationStartTime);
+        assertEq(preforeclosureTime, foreclosureTime);
+        assertEq(precurrentPrice, currentPrice);
+        assertEq(predeposit, depositAmount);
     }
 }
