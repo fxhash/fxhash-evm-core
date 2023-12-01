@@ -41,13 +41,13 @@ interface IONCHFSRenderer is IRenderer {
     ) external pure returns (string memory);
 
     /**
-     * @notice Generates the attributes URL for a token ID
+     * @notice Generates the attributes for a token ID
      * @param _contractAddr Address of the token contract
      * @param _baseURI URI of the content identifier
      * @param _tokenId ID of the token
-     * @return URL of the attributes pointer
+     * @return List of token attributes
      */
-    function getAttributesURL(
+    function getAttributes(
         address _contractAddr,
         string memory _baseURI,
         uint256 _tokenId

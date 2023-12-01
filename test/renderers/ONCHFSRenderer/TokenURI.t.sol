@@ -16,11 +16,20 @@ contract TokenURI is ONCHFSRendererTest {
             genArtInfo.seed,
             genArtInfo.fxParams
         );
-        contractAddr = uint160(fxGenArtProxy).toHexString(20);
+        externalURL = onchfsRenderer.getExternalURL(fxGenArtProxy, tokenId);
+        imageURL = onchfsRenderer.getImageURL(fxGenArtProxy, string(metadataInfo.baseURI), tokenId);
+        attributes = onchfsRenderer.getAttributes(fxGenArtProxy, string(metadataInfo.baseURI), tokenId);
+        animationURL = onchfsRenderer.getAnimationURL(
+            ONCHFS_CID,
+            tokenId,
+            fxGenArtProxy,
+            genArtInfo.seed,
+            genArtInfo.fxParams
+        );
         generatedURL = string(
             abi.encodePacked(
                 '"name:"',
-                name,
+                string.concat(name, " #", tokenId.toString()),
                 '"description:"',
                 description,
                 '"symbol:"',
@@ -32,7 +41,7 @@ contract TokenURI is ONCHFSRendererTest {
                 '"animation_url":"',
                 animationURL,
                 '", "attributes":["',
-                attributesURL,
+                attributes,
                 '"]}'
             )
         );
@@ -49,5 +58,37 @@ contract TokenURI is ONCHFSRendererTest {
             genArtInfo.seed,
             genArtInfo.fxParams
         );
+        externalURL = onchfsRenderer.getExternalURL(fxGenArtProxy, tokenId);
+        imageURL = onchfsRenderer.getImageURL(fxGenArtProxy, string(IPFS_BASE_URI), tokenId);
+        attributes = onchfsRenderer.getAttributes(fxGenArtProxy, string(IPFS_BASE_URI), tokenId);
+        animationURL = onchfsRenderer.getAnimationURL(
+            ONCHFS_CID,
+            tokenId,
+            fxGenArtProxy,
+            genArtInfo.seed,
+            genArtInfo.fxParams
+        );
+        generatedURL = string(
+            abi.encodePacked(
+                '"name:"',
+                string.concat(name, " #", tokenId.toString()),
+                '"description:"',
+                description,
+                '"symbol:"',
+                symbol,
+                '"externalURL:"',
+                externalURL,
+                '"image":"',
+                imageURL,
+                '"animation_url":"',
+                animationURL,
+                '", "attributes":["',
+                attributes,
+                '"]}'
+            )
+        );
+        vm.prank(fxGenArtProxy);
+        tokenURI = onchfsRenderer.tokenURI(tokenId, tokenData);
+        assertEq(generatedURL, tokenURI);
     }
 }

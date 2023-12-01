@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
-import "forge-std/Test.sol";
+
 import {LibIPFSEncoder} from "src/lib/LibIPFSEncoder.sol";
 import {SSTORE2} from "sstore2/contracts/SSTORE2.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
@@ -57,10 +57,8 @@ contract ONCHFSRenderer is IONCHFSRenderer {
      * @inheritdoc IONCHFSRenderer
      */
     function tokenURI(uint256 _tokenId, bytes calldata _data) external view returns (string memory) {
-        console.log(_tokenId);
         (bytes memory baseCID, address onchainPointer, address minter, bytes32 seed, bytes memory fxParams) = abi
             .decode(_data, (bytes, address, address, bytes32, bytes));
-        console.log(onchainPointer);
         string memory baseURI = LibIPFSEncoder.encodeURL(bytes32(baseCID));
         bytes memory onchainData = SSTORE2.read(onchainPointer);
         (string memory description, bytes32 onchfsCID) = abi.decode(onchainData, (string, bytes32));
@@ -75,7 +73,7 @@ contract ONCHFSRenderer is IONCHFSRenderer {
     /**
      * @inheritdoc IONCHFSRenderer
      */
-    function getAttributesURL(
+    function getAttributes(
         address _contractAddr,
         string memory _baseURI,
         uint256 _tokenId
@@ -157,7 +155,7 @@ contract ONCHFSRenderer is IONCHFSRenderer {
         string memory symbol = IERC721Metadata(_contractAdrr).symbol();
         string memory externalURL = getExternalURL(msg.sender, _tokenId);
         string memory imageURL = getImageURL(msg.sender, string(_baseURI), _tokenId);
-        string memory attributesURL = getAttributesURL(msg.sender, string(_baseURI), _tokenId);
+        string memory attributes = getAttributes(msg.sender, string(_baseURI), _tokenId);
 
         return
             string(
@@ -177,7 +175,7 @@ contract ONCHFSRenderer is IONCHFSRenderer {
                     '"animation_url":"',
                     _animationURL,
                     '", "attributes":["',
-                    attributesURL,
+                    attributes,
                     '"]}'
                 )
             );

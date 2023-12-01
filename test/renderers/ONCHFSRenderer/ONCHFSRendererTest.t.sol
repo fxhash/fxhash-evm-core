@@ -8,10 +8,9 @@ import {SSTORE2} from "sstore2/contracts/SSTORE2.sol";
 
 contract ONCHFSRendererTest is BaseTest {
     // State
-    address internal onchainPointer;
     bytes internal tokenData;
     string internal animationURL;
-    string internal attributesURL;
+    string internal attributes;
     string internal contractAddr;
     string internal description;
     string internal externalURL;
@@ -28,10 +27,12 @@ contract ONCHFSRendererTest is BaseTest {
     function setUp() public override {
         super.setUp();
         tokenId = 1;
-        description = "Description";
         fxGenArtProxy = address(new MockToken());
-        metadataInfo.baseURI = IPFS_BASE_URI;
-        onchainPointer = SSTORE2.write(bytes.concat(bytes(description), ONCHFS_CID));
+        name = MockToken(fxGenArtProxy).name();
+        symbol = MockToken(fxGenArtProxy).symbol();
+        description = "description";
+        metadataInfo.baseURI = IPFS_BASE_CID;
+        metadataInfo.onchainPointer = SSTORE2.write(abi.encode(description, ONCHFS_CID));
         genArtInfo.minter = deployer;
     }
 }
