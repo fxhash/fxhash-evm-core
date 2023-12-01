@@ -25,15 +25,26 @@ string constant TICKET_REDEEMER = "TICKET_REDEEMER";
 bytes32 constant CLAIM_TYPEHASH = keccak256(
     "Claim(address token,uint256 reserveId,uint96 nonce,uint256 index,address user)"
 );
-bytes32 constant SET_ONCHAIN_DATA_TYPEHASH = keccak256("SetOnchainData(bytes data,uint96 nonce)");
+bytes32 constant SET_ONCHAIN_POINTER_TYPEHASH = keccak256("SetOnchainPointer(bytes onchainData,uint96 nonce)");
 bytes32 constant SET_PRIMARY_RECEIVER_TYPEHASH = keccak256("SetPrimaryReceiver(address receiver,uint96 nonce)");
 bytes32 constant SET_RENDERER_TYPEHASH = keccak256("SetRenderer(address renderer,uint96 nonce)");
 
-// Metadata
+// IPFS
 bytes constant IPFS_URL = hex"697066733a2f2f172c151325290607391d2c391b242225180a020b291b260929391d1b31222525202804120031280917120b280400";
-string constant ONCHFS_PREFIX = "onchfs://";
+string constant IPFS_PREFIX = "ipfs://";
+
+// Metadata
+string constant API_VERSION = "0.2";
+string constant ATTRIBUTES_ENDPOINT = "/attributes.json";
 string constant METADATA_ENDPOINT = "/metadata.json";
 string constant THUMBNAIL_ENDPOINT = "/thumbnail.json";
+
+// ONCHFS
+string constant FX_HASH_QUERY = "/?fxhash=";
+string constant FX_PARAMS_QUERY = "#0x";
+string constant ITERATION_QUERY = "&fxiteration=";
+string constant MINTER_QUERY = "&fxminter=";
+string constant ONCHFS_PREFIX = "onchfs://";
 
 // Minters
 uint8 constant UNINITIALIZED = 0;
