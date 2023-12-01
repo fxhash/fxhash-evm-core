@@ -23,8 +23,16 @@ contract ONCHFSRendererTest is BaseTest {
         super.setUp();
         tokenId = 1;
         defaultMetadataURI = DEFAULT_METADATA_URI;
+        externalURI = EXTERNAL_URI;
         metadataInfo.baseURI = IPFS_BASE_URI;
         onchainPointer = SSTORE2.write(bytes.concat(ONCHFS_CID));
-        data = abi.encode(metadataInfo.baseURI, metadataInfo.onchainPointer, genArtInfo.seed, genArtInfo.fxParams);
+        genArtInfo.minter = deployer;
+        data = abi.encode(
+            metadataInfo.baseURI,
+            metadataInfo.onchainPointer,
+            genArtInfo.minter,
+            genArtInfo.seed,
+            genArtInfo.fxParams
+        );
     }
 }

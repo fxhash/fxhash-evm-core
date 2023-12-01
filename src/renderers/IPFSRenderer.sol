@@ -55,7 +55,7 @@ contract IPFSRenderer is IIPFSRenderer {
      * @inheritdoc IIPFSRenderer
      */
     function tokenURI(uint256 _tokenId, bytes calldata _data) external view returns (string memory) {
-        (bytes memory baseCID, , , ) = abi.decode(_data, (bytes, address, bytes32, bytes));
+        (bytes memory baseCID, , , , ) = abi.decode(_data, (bytes, address, address, bytes32, bytes));
         string memory baseURI = LibIPFSEncoder.encodeURL(bytes32(baseCID));
         return getMetadataURI(msg.sender, baseURI, _tokenId);
     }

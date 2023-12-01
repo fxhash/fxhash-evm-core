@@ -37,6 +37,10 @@ string constant ONCHFS_PREFIX = "onchfs://";
 string constant ATTRIBUTES_ENDPOINT = "/attributes.json";
 string constant METADATA_ENDPOINT = "/metadata.json";
 string constant THUMBNAIL_ENDPOINT = "/thumbnail.json";
+string constant SEED_QUERY = "/?fxhash=";
+string constant ITERATION_QUERY = "&fxiteration=";
+string constant MINTER_QUERY = "&fxminter=";
+string constant PARAMS_QUERY = "#0x";
 
 // Minters
 uint8 constant UNINITIALIZED = 0;

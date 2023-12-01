@@ -5,6 +5,7 @@ import "test/BaseTest.t.sol";
 
 contract FxGenArt721Test is BaseTest {
     // State
+    address internal initialMinter;
     address internal primarySplits;
     uint120 internal maxSupply;
     ProjectInfo internal project;
@@ -30,7 +31,6 @@ contract FxGenArt721Test is BaseTest {
 
     function setUp() public virtual override {
         super.setUp();
-
         _configureInfo(
             admin,
             SECONDARY_FEE_ALLOCATION,
@@ -94,7 +94,7 @@ contract FxGenArt721Test is BaseTest {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _setGenArtInfo(uint256 _tokenId) internal {
-        (seed, fxParams) = IFxGenArt721(fxGenArtProxy).genArtInfo(_tokenId);
+        (initialMinter, seed, fxParams) = IFxGenArt721(fxGenArtProxy).genArtInfo(_tokenId);
     }
 
     function _setIssuerInfo() internal {

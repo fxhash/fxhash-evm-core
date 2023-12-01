@@ -48,7 +48,7 @@ contract BaseTest is Deploy, Test {
     // Config
     address internal feeReceiver;
     string internal defaultMetadataURI;
-    string internal externalURL;
+    string internal externalURI;
     uint32 internal secondaryFeeAllocation;
     uint32 internal primaryFeeAllocation;
     uint64 internal lockTime;

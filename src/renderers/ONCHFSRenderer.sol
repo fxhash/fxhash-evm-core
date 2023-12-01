@@ -57,14 +57,12 @@ contract ONCHFSRenderer is IONCHFSRenderer {
      * @inheritdoc IONCHFSRenderer
      */
     function tokenURI(uint256 _tokenId, bytes calldata _data) external view returns (string memory) {
-        (bytes memory baseCID, address onchainPointer, bytes32 seed, bytes memory fxParams) = abi.decode(
-            _data,
-            (bytes, address, bytes32, bytes)
-        );
-        string memory baseURI = LibIPFSEncoder.encodeURL(bytes32(baseCID)); // IPFS CID hash
+        (bytes memory baseCID, address onchainPointer, address minter, bytes32 seed, bytes memory fxParams) = abi
+            .decode(_data, (bytes, address, address, bytes32, bytes));
+        string memory baseURI = LibIPFSEncoder.encodeURL(bytes32(baseCID));
         bytes memory onchainData = SSTORE2.read(onchainPointer);
         (string memory description, bytes32 onchfsCID) = abi.decode(onchainData, (string, bytes32));
-        string memory animationURI = getAnimationURI(string(bytes.concat(onchfsCID)), _tokenId, seed, fxParams);
+        string memory animationURI = getAnimationURI(string(bytes.concat(onchfsCID)), _tokenId, minter, seed, fxParams);
         (, , , , , string memory defaultURI, ) = IFxContractRegistry(contractRegistry).configInfo();
         return _renderJSON(msg.sender, _tokenId, description, defaultURI, baseURI, animationURI);
     }
@@ -79,18 +77,18 @@ contract ONCHFSRenderer is IONCHFSRenderer {
     function getAnimationURI(
         string memory _onchfsCID,
         uint256 _tokenId,
+        address _minter,
         bytes32 _seed,
         bytes memory _fxParams
     ) public pure returns (string memory) {
-        address minter;
         string memory queryParams = string.concat(
-            "/?fxhash=",
+            SEED_QUERY,
             string(bytes.concat(_seed)),
-            "&fxiteration=",
+            ITERATION_QUERY,
             _tokenId.toString(),
-            "&fxminter=",
-            uint160(minter).toHexString(20),
-            "#0x",
+            MINTER_QUERY,
+            uint160(_minter).toHexString(20),
+            PARAMS_QUERY,
             string(_fxParams)
         );
         return string.concat(ONCHFS_PREFIX, _onchfsCID, queryParams);

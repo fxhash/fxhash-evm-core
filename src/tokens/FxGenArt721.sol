@@ -433,6 +433,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         bytes memory data = abi.encode(
             metadataInfo.baseURI,
             metadataInfo.onchainPointer,
+            genArtInfo[_tokenId].minter,
             genArtInfo[_tokenId].seed,
             genArtInfo[_tokenId].fxParams
         );
@@ -450,6 +451,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         if (remainingSupply() == 0) revert InsufficientSupply();
         if (issuerInfo.projectInfo.inputSize < _fxParams.length) revert InvalidInputSize();
         _mint(_to, _tokenId);
+        genArtInfo[_tokenId].minter = _to;
         genArtInfo[_tokenId].fxParams = _fxParams;
         IRandomizer(randomizer).requestRandomness(_tokenId);
     }
@@ -460,6 +462,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     function _mintRandom(address _to, uint256 _tokenId) internal {
         if (remainingSupply() == 0) revert InsufficientSupply();
         _mint(_to, _tokenId);
+        genArtInfo[_tokenId].minter = _to;
         IRandomizer(randomizer).requestRandomness(_tokenId);
     }
 

@@ -24,7 +24,7 @@ struct AuctionInfo {
  * - `secondaryFeeAllocation` Amount of basis points allocated to calculate platform fees on royalty payments
  * - `lockTime` Locked time duration added to mint start time for unverified creators
  * - `referrerShare` Share amount distributed to accounts referring tokens
- * - `defaultMetadataURI` Default URI of token metadata
+ * - `defaultMetadataURI` Default base URI of token metadata
  * - `externalURI` External URI for displaying tokens
  */
 struct ConfigInfo {
@@ -39,10 +39,12 @@ struct ConfigInfo {
 
 /**
  * @notice Struct of generative art information
+ * - `minter` Address of initial token owner
  * - `seed` Hash of randomly generated seed
  * - `fxParams` Random sequence of fixed-length bytes used as token input
  */
 struct GenArtInfo {
+    address minter;
     bytes32 seed;
     bytes fxParams;
 }

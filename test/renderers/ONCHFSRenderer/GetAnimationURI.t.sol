@@ -9,6 +9,12 @@ contract GetAnimationURI is ONCHFSRendererTest {
 
     function test_GetAnimationURI() public {
         generatedURI = string.concat(ONCHFS_PREFIX, string(bytes.concat(ONCHFS_CID)), "/", tokenId.toString());
-        animationURI = onchfsRenderer.getAnimationURI(string(bytes.concat(ONCHFS_CID)), tokenId, seed, fxParams);
+        animationURI = onchfsRenderer.getAnimationURI(
+            string(bytes.concat(ONCHFS_CID)),
+            tokenId,
+            deployer,
+            seed,
+            fxParams
+        );
     }
 }
