@@ -25,7 +25,7 @@ interface IONCHFSRenderer is IRenderer {
 
     /**
      * @notice Generates the animation URI for a token ID
-     * @param _onchfsCID CID hash of onchfs animation data
+     * @param _onchfsCID CID hash of token animation
      * @param _tokenId ID of the token
      * @param _minter Address of initial token owner
      * @param _seed Hash of randomly generated seed
@@ -33,7 +33,7 @@ interface IONCHFSRenderer is IRenderer {
      * @return URI of the animation pointer
      */
     function getAnimationURI(
-        string memory _onchfsCID,
+        bytes32 _onchfsCID,
         uint256 _tokenId,
         address _minter,
         bytes32 _seed,

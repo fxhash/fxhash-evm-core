@@ -62,7 +62,7 @@ contract ONCHFSRenderer is IONCHFSRenderer {
         string memory baseURI = LibIPFSEncoder.encodeURL(bytes32(baseCID));
         bytes memory onchainData = SSTORE2.read(onchainPointer);
         (string memory description, bytes32 onchfsCID) = abi.decode(onchainData, (string, bytes32));
-        string memory animationURI = getAnimationURI(string(bytes.concat(onchfsCID)), _tokenId, minter, seed, fxParams);
+        string memory animationURI = getAnimationURI(onchfsCID, _tokenId, minter, seed, fxParams);
         return _renderJSON(msg.sender, _tokenId, description, baseURI, animationURI);
     }
 
@@ -118,23 +118,23 @@ contract ONCHFSRenderer is IONCHFSRenderer {
      * @inheritdoc IONCHFSRenderer
      */
     function getAnimationURI(
-        string memory _onchfsCID,
+        bytes32 _onchfsCID,
         uint256 _tokenId,
         address _minter,
         bytes32 _seed,
         bytes memory _fxParams
     ) public pure returns (string memory) {
         string memory queryParams = string.concat(
-            SEED_QUERY,
-            string(bytes.concat(_seed)),
+            FX_HASH_QUERY,
+            uint256(_seed).toHexString(),
             ITERATION_QUERY,
             _tokenId.toString(),
             MINTER_QUERY,
             uint160(_minter).toHexString(20),
-            PARAMS_QUERY,
+            FX_PARAMS_QUERY,
             string(_fxParams)
         );
-        return string.concat(ONCHFS_PREFIX, _onchfsCID, queryParams);
+        return string.concat(ONCHFS_PREFIX, uint256(_onchfsCID).toHexString(), queryParams);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

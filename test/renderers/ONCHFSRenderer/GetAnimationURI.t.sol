@@ -7,14 +7,21 @@ contract GetAnimationURI is ONCHFSRendererTest {
     using Strings for uint160;
     using Strings for uint256;
 
+    string internal queryParams;
+
     function test_GetAnimationURI() public {
-        generatedURI = string.concat(ONCHFS_PREFIX, string(bytes.concat(ONCHFS_CID)), "/", tokenId.toString());
-        animationURI = onchfsRenderer.getAnimationURI(
-            string(bytes.concat(ONCHFS_CID)),
-            tokenId,
-            deployer,
-            seed,
-            fxParams
+        queryParams = string.concat(
+            FX_HASH_QUERY,
+            uint256(seed).toHexString(),
+            ITERATION_QUERY,
+            tokenId.toString(),
+            MINTER_QUERY,
+            uint160(deployer).toHexString(20),
+            FX_PARAMS_QUERY,
+            string(fxParams)
         );
+        generatedURI = string.concat(ONCHFS_PREFIX, uint256(ONCHFS_CID).toHexString(), queryParams);
+        animationURI = onchfsRenderer.getAnimationURI(ONCHFS_CID, tokenId, deployer, seed, fxParams);
+        assertEq(generatedURI, animationURI);
     }
 }
