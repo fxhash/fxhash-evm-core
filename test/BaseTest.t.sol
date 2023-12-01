@@ -115,6 +115,8 @@ contract BaseTest is Deploy, Test {
         _mockSplits();
         _deployContracts();
         _grantRoles();
+        vm.prank(fxIssuerFactory.owner());
+        fxIssuerFactory.unpause();
     }
 
     /*//////////////////////////////////////////////////////////////////////////

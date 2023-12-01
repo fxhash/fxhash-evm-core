@@ -111,6 +111,11 @@ interface IFxIssuerFactory {
     function nonces(address _deployer) external view returns (uint256);
 
     /**
+     * @notice Stops new FxGenArt721 tokens from being created
+     */
+    function pause() external;
+
+    /**
      * @notice Returns counter of latest project ID
      */
     function projectId() external view returns (uint96);
@@ -130,4 +135,9 @@ interface IFxIssuerFactory {
      * @param _implementation Address of the implementation contract
      */
     function setImplementation(address _implementation) external;
+
+    /**
+     * @notice Enables new FxGenArt721 tokens from being created
+     */
+    function unpause() external;
 }
