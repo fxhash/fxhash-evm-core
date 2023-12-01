@@ -11,13 +11,40 @@ contract TransferFrom is FxMintTicket721Test {
         _setTaxInfo();
     }
 
-    function test_RevertsWhen_ForeclosureActive() public {
+    function test_ForeclosureInactive() public {
+        TicketLib.transferFrom(bob, fxMintTicketProxy, bob, alice, tokenId);
+    }
+
+    function test_ForeclosureInactive_TicketContract() public {
+        TicketLib.transferFrom(fxMintTicketProxy, fxMintTicketProxy, bob, alice, tokenId);
+    }
+
+    function test_ForeclosureInactive_TicketRedeemer() public {
+        address ticketRedeemer = IFxMintTicket721(fxMintTicketProxy).redeemer();
+        TicketLib.setApprovalForAll(bob, fxMintTicketProxy, ticketRedeemer, true);
+        TicketLib.transferFrom(address(ticketRedeemer), fxMintTicketProxy, bob, alice, tokenId);
+    }
+
+    function test_When_ForeclosureActive_TicketContract() public {
+        vm.warp(foreclosureTime);
+        TicketLib.transferFrom(fxMintTicketProxy, fxMintTicketProxy, bob, alice, tokenId);
+    }
+
+    function test_RevertsWhen_ForeclosureActive_Owner() public {
         vm.warp(foreclosureTime);
         vm.expectRevert(FORECLOSURE_ERROR);
         TicketLib.transferFrom(bob, fxMintTicketProxy, bob, alice, tokenId);
     }
 
-    function test_RevertsWhen_ForeclosureInactive() public {
+    function test_RevertsWhen_ForeclosureActive_TicketRedeemer() public {
+        address ticketRedeemer = IFxMintTicket721(fxMintTicketProxy).redeemer();
+        TicketLib.setApprovalForAll(bob, fxMintTicketProxy, ticketRedeemer, true);
+        vm.warp(foreclosureTime);
+        vm.expectRevert(FORECLOSURE_ERROR);
+        TicketLib.transferFrom(address(ticketRedeemer), fxMintTicketProxy, bob, alice, tokenId);
+    }
+
+    function test_RevertsWhen_ForeclosureInactiveAndNotOwner() public {
         TicketLib.setApprovalForAll(bob, fxMintTicketProxy, alice, true);
         vm.expectRevert(NOT_AUTHORIZED_TICKET_ERROR);
         TicketLib.transferFrom(alice, fxMintTicketProxy, bob, alice, tokenId);
