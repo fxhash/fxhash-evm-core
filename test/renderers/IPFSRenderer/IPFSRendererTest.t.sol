@@ -8,7 +8,7 @@ import {MockToken} from "test/mocks/MockToken.sol";
 
 contract IPFSRendererTest is BaseTest {
     // State
-    bytes internal data;
+    bytes internal tokenData;
     string internal contractAddr;
     string internal generatedURL;
     string internal metadataURL;

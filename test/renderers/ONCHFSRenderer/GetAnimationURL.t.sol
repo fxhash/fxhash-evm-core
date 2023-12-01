@@ -7,8 +7,6 @@ contract GetAnimationURL is ONCHFSRendererTest {
     using Strings for uint160;
     using Strings for uint256;
 
-    string internal queryParams;
-
     function test_GetAnimationURL() public {
         queryParams = string.concat(
             FX_HASH_QUERY,

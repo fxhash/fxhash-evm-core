@@ -7,8 +7,8 @@ contract MockToken {
     address internal owner;
 
     constructor() {
-        name = "name";
-        symbol = "symbol";
+        name = "Name";
+        symbol = "Symbol";
         owner = msg.sender;
     }
 
