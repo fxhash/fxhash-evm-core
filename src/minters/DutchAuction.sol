@@ -38,6 +38,11 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     LibMap.Uint40Map internal latestUpdates_;
 
     /**
+     * @dev Mapping of token address to timestamp of latest update made for token reserves
+     */
+    LibMap.Uint40Map internal firstValidReserve;
+
+    /**
      * @inheritdoc IDutchAuction
      */
     mapping(address => AuctionInfo[]) public auctions;
@@ -159,30 +164,26 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
      * @inheritdoc IDutchAuction
      */
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external {
+        uint256 nextReserve = reserves[msg.sender].length;
         if (_reserve.allocation == 0) revert InvalidAllocation();
         (AuctionInfo memory daInfo, bytes32 merkleRoot, address signer) = abi.decode(
             _mintDetails,
             (AuctionInfo, bytes32, address)
         );
         if (getLatestUpdate(msg.sender) != block.timestamp) {
-            delete reserves[msg.sender];
-            delete auctions[msg.sender];
             _setLatestUpdate(msg.sender, block.timestamp);
+            _setFirstValidReserve(msg.sender, nextReserve);
         }
 
         // Checks if the step length is evenly divisible by the auction duration
         if (_reserve.endTime - _reserve.startTime != daInfo.prices.length * daInfo.stepLength) revert InvalidStep();
-        uint256 reserveId = reserves[msg.sender].length;
-        delete merkleRoots[msg.sender][reserveId];
-        delete signingAuthorities[msg.sender][reserveId];
-
         if (merkleRoot != bytes32(0) && signer != address(0)) revert OnlyAuthorityOrAllowlist();
         if (merkleRoot != bytes32(0)) {
-            merkleRoots[msg.sender][reserveId] = merkleRoot;
+            merkleRoots[msg.sender][nextReserve] = merkleRoot;
         }
         if (signer != address(0)) {
-            signingAuthorities[msg.sender][reserveId] = signer;
-            reserveNonce[msg.sender][reserveId]++;
+            signingAuthorities[msg.sender][nextReserve] = signer;
+            reserveNonce[msg.sender][nextReserve]++;
         }
 
         // Checks if the price curve is descending
@@ -196,7 +197,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         reserves[msg.sender].push(_reserve);
         auctions[msg.sender].push(daInfo);
 
-        emit MintDetailsSet(msg.sender, reserveId, _reserve, merkleRoot, signer, daInfo);
+        emit MintDetailsSet(msg.sender, nextReserve, _reserve, merkleRoot, signer, daInfo);
     }
 
     /**
@@ -314,6 +315,13 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         LibMap.set(latestUpdates_, uint256(uint160(_token)), uint40(_timestamp));
     }
 
+    /*
+     * @dev Sets earliest valid reserve
+     */
+    function _setFirstValidReserve(address _token, uint256 _reserveId) internal {
+        LibMap.set(firstValidReserve, uint256(uint160(_token)), uint40(_reserveId));
+    }
+
     /**
      * @dev Gets the merkle root of a token reserve
      */
@@ -353,9 +361,10 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
      * @dev Validates token address, reserve information and given account
      */
     function _validateInput(address _token, uint256 _reserveId, address _buyer) internal view {
+        uint256 validReserve = LibMap.get(firstValidReserve, uint256(uint160(_token)));
         uint256 length = reserves[_token].length;
         if (length == 0) revert InvalidToken();
-        if (_reserveId >= length) revert InvalidReserve();
+        if (_reserveId >= length || _reserveId < validReserve) revert InvalidReserve();
         if (_buyer == address(0)) revert AddressZero();
     }
 }
