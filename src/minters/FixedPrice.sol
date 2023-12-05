@@ -39,12 +39,12 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
     /**
      * @dev Mapping of token address to timestamp of latest update made for token reserves
      */
-    LibMap.Uint40Map internal latestUpdates_;
+    mapping(address => uint40) internal latestUpdates_;
 
     /**
      * @dev Mapping of token address to sale proceeds
      */
-    LibMap.Uint128Map internal saleProceeds_;
+    mapping(address => uint128) internal saleProceeds_;
 
     /**
      * @inheritdoc IFixedPrice
@@ -122,7 +122,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
         if (getLatestUpdate(msg.sender) != block.timestamp) {
             delete prices[msg.sender];
             delete reserves[msg.sender];
-            _setLatestUpdate(msg.sender, block.timestamp);
+            _setLatestUpdate(msg.sender, uint40(block.timestamp));
         }
 
         if (_reserve.allocation == 0) revert InvalidAllocation();
@@ -174,14 +174,14 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
      * @inheritdoc IFixedPrice
      */
     function getLatestUpdate(address _token) public view returns (uint40) {
-        return LibMap.get(latestUpdates_, uint256(uint160(_token)));
+        return latestUpdates_[_token];
     }
 
     /**
      * @inheritdoc IFixedPrice
      */
     function getSaleProceed(address _token) public view returns (uint128) {
-        return LibMap.get(saleProceeds_, uint256(uint160(_token)));
+        return saleProceeds_[_token];
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -206,7 +206,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
         if (msg.value != price) revert InvalidPayment();
 
         reserve.allocation -= _amount.safeCastTo128();
-        _setSaleProceeds(_token, getSaleProceed(_token) + price);
+        _setSaleProceeds(_token, getSaleProceed(_token) + price.safeCastTo128());
 
         IToken(_token).mint(_to, _amount, price);
 
@@ -216,15 +216,15 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
     /**
      * @dev Sets timestamp of the latest update to token reserves
      */
-    function _setLatestUpdate(address _token, uint256 _timestamp) internal {
-        LibMap.set(latestUpdates_, uint256(uint160(_token)), uint40(_timestamp));
+    function _setLatestUpdate(address _token, uint40 _timestamp) internal {
+        latestUpdates_[_token] = _timestamp;
     }
 
     /**
      * @dev Sets the proceed amount from the token sale
      */
-    function _setSaleProceeds(address _token, uint256 _amount) internal {
-        LibMap.set(saleProceeds_, uint256(uint160(_token)), uint128(_amount));
+    function _setSaleProceeds(address _token, uint128 _amount) internal {
+        saleProceeds_[_token] = _amount;
     }
 
     /**
