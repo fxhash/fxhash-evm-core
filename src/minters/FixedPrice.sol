@@ -5,6 +5,8 @@ import {Allowlist} from "src/minters/extensions/Allowlist.sol";
 import {LibBitmap} from "solady/src/utils/LibBitmap.sol";
 import {LibMap} from "solady/src/utils/LibMap.sol";
 import {MintPass} from "src/minters/extensions/MintPass.sol";
+import {Ownable} from "solady/src/auth/Ownable.sol";
+import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 
@@ -19,7 +21,7 @@ import {OPEN_EDITION_SUPPLY, TIME_UNLIMITED} from "src/utils/Constants.sol";
  * @author fx(hash)
  * @dev See the documentation in {IFixedPrice}
  */
-contract FixedPrice is IFixedPrice, Allowlist, MintPass {
+contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
     using SafeCastLib for uint256;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -62,13 +64,31 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
     mapping(address => ReserveInfo[]) public reserves;
 
     /*//////////////////////////////////////////////////////////////////////////
+                                OWNER FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc IFixedPrice
+     */
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    /**
+     * @inheritdoc IFixedPrice
+     */
+    function unpause() external onlyOwner {
+        _unpause();
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                                 EXTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
      * @inheritdoc IFixedPrice
      */
-    function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable {
+    function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable whenNotPaused {
         bytes32 merkleRoot = _getMerkleRoot(_token, _reserveId);
         address signer = signingAuthorities[_token][_reserveId];
         if (merkleRoot != bytes32(0)) revert NoPublicMint();
@@ -85,7 +105,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
         address _to,
         uint256[] calldata _indexes,
         bytes32[][] calldata _proofs
-    ) external payable {
+    ) external payable whenNotPaused {
         bytes32 merkleRoot = _getMerkleRoot(_token, _reserveId);
         if (merkleRoot == bytes32(0)) revert NoAllowlist();
         LibBitmap.Bitmap storage claimBitmap = claimedMerkleTreeSlots_[_token][_reserveId];
@@ -107,7 +127,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
         address _to,
         uint256 _index,
         bytes calldata _signature
-    ) external payable {
+    ) external payable whenNotPaused {
         address signer = signingAuthorities[_token][_reserveId];
         if (signer == address(0)) revert NoSigningAuthority();
         LibBitmap.Bitmap storage claimBitmap = claimedMintPasses_[_token][_reserveId];
@@ -118,7 +138,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
     /**
      * @inheritdoc IFixedPrice
      */
-    function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external {
+    function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external whenNotPaused {
         if (getLatestUpdate(msg.sender) != block.timestamp) {
             delete prices[msg.sender];
             delete reserves[msg.sender];
@@ -154,7 +174,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
     /**
      * @inheritdoc IFixedPrice
      */
-    function withdraw(address _token) external {
+    function withdraw(address _token) external whenNotPaused {
         uint256 proceeds = getSaleProceed(_token);
         if (proceeds == 0) revert InsufficientFunds();
 

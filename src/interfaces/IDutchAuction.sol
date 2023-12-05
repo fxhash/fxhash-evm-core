@@ -255,6 +255,11 @@ interface IDutchAuction is IMinter {
     function numberMinted(address _token, uint256 _reserveId) external view returns (uint256);
 
     /**
+     * @notice Pauses all function executions where modifier is applied
+     */
+    function pause() external;
+
+    /**
      * @notice Refunds an auction buyer with their rebate amount
      * @param _reserveId ID of the mint
      * @param _token Address of the token contract
@@ -282,6 +287,11 @@ interface IDutchAuction is IMinter {
      * @dev Mint Details: struct of auction information, merkle root, and signer address
      */
     function setMintDetails(ReserveInfo calldata _reserveInfo, bytes calldata _mintDetails) external;
+
+    /**
+     * @notice Unpauses all function executions where modifier is applied
+     */
+    function unpause() external;
 
     /**
      * @notice Withdraws sale processed of primary sales to receiver

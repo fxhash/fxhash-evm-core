@@ -5,6 +5,8 @@ import {Allowlist} from "src/minters/extensions/Allowlist.sol";
 import {LibBitmap} from "solady/src/utils/LibBitmap.sol";
 import {LibMap} from "solady/src/utils/LibMap.sol";
 import {MintPass} from "src/minters/extensions/MintPass.sol";
+import {Ownable} from "solady/src/auth/Ownable.sol";
+import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 
@@ -17,7 +19,7 @@ import {IToken} from "src/interfaces/IToken.sol";
  * @author fx(hash)
  * @dev See the documentation in {IDutchAuction}
  */
-contract DutchAuction is IDutchAuction, Allowlist, MintPass {
+contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
     /*//////////////////////////////////////////////////////////////////////////
                                     STORAGE
     //////////////////////////////////////////////////////////////////////////*/
@@ -68,13 +70,31 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     mapping(address => mapping(uint256 => uint256)) public numberMinted;
 
     /*//////////////////////////////////////////////////////////////////////////
+                                OWNER FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc IDutchAuction
+     */
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    /**
+     * @inheritdoc IDutchAuction
+     */
+    function unpause() external onlyOwner {
+        _unpause();
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                                 EXTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
      * @inheritdoc IDutchAuction
      */
-    function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable {
+    function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable whenNotPaused {
         bytes32 merkleRoot = _getMerkleRoot(_token, _reserveId);
         address signer = signingAuthorities[_token][_reserveId];
         if (merkleRoot != bytes32(0)) revert NoPublicMint();
@@ -91,7 +111,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         address _to,
         uint256[] calldata _indexes,
         bytes32[][] calldata _proofs
-    ) external payable {
+    ) external payable whenNotPaused {
         bytes32 merkleRoot = _getMerkleRoot(_token, _reserveId);
         if (merkleRoot == bytes32(0)) revert NoAllowlist();
         LibBitmap.Bitmap storage claimBitmap = claimedMerkleTreeSlots_[_token][_reserveId];
@@ -113,7 +133,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         address _to,
         uint256 _index,
         bytes calldata _signature
-    ) external payable {
+    ) external payable whenNotPaused {
         address signer = signingAuthorities[_token][_reserveId];
         if (signer == address(0)) revert NoSigningAuthority();
         LibBitmap.Bitmap storage claimBitmap = claimedMintPasses_[_token][_reserveId];
@@ -124,7 +144,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     /**
      * @inheritdoc IDutchAuction
      */
-    function refund(address _token, uint256 _reserveId, address _buyer) external {
+    function refund(address _token, uint256 _reserveId, address _buyer) external whenNotPaused {
         // Validates token address, reserve information and given account
         _validateInput(_token, _reserveId, _buyer);
 
@@ -158,7 +178,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     /**
      * @inheritdoc IDutchAuction
      */
-    function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external {
+    function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external whenNotPaused {
         if (_reserve.allocation == 0) revert InvalidAllocation();
         (AuctionInfo memory daInfo, bytes32 merkleRoot, address signer) = abi.decode(
             _mintDetails,
@@ -202,7 +222,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     /**
      * @inheritdoc IDutchAuction
      */
-    function withdraw(address _token, uint256 _reserveId) external {
+    function withdraw(address _token, uint256 _reserveId) external whenNotPaused {
         // Validates token address, reserve information and given account
         uint256 length = reserves[_token].length;
         if (length == 0) revert InvalidToken();
