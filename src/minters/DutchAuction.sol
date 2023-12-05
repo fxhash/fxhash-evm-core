@@ -27,17 +27,17 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
     /**
      * @dev Mapping of token address to reserve ID to Bitmap of claimed merkle tree slots
      */
-    mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal claimedMerkleTreeSlots_;
+    mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal claimedMerkleTreeSlots;
 
     /**
      * @dev Mapping of token address to reserve ID to Bitmap of claimed mint passes
      */
-    mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal claimedMintPasses_;
+    mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal claimedMintPasses;
 
     /**
      * @dev Mapping of token address to timestamp of latest update made for token reserves
      */
-    LibMap.Uint40Map internal latestUpdates_;
+    LibMap.Uint40Map internal latestUpdates;
 
     /**
      * @inheritdoc IDutchAuction
@@ -96,7 +96,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
     ) external payable whenNotPaused {
         bytes32 merkleRoot = _getMerkleRoot(_token, _reserveId);
         if (merkleRoot == bytes32(0)) revert NoAllowlist();
-        LibBitmap.Bitmap storage claimBitmap = claimedMerkleTreeSlots_[_token][_reserveId];
+        LibBitmap.Bitmap storage claimBitmap = claimedMerkleTreeSlots[_token][_reserveId];
         uint256 amount = _proofs.length;
         for (uint256 i; i < amount; ++i) {
             _claimSlot(_token, _reserveId, _indexes[i], _proofs[i], claimBitmap);
@@ -118,7 +118,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
     ) external payable whenNotPaused {
         address signer = signingAuthorities[_token][_reserveId];
         if (signer == address(0)) revert NoSigningAuthority();
-        LibBitmap.Bitmap storage claimBitmap = claimedMintPasses_[_token][_reserveId];
+        LibBitmap.Bitmap storage claimBitmap = claimedMintPasses[_token][_reserveId];
         _claimMintPass(_token, _reserveId, _index, _signature, claimBitmap);
         _buy(_token, _reserveId, _amount, _to);
     }
@@ -268,7 +268,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
      * @inheritdoc IDutchAuction
      */
     function getLatestUpdate(address _token) public view returns (uint40) {
-        return LibMap.get(latestUpdates_, uint256(uint160(_token)));
+        return LibMap.get(latestUpdates, uint256(uint160(_token)));
     }
 
     /**
@@ -331,7 +331,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
      * @dev Sets timestamp of the latest update to token reserves
      */
     function _setLatestUpdate(address _token, uint256 _timestamp) internal {
-        LibMap.set(latestUpdates_, uint256(uint160(_token)), uint40(_timestamp));
+        LibMap.set(latestUpdates, uint256(uint160(_token)), uint40(_timestamp));
     }
 
     /**
