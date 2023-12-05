@@ -148,6 +148,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
             ? uint32(block.timestamp)
             : uint32(block.timestamp) + lockTime;
         if (_projectInfo.earliestStartTime < LAUNCH_TIMESTAMP) _pause();
+
         issuerInfo.projectInfo = _projectInfo;
         metadataInfo = _metadataInfo;
         randomizer = _initInfo.randomizer;
