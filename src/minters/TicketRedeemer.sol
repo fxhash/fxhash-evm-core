@@ -25,24 +25,6 @@ contract TicketRedeemer is ITicketRedeemer, Ownable, Pausable {
     mapping(address => address) public tickets;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                OWNER FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /**
-     * @inheritdoc ITicketRedeemer
-     */
-    function pause() external onlyOwner {
-        _pause();
-    }
-
-    /**
-     * @inheritdoc ITicketRedeemer
-     */
-    function unpause() external onlyOwner {
-        _unpause();
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                                 EXTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -79,5 +61,23 @@ contract TicketRedeemer is ITicketRedeemer, Ownable, Pausable {
 
         // Emits event when mint details have been set
         emit MintDetailsSet(ticket, msg.sender);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                OWNER FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc ITicketRedeemer
+     */
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    /**
+     * @inheritdoc ITicketRedeemer
+     */
+    function unpause() external onlyOwner {
+        _unpause();
     }
 }

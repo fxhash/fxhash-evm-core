@@ -64,24 +64,6 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
     mapping(address => ReserveInfo[]) public reserves;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                OWNER FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /**
-     * @inheritdoc IFixedPrice
-     */
-    function pause() external onlyOwner {
-        _pause();
-    }
-
-    /**
-     * @inheritdoc IFixedPrice
-     */
-    function unpause() external onlyOwner {
-        _unpause();
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                                 EXTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -184,6 +166,24 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
         SafeTransferLib.safeTransferETH(saleReceiver, proceeds);
 
         emit Withdrawn(_token, saleReceiver, proceeds);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                OWNER FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc IFixedPrice
+     */
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    /**
+     * @inheritdoc IFixedPrice
+     */
+    function unpause() external onlyOwner {
+        _unpause();
     }
 
     /*//////////////////////////////////////////////////////////////////////////

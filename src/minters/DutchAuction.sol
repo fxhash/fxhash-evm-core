@@ -70,24 +70,6 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
     mapping(address => mapping(uint256 => uint256)) public numberMinted;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                OWNER FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /**
-     * @inheritdoc IDutchAuction
-     */
-    function pause() external onlyOwner {
-        _pause();
-    }
-
-    /**
-     * @inheritdoc IDutchAuction
-     */
-    function unpause() external onlyOwner {
-        _unpause();
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
                                 EXTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -258,6 +240,24 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
 
         // Transfers the sale proceeds to the sale receiver
         SafeTransferLib.safeTransferETH(saleReceiver, proceeds);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                OWNER FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc IDutchAuction
+     */
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    /**
+     * @inheritdoc IDutchAuction
+     */
+    function unpause() external onlyOwner {
+        _unpause();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
