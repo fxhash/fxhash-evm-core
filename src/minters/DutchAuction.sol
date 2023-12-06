@@ -179,11 +179,8 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         if (_reserve.endTime - _reserve.startTime != daInfo.prices.length * daInfo.stepLength) revert InvalidStep();
 
         if (merkleRoot != bytes32(0)) {
-            if (signer != address(0)) {
-                revert OnlyAuthorityOrAllowlist();
-            } else {
-                merkleRoots[msg.sender][nextReserve] = merkleRoot;
-            }
+            if (signer != address(0)) revert OnlyAuthorityOrAllowlist();
+            merkleRoots[msg.sender][nextReserve] = merkleRoot;
         } else if (signer != address(0)) {
             signingAuthorities[msg.sender][nextReserve] = signer;
             reserveNonce[msg.sender][nextReserve]++;

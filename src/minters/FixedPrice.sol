@@ -133,11 +133,8 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
         if (_reserve.allocation == 0) revert InvalidAllocation();
         (uint256 price, bytes32 merkleRoot, address signer) = abi.decode(_mintDetails, (uint256, bytes32, address));
         if (merkleRoot != bytes32(0)) {
-            if (signer != address(0)) {
-                revert OnlyAuthorityOrAllowlist();
-            } else {
-                merkleRoots[msg.sender][nextReserve] = merkleRoot;
-            }
+            if (signer != address(0)) revert OnlyAuthorityOrAllowlist();
+            merkleRoots[msg.sender][nextReserve] = merkleRoot;
         } else if (signer != address(0)) {
             signingAuthorities[msg.sender][nextReserve] = signer;
             reserveNonce[msg.sender][nextReserve]++;
