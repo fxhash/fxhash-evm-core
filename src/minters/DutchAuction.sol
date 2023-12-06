@@ -38,7 +38,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     LibMap.Uint40Map internal latestUpdates_;
 
     /**
-     * @dev Mapping of token address to timestamp of latest update made for token reserves
+     * @dev Mapping of token to the last valid reserveId that can mint on behalf of the token
      */
     LibMap.Uint40Map internal firstValidReserve;
 
@@ -248,6 +248,13 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     /**
      * @inheritdoc IDutchAuction
      */
+    function getFirstValidReserve(address _token) public view returns (uint256) {
+        return LibMap.get(firstValidReserve, uint256(uint160(_token)));
+    }
+
+    /**
+     * @inheritdoc IDutchAuction
+     */
     function getLatestUpdate(address _token) public view returns (uint40) {
         return LibMap.get(latestUpdates_, uint256(uint160(_token)));
     }
@@ -361,7 +368,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
      * @dev Validates token address, reserve information and given account
      */
     function _validateInput(address _token, uint256 _reserveId, address _buyer) internal view {
-        uint256 validReserve = LibMap.get(firstValidReserve, uint256(uint160(_token)));
+        uint256 validReserve = getFirstValidReserve(_token);
         uint256 length = reserves[_token].length;
         if (length == 0) revert InvalidToken();
         if (_reserveId >= length || _reserveId < validReserve) revert InvalidReserve();
