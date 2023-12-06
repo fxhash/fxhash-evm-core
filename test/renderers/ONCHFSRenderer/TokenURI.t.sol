@@ -53,24 +53,29 @@ contract TokenURI is ONCHFSRendererTest {
     }
 
     function _generateJSON() internal {
-        generatedURL = string(
-            abi.encodePacked(
-                '"name:"',
-                string.concat(name, " #", tokenId.toString()),
-                '", "description:"',
-                description,
-                '", "symbol:"',
-                symbol,
-                '", "version: 0.2"',
-                '", "externalURL:"',
-                externalURL,
-                '", "image":"',
-                imageURL,
-                '", "animation_url":"',
-                animationURL,
-                '", "attributes":["',
-                attributes,
-                '"]}'
+        generatedURL = string.concat(
+            "data:application/json;base64,",
+            Base64.encode(
+                abi.encodePacked(
+                    string.concat(
+                        '"name:"',
+                        string.concat(name, " #", tokenId.toString()),
+                        '", "description:"',
+                        description,
+                        '", "symbol:"',
+                        symbol,
+                        '", "version: 0.2"',
+                        '", "externalURL:"',
+                        externalURL,
+                        '", "image":"',
+                        imageURL,
+                        '", "animation_url":"',
+                        animationURL,
+                        '", "attributes":["',
+                        attributes,
+                        '"]}'
+                    )
+                )
             )
         );
     }

@@ -3,9 +3,6 @@ pragma solidity 0.8.23;
 
 import "test/BaseTest.t.sol";
 
-import {MockToken} from "test/mocks/MockToken.sol";
-import {SSTORE2} from "sstore2/contracts/SSTORE2.sol";
-
 contract ONCHFSRendererTest is BaseTest {
     // State
     bytes internal tokenData;

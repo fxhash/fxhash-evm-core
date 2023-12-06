@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
 
+import {Base64} from "openzeppelin/contracts/utils/Base64.sol";
 import {LibIPFSEncoder} from "src/lib/LibIPFSEncoder.sol";
 import {SSTORE2} from "sstore2/contracts/SSTORE2.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
@@ -153,24 +154,29 @@ contract ONCHFSRenderer is IONCHFSRenderer {
         string memory attributes = getAttributes(msg.sender, string(_baseURI), _tokenId);
 
         return
-            string(
-                abi.encodePacked(
-                    '"name:"',
-                    name,
-                    '", "description:"',
-                    _description,
-                    '", "symbol:"',
-                    symbol,
-                    '", "version: 0.2"',
-                    '", "externalURL:"',
-                    externalURL,
-                    '", "image":"',
-                    imageURL,
-                    '", "animation_url":"',
-                    _animationURL,
-                    '", "attributes":["',
-                    attributes,
-                    '"]}'
+            string.concat(
+                "data:application/json;base64,",
+                Base64.encode(
+                    abi.encodePacked(
+                        string.concat(
+                            '"name:"',
+                            name,
+                            '", "description:"',
+                            _description,
+                            '", "symbol:"',
+                            symbol,
+                            '", "version: 0.2"',
+                            '", "externalURL:"',
+                            externalURL,
+                            '", "image":"',
+                            imageURL,
+                            '", "animation_url":"',
+                            _animationURL,
+                            '", "attributes":["',
+                            attributes,
+                            '"]}'
+                        )
+                    )
                 )
             );
     }
