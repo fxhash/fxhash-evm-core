@@ -126,6 +126,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external {
         uint256 nextReserve = reserves[msg.sender].length;
         if (getLatestUpdate(msg.sender) != block.timestamp) {
+            _setLatestUpdate(msg.sender, block.timestamp);
             _setFirstValidReserve(msg.sender, nextReserve);
         }
 
