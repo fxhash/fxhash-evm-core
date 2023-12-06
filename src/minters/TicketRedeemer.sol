@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
 
+import {Ownable} from "solady/src/auth/Ownable.sol";
+import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
+
 import {IERC721} from "openzeppelin/contracts/interfaces/IERC721.sol";
 import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxMintTicket721} from "src/interfaces/IFxMintTicket721.sol";
@@ -11,7 +14,7 @@ import {ITicketRedeemer} from "src/interfaces/ITicketRedeemer.sol";
  * @author fx(hash)
  * @dev See the documentation in {ITicketRedeemer}
  */
-contract TicketRedeemer is ITicketRedeemer {
+contract TicketRedeemer is ITicketRedeemer, Ownable, Pausable {
     /*//////////////////////////////////////////////////////////////////////////
                                     STORAGE
     //////////////////////////////////////////////////////////////////////////*/
@@ -28,7 +31,7 @@ contract TicketRedeemer is ITicketRedeemer {
     /**
      * @inheritdoc ITicketRedeemer
      */
-    function redeem(address _token, address _to, uint256 _ticketId, bytes calldata _fxParams) external {
+    function redeem(address _token, address _to, uint256 _ticketId, bytes calldata _fxParams) external whenNotPaused {
         address ticket = tickets[_token];
         // Reverts if ticket contract does not exist
         if (ticket == address(0)) revert InvalidToken();
@@ -49,7 +52,7 @@ contract TicketRedeemer is ITicketRedeemer {
     /**
      * @inheritdoc ITicketRedeemer
      */
-    function setMintDetails(ReserveInfo calldata, bytes calldata _mintDetails) external {
+    function setMintDetails(ReserveInfo calldata, bytes calldata _mintDetails) external whenNotPaused {
         // Decodes ticket address from mint data
         address ticket = abi.decode(_mintDetails, (address));
         // Reverts if ticket address has alread been set
@@ -58,5 +61,23 @@ contract TicketRedeemer is ITicketRedeemer {
 
         // Emits event when mint details have been set
         emit MintDetailsSet(ticket, msg.sender);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                OWNER FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc ITicketRedeemer
+     */
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    /**
+     * @inheritdoc ITicketRedeemer
+     */
+    function unpause() external onlyOwner {
+        _unpause();
     }
 }
