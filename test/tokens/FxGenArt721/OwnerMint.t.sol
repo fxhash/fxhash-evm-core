@@ -8,6 +8,7 @@ contract OwnerMintTest is FxGenArt721Test {
         super.setUp();
         _createProject();
         _setIssuerInfo();
+        TokenLib.unpause(admin, fxGenArtProxy);
     }
 
     function test_OwnerMint() public {

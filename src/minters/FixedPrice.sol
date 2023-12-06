@@ -5,6 +5,8 @@ import {Allowlist} from "src/minters/extensions/Allowlist.sol";
 import {LibBitmap} from "solady/src/utils/LibBitmap.sol";
 import {LibMap} from "solady/src/utils/LibMap.sol";
 import {MintPass} from "src/minters/extensions/MintPass.sol";
+import {Ownable} from "solady/src/auth/Ownable.sol";
+import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 
@@ -19,7 +21,7 @@ import {OPEN_EDITION_SUPPLY, TIME_UNLIMITED} from "src/utils/Constants.sol";
  * @author fx(hash)
  * @dev See the documentation in {IFixedPrice}
  */
-contract FixedPrice is IFixedPrice, Allowlist, MintPass {
+contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
     using SafeCastLib for uint256;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -29,22 +31,22 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
     /**
      * @dev Mapping of token address to reserve ID to Bitmap of claimed merkle tree slots
      */
-    mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal claimedMerkleTreeSlots_;
+    mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal claimedMerkleTreeSlots;
 
     /**
      * @dev Mapping of token address to reserve ID to Bitmap of claimed mint passes
      */
-    mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal claimedMintPasses_;
+    mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal claimedMintPasses;
 
     /**
      * @dev Mapping of token address to timestamp of latest update made for token reserves
      */
-    LibMap.Uint40Map internal latestUpdates_;
+    LibMap.Uint40Map internal latestUpdates;
 
     /**
      * @dev Mapping of token address to sale proceeds
      */
-    LibMap.Uint128Map internal saleProceeds_;
+    LibMap.Uint128Map internal saleProceeds;
 
     /**
      * @inheritdoc IFixedPrice
@@ -68,7 +70,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
     /**
      * @inheritdoc IFixedPrice
      */
-    function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable {
+    function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable whenNotPaused {
         bytes32 merkleRoot = _getMerkleRoot(_token, _reserveId);
         address signer = signingAuthorities[_token][_reserveId];
         if (merkleRoot != bytes32(0)) revert NoPublicMint();
@@ -85,10 +87,10 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
         address _to,
         uint256[] calldata _indexes,
         bytes32[][] calldata _proofs
-    ) external payable {
+    ) external payable whenNotPaused {
         bytes32 merkleRoot = _getMerkleRoot(_token, _reserveId);
         if (merkleRoot == bytes32(0)) revert NoAllowlist();
-        LibBitmap.Bitmap storage claimBitmap = claimedMerkleTreeSlots_[_token][_reserveId];
+        LibBitmap.Bitmap storage claimBitmap = claimedMerkleTreeSlots[_token][_reserveId];
         uint256 amount = _proofs.length;
         for (uint256 i; i < amount; ++i) {
             _claimSlot(_token, _reserveId, _indexes[i], _proofs[i], claimBitmap);
@@ -107,10 +109,10 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
         address _to,
         uint256 _index,
         bytes calldata _signature
-    ) external payable {
+    ) external payable whenNotPaused {
         address signer = signingAuthorities[_token][_reserveId];
         if (signer == address(0)) revert NoSigningAuthority();
-        LibBitmap.Bitmap storage claimBitmap = claimedMintPasses_[_token][_reserveId];
+        LibBitmap.Bitmap storage claimBitmap = claimedMintPasses[_token][_reserveId];
         _claimMintPass(_token, _reserveId, _index, _signature, claimBitmap);
         _buy(_token, _reserveId, _amount, _to);
     }
@@ -118,7 +120,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
     /**
      * @inheritdoc IFixedPrice
      */
-    function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external {
+    function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external whenNotPaused {
         if (getLatestUpdate(msg.sender) != block.timestamp) {
             delete prices[msg.sender];
             delete reserves[msg.sender];
@@ -154,7 +156,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
     /**
      * @inheritdoc IFixedPrice
      */
-    function withdraw(address _token) external {
+    function withdraw(address _token) external whenNotPaused {
         uint256 proceeds = getSaleProceed(_token);
         if (proceeds == 0) revert InsufficientFunds();
 
@@ -167,6 +169,24 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
+                                OWNER FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc IFixedPrice
+     */
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    /**
+     * @inheritdoc IFixedPrice
+     */
+    function unpause() external onlyOwner {
+        _unpause();
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                                 READ FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -174,14 +194,14 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
      * @inheritdoc IFixedPrice
      */
     function getLatestUpdate(address _token) public view returns (uint40) {
-        return LibMap.get(latestUpdates_, uint256(uint160(_token)));
+        return LibMap.get(latestUpdates, uint256(uint160(_token)));
     }
 
     /**
      * @inheritdoc IFixedPrice
      */
     function getSaleProceed(address _token) public view returns (uint128) {
-        return LibMap.get(saleProceeds_, uint256(uint160(_token)));
+        return LibMap.get(saleProceeds, uint256(uint160(_token)));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -217,14 +237,14 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass {
      * @dev Sets timestamp of the latest update to token reserves
      */
     function _setLatestUpdate(address _token, uint256 _timestamp) internal {
-        LibMap.set(latestUpdates_, uint256(uint160(_token)), uint40(_timestamp));
+        LibMap.set(latestUpdates, uint256(uint160(_token)), uint40(_timestamp));
     }
 
     /**
      * @dev Sets the proceed amount from the token sale
      */
     function _setSaleProceeds(address _token, uint256 _amount) internal {
-        LibMap.set(saleProceeds_, uint256(uint160(_token)), uint128(_amount));
+        LibMap.set(saleProceeds, uint256(uint160(_token)), uint128(_amount));
     }
 
     /**
