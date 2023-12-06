@@ -59,6 +59,11 @@ interface ITicketRedeemer is IMinter {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
+     * @notice Pauses all function executions where modifier is applied
+     */
+    function pause() external;
+
+    /**
      * @notice Burns a ticket and mints a new token to the caller
      * @param _ticket Address of the ticket contract
      * @param _to Address of token receiver
@@ -77,4 +82,9 @@ interface ITicketRedeemer is IMinter {
      * @notice Mapping of FxGenArt721 token address to FxMintTicket721 token address
      */
     function tickets(address) external view returns (address);
+
+    /**
+     * @notice Unpauses all function executions where modifier is applied
+     */
+    function unpause() external;
 }

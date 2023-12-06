@@ -12,13 +12,10 @@ contract Pause is FxGenArt721Test {
     }
 
     function test_Pause() public {
-        TokenLib.pause(admin, fxGenArtProxy);
         assertTrue(Pausable(fxGenArtProxy).paused());
     }
 
     function test_RevertsWhen_Paused() public {
-        TokenLib.pause(admin, fxGenArtProxy);
-
         vm.expectRevert("Pausable: paused");
         TokenLib.pause(admin, fxGenArtProxy);
     }

@@ -208,6 +208,11 @@ interface IFixedPrice is IMinter {
     function merkleRoots(address, uint256) external view returns (bytes32);
 
     /**
+     * @notice Pauses all function executions where modifier is applied
+     */
+    function pause() external;
+
+    /**
      * @notice Mapping of token address to reserve ID to prices
      */
     function prices(address, uint256) external view returns (uint256);
@@ -222,6 +227,11 @@ interface IFixedPrice is IMinter {
      * @dev Mint Details: token price, merkle root, and signer address
      */
     function setMintDetails(ReserveInfo calldata _reserveInfo, bytes calldata _mintDetails) external;
+
+    /**
+     * @notice Unpauses all function executions where modifier is applied
+     */
+    function unpause() external;
 
     /**
      * @notice Withdraws the sale proceeds to the sale receiver
