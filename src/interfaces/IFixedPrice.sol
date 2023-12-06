@@ -184,6 +184,11 @@ interface IFixedPrice is IMinter {
     ) external payable;
 
     /**
+     * @notice Returns the earliest valid reserveId that can mint a token
+     */
+    function getFirstValidReserve(address _token) external view returns (uint256);
+
+    /**
      * @notice Gets the latest timestamp update made to token reserves
      * @param _token Address of the token contract
      * @return Timestamp of latest update

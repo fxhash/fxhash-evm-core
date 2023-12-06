@@ -44,6 +44,11 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
     LibMap.Uint40Map internal latestUpdates;
 
     /**
+     * @dev Mapping of token to the last valid reserveId that can mint on behalf of the token
+     */
+    LibMap.Uint40Map internal firstValidReserve;
+
+    /**
      * @dev Mapping of token address to sale proceeds
      */
     LibMap.Uint128Map internal saleProceeds;
@@ -121,27 +126,20 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
      * @inheritdoc IFixedPrice
      */
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external whenNotPaused {
+        uint256 nextReserve = reserves[msg.sender].length;
         if (getLatestUpdate(msg.sender) != block.timestamp) {
-            delete prices[msg.sender];
-            delete reserves[msg.sender];
             _setLatestUpdate(msg.sender, block.timestamp);
+            _setFirstValidReserve(msg.sender, nextReserve);
         }
 
         if (_reserve.allocation == 0) revert InvalidAllocation();
         (uint256 price, bytes32 merkleRoot, address signer) = abi.decode(_mintDetails, (uint256, bytes32, address));
-        if (merkleRoot != bytes32(0) && signer != address(0)) revert OnlyAuthorityOrAllowlist();
-
-        uint256 reserveId = reserves[msg.sender].length;
-        delete merkleRoots[msg.sender][reserveId];
-        delete signingAuthorities[msg.sender][reserveId];
-
         if (merkleRoot != bytes32(0)) {
-            merkleRoots[msg.sender][reserveId] = merkleRoot;
-        }
-
-        if (signer != address(0)) {
-            signingAuthorities[msg.sender][reserveId] = signer;
-            reserveNonce[msg.sender][reserveId]++;
+            if (signer != address(0)) revert OnlyAuthorityOrAllowlist();
+            merkleRoots[msg.sender][nextReserve] = merkleRoot;
+        } else if (signer != address(0)) {
+            signingAuthorities[msg.sender][nextReserve] = signer;
+            reserveNonce[msg.sender][nextReserve]++;
         }
 
         prices[msg.sender].push(price);
@@ -150,7 +148,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
         bool openEdition = _reserve.allocation == OPEN_EDITION_SUPPLY ? true : false;
         bool timeUnlimited = _reserve.endTime == TIME_UNLIMITED ? true : false;
 
-        emit MintDetailsSet(msg.sender, reserveId, price, _reserve, merkleRoot, signer, openEdition, timeUnlimited);
+        emit MintDetailsSet(msg.sender, nextReserve, price, _reserve, merkleRoot, signer, openEdition, timeUnlimited);
     }
 
     /**
@@ -193,6 +191,13 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
     /**
      * @inheritdoc IFixedPrice
      */
+    function getFirstValidReserve(address _token) public view returns (uint256) {
+        return LibMap.get(firstValidReserve, uint256(uint160(_token)));
+    }
+
+    /**
+     * @inheritdoc IFixedPrice
+     */
     function getLatestUpdate(address _token) public view returns (uint40) {
         return LibMap.get(latestUpdates, uint256(uint160(_token)));
     }
@@ -213,8 +218,10 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
      */
     function _buy(address _token, uint256 _reserveId, uint256 _amount, address _to) internal {
         uint256 length = reserves[_token].length;
+        uint256 validReserve = getFirstValidReserve(_token);
+
         if (length == 0) revert InvalidToken();
-        if (_reserveId >= length) revert InvalidReserve();
+        if (_reserveId >= length || _reserveId < validReserve) revert InvalidReserve();
 
         ReserveInfo storage reserve = reserves[_token][_reserveId];
         if (block.timestamp < reserve.startTime) revert NotStarted();
@@ -238,6 +245,13 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
      */
     function _setLatestUpdate(address _token, uint256 _timestamp) internal {
         LibMap.set(latestUpdates, uint256(uint160(_token)), uint40(_timestamp));
+    }
+
+    /**
+     * @dev Sets earliest valid reserve
+     */
+    function _setFirstValidReserve(address _token, uint256 _reserveId) internal {
+        LibMap.set(firstValidReserve, uint256(uint160(_token)), uint40(_reserveId));
     }
 
     /**
