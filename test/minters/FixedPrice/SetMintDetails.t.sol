@@ -51,6 +51,14 @@ contract SetMintDetails is FixedPriceTest {
 
         vm.expectRevert(INVALID_RESERVE_ERROR);
         fixedPrice.buy(address(this), 1, 1, address(this));
+
+        vm.expectRevert(INVALID_RESERVE_ERROR);
+        fixedPrice.buy(address(this), 0, 1, address(this));
+
+        fixedPrice.buy(address(this), 2, 1, address(this));
+
+        vm.expectRevert(INVALID_RESERVE_ERROR);
+        fixedPrice.buy(address(this), 3, 1, address(this));
     }
 
     function mint(address _to, uint256 _amount, uint256 _payment) external {}
