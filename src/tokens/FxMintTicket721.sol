@@ -294,7 +294,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
         // Reverts if foreclosure time is less than one day
         if (taxInfo.foreclosureTime < block.timestamp + ONE_DAY) revert InsufficientDeposit();
 
-        taxInfo.startTime += uint48(block.timestamp);
+        taxInfo.startTime = uint48(block.timestamp);
 
         emit StartTimeUpdated(_tokenId, msg.sender, taxInfo.foreclosureTime);
     }

@@ -46,7 +46,7 @@ contract TransferFrom is FxMintTicket721Test {
 
     function test_RevertsWhen_ForeclosureInactiveAndNotOwner() public {
         TicketLib.setApprovalForAll(bob, fxMintTicketProxy, alice, true);
-        vm.expectRevert(NOT_AUTHORIZED_TICKET_ERROR);
+        vm.expectRevert(NOT_AUTHORIZED_ERROR);
         TicketLib.transferFrom(alice, fxMintTicketProxy, bob, alice, tokenId);
     }
 }

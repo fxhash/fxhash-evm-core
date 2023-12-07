@@ -96,6 +96,10 @@ library TicketLib {
         FxMintTicket721(_proxy).transferFrom(_from, _to, _tokenId);
     }
 
+    function updateStartTime(address _caller, address _proxy, uint256 _tokenId) internal prank(_caller) {
+        IFxMintTicket721(_proxy).updateStartTime(_tokenId);
+    }
+
     function withdraw(address _caller, address _proxy, address _to) internal prank(_caller) {
         IFxMintTicket721(_proxy).withdraw(_to);
     }
