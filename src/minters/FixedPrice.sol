@@ -245,6 +245,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
      */
     function _setLatestUpdate(address _token, uint40 _timestamp) internal {
         latestUpdates[_token] = _timestamp;
+    }
 
     /**
      * @dev Sets earliest valid reserve
