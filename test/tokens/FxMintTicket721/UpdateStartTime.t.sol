@@ -31,7 +31,7 @@ contract UpdateStartTime is FxMintTicket721Test {
         assertEq(depositAmount, depositAmount);
     }
 
-    function test_RevertsWhen_InvalidOwner() public {
+    function test_RevertsWhen_NotAuthorized() public {
         vm.expectRevert(NOT_AUTHORIZED_ERROR);
         TicketLib.updateStartTime(alice, fxMintTicketProxy, tokenId);
     }
