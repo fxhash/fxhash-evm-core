@@ -285,7 +285,7 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
     /**
      * @inheritdoc IFxMintTicket721
      */
-    function setStartTime(uint256 _tokenId) external {
+    function updateStartTime(uint256 _tokenId) external {
         // Reverts if caller is not owner of token
         if (_ownerOf(_tokenId) != msg.sender) revert NotAuthorized();
         TaxInfo storage taxInfo = taxes[_tokenId];

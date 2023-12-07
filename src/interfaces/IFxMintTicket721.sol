@@ -380,12 +380,6 @@ interface IFxMintTicket721 is IToken {
     function setPrice(uint256 _tokenId, uint80 _newPrice) external;
 
     /**
-     * @notice Sets taxation start time to the current timestamp
-     * @param _tokenId ID of the token
-     */
-    function setStartTime(uint256 _tokenId) external;
-
-    /**
      * @notice Mapping of ticket ID to tax information (grace period, foreclosure time, current price, deposit amount)
      */
     function taxes(uint256) external returns (uint48, uint48, uint80, uint80);
@@ -399,6 +393,12 @@ interface IFxMintTicket721 is IToken {
      * @notice Unpauses all function executions where modifier is set
      */
     function unpause() external;
+
+    /**
+     * @notice Updates taxation start time to the current timestamp
+     * @param _tokenId ID of the token
+     */
+    function updateStartTime(uint256 _tokenId) external;
 
     /**
      * @notice Withdraws available balance amount to given address
