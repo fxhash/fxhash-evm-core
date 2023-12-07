@@ -35,7 +35,7 @@ contract ONCHFSRenderer is IONCHFSRenderer {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @dev Initializes FxContractRegistry contract
+     * @dev Initializes FxContractRegistry
      */
     constructor(address _contractRegistry) {
         contractRegistry = _contractRegistry;
