@@ -141,14 +141,14 @@ contract ONCHFSRenderer is IONCHFSRenderer {
      * @dev Reconstructs JSON metadata of token onchain
      */
     function _renderJSON(
-        address _contractAdrr,
+        address _contractAddr,
         uint256 _tokenId,
         string memory _description,
         string memory _baseURI,
         string memory _animationURL
     ) internal view returns (string memory) {
-        string memory name = string.concat(IERC721Metadata(_contractAdrr).name(), " #", _tokenId.toString());
-        string memory symbol = IERC721Metadata(_contractAdrr).symbol();
+        string memory name = string.concat(IERC721Metadata(_contractAddr).name(), " #", _tokenId.toString());
+        string memory symbol = IERC721Metadata(_contractAddr).symbol();
         string memory externalURL = getExternalURL(msg.sender, _tokenId);
         string memory imageURL = getImageURL(msg.sender, string(_baseURI), _tokenId);
         string memory attributes = getAttributes(msg.sender, string(_baseURI), _tokenId);
