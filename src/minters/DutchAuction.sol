@@ -81,12 +81,18 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
     /**
      * @inheritdoc IDutchAuction
      */
-    function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable whenNotPaused {
+    function buy(
+        address _token,
+        uint256 _reserveId,
+        uint256 _amount,
+        address _to,
+        address _refundReceiver
+    ) external payable whenNotPaused {
         bytes32 merkleRoot = _getMerkleRoot(_token, _reserveId);
         address signer = signingAuthorities[_token][_reserveId];
         if (merkleRoot != bytes32(0)) revert NoPublicMint();
         if (signer != address(0)) revert AddressZero();
-        _buy(_token, _reserveId, _amount, _to);
+        _buy(_token, _reserveId, _amount, _to, _refundReceiver);
     }
 
     /**
@@ -96,6 +102,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
         address _token,
         uint256 _reserveId,
         address _to,
+        address _refundReceiver,
         uint256[] calldata _indexes,
         bytes32[][] calldata _proofs
     ) external payable whenNotPaused {
@@ -107,7 +114,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
             _claimSlot(_token, _reserveId, _indexes[i], _proofs[i], claimBitmap);
         }
 
-        _buy(_token, _reserveId, amount, _to);
+        _buy(_token, _reserveId, amount, _to, _refundReceiver);
     }
 
     /**
@@ -118,6 +125,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
         uint256 _reserveId,
         uint256 _amount,
         address _to,
+        address _refundReceiver,
         uint256 _index,
         bytes calldata _signature
     ) external payable whenNotPaused {
@@ -125,7 +133,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
         if (signer == address(0)) revert NoSigningAuthority();
         LibBitmap.Bitmap storage claimBitmap = claimedMintPasses[_token][_reserveId];
         _claimMintPass(_token, _reserveId, _index, _signature, claimBitmap);
-        _buy(_token, _reserveId, _amount, _to);
+        _buy(_token, _reserveId, _amount, _to, _refundReceiver);
     }
 
     /**
@@ -216,7 +224,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
 
         // Checks if the auction has ended and the reserve allocation is fully sold out
         if (block.timestamp < reserve.endTime && reserve.allocation > 0) revert NotEnded();
-        (address saleReceiver, ) = IFxGenArt721(_token).issuerInfo();
+        address saleReceiver = IToken(_token).primaryReceiver();
         uint256 lastPrice = refunds[_token][_reserveId].lastPrice;
         bool refundAuction = auctions[_token][_reserveId].refunded;
         if (lastPrice == 0 && refundAuction) {
@@ -295,7 +303,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
     /**
      * @dev Purchases arbitrary amount of tokens at auction price and mints tokens to given account
      */
-    function _buy(address _token, uint256 _reserveId, uint256 _amount, address _to) internal {
+    function _buy(address _token, uint256 _reserveId, uint256 _amount, address _to, address _refundReceiver) internal {
         // Validates token address, reserve information and given account
         _validateInput(_token, _reserveId, _to);
         if (_amount == 0) revert InvalidAmount();
@@ -323,7 +331,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
 
         // Updates the minter's total mints and total paid amounts
         uint128 totalPayment = SafeCastLib.safeCastTo128(price * _amount);
-        MinterInfo storage minterInfo = refunds[_token][_reserveId].minterInfo[msg.sender];
+        MinterInfo storage minterInfo = refunds[_token][_reserveId].minterInfo[_refundReceiver];
         minterInfo.totalMints += amount;
         minterInfo.totalPaid += totalPayment;
 

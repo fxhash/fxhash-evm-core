@@ -6,7 +6,7 @@ import "test/minters/DutchAuction/DutchAuctionTest.t.sol";
 contract Withdraw is DutchAuctionTest {
     function test_withdraw() public {
         uint256 price = dutchAuction.getPrice(fxGenArtProxy, reserveId);
-        dutchAuction.buy{value: price}(fxGenArtProxy, reserveId, quantity, alice);
+        dutchAuction.buy{value: price}(fxGenArtProxy, reserveId, quantity, alice, alice);
         uint256 beforeBalance = primaryReceiver.balance;
 
         vm.warp(RESERVE_END_TIME + 1);
@@ -17,7 +17,7 @@ contract Withdraw is DutchAuctionTest {
 
     function test_RevertsIf_NotOver() public {
         uint256 price = dutchAuction.getPrice(fxGenArtProxy, reserveId);
-        dutchAuction.buy{value: price}(fxGenArtProxy, reserveId, quantity, alice);
+        dutchAuction.buy{value: price}(fxGenArtProxy, reserveId, quantity, alice, alice);
         vm.warp(RESERVE_END_TIME - 1);
         vm.expectRevert(NOT_ENDED_ERROR);
         dutchAuction.withdraw(fxGenArtProxy, reserveId);
@@ -25,7 +25,7 @@ contract Withdraw is DutchAuctionTest {
 
     function test_RevertsIf_NoFunds() public {
         uint256 price = dutchAuction.getPrice(fxGenArtProxy, reserveId);
-        dutchAuction.buy{value: price}(fxGenArtProxy, reserveId, quantity, alice);
+        dutchAuction.buy{value: price}(fxGenArtProxy, reserveId, quantity, alice, alice);
         vm.warp(RESERVE_END_TIME + 1);
         dutchAuction.withdraw(fxGenArtProxy, reserveId);
 

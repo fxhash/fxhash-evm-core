@@ -29,6 +29,7 @@ contract BuyWithMintPass is DutchAuctionTest {
             reserveId,
             quantity,
             alice,
+            alice,
             claimIndex,
             abi.encodePacked(r, s, v)
         );
@@ -43,6 +44,7 @@ contract BuyWithMintPass is DutchAuctionTest {
             fxGenArtProxy,
             reserveId,
             quantity,
+            alice,
             alice,
             claimIndex,
             abi.encodePacked(r, s, v)
@@ -59,6 +61,7 @@ contract BuyWithMintPass is DutchAuctionTest {
             reserveId,
             quantity,
             alice,
+            alice,
             claimIndex,
             abi.encodePacked(r, s, v)
         );
@@ -73,6 +76,7 @@ contract BuyWithMintPass is DutchAuctionTest {
             reserveId,
             quantity,
             alice,
+            alice,
             claimIndex,
             abi.encodePacked(r, s, v)
         );
@@ -83,6 +87,7 @@ contract BuyWithMintPass is DutchAuctionTest {
             fxGenArtProxy,
             reserveId,
             quantity,
+            alice,
             alice,
             claimIndex,
             abi.encodePacked(r, s, v)
