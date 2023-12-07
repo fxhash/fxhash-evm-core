@@ -20,7 +20,7 @@ contract SetPrice is FxMintTicket721Test {
     }
 
     function test_RevertsWhen_NotAuthorized() public {
-        vm.expectRevert(NOT_AUTHORIZED_TICKET_ERROR);
+        vm.expectRevert(NOT_AUTHORIZED_ERROR);
         TicketLib.setPrice(alice, fxMintTicketProxy, tokenId, newPrice);
     }
 
