@@ -216,7 +216,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
 
         // Checks if the auction has ended and the reserve allocation is fully sold out
         if (block.timestamp < reserve.endTime && reserve.allocation > 0) revert NotEnded();
-        (address saleReceiver, ) = IFxGenArt721(_token).issuerInfo();
+        address saleReceiver = IToken(_token).primaryReceiver();
         uint256 lastPrice = refunds[_token][_reserveId].lastPrice;
         bool refundAuction = auctions[_token][_reserveId].refunded;
         if (lastPrice == 0 && refundAuction) {
