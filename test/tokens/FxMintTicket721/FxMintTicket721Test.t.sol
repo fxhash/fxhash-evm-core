@@ -50,6 +50,7 @@ contract FxMintTicket721Test is BaseTest {
         delete mintInfo;
         _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, abi.encode(PRICE));
         _createTicket();
+        TokenLib.unpause(admin, fxGenArtProxy);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

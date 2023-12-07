@@ -5,6 +5,8 @@ import {Allowlist} from "src/minters/extensions/Allowlist.sol";
 import {LibBitmap} from "solady/src/utils/LibBitmap.sol";
 import {LibMap} from "solady/src/utils/LibMap.sol";
 import {MintPass} from "src/minters/extensions/MintPass.sol";
+import {Ownable} from "solady/src/auth/Ownable.sol";
+import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 
@@ -17,7 +19,7 @@ import {IToken} from "src/interfaces/IToken.sol";
  * @author fx(hash)
  * @dev See the documentation in {IDutchAuction}
  */
-contract DutchAuction is IDutchAuction, Allowlist, MintPass {
+contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
     /*//////////////////////////////////////////////////////////////////////////
                                     STORAGE
     //////////////////////////////////////////////////////////////////////////*/
@@ -25,17 +27,22 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     /**
      * @dev Mapping of token address to reserve ID to Bitmap of claimed merkle tree slots
      */
-    mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal claimedMerkleTreeSlots_;
+    mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal claimedMerkleTreeSlots;
 
     /**
      * @dev Mapping of token address to reserve ID to Bitmap of claimed mint passes
      */
-    mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal claimedMintPasses_;
+    mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal claimedMintPasses;
 
     /**
      * @dev Mapping of token address to timestamp of latest update made for token reserves
      */
-    LibMap.Uint40Map internal latestUpdates_;
+    LibMap.Uint40Map internal latestUpdates;
+
+    /**
+     * @dev Mapping of token to the last valid reserveId that can mint on behalf of the token
+     */
+    LibMap.Uint40Map internal firstValidReserve;
 
     /**
      * @inheritdoc IDutchAuction
@@ -74,7 +81,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     /**
      * @inheritdoc IDutchAuction
      */
-    function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable {
+    function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable whenNotPaused {
         bytes32 merkleRoot = _getMerkleRoot(_token, _reserveId);
         address signer = signingAuthorities[_token][_reserveId];
         if (merkleRoot != bytes32(0)) revert NoPublicMint();
@@ -91,10 +98,10 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         address _to,
         uint256[] calldata _indexes,
         bytes32[][] calldata _proofs
-    ) external payable {
+    ) external payable whenNotPaused {
         bytes32 merkleRoot = _getMerkleRoot(_token, _reserveId);
         if (merkleRoot == bytes32(0)) revert NoAllowlist();
-        LibBitmap.Bitmap storage claimBitmap = claimedMerkleTreeSlots_[_token][_reserveId];
+        LibBitmap.Bitmap storage claimBitmap = claimedMerkleTreeSlots[_token][_reserveId];
         uint256 amount = _proofs.length;
         for (uint256 i; i < amount; ++i) {
             _claimSlot(_token, _reserveId, _indexes[i], _proofs[i], claimBitmap);
@@ -113,10 +120,10 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         address _to,
         uint256 _index,
         bytes calldata _signature
-    ) external payable {
+    ) external payable whenNotPaused {
         address signer = signingAuthorities[_token][_reserveId];
         if (signer == address(0)) revert NoSigningAuthority();
-        LibBitmap.Bitmap storage claimBitmap = claimedMintPasses_[_token][_reserveId];
+        LibBitmap.Bitmap storage claimBitmap = claimedMintPasses[_token][_reserveId];
         _claimMintPass(_token, _reserveId, _index, _signature, claimBitmap);
         _buy(_token, _reserveId, _amount, _to);
     }
@@ -124,7 +131,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     /**
      * @inheritdoc IDutchAuction
      */
-    function refund(address _token, uint256 _reserveId, address _buyer) external {
+    function refund(address _token, uint256 _reserveId, address _buyer) external whenNotPaused {
         // Validates token address, reserve information and given account
         _validateInput(_token, _reserveId, _buyer);
 
@@ -158,31 +165,27 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     /**
      * @inheritdoc IDutchAuction
      */
-    function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external {
+    function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external whenNotPaused {
+        uint256 nextReserve = reserves[msg.sender].length;
         if (_reserve.allocation == 0) revert InvalidAllocation();
         (AuctionInfo memory daInfo, bytes32 merkleRoot, address signer) = abi.decode(
             _mintDetails,
             (AuctionInfo, bytes32, address)
         );
         if (getLatestUpdate(msg.sender) != block.timestamp) {
-            delete reserves[msg.sender];
-            delete auctions[msg.sender];
             _setLatestUpdate(msg.sender, block.timestamp);
+            _setFirstValidReserve(msg.sender, nextReserve);
         }
 
         // Checks if the step length is evenly divisible by the auction duration
         if (_reserve.endTime - _reserve.startTime != daInfo.prices.length * daInfo.stepLength) revert InvalidStep();
-        uint256 reserveId = reserves[msg.sender].length;
-        delete merkleRoots[msg.sender][reserveId];
-        delete signingAuthorities[msg.sender][reserveId];
 
-        if (merkleRoot != bytes32(0) && signer != address(0)) revert OnlyAuthorityOrAllowlist();
         if (merkleRoot != bytes32(0)) {
-            merkleRoots[msg.sender][reserveId] = merkleRoot;
-        }
-        if (signer != address(0)) {
-            signingAuthorities[msg.sender][reserveId] = signer;
-            reserveNonce[msg.sender][reserveId]++;
+            if (signer != address(0)) revert OnlyAuthorityOrAllowlist();
+            merkleRoots[msg.sender][nextReserve] = merkleRoot;
+        } else if (signer != address(0)) {
+            signingAuthorities[msg.sender][nextReserve] = signer;
+            reserveNonce[msg.sender][nextReserve]++;
         }
 
         // Checks if the price curve is descending
@@ -196,13 +199,13 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
         reserves[msg.sender].push(_reserve);
         auctions[msg.sender].push(daInfo);
 
-        emit MintDetailsSet(msg.sender, reserveId, _reserve, merkleRoot, signer, daInfo);
+        emit MintDetailsSet(msg.sender, nextReserve, _reserve, merkleRoot, signer, daInfo);
     }
 
     /**
      * @inheritdoc IDutchAuction
      */
-    function withdraw(address _token, uint256 _reserveId) external {
+    function withdraw(address _token, uint256 _reserveId) external whenNotPaused {
         // Validates token address, reserve information and given account
         uint256 length = reserves[_token].length;
         if (length == 0) revert InvalidToken();
@@ -213,7 +216,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
 
         // Checks if the auction has ended and the reserve allocation is fully sold out
         if (block.timestamp < reserve.endTime && reserve.allocation > 0) revert NotEnded();
-        (address saleReceiver, ) = IFxGenArt721(_token).issuerInfo();
+        address saleReceiver = IToken(_token).primaryReceiver();
         uint256 lastPrice = refunds[_token][_reserveId].lastPrice;
         bool refundAuction = auctions[_token][_reserveId].refunded;
         if (lastPrice == 0 && refundAuction) {
@@ -241,14 +244,39 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
     }
 
     /*//////////////////////////////////////////////////////////////////////////
+                                OWNER FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc IDutchAuction
+     */
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    /**
+     * @inheritdoc IDutchAuction
+     */
+    function unpause() external onlyOwner {
+        _unpause();
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                                 READ FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
      * @inheritdoc IDutchAuction
      */
+    function getFirstValidReserve(address _token) public view returns (uint256) {
+        return LibMap.get(firstValidReserve, uint256(uint160(_token)));
+    }
+
+    /**
+     * @inheritdoc IDutchAuction
+     */
     function getLatestUpdate(address _token) public view returns (uint40) {
-        return LibMap.get(latestUpdates_, uint256(uint160(_token)));
+        return LibMap.get(latestUpdates, uint256(uint160(_token)));
     }
 
     /**
@@ -311,7 +339,14 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
      * @dev Sets timestamp of the latest update to token reserves
      */
     function _setLatestUpdate(address _token, uint256 _timestamp) internal {
-        LibMap.set(latestUpdates_, uint256(uint160(_token)), uint40(_timestamp));
+        LibMap.set(latestUpdates, uint256(uint160(_token)), uint40(_timestamp));
+    }
+
+    /*
+     * @dev Sets earliest valid reserve
+     */
+    function _setFirstValidReserve(address _token, uint256 _reserveId) internal {
+        LibMap.set(firstValidReserve, uint256(uint160(_token)), uint40(_reserveId));
     }
 
     /**
@@ -353,9 +388,10 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass {
      * @dev Validates token address, reserve information and given account
      */
     function _validateInput(address _token, uint256 _reserveId, address _buyer) internal view {
+        uint256 validReserve = getFirstValidReserve(_token);
         uint256 length = reserves[_token].length;
         if (length == 0) revert InvalidToken();
-        if (_reserveId >= length) revert InvalidReserve();
+        if (_reserveId >= length || _reserveId < validReserve) revert InvalidReserve();
         if (_buyer == address(0)) revert AddressZero();
     }
 }

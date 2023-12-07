@@ -12,14 +12,12 @@ contract Unpause is FxGenArt721Test {
     }
 
     function test_Unpause() public {
-        TokenLib.pause(admin, fxGenArtProxy);
-
         TokenLib.unpause(admin, fxGenArtProxy);
-
         assertFalse(Pausable(fxGenArtProxy).paused());
     }
 
     function test_RevertsWhen_NotPaused() public {
+        TokenLib.unpause(admin, fxGenArtProxy);
         vm.expectRevert("Pausable: not paused");
         TokenLib.unpause(admin, fxGenArtProxy);
     }

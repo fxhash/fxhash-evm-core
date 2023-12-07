@@ -42,5 +42,6 @@ contract FixedPriceTest is BaseTest {
         RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, address(fixedPrice));
         _configureInit(NAME, SYMBOL, address(pseudoRandomizer), address(ipfsRenderer), tagIds);
         _createProject();
+        TokenLib.unpause(admin, fxGenArtProxy);
     }
 }

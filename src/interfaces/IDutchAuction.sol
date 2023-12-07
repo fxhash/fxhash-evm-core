@@ -230,6 +230,11 @@ interface IDutchAuction is IMinter {
     ) external payable;
 
     /**
+     * @notice Returns the earliest valid reserveId that can mint a token
+     */
+    function getFirstValidReserve(address _token) external view returns (uint256);
+
+    /**
      * @notice Gets the latest timestamp update made to token reserves
      * @param _token Address of the token contract
      * @return Timestamp of latest update
@@ -253,6 +258,11 @@ interface IDutchAuction is IMinter {
      * @notice Mapping of token address to reserve ID to number of tokens minted
      */
     function numberMinted(address _token, uint256 _reserveId) external view returns (uint256);
+
+    /**
+     * @notice Pauses all function executions where modifier is applied
+     */
+    function pause() external;
 
     /**
      * @notice Refunds an auction buyer with their rebate amount
@@ -282,6 +292,11 @@ interface IDutchAuction is IMinter {
      * @dev Mint Details: struct of auction information, merkle root, and signer address
      */
     function setMintDetails(ReserveInfo calldata _reserveInfo, bytes calldata _mintDetails) external;
+
+    /**
+     * @notice Unpauses all function executions where modifier is applied
+     */
+    function unpause() external;
 
     /**
      * @notice Withdraws sale processed of primary sales to receiver
