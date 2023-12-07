@@ -19,7 +19,7 @@ contract UpdateStartTime is FxMintTicket721Test {
         assertEq(depositAmount, 0);
     }
 
-    function test_UpdateStartTime_ThenClaim() public {
+    function test_UpdateStartTime_Claim() public {
         TicketLib.updateStartTime(bob, fxMintTicketProxy, tokenId);
         TicketLib.claim(alice, fxMintTicketProxy, tokenId, PRICE, newPrice, PRICE + DEPOSIT_AMOUNT);
         _setTaxInfo();
@@ -30,7 +30,7 @@ contract UpdateStartTime is FxMintTicket721Test {
         assertEq(depositAmount, DEPOSIT_AMOUNT);
     }
 
-    function test_DepositAndSetPrice_ThenUpdateStartTime() public {
+    function test_DepositAndSetPrice_UpdateStartTime() public {
         newPrice = uint80(PRICE * 2);
         depositAmount = uint80(DEPOSIT_AMOUNT * 2);
         TicketLib.depositAndSetPrice(bob, fxMintTicketProxy, tokenId, newPrice, depositAmount);
