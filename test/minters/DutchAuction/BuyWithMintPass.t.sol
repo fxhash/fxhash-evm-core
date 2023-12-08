@@ -43,7 +43,7 @@ contract BuyWithMintPass is DutchAuctionTest {
             fxGenArtProxy,
             reserveId,
             quantity,
-            alice,
+            bob,
             claimIndex,
             abi.encodePacked(r, s, v)
         );

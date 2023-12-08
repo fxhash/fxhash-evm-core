@@ -48,7 +48,7 @@ contract BuyWithMintPass is FixedPriceTest {
             fxGenArtProxy,
             mintId,
             quantity,
-            alice,
+            bob,
             claimIndex,
             abi.encodePacked(r, s, v)
         );

@@ -98,7 +98,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
         LibBitmap.Bitmap storage claimBitmap = claimedMerkleTreeSlots[_token][_reserveId];
         uint256 amount = _proofs.length;
         for (uint256 i; i < amount; ++i) {
-            _claimSlot(_token, _reserveId, _indexes[i], _proofs[i], claimBitmap);
+            _claimSlot(_token, _reserveId, _indexes[i], _to, _proofs[i], claimBitmap);
         }
 
         _buy(_token, _reserveId, amount, _to);
@@ -118,7 +118,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
         address signer = signingAuthorities[_token][_reserveId];
         if (signer == address(0)) revert NoSigningAuthority();
         LibBitmap.Bitmap storage claimBitmap = claimedMintPasses[_token][_reserveId];
-        _claimMintPass(_token, _reserveId, _index, _signature, claimBitmap);
+        _claimMintPass(_token, _reserveId, _index, _to, _signature, claimBitmap);
         _buy(_token, _reserveId, _amount, _to);
     }
 
