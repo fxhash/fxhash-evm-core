@@ -31,7 +31,7 @@ contract BuyAllowlist is DutchAuctionTest, StandardMerkleTree {
     function test_RevertsWhen_NotClaimer() public {
         vm.prank(bob);
         vm.expectRevert();
-        dutchAuction.buyAllowlist{value: quantity * price}(fxGenArtProxy, reserveId, alice, claimIndexes, aliceProofs);
+        dutchAuction.buyAllowlist{value: quantity * price}(fxGenArtProxy, reserveId, bob, claimIndexes, aliceProofs);
     }
 
     function test_RevertsWhen_InvalidProof() public {

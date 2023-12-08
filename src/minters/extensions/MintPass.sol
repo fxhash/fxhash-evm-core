@@ -97,6 +97,7 @@ abstract contract MintPass is EIP712 {
      * @param _token Address of the token contract
      * @param _reserveId ID of the reserve
      * @param _index Index of the mint pass
+     * @param _claimer Account associated with the mint pass
      * @param _signature Signature of the mint pass claimer
      * @param _bitmap Bitmap used for checking if index is already claimed
      */
@@ -104,16 +105,17 @@ abstract contract MintPass is EIP712 {
         address _token,
         uint256 _reserveId,
         uint256 _index,
+        address _claimer,
         bytes calldata _signature,
         LibBitmap.Bitmap storage _bitmap
     ) internal {
         if (LibBitmap.get(_bitmap, _index)) revert PassAlreadyClaimed();
         uint256 nonce = reserveNonce[_token][_reserveId];
-        bytes32 hash = generateTypedDataHash(_token, _reserveId, nonce, _index, msg.sender);
+        bytes32 hash = generateTypedDataHash(_token, _reserveId, nonce, _index, _claimer);
         address signer = signingAuthorities[_token][_reserveId];
         if (!signer.isValidSignatureNow(hash, _signature)) revert InvalidSignature();
         LibBitmap.set(_bitmap, _index);
 
-        emit PassClaimed(_token, _reserveId, msg.sender, _index);
+        emit PassClaimed(_token, _reserveId, _claimer, _index);
     }
 }

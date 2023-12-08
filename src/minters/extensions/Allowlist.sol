@@ -46,6 +46,7 @@ abstract contract Allowlist {
      * @param _token Address of the token contract
      * @param _reserveId ID of the reserve
      * @param _index Index in the merkle tree
+     * @param _claimer Address of allowlist slot claimer
      * @param _proof Merkle proof used for validating claim
      * @param _bitmap Bitmap used for checking if index is already claimed
      */
@@ -53,16 +54,17 @@ abstract contract Allowlist {
         address _token,
         uint256 _reserveId,
         uint256 _index,
+        address _claimer,
         bytes32[] memory _proof,
         LibBitmap.Bitmap storage _bitmap
     ) internal {
         if (LibBitmap.get(_bitmap, _index)) revert SlotAlreadyClaimed();
         bytes32 root = _getMerkleRoot(_token, _reserveId);
-        bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(_index, msg.sender))));
+        bytes32 leaf = keccak256(bytes.concat(keccak256(abi.encode(_index, _claimer))));
         if (!MerkleProof.verify(_proof, root, leaf)) revert InvalidProof();
         LibBitmap.set(_bitmap, _index);
 
-        emit SlotClaimed(_token, _reserveId, msg.sender, _index);
+        emit SlotClaimed(_token, _reserveId, _claimer, _index);
     }
 
     /**

@@ -23,23 +23,23 @@ contract ClaimMintPassTest is MintPassTest {
     function test_ClaimMintPass() public {
         digest = mintPass.generateTypedDataHash(address(0), 0, 0, claimIndex, claimerAddr);
         (v, r, s) = vm.sign(signerPk, digest);
-        mintPass.claimMintPass(claimIndex, abi.encodePacked(r, s, v));
+        mintPass.claimMintPass(claimIndex, claimerAddr, abi.encodePacked(r, s, v));
         assertTrue(mintPass.isClaimed(claimIndex), "Mint pass not claimed");
     }
 
     function test_ClaimMintPass_RevertsWhen_PassAlreadyClaimed() public {
         digest = mintPass.generateTypedDataHash(address(0), 0, 0, claimIndex, claimerAddr);
         (v, r, s) = vm.sign(signerPk, digest);
-        mintPass.claimMintPass(claimIndex, abi.encodePacked(r, s, v));
+        mintPass.claimMintPass(claimIndex, claimerAddr, abi.encodePacked(r, s, v));
         vm.expectRevert(PASS_ALREADY_CLAIMED_ERROR);
-        mintPass.claimMintPass(claimIndex, abi.encodePacked(v, r, s));
+        mintPass.claimMintPass(claimIndex, claimerAddr, abi.encodePacked(v, r, s));
     }
 
     function test_ClaimMintPass_RevertsWhen_InvalidSignature() public {
-        digest = mintPass.generateTypedDataHash(address(0), 0, 0, claimIndex, claimerAddr);
+        digest = mintPass.generateTypedDataHash(address(0), 0, 0, claimIndex, bob);
         (v, r, s) = vm.sign(signerPk, digest);
         vm.prank(address(bob));
         vm.expectRevert(INVALID_SIGNATURE_ERROR);
-        mintPass.claimMintPass(claimIndex, abi.encodePacked(r, s, v));
+        mintPass.claimMintPass(claimIndex, claimerAddr, abi.encodePacked(r, s, v));
     }
 }
