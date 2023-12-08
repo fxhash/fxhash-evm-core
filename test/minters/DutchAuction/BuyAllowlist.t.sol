@@ -25,63 +25,28 @@ contract BuyAllowlist is DutchAuctionTest, StandardMerkleTree {
 
     function test_BuyAllowlist() public {
         vm.prank(alice);
-        dutchAuction.buyAllowlist{value: quantity * price}(
-            fxGenArtProxy,
-            reserveId,
-            alice,
-            alice,
-            claimIndexes,
-            aliceProofs
-        );
+        dutchAuction.buyAllowlist{value: quantity * price}(fxGenArtProxy, reserveId, alice, claimIndexes, aliceProofs);
     }
 
     function test_RevertsWhen_NotClaimer() public {
         vm.prank(bob);
         vm.expectRevert();
-        dutchAuction.buyAllowlist{value: quantity * price}(
-            fxGenArtProxy,
-            reserveId,
-            alice,
-            alice,
-            claimIndexes,
-            aliceProofs
-        );
+        dutchAuction.buyAllowlist{value: quantity * price}(fxGenArtProxy, reserveId, bob, claimIndexes, aliceProofs);
     }
 
     function test_RevertsWhen_InvalidProof() public {
         aliceProofs[0].pop();
         vm.prank(alice);
         vm.expectRevert(INVALID_PROOF_ERROR);
-        dutchAuction.buyAllowlist{value: quantity * price}(
-            fxGenArtProxy,
-            reserveId,
-            alice,
-            alice,
-            claimIndexes,
-            aliceProofs
-        );
+        dutchAuction.buyAllowlist{value: quantity * price}(fxGenArtProxy, reserveId, alice, claimIndexes, aliceProofs);
     }
 
     function test_RevertsWhen_SlotAlreadyClaimed() public {
         vm.prank(alice);
-        dutchAuction.buyAllowlist{value: quantity * price}(
-            fxGenArtProxy,
-            reserveId,
-            alice,
-            alice,
-            claimIndexes,
-            aliceProofs
-        );
+        dutchAuction.buyAllowlist{value: quantity * price}(fxGenArtProxy, reserveId, alice, claimIndexes, aliceProofs);
 
         vm.prank(alice);
         vm.expectRevert(SLOT_ALREADY_CLAIMED_ERROR);
-        dutchAuction.buyAllowlist{value: quantity * price}(
-            fxGenArtProxy,
-            reserveId,
-            alice,
-            alice,
-            claimIndexes,
-            aliceProofs
-        );
+        dutchAuction.buyAllowlist{value: quantity * price}(fxGenArtProxy, reserveId, alice, claimIndexes, aliceProofs);
     }
 }

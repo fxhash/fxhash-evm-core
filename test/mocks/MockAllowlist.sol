@@ -8,8 +8,8 @@ contract MockAllowlist is Allowlist {
     LibBitmap.Bitmap internal _bitmap;
     bytes32 public merkleRoot;
 
-    function claimSlot(address _token, uint256 _index, bytes32[] memory _proof) external {
-        _claimSlot(_token, 0, _index, _proof, _bitmap);
+    function claimSlot(address _token, uint256 _index, address _to, bytes32[] memory _proof) external {
+        _claimSlot(_token, 0, _index, _to, _proof, _bitmap);
     }
 
     function setMerkleRoot(bytes32 _merkleRoot) external {

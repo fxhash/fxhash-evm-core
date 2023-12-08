@@ -192,22 +192,14 @@ interface IDutchAuction is IMinter {
      * @param _reserveId ID of the reserve
      * @param _amount Amount of tokens to purchase
      * @param _to Address receiving the purchased tokens
-     * @param _refundReceiver Address to attribute the refund to
      */
-    function buy(
-        address _token,
-        uint256 _reserveId,
-        uint256 _amount,
-        address _to,
-        address _refundReceiver
-    ) external payable;
+    function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable;
 
     /**
      * @notice Purchases tokens through an allowlist at a linear price over fixed amount of time
      * @param _token Address of the token being purchased
      * @param _reserveId ID of the reserve
      * @param _to Address receiving the purchased tokens
-     * @param _refundReceiver Address to attribute the refund to
      * @param _indexes Array of indices containing purchase info inside the BitMap
      * @param _proofs Array of merkle proofs used for verifying the purchase
      */
@@ -215,7 +207,6 @@ interface IDutchAuction is IMinter {
         address _token,
         uint256 _reserveId,
         address _to,
-        address _refundReceiver,
         uint256[] calldata _indexes,
         bytes32[][] calldata _proofs
     ) external payable;
@@ -226,7 +217,6 @@ interface IDutchAuction is IMinter {
      * @param _reserveId ID of the reserve
      * @param _amount Number of tokens being purchased
      * @param _to Address receiving the purchased tokens
-     * @param _refundReceiver Address to attribute the refund to
      * @param _index Index of puchase info inside the BitMap
      * @param _signature Array of merkle proofs used for verifying the purchase
      */
@@ -235,7 +225,6 @@ interface IDutchAuction is IMinter {
         uint256 _reserveId,
         uint256 _amount,
         address _to,
-        address _refundReceiver,
         uint256 _index,
         bytes calldata _signature
     ) external payable;
