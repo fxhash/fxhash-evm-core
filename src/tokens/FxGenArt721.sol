@@ -127,22 +127,43 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     }
 
     /*//////////////////////////////////////////////////////////////////////////
-                                    INITIALIZER
+                                    INITIALIZERS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
+    function initialize(bytes calldata _initializeInfo) external initializer {
+        (
+            address owner,
+            InitInfo memory initInfo,
+            ProjectInfo memory projectInfo,
+            MetadataInfo memory metadata,
+            MintInfo[] memory mintInfo,
+            address[] memory royaltyReceivers,
+            uint32[] memory allocations,
+            uint96 basisPoints
+        ) = abi.decode(
+                _initializeInfo,
+                (address, InitInfo, ProjectInfo, MetadataInfo, MintInfo[], address[], uint32[], uint96)
+            );
+
+        initialize(owner, initInfo, projectInfo, metadata, mintInfo, royaltyReceivers, allocations, basisPoints);
+    }
 
     /**
      * @inheritdoc IFxGenArt721
      */
     function initialize(
         address _owner,
-        InitInfo calldata _initInfo,
+        InitInfo memory _initInfo,
         ProjectInfo memory _projectInfo,
-        MetadataInfo calldata _metadataInfo,
-        MintInfo[] calldata _mintInfo,
-        address[] calldata _royaltyReceivers,
-        uint32[] calldata _allocations,
+        MetadataInfo memory _metadataInfo,
+        MintInfo[] memory _mintInfo,
+        address[] memory _royaltyReceivers,
+        uint32[] memory _allocations,
         uint96 _basisPoints
-    ) external initializer {
+    ) public initializer {
         (, , , uint32 lockTime, , , ) = IFxContractRegistry(contractRegistry).configInfo();
         _projectInfo.earliestStartTime = (_isVerified(_owner))
             ? uint32(block.timestamp)
@@ -240,7 +261,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function registerMinters(MintInfo[] memory _mintInfo) external onlyOwner {
+    function registerMinters(MintInfo[] calldata _mintInfo) external onlyOwner {
         if (issuerInfo.projectInfo.mintEnabled) revert MintActive();
         uint256 length = issuerInfo.activeMinters.length;
         for (uint256 i; i < length; ++i) {
@@ -508,8 +529,8 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      * @dev Sets receivers and allocations for base royalties of token sales
      */
     function _setBaseRoyalties(
-        address[] calldata _receivers,
-        uint32[] calldata _allocations,
+        address[] memory _receivers,
+        uint32[] memory _allocations,
         uint96 _basisPoints
     ) internal override {
         (address feeReceiver, , uint32 secondaryFeeAllocation, , , , ) = IFxContractRegistry(contractRegistry)
@@ -521,7 +542,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @dev Sets primary receiver address for token sales
      */
-    function _setPrimaryReceiver(address[] calldata _receivers, uint32[] calldata _allocations) internal {
+    function _setPrimaryReceiver(address[] memory _receivers, uint32[] memory _allocations) internal {
         (address feeReceiver, uint32 primaryFeeAllocation, , , , , ) = IFxContractRegistry(contractRegistry)
             .configInfo();
         _checkFeeReceiver(_receivers, _allocations, feeReceiver, primaryFeeAllocation);
@@ -533,7 +554,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @dev Packs name and symbol into single slot if combined length is 30 bytes or less
      */
-    function _setNameAndSymbol(string calldata _name, string calldata _symbol) internal {
+    function _setNameAndSymbol(string memory _name, string memory _symbol) internal {
         bytes32 packed = LibString.packTwo(_name, _symbol);
         if (packed == bytes32(0)) {
             name_ = _name;
@@ -546,7 +567,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @dev Sets the onchain pointer for reconstructing metadata onchain
      */
-    function _setOnchainPointer(bytes calldata _onchainData) internal {
+    function _setOnchainPointer(bytes memory _onchainData) internal {
         address onchainPointer = SSTORE2.write(_onchainData);
         metadataInfo.onchainPointer = onchainPointer;
         emit OnchainPointerUpdated(onchainPointer);
@@ -555,7 +576,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @dev Emits event for setting the project tag descriptions
      */
-    function _setTags(uint256[] calldata _tagIds) internal {
+    function _setTags(uint256[] memory _tagIds) internal {
         emit ProjectTags(_tagIds);
     }
 
@@ -579,8 +600,8 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      * @dev Checks if fee receiver and allocation amount are included in their respective arrays
      */
     function _checkFeeReceiver(
-        address[] calldata _receivers,
-        uint32[] calldata _allocations,
+        address[] memory _receivers,
+        uint32[] memory _allocations,
         address _feeReceiver,
         uint32 _feeAllocation
     ) internal pure {

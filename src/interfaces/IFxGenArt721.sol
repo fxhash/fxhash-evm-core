@@ -242,14 +242,20 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      */
     function initialize(
         address _owner,
-        InitInfo calldata _initInfo,
-        ProjectInfo calldata _projectInfo,
-        MetadataInfo calldata _metadataInfo,
-        MintInfo[] calldata _mintInfo,
-        address[] calldata _royaltyReceivers,
-        uint32[] calldata _allocations,
+        InitInfo memory _initInfo,
+        ProjectInfo memory _projectInfo,
+        MetadataInfo memory _metadataInfo,
+        MintInfo[] memory _mintInfo,
+        address[] memory _royaltyReceivers,
+        uint32[] memory _allocations,
         uint96 _basisPoints
     ) external;
+
+    /**
+     * @notice Initializes new generative art project with arbitrary bytes data
+     * @param _initializeInfo Bytes-encoded data for initializing new project
+     */
+    function initialize(bytes calldata _initializeInfo) external;
 
     /**
      * @notice Gets the authorization status for the given minter contract

@@ -73,8 +73,8 @@ abstract contract RoyaltyManager is IRoyaltyManager {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _getOrCreateSplit(
-        address[] calldata _receivers,
-        uint32[] calldata _allocations
+        address[] memory _receivers,
+        uint32[] memory _allocations
     ) internal returns (address receiver) {
         receiver = ISplitsMain(SPLITS_MAIN).predictImmutableSplitAddress(_receivers, _allocations, 0);
         if (receiver.code.length == 0) {
@@ -89,8 +89,8 @@ abstract contract RoyaltyManager is IRoyaltyManager {
      * @param _basisPoints Total allocation scalar for calculating royalty shares
      */
     function _setBaseRoyalties(
-        address[] calldata _receivers,
-        uint32[] calldata _allocations,
+        address[] memory _receivers,
+        uint32[] memory _allocations,
         uint96 _basisPoints
     ) internal virtual {
         _checkRoyalties(_receivers, _allocations, _basisPoints);
