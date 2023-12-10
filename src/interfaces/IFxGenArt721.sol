@@ -332,7 +332,7 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @notice Registers minter contracts with resereve info
      * @param _mintInfo Mint information of token reserves
      */
-    function registerMinters(MintInfo[] memory _mintInfo) external;
+    function registerMinters(MintInfo[] calldata _mintInfo) external;
 
     /**
      * @notice Returns the remaining supply of tokens left to mint
