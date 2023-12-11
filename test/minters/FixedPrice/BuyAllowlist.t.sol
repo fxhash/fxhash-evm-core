@@ -35,7 +35,7 @@ contract BuyAllowlist is FixedPriceTest, StandardMerkleTree {
     function test_RevertsWhen_NotClaimer_BuyAllowlist() public {
         vm.prank(bob);
         vm.expectRevert();
-        fixedPrice.buyAllowlist{value: quantity * price}(fxGenArtProxy, mintId, alice, claimIndexes, aliceProofs);
+        fixedPrice.buyAllowlist{value: quantity * price}(fxGenArtProxy, mintId, bob, claimIndexes, aliceProofs);
     }
 
     function test_RevertsWhen_ProofsInvalid_BuyAllowlist() public {

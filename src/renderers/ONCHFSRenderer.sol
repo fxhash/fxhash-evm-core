@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
 
+import {Base64} from "openzeppelin/contracts/utils/Base64.sol";
 import {LibIPFSEncoder} from "src/lib/LibIPFSEncoder.sol";
 import {SSTORE2} from "sstore2/contracts/SSTORE2.sol";
 import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
@@ -140,38 +141,42 @@ contract ONCHFSRenderer is IONCHFSRenderer {
      * @dev Reconstructs JSON metadata of token onchain
      */
     function _renderJSON(
-        address _contractAdrr,
+        address _contractAddr,
         uint256 _tokenId,
         string memory _description,
         string memory _baseURI,
         string memory _animationURL
     ) internal view returns (string memory) {
-        string memory name = string.concat(IERC721Metadata(_contractAdrr).name(), " #", _tokenId.toString());
-        string memory symbol = IERC721Metadata(_contractAdrr).symbol();
+        string memory name = string.concat(IERC721Metadata(_contractAddr).name(), " #", _tokenId.toString());
+        string memory symbol = IERC721Metadata(_contractAddr).symbol();
         string memory externalURL = getExternalURL(msg.sender, _tokenId);
         string memory imageURL = getImageURL(msg.sender, string(_baseURI), _tokenId);
         string memory attributes = getAttributes(msg.sender, string(_baseURI), _tokenId);
 
         return
-            string(
-                abi.encodePacked(
-                    '"name:"',
-                    name,
-                    '"description:"',
-                    _description,
-                    '"symbol:"',
-                    symbol,
-                    // '"version:"',
-                    // API_VERSION,
-                    '"externalURL:"',
-                    externalURL,
-                    '"image":"',
-                    imageURL,
-                    '"animation_url":"',
-                    _animationURL,
-                    '", "attributes":["',
-                    attributes,
-                    '"]}'
+            string.concat(
+                "data:application/json;base64,",
+                Base64.encode(
+                    abi.encodePacked(
+                        string.concat(
+                            '"name:"',
+                            name,
+                            '", "description:"',
+                            _description,
+                            '", "symbol:"',
+                            symbol,
+                            '", "version: 0.2"',
+                            '", "externalURL:"',
+                            externalURL,
+                            '", "image":"',
+                            imageURL,
+                            '", "animation_url":"',
+                            _animationURL,
+                            '", "attributes":["',
+                            attributes,
+                            '"]}'
+                        )
+                    )
                 )
             );
     }

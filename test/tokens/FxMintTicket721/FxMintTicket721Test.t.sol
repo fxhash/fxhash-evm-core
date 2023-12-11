@@ -17,11 +17,12 @@ contract FxMintTicket721Test is BaseTest {
     // Errors
     bytes4 internal FORECLOSURE_ERROR = IFxMintTicket721.Foreclosure.selector;
     bytes4 internal GRACE_PERIOD_ACTIVE_ERROR = IFxMintTicket721.GracePeriodActive.selector;
+    bytes4 internal GRACE_PERIOD_INACTIVE_ERROR = IFxMintTicket721.GracePeriodInactive.selector;
     bytes4 internal INSUFFICIENT_DEPOSIT_ERROR = IFxMintTicket721.InsufficientDeposit.selector;
     bytes4 internal INSUFFICIENT_PAYMENT_ERROR = IFxMintTicket721.InsufficientPayment.selector;
     bytes4 internal INVALID_PRICE_ERROR = IFxMintTicket721.InvalidPrice.selector;
     bytes4 internal MINT_ACTIVE_ERROR = IFxMintTicket721.MintActive.selector;
-    bytes4 internal NOT_AUTHORIZED_TICKET_ERROR = IFxMintTicket721.NotAuthorized.selector;
+    bytes4 internal NOT_AUTHORIZED_ERROR = IFxMintTicket721.NotAuthorized.selector;
     bytes4 internal PRICE_EXCEEDED_ERROR = IFxMintTicket721.PriceExceeded.selector;
     bytes4 internal UNAUTHORIZED_ACCOUNT_TICKET_ERROR = IFxMintTicket721.UnauthorizedAccount.selector;
     bytes4 internal UNREGISTERED_MINTER_TICKET_ERROR = IFxMintTicket721.UnregisteredMinter.selector;
@@ -50,6 +51,7 @@ contract FxMintTicket721Test is BaseTest {
         delete mintInfo;
         _configureMinter(minter, RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION, abi.encode(PRICE));
         _createTicket();
+        TokenLib.unpause(admin, fxGenArtProxy);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

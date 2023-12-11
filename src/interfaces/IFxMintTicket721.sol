@@ -62,6 +62,14 @@ interface IFxMintTicket721 is IToken {
     event SetPrice(uint256 indexed _tokenId, uint128 _newPrice, uint128 _foreclosureTime, uint128 _depositAmount);
 
     /**
+     * @notice Event emitted when taxation start time is updated to current timestamp
+     * @param _tokenId ID of the token
+     * @param _owner Address of token owner
+     * @param _foreclosureTime Timestamp of foreclosure date
+     */
+    event StartTimeUpdated(uint256 indexed _tokenId, address indexed _owner, uint128 _foreclosureTime);
+
+    /**
      * @notice Event emitted when mint ticket is initialized
      * @param _genArt721 Address of FxGenArt721 token contract
      * @param _redeemer Address of TicketRedeemer contract
@@ -103,6 +111,11 @@ interface IFxMintTicket721 is IToken {
      * @notice Error thrown when token is being claimed within the grace period
      */
     error GracePeriodActive();
+
+    /**
+     * @notice Error thrown when token is outside of the grace period
+     */
+    error GracePeriodInactive();
 
     /**
      * @notice Error thrown when deposit amount is not for at least one day
@@ -380,6 +393,12 @@ interface IFxMintTicket721 is IToken {
      * @notice Unpauses all function executions where modifier is set
      */
     function unpause() external;
+
+    /**
+     * @notice Updates taxation start time to the current timestamp
+     * @param _tokenId ID of the token
+     */
+    function updateStartTime(uint256 _tokenId) external;
 
     /**
      * @notice Withdraws available balance amount to given address

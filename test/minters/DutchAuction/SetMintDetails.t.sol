@@ -106,7 +106,15 @@ contract SetMintDetails is DutchAuctionTest {
         );
 
         vm.expectRevert(INVALID_RESERVE_ERROR);
+        dutchAuction.buy(address(this), 0, 1, address(this));
+
+        vm.expectRevert(INVALID_RESERVE_ERROR);
         dutchAuction.buy(address(this), 1, 1, address(this));
+
+        dutchAuction.buy{value: daInfo.prices[0]}(address(this), 2, 1, address(this));
+
+        vm.expectRevert(INVALID_RESERVE_ERROR);
+        dutchAuction.buy(address(this), 3, 1, address(this));
     }
 
     function mint(address _to, uint256 _amount, uint256 _payment) external {}

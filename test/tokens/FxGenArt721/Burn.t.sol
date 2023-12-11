@@ -9,6 +9,7 @@ contract BurnTest is FxGenArt721Test {
         _initializeState();
         _createProject();
         _setIssuerInfo();
+        TokenLib.unpause(admin, fxGenArtProxy);
     }
 
     function test_Burn() public {
