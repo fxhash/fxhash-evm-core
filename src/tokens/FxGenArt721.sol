@@ -540,18 +540,6 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     }
 
     /**
-     * @dev Sets primary receiver address for token sales
-     */
-    function _setPrimaryReceiver(address[] memory _receivers, uint32[] memory _allocations) internal {
-        (address feeReceiver, uint32 primaryFeeAllocation, , , , , ) = IFxContractRegistry(contractRegistry)
-            .configInfo();
-        _checkFeeReceiver(_receivers, _allocations, feeReceiver, primaryFeeAllocation);
-        address receiver = _getOrCreateSplit(_receivers, _allocations);
-        issuerInfo.primaryReceiver = receiver;
-        emit PrimaryReceiverUpdated(receiver, _receivers, _allocations);
-    }
-
-    /**
      * @dev Packs name and symbol into single slot if combined length is 30 bytes or less
      */
     function _setNameAndSymbol(string memory _name, string memory _symbol) internal {
@@ -574,6 +562,18 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     }
 
     /**
+     * @dev Sets primary receiver address for token sales
+     */
+    function _setPrimaryReceiver(address[] memory _receivers, uint32[] memory _allocations) internal {
+        (address feeReceiver, uint32 primaryFeeAllocation, , , , , ) = IFxContractRegistry(contractRegistry)
+            .configInfo();
+        _checkFeeReceiver(_receivers, _allocations, feeReceiver, primaryFeeAllocation);
+        address receiver = _getOrCreateSplit(_receivers, _allocations);
+        issuerInfo.primaryReceiver = receiver;
+        emit PrimaryReceiverUpdated(receiver, _receivers, _allocations);
+    }
+
+    /**
      * @dev Emits event for setting the project tag descriptions
      */
     function _setTags(uint256[] memory _tagIds) internal {
@@ -587,6 +587,13 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         address signer = ECDSA.recover(_digest, _signature);
         if (!IAccessControl(roleRegistry).hasRole(SIGNER_ROLE, signer)) revert UnauthorizedAccount();
         nonce++;
+    }
+
+    /**
+     * @inheritdoc ERC721
+     */
+    function _exists(uint256 _tokenId) internal view override(ERC721, RoyaltyManager) returns (bool) {
+        return super._exists(_tokenId);
     }
 
     /**
@@ -610,12 +617,5 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
             if (_receivers[i] == _feeReceiver && _allocations[i] == _feeAllocation) feeReceiverExists = true;
         }
         if (!feeReceiverExists) revert InvalidFeeReceiver();
-    }
-
-    /**
-     * @inheritdoc ERC721
-     */
-    function _exists(uint256 _tokenId) internal view override(ERC721, RoyaltyManager) returns (bool) {
-        return super._exists(_tokenId);
     }
 }
