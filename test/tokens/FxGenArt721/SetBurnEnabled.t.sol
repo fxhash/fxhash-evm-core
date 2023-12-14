@@ -17,4 +17,9 @@ contract SetBurnEnabledTest is FxGenArt721Test {
         _setIssuerInfo();
         assertTrue(project.burnEnabled);
     }
+
+    function test_RevertsWhen_SupplyRemaining() public {
+        vm.expectRevert(SUPPLY_REMAINING_ERROR);
+        TokenLib.setBurnEnabled(creator, fxGenArtProxy, true);
+    }
 }
