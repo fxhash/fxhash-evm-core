@@ -240,7 +240,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
     /**
      * @inheritdoc IFxGenArt721
      */
-    function registerMinters(MintInfo[] memory _mintInfo) external onlyOwner {
+    function registerMinters(MintInfo[] calldata _mintInfo) external onlyOwner {
         if (issuerInfo.projectInfo.mintEnabled) revert MintActive();
         uint256 length = issuerInfo.activeMinters.length;
         for (uint256 i; i < length; ++i) {
@@ -266,7 +266,7 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      * @inheritdoc IFxGenArt721
      */
     function setBurnEnabled(bool _flag) external onlyOwner {
-        if (remainingSupply() == 0) revert SupplyRemaining();
+        if (remainingSupply() != 0) revert SupplyRemaining();
         issuerInfo.projectInfo.burnEnabled = _flag;
         emit BurnEnabled(_flag);
     }
