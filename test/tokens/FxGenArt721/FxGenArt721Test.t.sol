@@ -20,6 +20,7 @@ contract FxGenArt721Test is BaseTest {
     bytes4 internal MINT_ACTIVE_ERROR = IFxGenArt721.MintActive.selector;
     bytes4 internal MINT_INACTIVE_ERROR = IFxGenArt721.MintInactive.selector;
     bytes4 internal NOT_AUTHORIZED_ERROR = IFxGenArt721.NotAuthorized.selector;
+    bytes4 internal SUPPLY_REMAINING_ERROR = IFxGenArt721.SupplyRemaining.selector;
     bytes4 internal UNAUTHORIZED_ACCOUNT_ERROR = IFxGenArt721.UnauthorizedAccount.selector;
     bytes4 internal UNAUTHORIZED_MINTER_ERROR = IFxGenArt721.UnauthorizedMinter.selector;
     bytes4 internal UNAUTHORIZED_ERROR = 0x82b42900; // solday ownable error
