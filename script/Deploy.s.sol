@@ -134,22 +134,16 @@ contract Deploy is Script {
         // FxContractRegistry
         bytes memory creationCode = type(FxContractRegistry).creationCode;
         bytes memory constructorArgs = abi.encode(admin, configInfo);
-        // init: cast keccak256(creationCode, abi.encode(constructorArgs))
-        // salt: cast create2 --starts-with 00000000 --case-sensitive --deployer CREATE2_FACTORY --init-code-hash init
         fxContractRegistry = FxContractRegistry(_deployCreate2(creationCode, constructorArgs, salt));
 
         // FxRoleRegistry
         creationCode = type(FxRoleRegistry).creationCode;
         constructorArgs = abi.encode(admin);
-        // init: cast keccak256(creationCode, abi.encode(constructorArgs))
-        // salt: cast create2 --starts-with 00000000 --case-sensitive --deployer CREATE2_FACTORY --init-code-hash init
         fxRoleRegistry = FxRoleRegistry(_deployCreate2(creationCode, constructorArgs, salt));
 
         // FxGenArt721
         creationCode = type(FxGenArt721).creationCode;
         constructorArgs = abi.encode(fxContractRegistry, fxRoleRegistry);
-        // init: cast keccak256(creationCode, abi.encode(constructorArgs))
-        // salt: cast create2 --starts-with 00000000 --case-sensitive --deployer CREATE2_FACTORY --init-code-hash init
         fxGenArt721 = FxGenArt721(_deployCreate2(creationCode, constructorArgs, salt));
 
         // FxIssuerFactory
@@ -160,8 +154,6 @@ contract Deploy is Script {
         // FxMintTicket721
         creationCode = type(FxMintTicket721).creationCode;
         constructorArgs = abi.encode(fxContractRegistry, fxRoleRegistry);
-        // init: cast keccak256(creationCode, abi.encode(constructorArgs))
-        // salt: cast create2 --starts-with 00000000 --case-sensitive --deployer CREATE2_FACTORY --init-code-hash init
         fxMintTicket721 = FxMintTicket721(_deployCreate2(creationCode, constructorArgs, salt));
 
         // FxTicketFactory
