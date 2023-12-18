@@ -1,5 +1,5 @@
 # IDutchAuction
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/437282be235abab247d75ca27e240f794022a9e1/src/interfaces/IDutchAuction.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/941c33e8dcf9e8d32ef010e754110434710b4bd3/src/interfaces/IDutchAuction.sol)
 
 **Inherits:**
 [IMinter](/src/interfaces/IMinter.sol/interface.IMinter.md)
@@ -90,6 +90,15 @@ function buyMintPass(
 |`_signature`|`bytes`|Array of merkle proofs used for verifying the purchase|
 
 
+### getFirstValidReserve
+
+Returns the earliest valid reserveId that can mint a token
+
+
+```solidity
+function getFirstValidReserve(address _token) external view returns (uint256);
+```
+
 ### getLatestUpdate
 
 Gets the latest timestamp update made to token reserves
@@ -149,6 +158,15 @@ Mapping of token address to reserve ID to number of tokens minted
 
 ```solidity
 function numberMinted(address _token, uint256 _reserveId) external view returns (uint256);
+```
+
+### pause
+
+Pauses all function executions where modifier is applied
+
+
+```solidity
+function pause() external;
 ```
 
 ### refund
@@ -212,6 +230,15 @@ function setMintDetails(ReserveInfo calldata _reserveInfo, bytes calldata _mintD
 |`_reserveInfo`|`ReserveInfo`|Reserve information for the token|
 |`_mintDetails`|`bytes`|Details of the mint pertaining to the minter|
 
+
+### unpause
+
+Unpauses all function executions where modifier is applied
+
+
+```solidity
+function unpause() external;
+```
 
 ### withdraw
 
@@ -323,14 +350,6 @@ Error thrown when receiver is zero address
 
 ```solidity
 error AddressZero();
-```
-
-### Ended
-Error thrown when the auction has already ended
-
-
-```solidity
-error Ended();
 ```
 
 ### InsufficientFunds

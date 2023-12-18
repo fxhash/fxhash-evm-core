@@ -1,5 +1,5 @@
 # FxMintTicket721
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/437282be235abab247d75ca27e240f794022a9e1/src/tokens/FxMintTicket721.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/941c33e8dcf9e8d32ef010e754110434710b4bd3/src/tokens/FxMintTicket721.sol)
 
 **Inherits:**
 [IFxMintTicket721](/src/interfaces/IFxMintTicket721.sol/interface.IFxMintTicket721.md), IERC4906, [IERC5192](/src/interfaces/IERC5192.sol/interface.IERC5192.md), ERC721, Initializable, Ownable, Pausable
@@ -26,15 +26,6 @@ Returns the address of the FxRoleRegistry contract
 
 ```solidity
 address public immutable roleRegistry;
-```
-
-
-### balances_
-*Mapping of wallet address to balance amount available for withdrawal*
-
-
-```solidity
-LibMap.Uint128Map internal balances_;
 ```
 
 
@@ -98,6 +89,15 @@ Returns the list of active minters
 
 ```solidity
 address[] public activeMinters;
+```
+
+
+### balances
+Mapping of wallet address to pending balance available for withdrawal
+
+
+```solidity
+mapping(address => uint256) public balances;
 ```
 
 
@@ -197,12 +197,43 @@ function claim(uint256 _tokenId, uint256 _maxPrice, uint80 _newPrice) external p
 |`_newPrice`|`uint80`|New listing price of token|
 
 
+### depositAndSetPrice
+
+Deposits taxes for given token and set new price for same token
+
+
+```solidity
+function depositAndSetPrice(uint256 _tokenId, uint80 _newPrice) external payable;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_tokenId`|`uint256`|ID of the token|
+|`_newPrice`|`uint80`|New listing price of token|
+
+
 ### mint
 
 
 ```solidity
 function mint(address _to, uint256 _amount, uint256 _payment) external whenNotPaused;
 ```
+
+### updateStartTime
+
+Updates taxation start time to the current timestamp
+
+
+```solidity
+function updateStartTime(uint256 _tokenId) external;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_tokenId`|`uint256`|ID of the token|
+
 
 ### withdraw
 
@@ -265,7 +296,7 @@ Sets the new URI of the token metadata
 
 
 ```solidity
-function setBaseURI(bytes calldata _uri) external onlyRole(ADMIN_ROLE);
+function setBaseURI(bytes calldata _uri) external onlyRole(METADATA_ROLE);
 ```
 **Parameters**
 
@@ -361,51 +392,31 @@ function getAuctionPrice(uint256 _currentPrice, uint256 _foreclosureTime) public
 |`_foreclosureTime`|`uint256`|Timestamp of the foreclosure|
 
 
-### getBalance
+### getDepositAmounts
 
-Gets the pending balance amount available for a given wallet
-
-
-```solidity
-function getBalance(address _account) public view returns (uint128);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_account`|`address`|Address of the wallet|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`uint128`|Balance amount available for withdrawal|
-
-
-### getRemainingDeposit
-
-Gets the remaining amount of taxes to be deposited
+Gets the deposit amount owed and remaining after change in price, claim or burn
 
 
 ```solidity
-function getRemainingDeposit(uint256 _dailyTax, uint256 _foreclosureTime, uint256 _depositAmount)
+function getDepositAmounts(uint256 _dailyTax, uint256 _depositAmount, uint256 _foreclosureTime)
     public
     view
-    returns (uint256);
+    returns (uint256 depositOwed, uint256 depositRemaining);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
 |`_dailyTax`|`uint256`|Daily tax amount based on current price|
-|`_foreclosureTime`|`uint256`|Timestamp of current foreclosure|
 |`_depositAmount`|`uint256`|Total amount of taxes deposited|
+|`_foreclosureTime`|`uint256`|Timestamp of current foreclosure|
 
 **Returns**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`uint256`|Remainig deposit amount|
+|`depositOwed`|`uint256`|Deposit amount owed|
+|`depositRemaining`|`uint256`||
 
 
 ### isForeclosed
@@ -456,14 +467,14 @@ Gets the excess amount of taxes paid
 
 
 ```solidity
-function getExcessTax(uint256 _totalDeposit, uint256 _dailyTax) public pure returns (uint256);
+function getExcessTax(uint256 _dailyTax, uint256 _depositAmount) public pure returns (uint256);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_totalDeposit`|`uint256`|Total amount of taxes deposited|
 |`_dailyTax`|`uint256`|Daily tax amount based on current price|
+|`_depositAmount`|`uint256`|Total amount of taxes deposited|
 
 **Returns**
 
@@ -472,13 +483,13 @@ function getExcessTax(uint256 _totalDeposit, uint256 _dailyTax) public pure retu
 |`<none>`|`uint256`|Excess amount of taxes|
 
 
-### getForeclosureTime
+### getNewForeclosure
 
 Gets the new foreclosure timestamp
 
 
 ```solidity
-function getForeclosureTime(uint256 _dailyTax, uint256 _foreclosureTime, uint256 _taxPayment)
+function getNewForeclosure(uint256 _dailyTax, uint256 _depositAmount, uint256 _currentForeclosure)
     public
     pure
     returns (uint48);
@@ -488,8 +499,8 @@ function getForeclosureTime(uint256 _dailyTax, uint256 _foreclosureTime, uint256
 |Name|Type|Description|
 |----|----|-----------|
 |`_dailyTax`|`uint256`|Daily tax amount based on current price|
-|`_foreclosureTime`|`uint256`|Timestamp of current foreclosure|
-|`_taxPayment`|`uint256`|Amount of taxes being deposited|
+|`_depositAmount`|`uint256`|Amount of taxes being deposited|
+|`_currentForeclosure`|`uint256`||
 
 **Returns**
 
@@ -504,14 +515,14 @@ Gets the total duration of time covered
 
 
 ```solidity
-function getTaxDuration(uint256 _taxPayment, uint256 _dailyTax) public pure returns (uint256);
+function getTaxDuration(uint256 _dailyTax, uint256 _depositAmount) public pure returns (uint256);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_taxPayment`|`uint256`|Amount of taxes being deposited|
 |`_dailyTax`|`uint256`|Daily tax amount based on current price|
+|`_depositAmount`|`uint256`|Amount of taxes being deposited|
 
 **Returns**
 
@@ -527,15 +538,6 @@ function getTaxDuration(uint256 _taxPayment, uint256 _dailyTax) public pure retu
 
 ```solidity
 function _registerMinters(MintInfo[] memory _mintInfo) internal;
-```
-
-### _setBalance
-
-*Sets the balance amount for an account*
-
-
-```solidity
-function _setBalance(address _account, uint256 _balance) internal;
 ```
 
 ### _beforeTokenTransfer

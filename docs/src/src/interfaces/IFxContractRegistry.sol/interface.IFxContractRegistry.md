@@ -1,5 +1,5 @@
 # IFxContractRegistry
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/437282be235abab247d75ca27e240f794022a9e1/src/interfaces/IFxContractRegistry.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/941c33e8dcf9e8d32ef010e754110434710b4bd3/src/interfaces/IFxContractRegistry.sol)
 
 **Author:**
 fx(hash)
@@ -10,11 +10,11 @@ Registry for managing fxhash smart contracts
 ## Functions
 ### configInfo
 
-Returns the system config information (feeReceiver, feeAllocation, lockTime, referrerShare, defaultMetadataURI)
+Returns the system config information
 
 
 ```solidity
-function configInfo() external view returns (address, uint32, uint32, uint32, uint64, string memory);
+function configInfo() external view returns (address, uint32, uint32, uint32, uint64, string memory, string memory);
 ```
 
 ### contracts

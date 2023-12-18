@@ -1,5 +1,5 @@
 # IFxMintTicket721
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/437282be235abab247d75ca27e240f794022a9e1/src/interfaces/IFxMintTicket721.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/941c33e8dcf9e8d32ef010e754110434710b4bd3/src/interfaces/IFxMintTicket721.sol)
 
 **Inherits:**
 [IToken](/src/interfaces/IToken.sol/interface.IToken.md)
@@ -18,6 +18,15 @@ Returns the list of active minters
 
 ```solidity
 function activeMinters(uint256) external view returns (address);
+```
+
+### balances
+
+Mapping of wallet address to pending balance available for withdrawal
+
+
+```solidity
+function balances(address) external view returns (uint256);
 ```
 
 ### baseURI
@@ -100,6 +109,22 @@ function deposit(uint256 _tokenId) external payable;
 |`_tokenId`|`uint256`|ID of the token|
 
 
+### depositAndSetPrice
+
+Deposits taxes for given token and set new price for same token
+
+
+```solidity
+function depositAndSetPrice(uint256 _tokenId, uint80 _newPrice) external payable;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_tokenId`|`uint256`|ID of the token|
+|`_newPrice`|`uint80`|New listing price of token|
+
+
 ### initialize
 
 Initializes new generative art project
@@ -173,27 +198,6 @@ function getAuctionPrice(uint256 _currentPrice, uint256 _foreclosureTime) extern
 |`_foreclosureTime`|`uint256`|Timestamp of the foreclosure|
 
 
-### getBalance
-
-Gets the pending balance amount available for a given wallet
-
-
-```solidity
-function getBalance(address _account) external view returns (uint128);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_account`|`address`|Address of the wallet|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`uint128`|Balance amount available for withdrawal|
-
-
 ### getDailyTax
 
 Gets the daily tax amount based on current price
@@ -215,20 +219,47 @@ function getDailyTax(uint256 _currentPrice) external pure returns (uint256);
 |`<none>`|`uint256`|Daily tax amount|
 
 
+### getDepositAmounts
+
+Gets the deposit amount owed and remaining after change in price, claim or burn
+
+
+```solidity
+function getDepositAmounts(uint256 _dailyTax, uint256 _depositAmount, uint256 _foreclosureTime)
+    external
+    view
+    returns (uint256, uint256);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_dailyTax`|`uint256`|Daily tax amount based on current price|
+|`_depositAmount`|`uint256`|Total amount of taxes deposited|
+|`_foreclosureTime`|`uint256`|Timestamp of current foreclosure|
+
+**Returns**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`<none>`|`uint256`|Deposit amount owed|
+|`<none>`|`uint256`|Deposit amount remaining|
+
+
 ### getExcessTax
 
 Gets the excess amount of taxes paid
 
 
 ```solidity
-function getExcessTax(uint256 _totalDeposit, uint256 _dailyTax) external pure returns (uint256);
+function getExcessTax(uint256 _dailyTax, uint256 _depositAmount) external view returns (uint256);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_totalDeposit`|`uint256`|Total amount of taxes deposited|
 |`_dailyTax`|`uint256`|Daily tax amount based on current price|
+|`_depositAmount`|`uint256`|Total amount of taxes deposited|
 
 **Returns**
 
@@ -237,15 +268,15 @@ function getExcessTax(uint256 _totalDeposit, uint256 _dailyTax) external pure re
 |`<none>`|`uint256`|Excess amount of taxes|
 
 
-### getForeclosureTime
+### getNewForeclosure
 
 Gets the new foreclosure timestamp
 
 
 ```solidity
-function getForeclosureTime(uint256 _dailyTax, uint256 _foreclosureTime, uint256 _taxPayment)
+function getNewForeclosure(uint256 _dailyTax, uint256 _depositAmount, uint256 _foreclosureTime)
     external
-    pure
+    view
     returns (uint48);
 ```
 **Parameters**
@@ -253,8 +284,8 @@ function getForeclosureTime(uint256 _dailyTax, uint256 _foreclosureTime, uint256
 |Name|Type|Description|
 |----|----|-----------|
 |`_dailyTax`|`uint256`|Daily tax amount based on current price|
+|`_depositAmount`|`uint256`|Amount of taxes being deposited|
 |`_foreclosureTime`|`uint256`|Timestamp of current foreclosure|
-|`_taxPayment`|`uint256`|Amount of taxes being deposited|
 
 **Returns**
 
@@ -263,46 +294,20 @@ function getForeclosureTime(uint256 _dailyTax, uint256 _foreclosureTime, uint256
 |`<none>`|`uint48`|Timestamp of new foreclosure|
 
 
-### getRemainingDeposit
-
-Gets the remaining amount of taxes to be deposited
-
-
-```solidity
-function getRemainingDeposit(uint256 _dailyTax, uint256 _foreclosureTime, uint256 _depositAmount)
-    external
-    view
-    returns (uint256);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_dailyTax`|`uint256`|Daily tax amount based on current price|
-|`_foreclosureTime`|`uint256`|Timestamp of current foreclosure|
-|`_depositAmount`|`uint256`|Total amount of taxes deposited|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`uint256`|Remainig deposit amount|
-
-
 ### getTaxDuration
 
 Gets the total duration of time covered
 
 
 ```solidity
-function getTaxDuration(uint256 _taxPayment, uint256 _dailyTax) external pure returns (uint256);
+function getTaxDuration(uint256 _dailyTax, uint256 _depositAmount) external pure returns (uint256);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_taxPayment`|`uint256`|Amount of taxes being deposited|
 |`_dailyTax`|`uint256`|Daily tax amount based on current price|
+|`_depositAmount`|`uint256`|Amount of taxes being deposited|
 
 **Returns**
 
@@ -460,6 +465,21 @@ Unpauses all function executions where modifier is set
 function unpause() external;
 ```
 
+### updateStartTime
+
+Updates taxation start time to the current timestamp
+
+
+```solidity
+function updateStartTime(uint256 _tokenId) external;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_tokenId`|`uint256`|ID of the token|
+
+
 ### withdraw
 
 Withdraws available balance amount to given address
@@ -550,6 +570,22 @@ event SetPrice(uint256 indexed _tokenId, uint128 _newPrice, uint128 _foreclosure
 |`_foreclosureTime`|`uint128`|Timestamp of new foreclosure date|
 |`_depositAmount`|`uint128`|Adjusted amount of taxes deposited due to price change|
 
+### StartTimeUpdated
+Event emitted when taxation start time is updated to current timestamp
+
+
+```solidity
+event StartTimeUpdated(uint256 indexed _tokenId, address indexed _owner, uint128 _foreclosureTime);
+```
+
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_tokenId`|`uint256`|ID of the token|
+|`_owner`|`address`|Address of token owner|
+|`_foreclosureTime`|`uint128`|Timestamp of foreclosure date|
+
 ### TicketInitialized
 Event emitted when mint ticket is initialized
 
@@ -613,6 +649,14 @@ Error thrown when token is being claimed within the grace period
 
 ```solidity
 error GracePeriodActive();
+```
+
+### GracePeriodInactive
+Error thrown when token is outside of the grace period
+
+
+```solidity
+error GracePeriodInactive();
 ```
 
 ### InsufficientDeposit

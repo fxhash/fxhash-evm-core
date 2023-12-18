@@ -1,5 +1,5 @@
 # IFxIssuerFactory
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/437282be235abab247d75ca27e240f794022a9e1/src/interfaces/IFxIssuerFactory.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/941c33e8dcf9e8d32ef010e754110434710b4bd3/src/interfaces/IFxIssuerFactory.sol)
 
 **Author:**
 fx(hash)
@@ -8,13 +8,13 @@ Factory for managing newly deployed FxGenArt721 tokens
 
 
 ## Functions
-### createProject
+### createProjectWithParams
 
 Creates new generative art project
 
 
 ```solidity
-function createProject(
+function createProjectWithParams(
     address _owner,
     InitInfo memory _initInfo,
     ProjectInfo memory _projectInfo,
@@ -66,15 +66,17 @@ function createProject(bytes memory _creationInfo) external returns (address);
 |`<none>`|`address`|genArtToken Address of newly created FxGenArt721 proxy|
 
 
-### createProject
+### createProjectWithTicket
 
 Creates new generative art project with new mint ticket in single transaction
 
 
 ```solidity
-function createProject(bytes calldata _projectCreationInfo, bytes calldata _ticketCreationInfo, address _tickeFactory)
-    external
-    returns (address, address);
+function createProjectWithTicket(
+    bytes calldata _projectCreationInfo,
+    bytes calldata _ticketCreationInfo,
+    address _tickeFactory
+) external returns (address, address);
 ```
 **Parameters**
 
@@ -119,6 +121,15 @@ Mapping of deployer address to nonce value for precomputing token address
 function nonces(address _deployer) external view returns (uint256);
 ```
 
+### pause
+
+Stops new FxGenArt721 tokens from being created
+
+
+```solidity
+function pause() external;
+```
+
 ### projectId
 
 Returns counter of latest project ID
@@ -161,6 +172,15 @@ function setImplementation(address _implementation) external;
 |`_implementation`|`address`|Address of the implementation contract|
 
 
+### unpause
+
+Enables new FxGenArt721 tokens from being created
+
+
+```solidity
+function unpause() external;
+```
+
 ## Events
 ### ImplementationUpdated
 Event emitted when the FxGenArt721 implementation contract is updated
@@ -194,14 +214,6 @@ event ProjectCreated(uint96 indexed _projectId, address indexed _genArtToken, ad
 |`_owner`|`address`|Address of project owner|
 
 ## Errors
-### InvalidInputSize
-Error thrown when input size is zero
-
-
-```solidity
-error InvalidInputSize();
-```
-
 ### InvalidOwner
 Error thrown when owner is zero address
 
