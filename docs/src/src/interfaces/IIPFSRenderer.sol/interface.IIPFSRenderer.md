@@ -1,5 +1,5 @@
 # IIPFSRenderer
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/437282be235abab247d75ca27e240f794022a9e1/src/interfaces/IIPFSRenderer.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/941c33e8dcf9e8d32ef010e754110434710b4bd3/src/interfaces/IIPFSRenderer.sol)
 
 **Inherits:**
 [IRenderer](/src/interfaces/IRenderer.sol/interface.IRenderer.md)
@@ -35,13 +35,13 @@ function contractURI() external view returns (string memory);
 |`<none>`|`string`|URI of the contract metadata|
 
 
-### getMetadataURI
+### getMetadataURL
 
-Generates the metadata URI for a token ID
+Generates the metadata URL for a token ID
 
 
 ```solidity
-function getMetadataURI(address _contractAddr, string memory _baseURI, uint256 _tokenId)
+function getMetadataURL(address _contractAddr, string memory _baseURI, uint256 _tokenId)
     external
     view
     returns (string memory);
@@ -58,7 +58,7 @@ function getMetadataURI(address _contractAddr, string memory _baseURI, uint256 _
 
 |Name|Type|Description|
 |----|----|-----------|
-|`<none>`|`string`|URI of the JSON metadata|
+|`<none>`|`string`|URL of the JSON metadata|
 
 
 ### tokenURI

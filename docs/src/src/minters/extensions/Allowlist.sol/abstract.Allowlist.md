@@ -1,5 +1,5 @@
 # Allowlist
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/437282be235abab247d75ca27e240f794022a9e1/src/minters/extensions/Allowlist.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/941c33e8dcf9e8d32ef010e754110434710b4bd3/src/minters/extensions/Allowlist.sol)
 
 **Author:**
 fx(hash)
@@ -18,6 +18,7 @@ function _claimSlot(
     address _token,
     uint256 _reserveId,
     uint256 _index,
+    address _claimer,
     bytes32[] memory _proof,
     LibBitmap.Bitmap storage _bitmap
 ) internal;
@@ -29,6 +30,7 @@ function _claimSlot(
 |`_token`|`address`|Address of the token contract|
 |`_reserveId`|`uint256`|ID of the reserve|
 |`_index`|`uint256`|Index in the merkle tree|
+|`_claimer`|`address`|Address of allowlist slot claimer|
 |`_proof`|`bytes32[]`|Merkle proof used for validating claim|
 |`_bitmap`|`LibBitmap.Bitmap`|Bitmap used for checking if index is already claimed|
 

@@ -12,6 +12,7 @@
 - [IFxTicketFactory](IFxTicketFactory.sol/interface.IFxTicketFactory.md)
 - [IIPFSRenderer](IIPFSRenderer.sol/interface.IIPFSRenderer.md)
 - [IMinter](IMinter.sol/interface.IMinter.md)
+- [IONCHFSRenderer](IONCHFSRenderer.sol/interface.IONCHFSRenderer.md)
 - [IPseudoRandomizer](IPseudoRandomizer.sol/interface.IPseudoRandomizer.md)
 - [IRandomizer](IRandomizer.sol/interface.IRandomizer.md)
 - [IRenderer](IRenderer.sol/interface.IRenderer.md)

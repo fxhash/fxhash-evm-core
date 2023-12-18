@@ -1,5 +1,5 @@
 # IFxGenArt721
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/437282be235abab247d75ca27e240f794022a9e1/src/interfaces/IFxGenArt721.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/941c33e8dcf9e8d32ef010e754110434710b4bd3/src/interfaces/IFxGenArt721.sol)
 
 **Inherits:**
 [ISeedConsumer](/src/interfaces/ISeedConsumer.sol/interface.ISeedConsumer.md), [IToken](/src/interfaces/IToken.sol/interface.IToken.md)
@@ -69,41 +69,20 @@ function fulfillSeedRequest(uint256 _tokenId, bytes32 _seed) external;
 
 ### genArtInfo
 
-Mapping of token ID to GenArtInfo struct (seed, fxParams)
+Mapping of token ID to GenArtInfo struct (minter, seed, fxParams)
 
 
 ```solidity
-function genArtInfo(uint256 _tokenId) external view returns (bytes32, bytes memory);
+function genArtInfo(uint256 _tokenId) external view returns (address, bytes32, bytes memory);
 ```
 
-### generateBaseURIHash
+### generateOnchainPointerHash
 
 Generates typed data hash for setting project metadata onchain
 
 
 ```solidity
-function generateBaseURIHash(bytes calldata _uri) external view returns (bytes32);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_uri`|`bytes`|Bytes-encoded base URI data|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`bytes32`|Typed data hash|
-
-
-### generateOnchainDataHash
-
-Generates typed data hash for setting project metadata onchain
-
-
-```solidity
-function generateOnchainDataHash(bytes calldata _data) external view returns (bytes32);
+function generateOnchainPointerHash(bytes calldata _data) external view returns (bytes32);
 ```
 **Parameters**
 
@@ -398,29 +377,58 @@ Sets the new URI of the token metadata
 
 
 ```solidity
-function setBaseURI(bytes calldata _uri, bytes calldata _signature) external;
+function setBaseURI(bytes calldata _uri) external;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
 |`_uri`|`bytes`|Decoded content identifier of metadata pointer|
-|`_signature`|`bytes`|Signature of creator used to verify metadata update|
 
 
-### setOnchainData
+### setBurnEnabled
 
-Sets the onchain data of the project metadata
+Sets flag status of public burn to enabled or disabled
 
 
 ```solidity
-function setOnchainData(bytes calldata _data, bytes calldata _signature) external;
+function setBurnEnabled(bool _flag) external;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_data`|`bytes`|Bytes-encoded metadata|
+|`_flag`|`bool`|Status of burn|
+
+
+### setMintEnabled
+
+Sets flag status of public mint to enabled or disabled
+
+
+```solidity
+function setMintEnabled(bool _flag) external;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_flag`|`bool`|Status of mint|
+
+
+### setOnchainPointer
+
+Sets the onchain pointer for reconstructing project metadata onchain
+
+
+```solidity
+function setOnchainPointer(bytes calldata _onchainData, bytes calldata _signature) external;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_onchainData`|`bytes`|Bytes-encoded metadata|
 |`_signature`|`bytes`|Signature of creator used to verify metadata update|
 
 
@@ -486,24 +494,6 @@ function setTags(uint256[] calldata _tagIds) external;
 |`_tagIds`|`uint256[]`|Array of tag IDs describing the project|
 
 
-### toggleBurn
-
-Toggles public burn from disabled to enabled and vice versa
-
-
-```solidity
-function toggleBurn() external;
-```
-
-### toggleMint
-
-Toggles public mint from enabled to disabled and vice versa
-
-
-```solidity
-function toggleMint() external;
-```
-
 ### totalSupply
 
 Returns the current circulating supply of tokens
@@ -538,32 +528,32 @@ event BaseURIUpdated(bytes _uri);
 |`_uri`|`bytes`|Decoded content identifier of metadata pointer|
 
 ### BurnEnabled
-Event emitted when burn is toggled
+Event emitted when public burn is enabled or disabled
 
 
 ```solidity
-event BurnEnabled(bool indexed _enabled);
+event BurnEnabled(bool indexed _flag);
 ```
 
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_enabled`|`bool`|Flag status of burn|
+|`_flag`|`bool`|Status of burn|
 
 ### MintEnabled
-Event emitted when minted is toggled
+Event emitted when public mint is enabled or disabled
 
 
 ```solidity
-event MintEnabled(bool indexed _enabled);
+event MintEnabled(bool indexed _flag);
 ```
 
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_enabled`|`bool`|Flag status of mint|
+|`_flag`|`bool`|Status of mint|
 
 ### ProjectDeleted
 Event emitted when project is deleted only once supply is set to zero
@@ -650,19 +640,19 @@ event RendererUpdated(address indexed _renderer);
 |----|----|-----------|
 |`_renderer`|`address`|Address of new Renderer contract|
 
-### OnchainDataUpdated
+### OnchainPointerUpdated
 Event emitted when onchain data of project is updated
 
 
 ```solidity
-event OnchainDataUpdated(bytes _data);
+event OnchainPointerUpdated(address _pointer);
 ```
 
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_data`|`bytes`|Bytes-encoded metadata|
+|`_pointer`|`address`|SSTORE2 pointer to the onchain data|
 
 ### SupplyReduced
 Event emitted when maximum supply is reduced

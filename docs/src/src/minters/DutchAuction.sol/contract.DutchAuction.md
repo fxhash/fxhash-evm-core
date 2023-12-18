@@ -1,8 +1,8 @@
 # DutchAuction
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/437282be235abab247d75ca27e240f794022a9e1/src/minters/DutchAuction.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/941c33e8dcf9e8d32ef010e754110434710b4bd3/src/minters/DutchAuction.sol)
 
 **Inherits:**
-[IDutchAuction](/src/interfaces/IDutchAuction.sol/interface.IDutchAuction.md), [Allowlist](/src/minters/extensions/Allowlist.sol/abstract.Allowlist.md), [MintPass](/src/minters/extensions/MintPass.sol/abstract.MintPass.md)
+[IDutchAuction](/src/interfaces/IDutchAuction.sol/interface.IDutchAuction.md), [Allowlist](/src/minters/extensions/Allowlist.sol/abstract.Allowlist.md), [MintPass](/src/minters/extensions/MintPass.sol/abstract.MintPass.md), Ownable, Pausable
 
 **Author:**
 fx(hash)
@@ -11,30 +11,39 @@ fx(hash)
 
 
 ## State Variables
-### claimedMerkleTreeSlots_
+### claimedMerkleTreeSlots
 *Mapping of token address to reserve ID to Bitmap of claimed merkle tree slots*
 
 
 ```solidity
-mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal claimedMerkleTreeSlots_;
+mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal claimedMerkleTreeSlots;
 ```
 
 
-### claimedMintPasses_
+### claimedMintPasses
 *Mapping of token address to reserve ID to Bitmap of claimed mint passes*
 
 
 ```solidity
-mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal claimedMintPasses_;
+mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal claimedMintPasses;
 ```
 
 
-### latestUpdates_
+### latestUpdates
 *Mapping of token address to timestamp of latest update made for token reserves*
 
 
 ```solidity
-LibMap.Uint40Map internal latestUpdates_;
+LibMap.Uint40Map internal latestUpdates;
+```
+
+
+### firstValidReserve
+*Mapping of token to the last valid reserveId that can mint on behalf of the token*
+
+
+```solidity
+LibMap.Uint40Map internal firstValidReserve;
 ```
 
 
@@ -99,7 +108,7 @@ Purchases tokens at a linear price over fixed amount of time
 
 
 ```solidity
-function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable;
+function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable whenNotPaused;
 ```
 **Parameters**
 
@@ -123,7 +132,7 @@ function buyAllowlist(
     address _to,
     uint256[] calldata _indexes,
     bytes32[][] calldata _proofs
-) external payable;
+) external payable whenNotPaused;
 ```
 **Parameters**
 
@@ -149,7 +158,7 @@ function buyMintPass(
     address _to,
     uint256 _index,
     bytes calldata _signature
-) external payable;
+) external payable whenNotPaused;
 ```
 **Parameters**
 
@@ -169,7 +178,7 @@ Refunds an auction buyer with their rebate amount
 
 
 ```solidity
-function refund(address _token, uint256 _reserveId, address _buyer) external;
+function refund(address _token, uint256 _reserveId, address _buyer) external whenNotPaused;
 ```
 **Parameters**
 
@@ -186,7 +195,7 @@ function refund(address _token, uint256 _reserveId, address _buyer) external;
 
 
 ```solidity
-function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external;
+function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external whenNotPaused;
 ```
 
 ### withdraw
@@ -195,7 +204,7 @@ Withdraws sale processed of primary sales to receiver
 
 
 ```solidity
-function withdraw(address _token, uint256 _reserveId) external;
+function withdraw(address _token, uint256 _reserveId) external whenNotPaused;
 ```
 **Parameters**
 
@@ -204,6 +213,33 @@ function withdraw(address _token, uint256 _reserveId) external;
 |`_token`|`address`|Address of the token contract|
 |`_reserveId`|`uint256`|ID of the reserve|
 
+
+### pause
+
+Pauses all function executions where modifier is applied
+
+
+```solidity
+function pause() external onlyOwner;
+```
+
+### unpause
+
+Unpauses all function executions where modifier is applied
+
+
+```solidity
+function unpause() external onlyOwner;
+```
+
+### getFirstValidReserve
+
+Returns the earliest valid reserveId that can mint a token
+
+
+```solidity
+function getFirstValidReserve(address _token) public view returns (uint256);
+```
 
 ### getLatestUpdate
 
@@ -264,6 +300,13 @@ function _buy(address _token, uint256 _reserveId, uint256 _amount, address _to) 
 
 ```solidity
 function _setLatestUpdate(address _token, uint256 _timestamp) internal;
+```
+
+### _setFirstValidReserve
+
+
+```solidity
+function _setFirstValidReserve(address _token, uint256 _reserveId) internal;
 ```
 
 ### _getMerkleRoot

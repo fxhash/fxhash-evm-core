@@ -1,5 +1,5 @@
 # Constants
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/437282be235abab247d75ca27e240f794022a9e1/src/utils/Constants.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/941c33e8dcf9e8d32ef010e754110434710b4bd3/src/utils/Constants.sol)
 
 ### FX_CONTRACT_REGISTRY
 
@@ -49,6 +49,12 @@ string constant DUTCH_AUCTION = "DUTCH_AUCTION";
 string constant FIXED_PRICE = "FIXED_PRICE";
 ```
 
+### ONCHFS_RENDERER
+
+```solidity
+string constant ONCHFS_RENDERER = "ONCHFS_RENDERER";
+```
+
 ### IPFS_RENDERER
 
 ```solidity
@@ -74,16 +80,10 @@ bytes32 constant CLAIM_TYPEHASH =
     keccak256("Claim(address token,uint256 reserveId,uint96 nonce,uint256 index,address user)");
 ```
 
-### SET_BASE_URI_TYPEHASH
+### SET_ONCHAIN_POINTER_TYPEHASH
 
 ```solidity
-bytes32 constant SET_BASE_URI_TYPEHASH = keccak256("SetBaseURI(bytes uri,uint96 nonce)");
-```
-
-### SET_ONCHAIN_DATA_TYPEHASH
-
-```solidity
-bytes32 constant SET_ONCHAIN_DATA_TYPEHASH = keccak256("SetOnchainData(bytes data,uint96 nonce)");
+bytes32 constant SET_ONCHAIN_POINTER_TYPEHASH = keccak256("SetOnchainPointer(bytes onchainData,uint96 nonce)");
 ```
 
 ### SET_PRIMARY_RECEIVER_TYPEHASH
@@ -105,6 +105,24 @@ bytes constant IPFS_URL =
     hex"697066733a2f2f172c151325290607391d2c391b242225180a020b291b260929391d1b31222525202804120031280917120b280400";
 ```
 
+### IPFS_PREFIX
+
+```solidity
+string constant IPFS_PREFIX = "ipfs://";
+```
+
+### API_VERSION
+
+```solidity
+string constant API_VERSION = "0.2";
+```
+
+### ATTRIBUTES_ENDPOINT
+
+```solidity
+string constant ATTRIBUTES_ENDPOINT = "/attributes.json";
+```
+
 ### METADATA_ENDPOINT
 
 ```solidity
@@ -115,6 +133,36 @@ string constant METADATA_ENDPOINT = "/metadata.json";
 
 ```solidity
 string constant THUMBNAIL_ENDPOINT = "/thumbnail.json";
+```
+
+### FX_HASH_QUERY
+
+```solidity
+string constant FX_HASH_QUERY = "/?fxhash=";
+```
+
+### FX_PARAMS_QUERY
+
+```solidity
+string constant FX_PARAMS_QUERY = "#0x";
+```
+
+### ITERATION_QUERY
+
+```solidity
+string constant ITERATION_QUERY = "&fxiteration=";
+```
+
+### MINTER_QUERY
+
+```solidity
+string constant MINTER_QUERY = "&fxminter=";
+```
+
+### ONCHFS_PREFIX
+
+```solidity
+string constant ONCHFS_PREFIX = "onchfs://";
 ```
 
 ### UNINITIALIZED
@@ -153,6 +201,12 @@ uint64 constant TIME_UNLIMITED = type(uint64).max;
 uint120 constant OPEN_EDITION_SUPPLY = type(uint120).max;
 ```
 
+### LAUNCH_TIMESTAMP
+
+```solidity
+uint256 constant LAUNCH_TIMESTAMP = 1702558800;
+```
+
 ### ADMIN_ROLE
 
 ```solidity
@@ -169,6 +223,12 @@ bytes32 constant BANNED_USER_ROLE = keccak256("BANNED_USER_ROLE");
 
 ```solidity
 bytes32 constant CREATOR_ROLE = keccak256("CREATOR_ROLE");
+```
+
+### METADATA_ROLE
+
+```solidity
+bytes32 constant METADATA_ROLE = keccak256("METADATA_ROLE");
 ```
 
 ### MINTER_ROLE

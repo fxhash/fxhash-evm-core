@@ -1,8 +1,8 @@
 # TicketRedeemer
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/437282be235abab247d75ca27e240f794022a9e1/src/minters/TicketRedeemer.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/941c33e8dcf9e8d32ef010e754110434710b4bd3/src/minters/TicketRedeemer.sol)
 
 **Inherits:**
-[ITicketRedeemer](/src/interfaces/ITicketRedeemer.sol/interface.ITicketRedeemer.md)
+[ITicketRedeemer](/src/interfaces/ITicketRedeemer.sol/interface.ITicketRedeemer.md), Ownable, Pausable
 
 **Author:**
 fx(hash)
@@ -27,7 +27,7 @@ Burns a ticket and mints a new token to the caller
 
 
 ```solidity
-function redeem(address _token, address _to, uint256 _ticketId, bytes calldata _fxParams) external;
+function redeem(address _token, address _to, uint256 _ticketId, bytes calldata _fxParams) external whenNotPaused;
 ```
 **Parameters**
 
@@ -45,6 +45,24 @@ function redeem(address _token, address _to, uint256 _ticketId, bytes calldata _
 
 
 ```solidity
-function setMintDetails(ReserveInfo calldata, bytes calldata _mintDetails) external;
+function setMintDetails(ReserveInfo calldata, bytes calldata _mintDetails) external whenNotPaused;
+```
+
+### pause
+
+Pauses all function executions where modifier is applied
+
+
+```solidity
+function pause() external onlyOwner;
+```
+
+### unpause
+
+Unpauses all function executions where modifier is applied
+
+
+```solidity
+function unpause() external onlyOwner;
 ```
 

@@ -1,5 +1,5 @@
 # FxGenArt721
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/437282be235abab247d75ca27e240f794022a9e1/src/tokens/FxGenArt721.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/941c33e8dcf9e8d32ef010e754110434710b4bd3/src/tokens/FxGenArt721.sol)
 
 **Inherits:**
 [IFxGenArt721](/src/interfaces/IFxGenArt721.sol/interface.IFxGenArt721.md), IERC4906, ERC721, EIP712, Initializable, Ownable, Pausable, [RoyaltyManager](/src/tokens/extensions/RoyaltyManager.sol/abstract.RoyaltyManager.md)
@@ -111,7 +111,7 @@ MetadataInfo public metadataInfo;
 
 
 ### genArtInfo
-Mapping of token ID to GenArtInfo struct (seed, fxParams)
+Mapping of token ID to GenArtInfo struct (minter, seed, fxParams)
 
 
 ```solidity
@@ -158,7 +158,7 @@ Initializes new generative art project
 function initialize(
     address _owner,
     InitInfo calldata _initInfo,
-    ProjectInfo calldata _projectInfo,
+    ProjectInfo memory _projectInfo,
     MetadataInfo calldata _metadataInfo,
     MintInfo[] calldata _mintInfo,
     address[] calldata _royaltyReceivers,
@@ -311,35 +311,49 @@ function setBaseRoyalties(address[] calldata _receivers, uint32[] calldata _allo
 |`_basisPoints`|`uint96`|basis points used to calculate royalty payments|
 
 
-### setBaseURI
+### setBurnEnabled
 
-Sets the new URI of the token metadata
+Sets flag status of public burn to enabled or disabled
 
 
 ```solidity
-function setBaseURI(bytes calldata _uri, bytes calldata _signature) external onlyOwner;
+function setBurnEnabled(bool _flag) external onlyOwner;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_uri`|`bytes`|Decoded content identifier of metadata pointer|
-|`_signature`|`bytes`|Signature of creator used to verify metadata update|
+|`_flag`|`bool`|Status of burn|
 
 
-### setOnchainData
+### setMintEnabled
 
-Sets the onchain data of the project metadata
+Sets flag status of public mint to enabled or disabled
 
 
 ```solidity
-function setOnchainData(bytes calldata _data, bytes calldata _signature) external onlyOwner;
+function setMintEnabled(bool _flag) external onlyOwner;
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_data`|`bytes`|Bytes-encoded metadata|
+|`_flag`|`bool`|Status of mint|
+
+
+### setOnchainPointer
+
+Sets the onchain pointer for reconstructing project metadata onchain
+
+
+```solidity
+function setOnchainPointer(bytes calldata _onchainData, bytes calldata _signature) external onlyOwner;
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_onchainData`|`bytes`|Bytes-encoded metadata|
 |`_signature`|`bytes`|Signature of creator used to verify metadata update|
 
 
@@ -375,24 +389,6 @@ function setRenderer(address _renderer, bytes calldata _signature) external only
 |`_signature`|`bytes`|Signature of creator used to verify renderer update|
 
 
-### toggleBurn
-
-Toggles public burn from disabled to enabled and vice versa
-
-
-```solidity
-function toggleBurn() external onlyOwner;
-```
-
-### toggleMint
-
-Toggles public mint from enabled to disabled and vice versa
-
-
-```solidity
-function toggleMint() external onlyOwner;
-```
-
 ### setRandomizer
 
 Sets the new randomizer contract
@@ -406,6 +402,21 @@ function setRandomizer(address _randomizer) external onlyRole(ADMIN_ROLE);
 |Name|Type|Description|
 |----|----|-----------|
 |`_randomizer`|`address`|Address of the randomizer contract|
+
+
+### setBaseURI
+
+Sets the new URI of the token metadata
+
+
+```solidity
+function setBaseURI(bytes calldata _uri) external onlyRole(METADATA_ROLE);
+```
+**Parameters**
+
+|Name|Type|Description|
+|----|----|-----------|
+|`_uri`|`bytes`|Decoded content identifier of metadata pointer|
 
 
 ### pause
@@ -464,34 +475,13 @@ function contractURI() external view returns (string memory);
 function primaryReceiver() external view returns (address);
 ```
 
-### generateBaseURIHash
+### generateOnchainPointerHash
 
 Generates typed data hash for setting project metadata onchain
 
 
 ```solidity
-function generateBaseURIHash(bytes calldata _uri) public view returns (bytes32);
-```
-**Parameters**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`_uri`|`bytes`|Bytes-encoded base URI data|
-
-**Returns**
-
-|Name|Type|Description|
-|----|----|-----------|
-|`<none>`|`bytes32`|Typed data hash|
-
-
-### generateOnchainDataHash
-
-Generates typed data hash for setting project metadata onchain
-
-
-```solidity
-function generateOnchainDataHash(bytes calldata _data) public view returns (bytes32);
+function generateOnchainPointerHash(bytes calldata _data) public view returns (bytes32);
 ```
 **Parameters**
 
@@ -607,6 +597,8 @@ function _registerMinters(MintInfo[] memory _mintInfo) internal;
 
 ### _setBaseRoyalties
 
+*Sets receivers and allocations for base royalties of token sales*
+
 
 ```solidity
 function _setBaseRoyalties(address[] calldata _receivers, uint32[] calldata _allocations, uint96 _basisPoints)
@@ -615,6 +607,8 @@ function _setBaseRoyalties(address[] calldata _receivers, uint32[] calldata _all
 ```
 
 ### _setPrimaryReceiver
+
+*Sets primary receiver address for token sales*
 
 
 ```solidity
@@ -628,6 +622,15 @@ function _setPrimaryReceiver(address[] calldata _receivers, uint32[] calldata _a
 
 ```solidity
 function _setNameAndSymbol(string calldata _name, string calldata _symbol) internal;
+```
+
+### _setOnchainPointer
+
+*Sets the onchain pointer for reconstructing metadata onchain*
+
+
+```solidity
+function _setOnchainPointer(bytes calldata _onchainData) internal;
 ```
 
 ### _setTags
@@ -659,7 +662,7 @@ function _isVerified(address _creator) internal view returns (bool);
 
 ### _checkFeeReceiver
 
-*checks if a fee receiver and allocation is included in their respective arrays*
+*Checks if fee receiver and allocation amount are included in their respective arrays*
 
 
 ```solidity

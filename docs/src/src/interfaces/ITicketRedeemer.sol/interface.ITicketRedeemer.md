@@ -1,5 +1,5 @@
 # ITicketRedeemer
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/437282be235abab247d75ca27e240f794022a9e1/src/interfaces/ITicketRedeemer.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/941c33e8dcf9e8d32ef010e754110434710b4bd3/src/interfaces/ITicketRedeemer.sol)
 
 **Inherits:**
 [IMinter](/src/interfaces/IMinter.sol/interface.IMinter.md)
@@ -11,6 +11,15 @@ Minter for redeeming FxGenArt721 tokens by burning FxMintTicket721 tokens
 
 
 ## Functions
+### pause
+
+Pauses all function executions where modifier is applied
+
+
+```solidity
+function pause() external;
+```
+
 ### redeem
 
 Burns a ticket and mints a new token to the caller
@@ -54,6 +63,15 @@ Mapping of FxGenArt721 token address to FxMintTicket721 token address
 
 ```solidity
 function tickets(address) external view returns (address);
+```
+
+### unpause
+
+Unpauses all function executions where modifier is applied
+
+
+```solidity
+function unpause() external;
 ```
 
 ## Events

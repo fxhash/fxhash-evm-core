@@ -1,8 +1,8 @@
 # FxIssuerFactory
-[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/437282be235abab247d75ca27e240f794022a9e1/src/factories/FxIssuerFactory.sol)
+[Git Source](https://github.com/fxhash/fxhash-evm-contracts/blob/941c33e8dcf9e8d32ef010e754110434710b4bd3/src/factories/FxIssuerFactory.sol)
 
 **Inherits:**
-[IFxIssuerFactory](/src/interfaces/IFxIssuerFactory.sol/interface.IFxIssuerFactory.md), Ownable
+[IFxIssuerFactory](/src/interfaces/IFxIssuerFactory.sol/interface.IFxIssuerFactory.md), Ownable, Pausable
 
 **Author:**
 fx(hash)
@@ -66,22 +66,24 @@ mapping(uint96 => address) public projects;
 constructor(address _admin, address _roleRegistry, address _implementation);
 ```
 
-### createProject
+### createProjectWithTicket
 
-Creates new generative art project
+Creates new generative art project with new mint ticket in single transaction
 
 
 ```solidity
-function createProject(bytes calldata _projectCreationInfo, bytes calldata _ticketCreationInfo, address _ticketFactory)
-    external
-    returns (address genArtToken, address mintTicket);
+function createProjectWithTicket(
+    bytes calldata _projectCreationInfo,
+    bytes calldata _ticketCreationInfo,
+    address _ticketFactory
+) external whenNotPaused returns (address genArtToken, address mintTicket);
 ```
 **Parameters**
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_projectCreationInfo`|`bytes`||
-|`_ticketCreationInfo`|`bytes`||
+|`_projectCreationInfo`|`bytes`|Bytes-encoded data for project creation|
+|`_ticketCreationInfo`|`bytes`|Bytes-encoded data for ticket creation|
 |`_ticketFactory`|`address`||
 
 **Returns**
@@ -89,8 +91,26 @@ function createProject(bytes calldata _projectCreationInfo, bytes calldata _tick
 |Name|Type|Description|
 |----|----|-----------|
 |`genArtToken`|`address`|Address of newly created FxGenArt721 proxy|
-|`mintTicket`|`address`||
+|`mintTicket`|`address`|Address of newly created FxMintTicket721 proxy|
 
+
+### unpause
+
+Enables new FxGenArt721 tokens from being created
+
+
+```solidity
+function unpause() external onlyOwner;
+```
+
+### pause
+
+Stops new FxGenArt721 tokens from being created
+
+
+```solidity
+function pause() external onlyOwner;
+```
 
 ### setImplementation
 
@@ -109,7 +129,7 @@ function setImplementation(address _implementation) external onlyOwner;
 
 ### createProject
 
-Creates new generative art project
+Creates new generative art project with single parameter
 
 
 ```solidity
@@ -119,7 +139,7 @@ function createProject(bytes memory _creationInfo) public returns (address genAr
 
 |Name|Type|Description|
 |----|----|-----------|
-|`_creationInfo`|`bytes`||
+|`_creationInfo`|`bytes`|Bytes-encoded data for project creation|
 
 **Returns**
 
@@ -128,13 +148,13 @@ function createProject(bytes memory _creationInfo) public returns (address genAr
 |`genArt721`|`address`|genArtToken Address of newly created FxGenArt721 proxy|
 
 
-### createProject
+### createProjectWithParams
 
 Creates new generative art project
 
 
 ```solidity
-function createProject(
+function createProjectWithParams(
     address _owner,
     InitInfo memory _initInfo,
     ProjectInfo memory _projectInfo,
@@ -143,7 +163,7 @@ function createProject(
     address[] memory _royaltyReceivers,
     uint32[] memory _allocations,
     uint96 _basisPoints
-) public returns (address genArtToken);
+) public whenNotPaused returns (address genArtToken);
 ```
 **Parameters**
 
