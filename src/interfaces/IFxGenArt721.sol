@@ -64,7 +64,7 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @notice Event emitted when project tags are set
      * @param _tagIds Array of tag IDs describing the project
      */
-    event ProjectTags(uint256[] indexed _tagIds);
+    event ProjectTags(uint256[] _tagIds);
 
     /**
      * @notice Event emitted when Randomizer contract is updated
