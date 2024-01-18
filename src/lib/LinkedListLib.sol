@@ -37,6 +37,16 @@ library LinkedListLib {
         _list.size--;
     }
 
+    function reduce(LinkedList storage _list, mapping(address => uint256) storage _balances) internal {
+        address current = _list.head;
+        address next = _list.bids[_list.head].next;
+        _balances[current] += _list.bids[current].amount;
+
+        delete _list.bids[current];
+        _list.head = next;
+        _list.size--;
+    }
+
     function getList(LinkedList storage _list) internal view returns (BidInfo[] memory bids) {
         uint256 index;
         address current = _list.head;

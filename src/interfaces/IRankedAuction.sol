@@ -22,6 +22,8 @@ struct LinkedList {
 }
 
 interface IRankedAuction {
+    error SaleNotOver();
+
     event Bid(address indexed _bidder, uint256 indexed _amount, address indexed _head, address _nextBidder);
     event Claim(address indexed _claimer, uint256 indexed _amount);
     event Settle(address indexed _owner, SaleInfo indexed _sale);
