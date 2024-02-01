@@ -68,9 +68,9 @@ contract Deploy is Script {
     function setUp() public virtual {
         _createAccounts();
         _configureInfo(
-            admin,
-            PRIMARY_FEE_ALLOCATION,
-            SECONDARY_FEE_ALLOCATION,
+            0xe1f04609f7bC45e23a1BA4CD4a76f476755beBA6,
+            100_000,
+            250_000,
             LOCK_TIME,
             REFERRER_SHARE,
             DEFAULT_METADATA_URI,
@@ -81,13 +81,50 @@ contract Deploy is Script {
     /*//////////////////////////////////////////////////////////////////////////
                                       RUN
     //////////////////////////////////////////////////////////////////////////*/
+    function logAddresses() public view {
+        console.log('project_factory_v1: "%s",', address(fxIssuerFactory));
+        console.log('mint_ticket_factory_v1: "%s",', address(fxTicketFactory));
+        console.log('dutch_auction_minter_v1: "%s",', address(dutchAuction));
+        console.log('fixed_price_minter_v1: "%s",', address(fixedPrice));
+        console.log('ticket_redeemer_v1: "%s",', address(ticketRedeemer));
+        console.log('ipfs_renderer_v1: "%s",', address(ipfsRenderer));
+        console.log('onchfs_renderer_v1: "%s",', address(onchfsRenderer));
+        console.log('randomizer_v1: "%s",', address(pseudoRandomizer));
+        console.log('role_registry_v1: "%s",', address(fxRoleRegistry));
+        console.log('contract_registry_v1: "%s",', address(fxContractRegistry));
+        console.log('gen_art_token_impl_v1: "%s",', address(fxGenArt721));
+        console.log('mint_ticket_impl_v1: "%s"', address(fxMintTicket721));
+    }
+
     function run() public virtual {
         _mockSplits();
         vm.startBroadcast();
         _deployContracts();
         _registerContracts();
         _grantRoles();
+        fxTicketFactory.setMinGracePeriod(300);
+        fxIssuerFactory.unpause();
+        logAddresses();
+        //FxIssuerFactory(0x9048D751F4D9Def5F2397a1065eF561FD1038fb2).setImplementation(address(fxGenArt721));
         vm.stopBroadcast();
+    }
+
+    function _grantRoles() internal virtual {
+        fxRoleRegistry.grantRole(ADMIN_ROLE, msg.sender);
+        fxRoleRegistry.grantRole(CREATOR_ROLE, creator);
+        fxRoleRegistry.grantRole(CREATOR_ROLE, msg.sender);
+        fxRoleRegistry.grantRole(CREATOR_ROLE, 0x7d0B2Bb9371133DD81c8B241E0115A33F8555F8E);
+        fxRoleRegistry.grantRole(CREATOR_ROLE, 0x13123840f1aDe2a60d316679938874227905bd97);
+        fxRoleRegistry.grantRole(CREATOR_ROLE, 0xfA2812a029833EddDA3e80c87988Cc0600Ba908b);
+        fxRoleRegistry.grantRole(CREATOR_ROLE, 0x29a92e01474607B80847EF81BA22F3471A8f3281);
+        fxRoleRegistry.grantRole(CREATOR_ROLE, 0x7D324FfD7b2fb8FC06508D96eDf2d1048f941D69);
+        fxRoleRegistry.grantRole(SIGNER_ROLE, msg.sender);
+        fxRoleRegistry.grantRole(SIGNER_ROLE, 0x13123840f1aDe2a60d316679938874227905bd97);
+        fxRoleRegistry.grantRole(MODERATOR_ROLE, msg.sender);
+
+        fxRoleRegistry.grantRole(MINTER_ROLE, address(dutchAuction));
+        fxRoleRegistry.grantRole(MINTER_ROLE, address(fixedPrice));
+        fxRoleRegistry.grantRole(MINTER_ROLE, address(ticketRedeemer));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -214,12 +251,12 @@ contract Deploy is Script {
                                     SETTERS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function _grantRoles() internal virtual {
-        fxRoleRegistry.grantRole(CREATOR_ROLE, creator);
-        fxRoleRegistry.grantRole(MINTER_ROLE, address(dutchAuction));
-        fxRoleRegistry.grantRole(MINTER_ROLE, address(fixedPrice));
-        fxRoleRegistry.grantRole(MINTER_ROLE, address(ticketRedeemer));
-    }
+    // function _grantRoles() internal virtual {
+    //     fxRoleRegistry.grantRole(CREATOR_ROLE, creator);
+    //     fxRoleRegistry.grantRole(MINTER_ROLE, address(dutchAuction));
+    //     fxRoleRegistry.grantRole(MINTER_ROLE, address(fixedPrice));
+    //     fxRoleRegistry.grantRole(MINTER_ROLE, address(ticketRedeemer));
+    // }
 
     function _registerContracts() internal virtual {
         names.push(FX_CONTRACT_REGISTRY);
