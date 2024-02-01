@@ -96,7 +96,7 @@ contract Deploy is Script {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _createAccounts() internal virtual {
-        admin = FLORIAN;
+        admin = msg.sender;
         creator = makeAddr("creator");
 
         vm.label(admin, "Admin");
@@ -231,6 +231,11 @@ contract Deploy is Script {
         fxRoleRegistry.grantRole(CREATOR_ROLE, admin);
         fxRoleRegistry.grantRole(MODERATOR_ROLE, admin);
         fxRoleRegistry.grantRole(SIGNER_ROLE, admin);
+
+        fxRoleRegistry.grantRole(ADMIN_ROLE, FLORIAN);
+        fxRoleRegistry.grantRole(CREATOR_ROLE, FLORIAN);
+        fxRoleRegistry.grantRole(MODERATOR_ROLE, FLORIAN);
+        fxRoleRegistry.grantRole(SIGNER_ROLE, FLORIAN);
 
         fxRoleRegistry.grantRole(CREATOR_ROLE, IZZY);
         fxRoleRegistry.grantRole(CREATOR_ROLE, LEO);
