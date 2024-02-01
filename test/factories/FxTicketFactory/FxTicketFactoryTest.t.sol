@@ -25,6 +25,8 @@ contract FxTicketFactoryTest is BaseTest {
         RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, minter);
         _configureInit(NAME, SYMBOL, address(pseudoRandomizer), address(ipfsRenderer), tagIds);
         _createProject();
+        vm.prank(admin);
+        fxTicketFactory.setMinGracePeriod(uint48(ONE_DAY));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
