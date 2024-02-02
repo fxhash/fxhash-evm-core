@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
 
-import {FxGenArt721} from "src/tokens/FxGenArt721.sol";
 import {Ownable} from "solady/src/auth/Ownable.sol";
 import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
@@ -50,7 +49,7 @@ contract RankedAuction is IRankedAuction, Ownable, Pausable {
     function settle(address _token) external {
         ReserveInfo memory reserve = reserves[_token];
         if (block.timestamp < reserve.endTime) revert SaleNotOver();
-        address owner = FxGenArt721(_token).owner();
+        address owner = Ownable(_token).owner();
         if (msg.sender != owner) revert NotAuthorized();
         uint256 saleTotal = getSaleTotal(_token);
 
