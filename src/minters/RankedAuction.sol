@@ -1,54 +1,98 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
 
+import {FxGenArt721} from "src/tokens/FxGenArt721.sol";
 import {Ownable} from "solady/src/auth/Ownable.sol";
 import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 
-import {IRankedAuction, BidInfo, SaleInfo, LinkedList} from "src/interfaces/IRankedAuction.sol";
+import {IRankedAuction, BidInfo, LinkedList, ReserveInfo, SaleInfo} from "src/interfaces/IRankedAuction.sol";
+import {IToken} from "src/interfaces/IToken.sol";
 import {LinkedListLib} from "src/lib/LinkedListLib.sol";
-import {ReserveInfo} from "src/lib/Structs.sol";
 
 contract RankedAuction is IRankedAuction, Ownable, Pausable {
-    mapping(uint256 => LinkedList) public lists;
+    mapping(address => uint256) public balances;
+    mapping(address => LinkedList) public lists;
+    mapping(address => ReserveInfo) public reserves;
+    mapping(address => SaleInfo) public sales;
 
-    function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external whenNotPaused {}
+    function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external whenNotPaused {
+        if (_reserve.allocation == 0) revert InvalidAllocation();
+        uint256 minReserve = abi.decode(_mintDetails, (uint256));
 
-    function bid(uint256 _reserveId) external payable {
-        LinkedList list = lists[_reserveId];
+        reserves[msg.sender] = _reserve;
+        sales[msg.sender] = SaleInfo({minReserve: minReserve});
+
+        emit MintDetailsSet(msg.sender, _reserve, minReserve);
+    }
+
+    function bid(address _token) external payable {
+        ReserveInfo memory reserve = reserves[_token];
+        if (block.timestamp < reserve.startTime || block.timestamp >= reserve.endTime) revert SaleInactive();
+        SaleInfo memory sale = sales[_token];
+        LinkedList storage list = lists[_token];
+        uint256 minBid = (list.bids[list.head].amount * 10_500) / 10_000;
+        if (msg.value < sale.minReserve || (list.size == reserve.allocation && msg.value < minBid))
+            revert InsufficientBid();
+        uint256 amount = list.bids[msg.sender].amount;
+        if (amount > 0) {
+            if (msg.value <= amount) revert InsufficientBid();
+            LinkedListLib.remove(msg.sender, list, balances);
+        }
+        uint64 extendedTime = uint64(block.timestamp + 5 minutes);
+        if (reserve.endTime < extendedTime) reserve.endTime = extendedTime;
         LinkedListLib.insert(msg.sender, msg.value, list);
-        if (list.size > sale.supply) LinkedListLib.reduce(list, balances);
+        if (list.size > reserve.allocation) LinkedListLib.reduce(list, balances);
 
         emit Bid(msg.sender, msg.value, list.head, list.bids[msg.sender].next);
     }
 
-    function settle() external {
-        if (block.timestamp < sale.endTime) revert SaleNotOver();
-        address owner = owner();
-        uint256 saleTotal = getSaleTotal();
-        _transferRemaining(owner);
+    function settle(address _token) external {
+        ReserveInfo memory reserve = reserves[_token];
+        if (block.timestamp < reserve.endTime) revert SaleNotOver();
+        address owner = FxGenArt721(_token).owner();
+        if (msg.sender != owner) revert NotAuthorized();
+        uint256 saleTotal = getSaleTotal(_token);
+        SafeTransferLib.safeTransferETH(owner, saleTotal);
 
-        emit Settle(owner, sale);
+        emit Settle(msg.sender, saleTotal);
     }
 
-    function claim(address _bidder) external {}
+    function claim(address _token, address _to) external {
+        ReserveInfo memory reserve = reserves[_token];
+        if (block.timestamp < reserve.endTime) revert SaleNotOver();
+        LinkedList storage list = lists[_token];
+        uint256 amount = list.bids[msg.sender].amount;
+        if (amount == 0) revert AlreadyClaimed();
+        list.bids[msg.sender].amount = 0;
 
-    function _transferRemaining(address _owner) internal {
-        uint256 size = uint256(list.size);
-        uint256 supply = uint256(sale.supply);
-        uint256 startId = uint256(sale.startId);
+        IToken(_token).mint(_to, 1, amount);
+    }
 
-        if (size < supply) {
-            address nft = sale.nft;
-            uint256 unsold = supply - size;
-            uint256 start = (supply - unsold) + startId;
-            uint256 end = (supply - 1) + startId;
-            unchecked {
-                for (uint256 i = start; i <= end; ++i) {
-                    IERC721(nft).safeTransferFrom(address(this), _owner, i);
-                }
-            }
+    function withdraw(address _to) external {
+        if (balances[_to] == 0) revert InsufficientBalance();
+        uint256 balance = balances[_to];
+        delete balances[_to];
+
+        SafeTransferLib.safeTransferETH(_to, balance);
+        emit Withdraw(msg.sender, _to, balance);
+    }
+
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    function unpause() external onlyOwner {
+        _unpause();
+    }
+
+    function getSaleTotal(address _token) public view returns (uint256 total) {
+        LinkedList storage list = lists[_token];
+        address current = list.head;
+        while (current != address(0)) {
+            total += list.bids[current].amount;
+            current = list.bids[current].next;
         }
     }
 }

@@ -1,13 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
 
+import {ReserveInfo} from "src/lib/Structs.sol";
+
 struct SaleInfo {
-    uint16 startId;
-    uint64 supply;
-    uint88 startTime;
-    uint88 endTime;
-    uint96 minReserve;
-    address token;
+    uint256 minReserve;
 }
 
 struct BidInfo {
@@ -22,9 +19,17 @@ struct LinkedList {
 }
 
 interface IRankedAuction {
+    error AlreadyClaimed();
+    error InvalidAllocation();
+    error InsufficientBalance();
+    error InsufficientBid();
+    error NotAuthorized();
+    error SaleInactive();
     error SaleNotOver();
 
     event Bid(address indexed _bidder, uint256 indexed _amount, address indexed _head, address _nextBidder);
     event Claim(address indexed _claimer, uint256 indexed _amount);
-    event Settle(address indexed _owner, SaleInfo indexed _sale);
+    event MintDetailsSet(address indexed _token, ReserveInfo indexed _reserve, uint256 _minReserve);
+    event Settle(address indexed _owner, uint256 _amount);
+    event Withdraw(address indexed _caller, address indexed _to, uint256 indexed _amount);
 }
