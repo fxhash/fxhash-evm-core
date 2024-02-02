@@ -3,7 +3,6 @@ pragma solidity 0.8.23;
 
 import {Ownable} from "solady/src/auth/Ownable.sol";
 import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
-import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 
 import {IRankedAuction, BidInfo, LinkedList, ReserveInfo, SaleInfo} from "src/interfaces/IRankedAuction.sol";
@@ -11,13 +10,18 @@ import {IToken} from "src/interfaces/IToken.sol";
 import {LinkedListLib} from "src/lib/LinkedListLib.sol";
 
 contract RankedAuction is IRankedAuction, Ownable, Pausable {
+    uint256 public maxSupply;
     mapping(address => uint256) public balances;
     mapping(address => LinkedList) public lists;
     mapping(address => ReserveInfo) public reserves;
     mapping(address => SaleInfo) public sales;
 
+    constructor(uint256 _maxSupply) {
+        setMaxSupply(_maxSupply);
+    }
+
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external whenNotPaused {
-        if (_reserve.allocation == 0) revert InvalidAllocation();
+        if (_reserve.allocation == 0 || _reserve.allocation > maxSupply) revert InvalidAllocation();
         uint256 minReserve = abi.decode(_mintDetails, (uint256));
         reserves[msg.sender] = _reserve;
         sales[msg.sender] = SaleInfo({minReserve: minReserve});
@@ -84,6 +88,11 @@ contract RankedAuction is IRankedAuction, Ownable, Pausable {
 
     function unpause() external onlyOwner {
         _unpause();
+    }
+
+    function setMaxSupply(uint256 _maxSupply) public onlyOwner {
+        emit MaxSupplyUpdated(maxSupply, _maxSupply);
+        maxSupply = _maxSupply;
     }
 
     function timeRemaining(address _token) external view returns (uint256) {

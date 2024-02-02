@@ -29,6 +29,7 @@ interface IRankedAuction {
 
     event Bid(address indexed _bidder, uint256 indexed _amount, address indexed _head, address _nextBidder);
     event Claim(address indexed _claimer, uint256 indexed _amount);
+    event MaxSupplyUpdated(uint256 indexed _previousSupply, uint256 indexed _newSupply);
     event MintDetailsSet(address indexed _token, ReserveInfo indexed _reserve, uint256 _minReserve);
     event Settle(address indexed _owner, uint256 _amount);
     event Withdraw(address indexed _caller, address indexed _to, uint256 indexed _amount);
