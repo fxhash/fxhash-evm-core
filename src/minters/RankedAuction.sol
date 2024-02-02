@@ -20,7 +20,6 @@ contract RankedAuction is IRankedAuction, Ownable, Pausable {
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external whenNotPaused {
         if (_reserve.allocation == 0) revert InvalidAllocation();
         uint256 minReserve = abi.decode(_mintDetails, (uint256));
-
         reserves[msg.sender] = _reserve;
         sales[msg.sender] = SaleInfo({minReserve: minReserve});
 
@@ -54,8 +53,8 @@ contract RankedAuction is IRankedAuction, Ownable, Pausable {
         address owner = FxGenArt721(_token).owner();
         if (msg.sender != owner) revert NotAuthorized();
         uint256 saleTotal = getSaleTotal(_token);
-        SafeTransferLib.safeTransferETH(owner, saleTotal);
 
+        SafeTransferLib.safeTransferETH(owner, saleTotal);
         emit Settle(msg.sender, saleTotal);
     }
 
@@ -65,9 +64,10 @@ contract RankedAuction is IRankedAuction, Ownable, Pausable {
         LinkedList storage list = lists[_token];
         uint256 amount = list.bids[msg.sender].amount;
         if (amount == 0) revert AlreadyClaimed();
-        list.bids[msg.sender].amount = 0;
+        delete list.bids[msg.sender].amount;
 
         IToken(_token).mint(_to, 1, amount);
+        emit Claim(msg.sender, amount);
     }
 
     function withdraw(address _to) external {
@@ -85,6 +85,28 @@ contract RankedAuction is IRankedAuction, Ownable, Pausable {
 
     function unpause() external onlyOwner {
         _unpause();
+    }
+
+    function timeRemaining(address _token) external view returns (uint256) {
+        ReserveInfo memory reserve = reserves[_token];
+        return reserve.endTime > block.timestamp ? reserve.endTime - block.timestamp : 0;
+    }
+
+    function getBidInfo(address _token, address _bidder) external view returns (uint96 amount, address nextBidder) {
+        LinkedList storage list = lists[_token];
+        BidInfo memory bidInfo = list.bids[_bidder];
+        amount = bidInfo.amount;
+        nextBidder = bidInfo.next;
+    }
+
+    function getListBids(address _token) external view returns (BidInfo[] memory bids) {
+        LinkedList storage list = lists[_token];
+        return LinkedListLib.getList(list);
+    }
+
+    function getPreviousBidder(address _token, address _bidder) external view returns (address) {
+        LinkedList storage list = lists[_token];
+        return LinkedListLib.getPrevious(_bidder, list);
     }
 
     function getSaleTotal(address _token) public view returns (uint256 total) {
