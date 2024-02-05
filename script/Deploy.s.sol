@@ -159,7 +159,7 @@ contract Deploy is Script {
 
         // FxTicketFactory
         creationCode = type(FxTicketFactory).creationCode;
-        constructorArgs = abi.encode(admin, fxMintTicket721, FIVE_MINUTES);
+        constructorArgs = abi.encode(admin, fxMintTicket721, ((block.chainid == MAINNET) ? ONE_DAY : FIVE_MINUTES));
         fxTicketFactory = FxTicketFactory(_deployCreate2(creationCode, constructorArgs, salt));
 
         vm.label(address(fxContractRegistry), "FxContractRegistry");
@@ -237,7 +237,7 @@ contract Deploy is Script {
         fxRoleRegistry.grantRole(MODERATOR_ROLE, FLORIAN);
         fxRoleRegistry.grantRole(SIGNER_ROLE, FLORIAN);
 
-        fxRoleRegistry.grantRole(CREATOR_ROLE, IZZY);
+        fxRoleRegistry.grantRole(CREATOR_ROLE, IZZA);
         fxRoleRegistry.grantRole(CREATOR_ROLE, LEO);
         fxRoleRegistry.grantRole(CREATOR_ROLE, LOUIE);
         fxRoleRegistry.grantRole(CREATOR_ROLE, MARKUS);
