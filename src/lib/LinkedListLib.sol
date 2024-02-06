@@ -7,16 +7,21 @@ library LinkedListLib {
     function insert(address _node, uint256 _amount, LinkedList storage _list) internal {
         address previous;
         address current = _list.head;
+        // While current node is not null and new amount is greater than current node amount
         while (current != address(0) && _list.bids[current].amount < _amount) {
             previous = current;
             current = _list.bids[current].next;
         }
 
+        // Sets node values
         _list.bids[_node] = BidInfo(uint96(_amount), current);
 
+        // Checks if node does not have previous node
         if (previous == address(0)) {
+            // Sets node to list head
             _list.head = _node;
         } else {
+            // Sets node to next of previous node
             _list.bids[previous].next = _node;
         }
 

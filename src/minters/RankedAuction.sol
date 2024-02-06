@@ -55,7 +55,9 @@ contract RankedAuction is IRankedAuction, Ownable, Pausable {
         if (block.timestamp < reserve.endTime) revert SaleNotOver();
         address owner = Ownable(_token).owner();
         if (msg.sender != owner) revert NotAuthorized();
-        uint256 saleTotal = getSaleTotal(_token);
+        LinkedList storage list = lists[_token];
+        list.lowest = list.bids[list.head].amount;
+        uint256 saleTotal = list.lowest * list.size;
 
         SafeTransferLib.safeTransferETH(owner, saleTotal);
         emit Settle(msg.sender, saleTotal);
@@ -115,14 +117,5 @@ contract RankedAuction is IRankedAuction, Ownable, Pausable {
     function getPreviousBidder(address _token, address _bidder) external view returns (address) {
         LinkedList storage list = lists[_token];
         return LinkedListLib.getPrevious(_bidder, list);
-    }
-
-    function getSaleTotal(address _token) public view returns (uint256 total) {
-        LinkedList storage list = lists[_token];
-        address current = list.head;
-        while (current != address(0)) {
-            total += list.bids[current].amount;
-            current = list.bids[current].next;
-        }
     }
 }
