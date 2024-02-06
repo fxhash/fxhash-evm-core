@@ -71,6 +71,8 @@ contract RankedAuction is IRankedAuction, Ownable, Pausable {
         if (amount == 0) revert AlreadyClaimed();
         delete list.bids[msg.sender].amount;
 
+        SafeTransferLib.safeTransferETH(msg.sender, amount - list.lowest);
+
         IToken(_token).mint(_to, 1, amount);
         emit Claim(msg.sender, amount);
     }
