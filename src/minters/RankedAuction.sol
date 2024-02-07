@@ -5,18 +5,22 @@ import {Ownable} from "solady/src/auth/Ownable.sol";
 import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 
+import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {IRankedAuction, BidInfo, LinkedList, ReserveInfo, SaleInfo} from "src/interfaces/IRankedAuction.sol";
 import {IToken} from "src/interfaces/IToken.sol";
 import {LinkedListLib} from "src/lib/LinkedListLib.sol";
+import {FEE_DENOMINATOR} from "src/utils/Constants.sol";
 
 contract RankedAuction is IRankedAuction, Ownable, Pausable {
+    address public immutable contractRegistry;
     uint256 public maxSupply;
     mapping(address => uint256) public balances;
     mapping(address => LinkedList) public lists;
     mapping(address => ReserveInfo) public reserves;
     mapping(address => SaleInfo) public sales;
 
-    constructor(uint256 _maxSupply) {
+    constructor(address _contractRegistry, uint256 _maxSupply) {
+        contractRegistry = _contractRegistry;
         setMaxSupply(_maxSupply);
     }
 
@@ -29,7 +33,7 @@ contract RankedAuction is IRankedAuction, Ownable, Pausable {
         emit MintDetailsSet(msg.sender, _reserve, minReserve);
     }
 
-    function bid(address _token) external payable {
+    function bid(address _token) external payable whenNotPaused {
         ReserveInfo memory reserve = reserves[_token];
         if (block.timestamp < reserve.startTime || block.timestamp >= reserve.endTime) revert SaleInactive();
         SaleInfo memory sale = sales[_token];
@@ -56,10 +60,14 @@ contract RankedAuction is IRankedAuction, Ownable, Pausable {
         address owner = Ownable(_token).owner();
         if (msg.sender != owner) revert NotAuthorized();
         LinkedList storage list = lists[_token];
-        list.lowest = list.bids[list.head].amount;
-        uint256 saleTotal = list.lowest * list.size;
+        list.finalPrice = list.bids[list.head].amount;
+        uint256 saleTotal = list.finalPrice * list.size;
 
-        SafeTransferLib.safeTransferETH(owner, saleTotal);
+        (address feeReceiver, uint32 primaryFee, , , , , ) = IFxContractRegistry(contractRegistry).configInfo();
+        uint256 fee = (saleTotal * primaryFee) / FEE_DENOMINATOR;
+        SafeTransferLib.safeTransferETH(feeReceiver, fee);
+        SafeTransferLib.safeTransferETH(owner, saleTotal - fee);
+
         emit Settle(msg.sender, saleTotal);
     }
 
@@ -71,10 +79,11 @@ contract RankedAuction is IRankedAuction, Ownable, Pausable {
         if (amount == 0) revert AlreadyClaimed();
         delete list.bids[msg.sender].amount;
 
-        SafeTransferLib.safeTransferETH(msg.sender, amount - list.lowest);
+        uint256 price = list.finalPrice;
+        SafeTransferLib.safeTransferETH(msg.sender, amount - price);
+        IToken(_token).mint(_to, 1, price);
 
-        IToken(_token).mint(_to, 1, amount);
-        emit Claim(msg.sender, amount);
+        emit Claim(msg.sender, price);
     }
 
     function withdraw(address _to) external {

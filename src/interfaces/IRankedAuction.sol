@@ -15,7 +15,7 @@ struct BidInfo {
 struct LinkedList {
     uint96 size;
     address head;
-    uint256 lowest;
+    uint256 finalPrice;
     mapping(address => BidInfo) bids;
 }
 
