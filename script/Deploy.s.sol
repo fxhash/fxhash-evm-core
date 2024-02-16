@@ -81,6 +81,7 @@ contract Deploy is Script {
     /*//////////////////////////////////////////////////////////////////////////
                                       RUN
     //////////////////////////////////////////////////////////////////////////*/
+
     function run() public virtual {
         _mockSplits();
         vm.startBroadcast();
@@ -134,22 +135,16 @@ contract Deploy is Script {
         // FxContractRegistry
         bytes memory creationCode = type(FxContractRegistry).creationCode;
         bytes memory constructorArgs = abi.encode(admin, configInfo);
-        // init: cast keccak256(creationCode, abi.encode(constructorArgs))
-        // salt: cast create2 --starts-with 00000000 --case-sensitive --deployer CREATE2_FACTORY --init-code-hash init
         fxContractRegistry = FxContractRegistry(_deployCreate2(creationCode, constructorArgs, salt));
 
         // FxRoleRegistry
         creationCode = type(FxRoleRegistry).creationCode;
         constructorArgs = abi.encode(admin);
-        // init: cast keccak256(creationCode, abi.encode(constructorArgs))
-        // salt: cast create2 --starts-with 00000000 --case-sensitive --deployer CREATE2_FACTORY --init-code-hash init
         fxRoleRegistry = FxRoleRegistry(_deployCreate2(creationCode, constructorArgs, salt));
 
         // FxGenArt721
         creationCode = type(FxGenArt721).creationCode;
         constructorArgs = abi.encode(fxContractRegistry, fxRoleRegistry);
-        // init: cast keccak256(creationCode, abi.encode(constructorArgs))
-        // salt: cast create2 --starts-with 00000000 --case-sensitive --deployer CREATE2_FACTORY --init-code-hash init
         fxGenArt721 = FxGenArt721(_deployCreate2(creationCode, constructorArgs, salt));
 
         // FxIssuerFactory
@@ -160,13 +155,11 @@ contract Deploy is Script {
         // FxMintTicket721
         creationCode = type(FxMintTicket721).creationCode;
         constructorArgs = abi.encode(fxContractRegistry, fxRoleRegistry);
-        // init: cast keccak256(creationCode, abi.encode(constructorArgs))
-        // salt: cast create2 --starts-with 00000000 --case-sensitive --deployer CREATE2_FACTORY --init-code-hash init
         fxMintTicket721 = FxMintTicket721(_deployCreate2(creationCode, constructorArgs, salt));
 
         // FxTicketFactory
         creationCode = type(FxTicketFactory).creationCode;
-        constructorArgs = abi.encode(admin, fxMintTicket721, ONE_DAY);
+        constructorArgs = abi.encode(admin, fxMintTicket721, ((block.chainid == MAINNET) ? ONE_DAY : FIVE_MINUTES));
         fxTicketFactory = FxTicketFactory(_deployCreate2(creationCode, constructorArgs, salt));
 
         vm.label(address(fxContractRegistry), "FxContractRegistry");
@@ -208,6 +201,20 @@ contract Deploy is Script {
         vm.label(address(onchfsRenderer), "ONCHFSRenderer");
         vm.label(address(pseudoRandomizer), "PseudoRandomizer");
         vm.label(address(ticketRedeemer), "TicketRedeemer");
+
+        // Log Addresses
+        console.log('project_factory_v1: "%s",', address(fxIssuerFactory));
+        console.log('mint_ticket_factory_v1: "%s",', address(fxTicketFactory));
+        console.log('dutch_auction_minter_v1: "%s",', address(dutchAuction));
+        console.log('fixed_price_minter_v1: "%s",', address(fixedPrice));
+        console.log('ticket_redeemer_v1: "%s",', address(ticketRedeemer));
+        console.log('ipfs_renderer_v1: "%s",', address(ipfsRenderer));
+        console.log('onchfs_renderer_v1: "%s",', address(onchfsRenderer));
+        console.log('randomizer_v1: "%s",', address(pseudoRandomizer));
+        console.log('role_registry_v1: "%s",', address(fxRoleRegistry));
+        console.log('contract_registry_v1: "%s",', address(fxContractRegistry));
+        console.log('gen_art_token_impl_v1: "%s",', address(fxGenArt721));
+        console.log('mint_ticket_impl_v1: "%s"', address(fxMintTicket721));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -219,6 +226,23 @@ contract Deploy is Script {
         fxRoleRegistry.grantRole(MINTER_ROLE, address(dutchAuction));
         fxRoleRegistry.grantRole(MINTER_ROLE, address(fixedPrice));
         fxRoleRegistry.grantRole(MINTER_ROLE, address(ticketRedeemer));
+
+        fxRoleRegistry.grantRole(ADMIN_ROLE, admin);
+        fxRoleRegistry.grantRole(CREATOR_ROLE, admin);
+        fxRoleRegistry.grantRole(MODERATOR_ROLE, admin);
+        fxRoleRegistry.grantRole(SIGNER_ROLE, admin);
+
+        fxRoleRegistry.grantRole(ADMIN_ROLE, FLORIAN);
+        fxRoleRegistry.grantRole(CREATOR_ROLE, FLORIAN);
+        fxRoleRegistry.grantRole(MODERATOR_ROLE, FLORIAN);
+        fxRoleRegistry.grantRole(SIGNER_ROLE, FLORIAN);
+
+        fxRoleRegistry.grantRole(CREATOR_ROLE, IZZA);
+        fxRoleRegistry.grantRole(CREATOR_ROLE, LEO);
+        fxRoleRegistry.grantRole(CREATOR_ROLE, LOUIE);
+        fxRoleRegistry.grantRole(CREATOR_ROLE, MARKUS);
+        fxRoleRegistry.grantRole(CREATOR_ROLE, STEVEN);
+        fxRoleRegistry.grantRole(CREATOR_ROLE, SWA);
     }
 
     function _registerContracts() internal virtual {
@@ -251,6 +275,7 @@ contract Deploy is Script {
         contracts.push(address(ticketRedeemer));
 
         fxContractRegistry.register(names, contracts);
+        fxIssuerFactory.unpause();
     }
 
     /*//////////////////////////////////////////////////////////////////////////
