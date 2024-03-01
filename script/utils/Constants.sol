@@ -11,6 +11,9 @@ uint256 constant SEPOLIA = 11155111;
 bytes32 constant MERKLE_ROOT = bytes32(0);
 address constant MINT_PASS_SIGNER = address(0);
 
+// Base
+address constant FEE_RECEIVER = 0xF70DF285Bc6941b4760BcC041B0cA1cc50E27F8d;
+
 // Metadata
 bytes constant ONCHAIN_DATA = bytes("");
 

@@ -15,6 +15,7 @@ import {FxTicketFactory} from "src/factories/FxTicketFactory.sol";
 
 import {DutchAuction} from "src/minters/DutchAuction.sol";
 import {FixedPrice} from "src/minters/FixedPrice.sol";
+import {FarcasterFrame} from "src/minters/FarcasterFrame.sol";
 import {IPFSRenderer} from "src/renderers/IPFSRenderer.sol";
 import {ONCHFSRenderer} from "src/renderers/ONCHFSRenderer.sol";
 import {PseudoRandomizer} from "src/randomizers/PseudoRandomizer.sol";
@@ -35,6 +36,7 @@ contract Deploy is Script {
     // Periphery
     DutchAuction internal dutchAuction;
     FixedPrice internal fixedPrice;
+    FarcasterFrame internal farcasterFrame;
     IPFSRenderer internal ipfsRenderer;
     ONCHFSRenderer internal onchfsRenderer;
     PseudoRandomizer internal pseudoRandomizer;
@@ -68,7 +70,7 @@ contract Deploy is Script {
     function setUp() public virtual {
         _createAccounts();
         _configureInfo(
-            admin,
+            FEE_RECEIVER,
             PRIMARY_FEE_ALLOCATION,
             SECONDARY_FEE_ALLOCATION,
             LOCK_TIME,
@@ -85,9 +87,10 @@ contract Deploy is Script {
     function run() public virtual {
         _mockSplits();
         vm.startBroadcast();
-        _deployContracts();
-        _registerContracts();
-        _grantRoles();
+        new FarcasterFrame(0xe89fF014800205d53991F83F11465b874436941c);
+        // _deployContracts();
+        // _registerContracts();
+        // _grantRoles();
         vm.stopBroadcast();
     }
 
