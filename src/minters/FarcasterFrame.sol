@@ -20,11 +20,8 @@ contract FarcasterFrame is IFarcasterFrame, EIP712, Ownable, Pausable {
     //////////////////////////////////////////////////////////////////////////*/
 
     bytes32 public constant MINT_TYPEHASH = keccak256("mint(address,address,uint256,bytes)");
-
     address public signer;
-
     mapping(address => ReserveInfo) public reserves;
-
     mapping(uint256 => bool) public hasMinted;
 
     constructor(address _signer) {
@@ -40,12 +37,11 @@ contract FarcasterFrame is IFarcasterFrame, EIP712, Ownable, Pausable {
         // if (hasMinted[fid]) revert AlreadyMinted();
         if (_to == address(0)) revert ZeroAddress();
         ReserveInfo memory reserveInfo = reserves[_token];
-        if (reserveInfo.startTime < block.timestamp || block.timestamp > reserveInfo.endTime) {
+        if (reserveInfo.startTime > block.timestamp || reserveInfo.endTime < block.timestamp) {
             revert InvalidTime();
         }
 
         hasMinted[_fid] = true;
-
         IFxGenArt721(_token).mint(_to, 1, 0);
 
         emit FrameMinted(_token, _to, _fid, _signature);
@@ -74,13 +70,17 @@ contract FarcasterFrame is IFarcasterFrame, EIP712, Ownable, Pausable {
         _unpause();
     }
 
+    /*//////////////////////////////////////////////////////////////////////////
+                                VIEW FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
     function hashTypedData(bytes32 structHash) public view returns (bytes32) {
         return _hashTypedData(structHash);
     }
 
-    function _domainNameAndVersion() internal pure override returns (string memory, string memory) {
-        return ("Farcaster Frame Minter", "1");
-    }
+    /*//////////////////////////////////////////////////////////////////////////
+                                INTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
 
     function _verifySignature(
         address _token,
@@ -90,5 +90,9 @@ contract FarcasterFrame is IFarcasterFrame, EIP712, Ownable, Pausable {
     ) internal view returns (bool) {
         bytes32 digest = _hashTypedData(keccak256(abi.encode(MINT_TYPEHASH, _token, _to, _fid)));
         return SignatureCheckerLib.isValidSignatureNowCalldata(signer, digest, _signature);
+    }
+
+    function _domainNameAndVersion() internal pure override returns (string memory, string memory) {
+        return ("Farcaster Frame Minter", "1");
     }
 }
