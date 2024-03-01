@@ -2,7 +2,7 @@
 pragma solidity 0.8.23;
 
 import {EIP712} from "solady/src/utils/EIP712.sol";
-import {Ownable} from "solady/src/auth/Ownable.sol";
+import {Ownable} from "openzeppelin/contracts/access/Ownable.sol";
 import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {SignatureCheckerLib} from "solady/src/utils/SignatureCheckerLib.sol";
 
