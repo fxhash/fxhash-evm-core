@@ -169,8 +169,8 @@ contract FxMintTicket721 is IFxMintTicket721, IERC4906, IERC5192, ERC721, Initia
             taxInfo.foreclosureTime
         );
 
-        // Updates owner balance with deposit amount owed
-        balances[owner()] += depositOwed;
+        // Updates owner balance with deposit amount owed if any exists
+        if (depositOwed > 0) balances[owner()] += depositOwed;
 
         // Updates token owner balance with returning deposit if any amount exists
         if (depositRemaining > 0) balances[tokenOwner] += depositRemaining;
