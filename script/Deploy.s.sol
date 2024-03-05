@@ -70,7 +70,8 @@ contract Deploy is Script {
     function setUp() public virtual {
         _createAccounts();
         _configureInfo(
-            FEE_RECEIVER,
+            admin,
+            // FEE_RECEIVER,
             PRIMARY_FEE_ALLOCATION,
             SECONDARY_FEE_ALLOCATION,
             LOCK_TIME,
@@ -87,11 +88,11 @@ contract Deploy is Script {
     function run() public virtual {
         _mockSplits();
         vm.startBroadcast();
-        // _deployContracts();
-        // _registerContracts();
-        // _grantRoles();
-        address signer = 0xe89fF014800205d53991F83F11465b874436941c;
-        new FarcasterFrame(signer);
+        _deployContracts();
+        _registerContracts();
+        _grantRoles();
+        // address signer = 0xe89fF014800205d53991F83F11465b874436941c;
+        // new FarcasterFrame(signer);
         vm.stopBroadcast();
     }
 

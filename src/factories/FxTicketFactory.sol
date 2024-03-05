@@ -150,7 +150,7 @@ contract FxTicketFactory is IFxTicketFactory, Ownable {
      * @dev Sets the minimum grace period of time for when token enters harberger taxation
      */
     function _setMinGracePeriod(uint48 _gracePeriod) internal {
-        if (_gracePeriod < ONE_DAY) revert InvalidGracePeriod();
+        // if (_gracePeriod < ONE_DAY) revert InvalidGracePeriod();
         minGracePeriod = _gracePeriod;
         emit GracePeriodUpdated(msg.sender, _gracePeriod);
     }
