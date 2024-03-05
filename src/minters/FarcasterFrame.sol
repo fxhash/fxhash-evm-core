@@ -19,8 +19,9 @@ contract FarcasterFrame is IFarcasterFrame, EIP712, Ownable, Pausable {
                                     STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
-    bytes32 public constant MINT_TYPEHASH = keccak256("mint(address,address,uint256,bytes)");
+    bytes32 public constant MINT_TYPEHASH = keccak256("mint(address token,address to,uint256 fid)");
     address public signer;
+    mapping(address => uint256) public amounts;
     mapping(address => ReserveInfo) public reserves;
     mapping(uint256 => bool) public hasMinted;
 
@@ -42,16 +43,20 @@ contract FarcasterFrame is IFarcasterFrame, EIP712, Ownable, Pausable {
         }
 
         hasMinted[_fid] = true;
-        IFxGenArt721(_token).mint(_to, 1, 0);
+        reserves[_token].allocation--;
+        uint256 amount = amounts[_token];
 
-        emit FrameMinted(_token, _to, _fid, _signature);
+        IFxGenArt721(_token).mint(_to, amount, 0);
+
+        emit FrameMinted(_token, _to, _fid);
     }
 
-    function setMintDetails(ReserveInfo calldata, bytes calldata _mintDetails) external whenNotPaused {
-        ReserveInfo memory reserveInfo = abi.decode(_mintDetails, (ReserveInfo));
-        reserves[msg.sender] = reserveInfo;
+    function setMintDetails(ReserveInfo calldata _reserveInfo, bytes calldata _mintDetails) external whenNotPaused {
+        uint256 amount = abi.decode(_mintDetails, (uint256));
+        amounts[msg.sender] = amount;
+        reserves[msg.sender] = _reserveInfo;
 
-        emit MintDetailsSet(msg.sender, reserveInfo);
+        emit MintDetailsSet(msg.sender, _reserveInfo, amount);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
