@@ -18,6 +18,7 @@ import {FixedPrice} from "src/minters/FixedPrice.sol";
 import {IPFSRenderer} from "src/renderers/IPFSRenderer.sol";
 import {ONCHFSRenderer} from "src/renderers/ONCHFSRenderer.sol";
 import {PseudoRandomizer} from "src/randomizers/PseudoRandomizer.sol";
+import {ScriptyRenderer} from "src/renderers/ScriptyRenderer.sol";
 import {TicketRedeemer} from "src/minters/TicketRedeemer.sol";
 
 import {ConfigInfo} from "src/interfaces/IFxContractRegistry.sol";
@@ -38,11 +39,18 @@ contract Deploy is Script {
     IPFSRenderer internal ipfsRenderer;
     ONCHFSRenderer internal onchfsRenderer;
     PseudoRandomizer internal pseudoRandomizer;
+    ScriptyRenderer internal scriptyRenderer;
     TicketRedeemer internal ticketRedeemer;
 
     // Accounts
     address internal admin;
     address internal creator;
+
+    // External
+    address internal ethFSFileStorage;
+    address internal scriptyBuilderV2;
+    address internal scriptyStorageV2;
+    address internal splitsMain;
 
     // State
     address[] internal contracts;
@@ -67,6 +75,7 @@ contract Deploy is Script {
 
     function setUp() public virtual {
         _createAccounts();
+        _configureScripty();
         _configureInfo(
             admin,
             PRIMARY_FEE_ALLOCATION,
@@ -123,6 +132,18 @@ contract Deploy is Script {
         configInfo.referrerShare = _referrerShare;
         configInfo.defaultMetadataURI = _defaultMetadataURI;
         configInfo.externalURI = _externalURI;
+    }
+
+    function _configureScripty() internal virtual {
+        if (block.chainid == SEPOLIA) {
+            ethFSFileStorage = SEPOLIA_ETHFS_FILE_STORAGE;
+            scriptyBuilderV2 = SEPOLIA_SCRIPTY_BUILDER_V2;
+            scriptyStorageV2 = SEPOLIA_SCRIPTY_STORAGE_V2;
+        } else {
+            ethFSFileStorage = GOERLI_ETHFS_FILE_STORAGE;
+            scriptyBuilderV2 = GOERLI_SCRIPTY_BUILDER_V2;
+            scriptyStorageV2 = GOERLI_SCRIPTY_STORAGE_V2;
+        }
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -183,6 +204,11 @@ contract Deploy is Script {
         constructorArgs = abi.encode(fxContractRegistry);
         onchfsRenderer = ONCHFSRenderer(_deployCreate2(creationCode, constructorArgs, salt));
 
+        // ScriptyRenderer
+        creationCode = type(ScriptyRenderer).creationCode;
+        constructorArgs = abi.encode(fxContractRegistry, ethFSFileStorage, scriptyStorageV2, scriptyBuilderV2);
+        scriptyRenderer = ScriptyRenderer(_deployCreate2(creationCode, constructorArgs, salt));
+
         // DutchAuction
         creationCode = type(DutchAuction).creationCode;
         dutchAuction = DutchAuction(_deployCreate2(creationCode, salt));
@@ -200,6 +226,7 @@ contract Deploy is Script {
         vm.label(address(ipfsRenderer), "IPFSRenderer");
         vm.label(address(onchfsRenderer), "ONCHFSRenderer");
         vm.label(address(pseudoRandomizer), "PseudoRandomizer");
+        vm.label(address(scriptyRenderer), "ScriptyRenderer");
         vm.label(address(ticketRedeemer), "TicketRedeemer");
 
         // Log Addresses
@@ -258,6 +285,7 @@ contract Deploy is Script {
         names.push(IPFS_RENDERER);
         names.push(ONCHFS_RENDERER);
         names.push(PSEUDO_RANDOMIZER);
+        names.push(SCRIPTY_RENDERER);
         names.push(TICKET_REDEEMER);
 
         contracts.push(address(fxContractRegistry));
@@ -272,6 +300,7 @@ contract Deploy is Script {
         contracts.push(address(ipfsRenderer));
         contracts.push(address(onchfsRenderer));
         contracts.push(address(pseudoRandomizer));
+        contracts.push(address(scriptyRenderer));
         contracts.push(address(ticketRedeemer));
 
         fxContractRegistry.register(names, contracts);

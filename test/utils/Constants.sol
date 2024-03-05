@@ -19,6 +19,7 @@ uint256 constant TAG_ID = 1;
 // Metadata
 bytes constant IPFS_BASE_CID = hex"a6ba5489183926f882cc59ef5478ec4aacf9e522fede5c462ed5c359b3159180";
 bytes constant IPFS_BASE_URI = "ipfs://QmZZVBKapDg2wXzwpDxdmL9Ah665h9ZzeJ9gYdbTZ4GBzf";
+bytes constant ONCHAIN_DATA = bytes("");
 bytes32 constant ONCHFS_CID = 0xca7905aba124fa06b37ae8b25517e6fa75a3fc79db19d2c3ff2205161295eec9;
 
 // Project

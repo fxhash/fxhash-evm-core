@@ -19,6 +19,7 @@ string constant FIXED_PRICE = "FIXED_PRICE";
 string constant ONCHFS_RENDERER = "ONCHFS_RENDERER";
 string constant IPFS_RENDERER = "IPFS_RENDERER";
 string constant PSEUDO_RANDOMIZER = "PSEUDO_RANDOMIZER";
+string constant SCRIPTY_RENDERER = "SCRIPTY_RENDERER";
 string constant TICKET_REDEEMER = "TICKET_REDEEMER";
 
 // EIP-712
