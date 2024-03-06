@@ -50,7 +50,7 @@ contract FarcasterFrame is IFarcasterFrame, EIP712, Ownable, Pausable {
         }
 
         hasMinted[_fid] = true;
-        reserves[_token].allocation--;
+        reserves[_token].allocation -= uint128(_amount);
 
         IFxGenArt721(_token).mint(_to, _amount, 0);
 
