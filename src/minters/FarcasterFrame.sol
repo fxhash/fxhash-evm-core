@@ -41,9 +41,9 @@ contract FarcasterFrame is IFarcasterFrame, EIP712, Ownable, Pausable {
         bytes calldata _signature
     ) external whenNotPaused {
         // if (!_verifySignature(_token, _to, _amount, _fid, _signature)) revert InvalidSignature();
-        // if (hasMinted[fid]) revert AlreadyMinted();
         if (_to == address(0)) revert ZeroAddress();
         if (_amount > maxAmounts[_token]) revert InvalidAmount();
+        // if (hasMinted[_fid]) revert AlreadyMinted();
         ReserveInfo memory reserveInfo = reserves[_token];
         if (reserveInfo.startTime > block.timestamp || reserveInfo.endTime < block.timestamp) {
             revert InvalidTime();
@@ -85,8 +85,8 @@ contract FarcasterFrame is IFarcasterFrame, EIP712, Ownable, Pausable {
                                 VIEW FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function hashTypedData(bytes32 structHash) public view returns (bytes32) {
-        return _hashTypedData(structHash);
+    function hashTypedData(bytes32 _structHash) public view returns (bytes32) {
+        return _hashTypedData(_structHash);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

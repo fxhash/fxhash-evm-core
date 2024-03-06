@@ -16,11 +16,16 @@ interface IFarcasterFrame is IMinter {
 
     event FrameMinted(address indexed _token, address indexed _to, uint256 indexed _fid);
 
-    event MintDetailsSet(address indexed token, ReserveInfo _reserve, uint256 _maxAmount);
+    event MintDetailsSet(address indexed _token, ReserveInfo _reserve, uint256 _maxAmount);
 
     /*//////////////////////////////////////////////////////////////////////////
                                   ERRORS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @notice Error thrown fid users has already minted
+     */
+    error AlreadyMinted();
 
     /**
      * @notice Error thrown when amount being minted exceeded max amount allowed
