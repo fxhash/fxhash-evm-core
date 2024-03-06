@@ -16,7 +16,7 @@ interface IFarcasterFrame is IMinter {
 
     event FrameMinted(address indexed _token, address indexed _to, uint256 indexed _fid);
 
-    event MintDetailsSet(address indexed token, ReserveInfo _reserve, uint256 _amount);
+    event MintDetailsSet(address indexed token, ReserveInfo _reserve);
 
     /*//////////////////////////////////////////////////////////////////////////
                                   ERRORS
