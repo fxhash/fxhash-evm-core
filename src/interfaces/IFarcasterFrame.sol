@@ -16,11 +16,16 @@ interface IFarcasterFrame is IMinter {
 
     event FrameMinted(address indexed _token, address indexed _to, uint256 indexed _fid);
 
-    event MintDetailsSet(address indexed token, ReserveInfo _reserve);
+    event MintDetailsSet(address indexed token, ReserveInfo _reserve, uint256 _maxAmount);
 
     /*//////////////////////////////////////////////////////////////////////////
                                   ERRORS
     //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @notice Error thrown when amount being minted exceeded max amount allowed
+     */
+    error InvalidAmount();
 
     /**
      * @notice Error thrown when signature is invalid
@@ -42,6 +47,11 @@ interface IFarcasterFrame is IMinter {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
+     * @notice Mints new tokens to wallet address connected to farcaster ID
+     */
+    function mint(address _token, address _to, uint256 _amount, uint256 _fid, bytes calldata _signature) external;
+
+    /**
      * @notice Pauses all function executions where modifier is applied
      */
     function pause() external;
@@ -50,6 +60,11 @@ interface IFarcasterFrame is IMinter {
      * @inheritdoc IMinter
      */
     function setMintDetails(ReserveInfo calldata _reserveInfo, bytes calldata _mintDetails) external;
+
+    /**
+     * @notice Sets new backend wallet address for signing off on transactions
+     */
+    function setSigner(address _signer) external;
 
     /**
      * @notice Unpauses all function executions where modifier is applied
