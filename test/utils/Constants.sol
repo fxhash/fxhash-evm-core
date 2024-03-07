@@ -8,8 +8,8 @@ uint256 constant INITIAL_BALANCE = 1000 ether;
 uint32 constant PRIMARY_FEE_ALLOCATION = 100_000; // 10 %
 uint32 constant SECONDARY_FEE_ALLOCATION = 250_000; // 25 %
 uint64 constant REFERRER_SHARE = 200; // 2%
-string constant DEFAULT_METADATA_URI = "https://media.fxhash.xyz/metadata/ethereum/";
-string constant EXTERNAL_URI = "https://fxhash.xyz/gentk/";
+string constant DEFAULT_METADATA_URI = "https://media.dev.fxhash-dev.xyz/metadata/ethereum/";
+string constant EXTERNAL_URI = "https://dev.fxhash-dev.xyz/gentk/";
 
 // Initialize
 string constant NAME = "fxhash";

@@ -221,8 +221,8 @@ contract Deploy is Script {
         console.log('role_registry_v1: "%s",', address(fxRoleRegistry));
         console.log('contract_registry_v1: "%s",', address(fxContractRegistry));
         console.log('gen_art_token_impl_v1: "%s",', address(fxGenArt721));
-        console.log('mint_ticket_impl_v1: "%s"', address(fxMintTicket721));
-        console.log('farcaster_frame_minter_v1: "%s",', address(farcasterFrame));
+        console.log('mint_ticket_impl_v1: "%s",', address(fxMintTicket721));
+        console.log('farcaster_frame_minter_v1: "%s"', address(farcasterFrame));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
