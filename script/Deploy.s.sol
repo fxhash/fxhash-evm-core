@@ -70,7 +70,8 @@ contract Deploy is Script {
     function setUp() public virtual {
         _createAccounts();
         _configureInfo(
-            FEE_RECEIVER,
+            admin,
+            // FEE_RECEIVER,
             PRIMARY_FEE_ALLOCATION,
             SECONDARY_FEE_ALLOCATION,
             LOCK_TIME,
