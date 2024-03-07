@@ -14,6 +14,9 @@ address constant MINT_PASS_SIGNER = address(0);
 // Base
 address constant FEE_RECEIVER = 0xF70DF285Bc6941b4760BcC041B0cA1cc50E27F8d;
 
+// Farcaster
+address constant SIGNER = 0xe89fF014800205d53991F83F11465b874436941c;
+
 // Metadata
 bytes constant ONCHAIN_DATA = bytes("");
 
