@@ -5,37 +5,27 @@ import {IMinter} from "src/interfaces/IMinter.sol";
 import {ReserveInfo} from "src/lib/Structs.sol";
 
 /**
- * @title IFarcasterFrame
+ * @title IPayableFrame
  * @author fx(hash)
- * @notice Minter for minting FxGenArt721 tokens with Farcaster Frames
+ * @notice Minter for distributing tokens by fixed price with Farcaster Frames
  */
-interface IFarcasterFrame is IMinter {
+interface IPayableFrame is IMinter {
     /*//////////////////////////////////////////////////////////////////////////
                                   EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    event FrameMinted(address indexed _token, address indexed _to, uint256 indexed _fid);
+    event FrameMinted(address indexed _token, address indexed _to, uint256 indexed _fid, uint256 _amount);
 
-    event MintDetailsSet(address indexed _token, ReserveInfo _reserve, uint256 _maxAmount);
+    event MintDetailsSet(address indexed _token, ReserveInfo _reserve);
 
     /*//////////////////////////////////////////////////////////////////////////
                                   ERRORS
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @notice Error thrown fid users has already minted
-     */
-    error AlreadyMinted();
-
-    /**
      * @notice Error thrown when amount being minted exceeded max amount allowed
      */
     error InvalidAmount();
-
-    /**
-     * @notice Error thrown when signature is invalid
-     */
-    error InvalidSignature();
 
     /**
      * @notice Error thrown reserve time is invalid
@@ -54,7 +44,7 @@ interface IFarcasterFrame is IMinter {
     /**
      * @notice Mints new tokens to wallet address connected to farcaster ID
      */
-    function mint(address _token, address _to, uint256 _amount, uint256 _fid, bytes calldata _signature) external;
+    function mint(address _token, address _to, uint256 _amount, uint256 _fid) external payable;
 
     /**
      * @notice Pauses all function executions where modifier is applied
@@ -65,11 +55,6 @@ interface IFarcasterFrame is IMinter {
      * @inheritdoc IMinter
      */
     function setMintDetails(ReserveInfo calldata _reserveInfo, bytes calldata _mintDetails) external;
-
-    /**
-     * @notice Sets new backend wallet address for signing off on transactions
-     */
-    function setSigner(address _signer) external;
 
     /**
      * @notice Unpauses all function executions where modifier is applied

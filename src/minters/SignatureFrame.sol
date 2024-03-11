@@ -7,14 +7,14 @@ import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {SignatureCheckerLib} from "solady/src/utils/SignatureCheckerLib.sol";
 
 import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
-import {IFarcasterFrame} from "src/interfaces/IFarcasterFrame.sol";
+import {ISignatureFrame} from "src/interfaces/ISignatureFrame.sol";
 
 /**
- * @title FarcasterFrame
+ * @title SignatureFrame
  * @author fx(hash)
- * @dev See the documentation in {IFarcasterFrame}
+ * @dev See the documentation in {ISignatureFrame}
  */
-contract FarcasterFrame is IFarcasterFrame, EIP712, Ownable, Pausable {
+contract SignatureFrame is ISignatureFrame, EIP712, Ownable, Pausable {
     /*//////////////////////////////////////////////////////////////////////////
                                     STORAGE
     //////////////////////////////////////////////////////////////////////////*/
@@ -40,10 +40,10 @@ contract FarcasterFrame is IFarcasterFrame, EIP712, Ownable, Pausable {
         uint256 _fid,
         bytes calldata _signature
     ) external whenNotPaused {
-        // if (!_verifySignature(_token, _to, _amount, _fid, _signature)) revert InvalidSignature();
+        if (!_verifySignature(_token, _to, _amount, _fid, _signature)) revert InvalidSignature();
         if (_to == address(0)) revert ZeroAddress();
         if (_amount > maxAmounts[_token]) revert InvalidAmount();
-        // if (hasMinted[_fid]) revert AlreadyMinted();
+        if (hasMinted[_fid]) revert AlreadyMinted();
         ReserveInfo memory reserveInfo = reserves[_token];
         if (reserveInfo.startTime > block.timestamp || reserveInfo.endTime < block.timestamp) {
             revert InvalidTime();
