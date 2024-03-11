@@ -7,7 +7,7 @@ import {ReserveInfo} from "src/lib/Structs.sol";
 /**
  * @title ISignatureFrame
  * @author fx(hash)
- * @notice Minter for distributing tokens by signature with Farcaster Frames
+ * @notice Minter for distributing tokens by signature through Farcaster Frames
  */
 interface ISignatureFrame is IMinter {
     /*//////////////////////////////////////////////////////////////////////////
@@ -23,7 +23,7 @@ interface ISignatureFrame is IMinter {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @notice Error thrown fid users has already minted
+     * @notice Error thrown when fid user has already minted
      */
     error AlreadyMinted();
 
@@ -38,7 +38,7 @@ interface ISignatureFrame is IMinter {
     error InvalidSignature();
 
     /**
-     * @notice Error thrown reserve time is invalid
+     * @notice Error thrown when current time is outside of reserve time
      */
     error InvalidTime();
 

@@ -21,9 +21,9 @@ contract SignatureFrame is ISignatureFrame, EIP712, Ownable, Pausable {
 
     bytes32 public constant MINT_TYPEHASH = keccak256("mint(address token,address to,uint256 amount,uint256 fid)");
     address public signer;
+    mapping(uint256 => bool) public hasMinted;
     mapping(address => uint256) public maxAmounts;
     mapping(address => ReserveInfo) public reserves;
-    mapping(uint256 => bool) public hasMinted;
 
     constructor(address _signer) {
         signer = _signer;
@@ -105,6 +105,6 @@ contract SignatureFrame is ISignatureFrame, EIP712, Ownable, Pausable {
     }
 
     function _domainNameAndVersion() internal pure override returns (string memory, string memory) {
-        return ("Farcaster Frame Minter", "1");
+        return ("Farcaster Frame Signature Minter", "1");
     }
 }

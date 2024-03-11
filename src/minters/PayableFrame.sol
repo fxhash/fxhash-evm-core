@@ -17,6 +17,7 @@ contract PayableFrame is IPayableFrame, Ownable, Pausable {
                                     STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
+    mapping(address => uint256) public prices;
     mapping(address => ReserveInfo) public reserves;
 
     constructor() {}
@@ -27,6 +28,8 @@ contract PayableFrame is IPayableFrame, Ownable, Pausable {
 
     function mint(address _token, address _to, uint256 _amount, uint256 _fid) external payable whenNotPaused {
         if (_to == address(0)) revert ZeroAddress();
+        uint256 price = prices[_token];
+        if (msg.value != _amount * price) revert InvalidPayment();
         ReserveInfo memory reserveInfo = reserves[_token];
         if (reserveInfo.startTime > block.timestamp || reserveInfo.endTime < block.timestamp) {
             revert InvalidTime();
@@ -34,16 +37,17 @@ contract PayableFrame is IPayableFrame, Ownable, Pausable {
 
         reserves[_token].allocation -= uint128(_amount);
 
-        IFxGenArt721(_token).mint(_to, _amount, 0);
+        IFxGenArt721(_token).mint(_to, _amount, price);
 
         emit FrameMinted(_token, _to, _fid, _amount);
     }
 
     function setMintDetails(ReserveInfo calldata _reserveInfo, bytes calldata _mintDetails) external whenNotPaused {
-        // uint256 maxAmount = abi.decode(_mintDetails, (uint256));
+        uint256 price = abi.decode(_mintDetails, (uint256));
+        prices[msg.sender] = price;
         reserves[msg.sender] = _reserveInfo;
 
-        emit MintDetailsSet(msg.sender, _reserveInfo);
+        emit MintDetailsSet(msg.sender, _reserveInfo, price);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

@@ -7,7 +7,7 @@ import {ReserveInfo} from "src/lib/Structs.sol";
 /**
  * @title IPayableFrame
  * @author fx(hash)
- * @notice Minter for distributing tokens by fixed price with Farcaster Frames
+ * @notice Minter for distributing tokens by fixed price through Farcaster Frames
  */
 interface IPayableFrame is IMinter {
     /*//////////////////////////////////////////////////////////////////////////
@@ -16,19 +16,19 @@ interface IPayableFrame is IMinter {
 
     event FrameMinted(address indexed _token, address indexed _to, uint256 indexed _fid, uint256 _amount);
 
-    event MintDetailsSet(address indexed _token, ReserveInfo _reserve);
+    event MintDetailsSet(address indexed _token, ReserveInfo _reserve, uint256 price);
 
     /*//////////////////////////////////////////////////////////////////////////
                                   ERRORS
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @notice Error thrown when amount being minted exceeded max amount allowed
+     * @notice Error thrown when payment amount is invalid
      */
-    error InvalidAmount();
+    error InvalidPayment();
 
     /**
-     * @notice Error thrown reserve time is invalid
+     * @notice Error thrown when current time is outside of reserve time
      */
     error InvalidTime();
 

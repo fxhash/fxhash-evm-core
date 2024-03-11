@@ -37,7 +37,6 @@ contract Deploy is Script {
     // Periphery
     DutchAuction internal dutchAuction;
     FixedPrice internal fixedPrice;
-
     IPFSRenderer internal ipfsRenderer;
     ONCHFSRenderer internal onchfsRenderer;
     PayableFrame internal payableFrame;
