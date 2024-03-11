@@ -14,7 +14,13 @@ interface IPayableFrame is IMinter {
                                   EVENTS
     //////////////////////////////////////////////////////////////////////////*/
 
-    event FrameMinted(address indexed _token, address indexed _to, uint256 indexed _fid, uint256 _amount);
+    event FrameMinted(
+        address indexed _token,
+        address indexed _to,
+        uint256 indexed _fid,
+        uint256 _amount,
+        uint256 _price
+    );
 
     event MintDetailsSet(address indexed _token, ReserveInfo _reserve, uint256 price);
 

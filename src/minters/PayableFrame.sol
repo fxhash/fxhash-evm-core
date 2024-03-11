@@ -39,7 +39,7 @@ contract PayableFrame is IPayableFrame, Ownable, Pausable {
 
         IFxGenArt721(_token).mint(_to, _amount, price);
 
-        emit FrameMinted(_token, _to, _fid, _amount);
+        emit FrameMinted(_token, _to, _fid, _amount, price);
     }
 
     function setMintDetails(ReserveInfo calldata _reserveInfo, bytes calldata _mintDetails) external whenNotPaused {
