@@ -347,8 +347,4 @@ contract Deploy is Script {
     ) internal pure {
         computeCreate2Address(_salt, hashInitCode(_creationCode, _constructorArgs));
     }
-
-    function _initCode(bytes memory _creationCode, bytes memory _constructorArgs) internal pure returns (bytes memory) {
-        return bytes.concat(_creationCode, _constructorArgs);
-    }
 }
