@@ -11,7 +11,7 @@ import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 import {PayableFrame} from "src/minters/PayableFrame.sol";
 import {SignatureFrame} from "src/minters/SignatureFrame.sol";
 
-contract Deploy is Script {
+contract Farcaster is Script {
     // Core
     FxContractRegistry internal fxContractRegistry;
     FxRoleRegistry internal fxRoleRegistry;
@@ -32,7 +32,6 @@ contract Deploy is Script {
     function run() public virtual {
         vm.startBroadcast();
         _deployContracts();
-        _registerContracts();
         _grantRoles();
         vm.stopBroadcast();
     }
@@ -43,8 +42,8 @@ contract Deploy is Script {
 
     function setUp() public virtual {
         admin = msg.sender;
-        fxContractRegistry = FxContractRegistry(0x1025c33Eb9A3B7e3A2D90f2F1dA120fAA88cF284);
-        fxRoleRegistry = FxRoleRegistry(0x04eE16C868931422231C82025485E0Fe66dE2f55);
+        fxContractRegistry = FxContractRegistry(0x58acdAaab9119e82c179Fa63FB1B4295e2dc127a);
+        fxRoleRegistry = FxRoleRegistry(0xB809Cd1675bb6a200128661C5A8e342a64a01748);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -74,14 +73,6 @@ contract Deploy is Script {
     function _grantRoles() internal virtual {
         fxRoleRegistry.grantRole(MINTER_ROLE, address(payableFrame));
         fxRoleRegistry.grantRole(MINTER_ROLE, address(signatureFrame));
-    }
-
-    function _registerContracts() internal virtual {
-        names.push(PAYABLE_FRAME);
-        names.push(SIGNATURE_FRAME);
-        contracts.push(address(payableFrame));
-        contracts.push(address(signatureFrame));
-        fxContractRegistry.register(names, contracts);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
