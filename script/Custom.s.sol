@@ -9,16 +9,12 @@ import {FixedPriceParams} from "src/minters/FixedPriceParams.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 
 contract Custom is Script {
-    // Core
+    // Contracts
     FxRoleRegistry internal fxRoleRegistry;
-
-    // Periphery
     FixedPriceParams internal fixedPriceParams;
 
     // State
     address internal admin;
-    address[] internal contracts;
-    string[] internal names;
 
     /*//////////////////////////////////////////////////////////////////////////
                                       RUN
@@ -50,8 +46,6 @@ contract Custom is Script {
 
     function _deployContracts() internal virtual {
         bytes32 salt = keccak256(abi.encode(vm.getNonce(admin)));
-
-        // FixedPriceParams
         bytes memory creationCode = type(FixedPriceParams).creationCode;
         fixedPriceParams = FixedPriceParams(_deployCreate2(creationCode, salt));
 
