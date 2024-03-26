@@ -23,8 +23,10 @@ import {IFxGenArt721, GenArtInfo, InitInfo, IssuerInfo, MetadataInfo, MintInfo, 
 import {IFxIssuerFactory} from "src/interfaces/IFxIssuerFactory.sol";
 import {IFxMintTicket721, TaxInfo} from "src/interfaces/IFxMintTicket721.sol";
 import {IFxTicketFactory} from "src/interfaces/IFxTicketFactory.sol";
+import {IPayableFrame} from "src/interfaces/IPayableFrame.sol";
 import {IRoyaltyManager} from "src/interfaces/IRoyaltyManager.sol";
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
+import {ISignatureFrame} from "src/interfaces/ISignatureFrame.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
 import {ITicketRedeemer} from "src/interfaces/ITicketRedeemer.sol";
 

@@ -26,7 +26,7 @@ contract PayableFrame is IPayableFrame, Ownable, Pausable {
                                 EXTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
-    function mint(address _token, address _to, uint256 _amount, uint256 _fid) external payable whenNotPaused {
+    function buy(address _token, address _to, uint256 _amount, uint256 _fid) external payable whenNotPaused {
         if (_to == address(0)) revert ZeroAddress();
         uint256 price = prices[_token];
         if (msg.value != _amount * price) revert InvalidPayment();

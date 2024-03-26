@@ -48,9 +48,9 @@ interface IPayableFrame is IMinter {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @notice Mints new tokens to wallet address connected to farcaster ID
+     * @notice Purchases new tokens to wallet address connected to farcaster ID
      */
-    function mint(address _token, address _to, uint256 _amount, uint256 _fid) external payable;
+    function buy(address _token, address _to, uint256 _amount, uint256 _fid) external payable;
 
     /**
      * @notice Pauses all function executions where modifier is applied
