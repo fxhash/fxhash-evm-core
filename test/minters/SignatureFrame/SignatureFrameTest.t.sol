@@ -26,6 +26,7 @@ contract SignatureFrameTest is BaseTest {
     //////////////////////////////////////////////////////////////////////////*/
 
     function setUp() public virtual override {
+        super.setUp();
         token = new MockToken();
         maxAmount = 1;
         mintDetails = abi.encode(maxAmount);

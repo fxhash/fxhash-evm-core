@@ -4,7 +4,8 @@ pragma solidity 0.8.23;
 import "test/minters/SignatureFrame/SignatureFrameTest.t.sol";
 
 contract SetMintDetails is SignatureFrameTest {
-    function test_SetMintDetails() public {
+    function test_SetMintDetails1() public {
+        vm.prank(address(token));
         signatureFrame.setMintDetails(reserveInfo, mintDetails);
         (startTime, endTime, allocation) = signatureFrame.reserves(address(token));
 
