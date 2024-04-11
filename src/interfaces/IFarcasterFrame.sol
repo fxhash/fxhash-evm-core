@@ -5,11 +5,11 @@ import {IMinter} from "src/interfaces/IMinter.sol";
 import {ReserveInfo} from "src/lib/Structs.sol";
 
 /**
- * @title IFixedPriceFrame
+ * @title IFarcasterFrame
  * @author fx(hash)
  * @notice Minter for distributing tokens at fixed prices with frames
  */
-interface IFixedPriceFrame is IMinter {
+interface IFarcasterFrame is IMinter {
     /*//////////////////////////////////////////////////////////////////////////
                                   EVENTS
     //////////////////////////////////////////////////////////////////////////*/
@@ -113,6 +113,11 @@ interface IFixedPriceFrame is IMinter {
     error InvalidToken();
 
     /**
+     * @notice Error thrown when amount being minted exceeded max amount allowed per Farcaster ID
+     */
+    error MaxAmountPerFidReached();
+
+    /**
      * @notice Error thrown when the auction has not started
      */
     error NotStarted();
@@ -123,14 +128,10 @@ interface IFixedPriceFrame is IMinter {
     error TooMany();
 
     /**
-     * @notice Error thrown when amount being minted exceeded max amount allowed per Farcaster ID
-     */
-    error MaxAmountPerFidReached();
-
-    /**
      * @notice Error thrown when receiver is zero address
      */
     error ZeroAddress();
+
     /*//////////////////////////////////////////////////////////////////////////
                                   FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
@@ -164,6 +165,15 @@ interface IFixedPriceFrame is IMinter {
     function getSaleProceed(address _token) external view returns (uint128);
 
     /**
+     * @notice Mints tokens for free
+     * @param _token Address of the token contract
+     * @param _reserveId ID of the reserve
+     * @param _to Address receiving the purchased tokens
+     * @param _fid Farcaster user ID
+     */
+    function mint(address _token, uint256 _reserveId, address _to, uint256 _fid) external;
+
+    /**
      * @notice Pauses all function executions where modifier is applied
      */
     function pause() external;
@@ -187,6 +197,11 @@ interface IFixedPriceFrame is IMinter {
      * @notice Mapping of token address to reserve ID to reserve information
      */
     function reserves(address, uint256) external view returns (uint64, uint64, uint128);
+
+    /**
+     * @notice Sets the new admin wallet address for minting free tokens
+     */
+    function setAdmin(address _admin) external;
 
     /**
      * @inheritdoc IMinter

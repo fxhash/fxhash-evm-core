@@ -6,28 +6,24 @@ import {Ownable} from "solady/src/auth/Ownable.sol";
 import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
-import {IFixedPriceFrame} from "src/interfaces/IFixedPriceFrame.sol";
+
+import {IFarcasterFrame} from "src/interfaces/IFarcasterFrame.sol";
 import {IToken} from "src/interfaces/IToken.sol";
 import {ReserveInfo} from "src/lib/Structs.sol";
 
 import {OPEN_EDITION_SUPPLY, TIME_UNLIMITED} from "src/utils/Constants.sol";
 
 /**
- * @title FixedPrice
+ * @title FarcasterFrame
  * @author fx(hash)
- * @dev See the documentation in {IFixedPrice}
+ * @dev See the documentation in {IFarcasterFrame}
  */
-contract FixedPriceFrame is IFixedPriceFrame, Ownable, Pausable {
+contract FarcasterFrame is IFarcasterFrame, Ownable, Pausable {
     using SafeCastLib for uint256;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     STORAGE
     //////////////////////////////////////////////////////////////////////////*/
-
-    /**
-     * @dev Address of the authorized minter address (for free frame mints)
-     */
-    address public minter;
 
     /**
      * @dev Mapping of token address to timestamp of latest update made for token reserves
@@ -45,36 +41,37 @@ contract FixedPriceFrame is IFixedPriceFrame, Ownable, Pausable {
     LibMap.Uint128Map internal saleProceeds;
 
     /**
-     * @inheritdoc IFixedPriceFrame
+     * @dev Address of the authorized admin wallet for free mints
+     */
+    address public admin;
+
+    /**
+     * @inheritdoc IFarcasterFrame
      */
     mapping(address => uint256[]) public prices;
 
     /**
-     * @inheritdoc IFixedPriceFrame
+     * @inheritdoc IFarcasterFrame
      */
     mapping(address => ReserveInfo[]) public reserves;
 
     /**
-     * @inheritdoc IFixedPriceFrame
+     * @inheritdoc IFarcasterFrame
      */
     mapping(address => uint256) public maxAmountPerFid;
 
     /**
-     * @inheritdoc IFixedPriceFrame
+     * @inheritdoc IFarcasterFrame
      */
     mapping(uint256 => mapping(address => uint256)) public mintedByFid;
 
     /*//////////////////////////////////////////////////////////////////////////
-                                MODIFIERS
+                                    CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    modifier onlyMinter() {
-        if (msg.sender != minter) revert Unauthorized();
-        _;
-    }
-
-    constructor(address _minter) {
-        minter = _minter;
+    constructor(address _admin) {
+        admin = _admin;
+        _initializeOwner(msg.sender);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -82,18 +79,21 @@ contract FixedPriceFrame is IFixedPriceFrame, Ownable, Pausable {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @inheritdoc IFixedPriceFrame
+     * @inheritdoc IFarcasterFrame
      */
     function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable whenNotPaused {
         _buy(_token, _reserveId, _amount, _to);
     }
 
-    function buyFreeFrame(address _token, address _to, uint256 _reserveId, uint256 _fid)
+    /**
+     * @inheritdoc IFarcasterFrame
+     */
+    function mint(address _token, uint256 _reserveId, address _to, uint256 _fid)
         external
         whenNotPaused
-        onlyMinter
     {
         if (_to == address(0)) revert ZeroAddress();
+        if (msg.sender != admin) revert Unauthorized();
         if (mintedByFid[_fid][_token] == maxAmountPerFid[_token]) revert MaxAmountPerFidReached();
 
         mintedByFid[_fid][_token] += 1;
@@ -102,10 +102,10 @@ contract FixedPriceFrame is IFixedPriceFrame, Ownable, Pausable {
 
         emit FrameMinted(_token, _to, _fid);
     }
-    /**
-     * @inheritdoc IFixedPriceFrame
-     */
 
+    /**
+     * @inheritdoc IFarcasterFrame
+     */
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external whenNotPaused {
         uint256 nextReserve = reserves[msg.sender].length;
         if (_reserve.allocation == 0) revert InvalidAllocation();
@@ -122,7 +122,7 @@ contract FixedPriceFrame is IFixedPriceFrame, Ownable, Pausable {
     }
 
     /**
-     * @inheritdoc IFixedPriceFrame
+     * @inheritdoc IFarcasterFrame
      */
     function withdraw(address _token) external whenNotPaused {
         uint256 proceeds = getSaleProceed(_token);
@@ -141,21 +141,24 @@ contract FixedPriceFrame is IFixedPriceFrame, Ownable, Pausable {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @inheritdoc IFixedPriceFrame
+     * @inheritdoc IFarcasterFrame
      */
     function pause() external onlyOwner {
         _pause();
     }
 
     /**
-     * @inheritdoc IFixedPriceFrame
+     * @inheritdoc IFarcasterFrame
+     */
+    function setAdmin(address _admin) external onlyOwner {
+        admin = _admin;
+    }
+
+    /**
+     * @inheritdoc IFarcasterFrame
      */
     function unpause() external onlyOwner {
         _unpause();
-    }
-
-    function setMinter(address _minter) external onlyOwner {
-        minter = _minter;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -163,21 +166,21 @@ contract FixedPriceFrame is IFixedPriceFrame, Ownable, Pausable {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @inheritdoc IFixedPriceFrame
+     * @inheritdoc IFarcasterFrame
      */
     function getFirstValidReserve(address _token) public view returns (uint256) {
         return LibMap.get(firstValidReserve, uint256(uint160(_token)));
     }
 
     /**
-     * @inheritdoc IFixedPriceFrame
+     * @inheritdoc IFarcasterFrame
      */
     function getLatestUpdate(address _token) public view returns (uint40) {
         return LibMap.get(latestUpdates, uint256(uint160(_token)));
     }
 
     /**
-     * @inheritdoc IFixedPriceFrame
+     * @inheritdoc IFarcasterFrame
      */
     function getSaleProceed(address _token) public view returns (uint128) {
         return LibMap.get(saleProceeds, uint256(uint160(_token)));

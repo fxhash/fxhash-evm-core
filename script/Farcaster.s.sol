@@ -5,9 +5,9 @@ import "forge-std/Script.sol";
 import "script/utils/Constants.sol";
 import "src/utils/Constants.sol";
 
+import {FarcasterFrame} from "src/minters/FarcasterFrame.sol";
 import {FxContractRegistry} from "src/registries/FxContractRegistry.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
-import {FixedPriceFrame} from "src/minters/FixedPriceFrame.sol";
 
 contract Farcaster is Script {
     // Core
@@ -15,8 +15,7 @@ contract Farcaster is Script {
     FxRoleRegistry internal fxRoleRegistry;
 
     // Periphery
-    FixedPriceFrame internal fixedPriceFrame;
-
+    FarcasterFrame internal farcasterFrame;
 
     // State
     address internal admin;
@@ -52,11 +51,11 @@ contract Farcaster is Script {
         bytes32 salt = keccak256(abi.encode(vm.getNonce(admin)));
 
         // SignatureFrame
-        bytes memory creationCode = type(FixedPriceFrame).creationCode;
-        bytes memory constructorArgs = abi.encode(MINTER);
-        fixedPriceFrame = FixedPriceFrame(_deployCreate2(creationCode, constructorArgs, salt));
+        bytes memory creationCode = type(FarcasterFrame).creationCode;
+        bytes memory constructorArgs = abi.encode(ADMIN);
+        farcasterFrame = FarcasterFrame(_deployCreate2(creationCode, constructorArgs, salt));
 
-        vm.label(address(fixedPriceFrame), "FixedPriceFrame");
+        vm.label(address(farcasterFrame), "FarcasterFrame");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -64,7 +63,7 @@ contract Farcaster is Script {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _grantRoles() internal virtual {
-        fxRoleRegistry.grantRole(MINTER_ROLE, address(fixedPriceFrame));
+        fxRoleRegistry.grantRole(MINTER_ROLE, address(farcasterFrame));
     }
 
     /*//////////////////////////////////////////////////////////////////////////

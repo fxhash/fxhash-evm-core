@@ -17,7 +17,7 @@ import {DutchAuction} from "src/minters/DutchAuction.sol";
 import {FixedPrice} from "src/minters/FixedPrice.sol";
 import {IPFSRenderer} from "src/renderers/IPFSRenderer.sol";
 import {ONCHFSRenderer} from "src/renderers/ONCHFSRenderer.sol";
-import {FixedPriceFrame} from "src/minters/FixedPriceFrame.sol";
+import {FarcasterFrame} from "src/minters/FarcasterFrame.sol";
 import {PseudoRandomizer} from "src/randomizers/PseudoRandomizer.sol";
 import {TicketRedeemer} from "src/minters/TicketRedeemer.sol";
 
@@ -38,7 +38,7 @@ contract Deploy is Script {
     FixedPrice internal fixedPrice;
     IPFSRenderer internal ipfsRenderer;
     ONCHFSRenderer internal onchfsRenderer;
-    FixedPriceFrame internal fixedPriceFrame;
+    FarcasterFrame internal farcasterFrame;
     PseudoRandomizer internal pseudoRandomizer;
     TicketRedeemer internal ticketRedeemer;
 
@@ -199,15 +199,15 @@ contract Deploy is Script {
         ticketRedeemer = TicketRedeemer(_deployCreate2(creationCode, salt));
 
         // FixedPriceFrame
-        creationCode = type(FixedPriceFrame).creationCode;
-        constructorArgs = abi.encode(MINTER);
-        fixedPriceFrame = FixedPriceFrame(_deployCreate2(creationCode, constructorArgs, salt));
+        creationCode = type(FarcasterFrame).creationCode;
+        constructorArgs = abi.encode(ADMIN);
+        farcasterFrame = FarcasterFrame(_deployCreate2(creationCode, constructorArgs, salt));
 
         vm.label(address(dutchAuction), "DutchAuction");
         vm.label(address(fixedPrice), "FixedPrice");
         vm.label(address(ipfsRenderer), "IPFSRenderer");
         vm.label(address(onchfsRenderer), "ONCHFSRenderer");
-        vm.label(address(fixedPriceFrame), "FixedPriceFrame");
+        vm.label(address(farcasterFrame), "FarcasterFrame");
         vm.label(address(pseudoRandomizer), "PseudoRandomizer");
         vm.label(address(ticketRedeemer), "TicketRedeemer");
 
@@ -223,7 +223,7 @@ contract Deploy is Script {
         console.log('contract_registry_v1: "%s",', address(fxContractRegistry));
         console.log('gen_art_token_impl_v1: "%s",', address(fxGenArt721));
         console.log('mint_ticket_impl_v1: "%s",', address(fxMintTicket721));
-        console.log('fixed_price_frame_minter_v1: "%s"', address(fixedPriceFrame));
+        console.log('farcaster_frame_minter_v1: "%s"', address(farcasterFrame));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -235,7 +235,7 @@ contract Deploy is Script {
         fxRoleRegistry.grantRole(MINTER_ROLE, address(dutchAuction));
         fxRoleRegistry.grantRole(MINTER_ROLE, address(fixedPrice));
         fxRoleRegistry.grantRole(MINTER_ROLE, address(ticketRedeemer));
-        fxRoleRegistry.grantRole(MINTER_ROLE, address(fixedPriceFrame));
+        fxRoleRegistry.grantRole(MINTER_ROLE, address(farcasterFrame));
 
         fxRoleRegistry.grantRole(ADMIN_ROLE, admin);
         fxRoleRegistry.grantRole(CREATOR_ROLE, admin);
@@ -283,10 +283,10 @@ contract Deploy is Script {
         contracts.push(address(fxTicketFactory));
 
         contracts.push(address(dutchAuction));
+        contracts.push(address(farcasterFrame));
         contracts.push(address(fixedPrice));
         contracts.push(address(ipfsRenderer));
         contracts.push(address(onchfsRenderer));
-        contracts.push(address(fixedPriceFrame));
         contracts.push(address(pseudoRandomizer));
         contracts.push(address(ticketRedeemer));
 
