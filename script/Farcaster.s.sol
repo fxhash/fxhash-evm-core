@@ -7,9 +7,7 @@ import "src/utils/Constants.sol";
 
 import {FxContractRegistry} from "src/registries/FxContractRegistry.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
-
-import {PayableFrame} from "src/minters/PayableFrame.sol";
-import {SignatureFrame} from "src/minters/SignatureFrame.sol";
+import {FixedPriceFrame} from "src/minters/FixedPriceFrame.sol";
 
 contract Farcaster is Script {
     // Core
@@ -17,8 +15,8 @@ contract Farcaster is Script {
     FxRoleRegistry internal fxRoleRegistry;
 
     // Periphery
-    PayableFrame internal payableFrame;
-    SignatureFrame internal signatureFrame;
+    FixedPriceFrame internal fixedPriceFrame;
+
 
     // State
     address internal admin;
@@ -54,16 +52,11 @@ contract Farcaster is Script {
         bytes32 salt = keccak256(abi.encode(vm.getNonce(admin)));
 
         // SignatureFrame
-        bytes memory creationCode = type(SignatureFrame).creationCode;
-        bytes memory constructorArgs = abi.encode(SIGNER);
-        signatureFrame = SignatureFrame(_deployCreate2(creationCode, constructorArgs, salt));
+        bytes memory creationCode = type(FixedPriceFrame).creationCode;
+        bytes memory constructorArgs = abi.encode(MINTER);
+        fixedPriceFrame = FixedPriceFrame(_deployCreate2(creationCode, constructorArgs, salt));
 
-        // PayableFrame
-        creationCode = type(PayableFrame).creationCode;
-        payableFrame = PayableFrame(_deployCreate2(creationCode, salt));
-
-        vm.label(address(payableFrame), "PayableFrame");
-        vm.label(address(signatureFrame), "SignatureFrame");
+        vm.label(address(fixedPriceFrame), "FixedPriceFrame");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -71,8 +64,7 @@ contract Farcaster is Script {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _grantRoles() internal virtual {
-        fxRoleRegistry.grantRole(MINTER_ROLE, address(payableFrame));
-        fxRoleRegistry.grantRole(MINTER_ROLE, address(signatureFrame));
+        fxRoleRegistry.grantRole(MINTER_ROLE, address(fixedPriceFrame));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
