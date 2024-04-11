@@ -88,15 +88,14 @@ contract FarcasterFrame is IFarcasterFrame, Ownable, Pausable {
     /**
      * @inheritdoc IFarcasterFrame
      */
-    function mint(address _token, uint256 _reserveId, address _to, uint256 _fid)
+    function mint(address _token, uint256 _reserveId, uint256 _fid, address _to)
         external
         whenNotPaused
     {
-        if (_to == address(0)) revert ZeroAddress();
         if (msg.sender != admin) revert Unauthorized();
-        if (mintedByFid[_fid][_token] == maxAmountPerFid[_token]) revert MaxAmountPerFidReached();
+        if (mintedByFid[_fid][_token] == maxAmountPerFid[_token]) revert MaxAmountExceeded();
 
-        mintedByFid[_fid][_token] += 1;
+        mintedByFid[_fid][_token]++;
 
         _buy(_token, _reserveId, 1, _to);
 
@@ -108,8 +107,12 @@ contract FarcasterFrame is IFarcasterFrame, Ownable, Pausable {
      */
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external whenNotPaused {
         uint256 nextReserve = reserves[msg.sender].length;
-        if (_reserve.allocation == 0) revert InvalidAllocation();
+        if (getLatestUpdate(msg.sender) != block.timestamp) {
+            _setLatestUpdate(msg.sender, block.timestamp);
+            _setFirstValidReserve(msg.sender, nextReserve);
+        }
 
+        if (_reserve.allocation == 0) revert InvalidAllocation();
         (uint256 price, uint256 maxAmount) = abi.decode(_mintDetails, (uint256, uint256));
 
         prices[msg.sender].push(price);
@@ -118,6 +121,7 @@ contract FarcasterFrame is IFarcasterFrame, Ownable, Pausable {
 
         bool openEdition = _reserve.allocation == OPEN_EDITION_SUPPLY ? true : false;
         bool timeUnlimited = _reserve.endTime == TIME_UNLIMITED ? true : false;
+        
         emit MintDetailsSet(msg.sender, nextReserve, price, _reserve, openEdition, timeUnlimited, maxAmount);
     }
 

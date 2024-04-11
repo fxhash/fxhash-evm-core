@@ -115,7 +115,7 @@ interface IFarcasterFrame is IMinter {
     /**
      * @notice Error thrown when amount being minted exceeded max amount allowed per Farcaster ID
      */
-    error MaxAmountPerFidReached();
+    error MaxAmountExceeded();
 
     /**
      * @notice Error thrown when the auction has not started
@@ -168,10 +168,10 @@ interface IFarcasterFrame is IMinter {
      * @notice Mints tokens for free
      * @param _token Address of the token contract
      * @param _reserveId ID of the reserve
-     * @param _to Address receiving the purchased tokens
      * @param _fid Farcaster user ID
+     * @param _to Address receiving the purchased tokens
      */
-    function mint(address _token, uint256 _reserveId, address _to, uint256 _fid) external;
+    function mint(address _token, uint256 _reserveId, uint256 _fid, address _to) external;
 
     /**
      * @notice Pauses all function executions where modifier is applied
