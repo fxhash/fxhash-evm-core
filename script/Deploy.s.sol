@@ -17,9 +17,8 @@ import {DutchAuction} from "src/minters/DutchAuction.sol";
 import {FixedPrice} from "src/minters/FixedPrice.sol";
 import {IPFSRenderer} from "src/renderers/IPFSRenderer.sol";
 import {ONCHFSRenderer} from "src/renderers/ONCHFSRenderer.sol";
-import {PayableFrame} from "src/minters/PayableFrame.sol";
+import {FixedPriceFrame} from "src/minters/FixedPriceFrame.sol";
 import {PseudoRandomizer} from "src/randomizers/PseudoRandomizer.sol";
-import {SignatureFrame} from "src/minters/SignatureFrame.sol";
 import {TicketRedeemer} from "src/minters/TicketRedeemer.sol";
 
 import {ConfigInfo} from "src/interfaces/IFxContractRegistry.sol";
@@ -39,9 +38,8 @@ contract Deploy is Script {
     FixedPrice internal fixedPrice;
     IPFSRenderer internal ipfsRenderer;
     ONCHFSRenderer internal onchfsRenderer;
-    PayableFrame internal payableFrame;
+    FixedPriceFrame internal fixedPriceFrame;
     PseudoRandomizer internal pseudoRandomizer;
-    SignatureFrame internal signatureFrame;
     TicketRedeemer internal ticketRedeemer;
 
     // Accounts
@@ -200,22 +198,17 @@ contract Deploy is Script {
         creationCode = type(TicketRedeemer).creationCode;
         ticketRedeemer = TicketRedeemer(_deployCreate2(creationCode, salt));
 
-        // SignatureFrame
-        creationCode = type(SignatureFrame).creationCode;
-        constructorArgs = abi.encode(SIGNER);
-        signatureFrame = SignatureFrame(_deployCreate2(creationCode, constructorArgs, salt));
-
-        // PayableFrame
-        creationCode = type(PayableFrame).creationCode;
-        payableFrame = PayableFrame(_deployCreate2(creationCode, salt));
+        // FixedPriceFrame
+        creationCode = type(FixedPriceFrame).creationCode;
+        constructorArgs = abi.encode(MINTER);
+        fixedPriceFrame = FixedPriceFrame(_deployCreate2(creationCode, salt));
 
         vm.label(address(dutchAuction), "DutchAuction");
         vm.label(address(fixedPrice), "FixedPrice");
         vm.label(address(ipfsRenderer), "IPFSRenderer");
         vm.label(address(onchfsRenderer), "ONCHFSRenderer");
-        vm.label(address(payableFrame), "PayableFrame");
+        vm.label(address(fixedPriceFrame), "FixedPriceFrame");
         vm.label(address(pseudoRandomizer), "PseudoRandomizer");
-        vm.label(address(signatureFrame), "SignatureFrame");
         vm.label(address(ticketRedeemer), "TicketRedeemer");
 
         console.log('project_factory_v1: "%s",', address(fxIssuerFactory));
@@ -230,8 +223,7 @@ contract Deploy is Script {
         console.log('contract_registry_v1: "%s",', address(fxContractRegistry));
         console.log('gen_art_token_impl_v1: "%s",', address(fxGenArt721));
         console.log('mint_ticket_impl_v1: "%s",', address(fxMintTicket721));
-        console.log('farcaster_payable_frame_minter_v1: "%s"', address(payableFrame));
-        console.log('farcaster_signature_frame_minter_v1: "%s"', address(signatureFrame));
+        console.log('fixed_price_frame_minter_v1: "%s"', address(fixedPriceFrame));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -243,8 +235,7 @@ contract Deploy is Script {
         fxRoleRegistry.grantRole(MINTER_ROLE, address(dutchAuction));
         fxRoleRegistry.grantRole(MINTER_ROLE, address(fixedPrice));
         fxRoleRegistry.grantRole(MINTER_ROLE, address(ticketRedeemer));
-        fxRoleRegistry.grantRole(MINTER_ROLE, address(payableFrame));
-        fxRoleRegistry.grantRole(MINTER_ROLE, address(signatureFrame));
+        fxRoleRegistry.grantRole(MINTER_ROLE, address(fixedPriceFrame));
 
         fxRoleRegistry.grantRole(ADMIN_ROLE, admin);
         fxRoleRegistry.grantRole(CREATOR_ROLE, admin);
@@ -295,9 +286,8 @@ contract Deploy is Script {
         contracts.push(address(fixedPrice));
         contracts.push(address(ipfsRenderer));
         contracts.push(address(onchfsRenderer));
-        contracts.push(address(payableFrame));
+        contracts.push(address(fixedPriceFrame));
         contracts.push(address(pseudoRandomizer));
-        contracts.push(address(signatureFrame));
         contracts.push(address(ticketRedeemer));
 
         fxContractRegistry.register(names, contracts);
