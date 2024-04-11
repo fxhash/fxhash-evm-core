@@ -1,13 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
 
-import {LibBitmap} from "solady/src/utils/LibBitmap.sol";
 import {LibMap} from "solady/src/utils/LibMap.sol";
 import {Ownable} from "solady/src/auth/Ownable.sol";
 import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
-
 import {IFixedPriceFrame} from "src/interfaces/IFixedPriceFrame.sol";
 import {IToken} from "src/interfaces/IToken.sol";
 import {ReserveInfo} from "src/lib/Structs.sol";
@@ -26,6 +24,9 @@ contract FixedPriceFrame is IFixedPriceFrame, Ownable, Pausable {
                                     STORAGE
     //////////////////////////////////////////////////////////////////////////*/
 
+    /**
+     * @dev Address of the authorized minter address (for free frame mints)
+     */
     address public minter;
 
     /**
@@ -87,7 +88,11 @@ contract FixedPriceFrame is IFixedPriceFrame, Ownable, Pausable {
         _buy(_token, _reserveId, _amount, _to);
     }
 
-    function buyFrame(address _token, address _to, uint256 _reserveId, uint256 _fid) external whenNotPaused onlyMinter {
+    function buyFreeFrame(address _token, address _to, uint256 _reserveId, uint256 _fid)
+        external
+        whenNotPaused
+        onlyMinter
+    {
         if (_to == address(0)) revert ZeroAddress();
         if (mintedByFid[_fid][_token] == maxAmountPerFid[_token]) revert MaxAmountPerFidReached();
 
@@ -104,6 +109,7 @@ contract FixedPriceFrame is IFixedPriceFrame, Ownable, Pausable {
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external whenNotPaused {
         uint256 nextReserve = reserves[msg.sender].length;
         if (_reserve.allocation == 0) revert InvalidAllocation();
+
         (uint256 price, uint256 maxAmount) = abi.decode(_mintDetails, (uint256, uint256));
 
         prices[msg.sender].push(price);

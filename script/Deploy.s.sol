@@ -201,7 +201,7 @@ contract Deploy is Script {
         // FixedPriceFrame
         creationCode = type(FixedPriceFrame).creationCode;
         constructorArgs = abi.encode(MINTER);
-        fixedPriceFrame = FixedPriceFrame(_deployCreate2(creationCode, salt));
+        fixedPriceFrame = FixedPriceFrame(_deployCreate2(creationCode, constructorArgs, salt));
 
         vm.label(address(dutchAuction), "DutchAuction");
         vm.label(address(fixedPrice), "FixedPrice");
@@ -302,14 +302,12 @@ contract Deploy is Script {
         deployedAddr = _deployCreate2(_creationCode, bytes(""), _salt);
     }
 
-    function _deployCreate2(
-        bytes memory _creationCode,
-        bytes memory _constructorArgs,
-        bytes32 _salt
-    ) internal returns (address deployedAddr) {
-        (bool success, bytes memory response) = CREATE2_FACTORY.call(
-            bytes.concat(_salt, _creationCode, _constructorArgs)
-        );
+    function _deployCreate2(bytes memory _creationCode, bytes memory _constructorArgs, bytes32 _salt)
+        internal
+        returns (address deployedAddr)
+    {
+        (bool success, bytes memory response) =
+            CREATE2_FACTORY.call(bytes.concat(_salt, _creationCode, _constructorArgs));
         deployedAddr = address(bytes20(response));
         require(success, "deployment failed");
     }
@@ -330,11 +328,10 @@ contract Deploy is Script {
         return LibClone.predictDeterministicAddress(address(fxMintTicket721), salt, address(fxTicketFactory));
     }
 
-    function _computeCreate2Addr(
-        bytes memory _creationCode,
-        bytes memory _constructorArgs,
-        bytes32 _salt
-    ) internal pure {
+    function _computeCreate2Addr(bytes memory _creationCode, bytes memory _constructorArgs, bytes32 _salt)
+        internal
+        pure
+    {
         computeCreate2Address(_salt, hashInitCode(_creationCode, _constructorArgs));
     }
 }
