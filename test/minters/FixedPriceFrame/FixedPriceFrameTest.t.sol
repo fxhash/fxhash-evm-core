@@ -4,8 +4,9 @@ pragma solidity 0.8.23;
 import "test/BaseTest.t.sol";
 
 import {MockToken} from "test/mocks/MockToken.sol";
+import {IFixedPriceFrame} from "src/interfaces/IFixedPriceFrame.sol";
 
-contract SignatureFrameTest is BaseTest {
+contract FixedPriceFrameTest is BaseTest {
     // State
     MockToken internal token;
     uint64 internal startTime;
@@ -15,11 +16,7 @@ contract SignatureFrameTest is BaseTest {
     bytes internal mintDetails;
 
     // Errors
-    bytes4 internal ALREADY_MINTED_ERROR = ISignatureFrame.AlreadyMinted.selector;
-    bytes4 internal INVALID_AMOUNT_ERROR = ISignatureFrame.InvalidAmount.selector;
-    bytes4 internal INVALID_SIGNATURE_ERROR = ISignatureFrame.InvalidSignature.selector;
-    bytes4 internal INVALID_TIME_ERROR = ISignatureFrame.InvalidTime.selector;
-    bytes4 internal ZERO_ADDRESS_ERROR = ISignatureFrame.ZeroAddress.selector;
+    bytes4 internal ZERO_ADDRESS_ERROR = IFixedPriceFrame.ZeroAddress.selector;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      SETUP
