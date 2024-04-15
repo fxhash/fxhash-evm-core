@@ -5,11 +5,9 @@ import "forge-std/Script.sol";
 import "script/utils/Constants.sol";
 import "src/utils/Constants.sol";
 
+import {FarcasterFrame} from "src/minters/FarcasterFrame.sol";
 import {FxContractRegistry} from "src/registries/FxContractRegistry.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
-
-import {PayableFrame} from "src/minters/PayableFrame.sol";
-import {SignatureFrame} from "src/minters/SignatureFrame.sol";
 
 contract Farcaster is Script {
     // Core
@@ -17,8 +15,7 @@ contract Farcaster is Script {
     FxRoleRegistry internal fxRoleRegistry;
 
     // Periphery
-    PayableFrame internal payableFrame;
-    SignatureFrame internal signatureFrame;
+    FarcasterFrame internal farcasterFrame;
 
     // State
     address internal admin;
@@ -54,16 +51,11 @@ contract Farcaster is Script {
         bytes32 salt = keccak256(abi.encode(vm.getNonce(admin)));
 
         // SignatureFrame
-        bytes memory creationCode = type(SignatureFrame).creationCode;
-        bytes memory constructorArgs = abi.encode(SIGNER);
-        signatureFrame = SignatureFrame(_deployCreate2(creationCode, constructorArgs, salt));
+        bytes memory creationCode = type(FarcasterFrame).creationCode;
+        bytes memory constructorArgs = abi.encode(ADMIN);
+        farcasterFrame = FarcasterFrame(_deployCreate2(creationCode, constructorArgs, salt));
 
-        // PayableFrame
-        creationCode = type(PayableFrame).creationCode;
-        payableFrame = PayableFrame(_deployCreate2(creationCode, salt));
-
-        vm.label(address(payableFrame), "PayableFrame");
-        vm.label(address(signatureFrame), "SignatureFrame");
+        vm.label(address(farcasterFrame), "FarcasterFrame");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -71,8 +63,7 @@ contract Farcaster is Script {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _grantRoles() internal virtual {
-        fxRoleRegistry.grantRole(MINTER_ROLE, address(payableFrame));
-        fxRoleRegistry.grantRole(MINTER_ROLE, address(signatureFrame));
+        fxRoleRegistry.grantRole(MINTER_ROLE, address(farcasterFrame));
     }
 
     /*//////////////////////////////////////////////////////////////////////////

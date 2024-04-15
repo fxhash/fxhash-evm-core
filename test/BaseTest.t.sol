@@ -17,16 +17,15 @@ import {TicketLib} from "test/lib/helpers/TicketLib.sol";
 import {TokenLib} from "test/lib/helpers/TokenLib.sol";
 
 import {IDutchAuction, AuctionInfo} from "src/interfaces/IDutchAuction.sol";
+import {IFarcasterFrame} from "src/interfaces/IFarcasterFrame.sol";
 import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {IFxGenArt721, GenArtInfo, InitInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxIssuerFactory} from "src/interfaces/IFxIssuerFactory.sol";
 import {IFxMintTicket721, TaxInfo} from "src/interfaces/IFxMintTicket721.sol";
 import {IFxTicketFactory} from "src/interfaces/IFxTicketFactory.sol";
-import {IPayableFrame} from "src/interfaces/IPayableFrame.sol";
 import {IRoyaltyManager} from "src/interfaces/IRoyaltyManager.sol";
 import {ISeedConsumer} from "src/interfaces/ISeedConsumer.sol";
-import {ISignatureFrame} from "src/interfaces/ISignatureFrame.sol";
 import {ISplitsMain} from "src/interfaces/ISplitsMain.sol";
 import {ITicketRedeemer} from "src/interfaces/ITicketRedeemer.sol";
 
@@ -158,6 +157,7 @@ contract BaseTest is Deploy, Test {
         vm.deal(bob, INITIAL_BALANCE);
         vm.deal(eve, INITIAL_BALANCE);
         vm.deal(susan, INITIAL_BALANCE);
+        vm.deal(ADMIN, INITIAL_BALANCE);
     }
 
     function _initializeState() internal virtual {
