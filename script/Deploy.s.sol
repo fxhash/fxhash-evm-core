@@ -14,10 +14,10 @@ import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 import {FxTicketFactory} from "src/factories/FxTicketFactory.sol";
 
 import {DutchAuction} from "src/minters/DutchAuction.sol";
+import {FarcasterFrame} from "src/minters/FarcasterFrame.sol";
 import {FixedPrice} from "src/minters/FixedPrice.sol";
 import {IPFSRenderer} from "src/renderers/IPFSRenderer.sol";
 import {ONCHFSRenderer} from "src/renderers/ONCHFSRenderer.sol";
-import {FarcasterFrame} from "src/minters/FarcasterFrame.sol";
 import {PseudoRandomizer} from "src/randomizers/PseudoRandomizer.sol";
 import {TicketRedeemer} from "src/minters/TicketRedeemer.sol";
 
@@ -35,10 +35,10 @@ contract Deploy is Script {
 
     // Periphery
     DutchAuction internal dutchAuction;
+    FarcasterFrame internal farcasterFrame;
     FixedPrice internal fixedPrice;
     IPFSRenderer internal ipfsRenderer;
     ONCHFSRenderer internal onchfsRenderer;
-    FarcasterFrame internal farcasterFrame;
     PseudoRandomizer internal pseudoRandomizer;
     TicketRedeemer internal ticketRedeemer;
 
@@ -267,12 +267,11 @@ contract Deploy is Script {
         names.push(FX_TICKET_FACTORY);
 
         names.push(DUTCH_AUCTION);
+        names.push(FARCASTER_FRAME);
         names.push(FIXED_PRICE);
         names.push(IPFS_RENDERER);
         names.push(ONCHFS_RENDERER);
-        names.push(PAYABLE_FRAME);
         names.push(PSEUDO_RANDOMIZER);
-        names.push(SIGNATURE_FRAME);
         names.push(TICKET_REDEEMER);
 
         contracts.push(address(fxContractRegistry));

@@ -15,12 +15,11 @@ string constant FX_TICKET_FACTORY = "FX_TICKET_FACTORY";
 
 // Periphery
 string constant DUTCH_AUCTION = "DUTCH_AUCTION";
+string constant FARCASTER_FRAME = "FARCASTER_FRAME";
 string constant FIXED_PRICE = "FIXED_PRICE";
-string constant ONCHFS_RENDERER = "ONCHFS_RENDERER";
 string constant IPFS_RENDERER = "IPFS_RENDERER";
-string constant PAYABLE_FRAME = "PAYABLE_FRAME";
+string constant ONCHFS_RENDERER = "ONCHFS_RENDERER";
 string constant PSEUDO_RANDOMIZER = "PSEUDO_RANDOMIZER";
-string constant SIGNATURE_FRAME = "SIGNATURE_FRAME";
 string constant TICKET_REDEEMER = "TICKET_REDEEMER";
 
 // EIP-712
