@@ -41,7 +41,7 @@ contract FarcasterFrame is IFarcasterFrame, Ownable, Pausable {
     LibMap.Uint128Map internal saleProceeds;
 
     /**
-     * @dev Address of the authorized admin wallet for free mints
+     * @inheritdoc IFarcasterFrame
      */
     address public admin;
 
@@ -58,12 +58,12 @@ contract FarcasterFrame is IFarcasterFrame, Ownable, Pausable {
     /**
      * @inheritdoc IFarcasterFrame
      */
-    mapping(address => uint256) public maxAmountPerFid;
+    mapping(address => uint256) public maxAmounts;
 
     /**
      * @inheritdoc IFarcasterFrame
      */
-    mapping(uint256 => mapping(address => uint256)) public mintedByFid;
+    mapping(uint256 => mapping(address => uint256)) public totalMinted;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     CONSTRUCTOR
@@ -82,24 +82,31 @@ contract FarcasterFrame is IFarcasterFrame, Ownable, Pausable {
      * @inheritdoc IFarcasterFrame
      */
     function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable whenNotPaused {
-        _buy(_token, _reserveId, _amount, _to);
+        _verifyTokenReserve(_token, _reserveId);
+        uint256 price = _amount * prices[_token][_reserveId];
+        if (msg.value != price) revert InvalidPayment();
+
+        _setSaleProceeds(_token, getSaleProceeds(_token) + price);
+        
+        _buy(_token, _reserveId, price, _amount, _to);
     }
 
     /**
      * @inheritdoc IFarcasterFrame
      */
-    function mint(address _token, uint256 _reserveId, uint256 _fid, address _to)
+    function mint(address _token, uint256 _reserveId, uint256 _fId, address _to)
         external
         whenNotPaused
     {
+        _verifyTokenReserve(_token, _reserveId);
         if (msg.sender != admin) revert Unauthorized();
-        if (mintedByFid[_fid][_token] == maxAmountPerFid[_token]) revert MaxAmountExceeded();
+        if (totalMinted[_fId][_token] == maxAmounts[_token]) revert MaxAmountExceeded();
 
-        mintedByFid[_fid][_token]++;
+        totalMinted[_fId][_token]++;
+       
+        _buy(_token, _reserveId, 0, 1, _to);
 
-        _buy(_token, _reserveId, 1, _to);
-
-        emit FrameMinted(_token, _to, _fid);
+        emit FrameMinted(_token, _to, _fId);
     }
 
     /**
@@ -117,7 +124,7 @@ contract FarcasterFrame is IFarcasterFrame, Ownable, Pausable {
 
         prices[msg.sender].push(price);
         reserves[msg.sender].push(_reserve);
-        maxAmountPerFid[msg.sender] = maxAmount;
+        maxAmounts[msg.sender] = maxAmount;
 
         bool openEdition = _reserve.allocation == OPEN_EDITION_SUPPLY ? true : false;
         bool timeUnlimited = _reserve.endTime == TIME_UNLIMITED ? true : false;
@@ -129,15 +136,15 @@ contract FarcasterFrame is IFarcasterFrame, Ownable, Pausable {
      * @inheritdoc IFarcasterFrame
      */
     function withdraw(address _token) external whenNotPaused {
-        uint256 proceeds = getSaleProceed(_token);
+        uint256 proceeds = getSaleProceeds(_token);
         if (proceeds == 0) revert InsufficientFunds();
 
-        address saleReceiver = IToken(_token).primaryReceiver();
+        address primaryReceiver = IToken(_token).primaryReceiver();
         _setSaleProceeds(_token, 0);
 
-        SafeTransferLib.safeTransferETH(saleReceiver, proceeds);
+        SafeTransferLib.safeTransferETH(primaryReceiver, proceeds);
 
-        emit Withdrawn(_token, saleReceiver, proceeds);
+        emit Withdrawn(_token, primaryReceiver, proceeds);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -186,7 +193,7 @@ contract FarcasterFrame is IFarcasterFrame, Ownable, Pausable {
     /**
      * @inheritdoc IFarcasterFrame
      */
-    function getSaleProceed(address _token) public view returns (uint128) {
+    function getSaleProceeds(address _token) public view returns (uint128) {
         return LibMap.get(saleProceeds, uint256(uint160(_token)));
     }
 
@@ -195,30 +202,20 @@ contract FarcasterFrame is IFarcasterFrame, Ownable, Pausable {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @dev Purchases arbitrary amount of tokens at auction price and mints tokens to given account
+     * @dev Purchases arbitrary amount of tokens at fixed price and mints tokens to given account
      */
-    function _buy(address _token, uint256 _reserveId, uint256 _amount, address _to) internal {
-        uint256 length = reserves[_token].length;
-        uint256 validReserve = getFirstValidReserve(_token);
-
-        if (length == 0) revert InvalidToken();
-        if (_reserveId >= length || _reserveId < validReserve) revert InvalidReserve();
-
+    function _buy(address _token, uint256 _reserveId, uint256 _price, uint256 _amount, address _to) internal {
         ReserveInfo storage reserve = reserves[_token][_reserveId];
         if (block.timestamp < reserve.startTime) revert NotStarted();
         if (block.timestamp > reserve.endTime) revert Ended();
         if (_amount > reserve.allocation) revert TooMany();
         if (_to == address(0)) revert AddressZero();
 
-        uint256 price = _amount * prices[_token][_reserveId];
-        if (msg.value != price) revert InvalidPayment();
-
         reserve.allocation -= _amount.safeCastTo128();
-        _setSaleProceeds(_token, getSaleProceed(_token) + price);
 
-        IToken(_token).mint(_to, _amount, price);
+        IToken(_token).mint(_to, _amount, _price);
 
-        emit Purchase(_token, _reserveId, msg.sender, _amount, _to, price);
+        emit Purchase(_token, _reserveId, msg.sender, _amount, _to, _price);
     }
 
     /**
@@ -240,5 +237,15 @@ contract FarcasterFrame is IFarcasterFrame, Ownable, Pausable {
      */
     function _setSaleProceeds(address _token, uint256 _amount) internal {
         LibMap.set(saleProceeds, uint256(uint160(_token)), uint128(_amount));
+    }
+
+    /**
+     * @dev Verifies token and reserveId
+     */
+    function _verifyTokenReserve(address _token, uint256 _reserveId) internal view {
+        uint256 length = reserves[_token].length;
+        if (length == 0) revert InvalidToken();
+        uint256 validReserve = getFirstValidReserve(_token);
+        if (_reserveId >= length || _reserveId < validReserve) revert InvalidReserve();
     }
 }

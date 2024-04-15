@@ -7,7 +7,7 @@ import {ReserveInfo} from "src/lib/Structs.sol";
 /**
  * @title IFarcasterFrame
  * @author fx(hash)
- * @notice Minter for distributing tokens at fixed prices with frames
+ * @notice Minter for distributing tokens for free or at fixed prices with Farcaster Frames
  */
 interface IFarcasterFrame is IMinter {
     /*//////////////////////////////////////////////////////////////////////////
@@ -103,11 +103,6 @@ interface IFarcasterFrame is IMinter {
     error InvalidReserve();
 
     /**
-     * @notice Error thrown when reserve start and end times are invalid
-     */
-    error InvalidTimes();
-
-    /**
      * @notice Error thrown when token address is invalid
      */
     error InvalidToken();
@@ -137,6 +132,11 @@ interface IFarcasterFrame is IMinter {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
+     * @notice Address of the authorized admin wallet for minting free tokens
+     */
+    function admin() external view returns (address);
+
+    /**
      * @notice Purchases tokens at a fixed price
      * @param _token Address of the token contract
      * @param _reserveId ID of the reserve
@@ -162,16 +162,21 @@ interface IFarcasterFrame is IMinter {
      * @param _token Address of the token contract
      * @return Amount of proceeds
      */
-    function getSaleProceed(address _token) external view returns (uint128);
+    function getSaleProceeds(address _token) external view returns (uint128);
 
     /**
-     * @notice Mints tokens for free
+     * @notice Mapping of token address to max amount of mintable tokens per Farcaster ID
+     */
+    function maxAmounts(address) external view returns (uint256);
+
+    /**
+     * @notice Mints token for free to given wallet
      * @param _token Address of the token contract
      * @param _reserveId ID of the reserve
-     * @param _fid Farcaster user ID
-     * @param _to Address receiving the purchased tokens
+     * @param _fId Farcaster user ID
+     * @param _to Address receiving the free token
      */
-    function mint(address _token, uint256 _reserveId, uint256 _fid, address _to) external;
+    function mint(address _token, uint256 _reserveId, uint256 _fId, address _to) external;
 
     /**
      * @notice Pauses all function executions where modifier is applied
@@ -182,16 +187,6 @@ interface IFarcasterFrame is IMinter {
      * @notice Mapping of token address to reserve ID to prices
      */
     function prices(address, uint256) external view returns (uint256);
-
-    /**
-     * @notice Mapping of token address to max number of mintable tokens per Farcaster ID
-     */
-    function maxAmountPerFid(address) external view returns (uint256);
-
-    /**
-     * @notice Mapping of Farcaster ID to mapping of token address to minted amount
-     */
-    function mintedByFid(uint256, address) external view returns (uint256);
 
     /**
      * @notice Mapping of token address to reserve ID to reserve information
@@ -208,6 +203,11 @@ interface IFarcasterFrame is IMinter {
      * @dev Mint Details: token price, merkle root, and signer address
      */
     function setMintDetails(ReserveInfo calldata _reserveInfo, bytes calldata _mintDetails) external;
+
+    /**
+     * @notice Mapping of Farcaster ID to mapping of token address to total minted tokens
+     */
+    function totalMinted(uint256, address) external view returns (uint256);
 
     /**
      * @notice Unpauses all function executions where modifier is applied
