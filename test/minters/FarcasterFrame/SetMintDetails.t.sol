@@ -17,6 +17,9 @@ contract SetMintDetails is FarcasterFrameTest {
 
     function test_RevertsWhen_InvalidAllocation() public {
         vm.expectRevert(INVALID_ALLOCATION_ERROR);
-        farcasterFrame.setMintDetails(ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, 0), abi.encode(PRICE, maxAmount));
+        farcasterFrame.setMintDetails(
+            ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, 0),
+            abi.encode(PRICE, maxAmount)
+        );
     }
 }

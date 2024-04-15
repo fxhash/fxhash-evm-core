@@ -87,23 +87,20 @@ contract FarcasterFrame is IFarcasterFrame, Ownable, Pausable {
         if (msg.value != price) revert InvalidPayment();
 
         _setSaleProceeds(_token, getSaleProceeds(_token) + price);
-        
+
         _buy(_token, _reserveId, price, _amount, _to);
     }
 
     /**
      * @inheritdoc IFarcasterFrame
      */
-    function mint(address _token, uint256 _reserveId, uint256 _fId, address _to)
-        external
-        whenNotPaused
-    {
+    function mint(address _token, uint256 _reserveId, uint256 _fId, address _to) external whenNotPaused {
         _verifyTokenReserve(_token, _reserveId);
         if (msg.sender != admin) revert Unauthorized();
         if (totalMinted[_fId][_token] == maxAmounts[_token]) revert MaxAmountExceeded();
 
         totalMinted[_fId][_token]++;
-       
+
         _buy(_token, _reserveId, 0, 1, _to);
 
         emit FrameMinted(_token, _to, _fId);
@@ -128,7 +125,7 @@ contract FarcasterFrame is IFarcasterFrame, Ownable, Pausable {
 
         bool openEdition = _reserve.allocation == OPEN_EDITION_SUPPLY ? true : false;
         bool timeUnlimited = _reserve.endTime == TIME_UNLIMITED ? true : false;
-        
+
         emit MintDetailsSet(msg.sender, nextReserve, price, _reserve, openEdition, timeUnlimited, maxAmount);
     }
 

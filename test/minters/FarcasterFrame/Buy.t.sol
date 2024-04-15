@@ -7,7 +7,7 @@ contract Buy is FarcasterFrameTest {
     function test_Buy() public {
         farcasterFrame.buy{value: price}(fxGenArtProxy, reserveId, quantity, alice);
         (, , uint128 remainingAllocation) = farcasterFrame.reserves(fxGenArtProxy, reserveId);
-        
+
         assertEq(FxGenArt721(fxGenArtProxy).balanceOf(alice), 1);
         assertEq(remainingAllocation, MINTER_ALLOCATION - quantity);
         assertEq(farcasterFrame.getSaleProceeds(fxGenArtProxy), price);
