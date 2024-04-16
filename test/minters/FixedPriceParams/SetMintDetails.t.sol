@@ -31,7 +31,7 @@ contract SetMintDetails is FixedPriceParamsTest {
         fixedPriceParams.setMintDetails(ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, 0), abi.encode(price));
     }
 
-    function test_RevertsWhen_DeregisteredReserve1() public {
+    function test_RevertsWhen_DeregisteredReserve() public {
         fixedPriceParams.setMintDetails(
             ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
             abi.encode(price, merkleRoot, signerAddr)
@@ -50,14 +50,16 @@ contract SetMintDetails is FixedPriceParamsTest {
         );
 
         vm.expectRevert(INVALID_RESERVE_ERROR);
-        fixedPriceParams.buy{value: price}(fxGenArtProxy, 0, address(this), fxParams);
+        fixedPriceParams.buy(address(this), 0, address(this), fxParams);
 
         vm.expectRevert(INVALID_RESERVE_ERROR);
-        fixedPriceParams.buy(fxGenArtProxy, 1, address(this), fxParams);
+        fixedPriceParams.buy(address(this), 1, address(this), fxParams);
 
-        fixedPriceParams.buy(fxGenArtProxy, 2, address(this), fxParams);
+        fixedPriceParams.buy(address(this), 2, address(this), fxParams);
 
         vm.expectRevert(INVALID_RESERVE_ERROR);
-        fixedPriceParams.buy(fxGenArtProxy, 3, address(this), fxParams);
+        fixedPriceParams.buy(address(this), 3, address(this), fxParams);
     }
+
+    function mintParams(address _to, bytes calldata _fxParams) external {}
 }

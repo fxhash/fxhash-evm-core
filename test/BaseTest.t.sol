@@ -97,7 +97,6 @@ contract BaseTest is Deploy, Test {
 
     // Token
     address internal fxGenArtProxy;
-    bytes internal mintParams;
     uint256 internal amount;
     uint256 internal price;
     uint256 internal quantity;

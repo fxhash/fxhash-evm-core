@@ -12,6 +12,7 @@ contract DutchAuctionTest is BaseTest {
     uint248 internal stepLength;
     uint256 internal reserveId;
     uint256[] internal prices;
+    bytes internal mintParams;
 
     // Errors
     bytes4 internal ADDRESS_ZERO_ERROR = IDutchAuction.AddressZero.selector;

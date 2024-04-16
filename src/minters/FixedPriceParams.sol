@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
-import "forge-std/Test.sol";
+
 import {Allowlist} from "src/minters/extensions/Allowlist.sol";
 import {LibBitmap} from "solady/src/utils/LibBitmap.sol";
 import {LibMap} from "solady/src/utils/LibMap.sol";
@@ -139,7 +139,6 @@ contract FixedPriceParams is IFixedPriceParams, Allowlist, MintPass, Ownable, Pa
         uint256 nextReserve = reserves[msg.sender].length;
         if (getLatestUpdate(msg.sender) != block.timestamp) {
             _setLatestUpdate(msg.sender, block.timestamp);
-            console.log("NEXT RESERVE", nextReserve);
             _setFirstValidReserve(msg.sender, nextReserve);
         }
 
@@ -232,8 +231,6 @@ contract FixedPriceParams is IFixedPriceParams, Allowlist, MintPass, Ownable, Pa
         uint256 validReserve = getFirstValidReserve(_token);
 
         if (length == 0) revert InvalidToken();
-        console.log("RESERVE ID", _reserveId);
-        console.log("VALID RESERVE", validReserve);
         if (_reserveId >= length || _reserveId < validReserve) revert InvalidReserve();
 
         ReserveInfo storage reserve = reserves[_token][_reserveId];
