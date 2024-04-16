@@ -43,7 +43,7 @@ contract FarcasterFrame is IFarcasterFrame, Ownable, Pausable {
     /**
      * @inheritdoc IFarcasterFrame
      */
-    address public admin;
+    address public controller;
 
     /**
      * @inheritdoc IFarcasterFrame
@@ -69,9 +69,9 @@ contract FarcasterFrame is IFarcasterFrame, Ownable, Pausable {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(address _admin, address _initialOwner) {
-        admin = _admin;
-        _initializeOwner(_initialOwner);
+    constructor(address _owner, address _controller) {
+        controller = _controller;
+        _initializeOwner(_owner);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -96,7 +96,7 @@ contract FarcasterFrame is IFarcasterFrame, Ownable, Pausable {
      */
     function mint(address _token, uint256 _reserveId, uint256 _fId, address _to) external whenNotPaused {
         _verifyTokenReserve(_token, _reserveId);
-        if (msg.sender != admin) revert Unauthorized();
+        if (msg.sender != controller) revert Unauthorized();
         if (totalMinted[_fId][_token] == maxAmounts[_token]) revert MaxAmountExceeded();
 
         totalMinted[_fId][_token]++;
@@ -158,8 +158,9 @@ contract FarcasterFrame is IFarcasterFrame, Ownable, Pausable {
     /**
      * @inheritdoc IFarcasterFrame
      */
-    function setAdmin(address _admin) external onlyOwner {
-        admin = _admin;
+    function setController(address _controller) external onlyOwner {
+        emit ControllerSet(controller, _controller);
+        controller = _controller;
     }
 
     /**

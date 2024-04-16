@@ -157,7 +157,7 @@ contract BaseTest is Deploy, Test {
         vm.deal(bob, INITIAL_BALANCE);
         vm.deal(eve, INITIAL_BALANCE);
         vm.deal(susan, INITIAL_BALANCE);
-        vm.deal(ADMIN, INITIAL_BALANCE);
+        vm.deal(CONTROLLER, INITIAL_BALANCE);
     }
 
     function _initializeState() internal virtual {

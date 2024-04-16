@@ -15,6 +15,13 @@ interface IFarcasterFrame is IMinter {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
+     * @notice Event emitted a new controller wallet is set
+     * @param _prevController Address of the previous controller
+     * @param _newController Address of the new controller
+     */
+    event ControllerSet(address _prevController, address _newController);
+
+    /**
      * @notice Event emitted when a new frame fixed price mint has been set
      * @param _token Address of the token being minted
      * @param _reserveId ID of the reserve
@@ -132,11 +139,6 @@ interface IFarcasterFrame is IMinter {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @notice Address of the authorized admin wallet for minting free tokens
-     */
-    function admin() external view returns (address);
-
-    /**
      * @notice Purchases tokens at a fixed price
      * @param _token Address of the token contract
      * @param _reserveId ID of the reserve
@@ -144,6 +146,11 @@ interface IFarcasterFrame is IMinter {
      * @param _to Address receiving the purchased tokens
      */
     function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable;
+
+    /**
+     * @notice Address of the authorized wallet for minting free tokens
+     */
+    function controller() external view returns (address);
 
     /**
      * @notice Returns the earliest valid reserveId that can mint a token
@@ -194,9 +201,9 @@ interface IFarcasterFrame is IMinter {
     function reserves(address, uint256) external view returns (uint64, uint64, uint128);
 
     /**
-     * @notice Sets the new admin wallet address for minting free tokens
+     * @notice Sets the new controller wallet address for minting free tokens
      */
-    function setAdmin(address _admin) external;
+    function setController(address _controller) external;
 
     /**
      * @inheritdoc IMinter
