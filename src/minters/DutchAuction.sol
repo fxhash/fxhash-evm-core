@@ -78,8 +78,8 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
                                 CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor() {
-        _initializeOwner(msg.sender);
+    constructor(address _initialOwner) {
+        _initializeOwner(_initialOwner);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
