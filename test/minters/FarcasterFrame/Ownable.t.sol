@@ -9,7 +9,6 @@ contract Ownable is FarcasterFrameTest {
     function setUp() public override {
         super.setUp();
         newController = address(20);
-        
     }
 
     function test_Pause() public {
