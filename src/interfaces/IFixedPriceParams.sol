@@ -146,17 +146,10 @@ interface IFixedPriceParams is IMinter {
      * @notice Purchases tokens at a fixed price
      * @param _token Address of the token contract
      * @param _reserveId ID of the reserve
-     * @param _amount Amount of tokens being purchased
      * @param _to Address receiving the purchased tokens
      * @param _fxParams Random sequence of fixed-length bytes used as input
      */
-    function buy(
-        address _token,
-        uint256 _reserveId,
-        uint256 _amount,
-        address _to,
-        bytes calldata _fxParams
-    ) external payable;
+    function buy(address _token, uint256 _reserveId, address _to, bytes calldata _fxParams) external payable;
 
     /**
      * @notice Purchases tokens through an allowlist at a fixed price
@@ -180,7 +173,6 @@ interface IFixedPriceParams is IMinter {
      * @notice Purchases tokens through a mint pass at a fixed price
      * @param _token Address of the token being purchased
      * @param _reserveId ID of the reserve
-     * @param _amount Number of tokens being purchased
      * @param _to Address receiving the purchased tokens
      * @param _index Index of puchase info inside the BitMap
      * @param _signature Array of merkle proofs used for verifying the purchase
@@ -189,7 +181,6 @@ interface IFixedPriceParams is IMinter {
     function buyMintPass(
         address _token,
         uint256 _reserveId,
-        uint256 _amount,
         address _to,
         uint256 _index,
         bytes calldata _signature,

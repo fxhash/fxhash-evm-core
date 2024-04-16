@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
-
+import "forge-std/Test.sol";
 import {Allowlist} from "src/minters/extensions/Allowlist.sol";
 import {LibBitmap} from "solady/src/utils/LibBitmap.sol";
 import {LibMap} from "solady/src/utils/LibMap.sol";
@@ -69,6 +69,14 @@ contract FixedPriceParams is IFixedPriceParams, Allowlist, MintPass, Ownable, Pa
     mapping(address => ReserveInfo[]) public reserves;
 
     /*//////////////////////////////////////////////////////////////////////////
+                                CONSTRUCTOR
+    //////////////////////////////////////////////////////////////////////////*/
+
+    constructor(address _owner) {
+        _initializeOwner(_owner);
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                                 EXTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -78,7 +86,6 @@ contract FixedPriceParams is IFixedPriceParams, Allowlist, MintPass, Ownable, Pa
     function buy(
         address _token,
         uint256 _reserveId,
-        uint256 _amount,
         address _to,
         bytes calldata _fxParams
     ) external payable whenNotPaused {
@@ -86,7 +93,7 @@ contract FixedPriceParams is IFixedPriceParams, Allowlist, MintPass, Ownable, Pa
         address signer = signingAuthorities[_token][_reserveId];
         if (merkleRoot != bytes32(0)) revert NoPublicMint();
         if (signer != address(0)) revert AddressZero();
-        _buy(_token, _reserveId, _amount, _to, _fxParams);
+        _buy(_token, _reserveId, _to, _fxParams);
     }
 
     /**
@@ -103,12 +110,8 @@ contract FixedPriceParams is IFixedPriceParams, Allowlist, MintPass, Ownable, Pa
         bytes32 merkleRoot = _getMerkleRoot(_token, _reserveId);
         if (merkleRoot == bytes32(0)) revert NoAllowlist();
         LibBitmap.Bitmap storage claimBitmap = claimedMerkleTreeSlots[_token][_reserveId];
-        uint256 amount = _proofs.length;
-        for (uint256 i; i < amount; ++i) {
-            _claimSlot(_token, _reserveId, _indexes[i], _to, _proofs[i], claimBitmap);
-        }
-
-        _buy(_token, _reserveId, amount, _to, _fxParams);
+        _claimSlot(_token, _reserveId, _indexes[0], _to, _proofs[0], claimBitmap);
+        _buy(_token, _reserveId, _to, _fxParams);
     }
 
     /**
@@ -117,7 +120,6 @@ contract FixedPriceParams is IFixedPriceParams, Allowlist, MintPass, Ownable, Pa
     function buyMintPass(
         address _token,
         uint256 _reserveId,
-        uint256 _amount,
         address _to,
         uint256 _index,
         bytes calldata _signature,
@@ -127,7 +129,7 @@ contract FixedPriceParams is IFixedPriceParams, Allowlist, MintPass, Ownable, Pa
         if (signer == address(0)) revert NoSigningAuthority();
         LibBitmap.Bitmap storage claimBitmap = claimedMintPasses[_token][_reserveId];
         _claimMintPass(_token, _reserveId, _index, _to, _signature, claimBitmap);
-        _buy(_token, _reserveId, _amount, _to, _fxParams);
+        _buy(_token, _reserveId, _to, _fxParams);
     }
 
     /**
@@ -137,6 +139,7 @@ contract FixedPriceParams is IFixedPriceParams, Allowlist, MintPass, Ownable, Pa
         uint256 nextReserve = reserves[msg.sender].length;
         if (getLatestUpdate(msg.sender) != block.timestamp) {
             _setLatestUpdate(msg.sender, block.timestamp);
+            console.log("NEXT RESERVE", nextReserve);
             _setFirstValidReserve(msg.sender, nextReserve);
         }
 
@@ -224,28 +227,30 @@ contract FixedPriceParams is IFixedPriceParams, Allowlist, MintPass, Ownable, Pa
     /**
      * @dev Purchases arbitrary amount of tokens at auction price and mints tokens to given account
      */
-    function _buy(address _token, uint256 _reserveId, uint256 _amount, address _to, bytes calldata _fxParams) internal {
+    function _buy(address _token, uint256 _reserveId, address _to, bytes calldata _fxParams) internal {
         uint256 length = reserves[_token].length;
         uint256 validReserve = getFirstValidReserve(_token);
 
         if (length == 0) revert InvalidToken();
+        console.log("RESERVE ID", _reserveId);
+        console.log("VALID RESERVE", validReserve);
         if (_reserveId >= length || _reserveId < validReserve) revert InvalidReserve();
 
         ReserveInfo storage reserve = reserves[_token][_reserveId];
         if (block.timestamp < reserve.startTime) revert NotStarted();
         if (block.timestamp > reserve.endTime) revert Ended();
-        if (_amount > reserve.allocation) revert TooMany();
+        if (reserve.allocation == 0) revert TooMany();
         if (_to == address(0)) revert AddressZero();
 
-        uint256 price = _amount * prices[_token][_reserveId];
+        uint256 price = prices[_token][_reserveId];
         if (msg.value != price) revert InvalidPayment();
 
-        reserve.allocation -= _amount.safeCastTo128();
+        reserve.allocation--;
         _setSaleProceeds(_token, getSaleProceed(_token) + price);
 
         IFxGenArt721(_token).mintParams(_to, _fxParams);
 
-        emit Purchase(_token, _reserveId, msg.sender, _amount, _to, price, _fxParams);
+        emit Purchase(_token, _reserveId, msg.sender, 1, _to, price, _fxParams);
     }
 
     /**

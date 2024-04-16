@@ -3,7 +3,7 @@ pragma solidity 0.8.23;
 
 import "test/minters/FixedPrice/FixedPriceTest.t.sol";
 
-contract BuyTokens is FixedPriceTest {
+contract Buy is FixedPriceTest {
     function test_Buy() public {
         fixedPrice.buy{value: price}(fxGenArtProxy, mintId, quantity, alice);
         assertEq(FxGenArt721(fxGenArtProxy).balanceOf(alice), 1);

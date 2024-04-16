@@ -72,8 +72,8 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
                                 CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(address _initialOwner) {
-        _initializeOwner(_initialOwner);
+    constructor(address _owner) {
+        _initializeOwner(_owner);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
