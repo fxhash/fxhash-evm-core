@@ -26,7 +26,7 @@ contract TicketRedeemerTest is BaseTest {
         tokenId = 1;
         token = new MockToken();
         ticket = new MockTicket();
-        ticketRedeemer = new TicketRedeemer();
+        ticketRedeemer = new TicketRedeemer(admin);
         mintDetails = abi.encode(address(ticket));
     }
 }
