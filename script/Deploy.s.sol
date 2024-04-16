@@ -203,7 +203,7 @@ contract Deploy is Script {
 
         // FixedPriceFrame
         creationCode = type(FarcasterFrame).creationCode;
-        constructorArgs = abi.encode(ADMIN);
+        constructorArgs = abi.encode(ADMIN, admin);
         farcasterFrame = FarcasterFrame(_deployCreate2(creationCode, constructorArgs, salt));
 
         vm.label(address(dutchAuction), "DutchAuction");

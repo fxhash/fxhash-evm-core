@@ -69,9 +69,9 @@ contract FarcasterFrame is IFarcasterFrame, Ownable, Pausable {
                                     CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(address _admin) {
+    constructor(address _admin, address _initialOwner) {
         admin = _admin;
-        _initializeOwner(msg.sender);
+        _initializeOwner(_initialOwner);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
