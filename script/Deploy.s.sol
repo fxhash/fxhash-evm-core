@@ -185,15 +185,18 @@ contract Deploy is Script {
 
         // DutchAuction
         creationCode = type(DutchAuction).creationCode;
-        dutchAuction = DutchAuction(_deployCreate2(creationCode, salt));
+        constructorArgs = abi.encode(admin);
+        dutchAuction = DutchAuction(_deployCreate2(creationCode, constructorArgs, salt));
 
         // FixedPrice
         creationCode = type(FixedPrice).creationCode;
-        fixedPrice = FixedPrice(_deployCreate2(creationCode, salt));
+        constructorArgs = abi.encode(admin);
+        fixedPrice = FixedPrice(_deployCreate2(creationCode, constructorArgs, salt));
 
         // TicketRedeemer
         creationCode = type(TicketRedeemer).creationCode;
-        ticketRedeemer = TicketRedeemer(_deployCreate2(creationCode, salt));
+        constructorArgs = abi.encode(admin);
+        ticketRedeemer = TicketRedeemer(_deployCreate2(creationCode, constructorArgs, salt));
 
         vm.label(address(dutchAuction), "DutchAuction");
         vm.label(address(fixedPrice), "FixedPrice");
