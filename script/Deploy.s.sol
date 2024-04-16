@@ -14,6 +14,7 @@ import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 import {FxTicketFactory} from "src/factories/FxTicketFactory.sol";
 
 import {DutchAuction} from "src/minters/DutchAuction.sol";
+import {FarcasterFrame} from "src/minters/FarcasterFrame.sol";
 import {FixedPrice} from "src/minters/FixedPrice.sol";
 import {FixedPriceParams} from "src/minters/FixedPriceParams.sol";
 import {IPFSRenderer} from "src/renderers/IPFSRenderer.sol";
@@ -35,6 +36,7 @@ contract Deploy is Script {
 
     // Periphery
     DutchAuction internal dutchAuction;
+    FarcasterFrame internal farcasterFrame;
     FixedPrice internal fixedPrice;
     FixedPriceParams internal fixedPriceParams;
     IPFSRenderer internal ipfsRenderer;
@@ -71,6 +73,7 @@ contract Deploy is Script {
         _createAccounts();
         _configureInfo(
             admin,
+            // FEE_RECEIVER,
             PRIMARY_FEE_ALLOCATION,
             SECONDARY_FEE_ALLOCATION,
             LOCK_TIME,
@@ -205,15 +208,20 @@ contract Deploy is Script {
         constructorArgs = abi.encode(admin);
         ticketRedeemer = TicketRedeemer(_deployCreate2(creationCode, constructorArgs, salt));
 
+        // FixedPriceFrame
+        creationCode = type(FarcasterFrame).creationCode;
+        constructorArgs = abi.encode(admin, CONTROLLER);
+        farcasterFrame = FarcasterFrame(_deployCreate2(creationCode, constructorArgs, salt));
+
         vm.label(address(dutchAuction), "DutchAuction");
         vm.label(address(fixedPrice), "FixedPrice");
         vm.label(address(fixedPrice), "FixedPriceParams");
         vm.label(address(ipfsRenderer), "IPFSRenderer");
         vm.label(address(onchfsRenderer), "ONCHFSRenderer");
+        vm.label(address(farcasterFrame), "FarcasterFrame");
         vm.label(address(pseudoRandomizer), "PseudoRandomizer");
         vm.label(address(ticketRedeemer), "TicketRedeemer");
 
-        // Log Addresses
         console.log('project_factory_v1: "%s",', address(fxIssuerFactory));
         console.log('mint_ticket_factory_v1: "%s",', address(fxTicketFactory));
         console.log('dutch_auction_minter_v1: "%s",', address(dutchAuction));
@@ -226,7 +234,8 @@ contract Deploy is Script {
         console.log('role_registry_v1: "%s",', address(fxRoleRegistry));
         console.log('contract_registry_v1: "%s",', address(fxContractRegistry));
         console.log('gen_art_token_impl_v1: "%s",', address(fxGenArt721));
-        console.log('mint_ticket_impl_v1: "%s"', address(fxMintTicket721));
+        console.log('mint_ticket_impl_v1: "%s",', address(fxMintTicket721));
+        console.log('farcaster_frame_minter_v1: "%s"', address(farcasterFrame));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -238,6 +247,7 @@ contract Deploy is Script {
         fxRoleRegistry.grantRole(MINTER_ROLE, address(dutchAuction));
         fxRoleRegistry.grantRole(MINTER_ROLE, address(fixedPrice));
         fxRoleRegistry.grantRole(MINTER_ROLE, address(ticketRedeemer));
+        fxRoleRegistry.grantRole(MINTER_ROLE, address(farcasterFrame));
 
         fxRoleRegistry.grantRole(ADMIN_ROLE, admin);
         fxRoleRegistry.grantRole(CREATOR_ROLE, admin);
@@ -249,12 +259,15 @@ contract Deploy is Script {
         fxRoleRegistry.grantRole(MODERATOR_ROLE, FLORIAN);
         fxRoleRegistry.grantRole(SIGNER_ROLE, FLORIAN);
 
+        fxRoleRegistry.grantRole(ADMIN_ROLE, STEVEN);
+        fxRoleRegistry.grantRole(CREATOR_ROLE, STEVEN);
+        fxRoleRegistry.grantRole(MODERATOR_ROLE, STEVEN);
+        fxRoleRegistry.grantRole(SIGNER_ROLE, STEVEN);
+
         fxRoleRegistry.grantRole(CREATOR_ROLE, IZZA);
         fxRoleRegistry.grantRole(CREATOR_ROLE, LEO);
         fxRoleRegistry.grantRole(CREATOR_ROLE, LOUIE);
         fxRoleRegistry.grantRole(CREATOR_ROLE, MARKUS);
-        fxRoleRegistry.grantRole(CREATOR_ROLE, STEVEN);
-        fxRoleRegistry.grantRole(CREATOR_ROLE, SWA);
     }
 
     function _registerContracts() internal virtual {
@@ -266,6 +279,7 @@ contract Deploy is Script {
         names.push(FX_TICKET_FACTORY);
 
         names.push(DUTCH_AUCTION);
+        names.push(FARCASTER_FRAME);
         names.push(FIXED_PRICE);
         names.push(FIXED_PRICE_PARAMS);
         names.push(IPFS_RENDERER);
@@ -281,6 +295,7 @@ contract Deploy is Script {
         contracts.push(address(fxTicketFactory));
 
         contracts.push(address(dutchAuction));
+        contracts.push(address(farcasterFrame));
         contracts.push(address(fixedPrice));
         contracts.push(address(fixedPriceParams));
         contracts.push(address(ipfsRenderer));
@@ -334,9 +349,5 @@ contract Deploy is Script {
         bytes32 _salt
     ) internal pure {
         computeCreate2Address(_salt, hashInitCode(_creationCode, _constructorArgs));
-    }
-
-    function _initCode(bytes memory _creationCode, bytes memory _constructorArgs) internal pure returns (bytes memory) {
-        return bytes.concat(_creationCode, _constructorArgs);
     }
 }

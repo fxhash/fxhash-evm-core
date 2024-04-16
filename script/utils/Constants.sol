@@ -12,6 +12,12 @@ uint256 constant BASE_SEPOLIA = 84532;
 bytes32 constant MERKLE_ROOT = bytes32(0);
 address constant MINT_PASS_SIGNER = address(0);
 
+// Base
+address constant FEE_RECEIVER = 0xF70DF285Bc6941b4760BcC041B0cA1cc50E27F8d;
+
+// Farcaster
+address constant CONTROLLER = 0xc31ac879ed0fAB559F1b3f86bbA2C006aB0d7dD7;
+
 // Metadata
 bytes constant ONCHAIN_DATA = bytes("");
 

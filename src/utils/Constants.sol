@@ -15,10 +15,11 @@ string constant FX_TICKET_FACTORY = "FX_TICKET_FACTORY";
 
 // Periphery
 string constant DUTCH_AUCTION = "DUTCH_AUCTION";
+string constant FARCASTER_FRAME = "FARCASTER_FRAME";
 string constant FIXED_PRICE = "FIXED_PRICE";
 string constant FIXED_PRICE_PARAMS = "FIXED_PRICE_PARAMS";
-string constant ONCHFS_RENDERER = "ONCHFS_RENDERER";
 string constant IPFS_RENDERER = "IPFS_RENDERER";
+string constant ONCHFS_RENDERER = "ONCHFS_RENDERER";
 string constant PSEUDO_RANDOMIZER = "PSEUDO_RANDOMIZER";
 string constant TICKET_REDEEMER = "TICKET_REDEEMER";
 
@@ -56,7 +57,7 @@ uint8 constant TRUE = 2;
 uint32 constant LOCK_TIME = 3600; // 1 hour
 uint64 constant TIME_UNLIMITED = type(uint64).max;
 uint120 constant OPEN_EDITION_SUPPLY = type(uint120).max;
-uint256 constant LAUNCH_TIMESTAMP = 1702558800; // 12/14/23 14:00 CET
+uint256 constant LAUNCH_TIMESTAMP = 1709226000; // 2/29/24 15:00 GMT
 
 // Roles
 bytes32 constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
