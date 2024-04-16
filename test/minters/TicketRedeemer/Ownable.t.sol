@@ -3,41 +3,32 @@ pragma solidity 0.8.23;
 
 import "test/minters/TicketRedeemer/TicketRedeemerTest.t.sol";
 
-contract TicketRedeemerOwnerTest is TicketRedeemerTest {
-    function setUp() public override {
-        super.setUp();
-        vm.startPrank(admin);
-    }
-
-    function test_pause() public {
+contract Ownable is TicketRedeemerTest {
+    function test_Pause() public {
+        vm.prank(admin);
         ticketRedeemer.pause();
-
         assertTrue(ticketRedeemer.paused());
     }
 
-    function test_RevertsWhen_NotOwner_pause() public {
-        vm.stopPrank();
+    function test_RevertsWhen_NotOwner_Pause() public {
         vm.expectRevert();
         ticketRedeemer.pause();
-
-        assertTrue(!ticketRedeemer.paused());
+        assertFalse(ticketRedeemer.paused());
     }
 
-    function test_unpause() public {
+    function test_Unpause() public {
+        vm.startPrank(admin);
         ticketRedeemer.pause();
-
         ticketRedeemer.unpause();
-
-        assertTrue(!ticketRedeemer.paused());
+        vm.stopPrank();
+        assertFalse(ticketRedeemer.paused());
     }
 
-    function test_RevertsWhen_NotOwner_unpause() public {
+    function test_RevertsWhen_NotOwner_Unpause() public {
+        vm.prank(admin);
         ticketRedeemer.pause();
-
-        vm.stopPrank();
         vm.expectRevert();
         ticketRedeemer.unpause();
-
         assertTrue(ticketRedeemer.paused());
     }
 }
