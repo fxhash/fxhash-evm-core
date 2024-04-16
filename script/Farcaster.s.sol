@@ -6,12 +6,10 @@ import "script/utils/Constants.sol";
 import "src/utils/Constants.sol";
 
 import {FarcasterFrame} from "src/minters/FarcasterFrame.sol";
-import {FxContractRegistry} from "src/registries/FxContractRegistry.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 
 contract Farcaster is Script {
     // Core
-    FxContractRegistry internal fxContractRegistry;
     FxRoleRegistry internal fxRoleRegistry;
 
     // Periphery
@@ -19,8 +17,6 @@ contract Farcaster is Script {
 
     // State
     address internal admin;
-    address[] internal contracts;
-    string[] internal names;
 
     /*//////////////////////////////////////////////////////////////////////////
                                       RUN
@@ -39,8 +35,7 @@ contract Farcaster is Script {
 
     function setUp() public virtual {
         admin = msg.sender;
-        fxContractRegistry = FxContractRegistry(0x58acdAaab9119e82c179Fa63FB1B4295e2dc127a);
-        fxRoleRegistry = FxRoleRegistry(0xB809Cd1675bb6a200128661C5A8e342a64a01748);
+        fxRoleRegistry = FxRoleRegistry(0x04eE16C868931422231C82025485E0Fe66dE2f55);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
