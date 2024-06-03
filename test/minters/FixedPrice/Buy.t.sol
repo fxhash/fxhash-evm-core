@@ -15,7 +15,7 @@ contract Buy is FixedPriceTest {
         fixedPrice.buy{value: (price * (MINTER_ALLOCATION + 1))}(fxGenArtProxy, mintId, quantity, alice);
     }
 
-    function test_RevertsWhen_InvalidPayent() public {
+    function test_RevertsWhen_InvalidPayment() public {
         vm.expectRevert(INVALID_PAYMENT_ERROR);
         fixedPrice.buy{value: price - 1}(fxGenArtProxy, mintId, quantity, alice);
     }
