@@ -29,28 +29,63 @@ contract BuyAllowlist is FixedPriceParamsTest, StandardMerkleTree {
 
     function test_BuyAllowlist() public {
         vm.prank(alice);
-        fixedPriceParams.buyAllowlist{value: quantity * price}(fxGenArtProxy, mintId, alice, claimIndexes, aliceProofs, fxParams);
+        fixedPriceParams.buyAllowlist{value: quantity * price}(
+            fxGenArtProxy,
+            mintId,
+            alice,
+            claimIndexes,
+            aliceProofs,
+            fxParams
+        );
     }
 
     function test_RevertsWhen_NotClaimer_BuyAllowlist() public {
         vm.prank(bob);
         vm.expectRevert();
-        fixedPriceParams.buyAllowlist{value: quantity * price}(fxGenArtProxy, mintId, bob, claimIndexes, aliceProofs, fxParams);
+        fixedPriceParams.buyAllowlist{value: quantity * price}(
+            fxGenArtProxy,
+            mintId,
+            bob,
+            claimIndexes,
+            aliceProofs,
+            fxParams
+        );
     }
 
     function test_RevertsWhen_ProofsInvalid_BuyAllowlist() public {
         aliceProofs[0].pop();
         vm.prank(alice);
         vm.expectRevert();
-        fixedPriceParams.buyAllowlist{value: quantity * price}(fxGenArtProxy, mintId, alice, claimIndexes, aliceProofs, fxParams);
+        fixedPriceParams.buyAllowlist{value: quantity * price}(
+            fxGenArtProxy,
+            mintId,
+            alice,
+            claimIndexes,
+            aliceProofs,
+            fxParams
+        );
     }
 
     function test_RevertsWhen_SlotAlreadyClaimed_BuyAllowlist() public {
         vm.prank(alice);
-        fixedPriceParams.buyAllowlist{value: quantity * price}(fxGenArtProxy, mintId, alice, claimIndexes, aliceProofs, fxParams);
+        fixedPriceParams.buyAllowlist{value: quantity * price}(
+            fxGenArtProxy,
+            mintId,
+            alice,
+            claimIndexes,
+            aliceProofs,
+            fxParams
+        );
 
         vm.prank(alice);
         vm.expectRevert();
-        fixedPriceParams.buyAllowlist{value: quantity * price}(fxGenArtProxy, mintId, alice, claimIndexes, aliceProofs, fxParams);
+        fixedPriceParams.buyAllowlist{value: quantity * price}(
+            fxGenArtProxy,
+            mintId,
+            alice,
+            claimIndexes,
+            aliceProofs,
+            fxParams
+        );
     }
 }

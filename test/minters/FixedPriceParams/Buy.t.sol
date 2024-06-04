@@ -4,7 +4,7 @@ pragma solidity 0.8.23;
 import "test/minters/FixedPriceParams/FixedPriceParamsTest.t.sol";
 
 contract Buy is FixedPriceParamsTest {
-        function test_Buy() public {
+    function test_Buy() public {
         fixedPriceParams.buy{value: price}(fxGenArtProxy, mintId, alice, fxParams);
         assertEq(FxGenArt721(fxGenArtProxy).balanceOf(alice), 1);
     }
