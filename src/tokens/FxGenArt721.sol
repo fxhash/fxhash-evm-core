@@ -455,7 +455,6 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         _mint(_to, _tokenId);
         genArtInfo[_tokenId].minter = _to;
         genArtInfo[_tokenId].fxParams = _fxParams;
-        IRandomizer(randomizer).requestRandomness(_tokenId);
     }
 
     /**

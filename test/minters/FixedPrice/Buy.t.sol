@@ -3,7 +3,7 @@ pragma solidity 0.8.23;
 
 import "test/minters/FixedPrice/FixedPriceTest.t.sol";
 
-contract BuyTokens is FixedPriceTest {
+contract Buy is FixedPriceTest {
     function test_Buy() public {
         fixedPrice.buy{value: price}(fxGenArtProxy, mintId, quantity, alice);
         assertEq(FxGenArt721(fxGenArtProxy).balanceOf(alice), 1);
@@ -15,7 +15,7 @@ contract BuyTokens is FixedPriceTest {
         fixedPrice.buy{value: (price * (MINTER_ALLOCATION + 1))}(fxGenArtProxy, mintId, quantity, alice);
     }
 
-    function test_RevertsWhen_InvalidPayent() public {
+    function test_RevertsWhen_InvalidPayment() public {
         vm.expectRevert(INVALID_PAYMENT_ERROR);
         fixedPrice.buy{value: price - 1}(fxGenArtProxy, mintId, quantity, alice);
     }

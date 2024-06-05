@@ -16,6 +16,7 @@ import {FxTicketFactory} from "src/factories/FxTicketFactory.sol";
 import {DutchAuction} from "src/minters/DutchAuction.sol";
 import {FarcasterFrame} from "src/minters/FarcasterFrame.sol";
 import {FixedPrice} from "src/minters/FixedPrice.sol";
+import {FixedPriceParams} from "src/minters/FixedPriceParams.sol";
 import {IPFSRenderer} from "src/renderers/IPFSRenderer.sol";
 import {ONCHFSRenderer} from "src/renderers/ONCHFSRenderer.sol";
 import {PseudoRandomizer} from "src/randomizers/PseudoRandomizer.sol";
@@ -37,6 +38,7 @@ contract Deploy is Script {
     DutchAuction internal dutchAuction;
     FarcasterFrame internal farcasterFrame;
     FixedPrice internal fixedPrice;
+    FixedPriceParams internal fixedPriceParams;
     IPFSRenderer internal ipfsRenderer;
     ONCHFSRenderer internal onchfsRenderer;
     PseudoRandomizer internal pseudoRandomizer;
@@ -196,6 +198,11 @@ contract Deploy is Script {
         constructorArgs = abi.encode(admin);
         fixedPrice = FixedPrice(_deployCreate2(creationCode, constructorArgs, salt));
 
+        // FixedPriceParams
+        creationCode = type(FixedPriceParams).creationCode;
+        constructorArgs = abi.encode(admin);
+        fixedPriceParams = FixedPriceParams(_deployCreate2(creationCode, constructorArgs, salt));
+
         // TicketRedeemer
         creationCode = type(TicketRedeemer).creationCode;
         constructorArgs = abi.encode(admin);
@@ -208,6 +215,7 @@ contract Deploy is Script {
 
         vm.label(address(dutchAuction), "DutchAuction");
         vm.label(address(fixedPrice), "FixedPrice");
+        vm.label(address(fixedPrice), "FixedPriceParams");
         vm.label(address(ipfsRenderer), "IPFSRenderer");
         vm.label(address(onchfsRenderer), "ONCHFSRenderer");
         vm.label(address(farcasterFrame), "FarcasterFrame");
@@ -218,6 +226,7 @@ contract Deploy is Script {
         console.log('mint_ticket_factory_v1: "%s",', address(fxTicketFactory));
         console.log('dutch_auction_minter_v1: "%s",', address(dutchAuction));
         console.log('fixed_price_minter_v1: "%s",', address(fixedPrice));
+        console.log('fixed_price_params_minter_v1: "%s",', address(fixedPriceParams));
         console.log('ticket_redeemer_v1: "%s",', address(ticketRedeemer));
         console.log('ipfs_renderer_v1: "%s",', address(ipfsRenderer));
         console.log('onchfs_renderer_v1: "%s",', address(onchfsRenderer));
@@ -272,6 +281,7 @@ contract Deploy is Script {
         names.push(DUTCH_AUCTION);
         names.push(FARCASTER_FRAME);
         names.push(FIXED_PRICE);
+        names.push(FIXED_PRICE_PARAMS);
         names.push(IPFS_RENDERER);
         names.push(ONCHFS_RENDERER);
         names.push(PSEUDO_RANDOMIZER);
@@ -287,6 +297,7 @@ contract Deploy is Script {
         contracts.push(address(dutchAuction));
         contracts.push(address(farcasterFrame));
         contracts.push(address(fixedPrice));
+        contracts.push(address(fixedPriceParams));
         contracts.push(address(ipfsRenderer));
         contracts.push(address(onchfsRenderer));
         contracts.push(address(pseudoRandomizer));
