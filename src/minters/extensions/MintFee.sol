@@ -19,7 +19,5 @@ abstract contract MintFee {
         uint256 _price,
         uint256 _amount,
         uint256 _percentage
-    ) internal returns (uint256 fee) {
-
-    }
+    ) internal returns (uint256 fee) {}
 }
