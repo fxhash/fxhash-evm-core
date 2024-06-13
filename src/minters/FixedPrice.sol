@@ -68,6 +68,11 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
      */
     mapping(address => ReserveInfo[]) public reserves;
 
+    /**
+     * @dev Mapping of token address to fee percentage
+     */
+    mapping(address => uint256) internal fees;
+
     /*//////////////////////////////////////////////////////////////////////////
                                 CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
