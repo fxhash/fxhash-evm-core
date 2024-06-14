@@ -4,6 +4,7 @@ pragma solidity 0.8.23;
 import {Allowlist} from "src/minters/extensions/Allowlist.sol";
 import {LibBitmap} from "solady/src/utils/LibBitmap.sol";
 import {LibMap} from "solady/src/utils/LibMap.sol";
+import {MintFee} from "src/minters/extensions/MintFee.sol";
 import {MintPass} from "src/minters/extensions/MintPass.sol";
 import {Ownable} from "solady/src/auth/Ownable.sol";
 import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
@@ -21,12 +22,17 @@ import {OPEN_EDITION_SUPPLY, TIME_UNLIMITED} from "src/utils/Constants.sol";
  * @author fx(hash)
  * @dev See the documentation in {IFixedPrice}
  */
-contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
+contract FixedPrice is IFixedPrice, Allowlist, MintFee, MintPass, Ownable, Pausable {
     using SafeCastLib for uint256;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     STORAGE
     //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @dev Mapping of token address to mint fees
+     */
+    mapping(address => uint256) internal mintFees;
 
     /**
      * @dev Mapping of token address to reserve ID to Bitmap of claimed merkle tree slots
@@ -67,11 +73,6 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
      * @inheritdoc IFixedPrice
      */
     mapping(address => ReserveInfo[]) public reserves;
-
-    /**
-     * @dev Mapping of token address to fee percentage
-     */
-    mapping(address => uint256) internal fees;
 
     /*//////////////////////////////////////////////////////////////////////////
                                 CONSTRUCTOR

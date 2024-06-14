@@ -4,7 +4,7 @@ pragma solidity 0.8.23;
 /**
  * @title MintFee
  * @author fx(hash)
- * @notice Extension for charging fees on each mint
+ * @notice Extension for charging fees on token mints
  */
 abstract contract MintFee {
     /*//////////////////////////////////////////////////////////////////////////
