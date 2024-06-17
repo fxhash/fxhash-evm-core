@@ -30,11 +30,6 @@ contract FixedPrice is IFixedPrice, Allowlist, MintFee, MintPass, Ownable, Pausa
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @dev Mapping of token address to mint fees
-     */
-    mapping(address => uint256) internal mintFees;
-
-    /**
      * @dev Mapping of token address to reserve ID to Bitmap of claimed merkle tree slots
      */
     mapping(address => mapping(uint256 => LibBitmap.Bitmap)) internal claimedMerkleTreeSlots;
@@ -189,6 +184,13 @@ contract FixedPrice is IFixedPrice, Allowlist, MintFee, MintPass, Ownable, Pausa
      */
     function pause() external onlyOwner {
         _pause();
+    }
+
+    /**
+     * @dev Sets the mint fee
+     */
+    function setMintFee(uint256 _fee) external onlyOwner {
+        mintFee = _fee;
     }
 
     /**
