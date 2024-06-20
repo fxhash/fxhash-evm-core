@@ -15,6 +15,21 @@ interface IFixedPrice is IMinter {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
+     * @notice Event emitted a new controller wallet is set
+     * @param _prevController Address of the previous controller
+     * @param _newController Address of the new controller
+     */
+    event ControllerSet(address _prevController, address _newController);
+
+    /**
+     * @notice Event emitted when a new free frame token has been minted
+     * @param _token Address of the token being minted
+     * @param _to Address receiving the minted tokens
+     * @param _fid Farcaster ID of the receiver
+     */
+    event FrameMinted(address indexed _token, address indexed _to, uint256 indexed _fid);
+
+    /**
      * @notice Event emitted when a new fixed price mint has been set
      * @param _token Address of the token being minted
      * @param _reserveId ID of the reserve
@@ -107,6 +122,11 @@ interface IFixedPrice is IMinter {
     error InvalidToken();
 
     /**
+     * @notice Error thrown when amount being minted exceeded max amount allowed per Farcaster ID
+     */
+    error MaxAmountExceeded();
+
+    /**
      * @notice Error thrown when buying through allowlist and no allowlist exists
      */
     error NoAllowlist();
@@ -184,6 +204,11 @@ interface IFixedPrice is IMinter {
     ) external payable;
 
     /**
+     * @notice Address of the authorized wallet for minting free tokens
+     */
+    function controller() external view returns (address);
+
+    /**
      * @notice Returns the earliest valid reserveId that can mint a token
      */
     function getFirstValidReserve(address _token) external view returns (uint256);
@@ -203,9 +228,23 @@ interface IFixedPrice is IMinter {
     function getSaleProceed(address _token) external view returns (uint128);
 
     /**
+     * @notice Mapping of token address to max amount of mintable tokens per Farcaster ID
+     */
+    function maxAmounts(address) external view returns (uint256);
+
+    /**
      * @notice Mapping of token address to reserve ID to merkle roots
      */
     function merkleRoots(address, uint256) external view returns (bytes32);
+
+    /**
+     * @notice Mints token for free to given wallet
+     * @param _token Address of the token contract
+     * @param _reserveId ID of the reserve
+     * @param _fId Farcaster user ID
+     * @param _to Address receiving the free token
+     */
+    function mint(address _token, uint256 _reserveId, uint256 _fId, address _to) external;
 
     /**
      * @notice Pauses all function executions where modifier is applied
@@ -223,10 +262,25 @@ interface IFixedPrice is IMinter {
     function reserves(address, uint256) external view returns (uint64, uint64, uint128);
 
     /**
+     * @notice Sets the new controller wallet address for minting free tokens
+     */
+    function setController(address _controller) external;
+
+    /**
+     * @notice Sets the new fee amount for token mints
+     */
+    function setMintFee(uint256 _fee) external;
+
+    /**
      * @inheritdoc IMinter
      * @dev Mint Details: token price, merkle root, and signer address
      */
     function setMintDetails(ReserveInfo calldata _reserveInfo, bytes calldata _mintDetails) external;
+
+    /**
+     * @notice Mapping of Farcaster ID to mapping of token address to total minted tokens
+     */
+    function totalMinted(uint256, address) external view returns (uint256);
 
     /**
      * @notice Unpauses all function executions where modifier is applied

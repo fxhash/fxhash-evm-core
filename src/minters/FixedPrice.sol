@@ -57,6 +57,11 @@ contract FixedPrice is IFixedPrice, Allowlist, MintFee, MintPass, Ownable, Pausa
     /**
      * @inheritdoc IFixedPrice
      */
+    address public controller;
+
+    /**
+     * @inheritdoc IFixedPrice
+     */
     mapping(address => mapping(uint256 => bytes32)) public merkleRoots;
 
     /**
@@ -68,6 +73,16 @@ contract FixedPrice is IFixedPrice, Allowlist, MintFee, MintPass, Ownable, Pausa
      * @inheritdoc IFixedPrice
      */
     mapping(address => ReserveInfo[]) public reserves;
+
+    /**
+     * @inheritdoc IFixedPrice
+     */
+    mapping(address => uint256) public maxAmounts;
+
+    /**
+     * @inheritdoc IFixedPrice
+     */
+    mapping(uint256 => mapping(address => uint256)) public totalMinted;
 
     /*//////////////////////////////////////////////////////////////////////////
                                 CONSTRUCTOR
@@ -134,6 +149,24 @@ contract FixedPrice is IFixedPrice, Allowlist, MintFee, MintPass, Ownable, Pausa
     /**
      * @inheritdoc IFixedPrice
      */
+    function mint(address _token, uint256 _reserveId, uint256 _fId, address _to) external whenNotPaused {
+        uint256 length = reserves[_token].length;
+        if (length == 0) revert InvalidToken();
+        uint256 validReserve = getFirstValidReserve(_token);
+        if (_reserveId >= length || _reserveId < validReserve) revert InvalidReserve();
+        if (msg.sender != controller) revert Unauthorized();
+        if (totalMinted[_fId][_token] == maxAmounts[_token]) revert MaxAmountExceeded();
+
+        totalMinted[_fId][_token]++;
+
+        _buy(_token, _reserveId, 1, _to);
+
+        emit FrameMinted(_token, _to, _fId);
+    }
+
+    /**
+     * @inheritdoc IFixedPrice
+     */
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external whenNotPaused {
         uint256 nextReserve = reserves[msg.sender].length;
         if (getLatestUpdate(msg.sender) != block.timestamp) {
@@ -187,9 +220,17 @@ contract FixedPrice is IFixedPrice, Allowlist, MintFee, MintPass, Ownable, Pausa
     }
 
     /**
-     * @dev Sets the mint fee
+     * @inheritdoc IFixedPrice
      */
-    function setMintFee(uint256 _fee) external onlyOwner {
+    function setController(address _controller) external onlyOwner {
+        emit ControllerSet(controller, _controller);
+        controller = _controller;
+    }
+
+    /**
+     * @dev Sets the new mint fee amount
+     */
+    function setMintFee(uint256 _fee) external override(IFixedPrice, MintFee) {
         mintFee = _fee;
     }
 
