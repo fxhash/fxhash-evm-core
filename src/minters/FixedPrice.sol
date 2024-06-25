@@ -295,10 +295,13 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
         if (_to == address(0)) revert AddressZero();
 
         uint256 price = _amount * prices[_token][_reserveId];
-        if (msg.value != price) revert InvalidPayment();
+        if (msg.value < price) revert InvalidPayment();
 
         reserve.allocation -= _amount.safeCastTo128();
-        _setSaleProceeds(_token, getSaleProceed(_token) + price);
+        uint256 mintFee = IFeeManager(feeManager).calculateFee(price, _amount);
+        _setSaleProceeds(_token, getSaleProceed(_token) + (msg.value - mintFee));
+
+        SafeTransferLib.safeTransferETH(feeManager, mintFee);
 
         IToken(_token).mint(_to, _amount, price);
 

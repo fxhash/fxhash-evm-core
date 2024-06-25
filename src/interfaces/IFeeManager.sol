@@ -12,7 +12,9 @@ interface IFeeManager {
 
     function setOwner(address _owner) external;
 
-    function calculateFee(uint256 _amount) external view returns (uint256);
+    function withdraw(address _to) external;
+
+    function calculateFee(uint256 _price, uint256 _amount) external view returns (uint256);
 
     function mintFee() external view returns (uint96);
 
