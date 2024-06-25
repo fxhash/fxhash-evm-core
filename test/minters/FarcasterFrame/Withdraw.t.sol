@@ -13,7 +13,7 @@ contract Withdraw is FarcasterFrameTest {
     }
 
     function test_RevertsWhen_InsufficientFunds() public {
-        vm.prank(CONTROLLER);
+        vm.prank(FRAME_CONTROLLER);
         farcasterFrame.mint(fxGenArtProxy, reserveId, fId, alice);
         vm.expectRevert(INSUFFICIENT_FUNDS_ERROR);
         farcasterFrame.withdraw(fxGenArtProxy);

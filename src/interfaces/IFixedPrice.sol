@@ -15,11 +15,18 @@ interface IFixedPrice is IMinter {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
+     * @notice Event emitted a new FeeManager contract is set
+     * @param _prevManager Address of the previous FeeManager contract
+     * @param _newManager Address of the new FeeManager contract
+     */
+    event FeeManagerSet(address _prevManager, address _newManager);
+
+    /**
      * @notice Event emitted a new controller wallet is set
      * @param _prevController Address of the previous controller
      * @param _newController Address of the new controller
      */
-    event ControllerSet(address _prevController, address _newController);
+    event FrameControllerSet(address _prevController, address _newController);
 
     /**
      * @notice Event emitted when a new free frame token has been minted
@@ -206,7 +213,12 @@ interface IFixedPrice is IMinter {
     /**
      * @notice Address of the authorized wallet for minting free tokens
      */
-    function controller() external view returns (address);
+    function feeManager() external view returns (address);
+
+    /**
+     * @notice Address of the authorized wallet for minting tokens through frames
+     */
+    function frameController() external view returns (address);
 
     /**
      * @notice Returns the earliest valid reserveId that can mint a token
@@ -262,14 +274,14 @@ interface IFixedPrice is IMinter {
     function reserves(address, uint256) external view returns (uint64, uint64, uint128);
 
     /**
-     * @notice Sets the new controller wallet address for minting free tokens
+     * @notice Sets the new FeeManager contract for managing and calculating mint fees
      */
-    function setController(address _controller) external;
+    function setFeeManager(address _controller) external;
 
     /**
-     * @notice Sets the new fee amount for token mints
+     * @notice Sets the new controller wallet address for minting tokens through frames
      */
-    function setMintFee(uint256 _fee) external;
+    function setFrameController(address _frameController) external;
 
     /**
      * @inheritdoc IMinter

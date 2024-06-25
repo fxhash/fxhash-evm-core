@@ -47,7 +47,7 @@ contract Farcaster is Script {
 
         // SignatureFrame
         bytes memory creationCode = type(FarcasterFrame).creationCode;
-        bytes memory constructorArgs = abi.encode(admin, CONTROLLER);
+        bytes memory constructorArgs = abi.encode(admin, FRAME_CONTROLLER);
         farcasterFrame = FarcasterFrame(_deployCreate2(creationCode, constructorArgs, salt));
 
         vm.label(address(farcasterFrame), "FarcasterFrame");

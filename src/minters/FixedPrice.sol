@@ -4,13 +4,13 @@ pragma solidity 0.8.23;
 import {Allowlist} from "src/minters/extensions/Allowlist.sol";
 import {LibBitmap} from "solady/src/utils/LibBitmap.sol";
 import {LibMap} from "solady/src/utils/LibMap.sol";
-import {MintFee} from "src/minters/extensions/MintFee.sol";
 import {MintPass} from "src/minters/extensions/MintPass.sol";
-import {Ownable} from "solady/src/auth/Ownable.sol";
 import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
+import {Ownable} from "solady/src/auth/Ownable.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 
+import {IFeeManager} from "src/interfaces/IFeeManager.sol";
 import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
 import {IToken} from "src/interfaces/IToken.sol";
 import {ReserveInfo} from "src/lib/Structs.sol";
@@ -22,7 +22,7 @@ import {OPEN_EDITION_SUPPLY, TIME_UNLIMITED} from "src/utils/Constants.sol";
  * @author fx(hash)
  * @dev See the documentation in {IFixedPrice}
  */
-contract FixedPrice is IFixedPrice, Allowlist, MintFee, MintPass, Ownable, Pausable {
+contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
     using SafeCastLib for uint256;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -57,7 +57,12 @@ contract FixedPrice is IFixedPrice, Allowlist, MintFee, MintPass, Ownable, Pausa
     /**
      * @inheritdoc IFixedPrice
      */
-    address public controller;
+    address public feeManager;
+
+    /**
+     * @inheritdoc IFixedPrice
+     */
+    address public frameController;
 
     /**
      * @inheritdoc IFixedPrice
@@ -88,8 +93,10 @@ contract FixedPrice is IFixedPrice, Allowlist, MintFee, MintPass, Ownable, Pausa
                                 CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(address _owner) {
+    constructor(address _owner, address _frameController, address _feeManager) {
         _initializeOwner(_owner);
+        frameController = _frameController;
+        feeManager = _feeManager;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -154,7 +161,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintFee, MintPass, Ownable, Pausa
         if (length == 0) revert InvalidToken();
         uint256 validReserve = getFirstValidReserve(_token);
         if (_reserveId >= length || _reserveId < validReserve) revert InvalidReserve();
-        if (msg.sender != controller) revert Unauthorized();
+        if (msg.sender != frameController) revert Unauthorized();
         if (totalMinted[_fId][_token] == maxAmounts[_token]) revert MaxAmountExceeded();
 
         totalMinted[_fId][_token]++;
@@ -222,16 +229,17 @@ contract FixedPrice is IFixedPrice, Allowlist, MintFee, MintPass, Ownable, Pausa
     /**
      * @inheritdoc IFixedPrice
      */
-    function setController(address _controller) external onlyOwner {
-        emit ControllerSet(controller, _controller);
-        controller = _controller;
+    function setFeeManager(address _feeManager) external onlyOwner {
+        emit FeeManagerSet(feeManager, _feeManager);
+        feeManager = _feeManager;
     }
 
     /**
-     * @dev Sets the new mint fee amount
+     * @inheritdoc IFixedPrice
      */
-    function setMintFee(uint256 _fee) external override(IFixedPrice, MintFee) {
-        mintFee = _fee;
+    function setFrameController(address _frameController) external onlyOwner {
+        emit FrameControllerSet(frameController, _frameController);
+        frameController = _frameController;
     }
 
     /**

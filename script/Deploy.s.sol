@@ -15,6 +15,7 @@ import {FxTicketFactory} from "src/factories/FxTicketFactory.sol";
 
 import {DutchAuction} from "src/minters/DutchAuction.sol";
 import {FarcasterFrame} from "src/minters/FarcasterFrame.sol";
+import {FeeManager} from "src/minters/extensions/FeeManager.sol";
 import {FixedPrice} from "src/minters/FixedPrice.sol";
 import {FixedPriceParams} from "src/minters/FixedPriceParams.sol";
 import {IPFSRenderer} from "src/renderers/IPFSRenderer.sol";
@@ -37,6 +38,7 @@ contract Deploy is Script {
     // Periphery
     DutchAuction internal dutchAuction;
     FarcasterFrame internal farcasterFrame;
+    FeeManager internal feeManager;
     FixedPrice internal fixedPrice;
     FixedPriceParams internal fixedPriceParams;
     IPFSRenderer internal ipfsRenderer;
@@ -188,6 +190,11 @@ contract Deploy is Script {
         constructorArgs = abi.encode(fxContractRegistry);
         onchfsRenderer = ONCHFSRenderer(_deployCreate2(creationCode, constructorArgs, salt));
 
+        // FeeManager
+        creationCode = type(FeeManager).creationCode;
+        constructorArgs = abi.encode(admin);
+        fixedPrice = FixedPrice(_deployCreate2(creationCode, constructorArgs, salt));
+
         // DutchAuction
         creationCode = type(DutchAuction).creationCode;
         constructorArgs = abi.encode(admin);
@@ -195,7 +202,7 @@ contract Deploy is Script {
 
         // FixedPrice
         creationCode = type(FixedPrice).creationCode;
-        constructorArgs = abi.encode(admin);
+        constructorArgs = abi.encode(admin, FRAME_CONTROLLER, feeManager);
         fixedPrice = FixedPrice(_deployCreate2(creationCode, constructorArgs, salt));
 
         // FixedPriceParams
@@ -203,17 +210,18 @@ contract Deploy is Script {
         constructorArgs = abi.encode(admin);
         fixedPriceParams = FixedPriceParams(_deployCreate2(creationCode, constructorArgs, salt));
 
+        // FixedPriceFrame
+        creationCode = type(FarcasterFrame).creationCode;
+        constructorArgs = abi.encode(admin, FRAME_CONTROLLER);
+        farcasterFrame = FarcasterFrame(_deployCreate2(creationCode, constructorArgs, salt));
+
         // TicketRedeemer
         creationCode = type(TicketRedeemer).creationCode;
         constructorArgs = abi.encode(admin);
         ticketRedeemer = TicketRedeemer(_deployCreate2(creationCode, constructorArgs, salt));
 
-        // FixedPriceFrame
-        creationCode = type(FarcasterFrame).creationCode;
-        constructorArgs = abi.encode(admin, CONTROLLER);
-        farcasterFrame = FarcasterFrame(_deployCreate2(creationCode, constructorArgs, salt));
-
         vm.label(address(dutchAuction), "DutchAuction");
+        vm.label(address(feeManager), "FeeManager");
         vm.label(address(fixedPrice), "FixedPrice");
         vm.label(address(fixedPrice), "FixedPriceParams");
         vm.label(address(ipfsRenderer), "IPFSRenderer");
@@ -236,6 +244,7 @@ contract Deploy is Script {
         console.log('gen_art_token_impl_v1: "%s",', address(fxGenArt721));
         console.log('mint_ticket_impl_v1: "%s",', address(fxMintTicket721));
         console.log('farcaster_frame_minter_v1: "%s"', address(farcasterFrame));
+        console.log('fee_manager_v1: "%s",', address(feeManager));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -280,6 +289,7 @@ contract Deploy is Script {
 
         names.push(DUTCH_AUCTION);
         names.push(FARCASTER_FRAME);
+        names.push(FEE_MANAGER);
         names.push(FIXED_PRICE);
         names.push(FIXED_PRICE_PARAMS);
         names.push(IPFS_RENDERER);
@@ -296,6 +306,7 @@ contract Deploy is Script {
 
         contracts.push(address(dutchAuction));
         contracts.push(address(farcasterFrame));
+        contracts.push(address(feeManager));
         contracts.push(address(fixedPrice));
         contracts.push(address(fixedPriceParams));
         contracts.push(address(ipfsRenderer));
