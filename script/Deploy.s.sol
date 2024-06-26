@@ -192,12 +192,12 @@ contract Deploy is Script {
 
         // FeeManager
         creationCode = type(FeeManager).creationCode;
-        constructorArgs = abi.encode(admin);
+        constructorArgs = abi.encode(admin, MINT_FEE);
         feeManager = FeeManager(payable(_deployCreate2(creationCode, constructorArgs, salt)));
 
         // DutchAuction
         creationCode = type(DutchAuction).creationCode;
-        constructorArgs = abi.encode(admin);
+        constructorArgs = abi.encode(admin, feeManager);
         dutchAuction = DutchAuction(_deployCreate2(creationCode, constructorArgs, salt));
 
         // FixedPrice

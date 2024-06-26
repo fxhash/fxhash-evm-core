@@ -211,7 +211,7 @@ interface IFixedPrice is IMinter {
     ) external payable;
 
     /**
-     * @notice Address of the authorized wallet for minting free tokens
+     * @notice Address of the FeeManager contract for managing and calculating mint fees
      */
     function feeManager() external view returns (address);
 

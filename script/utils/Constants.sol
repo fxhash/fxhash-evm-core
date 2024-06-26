@@ -18,6 +18,9 @@ address constant FEE_RECEIVER = 0xF70DF285Bc6941b4760BcC041B0cA1cc50E27F8d;
 // Farcaster
 address constant FRAME_CONTROLLER = 0xc31ac879ed0fAB559F1b3f86bbA2C006aB0d7dD7;
 
+// Fee Manager
+uint256 constant MINT_FEE = 500000000000000; // 0.0005 ETH
+
 // Metadata
 bytes constant ONCHAIN_DATA = bytes("");
 

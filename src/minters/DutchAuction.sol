@@ -48,6 +48,11 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
     /**
      * @inheritdoc IDutchAuction
      */
+    address public feeManager;
+
+    /**
+     * @inheritdoc IDutchAuction
+     */
     mapping(address => AuctionInfo[]) public auctions;
 
     /**
@@ -79,8 +84,9 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
                                 CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(address _owner) {
+    constructor(address _owner, address _feeManager) {
         _initializeOwner(_owner);
+        feeManager = _feeManager;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -235,12 +241,15 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
 
         // Gets the sale proceeds for the reserve
         uint256 proceeds;
+        uint256 totalMinted = numberMinted[_token][_reserveId];
         if (refundAuction) {
-            proceeds = lastPrice * numberMinted[_token][_reserveId];
+            proceeds = lastPrice * totalMinted;
         } else {
             proceeds = saleProceeds[_token][_reserveId];
         }
         if (proceeds == 0) revert InsufficientFunds();
+
+        uint256 mintFees = IFeeManager(feeManager).calculateFee(lastPrice, totalMinted);
 
         // Clears the sale proceeds for the reserve
         delete numberMinted[_token][_reserveId];
@@ -249,7 +258,8 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
         emit Withdrawn(_token, _reserveId, saleReceiver, proceeds);
 
         // Transfers the sale proceeds to the sale receiver
-        SafeTransferLib.safeTransferETH(saleReceiver, proceeds);
+        SafeTransferLib.safeTransferETH(feeManager, mintFees);
+        SafeTransferLib.safeTransferETH(saleReceiver, proceeds - mintFees);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -261,6 +271,14 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
      */
     function pause() external onlyOwner {
         _pause();
+    }
+
+    /**
+     * @inheritdoc IDutchAuction
+     */
+    function setFeeManager(address _feeManager) external onlyOwner {
+        emit FeeManagerSet(feeManager, _feeManager);
+        feeManager = _feeManager;
     }
 
     /**

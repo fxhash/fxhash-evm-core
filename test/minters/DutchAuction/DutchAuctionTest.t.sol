@@ -62,7 +62,7 @@ contract DutchAuctionTest is BaseTest {
     }
 
     function _deployRefundableDA() internal {
-        refundableDA = new DutchAuction(admin);
+        refundableDA = new DutchAuction(admin, address(feeManager));
     }
 
     function _configureReserve() internal {
