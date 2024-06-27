@@ -249,7 +249,11 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
         }
         if (proceeds == 0) revert InsufficientFunds();
 
-        uint256 mintFees = IFeeManager(feeManager).calculateFee(lastPrice, totalMinted);
+        (uint256 platformFee, uint256 mintFee, uint256 feeSplit) = IFeeManager(feeManager).calculateFee(
+            _token,
+            lastPrice,
+            totalMinted
+        );
 
         // Clears the sale proceeds for the reserve
         delete numberMinted[_token][_reserveId];
@@ -258,8 +262,8 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
         emit Withdrawn(_token, _reserveId, saleReceiver, proceeds);
 
         // Transfers the sale proceeds to the sale receiver
-        SafeTransferLib.safeTransferETH(feeManager, mintFees);
-        SafeTransferLib.safeTransferETH(saleReceiver, proceeds - mintFees);
+        SafeTransferLib.safeTransferETH(feeManager, platformFee);
+        SafeTransferLib.safeTransferETH(saleReceiver, proceeds - platformFee);
     }
 
     /*//////////////////////////////////////////////////////////////////////////

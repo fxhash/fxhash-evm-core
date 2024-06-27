@@ -2,15 +2,35 @@
 pragma solidity 0.8.23;
 
 interface IFeeManager {
-    event MintFeeSet(uint256 _prevFee, uint256 _newFee);
+    event PlatformFeeUpdated(address _token, uint128 _prevFee, uint128 _newFee);
 
-    error NotAuthorized();
+    event MintPercentageUpdated(address _token, uint64 _prevPercentage, uint64 _newPercentage);
 
-    function setMintFee(uint256 _mintFee) external;
+    event SplitPercentageUpdated(address _token, uint64 _prevPercentage, uint64 _newPercentage);
+
+    function setPlatformFee(address token, uint128 _platformFee) external;
+
+    function setMintPercentage(address token, uint64 _mintPercentage) external;
+
+    function setSplitPercentage(address token, uint64 _splitPercentage) external;
 
     function withdraw(address _to) external;
 
-    function calculateFee(uint256 _price, uint256 _amount) external view returns (uint256);
+    function calculateFee(
+        address _token,
+        uint256 _price,
+        uint256 _amount
+    ) external view returns (uint256, uint256, uint256);
 
-    function mintFee() external view returns (uint256);
+    function mintPercentage() external view returns (uint64);
+
+    function mintPercentages(address _token) external view returns (uint64);
+
+    function platformFee() external view returns (uint128);
+
+    function platformFees(address _token) external view returns (uint128);
+
+    function splitPercentage() external view returns (uint64);
+
+    function splitPercentages(address _token) external view returns (uint64);
 }
