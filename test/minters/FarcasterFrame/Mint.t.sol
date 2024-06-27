@@ -7,7 +7,7 @@ import {Ownable} from "solady/src/auth/Ownable.sol";
 
 contract Mint is FarcasterFrameTest {
     function test_Mint() public {
-        vm.prank(CONTROLLER);
+        vm.prank(FRAME_CONTROLLER);
         farcasterFrame.mint(fxGenArtProxy, reserveId, fId, alice);
         (, , uint128 remainingAllocation) = farcasterFrame.reserves(fxGenArtProxy, reserveId);
 
@@ -32,7 +32,7 @@ contract Mint is FarcasterFrameTest {
     }
 
     function test_RevertsWhen_MaxAmountExceeded() public {
-        vm.startPrank(CONTROLLER);
+        vm.startPrank(FRAME_CONTROLLER);
         farcasterFrame.mint(fxGenArtProxy, reserveId, fId, alice);
         farcasterFrame.mint(fxGenArtProxy, reserveId, fId, alice);
         vm.expectRevert(MAX_AMOUNT_EXCEEDED_ERROR);
@@ -42,20 +42,20 @@ contract Mint is FarcasterFrameTest {
 
     function test_RevertsWhen_NotStarted() public {
         vm.warp(RESERVE_START_TIME - 1);
-        vm.prank(CONTROLLER);
+        vm.prank(FRAME_CONTROLLER);
         vm.expectRevert(NOT_STARTED_ERROR);
         farcasterFrame.mint(fxGenArtProxy, reserveId, fId, alice);
     }
 
     function test_RevertsWhen_Ended() public {
         vm.warp(uint256(RESERVE_END_TIME) + 1);
-        vm.prank(CONTROLLER);
+        vm.prank(FRAME_CONTROLLER);
         vm.expectRevert(ENDED_ERROR);
         farcasterFrame.mint(fxGenArtProxy, reserveId, fId, alice);
     }
 
     function test_RevertsWhen_TooMany() public {
-        vm.startPrank(CONTROLLER);
+        vm.startPrank(FRAME_CONTROLLER);
         farcasterFrame.buy{value: price * MINTER_ALLOCATION}(fxGenArtProxy, reserveId, MINTER_ALLOCATION, alice);
         vm.expectRevert(TOO_MANY_ERROR);
         farcasterFrame.mint(fxGenArtProxy, reserveId, fId, alice);
@@ -63,7 +63,7 @@ contract Mint is FarcasterFrameTest {
     }
 
     function test_RevertsWhen_AddressZero() public {
-        vm.prank(CONTROLLER);
+        vm.prank(FRAME_CONTROLLER);
         vm.expectRevert(ADDRESS_ZERO_ERROR);
         farcasterFrame.mint(fxGenArtProxy, reserveId, quantity, address(0));
     }

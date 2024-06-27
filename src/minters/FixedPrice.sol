@@ -10,6 +10,7 @@ import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 
+import {IFeeManager} from "src/interfaces/IFeeManager.sol";
 import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
 import {IToken} from "src/interfaces/IToken.sol";
 import {ReserveInfo} from "src/lib/Structs.sol";
@@ -56,6 +57,16 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
     /**
      * @inheritdoc IFixedPrice
      */
+    address public feeManager;
+
+    /**
+     * @inheritdoc IFixedPrice
+     */
+    address public frameController;
+
+    /**
+     * @inheritdoc IFixedPrice
+     */
     mapping(address => mapping(uint256 => bytes32)) public merkleRoots;
 
     /**
@@ -68,12 +79,24 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
      */
     mapping(address => ReserveInfo[]) public reserves;
 
+    /**
+     * @inheritdoc IFixedPrice
+     */
+    mapping(address => uint256) public maxAmounts;
+
+    /**
+     * @inheritdoc IFixedPrice
+     */
+    mapping(uint256 => mapping(address => uint256)) public totalMinted;
+
     /*//////////////////////////////////////////////////////////////////////////
                                 CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(address _owner) {
+    constructor(address _owner, address _frameController, address _feeManager) {
         _initializeOwner(_owner);
+        frameController = _frameController;
+        feeManager = _feeManager;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -128,6 +151,24 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
         LibBitmap.Bitmap storage claimBitmap = claimedMintPasses[_token][_reserveId];
         _claimMintPass(_token, _reserveId, _index, _to, _signature, claimBitmap);
         _buy(_token, _reserveId, _amount, _to);
+    }
+
+    /**
+     * @inheritdoc IFixedPrice
+     */
+    function mint(address _token, uint256 _reserveId, uint256 _fId, address _to) external whenNotPaused {
+        uint256 length = reserves[_token].length;
+        if (length == 0) revert InvalidToken();
+        uint256 validReserve = getFirstValidReserve(_token);
+        if (_reserveId >= length || _reserveId < validReserve) revert InvalidReserve();
+        if (msg.sender != frameController) revert Unauthorized();
+        if (totalMinted[_fId][_token] == maxAmounts[_token]) revert MaxAmountExceeded();
+
+        totalMinted[_fId][_token]++;
+
+        _buy(_token, _reserveId, 1, _to);
+
+        emit FrameMinted(_token, _to, _fId);
     }
 
     /**
@@ -188,6 +229,22 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
     /**
      * @inheritdoc IFixedPrice
      */
+    function setFeeManager(address _feeManager) external onlyOwner {
+        emit FeeManagerSet(feeManager, _feeManager);
+        feeManager = _feeManager;
+    }
+
+    /**
+     * @inheritdoc IFixedPrice
+     */
+    function setFrameController(address _frameController) external onlyOwner {
+        emit FrameControllerSet(frameController, _frameController);
+        frameController = _frameController;
+    }
+
+    /**
+     * @inheritdoc IFixedPrice
+     */
     function unpause() external onlyOwner {
         _unpause();
     }
@@ -238,10 +295,17 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
         if (_to == address(0)) revert AddressZero();
 
         uint256 price = _amount * prices[_token][_reserveId];
-        if (msg.value != price) revert InvalidPayment();
+        if (msg.value < price) revert InvalidPayment();
 
         reserve.allocation -= _amount.safeCastTo128();
-        _setSaleProceeds(_token, getSaleProceed(_token) + price);
+        (uint256 platformFee, uint256 mintFee, uint256 feeSplit) = IFeeManager(feeManager).calculateFee(
+            _token,
+            price,
+            _amount
+        );
+        _setSaleProceeds(_token, getSaleProceed(_token) + (msg.value - mintFee));
+
+        SafeTransferLib.safeTransferETH(feeManager, mintFee);
 
         IToken(_token).mint(_to, _amount, price);
 

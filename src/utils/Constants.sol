@@ -16,6 +16,7 @@ string constant FX_TICKET_FACTORY = "FX_TICKET_FACTORY";
 // Periphery
 string constant DUTCH_AUCTION = "DUTCH_AUCTION";
 string constant FARCASTER_FRAME = "FARCASTER_FRAME";
+string constant FEE_MANAGER = "FEE_MANAGER";
 string constant FIXED_PRICE = "FIXED_PRICE";
 string constant FIXED_PRICE_PARAMS = "FIXED_PRICE_PARAMS";
 string constant IPFS_RENDERER = "IPFS_RENDERER";

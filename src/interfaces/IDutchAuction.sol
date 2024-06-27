@@ -15,6 +15,13 @@ interface IDutchAuction is IMinter {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
+     * @notice Event emitted a new FeeManager contract is set
+     * @param _prevManager Address of the previous FeeManager contract
+     * @param _newManager Address of the new FeeManager contract
+     */
+    event FeeManagerSet(address _prevManager, address _newManager);
+
+    /**
      * @notice Event emitted when the mint details for a Dutch auction are set
      * @param _token Address of the token being minted
      * @param _reserveId ID of the reserve
@@ -230,6 +237,11 @@ interface IDutchAuction is IMinter {
     ) external payable;
 
     /**
+     * @notice Address of the FeeManager contract for managing and calculating mint fees
+     */
+    function feeManager() external view returns (address);
+
+    /**
      * @notice Returns the earliest valid reserveId that can mint a token
      */
     function getFirstValidReserve(address _token) external view returns (uint256);
@@ -286,6 +298,11 @@ interface IDutchAuction is IMinter {
      * @notice Mapping of token address to reserve ID to amount of sale proceeds
      */
     function saleProceeds(address _token, uint256 _reserveId) external view returns (uint256);
+
+    /**
+     * @notice Sets the new FeeManager contract for managing and calculating mint fees
+     */
+    function setFeeManager(address _controller) external;
 
     /**
      * @inheritdoc IMinter
