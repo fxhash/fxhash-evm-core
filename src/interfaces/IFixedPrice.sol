@@ -46,6 +46,7 @@ interface IFixedPrice is IMinter {
      * @param _reserveInfo Reserve information for the mint
      * @param _openEdition Status of an open edition mint
      * @param _timeUnlimited Status of a mint with unlimited time
+     * @param _maxAmount Maximum amount of tokens that can be minted per Farcaster ID
      */
     event MintDetailsSet(
         address indexed _token,
@@ -55,7 +56,8 @@ interface IFixedPrice is IMinter {
         bytes32 _merkleRoot,
         address _mintPassSigner,
         bool _openEdition,
-        bool _timeUnlimited
+        bool _timeUnlimited,
+        uint256 _maxAmount
     );
 
     /**

@@ -63,10 +63,10 @@ contract FeeManager is IFeeManager, Ownable {
         address _token,
         uint256 _price,
         uint256 _amount
-    ) external view returns (uint256 platformAmount, uint256 mintAmount, uint256 splitAmount) {
-        platformAmount = getPlatformFee(_token) * _amount;
-        mintAmount = (getMintPercentage(_token) * _price) / 10000;
-        splitAmount = (getSplitPercentage(_token) * platformAmount) / 10000;
+    ) external view returns (uint256 platform, uint256 mintFee, uint256 splitAmount) {
+        platform = getPlatformFee(_token) * _amount;
+        mintFee = (getMintPercentage(_token) * _price) / 10000;
+        splitAmount = (getSplitPercentage(_token) * platform) / 10000;
     }
 
     function getPlatformFee(address _token) public view returns (uint128) {

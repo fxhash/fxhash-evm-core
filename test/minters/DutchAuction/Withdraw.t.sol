@@ -6,13 +6,14 @@ import "test/minters/DutchAuction/DutchAuctionTest.t.sol";
 contract Withdraw is DutchAuctionTest {
     function test_withdraw() public {
         uint256 price = dutchAuction.getPrice(fxGenArtProxy, reserveId);
+        (platformFee, mintFee, splitAmount) = feeManager.calculateFee(fxGenArtProxy, price, quantity);
         dutchAuction.buy{value: price}(fxGenArtProxy, reserveId, quantity, alice);
         uint256 beforeBalance = primaryReceiver.balance;
 
         vm.warp(RESERVE_END_TIME + 1);
         dutchAuction.withdraw(fxGenArtProxy, reserveId);
         uint256 afterBalance = primaryReceiver.balance;
-        assertEq(beforeBalance + price, afterBalance);
+        assertEq(beforeBalance + price - platformFee - mintFee, afterBalance);
     }
 
     function test_RevertsIf_NotOver() public {

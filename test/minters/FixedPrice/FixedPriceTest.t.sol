@@ -14,6 +14,9 @@ contract FixedPriceTest is BaseTest {
     bytes internal mintDetails;
     uint256 internal reserveId;
     uint256 internal fId;
+    uint256 internal platformFee;
+    uint256 internal mintFee;
+    uint256 internal splitAmount;
 
     // Errors
     bytes4 internal ADDRESS_ZERO_ERROR = IFixedPrice.AddressZero.selector;
@@ -43,7 +46,7 @@ contract FixedPriceTest is BaseTest {
             RESERVE_START_TIME,
             RESERVE_END_TIME,
             MINTER_ALLOCATION,
-            abi.encode(PRICE, merkleRoot, signerAddr)
+            abi.encode(PRICE, merkleRoot, signerAddr, maxAmount)
         );
         RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, address(fixedPrice));
         _configureInit(NAME, SYMBOL, address(pseudoRandomizer), address(ipfsRenderer), tagIds);

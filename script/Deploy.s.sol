@@ -223,7 +223,7 @@ contract Deploy is Script {
         vm.label(address(dutchAuction), "DutchAuction");
         vm.label(address(feeManager), "FeeManager");
         vm.label(address(fixedPrice), "FixedPrice");
-        vm.label(address(fixedPrice), "FixedPriceParams");
+        vm.label(address(fixedPriceParams), "FixedPriceParams");
         vm.label(address(ipfsRenderer), "IPFSRenderer");
         vm.label(address(onchfsRenderer), "ONCHFSRenderer");
         vm.label(address(farcasterFrame), "FarcasterFrame");

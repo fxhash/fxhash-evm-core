@@ -6,7 +6,7 @@ import "test/minters/FixedPrice/FixedPriceTest.t.sol";
 import {Ownable} from "solady/src/auth/Ownable.sol";
 
 contract Mint is FixedPriceTest {
-    function test_Mint() public {
+    function test_Mint_Fixed() public {
         vm.prank(FRAME_CONTROLLER);
         fixedPrice.mint(fxGenArtProxy, mintId, fId, alice);
         (, , uint128 remainingAllocation) = fixedPrice.reserves(fxGenArtProxy, mintId);

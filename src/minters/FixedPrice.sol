@@ -182,7 +182,10 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
         }
 
         if (_reserve.allocation == 0) revert InvalidAllocation();
-        (uint256 price, bytes32 merkleRoot, address signer) = abi.decode(_mintDetails, (uint256, bytes32, address));
+        (uint256 price, bytes32 merkleRoot, address signer, uint256 maxAmount) = abi.decode(
+            _mintDetails,
+            (uint256, bytes32, address, uint256)
+        );
         if (merkleRoot != bytes32(0)) {
             if (signer != address(0)) revert OnlyAuthorityOrAllowlist();
             merkleRoots[msg.sender][nextReserve] = merkleRoot;
@@ -192,12 +195,23 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
         }
 
         prices[msg.sender].push(price);
+        maxAmounts[msg.sender] = maxAmount;
         reserves[msg.sender].push(_reserve);
 
         bool openEdition = _reserve.allocation == OPEN_EDITION_SUPPLY ? true : false;
         bool timeUnlimited = _reserve.endTime == TIME_UNLIMITED ? true : false;
 
-        emit MintDetailsSet(msg.sender, nextReserve, price, _reserve, merkleRoot, signer, openEdition, timeUnlimited);
+        emit MintDetailsSet(
+            msg.sender,
+            nextReserve,
+            price,
+            _reserve,
+            merkleRoot,
+            signer,
+            openEdition,
+            timeUnlimited,
+            maxAmount
+        );
     }
 
     /**
@@ -281,7 +295,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
     /**
      * @dev Purchases arbitrary amount of tokens at auction price and mints tokens to given account
      */
-    function _buy(address _token, uint256 _reserveId, uint256 _amount, address _to) internal {
+    function _buy(address _token, uint256 _reserveId, uint256 _price, uint256 _amount, address _to) internal {
         uint256 length = reserves[_token].length;
         uint256 validReserve = getFirstValidReserve(_token);
 
@@ -298,14 +312,17 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
         if (msg.value < price) revert InvalidPayment();
 
         reserve.allocation -= _amount.safeCastTo128();
-        (uint256 platformFee, uint256 mintFee, uint256 feeSplit) = IFeeManager(feeManager).calculateFee(
+        (uint256 platformFee, uint256 mintFee, uint256 splitAmount) = IFeeManager(feeManager).calculateFee(
             _token,
             price,
             _amount
         );
-        _setSaleProceeds(_token, getSaleProceed(_token) + (msg.value - mintFee));
 
-        SafeTransferLib.safeTransferETH(feeManager, mintFee);
+        if (splitAmount > 0) platformFee = platformFee - splitAmount;
+
+        _setSaleProceeds(_token, getSaleProceed(_token) + (price - mintFee + splitAmount));
+
+        SafeTransferLib.safeTransferETH(feeManager, mintFee + platformFee);
 
         IToken(_token).mint(_to, _amount, price);
 
