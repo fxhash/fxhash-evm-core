@@ -4,7 +4,7 @@ pragma solidity 0.8.23;
 import "test/minters/FixedPrice/FixedPriceTest.t.sol";
 
 contract Withdraw is FixedPriceTest {
-    function test_Withdraw() public {
+    function test_Withdraw_Fixed() public {
         fixedPrice.buy{value: price}(fxGenArtProxy, mintId, quantity, alice);
         uint256 beforeBalance = primaryReceiver.balance;
         fixedPrice.withdraw(fxGenArtProxy);

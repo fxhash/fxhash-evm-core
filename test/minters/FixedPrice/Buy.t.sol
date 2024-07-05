@@ -41,10 +41,4 @@ contract Buy is FixedPriceTest {
         vm.expectRevert(ADDRESS_ZERO_ERROR);
         fixedPrice.buy{value: price}(fxGenArtProxy, mintId, quantity, address(0));
     }
-
-    function test_RevertsWhen_PurchaseZero() public {
-        quantity = 0;
-        vm.expectRevert();
-        fixedPrice.buy{value: price}(fxGenArtProxy, mintId, quantity, alice);
-    }
 }

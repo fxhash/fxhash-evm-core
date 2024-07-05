@@ -9,6 +9,11 @@ contract FixedPriceTest is BaseTest {
     uint64 internal endTime;
     uint160 internal supply;
     uint256 internal mintId;
+    uint128 internal allocation;
+    uint256 internal maxAmount;
+    bytes internal mintDetails;
+    uint256 internal reserveId;
+    uint256 internal fId;
 
     // Errors
     bytes4 internal ADDRESS_ZERO_ERROR = IFixedPrice.AddressZero.selector;
@@ -19,6 +24,7 @@ contract FixedPriceTest is BaseTest {
     bytes4 internal INVALID_RESERVE_ERROR = IFixedPrice.InvalidReserve.selector;
     bytes4 internal INVALID_TIMES_ERROR = IFixedPrice.InvalidTimes.selector;
     bytes4 internal INVALID_TOKEN_ERROR = IFixedPrice.InvalidToken.selector;
+    bytes4 internal MAX_AMOUNT_EXCEEDED_ERROR = IFixedPrice.MaxAmountExceeded.selector;
     bytes4 internal NO_PUBLIC_MINT_ERROR = IFixedPrice.NoPublicMint.selector;
     bytes4 internal NOT_STARTED_ERROR = IFixedPrice.NotStarted.selector;
     bytes4 internal TOO_MANY_ERROR = IFixedPrice.TooMany.selector;
@@ -43,5 +49,13 @@ contract FixedPriceTest is BaseTest {
         _configureInit(NAME, SYMBOL, address(pseudoRandomizer), address(ipfsRenderer), tagIds);
         _createProject();
         TokenLib.unpause(admin, fxGenArtProxy);
+    }
+
+    function _initializeState() internal override {
+        super._initializeState();
+        reserveInfo = ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION);
+        mintDetails = abi.encode(PRICE, maxAmount);
+        fId = 1;
+        maxAmount = 2;
     }
 }
