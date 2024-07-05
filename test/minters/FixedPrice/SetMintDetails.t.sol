@@ -7,7 +7,7 @@ contract SetMintDetails is FixedPriceTest {
     function test_SetMintDetails() public {
         fixedPrice.setMintDetails(
             ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
-            abi.encode(price, merkleRoot, signerAddr)
+            abi.encode(price, merkleRoot, signerAddr, maxAmount)
         );
         (startTime, endTime, supply) = fixedPrice.reserves(address(this), 0);
         assertEq(fixedPrice.prices(address(this), 0), price, "price incorrectly set");
@@ -22,7 +22,7 @@ contract SetMintDetails is FixedPriceTest {
         vm.expectRevert();
         fixedPrice.setMintDetails(
             ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
-            abi.encode(price, merkleRoot, signerAddr)
+            abi.encode(price, merkleRoot, signerAddr, maxAmount)
         );
     }
 
@@ -34,19 +34,19 @@ contract SetMintDetails is FixedPriceTest {
     function test_RevertsWhen_DeregisteredReserve() public {
         fixedPrice.setMintDetails(
             ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
-            abi.encode(price, merkleRoot, signerAddr)
+            abi.encode(price, merkleRoot, signerAddr, maxAmount)
         );
 
         fixedPrice.setMintDetails(
             ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
-            abi.encode(0, merkleRoot, signerAddr)
+            abi.encode(0, merkleRoot, signerAddr, maxAmount)
         );
 
         vm.warp(block.timestamp + 1);
 
         fixedPrice.setMintDetails(
             ReserveInfo(RESERVE_START_TIME, RESERVE_END_TIME, MINTER_ALLOCATION),
-            abi.encode(0, merkleRoot, signerAddr)
+            abi.encode(0, merkleRoot, signerAddr, maxAmount)
         );
 
         vm.expectRevert(INVALID_RESERVE_ERROR);

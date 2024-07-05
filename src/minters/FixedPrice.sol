@@ -166,7 +166,15 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
 
         totalMinted[_fId][_token]++;
 
-        _buy(_token, _reserveId, 1, _to);
+        ReserveInfo storage reserve = reserves[_token][_reserveId];
+        if (block.timestamp < reserve.startTime) revert NotStarted();
+        if (block.timestamp > reserve.endTime) revert Ended();
+        if (reserve.allocation == 0) revert TooMany();
+        if (_to == address(0)) revert AddressZero();
+
+        reserve.allocation--;
+
+        IToken(_token).mint(_to, 1, 0);
 
         emit FrameMinted(_token, _to, _fId);
     }
@@ -295,7 +303,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
     /**
      * @dev Purchases arbitrary amount of tokens at auction price and mints tokens to given account
      */
-    function _buy(address _token, uint256 _reserveId, uint256 _price, uint256 _amount, address _to) internal {
+    function _buy(address _token, uint256 _reserveId, uint256 _amount, address _to) internal {
         uint256 length = reserves[_token].length;
         uint256 validReserve = getFirstValidReserve(_token);
 
