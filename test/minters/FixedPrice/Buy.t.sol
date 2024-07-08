@@ -32,7 +32,7 @@ contract Buy is FixedPriceTest {
         fixedPrice.buy{value: price}(fxGenArtProxy, mintId, quantity, alice);
     }
 
-    function test_RevertWhen_InvalidToken() public {
+    function test_RevertsWhen_InvalidToken() public {
         vm.expectRevert(INVALID_TOKEN_ERROR);
         fixedPrice.buy{value: price}(address(0), 0, 1, alice);
     }

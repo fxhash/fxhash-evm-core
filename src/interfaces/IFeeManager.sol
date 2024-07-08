@@ -8,6 +8,8 @@ interface IFeeManager {
 
     event SplitPercentageUpdated(address _token, uint64 _prevPercentage, uint64 _newPercentage);
 
+    error InvalidPercentage();
+
     function setPlatformFee(address token, uint128 _platformFee) external;
 
     function setMintPercentage(address token, uint64 _mintPercentage) external;

@@ -4,6 +4,14 @@ pragma solidity 0.8.23;
 import "test/BaseTest.t.sol";
 
 contract FeeManagerTest is BaseTest {
+    // State
+    uint128 internal platformFee;
+    uint64 internal mintPercentage;
+    uint64 internal splitPercentage;
+
+    // Errors
+    bytes4 internal INVALID_PERCENTAGE_ERROR = IFeeManager.InvalidPercentage.selector;
+
     /*//////////////////////////////////////////////////////////////////////////
                                      SETUP
     //////////////////////////////////////////////////////////////////////////*/

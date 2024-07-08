@@ -18,6 +18,7 @@ import {TokenLib} from "test/lib/helpers/TokenLib.sol";
 
 import {IDutchAuction, AuctionInfo} from "src/interfaces/IDutchAuction.sol";
 import {IFarcasterFrame} from "src/interfaces/IFarcasterFrame.sol";
+import {IFeeManager} from "src/interfaces/IFeeManager.sol";
 import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
 import {IFixedPriceParams} from "src/interfaces/IFixedPriceParams.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";

@@ -5,6 +5,7 @@ import {Ownable} from "solady/src/auth/Ownable.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 
 import {IFeeManager} from "src/interfaces/IFeeManager.sol";
+import {SCALE_FACTOR} from "src/utils/Constants.sol";
 
 contract FeeManager is IFeeManager, Ownable {
     uint128 public platformFee;
@@ -35,6 +36,7 @@ contract FeeManager is IFeeManager, Ownable {
     }
 
     function setMintPercentage(address _token, uint64 _mintPercentage) external onlyOwner {
+        if (_mintPercentage > SCALE_FACTOR) revert InvalidPercentage();
         if (_token == address(0)) {
             emit MintPercentageUpdated(_token, mintPercentage, _mintPercentage);
             mintPercentage = _mintPercentage;
@@ -45,6 +47,7 @@ contract FeeManager is IFeeManager, Ownable {
     }
 
     function setSplitPercentage(address _token, uint64 _splitPercentage) external onlyOwner {
+        if (_splitPercentage > SCALE_FACTOR) revert InvalidPercentage();
         if (_token == address(0)) {
             emit SplitPercentageUpdated(_token, splitPercentage, _splitPercentage);
             splitPercentage = _splitPercentage;
@@ -65,8 +68,8 @@ contract FeeManager is IFeeManager, Ownable {
         uint256 _amount
     ) external view returns (uint256 platform, uint256 mintFee, uint256 splitAmount) {
         platform = getPlatformFee(_token) * _amount;
-        mintFee = (getMintPercentage(_token) * _price) / 10000;
-        splitAmount = (getSplitPercentage(_token) * platform) / 10000;
+        mintFee = (getMintPercentage(_token) * _price) / SCALE_FACTOR;
+        splitAmount = (getSplitPercentage(_token) * platform) / SCALE_FACTOR;
     }
 
     function getPlatformFee(address _token) public view returns (uint128) {
