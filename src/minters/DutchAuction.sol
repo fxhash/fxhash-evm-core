@@ -154,7 +154,8 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
         if (block.timestamp < reserve.endTime && reserve.allocation > 0) revert NotEnded();
         // checks if the rebate auction ended, but didn't sellout.  Refunds lowest price
         if (lastPrice == 0) {
-            lastPrice = _recordLastPrice(reserve, _token, _reserveId);
+            lastPrice = _getLastPrice(reserve, _token, _reserveId);
+            refunds[_token][_reserveId].lastPrice = lastPrice;
         }
         // Get the user's refund information
         MinterInfo memory minterInfo = refunds[_token][_reserveId].minterInfo[_buyer];
@@ -228,7 +229,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
         uint256 lastPrice = refunds[_token][_reserveId].lastPrice;
         bool refundAuction = auctions[_token][_reserveId].refunded;
         if (lastPrice == 0 && refundAuction) {
-            lastPrice = _recordLastPrice(reserve, _token, _reserveId);
+            lastPrice = _getLastPrice(reserve, _token, _reserveId);
         }
         refunds[_token][_reserveId].lastPrice = lastPrice;
 
@@ -380,15 +381,14 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
         return _daInfo.prices[step];
     }
 
-    function _recordLastPrice(
+    function _getLastPrice(
         ReserveInfo memory _reserve,
         address _token,
         uint256 _reserveId
-    ) internal returns (uint256 lastPrice) {
+    ) internal view returns (uint256 lastPrice) {
         if (block.timestamp > _reserve.endTime && _reserve.allocation > 0) {
             uint256 length = auctions[_token][_reserveId].prices.length;
             lastPrice = auctions[_token][_reserveId].prices[length - 1];
-            refunds[_token][_reserveId].lastPrice = lastPrice;
         }
     }
 
