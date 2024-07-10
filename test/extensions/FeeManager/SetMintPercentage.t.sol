@@ -18,8 +18,10 @@ contract SetMintPercentage is FeeManagerTest {
         mintPercentage = feeManager.getMintPercentage(address(this));
         assertEq(mintPercentage, MINT_PERCENTAGE);
 
-        vm.prank(admin);
+        vm.startPrank(admin);
+        feeManager.setCustomFees(address(this), true);
         feeManager.setMintPercentage(address(this), newPercentage);
+        vm.stopPrank();
         mintPercentage = feeManager.getMintPercentage(address(this));
         assertEq(mintPercentage, newPercentage);
 

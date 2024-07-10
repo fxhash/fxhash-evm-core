@@ -11,10 +11,7 @@ contract SetPlatformFee is FeeManagerTest {
         newFee = .01 ether;
     }
 
-    function test_SetPlatformFee() public {
-        platformFee = feeManager.getPlatformFee(address(0));
-        assertEq(platformFee, PLATFORM_FEE);
-
+    function test_SetCustomFees() public {
         platformFee = feeManager.getPlatformFee(address(this));
         assertEq(platformFee, PLATFORM_FEE);
 
@@ -22,10 +19,15 @@ contract SetPlatformFee is FeeManagerTest {
         feeManager.setCustomFees(address(this), true);
         feeManager.setPlatformFee(address(this), newFee);
         vm.stopPrank();
-        platformFee = feeManager.getPlatformFee(address(this));
-        assertEq(platformFee, newFee);
 
-        platformFee = feeManager.getPlatformFee(address(0));
-        assertEq(platformFee, PLATFORM_FEE);
+        customFee = feeManager.customFees(address(this));
+        platformFee = feeManager.getPlatformFee(address(this));
+        mintPercentage = feeManager.getMintPercentage(address(this));
+        splitPercentage = feeManager.getSplitPercentage(address(this));
+
+        assertEq(customFee, true);
+        assertEq(platformFee, newFee);
+        assertEq(mintPercentage, 0);
+        assertEq(splitPercentage, 0);
     }
 }

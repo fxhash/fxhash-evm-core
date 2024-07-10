@@ -18,8 +18,10 @@ contract SetSplitPercentage is FeeManagerTest {
         splitPercentage = feeManager.getSplitPercentage(address(this));
         assertEq(splitPercentage, SPLIT_PERCENTAGE);
 
-        vm.prank(admin);
+        vm.startPrank(admin);
+        feeManager.setCustomFees(address(this), true);
         feeManager.setSplitPercentage(address(this), newPercentage);
+        vm.stopPrank();
         splitPercentage = feeManager.getSplitPercentage(address(this));
         assertEq(splitPercentage, newPercentage);
 

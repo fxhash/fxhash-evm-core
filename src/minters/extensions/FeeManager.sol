@@ -8,10 +8,12 @@ import {IFeeManager} from "src/interfaces/IFeeManager.sol";
 import {SCALE_FACTOR} from "src/utils/Constants.sol";
 
 contract FeeManager is IFeeManager, Ownable {
+    // Default values
     uint128 public platformFee;
     uint64 public mintPercentage;
     uint64 public splitPercentage;
 
+    mapping(address => bool) public customFees;
     mapping(address => uint128) public platformFees;
     mapping(address => uint64) public mintPercentages;
     mapping(address => uint64) public splitPercentages;
@@ -24,6 +26,11 @@ contract FeeManager is IFeeManager, Ownable {
     }
 
     receive() external payable {}
+
+    function setCustomFees(address _token, bool _flag) external onlyOwner {
+        emit CustomFeesUpdated(_token, customFees[_token], _flag);
+        customFees[_token] = _flag;
+    }
 
     function setPlatformFee(address _token, uint128 _platformFee) external onlyOwner {
         if (_token == address(0)) {
@@ -73,14 +80,14 @@ contract FeeManager is IFeeManager, Ownable {
     }
 
     function getPlatformFee(address _token) public view returns (uint128) {
-        return platformFees[_token] == 0 ? platformFee : platformFees[_token];
+        return customFees[_token] ? platformFees[_token] : platformFee;
     }
 
     function getMintPercentage(address _token) public view returns (uint64) {
-        return mintPercentages[_token] == 0 ? mintPercentage : mintPercentages[_token];
+        return customFees[_token] ? mintPercentages[_token] : mintPercentage;
     }
 
     function getSplitPercentage(address _token) public view returns (uint64) {
-        return splitPercentages[_token] == 0 ? splitPercentage : splitPercentages[_token];
+        return customFees[_token] ? splitPercentages[_token] : splitPercentage;
     }
 }

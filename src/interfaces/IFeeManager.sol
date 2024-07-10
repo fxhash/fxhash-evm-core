@@ -2,6 +2,8 @@
 pragma solidity 0.8.23;
 
 interface IFeeManager {
+    event CustomFeesUpdated(address _token, bool _prevFlag, bool _newFlag);
+
     event PlatformFeeUpdated(address _token, uint128 _prevFee, uint128 _newFee);
 
     event MintPercentageUpdated(address _token, uint64 _prevPercentage, uint64 _newPercentage);
@@ -9,6 +11,8 @@ interface IFeeManager {
     event SplitPercentageUpdated(address _token, uint64 _prevPercentage, uint64 _newPercentage);
 
     error InvalidPercentage();
+
+    function setCustomFees(address token, bool _flag) external;
 
     function setPlatformFee(address token, uint128 _platformFee) external;
 
@@ -23,6 +27,8 @@ interface IFeeManager {
         uint256 _price,
         uint256 _amount
     ) external view returns (uint256, uint256, uint256);
+
+    function customFees(address _token) external view returns (bool);
 
     function mintPercentage() external view returns (uint64);
 
