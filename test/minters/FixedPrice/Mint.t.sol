@@ -6,7 +6,7 @@ import "test/minters/FixedPrice/FixedPriceTest.t.sol";
 import {Ownable} from "solady/src/auth/Ownable.sol";
 
 contract Mint is FixedPriceTest {
-    function test_Mint_Fixed() public {
+    function test_Mint() public {
         vm.prank(FRAME_CONTROLLER);
         fixedPrice.mint(fxGenArtProxy, mintId, fId, alice);
         (, , uint128 remainingAllocation) = fixedPrice.reserves(fxGenArtProxy, mintId);
@@ -56,7 +56,9 @@ contract Mint is FixedPriceTest {
 
     function test_RevertsWhen_TooMany() public {
         vm.startPrank(FRAME_CONTROLLER);
-        fixedPrice.buy{value: price * MINTER_ALLOCATION}(fxGenArtProxy, mintId, MINTER_ALLOCATION, alice);
+        (platformFee, , ) = feeManager.calculateFee(fxGenArtProxy, price, MINTER_ALLOCATION);
+        price = (price * MINTER_ALLOCATION) + platformFee;
+        fixedPrice.buy{value: price}(fxGenArtProxy, mintId, MINTER_ALLOCATION, alice);
         vm.expectRevert(TOO_MANY_ERROR);
         fixedPrice.mint(fxGenArtProxy, mintId, fId, alice);
         vm.stopPrank();

@@ -5,7 +5,8 @@ import "test/minters/FixedPrice/FixedPriceTest.t.sol";
 
 contract Buy is FixedPriceTest {
     function test_Buy() public {
-        fixedPrice.buy{value: price}(fxGenArtProxy, mintId, quantity, alice);
+        (platformFee, , ) = feeManager.calculateFee(fxGenArtProxy, price, quantity);
+        fixedPrice.buy{value: price + platformFee}(fxGenArtProxy, mintId, quantity, alice);
         assertEq(FxGenArt721(fxGenArtProxy).balanceOf(alice), 1);
     }
 

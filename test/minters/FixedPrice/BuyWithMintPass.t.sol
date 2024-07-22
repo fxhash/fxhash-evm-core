@@ -29,7 +29,9 @@ contract BuyWithMintPass is FixedPriceTest {
         digest = fixedPrice.generateTypedDataHash(fxGenArtProxy, mintId, signerNonce, claimIndex, alice);
         (v, r, s) = vm.sign(signerPk, digest);
         vm.prank(alice);
-        fixedPrice.buyMintPass{value: quantity * price}(
+        (platformFee, , ) = feeManager.calculateFee(fxGenArtProxy, price, quantity);
+        price = quantity * price + platformFee;
+        fixedPrice.buyMintPass{value: price}(
             fxGenArtProxy,
             mintId,
             quantity,
@@ -39,7 +41,7 @@ contract BuyWithMintPass is FixedPriceTest {
         );
     }
 
-    function test_RevertsWhen_NotClaimer_BuyWithMintPass() public {
+    function test_RevertsWhen_NotClaimer() public {
         digest = fixedPrice.generateTypedDataHash(fxGenArtProxy, mintId, signerNonce, claimIndex, alice);
         (v, r, s) = vm.sign(signerPk, digest);
         vm.prank(bob);
@@ -54,7 +56,7 @@ contract BuyWithMintPass is FixedPriceTest {
         );
     }
 
-    function test_RevertsWhen_SignatureInvalid_BuyWithMintPass() public {
+    function test_RevertsWhen_SignatureInvalid() public {
         digest = fixedPrice.generateTypedDataHash(fxGenArtProxy, mintId, signerNonce, claimIndex, alice);
         (v, r, s) = vm.sign(2, digest);
         vm.prank(alice);
@@ -69,11 +71,13 @@ contract BuyWithMintPass is FixedPriceTest {
         );
     }
 
-    function test_RevertsWhen_PassAlreadyClaimed_BuyWithMintPass() public {
+    function test_RevertsWhen_PassAlreadyClaimed() public {
         digest = fixedPrice.generateTypedDataHash(fxGenArtProxy, mintId, signerNonce, claimIndex, alice);
         (v, r, s) = vm.sign(signerPk, digest);
         vm.prank(alice);
-        fixedPrice.buyMintPass{value: quantity * price}(
+        (platformFee, , ) = feeManager.calculateFee(fxGenArtProxy, price, quantity);
+        price = quantity * price + platformFee;
+        fixedPrice.buyMintPass{value: price}(
             fxGenArtProxy,
             mintId,
             quantity,

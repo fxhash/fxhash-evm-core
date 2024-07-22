@@ -317,14 +317,15 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
         if (_to == address(0)) revert AddressZero();
 
         uint256 price = _amount * prices[_token][_reserveId];
-        if (msg.value < price) revert InvalidPayment();
-
-        reserve.allocation -= _amount.safeCastTo128();
         (uint256 platformFee, uint256 mintFee, uint256 splitAmount) = IFeeManager(feeManager).calculateFee(
             _token,
             price,
             _amount
         );
+
+        if (msg.value != price + platformFee) revert InvalidPayment();
+
+        reserve.allocation -= _amount.safeCastTo128();
 
         if (splitAmount > 0) platformFee = platformFee - splitAmount;
 

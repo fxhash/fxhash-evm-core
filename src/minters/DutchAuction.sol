@@ -264,7 +264,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
 
         emit Withdrawn(_token, _reserveId, saleReceiver, proceeds);
 
-        // Transfers the sale proceeds to the sale receiver
+        // Transfers the sale proceeds to the fee manager and sale receiver
         SafeTransferLib.safeTransferETH(feeManager, platformFee + mintFee);
         SafeTransferLib.safeTransferETH(saleReceiver, proceeds - platformFee - mintFee + splitAmount);
     }

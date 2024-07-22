@@ -14,7 +14,8 @@ contract Withdraw is FixedPriceTest {
     }
 
     function test_RevertsWhen_InsufficientFunds() public {
-        fixedPrice.buy{value: price}(fxGenArtProxy, mintId, quantity, alice);
+        (platformFee, , ) = feeManager.calculateFee(fxGenArtProxy, price, quantity);
+        fixedPrice.buy{value: price + platformFee}(fxGenArtProxy, mintId, quantity, alice);
         vm.expectRevert(INSUFFICIENT_FUNDS_ERROR);
         fixedPrice.withdraw(bob);
     }
