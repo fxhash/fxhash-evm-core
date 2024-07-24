@@ -10,8 +10,8 @@ import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 
 contract Custom is Script {
     // Contracts
-    FxRoleRegistry internal fxRoleRegistry;
     FixedPriceParamsV1 internal fixedPriceParams;
+    FxRoleRegistry internal fxRoleRegistry;
 
     // State
     address internal admin;
@@ -36,7 +36,7 @@ contract Custom is Script {
         if (block.chainid == SEPOLIA) {
             fxRoleRegistry = FxRoleRegistry(0x92B70c5C6E676BdC395DfD911c07392fc7C36E4F);
         } else if (block.chainid == BASE_SEPOLIA) {
-            fxRoleRegistry = FxRoleRegistry(0xB809Cd1675bb6a200128661C5A8e342a64a01748);
+            fxRoleRegistry = FxRoleRegistry(0x179f5B8FE1c270D7fC1807355F3fd981A30e21A6);
         }
     }
 

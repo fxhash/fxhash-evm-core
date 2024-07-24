@@ -9,11 +9,9 @@ import {FarcasterFrameV1} from "src/minters/v1/FarcasterFrameV1.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 
 contract Farcaster is Script {
-    // Core
-    FxRoleRegistry internal fxRoleRegistry;
-
-    // Periphery
+    // Contracts
     FarcasterFrameV1 internal farcasterFrame;
+    FxRoleRegistry internal fxRoleRegistry;
 
     // State
     address internal admin;
@@ -35,7 +33,9 @@ contract Farcaster is Script {
 
     function setUp() public virtual {
         admin = msg.sender;
-        fxRoleRegistry = FxRoleRegistry(0x04eE16C868931422231C82025485E0Fe66dE2f55);
+        if (block.chainid == BASE_SEPOLIA) {
+            fxRoleRegistry = FxRoleRegistry(0x179f5B8FE1c270D7fC1807355F3fd981A30e21A6);
+        }
     }
 
     /*//////////////////////////////////////////////////////////////////////////

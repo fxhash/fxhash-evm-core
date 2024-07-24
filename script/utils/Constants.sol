@@ -6,6 +6,7 @@ uint256 constant MAINNET = 1;
 uint256 constant GOERLI = 5;
 uint256 constant HOLESKY = 17000;
 uint256 constant SEPOLIA = 11155111;
+uint256 constant BASE_MAINNET = 8453;
 uint256 constant BASE_SEPOLIA = 84532;
 
 // Allowlist
