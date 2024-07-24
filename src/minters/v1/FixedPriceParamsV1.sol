@@ -10,19 +10,18 @@ import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 
-import {IFeeManager} from "src/interfaces/IFeeManager.sol";
-import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
-import {IToken} from "src/interfaces/IToken.sol";
+import {IFixedPriceParamsV1} from "src/interfaces/v1/IFixedPriceParamsV1.sol";
+import {IFxGenArt721} from "src/interfaces/IFxGenArt721.sol";
 import {ReserveInfo} from "src/lib/Structs.sol";
 
 import {OPEN_EDITION_SUPPLY, TIME_UNLIMITED} from "src/utils/Constants.sol";
 
 /**
- * @title FixedPrice
+ * @title FixedPriceParamsV1
  * @author fx(hash)
- * @dev See the documentation in {IFixedPrice}
+ * @dev See the documentation in {IFixedPriceParamsV1}
  */
-contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
+contract FixedPriceParamsV1 is IFixedPriceParamsV1, Allowlist, MintPass, Ownable, Pausable {
     using SafeCastLib for uint256;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -55,48 +54,26 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
     LibMap.Uint128Map internal saleProceeds;
 
     /**
-     * @inheritdoc IFixedPrice
-     */
-    address public feeManager;
-
-    /**
-     * @inheritdoc IFixedPrice
-     */
-    address public frameController;
-
-    /**
-     * @inheritdoc IFixedPrice
+     * @inheritdoc IFixedPriceParamsV1
      */
     mapping(address => mapping(uint256 => bytes32)) public merkleRoots;
 
     /**
-     * @inheritdoc IFixedPrice
+     * @inheritdoc IFixedPriceParamsV1
      */
     mapping(address => uint256[]) public prices;
 
     /**
-     * @inheritdoc IFixedPrice
+     * @inheritdoc IFixedPriceParamsV1
      */
     mapping(address => ReserveInfo[]) public reserves;
-
-    /**
-     * @inheritdoc IFixedPrice
-     */
-    mapping(address => uint256) public maxAmounts;
-
-    /**
-     * @inheritdoc IFixedPrice
-     */
-    mapping(uint256 => mapping(address => uint256)) public totalMinted;
 
     /*//////////////////////////////////////////////////////////////////////////
                                 CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(address _owner, address _frameController, address _feeManager) {
+    constructor(address _owner) {
         _initializeOwner(_owner);
-        frameController = _frameController;
-        feeManager = _feeManager;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -104,83 +81,59 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @inheritdoc IFixedPrice
+     * @inheritdoc IFixedPriceParamsV1
      */
-    function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable whenNotPaused {
+    function buy(
+        address _token,
+        uint256 _reserveId,
+        address _to,
+        bytes calldata _fxParams
+    ) external payable whenNotPaused {
         bytes32 merkleRoot = _getMerkleRoot(_token, _reserveId);
         address signer = signingAuthorities[_token][_reserveId];
         if (merkleRoot != bytes32(0)) revert NoPublicMint();
         if (signer != address(0)) revert AddressZero();
-        _buy(_token, _reserveId, _amount, _to);
+        _buy(_token, _reserveId, _to, _fxParams);
     }
 
     /**
-     * @inheritdoc IFixedPrice
+     * @inheritdoc IFixedPriceParamsV1
      */
     function buyAllowlist(
         address _token,
         uint256 _reserveId,
         address _to,
         uint256[] calldata _indexes,
-        bytes32[][] calldata _proofs
+        bytes32[][] calldata _proofs,
+        bytes calldata _fxParams
     ) external payable whenNotPaused {
         bytes32 merkleRoot = _getMerkleRoot(_token, _reserveId);
         if (merkleRoot == bytes32(0)) revert NoAllowlist();
         LibBitmap.Bitmap storage claimBitmap = claimedMerkleTreeSlots[_token][_reserveId];
-        uint256 amount = _proofs.length;
-        for (uint256 i; i < amount; ++i) {
-            _claimSlot(_token, _reserveId, _indexes[i], _to, _proofs[i], claimBitmap);
-        }
-
-        _buy(_token, _reserveId, amount, _to);
+        _claimSlot(_token, _reserveId, _indexes[0], _to, _proofs[0], claimBitmap);
+        _buy(_token, _reserveId, _to, _fxParams);
     }
 
     /**
-     * @inheritdoc IFixedPrice
+     * @inheritdoc IFixedPriceParamsV1
      */
     function buyMintPass(
         address _token,
         uint256 _reserveId,
-        uint256 _amount,
         address _to,
         uint256 _index,
-        bytes calldata _signature
+        bytes calldata _signature,
+        bytes calldata _fxParams
     ) external payable whenNotPaused {
         address signer = signingAuthorities[_token][_reserveId];
         if (signer == address(0)) revert NoSigningAuthority();
         LibBitmap.Bitmap storage claimBitmap = claimedMintPasses[_token][_reserveId];
         _claimMintPass(_token, _reserveId, _index, _to, _signature, claimBitmap);
-        _buy(_token, _reserveId, _amount, _to);
+        _buy(_token, _reserveId, _to, _fxParams);
     }
 
     /**
-     * @inheritdoc IFixedPrice
-     */
-    function mint(address _token, uint256 _reserveId, uint256 _fId, address _to) external whenNotPaused {
-        uint256 length = reserves[_token].length;
-        if (length == 0) revert InvalidToken();
-        uint256 validReserve = getFirstValidReserve(_token);
-        if (_reserveId >= length || _reserveId < validReserve) revert InvalidReserve();
-        if (msg.sender != frameController) revert Unauthorized();
-        if (totalMinted[_fId][_token] == maxAmounts[_token]) revert MaxAmountExceeded();
-
-        totalMinted[_fId][_token]++;
-
-        ReserveInfo storage reserve = reserves[_token][_reserveId];
-        if (block.timestamp < reserve.startTime) revert NotStarted();
-        if (block.timestamp > reserve.endTime) revert Ended();
-        if (reserve.allocation == 0) revert TooMany();
-        if (_to == address(0)) revert AddressZero();
-
-        reserve.allocation--;
-
-        IToken(_token).mint(_to, 1, 0);
-
-        emit FrameMinted(_token, _to, _fId);
-    }
-
-    /**
-     * @inheritdoc IFixedPrice
+     * @inheritdoc IFixedPriceParamsV1
      */
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external whenNotPaused {
         uint256 nextReserve = reserves[msg.sender].length;
@@ -190,10 +143,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
         }
 
         if (_reserve.allocation == 0) revert InvalidAllocation();
-        (uint256 price, bytes32 merkleRoot, address signer, uint256 maxAmount) = abi.decode(
-            _mintDetails,
-            (uint256, bytes32, address, uint256)
-        );
+        (uint256 price, bytes32 merkleRoot, address signer) = abi.decode(_mintDetails, (uint256, bytes32, address));
         if (merkleRoot != bytes32(0)) {
             if (signer != address(0)) revert OnlyAuthorityOrAllowlist();
             merkleRoots[msg.sender][nextReserve] = merkleRoot;
@@ -203,33 +153,22 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
         }
 
         prices[msg.sender].push(price);
-        maxAmounts[msg.sender] = maxAmount;
         reserves[msg.sender].push(_reserve);
 
         bool openEdition = _reserve.allocation == OPEN_EDITION_SUPPLY ? true : false;
         bool timeUnlimited = _reserve.endTime == TIME_UNLIMITED ? true : false;
 
-        emit MintDetailsSet(
-            msg.sender,
-            nextReserve,
-            price,
-            _reserve,
-            merkleRoot,
-            signer,
-            openEdition,
-            timeUnlimited,
-            maxAmount
-        );
+        emit MintDetailsSet(msg.sender, nextReserve, price, _reserve, merkleRoot, signer, openEdition, timeUnlimited);
     }
 
     /**
-     * @inheritdoc IFixedPrice
+     * @inheritdoc IFixedPriceParamsV1
      */
     function withdraw(address _token) external whenNotPaused {
         uint256 proceeds = getSaleProceed(_token);
         if (proceeds == 0) revert InsufficientFunds();
 
-        address saleReceiver = IToken(_token).primaryReceiver();
+        address saleReceiver = IFxGenArt721(_token).primaryReceiver();
         _setSaleProceeds(_token, 0);
 
         SafeTransferLib.safeTransferETH(saleReceiver, proceeds);
@@ -242,30 +181,14 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @inheritdoc IFixedPrice
+     * @inheritdoc IFixedPriceParamsV1
      */
     function pause() external onlyOwner {
         _pause();
     }
 
     /**
-     * @inheritdoc IFixedPrice
-     */
-    function setFeeManager(address _feeManager) external onlyOwner {
-        emit FeeManagerSet(feeManager, _feeManager);
-        feeManager = _feeManager;
-    }
-
-    /**
-     * @inheritdoc IFixedPrice
-     */
-    function setFrameController(address _frameController) external onlyOwner {
-        emit FrameControllerSet(frameController, _frameController);
-        frameController = _frameController;
-    }
-
-    /**
-     * @inheritdoc IFixedPrice
+     * @inheritdoc IFixedPriceParamsV1
      */
     function unpause() external onlyOwner {
         _unpause();
@@ -276,21 +199,21 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @inheritdoc IFixedPrice
+     * @inheritdoc IFixedPriceParamsV1
      */
     function getFirstValidReserve(address _token) public view returns (uint256) {
         return LibMap.get(firstValidReserve, uint256(uint160(_token)));
     }
 
     /**
-     * @inheritdoc IFixedPrice
+     * @inheritdoc IFixedPriceParamsV1
      */
     function getLatestUpdate(address _token) public view returns (uint40) {
         return LibMap.get(latestUpdates, uint256(uint160(_token)));
     }
 
     /**
-     * @inheritdoc IFixedPrice
+     * @inheritdoc IFixedPriceParamsV1
      */
     function getSaleProceed(address _token) public view returns (uint128) {
         return LibMap.get(saleProceeds, uint256(uint160(_token)));
@@ -303,7 +226,7 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
     /**
      * @dev Purchases arbitrary amount of tokens at auction price and mints tokens to given account
      */
-    function _buy(address _token, uint256 _reserveId, uint256 _amount, address _to) internal {
+    function _buy(address _token, uint256 _reserveId, address _to, bytes calldata _fxParams) internal {
         uint256 length = reserves[_token].length;
         uint256 validReserve = getFirstValidReserve(_token);
 
@@ -313,29 +236,18 @@ contract FixedPrice is IFixedPrice, Allowlist, MintPass, Ownable, Pausable {
         ReserveInfo storage reserve = reserves[_token][_reserveId];
         if (block.timestamp < reserve.startTime) revert NotStarted();
         if (block.timestamp > reserve.endTime) revert Ended();
-        if (_amount > reserve.allocation) revert TooMany();
+        if (reserve.allocation == 0) revert TooMany();
         if (_to == address(0)) revert AddressZero();
 
-        uint256 price = _amount * prices[_token][_reserveId];
-        (uint256 platformFee, uint256 mintFee, uint256 splitAmount) = IFeeManager(feeManager).calculateFee(
-            _token,
-            price,
-            _amount
-        );
+        uint256 price = prices[_token][_reserveId];
+        if (msg.value != price) revert InvalidPayment();
 
-        if (msg.value != price + platformFee) revert InvalidPayment();
+        reserve.allocation--;
+        _setSaleProceeds(_token, getSaleProceed(_token) + price);
 
-        reserve.allocation -= _amount.safeCastTo128();
+        IFxGenArt721(_token).mintParams(_to, _fxParams);
 
-        if (splitAmount > 0) platformFee = platformFee - splitAmount;
-
-        _setSaleProceeds(_token, getSaleProceed(_token) + (price - mintFee + splitAmount));
-
-        SafeTransferLib.safeTransferETH(feeManager, mintFee + platformFee);
-
-        IToken(_token).mint(_to, _amount, price);
-
-        emit Purchase(_token, _reserveId, msg.sender, _amount, _to, price);
+        emit Purchase(_token, _reserveId, msg.sender, 1, _to, price, _fxParams);
     }
 
     /**

@@ -19,18 +19,18 @@ contract FixedPriceTest is BaseTest {
     uint256 internal splitAmount;
 
     // Errors
-    bytes4 internal ADDRESS_ZERO_ERROR = IFixedPrice.AddressZero.selector;
-    bytes4 internal ENDED_ERROR = IFixedPrice.Ended.selector;
-    bytes4 internal INSUFFICIENT_FUNDS_ERROR = IFixedPrice.InsufficientFunds.selector;
-    bytes4 internal INVALID_ALLOCATION_ERROR = IFixedPrice.InvalidAllocation.selector;
-    bytes4 internal INVALID_PAYMENT_ERROR = IFixedPrice.InvalidPayment.selector;
-    bytes4 internal INVALID_RESERVE_ERROR = IFixedPrice.InvalidReserve.selector;
-    bytes4 internal INVALID_TIMES_ERROR = IFixedPrice.InvalidTimes.selector;
-    bytes4 internal INVALID_TOKEN_ERROR = IFixedPrice.InvalidToken.selector;
-    bytes4 internal MAX_AMOUNT_EXCEEDED_ERROR = IFixedPrice.MaxAmountExceeded.selector;
-    bytes4 internal NO_PUBLIC_MINT_ERROR = IFixedPrice.NoPublicMint.selector;
-    bytes4 internal NOT_STARTED_ERROR = IFixedPrice.NotStarted.selector;
-    bytes4 internal TOO_MANY_ERROR = IFixedPrice.TooMany.selector;
+    bytes4 internal ADDRESS_ZERO_ERROR = IFixedPriceV2.AddressZero.selector;
+    bytes4 internal ENDED_ERROR = IFixedPriceV2.Ended.selector;
+    bytes4 internal INSUFFICIENT_FUNDS_ERROR = IFixedPriceV2.InsufficientFunds.selector;
+    bytes4 internal INVALID_ALLOCATION_ERROR = IFixedPriceV2.InvalidAllocation.selector;
+    bytes4 internal INVALID_PAYMENT_ERROR = IFixedPriceV2.InvalidPayment.selector;
+    bytes4 internal INVALID_RESERVE_ERROR = IFixedPriceV2.InvalidReserve.selector;
+    bytes4 internal INVALID_TIMES_ERROR = IFixedPriceV2.InvalidTimes.selector;
+    bytes4 internal INVALID_TOKEN_ERROR = IFixedPriceV2.InvalidToken.selector;
+    bytes4 internal MAX_AMOUNT_EXCEEDED_ERROR = IFixedPriceV2.MaxAmountExceeded.selector;
+    bytes4 internal NO_PUBLIC_MINT_ERROR = IFixedPriceV2.NoPublicMint.selector;
+    bytes4 internal NOT_STARTED_ERROR = IFixedPriceV2.NotStarted.selector;
+    bytes4 internal TOO_MANY_ERROR = IFixedPriceV2.TooMany.selector;
 
     /*//////////////////////////////////////////////////////////////////////////
                                      SETUP

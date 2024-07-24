@@ -5,13 +5,15 @@ import "forge-std/Script.sol";
 import "script/utils/Constants.sol";
 import "src/utils/Constants.sol";
 
-import {FixedPriceParams} from "src/minters/FixedPriceParams.sol";
+import {FarcasterFrameV1} from "src/minters/v1/FarcasterFrameV1.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 
-contract Custom is Script {
-    // Contracts
+contract Farcaster is Script {
+    // Core
     FxRoleRegistry internal fxRoleRegistry;
-    FixedPriceParams internal fixedPriceParams;
+
+    // Periphery
+    FarcasterFrameV1 internal farcasterFrame;
 
     // State
     address internal admin;
@@ -33,11 +35,7 @@ contract Custom is Script {
 
     function setUp() public virtual {
         admin = msg.sender;
-        if (block.chainid == SEPOLIA) {
-            fxRoleRegistry = FxRoleRegistry(0x92B70c5C6E676BdC395DfD911c07392fc7C36E4F);
-        } else if (block.chainid == BASE_SEPOLIA) {
-            fxRoleRegistry = FxRoleRegistry(0xB809Cd1675bb6a200128661C5A8e342a64a01748);
-        }
+        fxRoleRegistry = FxRoleRegistry(0x04eE16C868931422231C82025485E0Fe66dE2f55);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -46,10 +44,13 @@ contract Custom is Script {
 
     function _deployContracts() internal virtual {
         bytes32 salt = keccak256(abi.encode(vm.getNonce(admin)));
-        bytes memory creationCode = type(FixedPriceParams).creationCode;
-        fixedPriceParams = FixedPriceParams(_deployCreate2(creationCode, salt));
 
-        vm.label(address(fixedPriceParams), "FixedPriceParams");
+        // SignatureFrame
+        bytes memory creationCode = type(FarcasterFrameV1).creationCode;
+        bytes memory constructorArgs = abi.encode(admin, FRAME_CONTROLLER);
+        farcasterFrame = FarcasterFrameV1(_deployCreate2(creationCode, constructorArgs, salt));
+
+        vm.label(address(farcasterFrame), "FarcasterFrameV1");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -57,7 +58,7 @@ contract Custom is Script {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _grantRoles() internal virtual {
-        fxRoleRegistry.grantRole(MINTER_ROLE, address(fixedPriceParams));
+        fxRoleRegistry.grantRole(MINTER_ROLE, address(farcasterFrame));
     }
 
     /*//////////////////////////////////////////////////////////////////////////

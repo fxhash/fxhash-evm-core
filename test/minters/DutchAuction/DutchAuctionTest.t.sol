@@ -5,7 +5,7 @@ import "test/BaseTest.t.sol";
 
 contract DutchAuctionTest is BaseTest {
     // Contracts
-    DutchAuction internal refundableDA;
+    DutchAuctionV2 internal refundableDA;
 
     // State
     bool internal refund;
@@ -18,20 +18,20 @@ contract DutchAuctionTest is BaseTest {
     uint256 internal splitAmount;
 
     // Errors
-    bytes4 internal ADDRESS_ZERO_ERROR = IDutchAuction.AddressZero.selector;
-    bytes4 internal INSUFFICIENT_FUNDS_ERROR = IDutchAuction.InsufficientFunds.selector;
-    bytes4 internal INVALID_ALLOCATION_ERROR = IDutchAuction.InvalidAllocation.selector;
-    bytes4 internal INVALID_AMOUNT_ERROR = IDutchAuction.InvalidAmount.selector;
-    bytes4 internal INVALID_PAYMENT_ERROR = IDutchAuction.InvalidPayment.selector;
-    bytes4 internal INVALID_PRICE_ERROR = IDutchAuction.InvalidPrice.selector;
-    bytes4 internal INVALID_RESERVE_ERROR = IDutchAuction.InvalidReserve.selector;
-    bytes4 internal INVALID_STEP_ERROR = IDutchAuction.InvalidStep.selector;
-    bytes4 internal INVALID_TOKEN_ERROR = IDutchAuction.InvalidToken.selector;
-    bytes4 internal NO_REFUND_ERROR = IDutchAuction.NoRefund.selector;
-    bytes4 internal NON_REFUNDABLE_ERROR = IDutchAuction.NonRefundableDA.selector;
-    bytes4 internal NOT_STARTED_ERROR = IDutchAuction.NotStarted.selector;
-    bytes4 internal NOT_ENDED_ERROR = IDutchAuction.NotEnded.selector;
-    bytes4 internal PRICES_OUT_OF_ORDER_ERROR = IDutchAuction.PricesOutOfOrder.selector;
+    bytes4 internal ADDRESS_ZERO_ERROR = IDutchAuctionV2.AddressZero.selector;
+    bytes4 internal INSUFFICIENT_FUNDS_ERROR = IDutchAuctionV2.InsufficientFunds.selector;
+    bytes4 internal INVALID_ALLOCATION_ERROR = IDutchAuctionV2.InvalidAllocation.selector;
+    bytes4 internal INVALID_AMOUNT_ERROR = IDutchAuctionV2.InvalidAmount.selector;
+    bytes4 internal INVALID_PAYMENT_ERROR = IDutchAuctionV2.InvalidPayment.selector;
+    bytes4 internal INVALID_PRICE_ERROR = IDutchAuctionV2.InvalidPrice.selector;
+    bytes4 internal INVALID_RESERVE_ERROR = IDutchAuctionV2.InvalidReserve.selector;
+    bytes4 internal INVALID_STEP_ERROR = IDutchAuctionV2.InvalidStep.selector;
+    bytes4 internal INVALID_TOKEN_ERROR = IDutchAuctionV2.InvalidToken.selector;
+    bytes4 internal NO_REFUND_ERROR = IDutchAuctionV2.NoRefund.selector;
+    bytes4 internal NON_REFUNDABLE_ERROR = IDutchAuctionV2.NonRefundableDA.selector;
+    bytes4 internal NOT_STARTED_ERROR = IDutchAuctionV2.NotStarted.selector;
+    bytes4 internal NOT_ENDED_ERROR = IDutchAuctionV2.NotEnded.selector;
+    bytes4 internal PRICES_OUT_OF_ORDER_ERROR = IDutchAuctionV2.PricesOutOfOrder.selector;
 
     /*//////////////////////////////////////////////////////////////////////////
                                     SETUP
@@ -65,7 +65,7 @@ contract DutchAuctionTest is BaseTest {
     }
 
     function _deployRefundableDA() internal {
-        refundableDA = new DutchAuction(admin, address(feeManager));
+        refundableDA = new DutchAuctionV2(admin, address(feeManager));
     }
 
     function _configureReserve() internal {

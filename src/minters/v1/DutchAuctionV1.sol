@@ -10,17 +10,16 @@ import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 
-import {IDutchAuction, AuctionInfo, MinterInfo, RefundInfo} from "src/interfaces/IDutchAuction.sol";
-import {IFeeManager} from "src/interfaces/IFeeManager.sol";
+import {IDutchAuctionV1, AuctionInfo, MinterInfo, RefundInfo} from "src/interfaces/v1/IDutchAuctionV1.sol";
 import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IToken} from "src/interfaces/IToken.sol";
 
 /**
- * @title DutchAuction
+ * @title DutchAuctionV1
  * @author fx(hash)
- * @dev See the documentation in {IDutchAuction}
+ * @dev See the documentation in {IDutchAuctionV1}
  */
-contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
+contract DutchAuctionV1 is IDutchAuctionV1, Allowlist, MintPass, Ownable, Pausable {
     /*//////////////////////////////////////////////////////////////////////////
                                     STORAGE
     //////////////////////////////////////////////////////////////////////////*/
@@ -46,37 +45,32 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
     LibMap.Uint40Map internal firstValidReserve;
 
     /**
-     * @inheritdoc IDutchAuction
-     */
-    address public feeManager;
-
-    /**
-     * @inheritdoc IDutchAuction
+     * @inheritdoc IDutchAuctionV1
      */
     mapping(address => AuctionInfo[]) public auctions;
 
     /**
-     * @inheritdoc IDutchAuction
+     * @inheritdoc IDutchAuctionV1
      */
     mapping(address => mapping(uint256 => bytes32)) public merkleRoots;
 
     /**
-     * @inheritdoc IDutchAuction
+     * @inheritdoc IDutchAuctionV1
      */
     mapping(address => mapping(uint256 => RefundInfo)) public refunds;
 
     /**
-     * @inheritdoc IDutchAuction
+     * @inheritdoc IDutchAuctionV1
      */
     mapping(address => ReserveInfo[]) public reserves;
 
     /**
-     * @inheritdoc IDutchAuction
+     * @inheritdoc IDutchAuctionV1
      */
     mapping(address => mapping(uint256 => uint256)) public saleProceeds;
 
     /**
-     * @inheritdoc IDutchAuction
+     * @inheritdoc IDutchAuctionV1
      */
     mapping(address => mapping(uint256 => uint256)) public numberMinted;
 
@@ -84,9 +78,8 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
                                 CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(address _owner, address _feeManager) {
+    constructor(address _owner) {
         _initializeOwner(_owner);
-        feeManager = _feeManager;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -94,7 +87,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @inheritdoc IDutchAuction
+     * @inheritdoc IDutchAuctionV1
      */
     function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable whenNotPaused {
         bytes32 merkleRoot = _getMerkleRoot(_token, _reserveId);
@@ -105,7 +98,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
     }
 
     /**
-     * @inheritdoc IDutchAuction
+     * @inheritdoc IDutchAuctionV1
      */
     function buyAllowlist(
         address _token,
@@ -126,7 +119,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
     }
 
     /**
-     * @inheritdoc IDutchAuction
+     * @inheritdoc IDutchAuctionV1
      */
     function buyMintPass(
         address _token,
@@ -144,7 +137,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
     }
 
     /**
-     * @inheritdoc IDutchAuction
+     * @inheritdoc IDutchAuctionV1
      */
     function refund(address _token, uint256 _reserveId, address _buyer) external whenNotPaused {
         // Validates token address, reserve information and given account
@@ -179,7 +172,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
     }
 
     /**
-     * @inheritdoc IDutchAuction
+     * @inheritdoc IDutchAuctionV1
      */
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external whenNotPaused {
         uint256 nextReserve = reserves[msg.sender].length;
@@ -219,7 +212,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
     }
 
     /**
-     * @inheritdoc IDutchAuction
+     * @inheritdoc IDutchAuctionV1
      */
     function withdraw(address _token, uint256 _reserveId) external whenNotPaused {
         // Validates token address, reserve information and given account
@@ -242,21 +235,12 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
 
         // Gets the sale proceeds for the reserve
         uint256 proceeds;
-        uint256 totalMinted = numberMinted[_token][_reserveId];
         if (refundAuction) {
-            proceeds = lastPrice * totalMinted;
+            proceeds = lastPrice * numberMinted[_token][_reserveId];
         } else {
             proceeds = saleProceeds[_token][_reserveId];
         }
         if (proceeds == 0) revert InsufficientFunds();
-
-        (uint256 platformFee, uint256 mintFee, uint256 splitAmount) = IFeeManager(feeManager).calculateFee(
-            _token,
-            proceeds,
-            totalMinted
-        );
-
-        if (splitAmount > 0) platformFee = platformFee - splitAmount;
 
         // Clears the sale proceeds for the reserve
         delete numberMinted[_token][_reserveId];
@@ -264,9 +248,8 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
 
         emit Withdrawn(_token, _reserveId, saleReceiver, proceeds);
 
-        // Transfers the sale proceeds to the fee manager and sale receiver
-        SafeTransferLib.safeTransferETH(feeManager, platformFee + mintFee);
-        SafeTransferLib.safeTransferETH(saleReceiver, proceeds - platformFee - mintFee + splitAmount);
+        // Transfers the sale proceeds to the sale receiver
+        SafeTransferLib.safeTransferETH(saleReceiver, proceeds);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -274,22 +257,14 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @inheritdoc IDutchAuction
+     * @inheritdoc IDutchAuctionV1
      */
     function pause() external onlyOwner {
         _pause();
     }
 
     /**
-     * @inheritdoc IDutchAuction
-     */
-    function setFeeManager(address _feeManager) external onlyOwner {
-        emit FeeManagerSet(feeManager, _feeManager);
-        feeManager = _feeManager;
-    }
-
-    /**
-     * @inheritdoc IDutchAuction
+     * @inheritdoc IDutchAuctionV1
      */
     function unpause() external onlyOwner {
         _unpause();
@@ -300,21 +275,21 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @inheritdoc IDutchAuction
+     * @inheritdoc IDutchAuctionV1
      */
     function getFirstValidReserve(address _token) public view returns (uint256) {
         return LibMap.get(firstValidReserve, uint256(uint160(_token)));
     }
 
     /**
-     * @inheritdoc IDutchAuction
+     * @inheritdoc IDutchAuctionV1
      */
     function getLatestUpdate(address _token) public view returns (uint40) {
         return LibMap.get(latestUpdates, uint256(uint160(_token)));
     }
 
     /**
-     * @inheritdoc IDutchAuction
+     * @inheritdoc IDutchAuctionV1
      */
     function getPrice(address _token, uint256 _reserveId) public view returns (uint256) {
         ReserveInfo memory reserve = reserves[_token][_reserveId];
@@ -406,6 +381,9 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
         return _daInfo.prices[step];
     }
 
+    /**
+     * @dev Gets the last auction price of the reserve
+     */
     function _getLastPrice(
         ReserveInfo memory _reserve,
         address _token,

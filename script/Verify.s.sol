@@ -6,7 +6,7 @@ import "src/utils/Constants.sol";
 
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 
-contract VerifyArtist is Script {
+contract Verify is Script {
     address[] internal artists;
     address internal constant ROLE_REGISTRY = 0x8d3C748e99066e15425BA1620cdD066d85D6d918;
 

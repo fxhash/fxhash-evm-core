@@ -5,15 +5,13 @@ import "forge-std/Script.sol";
 import "script/utils/Constants.sol";
 import "src/utils/Constants.sol";
 
-import {FarcasterFrame} from "src/minters/FarcasterFrame.sol";
+import {FixedPriceParamsV1} from "src/minters/v1/FixedPriceParamsV1.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 
-contract Farcaster is Script {
-    // Core
+contract Custom is Script {
+    // Contracts
     FxRoleRegistry internal fxRoleRegistry;
-
-    // Periphery
-    FarcasterFrame internal farcasterFrame;
+    FixedPriceParamsV1 internal fixedPriceParams;
 
     // State
     address internal admin;
@@ -35,7 +33,11 @@ contract Farcaster is Script {
 
     function setUp() public virtual {
         admin = msg.sender;
-        fxRoleRegistry = FxRoleRegistry(0x04eE16C868931422231C82025485E0Fe66dE2f55);
+        if (block.chainid == SEPOLIA) {
+            fxRoleRegistry = FxRoleRegistry(0x92B70c5C6E676BdC395DfD911c07392fc7C36E4F);
+        } else if (block.chainid == BASE_SEPOLIA) {
+            fxRoleRegistry = FxRoleRegistry(0xB809Cd1675bb6a200128661C5A8e342a64a01748);
+        }
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -44,13 +46,10 @@ contract Farcaster is Script {
 
     function _deployContracts() internal virtual {
         bytes32 salt = keccak256(abi.encode(vm.getNonce(admin)));
+        bytes memory creationCode = type(FixedPriceParamsV1).creationCode;
+        fixedPriceParams = FixedPriceParamsV1(_deployCreate2(creationCode, salt));
 
-        // SignatureFrame
-        bytes memory creationCode = type(FarcasterFrame).creationCode;
-        bytes memory constructorArgs = abi.encode(admin, FRAME_CONTROLLER);
-        farcasterFrame = FarcasterFrame(_deployCreate2(creationCode, constructorArgs, salt));
-
-        vm.label(address(farcasterFrame), "FarcasterFrame");
+        vm.label(address(fixedPriceParams), "FixedPriceParamsV1");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -58,7 +57,7 @@ contract Farcaster is Script {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _grantRoles() internal virtual {
-        fxRoleRegistry.grantRole(MINTER_ROLE, address(farcasterFrame));
+        fxRoleRegistry.grantRole(MINTER_ROLE, address(fixedPriceParams));
     }
 
     /*//////////////////////////////////////////////////////////////////////////

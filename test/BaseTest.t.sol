@@ -16,11 +16,9 @@ import {Strings} from "openzeppelin/contracts/utils/Strings.sol";
 import {TicketLib} from "test/lib/helpers/TicketLib.sol";
 import {TokenLib} from "test/lib/helpers/TokenLib.sol";
 
-import {IDutchAuction, AuctionInfo} from "src/interfaces/IDutchAuction.sol";
-import {IFarcasterFrame} from "src/interfaces/IFarcasterFrame.sol";
+import {IDutchAuctionV2, AuctionInfo} from "src/interfaces/IDutchAuctionV2.sol";
 import {IFeeManager} from "src/interfaces/IFeeManager.sol";
-import {IFixedPrice} from "src/interfaces/IFixedPrice.sol";
-import {IFixedPriceParams} from "src/interfaces/IFixedPriceParams.sol";
+import {IFixedPriceV2} from "src/interfaces/IFixedPriceV2.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {IFxGenArt721, GenArtInfo, InitInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IFxIssuerFactory} from "src/interfaces/IFxIssuerFactory.sol";
