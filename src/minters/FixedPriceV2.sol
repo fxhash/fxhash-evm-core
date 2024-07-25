@@ -317,7 +317,7 @@ contract FixedPriceV2 is IFixedPriceV2, Allowlist, MintPass, Ownable, Pausable {
         if (_to == address(0)) revert AddressZero();
 
         uint256 price = _amount * prices[_token][_reserveId];
-        (uint256 platformFee, uint256 mintFee, uint256 splitAmount) = IFeeManager(feeManager).calculateFee(
+        (uint256 platformFee, uint256 mintFee, uint256 splitAmount) = IFeeManager(feeManager).calculateFees(
             _token,
             price,
             _amount

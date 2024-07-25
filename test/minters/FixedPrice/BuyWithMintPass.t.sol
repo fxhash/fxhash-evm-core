@@ -29,7 +29,7 @@ contract BuyWithMintPass is FixedPriceTest {
         digest = fixedPrice.generateTypedDataHash(fxGenArtProxy, mintId, signerNonce, claimIndex, alice);
         (v, r, s) = vm.sign(signerPk, digest);
         vm.prank(alice);
-        (platformFee, , ) = feeManager.calculateFee(fxGenArtProxy, price, quantity);
+        (platformFee, , ) = feeManager.calculateFees(fxGenArtProxy, price, quantity);
         price = quantity * price + platformFee;
         fixedPrice.buyMintPass{value: price}(
             fxGenArtProxy,
@@ -75,7 +75,7 @@ contract BuyWithMintPass is FixedPriceTest {
         digest = fixedPrice.generateTypedDataHash(fxGenArtProxy, mintId, signerNonce, claimIndex, alice);
         (v, r, s) = vm.sign(signerPk, digest);
         vm.prank(alice);
-        (platformFee, , ) = feeManager.calculateFee(fxGenArtProxy, price, quantity);
+        (platformFee, , ) = feeManager.calculateFees(fxGenArtProxy, price, quantity);
         price = quantity * price + platformFee;
         fixedPrice.buyMintPass{value: price}(
             fxGenArtProxy,

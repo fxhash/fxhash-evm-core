@@ -56,7 +56,7 @@ contract Mint is FixedPriceTest {
 
     function test_RevertsWhen_TooMany() public {
         vm.startPrank(FRAME_CONTROLLER);
-        (platformFee, , ) = feeManager.calculateFee(fxGenArtProxy, price, MINTER_ALLOCATION);
+        (platformFee, , ) = feeManager.calculateFees(fxGenArtProxy, price, MINTER_ALLOCATION);
         price = (price * MINTER_ALLOCATION) + platformFee;
         fixedPrice.buy{value: price}(fxGenArtProxy, mintId, MINTER_ALLOCATION, alice);
         vm.expectRevert(TOO_MANY_ERROR);

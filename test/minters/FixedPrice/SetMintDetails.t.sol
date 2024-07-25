@@ -55,7 +55,7 @@ contract SetMintDetails is FixedPriceTest {
         vm.expectRevert(INVALID_RESERVE_ERROR);
         fixedPrice.buy(address(this), 0, 1, address(this));
 
-        (platformFee, mintFee, splitAmount) = feeManager.calculateFee(address(this), 0, 1);
+        (platformFee, mintFee, splitAmount) = feeManager.calculateFees(address(this), 0, 1);
         fixedPrice.buy{value: platformFee}(address(this), 2, 1, address(this));
 
         vm.expectRevert(INVALID_RESERVE_ERROR);

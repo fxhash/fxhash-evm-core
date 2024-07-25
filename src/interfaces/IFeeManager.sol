@@ -28,7 +28,7 @@ interface IFeeManager {
 
     function withdraw(address _to) external;
 
-    function calculateFee(
+    function calculateFees(
         address _token,
         uint256 _price,
         uint256 _amount
@@ -36,7 +36,7 @@ interface IFeeManager {
 
     function customFees(address _token) external view returns (bool, uint120, uint64, uint64);
 
-    function getTokenFees(address _token) external view returns (uint120, uint64, uint64);
+    function getFees(address _token) external view returns (uint120, uint64, uint64);
 
     function mintPercentage() external view returns (uint64);
 

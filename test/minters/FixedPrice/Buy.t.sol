@@ -5,21 +5,21 @@ import "test/minters/FixedPrice/FixedPriceTest.t.sol";
 
 contract Buy is FixedPriceTest {
     function test_Buy() public {
-        (platformFee, , ) = feeManager.calculateFee(fxGenArtProxy, price, quantity);
+        (platformFee, , ) = feeManager.calculateFees(fxGenArtProxy, price, quantity);
         fixedPrice.buy{value: price + platformFee}(fxGenArtProxy, mintId, quantity, alice);
         assertEq(FxGenArt721(fxGenArtProxy).balanceOf(alice), 1);
     }
 
     function test_BuyWhen_NoCustomFees() public {
         _setCustomFees(admin, fxGenArtProxy, true, 0, 0, 0);
-        (platformFee, mintFee, splitAmount) = feeManager.calculateFee(fxGenArtProxy, price, quantity);
+        (platformFee, mintFee, splitAmount) = feeManager.calculateFees(fxGenArtProxy, price, quantity);
         fixedPrice.buy{value: price + platformFee}(fxGenArtProxy, mintId, quantity, alice);
         assertEq(fixedPrice.getSaleProceed(fxGenArtProxy), price);
     }
 
     function test_BuyWhen_AllCustomFees() public {
         _setCustomFees(admin, fxGenArtProxy, true, PLATFORM_FEE, MINT_PERCENTAGE, SPLIT_PERCENTAGE);
-        (platformFee, mintFee, splitAmount) = feeManager.calculateFee(fxGenArtProxy, price, quantity);
+        (platformFee, mintFee, splitAmount) = feeManager.calculateFees(fxGenArtProxy, price, quantity);
         fixedPrice.buy{value: price + platformFee}(fxGenArtProxy, mintId, quantity, alice);
         assertEq(fixedPrice.getSaleProceed(fxGenArtProxy), price - mintFee + splitAmount);
         assertEq(address(feeManager).balance, platformFee + mintFee - splitAmount);
@@ -28,7 +28,7 @@ contract Buy is FixedPriceTest {
 
     function test_BuyWhen_CustomPlatformFee() public {
         _setCustomFees(admin, fxGenArtProxy, true, PLATFORM_FEE, 0, 0);
-        (platformFee, mintFee, splitAmount) = feeManager.calculateFee(fxGenArtProxy, price, quantity);
+        (platformFee, mintFee, splitAmount) = feeManager.calculateFees(fxGenArtProxy, price, quantity);
         fixedPrice.buy{value: price + platformFee}(fxGenArtProxy, mintId, quantity, alice);
         assertEq(fixedPrice.getSaleProceed(fxGenArtProxy), price);
         assertEq(address(feeManager).balance, platformFee);
@@ -37,7 +37,7 @@ contract Buy is FixedPriceTest {
 
     function test_BuyWhen_CustomMintFee() public {
         _setCustomFees(admin, fxGenArtProxy, true, 0, MINT_PERCENTAGE, 0);
-        (platformFee, mintFee, splitAmount) = feeManager.calculateFee(fxGenArtProxy, price, quantity);
+        (platformFee, mintFee, splitAmount) = feeManager.calculateFees(fxGenArtProxy, price, quantity);
         fixedPrice.buy{value: price + platformFee}(fxGenArtProxy, mintId, quantity, alice);
         assertEq(fixedPrice.getSaleProceed(fxGenArtProxy), price - mintFee);
         assertEq(address(feeManager).balance, mintFee);
@@ -46,7 +46,7 @@ contract Buy is FixedPriceTest {
 
     function test_BuyWhen_CustomSplitFee() public {
         _setCustomFees(admin, fxGenArtProxy, true, PLATFORM_FEE, 0, SPLIT_PERCENTAGE);
-        (platformFee, mintFee, splitAmount) = feeManager.calculateFee(fxGenArtProxy, price, quantity);
+        (platformFee, mintFee, splitAmount) = feeManager.calculateFees(fxGenArtProxy, price, quantity);
         fixedPrice.buy{value: price + platformFee}(fxGenArtProxy, mintId, quantity, alice);
         assertEq(fixedPrice.getSaleProceed(fxGenArtProxy), price + splitAmount);
         assertEq(address(feeManager).balance, platformFee - splitAmount);
@@ -55,7 +55,7 @@ contract Buy is FixedPriceTest {
 
     function test_BuyWhen_CustomSplitFeeNoPlatformFee() public {
         _setCustomFees(admin, fxGenArtProxy, true, 0, 0, SPLIT_PERCENTAGE);
-        (platformFee, mintFee, splitAmount) = feeManager.calculateFee(fxGenArtProxy, price, quantity);
+        (platformFee, mintFee, splitAmount) = feeManager.calculateFees(fxGenArtProxy, price, quantity);
         fixedPrice.buy{value: price + platformFee}(fxGenArtProxy, mintId, quantity, alice);
         assertEq(fixedPrice.getSaleProceed(fxGenArtProxy), price);
         assertEq(address(feeManager).balance, 0);
@@ -64,7 +64,7 @@ contract Buy is FixedPriceTest {
 
     function test_BuyWhen_CustomPlatformAndMintFee() public {
         _setCustomFees(admin, fxGenArtProxy, true, PLATFORM_FEE, MINT_PERCENTAGE, 0);
-        (platformFee, mintFee, splitAmount) = feeManager.calculateFee(fxGenArtProxy, price, quantity);
+        (platformFee, mintFee, splitAmount) = feeManager.calculateFees(fxGenArtProxy, price, quantity);
         fixedPrice.buy{value: price + platformFee}(fxGenArtProxy, mintId, quantity, alice);
         assertEq(fixedPrice.getSaleProceed(fxGenArtProxy), price - mintFee);
         assertEq(address(feeManager).balance, platformFee + mintFee);
@@ -73,7 +73,7 @@ contract Buy is FixedPriceTest {
 
     function test_BuyWhen_CustomMintAndSplitFee() public {
         _setCustomFees(admin, fxGenArtProxy, true, 0, MINT_PERCENTAGE, SPLIT_PERCENTAGE);
-        (platformFee, mintFee, splitAmount) = feeManager.calculateFee(fxGenArtProxy, price, quantity);
+        (platformFee, mintFee, splitAmount) = feeManager.calculateFees(fxGenArtProxy, price, quantity);
         fixedPrice.buy{value: price + platformFee}(fxGenArtProxy, mintId, quantity, alice);
         assertEq(fixedPrice.getSaleProceed(fxGenArtProxy), price - mintFee);
         assertEq(address(feeManager).balance, mintFee);

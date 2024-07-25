@@ -5,7 +5,7 @@ import "test/minters/FixedPrice/FixedPriceTest.t.sol";
 
 contract Withdraw is FixedPriceTest {
     function test_Withdraw() public {
-        (platformFee, mintFee, splitAmount) = feeManager.calculateFee(fxGenArtProxy, price, quantity);
+        (platformFee, mintFee, splitAmount) = feeManager.calculateFees(fxGenArtProxy, price, quantity);
         fixedPrice.buy{value: price + platformFee}(fxGenArtProxy, mintId, quantity, alice);
         uint256 beforeBalance = primaryReceiver.balance;
         fixedPrice.withdraw(fxGenArtProxy);
@@ -14,7 +14,7 @@ contract Withdraw is FixedPriceTest {
     }
 
     function test_RevertsWhen_InsufficientFunds() public {
-        (platformFee, , ) = feeManager.calculateFee(fxGenArtProxy, price, quantity);
+        (platformFee, , ) = feeManager.calculateFees(fxGenArtProxy, price, quantity);
         fixedPrice.buy{value: price + platformFee}(fxGenArtProxy, mintId, quantity, alice);
         vm.expectRevert(INSUFFICIENT_FUNDS_ERROR);
         fixedPrice.withdraw(bob);

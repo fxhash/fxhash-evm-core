@@ -250,7 +250,7 @@ contract DutchAuctionV2 is IDutchAuctionV2, Allowlist, MintPass, Ownable, Pausab
         }
         if (proceeds == 0) revert InsufficientFunds();
 
-        (uint256 platformFee, uint256 mintFee, uint256 splitAmount) = IFeeManager(feeManager).calculateFee(
+        (uint256 platformFee, uint256 mintFee, uint256 splitAmount) = IFeeManager(feeManager).calculateFees(
             _token,
             proceeds,
             totalMinted

@@ -47,18 +47,18 @@ contract FeeManager is IFeeManager, Ownable {
         SafeTransferLib.safeTransferETH(_to, balance);
     }
 
-    function calculateFee(
+    function calculateFees(
         address _token,
         uint256 _price,
         uint256 _amount
     ) external view returns (uint256 platformAmount, uint256 mintAmount, uint256 splitAmount) {
-        (uint120 platFee, uint64 mintPct, uint64 splitPct) = getTokenFees(_token);
+        (uint120 platFee, uint64 mintPct, uint64 splitPct) = getFees(_token);
         platformAmount = platFee * _amount;
         mintAmount = (mintPct * _price) / SCALE_FACTOR;
         splitAmount = (splitPct * platformAmount) / SCALE_FACTOR;
     }
 
-    function getTokenFees(address _token) public view returns (uint120, uint64, uint64) {
+    function getFees(address _token) public view returns (uint120, uint64, uint64) {
         CustomFee memory customFee = customFees[_token];
         if (customFee.enabled) {
             return (customFee.platformFee, customFee.mintPercentage, customFee.splitPercentage);

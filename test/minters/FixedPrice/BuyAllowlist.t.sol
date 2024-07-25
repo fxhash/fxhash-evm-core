@@ -29,7 +29,7 @@ contract BuyAllowlist is FixedPriceTest, StandardMerkleTree {
 
     function test_BuyAllowlist() public {
         vm.prank(alice);
-        (platformFee, , ) = feeManager.calculateFee(fxGenArtProxy, price, quantity);
+        (platformFee, , ) = feeManager.calculateFees(fxGenArtProxy, price, quantity);
         price = quantity * price + platformFee;
         fixedPrice.buyAllowlist{value: price}(fxGenArtProxy, mintId, alice, claimIndexes, aliceProofs);
     }
@@ -49,7 +49,7 @@ contract BuyAllowlist is FixedPriceTest, StandardMerkleTree {
 
     function test_RevertsWhen_SlotAlreadyClaimed() public {
         vm.prank(alice);
-        (platformFee, , ) = feeManager.calculateFee(fxGenArtProxy, price, quantity);
+        (platformFee, , ) = feeManager.calculateFees(fxGenArtProxy, price, quantity);
         price = quantity * price + platformFee;
         fixedPrice.buyAllowlist{value: quantity * price}(fxGenArtProxy, mintId, alice, claimIndexes, aliceProofs);
 
