@@ -121,14 +121,14 @@ contract FeeManager is IFeeManager, Ownable {
     function withdraw(address _to) external onlyOwner {
         uint256 balance = address(this).balance;
         SafeTransferLib.safeTransferETH(_to, balance);
-    }s
+    }
 
     /*//////////////////////////////////////////////////////////////////////////
                                 INTERNAL FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @dev Sets the default fee values used for all tokens with no custom fees enabled
+     * @dev Sets the default fee values used for all tokens where no custom fees are enabled
      */
     function _setDefaultFees(uint120 _platformFee, uint64 _mintPercentage, uint64 _splitPercentage) internal {
         if (_mintPercentage > SCALE_FACTOR || _splitPercentage > SCALE_FACTOR) revert InvalidPercentage();
