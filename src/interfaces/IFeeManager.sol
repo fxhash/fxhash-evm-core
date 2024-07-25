@@ -1,24 +1,30 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.23;
 
+import {CustomFee} from "src/lib/Structs.sol";
+
 interface IFeeManager {
-    event CustomFeesUpdated(address _token, bool _prevFlag, bool _newFlag);
+    event CustomFeesUpdated(
+        address _token,
+        bool _enabled,
+        uint120 _platformFee,
+        uint64 _mintPercentage,
+        uint64 _splitPercentage
+    );
 
-    event PlatformFeeUpdated(address _token, uint128 _prevFee, uint128 _newFee);
-
-    event MintPercentageUpdated(address _token, uint64 _prevPercentage, uint64 _newPercentage);
-
-    event SplitPercentageUpdated(address _token, uint64 _prevPercentage, uint64 _newPercentage);
+    event DefaultFeesUpdated(uint120 _platformFee, uint64 _mintPercentage, uint64 _splitPercentage);
 
     error InvalidPercentage();
 
-    function setCustomFees(address token, bool _flag) external;
+    function setCustomFees(
+        address token,
+        bool _enabled,
+        uint120 _platformFee,
+        uint64 _mintPercentage,
+        uint64 _splitPercentage
+    ) external;
 
-    function setPlatformFee(address token, uint128 _platformFee) external;
-
-    function setMintPercentage(address token, uint64 _mintPercentage) external;
-
-    function setSplitPercentage(address token, uint64 _splitPercentage) external;
+    function setDefaultFees(uint120 _platformFee, uint64 _mintPercentage, uint64 _splitPercentage) external;
 
     function withdraw(address _to) external;
 
@@ -28,17 +34,13 @@ interface IFeeManager {
         uint256 _amount
     ) external view returns (uint256, uint256, uint256);
 
-    function customFees(address _token) external view returns (bool);
+    function customFees(address _token) external view returns (bool, uint120, uint64, uint64);
+
+    function getTokenFees(address _token) external view returns (uint120, uint64, uint64);
 
     function mintPercentage() external view returns (uint64);
 
-    function mintPercentages(address _token) external view returns (uint64);
-
-    function platformFee() external view returns (uint128);
-
-    function platformFees(address _token) external view returns (uint128);
+    function platformFee() external view returns (uint120);
 
     function splitPercentage() external view returns (uint64);
-
-    function splitPercentages(address _token) external view returns (uint64);
 }

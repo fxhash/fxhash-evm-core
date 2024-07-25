@@ -17,7 +17,7 @@ import {TicketLib} from "test/lib/helpers/TicketLib.sol";
 import {TokenLib} from "test/lib/helpers/TokenLib.sol";
 
 import {IDutchAuctionV2, AuctionInfo} from "src/interfaces/IDutchAuctionV2.sol";
-import {IFeeManager} from "src/interfaces/IFeeManager.sol";
+import {IFeeManager, CustomFee} from "src/interfaces/IFeeManager.sol";
 import {IFixedPriceV2} from "src/interfaces/IFixedPriceV2.sol";
 import {IFxContractRegistry} from "src/interfaces/IFxContractRegistry.sol";
 import {IFxGenArt721, GenArtInfo, InitInfo, IssuerInfo, MetadataInfo, MintInfo, ProjectInfo, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";

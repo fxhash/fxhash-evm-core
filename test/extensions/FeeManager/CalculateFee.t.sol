@@ -23,7 +23,7 @@ contract CalculateFee is FeeManagerTest {
         assertEq(splitAmount, 0);
 
         vm.prank(admin);
-        feeManager.setSplitPercentage(address(0), percentage);
+        feeManager.setDefaultFees(PLATFORM_FEE, MINT_PERCENTAGE, percentage);
         (platform, mintFee, splitAmount) = feeManager.calculateFee(address(this), price, amount);
         assertEq(platform, .005 ether);
         assertEq(mintFee, .05 ether);

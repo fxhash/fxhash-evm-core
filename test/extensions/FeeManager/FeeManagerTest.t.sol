@@ -5,8 +5,9 @@ import "test/BaseTest.t.sol";
 
 contract FeeManagerTest is BaseTest {
     // State
-    bool internal customFee;
-    uint128 internal platformFee;
+    CustomFee internal customFee;
+    bool internal enabled;
+    uint120 internal platformFee;
     uint64 internal mintPercentage;
     uint64 internal splitPercentage;
 

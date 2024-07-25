@@ -37,6 +37,13 @@ struct ConfigInfo {
     string externalURI;
 }
 
+struct CustomFee {
+    bool enabled;
+    uint120 platformFee;
+    uint64 mintPercentage;
+    uint64 splitPercentage;
+}
+
 /**
  * @notice Struct of generative art information
  * - `minter` Address of initial token owner

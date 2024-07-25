@@ -3,65 +3,43 @@ pragma solidity 0.8.23;
 
 import {Ownable} from "solady/src/auth/Ownable.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
-
-import {IFeeManager} from "src/interfaces/IFeeManager.sol";
+import "forge-std/Test.sol";
+import {IFeeManager, CustomFee} from "src/interfaces/IFeeManager.sol";
 import {SCALE_FACTOR} from "src/utils/Constants.sol";
 
 contract FeeManager is IFeeManager, Ownable {
-    // Default values
-    uint128 public platformFee;
+    uint120 public platformFee;
     uint64 public mintPercentage;
     uint64 public splitPercentage;
+    mapping(address => CustomFee) public customFees;
 
-    mapping(address => bool) public customFees;
-    mapping(address => uint128) public platformFees;
-    mapping(address => uint64) public mintPercentages;
-    mapping(address => uint64) public splitPercentages;
-
-    constructor(address _owner, uint128 _platformFee, uint64 _mintPercentage, uint64 _splitPercentage) {
+    constructor(address _owner, uint120 _platformFee, uint64 _mintPercentage, uint64 _splitPercentage) {
         _initializeOwner(_owner);
-        platformFee = _platformFee;
-        mintPercentage = _mintPercentage;
-        splitPercentage = _splitPercentage;
+        _setDefaultFees(_platformFee, _mintPercentage, _splitPercentage);
     }
 
     receive() external payable {}
 
-    function setCustomFees(address _token, bool _flag) external onlyOwner {
-        emit CustomFeesUpdated(_token, customFees[_token], _flag);
-        customFees[_token] = _flag;
+    function setDefaultFees(uint120 _platformFee, uint64 _mintPercentage, uint64 _splitPercentage) external onlyOwner {
+        _setDefaultFees(_platformFee, _mintPercentage, _splitPercentage);
     }
 
-    function setPlatformFee(address _token, uint128 _platformFee) external onlyOwner {
-        if (_token == address(0)) {
-            emit PlatformFeeUpdated(_token, platformFee, _platformFee);
-            platformFee = _platformFee;
-        } else {
-            emit PlatformFeeUpdated(_token, platformFees[_token], _platformFee);
-            platformFees[_token] = _platformFee;
-        }
-    }
+    function setCustomFees(
+        address _token,
+        bool _enabled,
+        uint120 _platformFee,
+        uint64 _mintPercentage,
+        uint64 _splitPercentage
+    ) external onlyOwner {
+        if (_mintPercentage > SCALE_FACTOR || _splitPercentage > SCALE_FACTOR) revert InvalidPercentage();
+        customFees[_token] = CustomFee({
+            enabled: _enabled,
+            platformFee: _platformFee,
+            mintPercentage: _mintPercentage,
+            splitPercentage: _splitPercentage
+        });
 
-    function setMintPercentage(address _token, uint64 _mintPercentage) external onlyOwner {
-        if (_mintPercentage > SCALE_FACTOR) revert InvalidPercentage();
-        if (_token == address(0)) {
-            emit MintPercentageUpdated(_token, mintPercentage, _mintPercentage);
-            mintPercentage = _mintPercentage;
-        } else {
-            emit MintPercentageUpdated(_token, mintPercentages[_token], _mintPercentage);
-            mintPercentages[_token] = _mintPercentage;
-        }
-    }
-
-    function setSplitPercentage(address _token, uint64 _splitPercentage) external onlyOwner {
-        if (_splitPercentage > SCALE_FACTOR) revert InvalidPercentage();
-        if (_token == address(0)) {
-            emit SplitPercentageUpdated(_token, splitPercentage, _splitPercentage);
-            splitPercentage = _splitPercentage;
-        } else {
-            emit SplitPercentageUpdated(_token, splitPercentages[_token], _splitPercentage);
-            splitPercentages[_token] = _splitPercentage;
-        }
+        emit CustomFeesUpdated(_token, _enabled, _platformFee, _mintPercentage, _splitPercentage);
     }
 
     function withdraw(address _to) external onlyOwner {
@@ -73,21 +51,28 @@ contract FeeManager is IFeeManager, Ownable {
         address _token,
         uint256 _price,
         uint256 _amount
-    ) external view returns (uint256 platform, uint256 mintFee, uint256 splitAmount) {
-        platform = getPlatformFee(_token) * _amount;
-        mintFee = (getMintPercentage(_token) * _price) / SCALE_FACTOR;
-        splitAmount = (getSplitPercentage(_token) * platform) / SCALE_FACTOR;
+    ) external view returns (uint256 platformAmount, uint256 mintAmount, uint256 splitAmount) {
+        (uint120 platFee, uint64 mintPct, uint64 splitPct) = getTokenFees(_token);
+        platformAmount = platFee * _amount;
+        mintAmount = (mintPct * _price) / SCALE_FACTOR;
+        splitAmount = (splitPct * platformAmount) / SCALE_FACTOR;
     }
 
-    function getPlatformFee(address _token) public view returns (uint128) {
-        return customFees[_token] ? platformFees[_token] : platformFee;
+    function getTokenFees(address _token) public view returns (uint120, uint64, uint64) {
+        CustomFee memory customFee = customFees[_token];
+        if (customFee.enabled) {
+            return (customFee.platformFee, customFee.mintPercentage, customFee.splitPercentage);
+        } else {
+            return (platformFee, mintPercentage, splitPercentage);
+        }
     }
 
-    function getMintPercentage(address _token) public view returns (uint64) {
-        return customFees[_token] ? mintPercentages[_token] : mintPercentage;
-    }
+    function _setDefaultFees(uint120 _platformFee, uint64 _mintPercentage, uint64 _splitPercentage) internal {
+        if (_mintPercentage > SCALE_FACTOR || _splitPercentage > SCALE_FACTOR) revert InvalidPercentage();
+        platformFee = _platformFee;
+        mintPercentage = _mintPercentage;
+        splitPercentage = _splitPercentage;
 
-    function getSplitPercentage(address _token) public view returns (uint64) {
-        return customFees[_token] ? splitPercentages[_token] : splitPercentage;
+        emit DefaultFeesUpdated(_platformFee, _mintPercentage, _splitPercentage);
     }
 }

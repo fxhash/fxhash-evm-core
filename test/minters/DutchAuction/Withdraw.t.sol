@@ -22,7 +22,7 @@ contract Withdraw is DutchAuctionTest {
     }
 
     function test_WithdrawWhen_NoCustomFees() public {
-        _setCustomFees(admin, fxGenArtProxy, 0, 0, 0);
+        _setCustomFees(admin, fxGenArtProxy, true, 0, 0, 0);
         (platformFee, mintFee, splitAmount) = feeManager.calculateFee(fxGenArtProxy, price, quantity);
         dutchAuction.buy{value: price}(fxGenArtProxy, reserveId, quantity, alice);
         vm.warp(RESERVE_END_TIME + 1);
@@ -32,7 +32,7 @@ contract Withdraw is DutchAuctionTest {
     }
 
     function test_BuyWhen_AllCustomFees() public {
-        _setCustomFees(admin, fxGenArtProxy, PLATFORM_FEE, MINT_PERCENTAGE, SPLIT_PERCENTAGE);
+        _setCustomFees(admin, fxGenArtProxy, true, PLATFORM_FEE, MINT_PERCENTAGE, SPLIT_PERCENTAGE);
         (platformFee, mintFee, splitAmount) = feeManager.calculateFee(fxGenArtProxy, price, quantity);
         dutchAuction.buy{value: price}(fxGenArtProxy, reserveId, quantity, alice);
         vm.warp(RESERVE_END_TIME + 1);
@@ -42,7 +42,7 @@ contract Withdraw is DutchAuctionTest {
     }
 
     function test_BuyWhen_CustomPlatformFee() public {
-        _setCustomFees(admin, fxGenArtProxy, PLATFORM_FEE, 0, 0);
+        _setCustomFees(admin, fxGenArtProxy, true, PLATFORM_FEE, 0, 0);
         (platformFee, mintFee, splitAmount) = feeManager.calculateFee(fxGenArtProxy, price, quantity);
         dutchAuction.buy{value: price}(fxGenArtProxy, reserveId, quantity, alice);
         vm.warp(RESERVE_END_TIME + 1);
@@ -52,7 +52,7 @@ contract Withdraw is DutchAuctionTest {
     }
 
     function test_BuyWhen_CustomMintFee() public {
-        _setCustomFees(admin, fxGenArtProxy, 0, MINT_PERCENTAGE, 0);
+        _setCustomFees(admin, fxGenArtProxy, true, 0, MINT_PERCENTAGE, 0);
         (platformFee, mintFee, splitAmount) = feeManager.calculateFee(fxGenArtProxy, price, quantity);
         dutchAuction.buy{value: price}(fxGenArtProxy, reserveId, quantity, alice);
         vm.warp(RESERVE_END_TIME + 1);
@@ -62,7 +62,7 @@ contract Withdraw is DutchAuctionTest {
     }
 
     function test_BuyWhen_CustomSplitFee() public {
-        _setCustomFees(admin, fxGenArtProxy, PLATFORM_FEE, 0, SPLIT_PERCENTAGE);
+        _setCustomFees(admin, fxGenArtProxy, true, PLATFORM_FEE, 0, SPLIT_PERCENTAGE);
         (platformFee, mintFee, splitAmount) = feeManager.calculateFee(fxGenArtProxy, price, quantity);
         dutchAuction.buy{value: price}(fxGenArtProxy, reserveId, quantity, alice);
         vm.warp(RESERVE_END_TIME + 1);
@@ -72,7 +72,7 @@ contract Withdraw is DutchAuctionTest {
     }
 
     function test_BuyWhen_CustomSplitFeeNoPlatformFee() public {
-        _setCustomFees(admin, fxGenArtProxy, 0, 0, SPLIT_PERCENTAGE);
+        _setCustomFees(admin, fxGenArtProxy, true, 0, 0, SPLIT_PERCENTAGE);
         (platformFee, mintFee, splitAmount) = feeManager.calculateFee(fxGenArtProxy, price, quantity);
         dutchAuction.buy{value: price}(fxGenArtProxy, reserveId, quantity, alice);
         vm.warp(RESERVE_END_TIME + 1);
@@ -82,7 +82,7 @@ contract Withdraw is DutchAuctionTest {
     }
 
     function test_BuyWhen_CustomPlatformAndMintFee() public {
-        _setCustomFees(admin, fxGenArtProxy, PLATFORM_FEE, MINT_PERCENTAGE, 0);
+        _setCustomFees(admin, fxGenArtProxy, true, PLATFORM_FEE, MINT_PERCENTAGE, 0);
         (platformFee, mintFee, splitAmount) = feeManager.calculateFee(fxGenArtProxy, price, quantity);
         dutchAuction.buy{value: price}(fxGenArtProxy, reserveId, quantity, alice);
         vm.warp(RESERVE_END_TIME + 1);
@@ -92,7 +92,7 @@ contract Withdraw is DutchAuctionTest {
     }
 
     function test_BuyWhen_CustomMintAndSplitFee() public {
-        _setCustomFees(admin, fxGenArtProxy, 0, MINT_PERCENTAGE, SPLIT_PERCENTAGE);
+        _setCustomFees(admin, fxGenArtProxy, true, 0, MINT_PERCENTAGE, SPLIT_PERCENTAGE);
         (platformFee, mintFee, splitAmount) = feeManager.calculateFee(fxGenArtProxy, price, quantity);
         dutchAuction.buy{value: price}(fxGenArtProxy, reserveId, quantity, alice);
         vm.warp(RESERVE_END_TIME + 1);
@@ -129,13 +129,11 @@ contract Withdraw is DutchAuctionTest {
     function _setCustomFees(
         address _admin,
         address _token,
-        uint128 _platformFee,
+        bool _enabled,
+        uint120 _platformFee,
         uint64 _mintPercentage,
         uint64 _splitPercentage
     ) internal prank(_admin) {
-        feeManager.setCustomFees(_token, true);
-        feeManager.setPlatformFee(_token, _platformFee);
-        feeManager.setMintPercentage(_token, _mintPercentage);
-        feeManager.setSplitPercentage(_token, _splitPercentage);
+        feeManager.setCustomFees(_token, _enabled, _platformFee, _mintPercentage, _splitPercentage);
     }
 }
