@@ -50,6 +50,40 @@ contract FeeManager is IFeeManager, Ownable {
     receive() external payable {}
 
     /*//////////////////////////////////////////////////////////////////////////
+                                EXTERNAL FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc IFeeManager
+     */
+    function calculateFees(
+        address _token,
+        uint256 _price,
+        uint256 _amount
+    ) external view returns (uint256 platformAmount, uint256 mintAmount, uint256 splitAmount) {
+        (uint120 platform, uint64 mint, uint64 split) = getFees(_token);
+        platformAmount = platform * _amount;
+        mintAmount = (mint * _price) / SCALE_FACTOR;
+        splitAmount = (split * platformAmount) / SCALE_FACTOR;
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
+                                PUBLIC FUNCTIONS
+    //////////////////////////////////////////////////////////////////////////*/
+
+    /**
+     * @inheritdoc IFeeManager
+     */
+    function getFees(address _token) public view returns (uint120, uint64, uint64) {
+        CustomFee memory customFee = customFees[_token];
+        if (customFee.enabled) {
+            return (customFee.platformFee, customFee.mintPercentage, customFee.splitPercentage);
+        } else {
+            return (platformFee, mintPercentage, splitPercentage);
+        }
+    }
+
+    /*//////////////////////////////////////////////////////////////////////////
                                 OWNER FUNCTIONS
     //////////////////////////////////////////////////////////////////////////*/
 
@@ -87,41 +121,7 @@ contract FeeManager is IFeeManager, Ownable {
     function withdraw(address _to) external onlyOwner {
         uint256 balance = address(this).balance;
         SafeTransferLib.safeTransferETH(_to, balance);
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                EXTERNAL FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /**
-     * @inheritdoc IFeeManager
-     */
-    function calculateFees(
-        address _token,
-        uint256 _price,
-        uint256 _amount
-    ) external view returns (uint256 platformAmount, uint256 mintAmount, uint256 splitAmount) {
-        (uint120 platform, uint64 mint, uint64 split) = getFees(_token);
-        platformAmount = platform * _amount;
-        mintAmount = (mint * _price) / SCALE_FACTOR;
-        splitAmount = (split * platformAmount) / SCALE_FACTOR;
-    }
-
-    /*//////////////////////////////////////////////////////////////////////////
-                                PUBLIC FUNCTIONS
-    //////////////////////////////////////////////////////////////////////////*/
-
-    /**
-     * @inheritdoc IFeeManager
-     */
-    function getFees(address _token) public view returns (uint120, uint64, uint64) {
-        CustomFee memory customFee = customFees[_token];
-        if (customFee.enabled) {
-            return (customFee.platformFee, customFee.mintPercentage, customFee.splitPercentage);
-        } else {
-            return (platformFee, mintPercentage, splitPercentage);
-        }
-    }
+    }s
 
     /*//////////////////////////////////////////////////////////////////////////
                                 INTERNAL FUNCTIONS
