@@ -37,6 +37,13 @@ struct ConfigInfo {
     string externalURI;
 }
 
+/**
+ * @notice Struct of custom token fees
+ * - `enabled` Flag indicating if token has custom fees enabled
+ * - `platformFee` Flat fee amount collected from token mints
+ * - `mintPercentage` Percentage value of token price from primary sales
+ * - `splitPercentage` Percentage value of platform fees split with creator
+ */
 struct CustomFee {
     bool enabled;
     uint120 platformFee;

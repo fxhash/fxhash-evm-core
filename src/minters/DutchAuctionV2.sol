@@ -84,6 +84,9 @@ contract DutchAuctionV2 is IDutchAuctionV2, Allowlist, MintPass, Ownable, Pausab
                                 CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
+    /**
+     * @dev Initializes contract owner and FeeManager contract
+     */
     constructor(address _owner, address _feeManager) {
         _initializeOwner(_owner);
         feeManager = _feeManager;
@@ -250,22 +253,26 @@ contract DutchAuctionV2 is IDutchAuctionV2, Allowlist, MintPass, Ownable, Pausab
         }
         if (proceeds == 0) revert InsufficientFunds();
 
+        // Calculates platform and mint fees based on token price and amount
         (uint256 platformFee, uint256 mintFee, uint256 splitAmount) = IFeeManager(feeManager).calculateFees(
             _token,
             proceeds,
             totalMinted
         );
 
+        // Deducts split amount from platform fee if creator is set to receive splits
         if (splitAmount > 0) platformFee = platformFee - splitAmount;
 
         // Clears the sale proceeds for the reserve
         delete numberMinted[_token][_reserveId];
         delete saleProceeds[_token][_reserveId];
 
-        emit Withdrawn(_token, _reserveId, saleReceiver, proceeds);
+        emit Withdrawn(_token, _reserveId, saleReceiver, proceeds, platformFee, mintFee, splitAmount);
 
-        // Transfers the sale proceeds to the fee manager and sale receiver
+        // Transfers any platform and mint fees to the FeeManager
         SafeTransferLib.safeTransferETH(feeManager, platformFee + mintFee);
+
+        // Transfers remaining sale proceeds to receiver after any fees are deducted and splits are added
         SafeTransferLib.safeTransferETH(saleReceiver, proceeds - platformFee - mintFee + splitAmount);
     }
 

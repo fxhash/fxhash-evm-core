@@ -15,7 +15,7 @@ interface IDutchAuctionV2 is IMinter {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @notice Event emitted a new FeeManager contract is set
+     * @notice Event emitted when a new FeeManager contract is set
      * @param _prevManager Address of the previous FeeManager contract
      * @param _newManager Address of the new FeeManager contract
      */
@@ -77,8 +77,19 @@ interface IDutchAuctionV2 is IMinter {
      * @param _reserveId ID of the reserve
      * @param _creator Address of the creator of the project
      * @param _proceeds Amount of sale proceeds withdrawn
+     * @param _platformFee Flat fee amount per token mint
+     * @param _mintFee Fee amount from token price
+     * @param _splitAmount Split amount from platform fee
      */
-    event Withdrawn(address indexed _token, uint256 indexed _reserveId, address indexed _creator, uint256 _proceeds);
+    event Withdrawn(
+        address indexed _token,
+        uint256 indexed _reserveId,
+        address indexed _creator,
+        uint256 _proceeds,
+        uint256 _platformFee,
+        uint256 _mintFee,
+        uint256 _splitAmount
+    );
 
     /*//////////////////////////////////////////////////////////////////////////
                                   ERRORS

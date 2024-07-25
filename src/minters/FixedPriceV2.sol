@@ -93,6 +93,9 @@ contract FixedPriceV2 is IFixedPriceV2, Allowlist, MintPass, Ownable, Pausable {
                                 CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
+    /**
+     * @dev Initializes contract owner, frame controller wallet and FeeManager contract
+     */
     constructor(address _owner, address _frameController, address _feeManager) {
         _initializeOwner(_owner);
         frameController = _frameController;
@@ -317,25 +320,31 @@ contract FixedPriceV2 is IFixedPriceV2, Allowlist, MintPass, Ownable, Pausable {
         if (_to == address(0)) revert AddressZero();
 
         uint256 price = _amount * prices[_token][_reserveId];
+
+        // Calculates platform and mint fees based on token price and amount
         (uint256 platformFee, uint256 mintFee, uint256 splitAmount) = IFeeManager(feeManager).calculateFees(
             _token,
             price,
             _amount
         );
 
+        // Reverts if purchase does not include platform fee on top of price
         if (msg.value != price + platformFee) revert InvalidPayment();
 
         reserve.allocation -= _amount.safeCastTo128();
 
+        // Deducts split amount from platform fee if creator is set to receive splits
         if (splitAmount > 0) platformFee = platformFee - splitAmount;
 
+        // Deducts mint fee from token price and add split amount from platform fee
         _setSaleProceeds(_token, getSaleProceed(_token) + (price - mintFee + splitAmount));
 
-        SafeTransferLib.safeTransferETH(feeManager, mintFee + platformFee);
+        // Transfer any plaform and mint fees to FeeManager contract
+        SafeTransferLib.safeTransferETH(feeManager, platformFee + mintFee);
 
         IToken(_token).mint(_to, _amount, price);
 
-        emit Purchase(_token, _reserveId, msg.sender, _amount, _to, price);
+        emit Purchase(_token, _reserveId, msg.sender, _amount, _to, price, platformFee, mintFee, splitAmount);
     }
 
     /**

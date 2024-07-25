@@ -68,6 +68,9 @@ interface IFixedPriceV2 is IMinter {
      * @param _amount Amount of tokens being purchased
      * @param _to Address to which the tokens are being transferred
      * @param _price Price of the purchase
+     * @param _platformFee Flat fee amount per token mint
+     * @param _mintFee Fee amount from token price
+     * @param _splitAmount Split amount from platform fee
      */
     event Purchase(
         address indexed _token,
@@ -75,7 +78,10 @@ interface IFixedPriceV2 is IMinter {
         address indexed _buyer,
         uint256 _amount,
         address _to,
-        uint256 _price
+        uint256 _price,
+        uint256 _platformFee,
+        uint256 _mintFee,
+        uint256 _splitAmount
     );
 
     /**
