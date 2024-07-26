@@ -73,7 +73,7 @@ interface IFeeManager {
      * @notice Gets default or custom fee values based on whether token has custom fees enabled
      * @return platformFee, mintPercentage, and splitPercentage
      */
-    function getFees(address _token) external view returns (uint120, uint64, uint64);
+    function getFeeValues(address _token) external view returns (uint120, uint64, uint64);
 
     /**
      * @notice Returns the default mint percentage value of token price from the primary sales

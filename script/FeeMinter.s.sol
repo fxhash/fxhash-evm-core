@@ -38,13 +38,13 @@ contract MinterFee is Script {
     function setUp() public virtual {
         admin = msg.sender;
         if (block.chainid == MAINNET) {
-            fxRoleRegistry = FxRoleRegistry(0x22b9Dd17BA1132C027d780bC0A784f08f244022B);
+            fxRoleRegistry = FxRoleRegistry(MAINNET_FX_ROLE_REGISTRY);
         } else if (block.chainid == SEPOLIA) {
-            fxRoleRegistry = FxRoleRegistry(0x92B70c5C6E676BdC395DfD911c07392fc7C36E4F);
+            fxRoleRegistry = FxRoleRegistry(SEPOLIA_FX_ROLE_REGISTRY);
         } else if (block.chainid == BASE_MAINNET) {
-            fxRoleRegistry = FxRoleRegistry(0x8d3C748e99066e15425BA1620cdD066d85D6d918);
+            fxRoleRegistry = FxRoleRegistry(BASE_MAINNET_FX_ROLE_REGISTRY);
         } else if (block.chainid == BASE_SEPOLIA) {
-            fxRoleRegistry = FxRoleRegistry(0x179f5B8FE1c270D7fC1807355F3fd981A30e21A6);
+            fxRoleRegistry = FxRoleRegistry(BASE_SEPOLIA_FX_ROLE_REGISTRY);
         }
     }
 

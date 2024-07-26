@@ -16,14 +16,14 @@ contract SetDefaultFees is FeeManagerTest {
     }
 
     function test_SetDefaultFees() public {
-        (platformFee, mintPercentage, splitPercentage) = feeManager.getFees(address(this));
+        (platformFee, mintPercentage, splitPercentage) = feeManager.getFeeValues(address(this));
         assertEq(platformFee, PLATFORM_FEE);
         assertEq(mintPercentage, MINT_PERCENTAGE);
         assertEq(splitPercentage, SPLIT_PERCENTAGE);
 
         vm.prank(admin);
         feeManager.setDefaultFees(newPlatformFee, newMintPercentage, newSplitPercentage);
-        (platformFee, mintPercentage, splitPercentage) = feeManager.getFees(address(this));
+        (platformFee, mintPercentage, splitPercentage) = feeManager.getFeeValues(address(this));
 
         assertEq(platformFee, newPlatformFee);
         assertEq(mintPercentage, newMintPercentage);

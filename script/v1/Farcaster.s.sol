@@ -34,7 +34,7 @@ contract Farcaster is Script {
     function setUp() public virtual {
         admin = msg.sender;
         if (block.chainid == BASE_SEPOLIA) {
-            fxRoleRegistry = FxRoleRegistry(0x179f5B8FE1c270D7fC1807355F3fd981A30e21A6);
+            fxRoleRegistry = FxRoleRegistry(BASE_SEPOLIA_FX_ROLE_REGISTRY);
         }
     }
 

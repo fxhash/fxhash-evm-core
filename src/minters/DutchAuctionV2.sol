@@ -269,10 +269,10 @@ contract DutchAuctionV2 is IDutchAuctionV2, Allowlist, MintPass, Ownable, Pausab
 
         emit Withdrawn(_token, _reserveId, saleReceiver, proceeds, platformFee, mintFee, splitAmount);
 
-        // Transfers any platform and mint fees to the FeeManager
+        // Transfers any platform and mint fees to the FeeManager contract
         SafeTransferLib.safeTransferETH(feeManager, platformFee + mintFee);
 
-        // Transfers remaining sale proceeds to receiver after any fees are deducted and splits are added
+        // Transfers remaining sale proceeds to sale receiver after any fees are deducted and splits are added
         SafeTransferLib.safeTransferETH(saleReceiver, proceeds - platformFee - mintFee + splitAmount);
     }
 

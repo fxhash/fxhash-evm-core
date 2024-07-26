@@ -61,7 +61,7 @@ contract FeeManager is IFeeManager, Ownable {
         uint256 _price,
         uint256 _amount
     ) external view returns (uint256 platformAmount, uint256 mintAmount, uint256 splitAmount) {
-        (uint120 platform, uint64 mint, uint64 split) = getFees(_token);
+        (uint120 platform, uint64 mint, uint64 split) = getFeeValues(_token);
         platformAmount = platform * _amount;
         mintAmount = (mint * _price) / SCALE_FACTOR;
         splitAmount = (split * platformAmount) / SCALE_FACTOR;
@@ -74,7 +74,7 @@ contract FeeManager is IFeeManager, Ownable {
     /**
      * @inheritdoc IFeeManager
      */
-    function getFees(address _token) public view returns (uint120, uint64, uint64) {
+    function getFeeValues(address _token) public view returns (uint120, uint64, uint64) {
         CustomFee memory customFee = customFees[_token];
         if (customFee.enabled) {
             return (customFee.platformFee, customFee.mintPercentage, customFee.splitPercentage);
