@@ -3,6 +3,7 @@ pragma solidity 0.8.23;
 
 import "forge-std/Script.sol";
 import "script/utils/Constants.sol";
+import "script/utils/Contracts.sol";
 import "src/utils/Constants.sol";
 
 import {FixedPriceParamsV1} from "src/minters/v1/FixedPriceParamsV1.sol";
