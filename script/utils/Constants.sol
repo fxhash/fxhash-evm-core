@@ -6,6 +6,7 @@ uint256 constant MAINNET = 1;
 uint256 constant GOERLI = 5;
 uint256 constant HOLESKY = 17000;
 uint256 constant SEPOLIA = 11155111;
+uint256 constant BASE_MAINNET = 8453;
 uint256 constant BASE_SEPOLIA = 84532;
 
 // Allowlist
@@ -16,14 +17,18 @@ address constant MINT_PASS_SIGNER = address(0);
 address constant FEE_RECEIVER = 0xF70DF285Bc6941b4760BcC041B0cA1cc50E27F8d;
 
 // Farcaster
-address constant CONTROLLER = 0xc31ac879ed0fAB559F1b3f86bbA2C006aB0d7dD7;
+address constant FRAME_CONTROLLER = 0xc31ac879ed0fAB559F1b3f86bbA2C006aB0d7dD7;
+
+// Fee Manager
+uint120 constant PLATFORM_FEE = 500000000000000; // 0.0005 ETH
+uint64 constant MINT_PERCENTAGE = 500; // 5%
+uint64 constant SPLIT_PERCENTAGE = 0; // 0%
 
 // Metadata
 bytes constant ONCHAIN_DATA = bytes("");
 
 // Team
 address constant FLORIAN = 0xBF0BbF31149e8FA7183Cb6eD96a1D2Ab947B8368;
-address constant IZZA = 0xfA2812a029833EddDA3e80c87988Cc0600Ba908b;
 address constant LEO = 0x7d0B2Bb9371133DD81c8B241E0115A33F8555F8E;
 address constant LOUIE = 0x7D324FfD7b2fb8FC06508D96eDf2d1048f941D69;
 address constant MARKUS = 0x29a92e01474607B80847EF81BA22F3471A8f3281;

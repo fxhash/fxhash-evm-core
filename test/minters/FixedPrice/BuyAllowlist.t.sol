@@ -29,24 +29,28 @@ contract BuyAllowlist is FixedPriceTest, StandardMerkleTree {
 
     function test_BuyAllowlist() public {
         vm.prank(alice);
-        fixedPrice.buyAllowlist{value: quantity * price}(fxGenArtProxy, mintId, alice, claimIndexes, aliceProofs);
+        (platformFee, , ) = feeManager.calculateFees(fxGenArtProxy, price, quantity);
+        price = quantity * price + platformFee;
+        fixedPrice.buyAllowlist{value: price}(fxGenArtProxy, mintId, alice, claimIndexes, aliceProofs);
     }
 
-    function test_RevertsWhen_NotClaimer_BuyAllowlist() public {
+    function test_RevertsWhen_NotClaimer() public {
         vm.prank(bob);
         vm.expectRevert();
         fixedPrice.buyAllowlist{value: quantity * price}(fxGenArtProxy, mintId, bob, claimIndexes, aliceProofs);
     }
 
-    function test_RevertsWhen_ProofsInvalid_BuyAllowlist() public {
+    function test_RevertsWhen_ProofsInvalid() public {
         aliceProofs[0].pop();
         vm.prank(alice);
         vm.expectRevert();
         fixedPrice.buyAllowlist{value: quantity * price}(fxGenArtProxy, mintId, alice, claimIndexes, aliceProofs);
     }
 
-    function test_RevertsWhen_SlotAlreadyClaimed_BuyAllowlist() public {
+    function test_RevertsWhen_SlotAlreadyClaimed() public {
         vm.prank(alice);
+        (platformFee, , ) = feeManager.calculateFees(fxGenArtProxy, price, quantity);
+        price = quantity * price + platformFee;
         fixedPrice.buyAllowlist{value: quantity * price}(fxGenArtProxy, mintId, alice, claimIndexes, aliceProofs);
 
         vm.prank(alice);

@@ -4,8 +4,11 @@ pragma solidity 0.8.23;
 import "test/tokens/FxMintTicket721/FxMintTicket721Test.t.sol";
 
 contract RegisterMinters is FxMintTicket721Test {
+    uint256 internal maxAmount;
+
     function setUp() public virtual override {
         super.setUp();
+        maxAmount = 2;
     }
 
     function test_RegisterMinters() public {
@@ -17,7 +20,7 @@ contract RegisterMinters is FxMintTicket721Test {
             RESERVE_START_TIME,
             RESERVE_END_TIME,
             MINTER_ALLOCATION,
-            abi.encode(PRICE, merkleRoot, signerAddr)
+            abi.encode(PRICE, merkleRoot, signerAddr, maxAmount)
         );
         RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, address(fixedPrice));
         TokenLib.setMintEnabled(creator, fxGenArtProxy, false);

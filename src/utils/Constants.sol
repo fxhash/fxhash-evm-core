@@ -14,10 +14,9 @@ string constant FX_ROLE_REGISTRY = "FX_ROLE_REGISTRY";
 string constant FX_TICKET_FACTORY = "FX_TICKET_FACTORY";
 
 // Periphery
-string constant DUTCH_AUCTION = "DUTCH_AUCTION";
-string constant FARCASTER_FRAME = "FARCASTER_FRAME";
-string constant FIXED_PRICE = "FIXED_PRICE";
-string constant FIXED_PRICE_PARAMS = "FIXED_PRICE_PARAMS";
+string constant DUTCH_AUCTION_V2 = "DUTCH_AUCTION_V2";
+string constant FEE_MANAGER = "FEE_MANAGER";
+string constant FIXED_PRICE_V2 = "FIXED_PRICE_V2";
 string constant IPFS_RENDERER = "IPFS_RENDERER";
 string constant ONCHFS_RENDERER = "ONCHFS_RENDERER";
 string constant PSEUDO_RANDOMIZER = "PSEUDO_RANDOMIZER";
@@ -31,6 +30,9 @@ bytes32 constant SET_ONCHAIN_POINTER_TYPEHASH = keccak256("SetOnchainPointer(byt
 bytes32 constant SET_PRIMARY_RECEIVER_TYPEHASH = keccak256("SetPrimaryReceiver(address receiver,uint96 nonce)");
 bytes32 constant SET_RENDERER_TYPEHASH = keccak256("SetRenderer(address renderer,uint96 nonce)");
 
+// Fee Manager
+uint256 constant SCALE_FACTOR = 10_000;
+
 // IPFS
 bytes constant IPFS_URL = hex"697066733a2f2f172c151325290607391d2c391b242225180a020b291b260929391d1b31222525202804120031280917120b280400";
 string constant IPFS_PREFIX = "ipfs://";
@@ -41,17 +43,17 @@ string constant ATTRIBUTES_ENDPOINT = "/attributes.json";
 string constant METADATA_ENDPOINT = "/metadata.json";
 string constant THUMBNAIL_ENDPOINT = "/thumbnail.json";
 
+// Minters
+uint8 constant UNINITIALIZED = 0;
+uint8 constant FALSE = 1;
+uint8 constant TRUE = 2;
+
 // ONCHFS
 string constant FX_HASH_QUERY = "/?fxhash=";
 string constant FX_PARAMS_QUERY = "#0x";
 string constant ITERATION_QUERY = "&fxiteration=";
 string constant MINTER_QUERY = "&fxminter=";
 string constant ONCHFS_PREFIX = "onchfs://";
-
-// Minters
-uint8 constant UNINITIALIZED = 0;
-uint8 constant FALSE = 1;
-uint8 constant TRUE = 2;
 
 // Project
 uint32 constant LOCK_TIME = 3600; // 1 hour

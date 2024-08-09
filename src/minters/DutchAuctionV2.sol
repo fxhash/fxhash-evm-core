@@ -10,16 +10,17 @@ import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 
-import {IDutchAuction, AuctionInfo, MinterInfo, RefundInfo} from "src/interfaces/IDutchAuction.sol";
+import {IDutchAuctionV2, AuctionInfo, MinterInfo, RefundInfo} from "src/interfaces/IDutchAuctionV2.sol";
+import {IFeeManager} from "src/interfaces/IFeeManager.sol";
 import {IFxGenArt721, ReserveInfo} from "src/interfaces/IFxGenArt721.sol";
 import {IToken} from "src/interfaces/IToken.sol";
 
 /**
- * @title DutchAuction
+ * @title DutchAuctionV2
  * @author fx(hash)
- * @dev See the documentation in {IDutchAuction}
+ * @dev See the documentation in {IDutchAuctionV2}
  */
-contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
+contract DutchAuctionV2 is IDutchAuctionV2, Allowlist, MintPass, Ownable, Pausable {
     /*//////////////////////////////////////////////////////////////////////////
                                     STORAGE
     //////////////////////////////////////////////////////////////////////////*/
@@ -45,32 +46,37 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
     LibMap.Uint40Map internal firstValidReserve;
 
     /**
-     * @inheritdoc IDutchAuction
+     * @inheritdoc IDutchAuctionV2
+     */
+    address public feeManager;
+
+    /**
+     * @inheritdoc IDutchAuctionV2
      */
     mapping(address => AuctionInfo[]) public auctions;
 
     /**
-     * @inheritdoc IDutchAuction
+     * @inheritdoc IDutchAuctionV2
      */
     mapping(address => mapping(uint256 => bytes32)) public merkleRoots;
 
     /**
-     * @inheritdoc IDutchAuction
+     * @inheritdoc IDutchAuctionV2
      */
     mapping(address => mapping(uint256 => RefundInfo)) public refunds;
 
     /**
-     * @inheritdoc IDutchAuction
+     * @inheritdoc IDutchAuctionV2
      */
     mapping(address => ReserveInfo[]) public reserves;
 
     /**
-     * @inheritdoc IDutchAuction
+     * @inheritdoc IDutchAuctionV2
      */
     mapping(address => mapping(uint256 => uint256)) public saleProceeds;
 
     /**
-     * @inheritdoc IDutchAuction
+     * @inheritdoc IDutchAuctionV2
      */
     mapping(address => mapping(uint256 => uint256)) public numberMinted;
 
@@ -78,8 +84,12 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
                                 CONSTRUCTOR
     //////////////////////////////////////////////////////////////////////////*/
 
-    constructor(address _owner) {
+    /**
+     * @dev Initializes contract owner and FeeManager contract
+     */
+    constructor(address _owner, address _feeManager) {
         _initializeOwner(_owner);
+        feeManager = _feeManager;
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -87,7 +97,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @inheritdoc IDutchAuction
+     * @inheritdoc IDutchAuctionV2
      */
     function buy(address _token, uint256 _reserveId, uint256 _amount, address _to) external payable whenNotPaused {
         bytes32 merkleRoot = _getMerkleRoot(_token, _reserveId);
@@ -98,7 +108,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
     }
 
     /**
-     * @inheritdoc IDutchAuction
+     * @inheritdoc IDutchAuctionV2
      */
     function buyAllowlist(
         address _token,
@@ -119,7 +129,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
     }
 
     /**
-     * @inheritdoc IDutchAuction
+     * @inheritdoc IDutchAuctionV2
      */
     function buyMintPass(
         address _token,
@@ -137,7 +147,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
     }
 
     /**
-     * @inheritdoc IDutchAuction
+     * @inheritdoc IDutchAuctionV2
      */
     function refund(address _token, uint256 _reserveId, address _buyer) external whenNotPaused {
         // Validates token address, reserve information and given account
@@ -172,7 +182,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
     }
 
     /**
-     * @inheritdoc IDutchAuction
+     * @inheritdoc IDutchAuctionV2
      */
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external whenNotPaused {
         uint256 nextReserve = reserves[msg.sender].length;
@@ -212,7 +222,7 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
     }
 
     /**
-     * @inheritdoc IDutchAuction
+     * @inheritdoc IDutchAuctionV2
      */
     function withdraw(address _token, uint256 _reserveId) external whenNotPaused {
         // Validates token address, reserve information and given account
@@ -235,21 +245,35 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
 
         // Gets the sale proceeds for the reserve
         uint256 proceeds;
+        uint256 totalMinted = numberMinted[_token][_reserveId];
         if (refundAuction) {
-            proceeds = lastPrice * numberMinted[_token][_reserveId];
+            proceeds = lastPrice * totalMinted;
         } else {
             proceeds = saleProceeds[_token][_reserveId];
         }
         if (proceeds == 0) revert InsufficientFunds();
 
+        // Calculates platform and mint fees based on token price and amount
+        (uint256 platformFee, uint256 mintFee, uint256 splitAmount) = IFeeManager(feeManager).calculateFees(
+            _token,
+            proceeds,
+            totalMinted
+        );
+
+        // Deducts split amount from platform fee if creator is set to receive splits
+        if (splitAmount > 0) platformFee = platformFee - splitAmount;
+
         // Clears the sale proceeds for the reserve
         delete numberMinted[_token][_reserveId];
         delete saleProceeds[_token][_reserveId];
 
-        emit Withdrawn(_token, _reserveId, saleReceiver, proceeds);
+        emit Withdrawn(_token, _reserveId, saleReceiver, proceeds, platformFee, mintFee, splitAmount);
 
-        // Transfers the sale proceeds to the sale receiver
-        SafeTransferLib.safeTransferETH(saleReceiver, proceeds);
+        // Transfers any platform and mint fees to the FeeManager contract
+        SafeTransferLib.safeTransferETH(feeManager, platformFee + mintFee);
+
+        // Transfers remaining sale proceeds to sale receiver after any fees are deducted and splits are added
+        SafeTransferLib.safeTransferETH(saleReceiver, proceeds - platformFee - mintFee + splitAmount);
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -257,14 +281,22 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @inheritdoc IDutchAuction
+     * @inheritdoc IDutchAuctionV2
      */
     function pause() external onlyOwner {
         _pause();
     }
 
     /**
-     * @inheritdoc IDutchAuction
+     * @inheritdoc IDutchAuctionV2
+     */
+    function setFeeManager(address _feeManager) external onlyOwner {
+        emit FeeManagerSet(feeManager, _feeManager);
+        feeManager = _feeManager;
+    }
+
+    /**
+     * @inheritdoc IDutchAuctionV2
      */
     function unpause() external onlyOwner {
         _unpause();
@@ -275,21 +307,21 @@ contract DutchAuction is IDutchAuction, Allowlist, MintPass, Ownable, Pausable {
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @inheritdoc IDutchAuction
+     * @inheritdoc IDutchAuctionV2
      */
     function getFirstValidReserve(address _token) public view returns (uint256) {
         return LibMap.get(firstValidReserve, uint256(uint160(_token)));
     }
 
     /**
-     * @inheritdoc IDutchAuction
+     * @inheritdoc IDutchAuctionV2
      */
     function getLatestUpdate(address _token) public view returns (uint40) {
         return LibMap.get(latestUpdates, uint256(uint160(_token)));
     }
 
     /**
-     * @inheritdoc IDutchAuction
+     * @inheritdoc IDutchAuctionV2
      */
     function getPrice(address _token, uint256 _reserveId) public view returns (uint256) {
         ReserveInfo memory reserve = reserves[_token][_reserveId];

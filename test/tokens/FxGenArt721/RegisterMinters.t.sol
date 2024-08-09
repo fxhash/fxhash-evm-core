@@ -4,10 +4,13 @@ pragma solidity 0.8.23;
 import "test/tokens/FxGenArt721/FxGenArt721Test.t.sol";
 
 contract RegisterMintersTest is FxGenArt721Test {
+    uint256 internal maxAmount;
+
     function setUp() public virtual override {
         super.setUp();
         _createProject();
         _setIssuerInfo();
+        maxAmount = 2;
     }
 
     function test_RegisterMinters() public {
@@ -19,7 +22,7 @@ contract RegisterMintersTest is FxGenArt721Test {
             RESERVE_START_TIME,
             RESERVE_END_TIME,
             MINTER_ALLOCATION,
-            abi.encode(PRICE, merkleRoot, signerAddr)
+            abi.encode(PRICE, merkleRoot, signerAddr, maxAmount)
         );
         RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, address(fixedPrice));
         TokenLib.setMintEnabled(creator, fxGenArtProxy, false);
@@ -35,7 +38,7 @@ contract RegisterMintersTest is FxGenArt721Test {
             RESERVE_START_TIME,
             RESERVE_END_TIME,
             MINTER_ALLOCATION,
-            abi.encode(PRICE, merkleRoot, signerAddr)
+            abi.encode(PRICE, merkleRoot, signerAddr, maxAmount)
         );
         RegistryLib.grantRole(admin, fxRoleRegistry, MINTER_ROLE, address(fixedPrice));
         vm.expectRevert(MINT_ACTIVE_ERROR);

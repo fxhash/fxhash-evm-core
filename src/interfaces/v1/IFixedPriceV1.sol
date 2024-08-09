@@ -5,11 +5,11 @@ import {IMinter} from "src/interfaces/IMinter.sol";
 import {ReserveInfo} from "src/lib/Structs.sol";
 
 /**
- * @title IFixedPrice
+ * @title IFixedPriceV1
  * @author fx(hash)
  * @notice Minter for distributing tokens at fixed prices
  */
-interface IFixedPrice is IMinter {
+interface IFixedPriceV1 is IMinter {
     /*//////////////////////////////////////////////////////////////////////////
                                   EVENTS
     //////////////////////////////////////////////////////////////////////////*/

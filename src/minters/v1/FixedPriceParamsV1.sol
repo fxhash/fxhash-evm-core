@@ -10,18 +10,18 @@ import {Pausable} from "openzeppelin/contracts/security/Pausable.sol";
 import {SafeCastLib} from "solmate/src/utils/SafeCastLib.sol";
 import {SafeTransferLib} from "solmate/src/utils/SafeTransferLib.sol";
 
-import {IFixedPriceParams} from "src/interfaces/IFixedPriceParams.sol";
+import {IFixedPriceParamsV1} from "src/interfaces/v1/IFixedPriceParamsV1.sol";
 import {IFxGenArt721} from "src/interfaces/IFxGenArt721.sol";
 import {ReserveInfo} from "src/lib/Structs.sol";
 
 import {OPEN_EDITION_SUPPLY, TIME_UNLIMITED} from "src/utils/Constants.sol";
 
 /**
- * @title FixedPriceParams
+ * @title FixedPriceParamsV1
  * @author fx(hash)
- * @dev See the documentation in {IFixedPriceParams}
+ * @dev See the documentation in {IFixedPriceParamsV1}
  */
-contract FixedPriceParams is IFixedPriceParams, Allowlist, MintPass, Ownable, Pausable {
+contract FixedPriceParamsV1 is IFixedPriceParamsV1, Allowlist, MintPass, Ownable, Pausable {
     using SafeCastLib for uint256;
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -54,17 +54,17 @@ contract FixedPriceParams is IFixedPriceParams, Allowlist, MintPass, Ownable, Pa
     LibMap.Uint128Map internal saleProceeds;
 
     /**
-     * @inheritdoc IFixedPriceParams
+     * @inheritdoc IFixedPriceParamsV1
      */
     mapping(address => mapping(uint256 => bytes32)) public merkleRoots;
 
     /**
-     * @inheritdoc IFixedPriceParams
+     * @inheritdoc IFixedPriceParamsV1
      */
     mapping(address => uint256[]) public prices;
 
     /**
-     * @inheritdoc IFixedPriceParams
+     * @inheritdoc IFixedPriceParamsV1
      */
     mapping(address => ReserveInfo[]) public reserves;
 
@@ -81,7 +81,7 @@ contract FixedPriceParams is IFixedPriceParams, Allowlist, MintPass, Ownable, Pa
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @inheritdoc IFixedPriceParams
+     * @inheritdoc IFixedPriceParamsV1
      */
     function buy(
         address _token,
@@ -97,7 +97,7 @@ contract FixedPriceParams is IFixedPriceParams, Allowlist, MintPass, Ownable, Pa
     }
 
     /**
-     * @inheritdoc IFixedPriceParams
+     * @inheritdoc IFixedPriceParamsV1
      */
     function buyAllowlist(
         address _token,
@@ -115,7 +115,7 @@ contract FixedPriceParams is IFixedPriceParams, Allowlist, MintPass, Ownable, Pa
     }
 
     /**
-     * @inheritdoc IFixedPriceParams
+     * @inheritdoc IFixedPriceParamsV1
      */
     function buyMintPass(
         address _token,
@@ -133,7 +133,7 @@ contract FixedPriceParams is IFixedPriceParams, Allowlist, MintPass, Ownable, Pa
     }
 
     /**
-     * @inheritdoc IFixedPriceParams
+     * @inheritdoc IFixedPriceParamsV1
      */
     function setMintDetails(ReserveInfo calldata _reserve, bytes calldata _mintDetails) external whenNotPaused {
         uint256 nextReserve = reserves[msg.sender].length;
@@ -162,7 +162,7 @@ contract FixedPriceParams is IFixedPriceParams, Allowlist, MintPass, Ownable, Pa
     }
 
     /**
-     * @inheritdoc IFixedPriceParams
+     * @inheritdoc IFixedPriceParamsV1
      */
     function withdraw(address _token) external whenNotPaused {
         uint256 proceeds = getSaleProceed(_token);
@@ -181,14 +181,14 @@ contract FixedPriceParams is IFixedPriceParams, Allowlist, MintPass, Ownable, Pa
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @inheritdoc IFixedPriceParams
+     * @inheritdoc IFixedPriceParamsV1
      */
     function pause() external onlyOwner {
         _pause();
     }
 
     /**
-     * @inheritdoc IFixedPriceParams
+     * @inheritdoc IFixedPriceParamsV1
      */
     function unpause() external onlyOwner {
         _unpause();
@@ -199,21 +199,21 @@ contract FixedPriceParams is IFixedPriceParams, Allowlist, MintPass, Ownable, Pa
     //////////////////////////////////////////////////////////////////////////*/
 
     /**
-     * @inheritdoc IFixedPriceParams
+     * @inheritdoc IFixedPriceParamsV1
      */
     function getFirstValidReserve(address _token) public view returns (uint256) {
         return LibMap.get(firstValidReserve, uint256(uint160(_token)));
     }
 
     /**
-     * @inheritdoc IFixedPriceParams
+     * @inheritdoc IFixedPriceParamsV1
      */
     function getLatestUpdate(address _token) public view returns (uint40) {
         return LibMap.get(latestUpdates, uint256(uint160(_token)));
     }
 
     /**
-     * @inheritdoc IFixedPriceParams
+     * @inheritdoc IFixedPriceParamsV1
      */
     function getSaleProceed(address _token) public view returns (uint128) {
         return LibMap.get(saleProceeds, uint256(uint160(_token)));

@@ -5,11 +5,11 @@ import {AuctionInfo, MinterInfo, RefundInfo, ReserveInfo} from "src/lib/Structs.
 import {IMinter} from "src/interfaces/IMinter.sol";
 
 /**
- * @title DutchAuction
+ * @title IDutchAuctionV1
  * @author fx(hash)
  * @notice Minter for distributing tokens at linear prices over fixed periods of time
  */
-interface IDutchAuction is IMinter {
+interface IDutchAuctionV1 is IMinter {
     /*//////////////////////////////////////////////////////////////////////////
                                   EVENTS
     //////////////////////////////////////////////////////////////////////////*/

@@ -38,6 +38,20 @@ struct ConfigInfo {
 }
 
 /**
+ * @notice Struct of custom token fees
+ * - `enabled` Flag indicating if token has custom fees enabled
+ * - `platformFee` Flat fee amount collected from token mints
+ * - `mintPercentage` Percentage value of token price from primary sales
+ * - `splitPercentage` Percentage value of platform fees split with creator
+ */
+struct CustomFee {
+    bool enabled;
+    uint120 platformFee;
+    uint64 mintPercentage;
+    uint64 splitPercentage;
+}
+
+/**
  * @notice Struct of generative art information
  * - `minter` Address of initial token owner
  * - `seed` Hash of randomly generated seed

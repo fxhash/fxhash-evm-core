@@ -3,17 +3,20 @@ pragma solidity 0.8.23;
 
 import "forge-std/Script.sol";
 import "script/utils/Constants.sol";
+import "script/utils/Contracts.sol";
 import "src/utils/Constants.sol";
 
-import {FarcasterFrame} from "src/minters/FarcasterFrame.sol";
+import {DutchAuctionV2} from "src/minters/DutchAuctionV2.sol";
+import {FeeManager} from "src/minters/extensions/FeeManager.sol";
+import {FixedPriceV2} from "src/minters/FixedPriceV2.sol";
 import {FxRoleRegistry} from "src/registries/FxRoleRegistry.sol";
 
-contract Farcaster is Script {
-    // Core
+contract MinterFee is Script {
+    // Contracts
+    DutchAuctionV2 internal dutchAuction;
+    FeeManager internal feeManager;
+    FixedPriceV2 internal fixedPrice;
     FxRoleRegistry internal fxRoleRegistry;
-
-    // Periphery
-    FarcasterFrame internal farcasterFrame;
 
     // State
     address internal admin;
@@ -35,7 +38,15 @@ contract Farcaster is Script {
 
     function setUp() public virtual {
         admin = msg.sender;
-        fxRoleRegistry = FxRoleRegistry(0x04eE16C868931422231C82025485E0Fe66dE2f55);
+        if (block.chainid == MAINNET) {
+            fxRoleRegistry = FxRoleRegistry(MAINNET_FX_ROLE_REGISTRY);
+        } else if (block.chainid == SEPOLIA) {
+            fxRoleRegistry = FxRoleRegistry(SEPOLIA_FX_ROLE_REGISTRY);
+        } else if (block.chainid == BASE_MAINNET) {
+            fxRoleRegistry = FxRoleRegistry(BASE_MAINNET_FX_ROLE_REGISTRY);
+        } else if (block.chainid == BASE_SEPOLIA) {
+            fxRoleRegistry = FxRoleRegistry(BASE_SEPOLIA_FX_ROLE_REGISTRY);
+        }
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -43,14 +54,25 @@ contract Farcaster is Script {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _deployContracts() internal virtual {
+        // FeeManager
         bytes32 salt = keccak256(abi.encode(vm.getNonce(admin)));
+        bytes memory creationCode = type(FeeManager).creationCode;
+        bytes memory constructorArgs = abi.encode(admin, PLATFORM_FEE, MINT_PERCENTAGE, SPLIT_PERCENTAGE);
+        feeManager = FeeManager(payable(_deployCreate2(creationCode, constructorArgs, salt)));
 
-        // SignatureFrame
-        bytes memory creationCode = type(FarcasterFrame).creationCode;
-        bytes memory constructorArgs = abi.encode(admin, CONTROLLER);
-        farcasterFrame = FarcasterFrame(_deployCreate2(creationCode, constructorArgs, salt));
+        // DutchAuctionV2
+        creationCode = type(DutchAuctionV2).creationCode;
+        constructorArgs = abi.encode(admin, feeManager);
+        dutchAuction = DutchAuctionV2(_deployCreate2(creationCode, constructorArgs, salt));
 
-        vm.label(address(farcasterFrame), "FarcasterFrame");
+        // FixedPriceV2
+        creationCode = type(FixedPriceV2).creationCode;
+        constructorArgs = abi.encode(admin, FRAME_CONTROLLER, feeManager);
+        fixedPrice = FixedPriceV2(_deployCreate2(creationCode, constructorArgs, salt));
+
+        vm.label(address(dutchAuction), "DutchAuctionV2");
+        vm.label(address(feeManager), "FeeManager");
+        vm.label(address(fixedPrice), "FixedPriceV2");
     }
 
     /*//////////////////////////////////////////////////////////////////////////
@@ -58,7 +80,8 @@ contract Farcaster is Script {
     //////////////////////////////////////////////////////////////////////////*/
 
     function _grantRoles() internal virtual {
-        fxRoleRegistry.grantRole(MINTER_ROLE, address(farcasterFrame));
+        fxRoleRegistry.grantRole(MINTER_ROLE, address(dutchAuction));
+        fxRoleRegistry.grantRole(MINTER_ROLE, address(fixedPrice));
     }
 
     /*//////////////////////////////////////////////////////////////////////////
