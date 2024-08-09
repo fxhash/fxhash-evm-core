@@ -415,4 +415,10 @@ interface IFxGenArt721 is ISeedConsumer, IToken {
      * @notice Unpauses all function executions where modifier is applied
      */
     function unpause() external;
+
+    /**
+     * @notice Updates the reverse prices for currently registered minters
+     * @param _mintInfo Mint information of token reserves
+     */
+    function updateMinters(MintInfo[] memory _mintInfo) external;
 }
