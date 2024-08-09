@@ -255,7 +255,6 @@ contract Deploy is Script {
         fxRoleRegistry.grantRole(MODERATOR_ROLE, STEVEN);
         fxRoleRegistry.grantRole(SIGNER_ROLE, STEVEN);
 
-        fxRoleRegistry.grantRole(CREATOR_ROLE, IZZA);
         fxRoleRegistry.grantRole(CREATOR_ROLE, LEO);
         fxRoleRegistry.grantRole(CREATOR_ROLE, LOUIE);
         fxRoleRegistry.grantRole(CREATOR_ROLE, MARKUS);
