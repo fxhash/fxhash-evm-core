@@ -242,9 +242,10 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
      */
     function registerMinters(MintInfo[] memory _mintInfo) external onlyOwner {
         if (issuerInfo.projectInfo.mintEnabled) revert MintActive();
+        address minter;
         uint256 length = issuerInfo.activeMinters.length;
         for (uint256 i; i < length; ++i) {
-            address minter = issuerInfo.activeMinters[i];
+            minter = issuerInfo.activeMinters[i];
             issuerInfo.minters[minter] = FALSE;
         }
         delete issuerInfo.activeMinters;
@@ -304,6 +305,22 @@ contract FxGenArt721 is IFxGenArt721, IERC4906, ERC721, EIP712, Initializable, O
         renderer = _renderer;
         emit RendererUpdated(_renderer);
         emit BatchMetadataUpdate(1, totalSupply);
+    }
+
+    /**
+     * @inheritdoc IFxGenArt721
+     */
+    function updateMinters(MintInfo[] memory _mintInfo) external onlyOwner {
+        if (issuerInfo.projectInfo.mintEnabled) revert MintActive();
+        address minter;
+        ReserveInfo memory reserveInfo;
+        uint256 length = issuerInfo.activeMinters.length;
+        for (uint256 i; i < length; ++i) {
+            minter = issuerInfo.activeMinters[i];
+            reserveInfo = _mintInfo[i].reserveInfo;
+            if (issuerInfo.minters[minter] != TRUE) revert UnregisteredMinter();
+            IMinter(minter).setMintDetails(reserveInfo, _mintInfo[i].params);
+        }
     }
 
     /*//////////////////////////////////////////////////////////////////////////
